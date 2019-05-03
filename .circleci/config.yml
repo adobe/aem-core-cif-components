@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.4
 jobs:
   build:
     docker:
@@ -20,9 +22,12 @@ jobs:
             - ~/.m2
           key: maven-repo-v1-{{ checksum "pom.xml" }}
       - store_test_results:
-          path: target/surefire-reports
+          path: bundles/core/target/surefire-reports
       - store_artifacts:
-          path: target/surefire-reports
+          path: bundles/core/target/surefire-reports
+      - codecov/upload:
+          file: bundles/core/target/jacoco.exec
+          flags: unittests
 
 workflows:
   version: 2
