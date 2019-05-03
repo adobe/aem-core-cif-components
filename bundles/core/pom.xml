@@ -200,8 +200,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <!-- CircleCI build workaround -->
-                            <reuseForks>true</reuseForks>
-                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <!-- <reuseForks>true</reuseForks>
+                            <useSystemClassLoader>false</useSystemClassLoader> -->
                             <systemPropertyVariables>
                                 <jacoco-agent.destfile>${jacoco.data.file}</jacoco-agent.destfile>
                             </systemPropertyVariables>
