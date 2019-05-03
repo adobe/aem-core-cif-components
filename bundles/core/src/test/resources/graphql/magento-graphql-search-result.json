@@ -1,0 +1,44 @@
+{
+    "data": {
+        "products": {
+            "items": [
+                {
+                    "__typename": "ConfigurableProduct",
+                    "id": 1081,
+                    "url_key": "marin-mountain-bike-shoes",
+                    "name": "Marin Mountain Bike Shoes",
+                    "small_image": {
+                        "label": "Marin Mountain Bike Shoes",
+                        "url": "https://some-hostname.magentosite.cloud/static/version1555483142/graphql/_view/en_US/Magento_Catalog/images/product/placeholder/small_image.jpg"
+                    },
+                    "price": {
+                        "regularPrice": {
+                            "amount": {
+                                "value": 110,
+                                "currency": "USD"
+                            }
+                        }
+                    }
+                },
+                {
+                    "__typename": "ConfigurableProduct",
+                    "id": 1095,
+                    "url_key": "fleet-cross-training-shoe",
+                    "name": "Fleet Cross-Training Shoe",
+                    "small_image": {
+                        "label": "Fleet Cross-Training Shoe",
+                        "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/f/l/fleet_shoe_2.jpg"
+                    },
+                    "price": {
+                        "regularPrice": {
+                            "amount": {
+                                "value": 65,
+                                "currency": "USD"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

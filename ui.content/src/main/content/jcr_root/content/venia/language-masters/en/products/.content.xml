@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    jcr:primaryType="cq:Page">
+    <jcr:content
+        cq:template="/conf/venia/settings/wcm/templates/catalog-page"
+        jcr:primaryType="cq:PageContent"
+        jcr:title="Catalog Page"
+        sling:resourceType="venia/components/structure/catalogpage/v1/catalogpage"
+        catalogRoot="{Boolean}true"
+        showMainCategories="{Boolean}true"/>
+    <category-page/>
+    <product-page/>
+</jcr:root>

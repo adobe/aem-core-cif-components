@@ -1,0 +1,102 @@
+{
+  "category": {
+    "id": 6,
+    "name": "Running",
+    "product_count": 8,
+    "products": {
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "id": 1069,
+          "sku": "30941863",
+          "name": "Basa MP3 Player",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/3/0/30941863_2.jpg"
+          },
+          "url_key": "basa-mp3-player",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 149.99,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 1070,
+          "sku": "84391210",
+          "name": "Spixa Runners",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/8/4/84391210_2.jpg"
+          },
+          "url_key": "spixa-runners",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 119.99,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 1094,
+          "sku": "eqrusubpe",
+          "name": "BPA-Free Water Bottle",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/w/a/water_bottle_2.jpg"
+          },
+          "url_key": "bpa-free-water-bottle",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 18,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "id": 1095,
+          "sku": "eqrusufle",
+          "name": "Fleet Cross-Training Shoe",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/f/l/fleet_shoe_2.jpg"
+          },
+          "url_key": "fleet-cross-training-shoe",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 65,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 1099,
+          "sku": "eqrusugor",
+          "name": "GoMobile Fitness Monitor/Smart Music Player",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/g/o/gomobile_wrist_2.jpg"
+          },
+          "url_key": "gomobile-fitness-monitor-smart-music-player",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 150,
+                "currency": "USD"
+              }
+            }
+          }
+        }
+      ],
+      "total_count": 5
+    }
+  }
+}
