@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/adobe/aem-core-cif-components.svg?style=svg)](https://circleci.com/gh/adobe/aem-core-cif-components)
+
 # AEM CIF Core Components
 AEM Commerce reference store front project that serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components as well as a complete sample store front serving as documentation and showing best practices. The store front combines server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>. 
 
