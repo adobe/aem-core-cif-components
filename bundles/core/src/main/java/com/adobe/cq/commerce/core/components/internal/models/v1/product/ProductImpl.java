@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -122,7 +123,7 @@ public class ProductImpl implements Product {
 
     @Override
     public String getDescription() {
-        return this.product.getDescription().getHtml();
+        return this.safeDescription(this.product);
     }
 
     @Override
@@ -291,7 +292,7 @@ public class ProductImpl implements Product {
 
         VariantImpl productVariant = new VariantImpl();
         productVariant.setName(product.getName());
-        productVariant.setDescription(product.getDescription().getHtml());
+        productVariant.setDescription(this.safeDescription(product));
         productVariant.setSku(product.getSku());
         productVariant.setColor(product.getColor());
         productVariant.setCurrency(product.getPrice().getRegularPrice().getAmount().getCurrency().toString());
@@ -394,5 +395,13 @@ public class ProductImpl implements Product {
         }
 
         return null;
+    }
+
+    private String safeDescription(ProductInterface product) {
+        ComplexTextValue description = product.getDescription();
+        if (description == null) {
+            return null;
+        }
+        return description.getHtml();
     }
 }
