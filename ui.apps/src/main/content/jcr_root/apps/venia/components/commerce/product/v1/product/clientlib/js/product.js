@@ -65,10 +65,6 @@
         this._element.querySelector(selectors.name).innerText = variant.name;
         this._element.querySelector(selectors.price).innerText = variant.formattedPrice;
         this._element.querySelector(selectors.description).innerHTML = DOMPurify.sanitize(variant.description);
-
-        // TODO: Update assets, this has a dependency on CIF-775
-        // For demo only, the gallery component should handle this based on the incoming event
-        if (variant.assets.length > 0) this._element.querySelector(selectors.mainImage).src = variant.assets[0].path;
     };
 
     function onDocumentReady() {
