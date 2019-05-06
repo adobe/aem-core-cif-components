@@ -400,14 +400,8 @@ public class ProductImpl implements Product {
     private String safeDescription(ProductInterface product) {
         ComplexTextValue description = product.getDescription();
         if (description == null) {
-            return "";
+            return null;
         }
-
-        String descriptionHtml = description.getHtml();
-        if (descriptionHtml == null) {
-            return "";
-        }
-
-        return descriptionHtml;
+        return description.getHtml();
     }
 }

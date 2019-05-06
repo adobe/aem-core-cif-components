@@ -161,7 +161,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(this.slingModel, "product", product);
 
-        Assert.assertEquals("", this.slingModel.getDescription());
+        Assert.assertNull(this.slingModel.getDescription());
     }
 
     @Test
@@ -173,7 +173,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(this.slingModel, "product", product);
 
-        Assert.assertEquals("", this.slingModel.getDescription());
+        Assert.assertNull(this.slingModel.getDescription());
     }
 
     @Test
