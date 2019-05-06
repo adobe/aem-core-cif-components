@@ -14,8 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
+import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
+import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
@@ -150,6 +152,41 @@ public class ProductImplTest {
         Assert.assertEquals(2, first.getValues().size());
         Assert.assertEquals("Value A", first.getValues().get(0).getLabel());
         Assert.assertEquals("Value B", first.getValues().get(1).getLabel());
+    }
+
+    @Test
+    public void testSafeDescriptionWithNull() {
+        SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
+        when(product.getDescription()).thenReturn(null);
+
+        Whitebox.setInternalState(this.slingModel, "product", product);
+
+        Assert.assertNull(this.slingModel.getDescription());
+    }
+
+    @Test
+    public void testSafeDescriptionHtmlNull() {
+        SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
+        ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
+        when(value.getHtml()).thenReturn(null);
+        when(product.getDescription()).thenReturn(value);
+
+        Whitebox.setInternalState(this.slingModel, "product", product);
+
+        Assert.assertNull(this.slingModel.getDescription());
+    }
+
+    @Test
+    public void testSafeDescription() {
+        String sampleString = "<strong>abc</strong>";
+        SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
+        ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
+        when(value.getHtml()).thenReturn(sampleString);
+        when(product.getDescription()).thenReturn(value);
+
+        Whitebox.setInternalState(this.slingModel, "product", product);
+
+        Assert.assertEquals(sampleString, this.slingModel.getDescription());
     }
 
 }
