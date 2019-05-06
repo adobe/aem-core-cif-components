@@ -27,9 +27,9 @@ For more details about the UberJar please head over to the
 ## System Requirements
 The latest version of the CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM 6.4 | AEM 6.5 | Java |
-|---------------------|---------|---------|------|
-| 0.0.1               | 6.4.4.0 | 6.5.0   | 1.8  |
+| CIF Core Components | AEM 6.4 | AEM 6.5 | Magento | Java |
+|---------------------|---------|---------|---------|------|
+| 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
  
