@@ -1,0 +1,331 @@
+# Each farm configures a set of load balanced renders (i.e. remote servers)
+/farms
+  {
+  # First farm entry
+  /publish
+    {  
+    # Request headers that should be forwarded to the remote server.
+    /clientheaders
+      {
+      # Forward all request headers that are end-to-end. If you want
+      # to forward a specific set of headers, you'll have to list
+      # them here.
+      "*"
+      }
+      
+    # Hostname globbing for farm selection (virtual domain addressing)
+    /virtualhosts
+      {
+      # Entries will be compared against the "Host" request header
+      # and an optional request URL prefix.
+      #
+      # Examples:
+      #
+      #   www.company.com
+      #   intranet.*
+      #   myhost:8888/mysite
+      "*"
+      }
+      
+    # The load will be balanced among these render instances
+    /renders
+      {
+      /rend01
+        {
+        # Hostname or IP of the render
+        /hostname "aem-hostname"
+        # Port of the render
+        /port "4503"
+        # Connect timeout in milliseconds, 0 to wait indefinitely
+        # /timeout "0"
+        }
+      }
+      
+    # The filter section defines the requests that should be handled by the dispatcher.
+    #
+    # Entries can be either specified using globs, or elements of the request line:
+    #
+    # (1) globs will be compared against the entire request line, e.g.:
+    #
+    #       /0001 { /type "deny" /glob "* /index.html *" }
+    #
+    #     denies request "GET /index.html HTTP/1.1" but not "GET /index.html?a=b HTTP/1.1".
+    #
+    # (2) method/url/query/protocol/path/selectors/extension/suffix will be compared
+    #     against the respective elements of  the request line, e.g.:
+    #
+    #       /0001 { /type "deny" /method "GET" /url "/index.html" }
+    #
+    #     denies both "GET /index.html" and "GET /index.html?a=b HTTP/1.1".
+    #
+    # (3) all elements of the request line can also be specified as regular expressions,
+    #     which are identified by using single quotes, e.g.
+    #
+    #       /0001 { /type "allow" /method '(GET|HEAD)' }
+    #
+    #     allows GET or HEAD requests, or:
+    #
+    #       /0002 { /type "deny" /extension '()' }
+    #
+    #     denies requests having no extension.
+    #
+    # Note: specifying elements of the request line is the preferred method.
+    #
+    /filter
+      {
+      # Deny everything first and then allow specific entries
+      /0001 { /type "deny" /glob "*" }
+      
+      # Open consoles
+#     /0011 { /type "allow" /url "/admin/*"  }  # allow servlet engine admin
+#     /0012 { /type "allow" /url "/crx/*"    }  # allow content repository
+#     /0013 { /type "allow" /url "/system/*" }  # allow OSGi console
+        
+      # Allow non-public content directories
+#     /0021 { /type "allow" /url "/apps/*"   }  # allow apps access
+#     /0022 { /type "allow" /url "/bin/*"    }
+      /0023 { /type "allow" /url "/content*" }  # disable this rule to allow mapped content only
+      
+#     /0024 { /type "allow" /url "/libs/*"   }
+#     /0025 { /type "deny"  /url "/libs/shindig/proxy*" } # if you enable /libs close access to proxy
+
+#     /0026 { /type "allow" /url "/home/*"   }
+#     /0027 { /type "allow" /url "/tmp/*"    }
+#     /0028 { /type "allow" /url "/var/*"    }
+
+      # Enable extensions in non-public content directories, using a regular expression
+      /0041
+        {
+        /type "allow"
+        /extension '(clientlibs|css|gif|ico|js|png|swf|jpe?g|woff2?)'
+        }
+
+      # Enable features 
+      /0062 { /type "allow" /url "/libs/cq/personalization/*"  }  # enable personalization
+
+      # Deny content grabbing, on all accessible pages, using regular expressions
+      /0081
+        {
+        /type "deny"
+        /selectors '((sys|doc)view|query|[0-9-]+)'
+        /extension '(json|xml)'
+        }
+      # Deny content grabbing for /content
+      /0082
+        {
+        /type "deny"
+        /path "/content"
+        /selectors '(feed|rss|pages|languages|blueprint|infinity|tidy)'
+        /extension '(json|xml|html)'
+        }
+
+      # Uncomment the following to allow one-level json requests
+#     /0087 { /type "allow" /method "GET" /extension "json" /selectors "1" }
+
+      }
+
+    # The cache section regulates what responses will be cached and where.
+    /cache
+      {
+      # The docroot must be equal to the document root of the webserver. The
+      # dispatcher will store files relative to this directory and subsequent
+      # requests may be "declined" by the dispatcher, allowing the webserver
+      # to deliver them just like static files.
+      /docroot "/usr/local/apache2/htdocs"
+
+      # Sets the level upto which files named ".stat" will be created in the 
+      # document root of the webserver. When an activation request for some 
+      # page is received, only files within the same subtree are affected 
+      # by the invalidation.
+      #/statfileslevel "0"
+      
+      # Flag indicating whether to cache responses to requests that contain
+      # authorization information.
+      #/allowAuthorized "0"
+      
+      # Flag indicating whether the dispatcher should serve stale content if
+      # no remote server is available.
+      #/serveStaleOnError "0"
+      
+      # The rules section defines what responses should be cached based on
+      # the requested URL. Please note that only the following requests can
+      # lead to cacheable responses:
+      #
+      # - HTTP method is GET
+      # - URL has an extension
+      # - Request has no query string
+      # - Request has no "Authorization" header (unless allowAuthorized is 1)
+      /rules
+        {
+        /0000
+          {
+          # the globbing pattern to be compared against the url
+          # example: *             -> everything
+          #        : /foo/bar.*    -> only the /foo/bar documents
+          #        : /foo/bar/*    -> all pages below /foo/bar
+          #        : /foo/bar[./]* -> all pages below and /foo/bar itself
+          #        : *.html        -> all .html files
+          /glob "*"
+          /type "allow"
+          }
+        }
+        
+      # The invalidate section defines the pages that are "invalidated" after
+      # any activation. Please note that the activated page itself and all 
+      # related documents are flushed on an modification. For example: if the 
+      # page /foo/bar is activated, all /foo/bar.* files are removed from the
+      # cache.
+      /invalidate
+        {
+        /0000
+          {
+          /glob "*"
+          /type "deny"
+          }
+        /0001
+          {
+          # Consider all HTML files stale after an activation.
+          /glob "*.html"
+          /type "allow"
+          }
+        /0002
+          {
+          /glob "/etc/segmentation.segment.js"
+          /type "allow"
+          }
+        /0003
+          {
+          /glob "*/analytics.sitecatalyst.js"
+          /type "allow"
+          }
+        }
+
+      # The allowedClients section restricts the client IP addresses that are
+      # allowed to issue activation requests.
+      /allowedClients
+        {
+        # Uncomment the following to restrict activation requests to originate
+        # from "localhost" only.
+        #
+        #/0000
+        #  {
+        #  /glob "*"
+        #  /type "deny"
+        #  }
+        #/0001
+        #  {
+        #  /glob "127.0.0.1"
+        #  /type "allow"
+        #  }
+        }
+        
+      # The ignoreUrlParams section contains query string parameter names that
+      # should be ignored when determining whether some request's output can be
+      # cached or delivered from cache.
+      #
+      # In this example configuration, the "q" parameter will be ignored. 
+      #/ignoreUrlParams
+      #  {
+      #  /0001 { /glob "*" /type "deny" }
+      #  /0002 { /glob "q" /type "allow" }
+      #  }
+
+      # Cache response headers next to a cached file. On the first request to
+      # an uncached resource, all headers matching one of the values found here
+      # are stored in a separate file, next to the cache file. On subsequent
+      # requests to the cached resource, the stored headers are added to the
+      # response.
+      #
+      # Note, that file globbing characters are not allowed here.
+      #
+      /headers
+        {
+        "Cache-Control"
+        "Content-Disposition"
+        "Content-Type"
+        "Expires"
+        "Last-Modified"
+        "X-Content-Type-Options"
+        }
+
+      # A grace period defines the number of seconds a stale, auto-invalidated
+      # resource may still be served from the cache after the last activation
+      # occurring. Auto-invalidated resources are invalidated by any activation,
+      # when their path matches the /invalidate section above. This setting
+      # can be used in a setup, where a batch of activations would otherwise
+      # repeatedly invalidate the entire cache.
+      #
+      /gracePeriod "2"
+
+      # Enable TTL evaluates the response headers from the backend, and if they
+      # contain a Cache-Control max-age or Expires date, an auxiliary, empty file
+      # next to the cache file is created, with modification time equal to the
+      # expiry date. When the cache file is requested past the modification time
+      # it is automatically re-requested from the backend.
+      #
+      /enableTTL "1"
+
+      }
+      
+    # The statistics sections dictates how the load should be balanced among the
+    # renders according to the media-type. 
+    /statistics
+      {
+      /categories
+        {
+        /html
+          {
+          /glob "*.html"
+          }
+        /others
+          {
+          /glob "*"
+          }
+        }
+      }
+
+    # Authorization checker: before a page in the cache is delivered, a HEAD
+    # request is sent to the URL specified in /url with the query string
+    # '?uri='. If the response status is 200 (OK), the page is returned
+    # from the cache. Otherwise, the request is forwarded to the render and
+    # its response returned.
+    #
+    # Only pages matching the /filter section below are checked, all other pages
+    # get delivered unchecked.
+    #
+    # All header lines returned from the auth_checker's HEAD request that match
+    # the /headers section will be returned as well.
+    #
+    #/auth_checker
+    #  {
+    #  /url "/bin/permissioncheck.html"
+    #  /filter
+    #    {
+    #    /0000
+    #      {
+    #      /glob "*"
+    #      /type "deny"
+    #      }
+    #    /0001
+    #      {
+    #      /glob "*.html"
+    #      /type "allow"
+    #      }
+    #    }
+    #  /headers
+    #    {
+    #    /0000
+    #      {
+    #      /glob "*"
+    #      /type "deny"
+    #      }
+    #    /0001
+    #      {
+    #      /glob "Set-Cookie:*"
+    #      /type "allow"
+    #      }
+    #    }
+    #  }
+
+    }
+  }
