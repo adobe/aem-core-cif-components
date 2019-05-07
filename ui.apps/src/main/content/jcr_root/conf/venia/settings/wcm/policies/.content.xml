@@ -109,7 +109,7 @@
                 <productlist jcr:primaryType="nt:unstructured">
                     <v1 jcr:primaryType="nt:unstructured">
                         <productlist jcr:primaryType="nt:unstructured">
-                            <policy_1554126119277
+                            <default
                                 jcr:lastModified="{Date}2019-04-01T15:42:05.554+02:00"
                                 jcr:lastModifiedBy="admin"
                                 jcr:primaryType="nt:unstructured"
@@ -117,7 +117,7 @@
                                 sling:resourceType="wcm/core/components/policy/policy"
                                 showTitle="true">
                                 <jcr:content jcr:primaryType="nt:unstructured"/>
-                            </policy_1554126119277>
+                            </default>
                         </productlist>
                     </v1>
                 </productlist>
