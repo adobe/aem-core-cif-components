@@ -59,7 +59,7 @@ The AEM CIF Core Components connect to a Magento via GraphQL that has to be conf
     * Navigate to the catalog page with your site structure e.g. /content/venia/us/en/products for the Venia sample page
     * Select the catalog page and open page properties
     * Select the Commerce tab
-    * Enter the root category of your Magento catalog the site should be assigned or use the category picker
+    * Enter the root category id of your Magento catalog the site should be assigned or use the category picker select any other category
 
 ### Contributing
  
