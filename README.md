@@ -4,6 +4,8 @@
 # AEM CIF Core Components
 AEM Commerce reference store front project that serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components as well as a complete sample store front serving as documentation and showing best practices. The store front combines server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>. 
 
+This project is intended to be used in conjunction with the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). AEM CIF Core Components use the AEM Sites Core Components as a foundation where possible and extending them.
+
 ## Documentation
 > TODO
 
@@ -32,7 +34,31 @@ The latest version of the CIF Core Components, require the below minimum system 
 | 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
- 
+
+## CIF Magento GraphQL Configuration
+
+The AEM CIF Core Components connect to a Magento via GraphQL that has to be configured to access your Magento instance. Follow the steps below to configure the bundle: 
+
+1) Configure the generic GraphQL instance
+    * Go to http://localhost:4502/system/console/configMgr
+    * Look for _CIF GraphQL Client Configuration Factory_
+    * Create a child configuration
+        * Keep the `default` service identifier or set something custom. Make sure to use the same value in step 2) below.
+        * For _GraphQL Service URL_ enter the URL of your Magento GraphQL endpoint (usually `https://hostname/graphql`)
+        * If you use this project together with the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) this has to be configured only once.
+
+2) Link your AEM site with the GraphQL client instance
+    * Go to http://localhost:4502/crx/de/index.jsp
+    * Navigate to the page root node e.g. /content/venia/jcr:content for the Venia sample page
+    * Add a property `cq:graphqlClient` with the value of the service identifier of step 1
+    
+3) Assign the Magento root category of to your website
+    * Go to AEM Sites console http://localhost:4502/sites.html/
+    * Navigate to the catalog page with your site structure e.g. /content/venia/us/en/products for the Venia sample page
+    * Select the catalog page and open page properties
+    * Select the Commerce tab
+    * Enter the root category of your Magento catalog the site should be assigned or use the category picker
+
 ### Contributing
  
 Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
