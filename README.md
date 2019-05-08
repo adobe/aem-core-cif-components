@@ -27,11 +27,13 @@ For more details about the UberJar please head over to the
 [How to Build AEM Projects using Apache Maven](https://helpx.adobe.com/experience-manager/6-4/sites/developing/using/ht-projects-maven.html) documentation page.
 
 ## System Requirements
-The latest version of the CIF Core Components, require the below minimum system requirements:
+The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento | Java |
 |---------------------|---------|---------|---------|------|
 | 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
+
+Additionally, it is highly recommended to use this project together with the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector). This is no hard dependency but some authoring functionality will be limited without the AEM Commerce connector for Magento as product pickers, product assets view and consoles are not available.
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
