@@ -54,7 +54,7 @@ The AEM CIF Core Components connect to a Magento via GraphQL that has to be conf
     * Navigate to the page root node e.g. /content/venia/jcr:content for the Venia sample page
     * Add a property `cq:graphqlClient` with the value of the service identifier of step 1
     
-3) Assign the Magento root category of to your website
+3) Assign the Magento root category to your website
     * Go to AEM Sites console http://localhost:4502/sites.html/
     * Navigate to the catalog page with your site structure e.g. /content/venia/us/en/products for the Venia sample page
     * Select the catalog page and open page properties
