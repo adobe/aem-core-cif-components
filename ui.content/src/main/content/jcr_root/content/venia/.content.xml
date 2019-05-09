@@ -13,6 +13,7 @@
         cq:cifProductPage="/content/venia/products/product-page"
         cq:cifSearchResultsPage="/content/venia/language-masters/en/search"
         cq:graphqlClient="default"
+        cq:deviceGroups="[mobile/groups/responsive]"
         jcr:primaryType="cq:PageContent"
         jcr:title="AEM Venia Experience"
         sling:resourceType="core/wcm/components/page/v2/page"/>

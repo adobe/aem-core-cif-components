@@ -254,6 +254,7 @@ public class ProductImpl implements Product {
             .id()
             .sku()
             .name()
+            .description(d -> d.html())
             .image(i -> i.label().url())
             .thumbnail(t -> t.label().url())
             .urlKey()

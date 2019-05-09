@@ -158,9 +158,7 @@ public class ProductImplTest {
     public void testSafeDescriptionWithNull() {
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
-
         Whitebox.setInternalState(this.slingModel, "product", product);
-
         Assert.assertNull(this.slingModel.getDescription());
     }
 
@@ -189,4 +187,16 @@ public class ProductImplTest {
         Assert.assertEquals(sampleString, this.slingModel.getDescription());
     }
 
+    @Test
+    public void testSafeDescriptionConfigurableProduct() {
+        String sampleString = "<strong>def</strong>";
+        ConfigurableProduct product = mock(ConfigurableProduct.class, RETURNS_DEEP_STUBS);
+        ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
+        when(value.getHtml()).thenReturn(sampleString);
+        when(product.getDescription()).thenReturn(value);
+
+        Whitebox.setInternalState(this.slingModel, "product", product);
+
+        Assert.assertEquals(sampleString, this.slingModel.getDescription());
+    }
 }
