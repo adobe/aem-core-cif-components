@@ -129,10 +129,6 @@
     visibility: visible;
 }
 
-.mask__root_active {
-    opacity: 0.25;
-}
-
 .kebab__root {
     display: inline-block;
     grid-row-start: 1;

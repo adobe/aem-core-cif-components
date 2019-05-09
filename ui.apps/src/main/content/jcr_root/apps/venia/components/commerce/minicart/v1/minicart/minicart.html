@@ -14,10 +14,11 @@
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.cartItemTpl="cartItem.html">
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.minicart'}"/>
-    <aside class="miniCart__root_open miniCart__root">
+    <button class="mask__root"></button>
+    <aside class="miniCart__root">
         <div class="miniCart__header">
             <h2 class="miniCart__title"><span>Shopping Cart</span></h2>
-            <button class="trigger__root clickable__root">
+            <button class="trigger__root clickable__root" data-action="close">
                 <span class="icon__root icon__root-close">&nbsp;</span>
             </button>
         </div>
@@ -50,6 +51,5 @@
                 </div>
             </div>
         </div>
-        <button class="mask__root"></button>
     </aside>
 </sly>
