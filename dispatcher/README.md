@@ -34,5 +34,5 @@ In the dispatcher these endpoints are mapped as following:
 
 | Request               | Proxy to          |
 | --------------------- | ----------------- |
-| `aem/magento/graphql` | `magento/graphql` |
-| `aem/magento/rest/*`  | `magento/rest/*`  |
+| `{APACHE}/magento/graphql` | `{MAGENTO}/graphql` |
+| `{APACHE}/magento/rest/*`  | `{MAGENTO}/rest/*`  |
