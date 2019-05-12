@@ -19,17 +19,13 @@ window.CIF = window.CIF || {};
 
     class CommerceApi {
 
-         endpoints = {
-             categories: {
-                 list: '/categories/list'
-             },
-             carts:{
-                guestcarts: {
-                    create:'/carts/guest-carts',
-                    getById: (id) => (`/carts/guest-carts/${id}`)
-                }
-             }
-         };
+        endpoints = {
+            guestcarts: {
+                create: '/guest-carts',
+                getById: (id) => (`/guest-carts/${id}`)
+            }
+
+        };
 
         /**
          * initializes the commerce API.
@@ -39,22 +35,35 @@ window.CIF = window.CIF || {};
             if (!props.endpoint) {
                 throw new Error('The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object');
             }
+
+            this.rootEndpoint = props.endpoint;
         }
 
         getCategories() {
 
         }
 
-        getOrCreateCart() {
-
+        async getCart(id) {
+            const url = `${this.rootEndpoint}${this.endpoints.guestcarts.getById(id)}`;
+            const cartData = await fetch(url).then(response => response.json());
+            return cartData;
         }
 
+        async createCart() {
+            const url = `${this.rootEndpoint}${this.endpoints.guestcarts.create}`;
+
+            const response = await fetch(url, {method: "POST"});
+            const cartId = await response.json();
+            console.log(cartId);
+            return cartId;
+
+        }
 
 
     }
 
     function onDocumentReady() {
-        const endpoint = "http://master-7rqtwti-7ztex4hq2b6mu.us-3.magentosite.cloud/rest/V1/";
+        const endpoint = "http://localhost/magento/rest/default/V1";
 
         window.CIF.CommerceApi = new CommerceApi({endpoint});
     }

@@ -1,2 +1,6 @@
-js/purify.min.js
-js/PageContext.js
+#base=js
+lib/purify.min.js
+lib/handlebars.min-latest.js
+
+PageContext.js
+CommerceApi.js
