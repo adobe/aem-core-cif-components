@@ -27,18 +27,14 @@
                         mergeList="{Boolean}true"/>
                     <default
                         jcr:description="Policy of the default root parsys"
+                        jcr:lastModified="{Date}2019-05-09T11:14:56.461+05:30"
+                        jcr:lastModifiedBy="admin"
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Default Layout Container"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia]">
+                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia,group:Commerce]">
                         <cq:authoring jcr:primaryType="nt:unstructured">
                             <assetToComponentMapping jcr:primaryType="nt:unstructured">
-                                <product
-                                    jcr:primaryType="nt:unstructured"
-                                    assetGroup="product"
-                                    droptarget="product-data-reference"
-                                    resourceType="commerce/components/product"
-                                    type="Products"/>
                                 <document
                                     jcr:primaryType="nt:unstructured"
                                     assetGroup="media"
@@ -74,6 +70,11 @@
                                     droptarget="image"
                                     resourceType="venia/components/content/image/v1/image"
                                     type="veniaimage"/>
+                                <mapping_1557379287803
+                                    jcr:primaryType="nt:unstructured"
+                                    assetGroup="product"
+                                    droptarget="product-data-reference"
+                                    resourceType="venia/components/commerce/productteaser/v1/productteaser"/>
                             </assetToComponentMapping>
                         </cq:authoring>
                         <jcr:content
@@ -109,7 +110,7 @@
                 <productlist jcr:primaryType="nt:unstructured">
                     <v1 jcr:primaryType="nt:unstructured">
                         <productlist jcr:primaryType="nt:unstructured">
-                            <default
+                            <policy_1554126119277
                                 jcr:lastModified="{Date}2019-04-01T15:42:05.554+02:00"
                                 jcr:lastModifiedBy="admin"
                                 jcr:primaryType="nt:unstructured"
@@ -117,7 +118,7 @@
                                 sling:resourceType="wcm/core/components/policy/policy"
                                 showTitle="true">
                                 <jcr:content jcr:primaryType="nt:unstructured"/>
-                            </default>
+                            </policy_1554126119277>
                         </productlist>
                     </v1>
                 </productlist>
