@@ -21,7 +21,8 @@ window.CIF = window.CIF || {};
         guestcarts: {
             create: '/guest-carts',
             byId: (id) => (`/guest-carts/${id}`),
-            addEntry: (id) => (`/guest-carts/${id}/items`)
+            addEntry: (id) => (`/guest-carts/${id}/items`),
+            totals: (id) => (`/guest-carts/${id}/totals`)
         }
 
     };
@@ -40,43 +41,58 @@ window.CIF = window.CIF || {};
             this.rootEndpoint = props.endpoint;
         }
 
-        async _post(url, params) {
+        async _post(endpoint, params) {
 
+            let url = `${this.rootEndpoint}${endpoint}`;
             let defaultParams = {
-                method: "POST"
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
             };
 
             let extendedParams = Object.assign({}, params, defaultParams);
-            return fetch(url, extendedParams).catch(err => {
+            return fetch(url, extendedParams).then(res => {
+                if (res.ok) {
+                    return res.blob()
+                }
+                throw new Error('An error has occurred during your request')
+            }).catch(err => {
+                console.log(err.message);
+            })
+        }
+
+        async _get(endpoint) {
+            let url = `${this.rootEndpoint}${endpoint}`;
+            return fetch(url).catch(err => {
                 throw new Error(err);
             })
         }
 
         async getCart(id) {
-            const url = `${this.rootEndpoint}${endpoints.guestcarts.byId(id)}`;
-            const cartData = await fetch(url).then(response => response.json());
-            return cartData;
+            return await this._get(endpoints.guestcarts.byId(id)).then(response => response.json());
         }
 
         async createCart() {
-            const url = `${this.rootEndpoint}${endpoints.guestcarts.create}`;
 
-            const response = await fetch(url, {method: "POST"});
-            const cartId = await response.json();
-            return cartId;
-
+            return await this._post(endpoints.guestcarts.create).then(response => response.json());
         }
 
         async postCartEntry(cartId, {sku, qty, quoteId}) {
-            const url = `${this.rootEndpoint}${endpoints.guestcarts.addEntry(cartId)}`;
+            const url = `${endpoints.guestcarts.addEntry(cartId)}`;
             const params = {
-                id: sku,
-                qty,
-                quote_id: quoteId
+                cartItem: {
+                    sku,
+                    qty,
+                    quote_id: quoteId
+                }
             };
-            const entry = await this._post(url, params);
+            const body = {body: JSON.stringify(params)};
+            return await this._post(url, body)
+        }
 
-            return entry;
+        async getTotals(cartId) {
+            return await this._get(endpoints.guestcarts.totals(cartId)).then(response => response.json());
         }
 
 
@@ -86,22 +102,8 @@ window.CIF = window.CIF || {};
         const endpoint = "http://localhost/magento/rest/default/V1";
 
         window.CIF.CommerceApi = new CommerceApi({endpoint});
-        createTestCart();
     }
 
-    async function createTestCart() {
-        if (window.CIF.PageContext.cartInfo && window.CIF.PageContext.cartInfo.cartId && window.CIF.PageContext.cartInfo.cartQuote) {
-            return;
-        }
-        
-        let cartInfo = {};
-        let cartQuote = await window.CIF.CommerceApi.createCart();
-        let cart = await window.CIF.CommerceApi.getCart(cartQuote);
-
-        cartInfo.cartQuote = cartQuote;
-        cartInfo.cartId = cart.id;
-        window.CIF.PageContext.setCartInfo(cartInfo);
-    }
 
     if (document.readyState !== "loading") {
         onDocumentReady()

@@ -78,6 +78,8 @@
             }
 
             this.cartData = await this.commerceApi.getCart(this.pageContext.cartInfo.cartQuote);
+            this.cartTotals = await this.commerceApi.getTotals(this.pageContext.cartInfo.cartQuote);
+
             let cartItems = this.cartData.items;
 
             console.log(this.items);
@@ -87,7 +89,9 @@
                 editHandler: this.editHandler
             };
 
-            cartItems.map(cartItem => this.items.push(new MiniCartItem(cartItem, handlers)));
+            let moneyData = {currency:this.cartData.currency.store_currency_code};
+
+            cartItems.map(cartItem => this.items.push(new MiniCartItem(Object.assign({}, cartItem, moneyData), handlers)));
             this.render();
 
         }
@@ -143,9 +147,9 @@
             })
 
             let totalsData = {
-                quantity: this.items.length,
-                value:'0',
-                currency:'ZZ'
+                quantity: this.cartTotals.items_qty,
+                value:this.cartTotals.grand_total,
+                currency:this.cartData.currency.store_currency_code
             };
 
             //render totals
@@ -176,11 +180,25 @@
     function onDocumentReady() {
         const pageContext = window.CIF.PageContext;
         const commerceApi = window.CIF.CommerceApi;
+        createTestCart();
 
         window.CIF.MiniCart = new MiniCart({pageContext, commerceApi});
 
-        //window.CIF.MiniCart.render();
     }
+    async function createTestCart() {
+        if (window.CIF.PageContext.cartInfo && window.CIF.PageContext.cartInfo.cartId && window.CIF.PageContext.cartInfo.cartQuote) {
+            return;
+        }
+
+        let cartInfo = {};
+        let cartQuote = await window.CIF.CommerceApi.createCart();
+        let cart = await window.CIF.CommerceApi.getCart(cartQuote);
+
+        cartInfo.cartQuote = cartQuote;
+        cartInfo.cartId = cart.id;
+        window.CIF.PageContext.setCartInfo(cartInfo);
+    }
+
 
     if (document.readyState !== "loading") {
         onDocumentReady()
