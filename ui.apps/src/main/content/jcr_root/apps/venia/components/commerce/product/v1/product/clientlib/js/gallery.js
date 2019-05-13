@@ -21,7 +21,6 @@
 
     class Gallery {
         _galleryItems = [];
-        _currentItem = '';
         _currentItemIndex = 0;
         _rootNode = '';
 
@@ -37,7 +36,6 @@
             this._galleryItems = props.galleryItems;
             if (this._galleryItems.length > 0) {
                 this._rootNode = document.querySelector(Gallery.selectors.galleryRoot);
-                this._currentItem = this._galleryItems[this._currentItemIndex];
                 const firstThumbail = this._rootNode.querySelector("button.thumbnail:first-of-type");
                 if (firstThumbail) {
                     firstThumbail.classList.add("thumbnail__rootSelected");
@@ -72,10 +70,9 @@
                 return;
             }
             this._galleryItems = galleryItems;
-            this._currentItemIndex = 1;
-            this._currentItem = galleryItems[this._currentItemIndex];
+            this._currentItemIndex = 0;
             this._recreateDomThumbnails();
-
+            this._switchCurrentImage(this._currentItemIndex);
         };
 
         /*
@@ -124,7 +121,6 @@
             currentImageNode.src = galleryItem.path;
 
             // updated the internal state
-            this._currentItem = galleryItem;
             this._currentItemIndex = index;
 
             // update the style of the selected / unselected thumbnails
@@ -142,23 +138,19 @@
          * @private
          */
         _installThumbnailEvents() {
-
             const handleThumbnailClick = (idx, event) => {
                 let currentTarget = event.currentTarget;
                 let src = currentTarget.firstElementChild.src;
                 this._switchCurrentImage(idx);
 
-
                 const thumb = event.currentTarget;
             };
 
             document.querySelectorAll(Gallery.selectors.galleryThumbnail).forEach((node, idx) => {
-
                 node.addEventListener('click', (event) => {
                     event.preventDefault();
                     handleThumbnailClick(idx, event);
-                })
-
+                });
             });
         }
 
@@ -167,7 +159,6 @@
          * @private
          */
         _installEvents() {
-
             this._installThumbnailEvents()
             document.querySelector(Gallery.selectors.leftArrow).addEventListener('click', this._handleArrowClick);
             document.querySelector(Gallery.selectors.rightArrow).addEventListener('click', this._handleArrowClick);
