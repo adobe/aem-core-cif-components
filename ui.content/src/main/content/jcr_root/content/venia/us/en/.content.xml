@@ -10,7 +10,7 @@
         cq:lastRolledoutBy="admin"
         cq:propertyInheritanceCancelled="[jcr:language]"
         cq:template="/conf/venia/settings/wcm/templates/landing-page"
-        jcr:language="en_us"
+        jcr:language="en_US"
         jcr:mixinTypes="[cq:LiveRelationship,cq:LiveSync,cq:PropertyLiveSyncCancelled]"
         jcr:primaryType="cq:PageContent"
         jcr:title="English"
