@@ -14,6 +14,7 @@
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.titleTemplate="title.html"
      data-sly-use.itemTemplate="item.html"
+     data-sly-use.paginationTemplate="paginationbar.html"
      data-sly-use.productList="com.adobe.cq.commerce.core.components.models.productlist.ProductList">
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.productlist'}"/>
 
@@ -27,5 +28,7 @@
                 </div>
             </div>
         </section>
+
+        <sly data-sly-call="${paginationTemplate.pagination}" />
     </article>
 </sly>
