@@ -6,7 +6,6 @@
         jcr:primaryType="cq:PageContent"
         jcr:title="Catalog Page"
         sling:resourceType="venia/components/structure/catalogpage/v1/catalogpage"
-        catalogRoot="{Boolean}true"
         showMainCategories="{Boolean}true"/>
     <category-page/>
     <product-page/>
