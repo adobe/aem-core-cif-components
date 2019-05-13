@@ -14,16 +14,6 @@
  ******************************************************************************/
 const MiniCartItem = (function (templates) {
 
-    const dummyItem = {
-        "item_id": 14131,
-        "sku": "eqbisublp",
-        "qty": 1,
-        "name": "Blast Mini Pump",
-        "price": 15,
-        "product_type": "simple",
-        "quote_id": "15301"
-    };
-
 
     class MiniCartItem {
 
@@ -33,6 +23,15 @@ const MiniCartItem = (function (templates) {
             this.removeItemHandler = removeItemHandler;
             this.addToFavesHandler = addToFavesHandler;
             this.editHandler = editHandler;
+            this.itemData = itemData;
+        }
+
+        get sku() {
+            return this.itemData.id;
+        }
+
+        get qty() {
+            return this.itemData.qty;
         }
 
         renderTo(node) {
@@ -41,7 +40,7 @@ const MiniCartItem = (function (templates) {
                 return;
             }
 
-            let html = this.template(dummyItem);
+            let html = this.template(this.itemData);
 
             /* Transforms a DOM string into an actual DOM Node object */
             const toElements = (domString) => {
@@ -67,12 +66,12 @@ const MiniCartItem = (function (templates) {
 
             node.querySelector("button[data-action='favorite']").addEventListener("click", e => {
                 this.addToFavesHandler();
-            })
+            });
 
             node.querySelector("button[data-action='remove']").addEventListener("click", e => {
                 const parent = e.target.parentElement;
                 
-            })
+            });
 
         }
 

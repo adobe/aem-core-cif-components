@@ -11,8 +11,7 @@
   ~ governing permissions and limitations under the License.
   ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.cartItemTpl="cartItem.html">
+<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html">
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.minicart'}"/>
     <button class="mask__root"></button>
     <aside class="miniCart__root">
@@ -24,18 +23,13 @@
         </div>
         <div class="miniCart__body">
             <ul class="productList__root">
-                <li class="product__root">
-                    <sly data-sly-call="${cartItemTpl.cartItem}"></sly>
-                </li>
+                
             </ul>
         </div>
         <div class="miniCart__footer">
             <div>
-                <div>
-                    <dl class="miniCart__totals">
-                        <dt class="miniCart__subtotalLabel"><span>Cart Total :&nbsp;<span>US$</span><span>566</span><span>.</span><span>00</span></span></dt>
-                        <dd class="miniCart__subtotalValue">(7 items)</dd>
-                    </dl>
+                <div data-placeholder="totals">
+                    
                 </div>
                 <div class="flow__root">
                     <div class="cart__root flow__footer">

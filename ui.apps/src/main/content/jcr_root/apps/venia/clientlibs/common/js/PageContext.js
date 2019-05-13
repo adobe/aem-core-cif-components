@@ -15,15 +15,46 @@ window.CIF = window.CIF || {};
 
 (function () {
 
+    const checkCookie = (cookieName) => {
+        return document.cookie.split(';').filter((item) => item.trim().startsWith(`${cookieName}=`)).length > 0;
+    };
+
+    const cookieValue = (cookieName) => {
+        let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
+        return b ? b.pop() : "";
+    };
+
     function PageContext() {
         let pageMask = document.querySelector("button.mask__root");
+        const cookieName = "cif.cart";
+
+        const initalize = () => {
+            if (!checkCookie(cookieName)) {
+                return;
+            }
+
+            const cifCartCookie = cookieValue(cookieName);
+            if (cifCartCookie.length > 0) {
+                let [cartId, cartQuote] = cifCartCookie.split("#");
+                cartInfo = {cartId, cartQuote}
+            }
+
+        };
+
+        cartInfo = {};
+
+        initalize();
 
         return {
-            maskPage: function() {
+            cartInfo: cartInfo,
+            maskPage: function () {
                 pageMask.classList.toggle("mask__root_active");
             },
-            unmaskPage: function() {
+            unmaskPage: function () {
                 pageMask.classList.toggle("mask__root_active");
+            },
+            setCartInfo: function ({cartId, cartQuote}) {
+                document.cookie = `cif.cart=${cartId}#${cartQuote}`;
             }
         }
     }
@@ -38,6 +69,5 @@ window.CIF = window.CIF || {};
         document.addEventListener("DOMContentLoaded", onDocumentReady);
     }
 
-    
 
 })();

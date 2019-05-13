@@ -1,8 +1,5 @@
 #base=js
 templates/cartitem.js
-
+templates/carttotals.js
 MiniCartItem.js
 MiniCart.js
-
-test/module1.js
-test/consumer.js

@@ -17,15 +17,16 @@ window.CIF = window.CIF || {};
 
 (function () {
 
+    const endpoints = {
+        guestcarts: {
+            create: '/guest-carts',
+            byId: (id) => (`/guest-carts/${id}`),
+            addEntry: (id) => (`/guest-carts/${id}/items`)
+        }
+
+    };
+
     class CommerceApi {
-
-        endpoints = {
-            guestcarts: {
-                create: '/guest-carts',
-                getById: (id) => (`/guest-carts/${id}`)
-            }
-
-        };
 
         /**
          * initializes the commerce API.
@@ -39,24 +40,43 @@ window.CIF = window.CIF || {};
             this.rootEndpoint = props.endpoint;
         }
 
-        getCategories() {
+        async _post(url, params) {
 
+            let defaultParams = {
+                method: "POST"
+            };
+
+            let extendedParams = Object.assign({}, params, defaultParams);
+            return fetch(url, extendedParams).catch(err => {
+                throw new Error(err);
+            })
         }
 
         async getCart(id) {
-            const url = `${this.rootEndpoint}${this.endpoints.guestcarts.getById(id)}`;
+            const url = `${this.rootEndpoint}${endpoints.guestcarts.byId(id)}`;
             const cartData = await fetch(url).then(response => response.json());
             return cartData;
         }
 
         async createCart() {
-            const url = `${this.rootEndpoint}${this.endpoints.guestcarts.create}`;
+            const url = `${this.rootEndpoint}${endpoints.guestcarts.create}`;
 
             const response = await fetch(url, {method: "POST"});
             const cartId = await response.json();
-            console.log(cartId);
             return cartId;
 
+        }
+
+        async postCartEntry(cartId, {sku, qty, quoteId}) {
+            const url = `${this.rootEndpoint}${endpoints.guestcarts.addEntry(cartId)}`;
+            const params = {
+                id: sku,
+                qty,
+                quote_id: quoteId
+            };
+            const entry = await this._post(url, params);
+
+            return entry;
         }
 
 
@@ -66,6 +86,21 @@ window.CIF = window.CIF || {};
         const endpoint = "http://localhost/magento/rest/default/V1";
 
         window.CIF.CommerceApi = new CommerceApi({endpoint});
+        createTestCart();
+    }
+
+    async function createTestCart() {
+        if (window.CIF.PageContext.cartInfo && window.CIF.PageContext.cartInfo.cartId && window.CIF.PageContext.cartInfo.cartQuote) {
+            return;
+        }
+        
+        let cartInfo = {};
+        let cartQuote = await window.CIF.CommerceApi.createCart();
+        let cart = await window.CIF.CommerceApi.getCart(cartQuote);
+
+        cartInfo.cartQuote = cartQuote;
+        cartInfo.cartId = cart.id;
+        window.CIF.PageContext.setCartInfo(cartInfo);
     }
 
     if (document.readyState !== "loading") {
