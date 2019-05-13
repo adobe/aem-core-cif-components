@@ -17,6 +17,7 @@
 (function (templates) {
 
     class MiniCart {
+
         constructor(props) {
 
             if (!props) {
@@ -35,10 +36,11 @@
             this.commerceApi = props.commerceApi;
 
             this.rootNode = document.querySelector(".miniCart__root");
-            this.miniCartBody = this.rootNode.querySelector(".miniCart__body");
-            this.miniCartFooter = this.rootNode.querySelector(".miniCart__footer");
+            this.miniCartBodyNode = this.rootNode.querySelector(".miniCart__body");
+            this.miniCartFooterNode = this.rootNode.querySelector(".miniCart__footer");
+            this.itemsListNode = this.miniCartBodyNode.querySelector("ul");
 
-            this.itemsListNode = this.miniCartBody.querySelector("ul");
+            this.totalRootNode = this.miniCartFooterNode.querySelector("div[data-placeholder='totals']");
             this.totalsTemplate = Handlebars.compile(templates.totals);
 
             // just trigger an event to let other components know we're ready.
@@ -47,6 +49,8 @@
 
             this._initializeBehavior();
             this._initializeData();
+
+            this.removeItemHandler = this.removeItemHandler.bind(this);
         }
 
         /*
@@ -58,8 +62,8 @@
                 this.close();
             });
 
-            this.miniCartBody.addEventListener("click", e => {
-                const dropdowns = this.miniCartBody.querySelectorAll("ul.kebab__dropdown_active");
+            this.miniCartBodyNode.addEventListener("click", e => {
+                const dropdowns = this.miniCartBodyNode.querySelectorAll("ul.kebab__dropdown_active");
                 dropdowns.forEach(dd => {
                     dd.classList.remove("kebab__dropdown_active");
                 })
@@ -72,32 +76,41 @@
         async _initializeData() {
             // inject dummy data
             //if the pageContext contains some cart id, now it's the moment to retrieve the data
-            this.items = [];
             if (!this.pageContext.cartInfo) {
                 return;
             }
 
-            this.cartData = await this.commerceApi.getCart(this.pageContext.cartInfo.cartQuote);
-            this.cartTotals = await this.commerceApi.getTotals(this.pageContext.cartInfo.cartQuote);
+            this.cartQuote = this.pageContext.cartInfo.cartQuote;
+            this.cartId = this.pageContext.cartInfo.cartId;
+            this.refreshItems();
+
+        }
+
+        async refreshItems() {
+
+            this.items = [];
+            this.cartData = await this.commerceApi.getCart(this.cartQuote);
+            this.cartTotals = await this.commerceApi.getTotals(this.cartQuote);
 
             let cartItems = this.cartData.items;
 
-            console.log(this.items);
             const handlers = {
                 removeItemHandler: this.removeItemHandler,
                 addToFavesHandler: this.addToFavesHandler,
                 editHandler: this.editHandler
             };
 
-            let moneyData = {currency:this.cartData.currency.store_currency_code};
+            let moneyData = {currency: this.cartData.currency.store_currency_code};
 
             cartItems.map(cartItem => this.items.push(new MiniCartItem(Object.assign({}, cartItem, moneyData), handlers)));
             this.render();
-
         }
 
-        removeItemHandler(index) {
-            console.log(`Removing item`);
+        async removeItemHandler(itemId) {
+            console.log(`Removing item ${itemId}`);
+
+            const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
+            this.refreshItems();
         };
 
         addToFavesHandler(index) {
@@ -135,7 +148,8 @@
         };
 
         render() {
-            this._emptyItemListDom();
+            // render the cart body (i.e. the items)
+            this._emptyDomNode(this.itemsListNode);
             this.items.forEach((item, index) => {
                 let li = document.createElement("li");
                 item.renderTo(li);
@@ -144,17 +158,22 @@
                 li.dataset.index = index;
                 li.dataset.key = item.sku;
                 this.itemsListNode.appendChild(li);
-            })
+            });
+
+            //render the totals
+
+            this._emptyDomNode(this.totalRootNode);
 
             let totalsData = {
                 quantity: this.cartTotals.items_qty,
-                value:this.cartTotals.grand_total,
-                currency:this.cartData.currency.store_currency_code
+                value: this.cartTotals.grand_total,
+                currency: this.cartData.currency.store_currency_code
             };
 
-            //render totals
-            let html=this.totalsTemplate(totalsData);
-            let totalsDomRoot = this.miniCartFooter.querySelector("div[data-placeholder='totals']");
+            let html = this.totalsTemplate(totalsData);
+            this._emptyDomNode(this.totalRootNode);
+
+            this.miniCartFooterNode.querySelector("div[data-placeholder='totals']");
 
             /* Transforms a DOM string into an actual DOM Node object */
             const toElement = (domString) => {
@@ -162,16 +181,16 @@
                 return html.body.firstChild;
             };
 
-            totalsDomRoot.appendChild(toElement(html));
+            this.totalRootNode.appendChild(toElement(html));
         }
 
         /**
          * Removes all the list elements from the list of items
          * @private
          */
-        _emptyItemListDom() {
-            while (this.itemsListNode.firstChild) {
-                this.itemsListNode.removeChild(this.itemsListNode.firstChild);
+        _emptyDomNode(node) {
+            while (node.firstChild) {
+                node.removeChild(node.firstChild);
             }
         }
     }
@@ -185,6 +204,7 @@
         window.CIF.MiniCart = new MiniCart({pageContext, commerceApi});
 
     }
+
     async function createTestCart() {
         if (window.CIF.PageContext.cartInfo && window.CIF.PageContext.cartInfo.cartId && window.CIF.PageContext.cartInfo.cartQuote) {
             return;

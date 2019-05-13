@@ -34,6 +34,10 @@ const MiniCartItem = (function (templates) {
             return this.itemData.qty;
         }
 
+        get itemId() {
+            return this.itemData.item_id;
+        }
+
         renderTo(node) {
 
             if (!node) {
@@ -70,7 +74,7 @@ const MiniCartItem = (function (templates) {
 
             node.querySelector("button[data-action='remove']").addEventListener("click", e => {
                 const parent = e.target.parentElement;
-                
+                 this.removeItemHandler(this.itemId);
             });
 
         }

@@ -27,6 +27,7 @@ const cartItem = `
             <span class="product__price">{{currency}}{{price}}</span>
         </div>
     </div>
+    <div class="product__mask"></div>
     <div class="kebab__root">
         <button class="kebab__kebab"><span class="icon__root icon__root-kebab"></span></button>
         <ul class="kebab__dropdown">

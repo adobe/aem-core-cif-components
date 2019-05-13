@@ -213,7 +213,7 @@
 
 .product__mask {
     display: block;
-    background-color: black;
+    background-color: rgb(var(--venia-grey));
     position: fixed;
     grid-row-start: 1;
     grid-row-end: 4;

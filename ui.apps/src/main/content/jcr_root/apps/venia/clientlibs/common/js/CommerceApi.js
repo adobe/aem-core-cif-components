@@ -22,7 +22,8 @@ window.CIF = window.CIF || {};
             create: '/guest-carts',
             byId: (id) => (`/guest-carts/${id}`),
             addEntry: (id) => (`/guest-carts/${id}/items`),
-            totals: (id) => (`/guest-carts/${id}/totals`)
+            totals: (id) => (`/guest-carts/${id}/totals`),
+            removeItem: (cartId,itemId) => (`/guest-carts/${cartId}/items/${itemId}`)
         }
 
     };
@@ -62,11 +63,23 @@ window.CIF = window.CIF || {};
             })
         }
 
+        //TODO update error checking
         async _get(endpoint) {
             let url = `${this.rootEndpoint}${endpoint}`;
             return fetch(url).catch(err => {
                 throw new Error(err);
             })
+        }
+
+        async _delete(endpoint) {
+            let url = `${this.rootEndpoint}${endpoint}`;
+            let params = {"method": "DELETE"}
+            return fetch(url, params).then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error calling DELETE on endpoint ${endpoint}`);
+                }
+                return response.json()
+            });
         }
 
         async getCart(id) {
@@ -93,6 +106,10 @@ window.CIF = window.CIF || {};
 
         async getTotals(cartId) {
             return await this._get(endpoints.guestcarts.totals(cartId)).then(response => response.json());
+        }
+
+        async removeItem(cartQuote, itemId) {
+            return await this._delete(endpoints.guestcarts.removeItem(cartQuote, itemId));
         }
 
 
