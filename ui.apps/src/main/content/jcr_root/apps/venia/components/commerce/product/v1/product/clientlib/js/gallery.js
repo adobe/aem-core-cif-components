@@ -13,6 +13,7 @@
  ******************************************************************************/
 
 (function () {
+    "use strict";
 
     //TODO make this global so that other components would use it
     const events = {
@@ -20,20 +21,10 @@
     };
 
     class Gallery {
-        _galleryItems = [];
-        _currentItemIndex = 0;
-        _rootNode = '';
-
-        static selectors = {
-            galleryRoot: "div[data-gallery-role='galleryroot']",
-            currentImageContainer: "img[data-gallery-role='currentimage']",
-            galleryThumbnail: "button[data-gallery-role='galleryitem']",
-            leftArrow: "button[data-gallery-role='moveleft']",
-            rightArrow: "button[data-gallery-role='moveright']"
-        };
-
         constructor(props) {
-            this._galleryItems = props.galleryItems;
+            this._currentItemIndex = 0;
+            this._rootNode = '';
+            this._galleryItems = props.galleryItems || [];
             if (this._galleryItems.length > 0) {
                 this._rootNode = document.querySelector(Gallery.selectors.galleryRoot);
                 const firstThumbail = this._rootNode.querySelector("button.thumbnail:first-of-type");
@@ -42,6 +33,11 @@
                 }
                 this._installEvents();
             }
+
+            this._handleArrowClick = this._handleArrowClick.bind(this);
+            this.updateGalleryItems = this.updateGalleryItems.bind(this);
+            this._recreateDomThumbnails = this._recreateDomThumbnails.bind(this);
+
             document.addEventListener(events.variantChanged, (event) => {
                 if (!event.detail.variant || !event.detail.variant.assets) {
                     return;
@@ -52,7 +48,7 @@
                     // so it makes no sense to update the gallery
                     return;
                 }
-                this.updateGalleryItems({galleryItems: event.detail.variant.assets});
+                this.updateGalleryItems(event.detail.variant.assets);
             });
         }
 
@@ -64,7 +60,7 @@
          *
          * @param galleryItems
          */
-        updateGalleryItems = ({galleryItems}) => {
+        updateGalleryItems(galleryItems) {
             if (!galleryItems || galleryItems.length === 0) {
                 //don't do anything if we don't get items
                 return;
@@ -78,8 +74,7 @@
         /*
          Recreates the DOM nodes for the thumbnails
          */
-        _recreateDomThumbnails = () => {
-
+        _recreateDomThumbnails() {
             const thumbnailList = this._rootNode.querySelector("div.thumbnailList__root");
 
             /* Creates an thumbnail DOM string from an item data  */
@@ -128,7 +123,7 @@
             if (currentlySelectedThumb) {
                 currentlySelectedThumb.classList.remove("thumbnail__rootSelected");
             }
-            const currentThumb = this._rootNode.querySelector(`button[data-gallery-index='${index}'`);
+            const currentThumb = this._rootNode.querySelector(`button[data-gallery-index='${index}']`);
             currentThumb.classList.add("thumbnail__rootSelected");
         }
 
@@ -142,8 +137,6 @@
                 let currentTarget = event.currentTarget;
                 let src = currentTarget.firstElementChild.src;
                 this._switchCurrentImage(idx);
-
-                const thumb = event.currentTarget;
             };
 
             document.querySelectorAll(Gallery.selectors.galleryThumbnail).forEach((node, idx) => {
@@ -160,8 +153,8 @@
          */
         _installEvents() {
             this._installThumbnailEvents()
-            document.querySelector(Gallery.selectors.leftArrow).addEventListener('click', this._handleArrowClick);
-            document.querySelector(Gallery.selectors.rightArrow).addEventListener('click', this._handleArrowClick);
+            document.querySelector(Gallery.selectors.leftArrow).addEventListener('click', event => this._handleArrowClick(event));
+            document.querySelector(Gallery.selectors.rightArrow).addEventListener('click', event => this._handleArrowClick(event));
         }
 
         /**
@@ -169,18 +162,16 @@
          * @param event
          * @private
          */
-        _handleArrowClick = (event) => {
+        _handleArrowClick(event) {
             event.preventDefault();
             const direction = event.currentTarget.dataset["galleryRole"];
 
             if (direction === 'moveleft') {
-
                 if (this._currentItemIndex <= 0) {
                     this._currentItemIndex = this._galleryItems.length - 1;
                 } else {
                     this._currentItemIndex--
                 }
-
             } else if (direction === 'moveright') {
                 if (this._currentItemIndex >= this._galleryItems.length - 1) {
                     this._currentItemIndex = 0;
@@ -190,9 +181,16 @@
             }
 
             this._switchCurrentImage(this._currentItemIndex);
-
         };
     }
+
+    Gallery.selectors = {
+        galleryRoot: "div[data-gallery-role='galleryroot']",
+        currentImageContainer: "img[data-gallery-role='currentimage']",
+        galleryThumbnail: "button[data-gallery-role='galleryitem']",
+        leftArrow: "button[data-gallery-role='moveleft']",
+        rightArrow: "button[data-gallery-role='moveright']"
+    };
 
     function onDocumentReady() {
         const galleryRoot = document.querySelector(Gallery.selectors.galleryRoot);
