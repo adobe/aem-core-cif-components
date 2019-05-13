@@ -1,0 +1,50 @@
+<!--/*
+    Copyright 2019 Adobe Systems Incorporated
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/-->
+
+<!--<div>
+    <h1>Teaser</h1>
+</div> -->
+<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
+     data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.Productteaser">
+    <sly data-sly-call="${clientlib.all @ categories='aem.venia.productteaser'}"/>
+    <sly data-sly-test.ispropavailable="${properties.productSku}">
+        <div data-sly-test.isvalid="${product.url}" class="item__root">
+            <a class="item__images" href=${product.url}>
+                <img class="item__image" width="100%" ;height="100%" data-sly-test.firstAsset="${product.assets[0]}"
+                     src="${firstAsset.path}" alt="${firstAsset.label}"/>
+            </a>
+            <a class="item__name" href=${product.url}><span>${product.name}</span></a>
+            <div class="item__price">
+                <span> ${product.formattedPrice} </span>
+            </div>
+        </div>
+    </sly>
+
+    <!-- Condition for no product configured and no property value available-->
+    <div data-sly-test=${!ispropavailable} class="blank-placeholder">
+        <strong>Product Teaser</strong><br>
+        <p>Configuration options: </p>
+        <p> 1.Use dialog to choose Magento Products </p>
+        <p> 2.Drag and drop a Magento product from assets sidebar at this area </p>
+        <p> 3.You can also drag and drop Magento product from sidebar direclty in parsys and it will render the
+            teaser </p>
+    </div>
+    <!-- Condition if the product is no available, or invalid sku provided -->
+    <div class="blank-placeholder" data-sly-test=${!isvalid}>
+        <strong>Product Teaser <br> Incorrect Configuration. Select a Magento Product.</strong>
+    </div>
+
+</sly>
