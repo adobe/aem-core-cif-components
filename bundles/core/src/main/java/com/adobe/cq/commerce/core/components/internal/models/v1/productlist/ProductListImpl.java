@@ -16,17 +16,12 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -37,9 +32,12 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.GraphqlClientWrapper;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
@@ -47,7 +45,9 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -76,10 +76,9 @@ public class ProductListImpl implements ProductList {
     private Page currentPage;
 
     private Page productPage;
-
     private CategoryInterface category;
-
     private boolean showTitle;
+    private GraphqlClientWrapper client;
 
     @PostConstruct
     private void initModel() {
@@ -97,19 +96,15 @@ public class ProductListImpl implements ProductList {
 
         // get GraphQL client and query data
         if (categoryId != null) {
-            GraphqlClient client = resource.adaptTo(GraphqlClient.class);
-            this.category = getCategory(client, categoryId);
+            client = new GraphqlClientWrapper(resource);
+            category = getCategory(categoryId);
         }
     }
 
     @Nullable
     @Override
     public String getTitle() {
-        if (category != null) {
-            return this.category.getName();
-        } else {
-            return StringUtils.EMPTY;
-        }
+        return category != null ? category.getName() : StringUtils.EMPTY;
     }
 
     @Override
@@ -121,8 +116,6 @@ public class ProductListImpl implements ProductList {
     @Override
     public Collection<ProductListItem> getProducts() {
         Collection<ProductListItem> listItems = new ArrayList<>();
-
-
 
         if (category != null) {
             final CategoryProducts products = category.getProducts();
@@ -161,13 +154,12 @@ public class ProductListImpl implements ProductList {
     }
 
     private CategoryTreeQueryDefinition generateProductListQuery() {
-        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
+        return q -> q
             .id()
             .description()
             .name()
             .productCount()
             .products(categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
-        return categoryTreeQueryDefinition;
     }
 
     /* --- Utility methods --- */
@@ -179,7 +171,7 @@ public class ProductListImpl implements ProductList {
      * @param categoryId the category id of category we request
      * @return {@link CategoryInterface}
      */
-    private CategoryInterface getCategory(GraphqlClient client, int categoryId) {
+    private CategoryInterface getCategory(int categoryId) {
         if (client != null) {
             LOGGER.debug("Trying to load category data for {}", categoryId);
 
@@ -190,8 +182,7 @@ public class ProductListImpl implements ProductList {
             String queryString = Operations.query(query -> query.category(searchArgs, queryArgs)).toString();
 
             // Send GraphQL request
-            GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString),
-                Query.class, Error.class, QueryDeserializer.getGson());
+            GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class);
 
             // Get category & product list from response
             Query rootQuery = response.getData();

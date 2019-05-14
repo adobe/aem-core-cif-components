@@ -15,20 +15,15 @@
  */
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
-import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -37,17 +32,22 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.GraphqlClientWrapper;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -58,7 +58,7 @@ import com.day.cq.wcm.api.Page;
         resourceType = SearchResultsImpl.RESOURCE_TYPE)
 public class SearchResultsImpl implements SearchResults {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SearchResultsImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
 
     private static final String WILDCARD = "%";
 
@@ -74,20 +74,19 @@ public class SearchResultsImpl implements SearchResults {
     private Page currentPage;
 
     private String searchTerm;
-
-    private GraphqlClient client;
+    private GraphqlClientWrapper client;
 
     Page productPage;
 
     @PostConstruct
     protected void initModel() {
         searchTerm = request.getParameter("search_query");
-        client = resource.adaptTo(GraphqlClient.class);
+        client = new GraphqlClientWrapper(resource);
         if (client == null) {
-            LOG.error("Cannot adapt the current resource to a GraphqlClient");
+            LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
         }
 
-        LOG.debug("Detected search parameter {}", searchTerm);
+        LOGGER.debug("Detected search parameter {}", searchTerm);
         productPage = Utils.getProductPage(currentPage);
     }
 
@@ -104,9 +103,9 @@ public class SearchResultsImpl implements SearchResults {
         String processedSearchTerm = processSearchTerm(searchTerm);
         String queryString = generateQueryString(processedSearchTerm);
 
-        LOG.debug("Generated query string {}", queryString);
+        LOGGER.debug("Generated query string {}", queryString);
         GraphqlRequest graphqlRequest = new GraphqlRequest(queryString);
-        GraphqlResponse<Query, Error> response = client.execute(graphqlRequest, Query.class, Error.class, QueryDeserializer.getGson());
+        GraphqlResponse<Query, Error> response = client.execute(graphqlRequest, Query.class, Error.class);
 
         return checkAndLogErrors(response) ? Collections.emptyList() : extractProductsFromResponse(response);
 
@@ -170,7 +169,7 @@ public class SearchResultsImpl implements SearchResults {
         List<Error> errors = response.getErrors();
         if (errors != null && errors.size() > 0) {
             errors.stream()
-                  .forEach(err -> LOG.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
+                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return true;
         } else {
             return false;
@@ -188,7 +187,7 @@ public class SearchResultsImpl implements SearchResults {
         List<ProductInterface> products = rootQuery.getProducts()
                                                    .getItems();
 
-        LOG.debug("Found {} products for search term {}", products.size(), searchTerm);
+        LOGGER.debug("Found {} products for search term {}", products.size(), searchTerm);
 
         return products.stream()
                        .map(product -> generateItemFromProductInterface(product))
