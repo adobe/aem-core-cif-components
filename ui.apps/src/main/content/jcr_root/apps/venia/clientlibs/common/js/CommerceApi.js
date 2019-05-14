@@ -42,6 +42,15 @@ window.CIF = window.CIF || {};
             this.rootEndpoint = props.endpoint;
         }
 
+        async _fetch(url, params) {
+            let response = await fetch(url, params);
+            if (!response.ok) {
+                let message = await response.json();
+                throw new Error(message);
+            }
+            return response.json();
+        }
+
         async _post(endpoint, params) {
 
             let url = `${this.rootEndpoint}${endpoint}`;
@@ -53,14 +62,8 @@ window.CIF = window.CIF || {};
             };
 
             let extendedParams = Object.assign({}, params, defaultParams);
-            return fetch(url, extendedParams).then(res => {
-                if (res.ok) {
-                    return res.blob()
-                }
-                throw new Error('An error has occurred during your request')
-            }).catch(err => {
-                console.log(err.message);
-            })
+
+            return this._fetch(url,extendedParams);
         }
 
         //TODO update error checking
@@ -73,13 +76,9 @@ window.CIF = window.CIF || {};
 
         async _delete(endpoint) {
             let url = `${this.rootEndpoint}${endpoint}`;
-            let params = {"method": "DELETE"}
-            return fetch(url, params).then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error calling DELETE on endpoint ${endpoint}`);
-                }
-                return response.json()
-            });
+            let params = {"method": "DELETE"};
+
+            return this._fetch(url, params);
         }
 
         async getCart(id) {
@@ -101,7 +100,7 @@ window.CIF = window.CIF || {};
                 }
             };
             const body = {body: JSON.stringify(params)};
-            return await this._post(url, body)
+            return await this._post(url, body);
         }
 
         async getTotals(cartId) {

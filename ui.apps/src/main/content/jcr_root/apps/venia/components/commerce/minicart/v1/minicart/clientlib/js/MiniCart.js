@@ -43,10 +43,6 @@
             this.totalRootNode = this.miniCartFooterNode.querySelector("div[data-placeholder='totals']");
             this.totalsTemplate = Handlebars.compile(templates.totals);
 
-            // just trigger an event to let other components know we're ready.
-            const event = new CustomEvent("aem.cif.cart-intialized");
-            document.dispatchEvent(event);
-
             this._initializeBehavior();
             this._initializeData();
 
@@ -82,8 +78,10 @@
 
             this.cartQuote = this.pageContext.cartInfo.cartQuote;
             this.cartId = this.pageContext.cartInfo.cartId;
-            this.refreshItems();
-
+            await this.refreshItems();
+            // just trigger an event to let other components know we're ready.
+            const event = new CustomEvent("aem.cif.cart-intialized",{detail: { quantity: this.cartQuantity}});
+            document.dispatchEvent(event);
         }
 
         async refreshItems() {
@@ -110,7 +108,10 @@
             console.log(`Removing item ${itemId}`);
 
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
-            this.refreshItems();
+            await this.refreshItems();
+
+            let customEvent = new CustomEvent("aem.cif.product-removed-from-cart", {detail: {quantity: this.cartQuantity}});
+            document.dispatchEvent(customEvent);
         };
 
         addToFavesHandler(index) {
@@ -141,11 +142,18 @@
          * Adds an entry to this cart.
          * @param args. An object in the shape of {sku, qty}
          */
-        addItem(args) {
-            this.commerceApi.postCartEntry(args).then(res => {
-                console.log(res);
-            })
+        async addItem(args) {
+            args.quoteId = this.cartQuote;
+            let response = await this.commerceApi.postCartEntry(this.cartId, args)
+            await this.refreshItems();
+
+            let customEvent = new CustomEvent("aem.cif.product-added-to-cart", {detail: {quantity: this.cartQuantity}});
+            document.dispatchEvent(customEvent);
         };
+
+        get cartQuantity() {
+            return this.cartTotals.items_qty;
+        }
 
         render() {
             // render the cart body (i.e. the items)

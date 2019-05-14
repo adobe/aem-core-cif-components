@@ -26,6 +26,15 @@
             });
 
             this.count = 0;
+
+            const qtyChangedEventHandler = (ev) => {
+                const data = ev.detail;
+                this.updateCounterText(data.quantity);
+            };
+
+            document.addEventListener("aem.cif.product-added-to-cart", qtyChangedEventHandler);
+            document.addEventListener("aem.cif.product-removed-from-cart",qtyChangedEventHandler);
+            document.addEventListener("aem.cif.cart-intialized", qtyChangedEventHandler);
         }
 
         updateCounterText(count) {
