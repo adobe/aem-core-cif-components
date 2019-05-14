@@ -68,14 +68,16 @@ const MiniCartItem = (function (templates) {
                 }
             });
 
-            node.querySelector("button[data-action='favorite']").addEventListener("click", e => {
-                this.addToFavesHandler();
+`            node.querySelector("button[data-action='remove']").addEventListener("click", e => {
+                const parent = e.target.parentElement;
+                this.removeItemHandler(this.itemId);
             });
 
-            node.querySelector("button[data-action='remove']").addEventListener("click", e => {
+            node.querySelector("button[data-action='edit']").addEventListener("click", e => {
                 const parent = e.target.parentElement;
-                 this.removeItemHandler(this.itemId);
+                this.editHandler(this.itemId);
             });
+
 
         }
 

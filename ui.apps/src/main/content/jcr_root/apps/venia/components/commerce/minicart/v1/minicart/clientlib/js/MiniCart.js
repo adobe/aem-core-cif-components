@@ -114,10 +114,6 @@
             document.dispatchEvent(customEvent);
         };
 
-        addToFavesHandler(index) {
-            console.log(`Adding to faves`, this);
-        };
-
         editHandler(index) {
             console.log(`Editing...`);
         };
