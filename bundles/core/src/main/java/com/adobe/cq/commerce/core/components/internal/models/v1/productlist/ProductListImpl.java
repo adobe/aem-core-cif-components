@@ -14,14 +14,16 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
-import java.util.ArrayList;
-import java.util.Collection;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -32,23 +34,12 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.designer.Style;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl implements ProductList {
@@ -123,13 +114,13 @@ public class ProductListImpl implements ProductList {
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
                     listItems.add(new ProductListItemImpl(
-                        product.getSku(),
-                        product.getUrlKey(),
-                        product.getName(),
-                        product.getPrice().getRegularPrice().getAmount().getValue(),
-                        product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                        product.getSmallImage().getUrl(),
-                        productPage));
+                            product.getSku(),
+                            product.getUrlKey(),
+                            product.getName(),
+                            product.getPrice().getRegularPrice().getAmount().getValue(),
+                            product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                            product.getSmallImage().getUrl(),
+                            productPage));
                 }
             }
         }
@@ -139,28 +130,37 @@ public class ProductListImpl implements ProductList {
     /* --- GraphQL queries --- */
     private ProductPricesQueryDefinition generatePriceQuery() {
         return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
+                .regularPrice(rp -> rp
+                        .amount(a -> a
+                                .currency()
+                                .value()));
     }
 
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q
-            .id()
-            .name()
-            .smallImage(i -> i.url())
-            .urlKey()
-            .price(generatePriceQuery());
+                .id()
+                .name()
+                .smallImage(i -> i.url())
+                .urlKey()
+                .price(generatePriceQuery());
     }
 
     private CategoryTreeQueryDefinition generateProductListQuery() {
-        return q -> q
-            .id()
-            .description()
-            .name()
-            .productCount()
-            .products(categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
+
+        final Integer cPage = request.getCookie("currentPage") == null ? 1 : Integer.parseInt(request.getCookie("currentPage").getValue()); //cant trap NumberFormatException as only `final` var to be passed in Lambda
+
+        final Integer pSize = currentPage.getProperties().get("pageSize") == null ? 6 : Integer.parseInt(currentPage.getProperties().get("pageSize").toString());
+
+        CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
+                .currentPage(cPage)
+                .pageSize(pSize);
+        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
+                .id()
+                .description()
+                .name()
+                .productCount()
+                .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
+        return categoryTreeQueryDefinition;
     }
 
     /* --- Utility methods --- */
