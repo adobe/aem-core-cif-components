@@ -13,6 +13,7 @@
  ******************************************************************************/
 
 (function () {
+    "use strict";
 
     const CLEAR_BUTTON_HTML = `<button class="trigger__root clickable__root" type="button">
             <span class="icon__root">
@@ -22,16 +23,11 @@
             </button>`;
 
     class Searchbar {
-        static selectors = {
-            searchBarRoot: "div[role='search']",
-            searchBox: "input[role='searchbox']"
-        };
-
-        _classes = {
-            open: "searchBar__root_open"
-        };
-
         constructor(props) {
+            this._classes = {
+                open: "searchBar__root_open"
+            };
+
             this._searchBarRoot = document.querySelector(Searchbar.selectors.searchBarRoot);
             this._searchBox = this._searchBarRoot.querySelector(Searchbar.selectors.searchBox);
 
@@ -115,6 +111,11 @@
             this._searchBarRoot.classList.remove(this._classes.open);
         }
     }
+
+    Searchbar.selectors = {
+        searchBarRoot: "div[role='search']",
+        searchBox: "input[role='searchbox']"
+    };
 
     function onDocumentReady() {
         const queryParams = new URLSearchParams(location.search);
