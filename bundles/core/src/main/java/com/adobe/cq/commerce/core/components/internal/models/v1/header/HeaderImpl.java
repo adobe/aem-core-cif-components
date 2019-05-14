@@ -20,6 +20,8 @@ import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.header.Header;
@@ -33,6 +35,7 @@ import com.day.cq.wcm.api.Page;
         adapters = Header.class,
         resourceType = HeaderImpl.RESOURCE_TYPE)
 public class HeaderImpl implements Header {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeaderImpl.class);
 
     static final String RESOURCE_TYPE = "venia/components/structure/header/v1/header" ;
 
@@ -40,6 +43,7 @@ public class HeaderImpl implements Header {
     private Page currentPage;
 
     private Page searchResultsPage;
+    private Page navigationRootPage;
 
     @Override
     public String getSearchResultsPageUrl() {
@@ -48,5 +52,19 @@ public class HeaderImpl implements Header {
         }
 
         return searchResultsPage.getPath()+".html";
+    }
+
+    @Override
+    public String getNavigationRootPageUrl() {
+        if (navigationRootPage == null) {
+            navigationRootPage = Utils.getNavigationRootPage(currentPage);
+        }
+
+        if (navigationRootPage == null) {
+            LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());
+            return null;
+        }
+
+        return navigationRootPage.getPath() + ".html";
     }
 }

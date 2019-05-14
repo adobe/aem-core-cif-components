@@ -9,6 +9,7 @@
         cq:template="/conf/venia/settings/wcm/templates/landing-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="English"
+        navRoot="{Boolean}true"
         sling:resourceType="venia/components/structure/page/v1/page">
         <root
             jcr:primaryType="nt:unstructured"
