@@ -27,6 +27,7 @@ window.CIF = window.CIF || {};
     function PageContext() {
         let pageMask = document.querySelector("button.mask__root");
         const cookieName = "cif.cart";
+        let cartInfo;
 
         const initalize = () => {
             if (!checkCookie(cookieName)) {
@@ -41,17 +42,16 @@ window.CIF = window.CIF || {};
 
         };
 
-        cartInfo = {};
 
         initalize();
 
         return {
             cartInfo: cartInfo,
             maskPage: function () {
-                pageMask.classList.toggle("mask__root_active");
+                pageMask.classList.add("mask__root_active");
             },
             unmaskPage: function () {
-                pageMask.classList.toggle("mask__root_active");
+                pageMask.classList.remove("mask__root_active");
             },
             setCartInfo: function ({cartId, cartQuote}) {
                 document.cookie = `cif.cart=${cartId}#${cartQuote}`;

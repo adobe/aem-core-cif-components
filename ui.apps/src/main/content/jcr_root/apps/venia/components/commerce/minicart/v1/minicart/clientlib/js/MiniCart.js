@@ -35,18 +35,46 @@
             this.pageContext = props.pageContext;
             this.commerceApi = props.commerceApi;
 
+            if (this.pageContext.cartInfo) {
+                this.cartQuote = this.pageContext.cartInfo.cartQuote;
+                this.cartId = this.pageContext.cartInfo.cartId;
+            }
+
             this.rootNode = document.querySelector(".miniCart__root");
-            this.miniCartBodyNode = this.rootNode.querySelector(".miniCart__body");
-            this.miniCartFooterNode = this.rootNode.querySelector(".miniCart__footer");
-            this.itemsListNode = this.miniCartBodyNode.querySelector("ul");
 
-            this.totalRootNode = this.miniCartFooterNode.querySelector("div[data-placeholder='totals']");
             this.totalsTemplate = Handlebars.compile(templates.totals);
-
-            this._initializeBehavior();
-            this._initializeData();
+            this.emptyTemplate = Handlebars.compile(templates.emptyMiniCart);
+            this.bodyTemplate = Handlebars.compile(templates.body);
+            this.footerTemplate = Handlebars.compile(templates.footer);
 
             this.removeItemHandler = this.removeItemHandler.bind(this);
+            this.items = [];
+            this.state = {currentState: 'empty', previousState: 'empty'};
+            this.init();
+        }
+
+        async setState(state) {
+            this.state.previousState = this.state.currentState;
+            this.state.currentState = state;
+            console.log(`Setting component state to ${state}`);
+            if (state === 'empty') {
+                this.renderEmpty();
+            } else if (state === 'full') {
+                await this.refreshItems();
+                this.renderBody();
+            } else if (state === 'edit') {
+                this.renderEditItem();
+            }
+
+        }
+
+        async init() {
+            this._initializeBehavior();
+            await this.refreshData();
+
+            // just trigger an event to let other components know we're ready.
+            const event = new CustomEvent("aem.cif.cart-intialized", {detail: {quantity: this.cartQuantity}});
+            document.dispatchEvent(event);
         }
 
         /*
@@ -58,39 +86,36 @@
                 this.close();
             });
 
-            this.miniCartBodyNode.addEventListener("click", e => {
-                const dropdowns = this.miniCartBodyNode.querySelectorAll("ul.kebab__dropdown_active");
-                dropdowns.forEach(dd => {
-                    dd.classList.remove("kebab__dropdown_active");
-                })
-            })
+
         }
 
         /*
          * Initializes the data for to be displayed by the MiniCart
          */
-        async _initializeData() {
-            // inject dummy data
-            //if the pageContext contains some cart id, now it's the moment to retrieve the data
-            if (!this.pageContext.cartInfo) {
-                return;
-            }
+        async refreshData() {
+            if (!this.cartId || !this.cartQuote) {
+                console.log(`No cart information present, nothing to do`);
+                this.setState('empty');
+            } else {
 
-            this.cartQuote = this.pageContext.cartInfo.cartQuote;
-            this.cartId = this.pageContext.cartInfo.cartId;
-            await this.refreshItems();
-            // just trigger an event to let other components know we're ready.
-            const event = new CustomEvent("aem.cif.cart-intialized",{detail: { quantity: this.cartQuantity}});
-            document.dispatchEvent(event);
+                this.cartData = await this.commerceApi.getCart(this.cartQuote);
+                this.cartTotals = await this.commerceApi.getTotals(this.cartQuote);
+
+                if (this.cartData.items.length > 0) {
+                    this.setState('full');
+                } else {
+                    this.setState('empty');
+                }
+            }
         }
 
-        async refreshItems() {
 
-            this.items = [];
-            this.cartData = await this.commerceApi.getCart(this.cartQuote);
-            this.cartTotals = await this.commerceApi.getTotals(this.cartQuote);
-
+        refreshItems() {
+            if (!this.cartData) {
+                return;
+            }
             let cartItems = this.cartData.items;
+            this.items = [];
 
             const handlers = {
                 removeItemHandler: this.removeItemHandler,
@@ -101,14 +126,13 @@
             let moneyData = {currency: this.cartData.currency.store_currency_code};
 
             cartItems.map(cartItem => this.items.push(new MiniCartItem(Object.assign({}, cartItem, moneyData), handlers)));
-            this.render();
         }
+
 
         async removeItemHandler(itemId) {
             console.log(`Removing item ${itemId}`);
-
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
-            await this.refreshItems();
+            await this.refreshData();
 
             let customEvent = new CustomEvent("aem.cif.product-removed-from-cart", {detail: {quantity: this.cartQuantity}});
             document.dispatchEvent(customEvent);
@@ -139,21 +163,77 @@
          * @param args. An object in the shape of {sku, qty}
          */
         async addItem(args) {
+
+            if (!this.cartQuote || !this.cartId) {
+                // if we don't have a cart yet we have to create one, then add the item
+                await this._createEmptyCart();
+            }
+
             args.quoteId = this.cartQuote;
-            let response = await this.commerceApi.postCartEntry(this.cartId, args)
-            await this.refreshItems();
+            let response = await this.commerceApi.postCartEntry(this.cartId, args);
+            console.log(response);
+            await this.refreshData();
 
             let customEvent = new CustomEvent("aem.cif.product-added-to-cart", {detail: {quantity: this.cartQuantity}});
             document.dispatchEvent(customEvent);
+
+            this.open();
         };
 
-        get cartQuantity() {
-            return this.cartTotals.items_qty;
+        async _createEmptyCart() {
+            let cartQuote = await window.CIF.CommerceApi.createCart();
+            let cart = await window.CIF.CommerceApi.getCart(cartQuote);
+
+            this.cartId = cart.id;
+            this.cartQuote = cartQuote;
+
+            let cartInfo = {};
+            cartInfo.cartQuote = cartQuote;
+            cartInfo.cartId = cart.id;
+            window.CIF.PageContext.setCartInfo(cartInfo);
+
         }
 
-        render() {
-            // render the cart body (i.e. the items)
-            this._emptyDomNode(this.itemsListNode);
+        get cartQuantity() {
+            return this.cartTotals ? this.cartTotals.items_qty : 0;
+        }
+
+        emptyDom() {
+
+            const elements = this.rootNode.children;
+
+            while(this.rootNode.childElementCount > 1) {
+                this.rootNode.removeChild(this.rootNode.lastChild);
+            }
+
+        }
+
+        renderEmpty() {
+            console.log(`Rendering empty cart..`);
+            this.emptyDom();
+            let html = this.emptyTemplate();
+            this.rootNode.insertAdjacentHTML('beforeend', html);
+        }
+
+        renderBody() {
+            console.log(`Rendering the body...`);
+            if (this.state.previousState !== this.state.currentState) {
+                this.emptyDom();
+                console.log(`Recreating the DOM...`);
+                // recreate the sections from template and add them to the minicart
+                let bodyHtml = this.bodyTemplate();
+                this.rootNode.insertAdjacentHTML('beforeend', bodyHtml);
+                let footerHtml = this.footerTemplate();
+                this.rootNode.insertAdjacentHTML('beforeend', footerHtml);
+
+            }
+
+            // render the items, but empty the list first
+            let itemListNode = this.rootNode.querySelector("ul.productList__root");
+            while (itemListNode.firstChild) {
+                itemListNode.removeChild(itemListNode.firstChild);
+            }
+
             this.items.forEach((item, index) => {
                 let li = document.createElement("li");
                 item.renderTo(li);
@@ -161,13 +241,19 @@
                 li.classList.add("product__root");
                 li.dataset.index = index;
                 li.dataset.key = item.sku;
-                this.itemsListNode.appendChild(li);
+                itemListNode.appendChild(li);
             });
 
+            let miniCartBody = this.rootNode.querySelector(".miniCart__body");
+
+            miniCartBody.addEventListener("click", e => {
+                const dropdowns = miniCartBody.querySelectorAll("ul.kebab__dropdown_active");
+                dropdowns.forEach(dd => {
+                    dd.classList.remove("kebab__dropdown_active");
+                })
+            });
+            
             //render the totals
-
-            this._emptyDomNode(this.totalRootNode);
-
             let totalsData = {
                 quantity: this.cartTotals.items_qty,
                 value: this.cartTotals.grand_total,
@@ -175,38 +261,23 @@
             };
 
             let html = this.totalsTemplate(totalsData);
-            this._emptyDomNode(this.totalRootNode);
 
-            this.miniCartFooterNode.querySelector("div[data-placeholder='totals']");
-
-            /* Transforms a DOM string into an actual DOM Node object */
-            const toElement = (domString) => {
-                const html = new DOMParser().parseFromString(domString, "text/html");
-                return html.body.firstChild;
-            };
-
-            this.totalRootNode.appendChild(toElement(html));
-        }
-
-        /**
-         * Removes all the list elements from the list of items
-         * @private
-         */
-        _emptyDomNode(node) {
-            while (node.firstChild) {
-                node.removeChild(node.firstChild);
+            let totalsRoot = this.rootNode.querySelector("div[data-placeholder='totals']");
+            while (totalsRoot.firstChild) {
+                totalsRoot.removeChild(totalsRoot.firstChild);
             }
+            totalsRoot.insertAdjacentHTML('beforeend', html);
         }
+
     }
 
 
     function onDocumentReady() {
         const pageContext = window.CIF.PageContext;
         const commerceApi = window.CIF.CommerceApi;
-        createTestCart();
-
-        window.CIF.MiniCart = new MiniCart({pageContext, commerceApi});
-
+        createTestCart().then(res => {
+            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi});
+        });
     }
 
     async function createTestCart() {
@@ -214,10 +285,10 @@
             return;
         }
 
-        let cartInfo = {};
         let cartQuote = await window.CIF.CommerceApi.createCart();
         let cart = await window.CIF.CommerceApi.getCart(cartQuote);
 
+        let cartInfo = {};
         cartInfo.cartQuote = cartQuote;
         cartInfo.cartId = cart.id;
         window.CIF.PageContext.setCartInfo(cartInfo);

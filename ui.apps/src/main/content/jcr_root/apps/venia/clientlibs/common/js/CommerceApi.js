@@ -45,7 +45,7 @@ window.CIF = window.CIF || {};
         async _fetch(url, params) {
             let response = await fetch(url, params);
             if (!response.ok) {
-                let message = await response.json();
+                let message = await response.text();
                 throw new Error(message);
             }
             return response.json();
@@ -87,7 +87,7 @@ window.CIF = window.CIF || {};
 
         async createCart() {
 
-            return await this._post(endpoints.guestcarts.create).then(response => response.json());
+            return await this._post(endpoints.guestcarts.create);
         }
 
         async postCartEntry(cartId, {sku, qty, quoteId}) {

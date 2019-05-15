@@ -46,12 +46,6 @@ const MiniCartItem = (function (templates) {
 
             let html = this.template(this.itemData);
 
-            /* Transforms a DOM string into an actual DOM Node object */
-            const toElements = (domString) => {
-                const html = new DOMParser().parseFromString(domString, "text/html");
-                return html.body.querySelectorAll("div");
-            };
-
             const installDropDownTrigger = (el) => {
                 const button = el.querySelector("button");
                 const menu = el.querySelector("ul");
@@ -61,14 +55,11 @@ const MiniCartItem = (function (templates) {
                 });
             };
 
-            toElements(html).forEach(el => {
-                node.appendChild(el);
-                if (el.classList.contains("kebab__root")) {
-                    installDropDownTrigger(el);
-                }
-            });
+            node.insertAdjacentHTML('beforeend',html);
 
-`            node.querySelector("button[data-action='remove']").addEventListener("click", e => {
+            installDropDownTrigger(node.querySelector(".kebab__root"));
+
+            node.querySelector("button[data-action='remove']").addEventListener("click", e => {
                 const parent = e.target.parentElement;
                 this.removeItemHandler(this.itemId);
             });

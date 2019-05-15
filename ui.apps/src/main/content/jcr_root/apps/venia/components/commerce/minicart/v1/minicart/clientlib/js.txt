@@ -1,5 +1,9 @@
 #base=js
 templates/cartitem.js
 templates/carttotals.js
+templates/minicart-body.js
+templates/minicart-empty.js
+templates/minicart-footer.js
+
 MiniCartItem.js
 MiniCart.js
