@@ -37,11 +37,11 @@
 
                     <button class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the first page" onclick="switchToPageNumber(1)">
                         <span class="category__pagination_icon-root">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#000" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
                         </span>
                     </button>
 
-                    <button class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page" onclick="var p=${page @context ='unsafe'} - 1; switchToPageNumber(p);">
+                    <button class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page" onclick="var p=${productList.currentPage @context ='unsafe'} - 1; switchToPageNumber(p);">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
@@ -85,7 +85,7 @@
                     </button>
                     <button class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page">
                         <span class="icon-root-1sI">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#000" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="13 19 22 12 13 5 13 19"></polygon>
                                 <polygon points="2 19 11 12 2 5 2 19"></polygon>
                             </svg>

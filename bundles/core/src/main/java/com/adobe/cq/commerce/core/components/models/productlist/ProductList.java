@@ -29,6 +29,11 @@ public interface ProductList {
     String PN_SHOW_TITLE = "showTitle";
 
     /**
+     * Name of the String resource property indicating number of products to render on front-end.
+     */
+    String PN_PAGE_SIZE= "pageSize";
+
+    /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
      *
      * @return {@link Collection} of {@link ProductListItem}s

@@ -93,7 +93,6 @@ public class ProductListImpl implements ProductList {
         }
 
 
-
         // Parse category id from URL
         final Integer categoryId = parseCategoryId();
 
