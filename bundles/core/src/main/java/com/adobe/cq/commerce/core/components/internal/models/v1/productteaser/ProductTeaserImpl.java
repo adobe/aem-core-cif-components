@@ -101,7 +101,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     public String getImage() {
 
         if (this.product != null) {
-            return mediaBaseUrl + PRODUCT_IMAGE_FOLDER + this.product.getSwatchImage();
+            return this.product.getImage().getUrl();
         }
         return null;
     }
@@ -152,7 +152,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q
                 .name()
-                .swatchImage()
+                .image( i -> i.url())
                 .urlKey()
                 .price(this.generatePriceQuery());
     }

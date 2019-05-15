@@ -4,7 +4,9 @@
       {
         "__typename": "ConfigurableProduct",
         "name": "Sussex Rain Boots",
-        "swatch_image": "/s/u/sussex_2.jpg",
+        "image": {
+          "url": "https://test-domain/s/u/sussex_2.jpg"
+        },
         "url_key": "sussex-rain-boots",
         "price": {
           "regularPrice": {

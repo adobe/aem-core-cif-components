@@ -65,6 +65,6 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(queryResultProduct.getPrice().getRegularPrice().getAmount().getValue()),
                 slingModel.getFormattedPrice());
         Assert.assertNotNull(slingModel.getImage());
-        Assert.assertTrue(StringUtils.endsWith( slingModel.getImage(),queryResultProduct.getSwatchImage()));
+        Assert.assertTrue(StringUtils.endsWith( slingModel.getImage(),queryResultProduct.getImage().getUrl()));
     }
 }
