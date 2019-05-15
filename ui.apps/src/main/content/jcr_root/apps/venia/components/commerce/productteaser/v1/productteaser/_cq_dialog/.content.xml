@@ -2,10 +2,7 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
     jcr:primaryType="nt:unstructured"
     jcr:title="Title"
-    sling:resourceType="cq/gui/components/authoring/dialog"
-    extraClientlibs="[core.wcm.components.title.v2.editor]"
-    helpPath="https://www.adobe.com/go/aem_cmp_title_v2"
-    trackingFeature="core-components:title:v2">
+    sling:resourceType="cq/gui/components/authoring/dialog">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
@@ -33,7 +30,7 @@
                                             <title
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="/libs/commerce/gui/components/common/cifproductfield"
-                                                fieldDescription="Category Id from Magento"
+                                                fieldDescription="Magento Product Path"
                                                 fieldLabel="Select Product "
                                                 name="./productSku"
                                                 selectionId="path"/>
