@@ -19,7 +19,6 @@
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.productteaser'}"/>
     <sly data-sly-test.ispropavailable="${properties.productSku}">
         <div data-sly-test.isvalid="${product.url}" class="item__root">
-
             <a class="item__images" href=${product.url}>
                 <img class="item__image" width="100%" ;height="100%"
                      src="${product.image}" alt="${product.image}"/>
@@ -29,8 +28,11 @@
                 <span> ${product.formattedPrice} </span>
             </div>
         </div>
+        <!-- Condition if the product is not available, or invalid sku provided -->
+        <div class="blank-placeholder" data-sly-test=${!isvalid}>
+            <strong>Product Teaser <br> Incorrect Configuration. Select a Magento Product.</strong>
+        </div>
     </sly>
-
     <!-- Condition for no product configured and no property value available-->
     <div data-sly-test=${!ispropavailable} class="blank-placeholder">
         <strong>Product Teaser</strong><br>
@@ -40,9 +42,4 @@
         <p> 3.You can also drag and drop Magento product from sidebar direclty in parsys and it will render the
             teaser </p>
     </div>
-    <!-- Condition if the product is no available, or invalid sku provided -->
-    <div class="blank-placeholder" data-sly-test=${!isvalid}>
-        <strong>Product Teaser <br> Incorrect Configuration. Select a Magento Product.</strong>
-    </div>
-
 </sly>
