@@ -17,15 +17,17 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.product.Asset;
-import com.adobe.cq.commerce.core.components.models.productteaser.Productteaser;
-import com.adobe.cq.commerce.core.components.service.ProductGraphqlService;
+import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -39,54 +41,39 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = Productteaser.class, resourceType = ProductteaserImpl.RESOURCE_TYPE)
-public class ProductteaserImpl implements Productteaser {
+@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
+public class ProductTeaserImpl implements ProductTeaser {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/product/v1/Productteaser";
-    private static final Logger LOG = LoggerFactory.getLogger(ProductteaserImpl.class);
+    protected static final String RESOURCE_TYPE = "venia/components/commerce/productteaser/v1/productteaser";
+    private static final Logger LOG = LoggerFactory.getLogger(ProductTeaserImpl.class);
     private static final String PRODUCT_PATH_PROP = "productSku";
-
-    @Self
-    private SlingHttpServletRequest request;
-
+    private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
+    private String mediaBaseUrl;
     @Inject
     private Resource resource;
-
     @Inject
     private Page currentPage;
-
-    private ProductInterface product;
-
-
-    private NumberFormat priceFormatter;
-
-
-    @Inject
-    private ProductGraphqlService productGraphqlService;
-
-
     @ScriptVariable
     private ValueMap properties;
-
+    private ProductInterface product;
+    private NumberFormat priceFormatter;
     private Page productPage;
 
     @PostConstruct
     private void initModel() {
-        String sku = null;
-        String productPath = null;
         productPage = Utils.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
-        productPath = properties.get(PRODUCT_PATH_PROP, String.class);
+        String productPath = properties.get(PRODUCT_PATH_PROP, String.class);
         if (productPath != null && !productPath.isEmpty()) {
-            sku = getSkuFromUrl(productPath);
+            String sku = getSkuFromUrl(productPath);
             GraphqlClient client = resource.adaptTo(GraphqlClient.class);
             if (client == null) {
                 LOG.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
             }
             Locale locale = currentPage.getLanguage(false);
-            this.product = productGraphqlService.getProduct(client, sku);
+            this.product = getProduct(client, sku);
             this.priceFormatter = Utils.buildPriceFormatter(locale, this.getCurrency());
         }
     }
@@ -94,14 +81,11 @@ public class ProductteaserImpl implements Productteaser {
     @Override
     public String getName() {
         return (this.product != null ? this.product.getName() : null);
-
     }
 
     @Override
     public String getFormattedPrice() {
-
         Double price = this.getPrice();
-
         if (price != null) {
             return this.priceFormatter.format(price);
         }
@@ -110,13 +94,14 @@ public class ProductteaserImpl implements Productteaser {
 
     @Override
     public String getUrl() {
-        return (this.product != null ? String.format("%s.%s.html", productPage.getPath(), product.getUrlKey()) : null);
+        return (this.product != null ?  Utils.getUrlfromSlug(productPage.getPath(),product.getUrlKey()) : null);
     }
 
     @Override
-    public List<Asset> getAssets() {
+    public String getImage() {
+
         if (this.product != null) {
-            return productGraphqlService.filterAndSortAssets(this.product.getMediaGalleryEntries());
+            return mediaBaseUrl + PRODUCT_IMAGE_FOLDER + this.product.getSwatchImage();
         }
         return null;
     }
@@ -137,11 +122,41 @@ public class ProductteaserImpl implements Productteaser {
 
     // Product DnD from content finder  provides only path of the product to be replaced in
     private String getSkuFromUrl(String url) {
-        if (url != null && !url.isEmpty() && url.contains("/")) {
-            return url.substring(url.lastIndexOf("/") + 1, url.length());
+       return StringUtils.substringAfterLast(url,"/");
+    }
+
+    private ProductInterface getProduct(GraphqlClient client, String sku) {
+        FilterTypeInput input = new FilterTypeInput().setEq(sku);
+        ProductFilterInput filter = new ProductFilterInput().setSku(input);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        ProductsQueryDefinition queryArgs = q -> q.items(this.generateProductQuery());
+        String queryString = Operations.query(query -> query
+                .products(searchArgs, queryArgs)
+                .storeConfig(this.generateStoreConfigQuery())).toString();
+        GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class, QueryDeserializer.getGson());
+        Query rootQuery = response.getData();
+        List<ProductInterface> products = rootQuery.getProducts().getItems();
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        if (products.size() > 0) {
+            return products.get(0);
         }
         return null;
     }
 
+    private ProductPricesQueryDefinition generatePriceQuery() {
+        return q -> q
+                .regularPrice( rp -> rp
+                        .amount( a -> a.currency().value()));
+    }
 
+    private ProductInterfaceQueryDefinition generateProductQuery() {
+        return q -> q
+                .name()
+                .swatchImage()
+                .urlKey()
+                .price(this.generatePriceQuery());
+    }
+    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+        return q -> q.secureBaseMediaUrl();
+    }
 }

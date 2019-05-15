@@ -25,14 +25,14 @@ import java.util.List;
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
 @ProviderType
-public interface Productteaser {
+public interface ProductTeaser {
 
 
     String getName();
 
     String getFormattedPrice();
 
-    List<Asset> getAssets();
+    String getImage();
 
     String getUrl();
 
