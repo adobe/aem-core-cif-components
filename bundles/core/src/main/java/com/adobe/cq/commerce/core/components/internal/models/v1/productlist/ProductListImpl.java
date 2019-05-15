@@ -72,6 +72,10 @@ public class ProductListImpl implements ProductList {
 
     private boolean showTitle;
 
+    private int navPageCursor = 1;
+    private int navPageSize = 6;
+    private int[] navPages;
+
     @PostConstruct
     private void initModel() {
         // read properties
@@ -83,6 +87,15 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
+        //check if pageCursor available in queryString, set to 1 if not.
+        if (request.getParameter("page") == null) {
+            this.navPageCursor = 1;
+        } else {
+            this.navPageCursor = Integer.parseInt(request.getParameter("page"));
+        }
+
+
+
         // Parse category id from URL
         final Integer categoryId = parseCategoryId();
 
@@ -90,6 +103,18 @@ public class ProductListImpl implements ProductList {
         if (categoryId != null) {
             GraphqlClient client = resource.adaptTo(GraphqlClient.class);
             this.category = getCategory(client, categoryId);
+        }
+
+        //check if pageSize is set in component Property - if not, assume 6 as default
+        try {
+            this.navPageSize = currentPage.getProperties().get("pageSize") == null ? 6 : Integer.parseInt(currentPage.getProperties().get("pageSize").toString());
+        } catch (NumberFormatException numEx) {
+            LOGGER.error("found non-numeric value for pageSize in properties :" + currentPage.getProperties().get("pageSize") + ", using default=6");
+        }
+        this.navPages = new int[(this.getTotalCount() / this.navPageSize)+1];
+
+        for (int i = 0; i < this.navPages.length; i++) {
+            this.navPages[i] = (i + 1);
         }
     }
 
@@ -152,11 +177,9 @@ public class ProductListImpl implements ProductList {
 
     private CategoryTreeQueryDefinition generateProductListQuery() {
 
-        final Integer cPage = request.getCookie("currentPage") == null ? 1 : Integer.parseInt(request.getCookie("currentPage").getValue()); //cant trap NumberFormatException as only `final` var to be passed in ¬
-        final Integer pSize = currentPage.getProperties().get("pageSize") == null ? 6 : Integer.parseInt(currentPage.getProperties().get("pageSize").toString());
         CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-                .currentPage(cPage)
-                .pageSize(pSize);
+                .currentPage(this.navPageCursor)
+                .pageSize(this.navPageSize);
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
                 .id()
                 .description()
@@ -216,5 +239,20 @@ public class ProductListImpl implements ProductList {
         }
         return categoryId;
     }
+
+    @Override
+    public int getTotalCount() {
+        return category.getProducts().getTotalCount();
+    }
+
+    @Override
+    public int getCurrentPage() {
+        return this.navPageCursor;
+    }
+
+    public int[] getPageList() {
+        return this.navPages;
+    }
+
 }
 
