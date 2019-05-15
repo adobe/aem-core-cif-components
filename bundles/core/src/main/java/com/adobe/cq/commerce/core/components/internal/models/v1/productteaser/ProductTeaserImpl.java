@@ -94,7 +94,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     @Override
     public String getUrl() {
-        return (this.product != null ?  Utils.getUrlfromSlug(productPage.getPath(),product.getUrlKey()) : null);
+        return (this.product != null ?  Utils.constructUrlfromSlug(productPage.getPath(),product.getUrlKey()) : null);
     }
 
     @Override
