@@ -13,13 +13,9 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 package com.adobe.cq.commerce.core.components.models.productteaser;
 
-import com.adobe.cq.commerce.core.components.models.product.Asset;
 import org.osgi.annotation.versioning.ProviderType;
-
-import java.util.List;
 
 /**
  * Product Teaser is the sling model interface for the CIF Teaser component.
@@ -27,13 +23,33 @@ import java.util.List;
 @ProviderType
 public interface ProductTeaser {
 
-
+    /**
+     * Returns name of the configured Product for this {@code ProductTeaser}
+     *
+     * @return name of the configured Product for this Teaser of {@code null}
+     */
     String getName();
 
+
+    /**
+     * Returns formatted price string with currency for this {@code ProductTeaser}
+     *
+     * @return formatted price string with currency or {@code null}
+     */
     String getFormattedPrice();
 
+    /**
+     * Returns url of swatch image of the product for display for this {@code ProductTeaser}
+     *
+     * @return url of the swatch image for the product or {@code null}
+     */
     String getImage();
 
+    /**
+     * Return the url of the product page for this {@code ProductTeaser}
+     *
+     * @return the url of the product page of the configured product or {@code null}
+     */
     String getUrl();
 
 
