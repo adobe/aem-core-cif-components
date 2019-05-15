@@ -56,4 +56,8 @@ public interface ProductList {
     default String getTitle() {
         throw new UnsupportedOperationException();
     }
+
+    default int getTotalCount(){throw new UnsupportedOperationException();}
+
+    default int getCurrentPage(){throw new UnsupportedOperationException();}
 }
