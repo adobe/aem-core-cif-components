@@ -32,7 +32,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Default Layout Container"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia,group:Commerce]">
+                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia]">
                         <cq:authoring jcr:primaryType="nt:unstructured">
                             <assetToComponentMapping jcr:primaryType="nt:unstructured">
                                 <document
