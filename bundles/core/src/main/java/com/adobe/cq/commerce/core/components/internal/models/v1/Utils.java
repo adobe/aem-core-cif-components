@@ -114,5 +114,8 @@ public class Utils {
         }
         return categoryPage;
     }
+    public static String getUrlfromSlug(String pagePath, String slug){
+        return String.format("%s.%s.html", pagePath, slug);
+    }
 
 }

@@ -69,7 +69,7 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return String.format("%s.%s.html", productPage.getPath(), this.getSlug());
+        return Utils.getUrlfromSlug(productPage.getPath(), this.getSlug());
     }
 
     @Nullable
