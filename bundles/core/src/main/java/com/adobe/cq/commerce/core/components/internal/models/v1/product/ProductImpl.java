@@ -21,16 +21,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
@@ -39,12 +33,15 @@ import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
@@ -57,11 +54,14 @@ import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,7 +70,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProductImpl implements Product {
 
     protected static final String RESOURCE_TYPE = "venia/components/commerce/product/v1/product";
-    private static final Logger LOG = LoggerFactory.getLogger(ProductImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 
     @Self
@@ -86,86 +86,82 @@ public class ProductImpl implements Product {
     private XSSAPI xssApi;
 
     private ProductInterface product;
-
     private String mediaBaseUrl;
-
     private NumberFormat priceFormatter;
-
     private Boolean configurable;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     private void initModel() {
         // Parse slug from URL
-        String slug = this.parseProductSlug();
+        String slug = parseProductSlug();
 
-        // Get GraphqlClient from the page resource. This will look for a
-        // cq:catalogIdentifier property on the page or any ancestor and a
-        // corresponding OSGi configuration.
-        GraphqlClient client = resource.adaptTo(GraphqlClient.class);
-        if (client == null) {
-            LOG.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
+        // Get MagentoGraphqlClient from the resource.
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        
+        // Fetch product data
+        if (magentoGraphqlClient != null) {
+            product = fetchProduct(slug);
         }
-
-        this.product = this.getProduct(client, slug);
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
         // the storeConfig query introduced with Magento 2.3.1
         Locale locale = currentPage.getLanguage(false);
-        this.priceFormatter = Utils.buildPriceFormatter(locale, this.getCurrency());
+        priceFormatter = Utils.buildPriceFormatter(locale, getCurrency());
     }
 
     @Override
     public Boolean getFound() {
-        return this.product != null;
+        return product != null;
     }
 
     @Override
     public String getName() {
-        return this.product.getName();
+        return product.getName();
     }
 
     @Override
     public String getDescription() {
-        return this.safeDescription(this.product);
+        return safeDescription(product);
     }
 
     @Override
     public String getSku() {
-        return this.product.getSku();
+        return product.getSku();
     }
 
     @Override
     public String getCurrency() {
-        return this.product.getPrice().getRegularPrice().getAmount().getCurrency().toString();
+        return product.getPrice().getRegularPrice().getAmount().getCurrency().toString();
     }
 
     @Override
     public Double getPrice() {
-        return this.product.getPrice().getRegularPrice().getAmount().getValue();
+        return product.getPrice().getRegularPrice().getAmount().getValue();
     }
 
     @Override
     public Boolean getInStock() {
-        return this.product.getStockStatus().name().equals("IN_STOCK");
+        return ProductStockStatus.IN_STOCK.equals(product.getStockStatus());
     }
 
     @Override
     public Boolean isConfigurable() {
-        if (this.configurable == null) {
-            this.configurable = this.product instanceof ConfigurableProduct;
+        if (configurable == null) {
+            configurable = product instanceof ConfigurableProduct;
         }
 
-        return this.configurable;
+        return configurable;
     }
 
     @Override
     public String getVariantsJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(this.getVariants());
+            return mapper.writeValueAsString(getVariants());
         } catch (JsonProcessingException e) {
-            LOG.warn("Could not serialize product variants");
+            LOGGER.warn("Could not serialize product variants");
             return "[]";
         }
     }
@@ -174,7 +170,7 @@ public class ProductImpl implements Product {
     public List<Variant> getVariants() {
         // Don't return any variants if the current product
         // is not of type ConfigurableProduct.
-        if (!this.isConfigurable()) {
+        if (!isConfigurable()) {
             return Collections.emptyList();
         }
         ConfigurableProduct product = (ConfigurableProduct) this.product;
@@ -184,7 +180,7 @@ public class ProductImpl implements Product {
 
     @Override
     public List<Asset> getAssets() {
-        return this.filterAndSortAssets(this.product.getMediaGalleryEntries());
+        return filterAndSortAssets(product.getMediaGalleryEntries());
     }
 
     public String getAssetsJson() {
@@ -192,7 +188,7 @@ public class ProductImpl implements Product {
         try {
             return mapper.writeValueAsString(getAssets());
         } catch (JsonProcessingException e) {
-            LOG.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return "";
         }
     }
@@ -201,7 +197,7 @@ public class ProductImpl implements Product {
     public List<VariantAttribute> getVariantAttributes() {
         // Don't return any variant selection properties if the current
         // product is not of type ConfigurableProduct.
-        if (!this.isConfigurable()) {
+        if (!isConfigurable()) {
             return Collections.emptyList();
         }
 
@@ -209,7 +205,7 @@ public class ProductImpl implements Product {
 
         List<VariantAttribute> optionList = new ArrayList<>();
         for (ConfigurableProductOptions option : product.getConfigurableOptions()) {
-            optionList.add(this.mapVariantAttribute(option));
+            optionList.add(mapVariantAttribute(option));
         }
 
         return optionList;
@@ -217,7 +213,7 @@ public class ProductImpl implements Product {
 
     @Override
     public String getFormattedPrice() {
-        return this.priceFormatter.format(this.getPrice());
+        return priceFormatter.format(getPrice());
     }
 
     /* --- GraphQL queries --- */
@@ -232,7 +228,6 @@ public class ProductImpl implements Product {
 
     public SimpleProductQueryDefinition generateSimpleProductQuery() {
         return q -> q
-            .id()
             .sku()
             .name()
             .description(d -> d.html())
@@ -241,7 +236,7 @@ public class ProductImpl implements Product {
             .urlKey()
             .stockStatus()
             .color()
-            .price(this.generatePriceQuery())
+            .price(generatePriceQuery())
             .mediaGalleryEntries(g -> g
                 .disabled()
                 .file()
@@ -255,7 +250,6 @@ public class ProductImpl implements Product {
         // attribute set have to be added to the query manually. This also
         // requires the customer to use newly generated GraphQL classes.
         return q -> q
-            .id()
             .sku()
             .name()
             .description(d -> d.html())
@@ -263,8 +257,7 @@ public class ProductImpl implements Product {
             .thumbnail(t -> t.label().url())
             .urlKey()
             .stockStatus()
-            .price(this.generatePriceQuery())
-            .categories(c -> c.urlPath())
+            .price(generatePriceQuery())
             .mediaGalleryEntries(g -> g
                 .disabled()
                 .file()
@@ -283,7 +276,7 @@ public class ProductImpl implements Product {
                         .code()
                         .valueIndex()
                     )
-                    .product(this.generateSimpleProductQuery())));
+                    .product(generateSimpleProductQuery())));
     }
 
     private StoreConfigQueryDefinition generateStoreConfigQuery() {
@@ -297,12 +290,12 @@ public class ProductImpl implements Product {
 
         VariantImpl productVariant = new VariantImpl();
         productVariant.setName(product.getName());
-        productVariant.setDescription(this.safeDescription(product));
+        productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
         productVariant.setColor(product.getColor());
         productVariant.setCurrency(product.getPrice().getRegularPrice().getAmount().getCurrency().toString());
         productVariant.setPrice(product.getPrice().getRegularPrice().getAmount().getValue());
-        productVariant.setFormattedPrice(this.priceFormatter.format(productVariant.getPrice()));
+        productVariant.setFormattedPrice(priceFormatter.format(productVariant.getPrice()));
         productVariant.setInStock(product.getStockStatus().name().equals("IN_STOCK"));
 
         // Map variant attributes
@@ -310,7 +303,7 @@ public class ProductImpl implements Product {
             productVariant.getVariantAttributes().put(option.getCode(), option.getValueIndex());
         }
 
-        List<Asset> assets = this.filterAndSortAssets(product.getMediaGalleryEntries());
+        List<Asset> assets = filterAndSortAssets(product.getMediaGalleryEntries());
         productVariant.setAssets(assets);
 
         return productVariant;
@@ -368,23 +361,23 @@ public class ProductImpl implements Product {
      * @return product slug
      */
     private String parseProductSlug() {
-        return this.request.getRequestPathInfo().getSelectorString();
+        return request.getRequestPathInfo().getSelectorString();
     }
 
-    private ProductInterface getProduct(GraphqlClient client, String slug) {
+    private ProductInterface fetchProduct(String slug) {
         // Search parameters
         FilterTypeInput input = new FilterTypeInput().setEq(slug);
         ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
         ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         // GraphQL query
-        ProductsQueryDefinition queryArgs = q -> q.items(this.generateProductQuery());
+        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
         String queryString = Operations.query(query -> query
             .products(searchArgs, queryArgs)
-            .storeConfig(this.generateStoreConfigQuery())).toString();
+            .storeConfig(generateStoreConfigQuery())).toString();
 
         // Send GraphQL request
-        GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class, QueryDeserializer.getGson());
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         // Get product list from response
         Query rootQuery = response.getData();
