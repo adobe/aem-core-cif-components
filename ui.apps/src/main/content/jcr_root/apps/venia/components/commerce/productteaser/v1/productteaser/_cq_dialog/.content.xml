@@ -32,7 +32,7 @@
                                                 sling:resourceType="/libs/commerce/gui/components/common/cifproductfield"
                                                 fieldDescription="Magento Product Path"
                                                 fieldLabel="Select Product "
-                                                name="./productSku"
+                                                name="./productPath"
                                                 selectionId="path"/>
                                         </items>
                                     </column>

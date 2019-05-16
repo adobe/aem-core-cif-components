@@ -46,7 +46,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "venia/components/commerce/productteaser/v1/productteaser";
     private static final Logger LOG = LoggerFactory.getLogger(ProductTeaserImpl.class);
-    private static final String PRODUCT_PATH_PROP = "productSku";
+    private static final String PRODUCT_PATH_PROP = "productPath";
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
     private String mediaBaseUrl;
     @Inject
