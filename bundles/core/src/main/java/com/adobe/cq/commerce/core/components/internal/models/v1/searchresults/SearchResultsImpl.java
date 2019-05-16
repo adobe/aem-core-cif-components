@@ -37,7 +37,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -74,19 +73,17 @@ public class SearchResultsImpl implements SearchResults {
     private Page currentPage;
 
     private String searchTerm;
-    private MagentoGraphqlClient client;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     Page productPage;
 
     @PostConstruct
     protected void initModel() {
         searchTerm = request.getParameter("search_query");
-        client = new MagentoGraphqlClient(resource);
-        if (client == null) {
-            LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
-        }
-
         LOGGER.debug("Detected search parameter {}", searchTerm);
+
+        // Get MagentoGraphqlClient from the resource.
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = Utils.getProductPage(currentPage);
     }
 
@@ -96,7 +93,7 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        if (StringUtils.isEmpty(searchTerm)) {
+        if (magentoGraphqlClient == null || StringUtils.isEmpty(searchTerm)) {
             return Collections.emptyList();
         }
 
@@ -104,8 +101,7 @@ public class SearchResultsImpl implements SearchResults {
         String queryString = generateQueryString(processedSearchTerm);
 
         LOGGER.debug("Generated query string {}", queryString);
-        GraphqlRequest graphqlRequest = new GraphqlRequest(queryString);
-        GraphqlResponse<Query, Error> response = client.execute(graphqlRequest, Query.class, Error.class);
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         return checkAndLogErrors(response) ? Collections.emptyList() : extractProductsFromResponse(response);
 

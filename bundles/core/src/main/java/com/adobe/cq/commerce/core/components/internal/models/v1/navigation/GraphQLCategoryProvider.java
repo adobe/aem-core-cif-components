@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
@@ -42,23 +41,20 @@ class GraphQLCategoryProvider {
         categoriesQuery.apply(query).children(categoriesQuery::apply);
     };
 
-    private MagentoGraphqlClient client;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(Page page) {
-        client = new MagentoGraphqlClient(page.getContentResource());
-        if (client == null) {
-            LOGGER.warn("GraphQL client not available for resource {}", page.getContentResource().getPath());
-        }
+        magentoGraphqlClient = MagentoGraphqlClient.create(page.getContentResource());
     }
 
     List<CategoryTree> getChildCategories(Integer categoryId) {
-        if (client == null || categoryId == null) {
+        if (magentoGraphqlClient == null || categoryId == null) {
             return Collections.emptyList();
         }
 
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
         String queryString = Operations.query(query -> query.category(searchArgs, categoryQueryDefinition)).toString();
-        GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class);
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         Query rootQuery = response.getData();
         CategoryTree category = rootQuery.getCategory();

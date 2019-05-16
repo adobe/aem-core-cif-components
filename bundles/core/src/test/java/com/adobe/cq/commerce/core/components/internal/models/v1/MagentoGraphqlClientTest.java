@@ -21,6 +21,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -59,9 +59,8 @@ public class MagentoGraphqlClientTest {
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        MagentoGraphqlClient wrapper = new MagentoGraphqlClient(resource);
-        GraphqlRequest request = new GraphqlRequest("{dummy}");
-        wrapper.execute(request, String.class, String.class);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        client.execute("{dummy}");
 
         List<Header> headers = withStoreHeader ? Collections.singletonList(new BasicHeader("Store", "my-store")) : Collections.emptyList();
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers);
@@ -91,17 +90,13 @@ public class MagentoGraphqlClientTest {
     }
 
     @Test
-    public void testExecuteMethodWithRequestOptions() {
+    public void testError() {
+        // Get page which has the cq:magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
 
-        MagentoGraphqlClient wrapper = new MagentoGraphqlClient(resource);
-        GraphqlRequest request = new GraphqlRequest("{dummy}");
-        RequestOptions requestOptions = new RequestOptions();
-        wrapper.execute(request, String.class, String.class, requestOptions);
-
-        // Verify that the RequestOptions parameter is passed unmodified
-        Mockito.verify(graphqlClient).execute(request, String.class, String.class, requestOptions);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        Assert.assertNull(client);
     }
 
     /**

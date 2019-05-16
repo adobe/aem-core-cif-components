@@ -36,7 +36,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlCl
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
@@ -78,7 +77,7 @@ public class ProductListImpl implements ProductList {
     private Page productPage;
     private CategoryInterface category;
     private boolean showTitle;
-    private MagentoGraphqlClient client;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     private void initModel() {
@@ -96,8 +95,10 @@ public class ProductListImpl implements ProductList {
 
         // get GraphQL client and query data
         if (categoryId != null) {
-            client = new MagentoGraphqlClient(resource);
-            category = getCategory(categoryId);
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            if (magentoGraphqlClient != null) {
+                category = fetchCategory(categoryId);
+            }
         }
     }
 
@@ -167,30 +168,24 @@ public class ProductListImpl implements ProductList {
     /**
      * Retrieve and return the category data from backend.
      *
-     * @param client     the configured GraphQL client to be used
      * @param categoryId the category id of category we request
      * @return {@link CategoryInterface}
      */
-    private CategoryInterface getCategory(int categoryId) {
-        if (client != null) {
-            LOGGER.debug("Trying to load category data for {}", categoryId);
+    private CategoryInterface fetchCategory(int categoryId) {
+        LOGGER.debug("Trying to load category data for {}", categoryId);
 
-            // Construct GraphQL query
-            QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
+        // Construct GraphQL query
+        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
 
-            CategoryTreeQueryDefinition queryArgs = generateProductListQuery();
-            String queryString = Operations.query(query -> query.category(searchArgs, queryArgs)).toString();
+        CategoryTreeQueryDefinition queryArgs = generateProductListQuery();
+        String queryString = Operations.query(query -> query.category(searchArgs, queryArgs)).toString();
 
-            // Send GraphQL request
-            GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class);
+        // Send GraphQL request
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
-            // Get category & product list from response
-            Query rootQuery = response.getData();
-            return rootQuery.getCategory();
-        } else {
-            LOGGER.error("GraphQL client is null, can not load product list");
-            return null;
-        }
+        // Get category & product list from response
+        Query rootQuery = response.getData();
+        return rootQuery.getCategory();
     }
 
 

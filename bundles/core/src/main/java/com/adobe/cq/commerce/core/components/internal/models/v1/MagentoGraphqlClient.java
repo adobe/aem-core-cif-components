@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 
 import org.apache.http.Header;
@@ -27,6 +26,8 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
@@ -40,7 +41,7 @@ import com.day.cq.wcm.api.PageManager;
  * path in order to set the Magento <code>Store</code> HTTP header. This wrapper also sets the custom
  * Magento Gson deserializer from {@link QueryDeserializer}.
  */
-public class MagentoGraphqlClient implements GraphqlClient {
+public class MagentoGraphqlClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
 
@@ -49,10 +50,26 @@ public class MagentoGraphqlClient implements GraphqlClient {
     private GraphqlClient graphqlClient;
     private RequestOptions requestOptions;
 
-    public MagentoGraphqlClient(Resource resource) {
+    /**
+     * Instantiates and returns a new MagentoGraphqlClient.
+     * This method returns <code>null</code> if the client cannot be instantiated.
+     * 
+     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @return A new MagentoGraphqlClient instance.
+     */
+    public static MagentoGraphqlClient create(Resource resource) {
+        try {
+            return new MagentoGraphqlClient(resource);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private MagentoGraphqlClient(Resource resource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
-            LOGGER.warn("GraphQL client not available for resource " + resource.getPath());
+            throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
         }
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
@@ -71,31 +88,14 @@ public class MagentoGraphqlClient implements GraphqlClient {
         }
     }
 
-    @Override
-    public String getIdentifier() {
-        return graphqlClient.getIdentifier();
-    }
-
     /**
-     * <b>This method uses the {@link RequestOptions} set by the MagentoGraphqlClient class.</b>
-     * <br/>
-     * <br/>
-     * {@inheritDoc}
+     * Executes the given Magento request and returns the response.
+     * 
+     * @param query The GraphQL query.
+     * @return The GraphQL response.
      */
-    @Override
-    public <T, U> GraphqlResponse<T, U> execute(GraphqlRequest request, Type typeOfT, Type typeOfU) {
-        return graphqlClient.execute(request, typeOfT, typeOfU, requestOptions);
-    }
-
-    /**
-     * <b>Only use this method if you do NOT want to use the {@link RequestOptions} set by the MagentoGraphqlClient class.</b>
-     * <br/>
-     * <br/>
-     * {@inheritDoc}
-     */
-    @Override
-    public <T, U> GraphqlResponse<T, U> execute(GraphqlRequest request, Type typeOfT, Type typeOfU, RequestOptions options) {
-        return graphqlClient.execute(request, typeOfT, typeOfU, options);
+    public GraphqlResponse<Query, Error> execute(String query) {
+        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
     }
 
 }

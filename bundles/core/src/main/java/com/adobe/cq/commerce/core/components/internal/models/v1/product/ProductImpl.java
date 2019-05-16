@@ -40,7 +40,6 @@ import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
@@ -90,21 +89,20 @@ public class ProductImpl implements Product {
     private String mediaBaseUrl;
     private NumberFormat priceFormatter;
     private Boolean configurable;
-    private MagentoGraphqlClient client;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     private void initModel() {
         // Parse slug from URL
         String slug = parseProductSlug();
 
-        // Get GraphqlClient from the resource.
-        client = new MagentoGraphqlClient(resource);
-        if (client == null) {
-            LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
-        }
+        // Get MagentoGraphqlClient from the resource.
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         
         // Fetch product data
-        product = getProduct(slug);
+        if (magentoGraphqlClient != null) {
+            product = fetchProduct(slug);
+        }
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
@@ -366,7 +364,7 @@ public class ProductImpl implements Product {
         return request.getRequestPathInfo().getSelectorString();
     }
 
-    private ProductInterface getProduct(String slug) {
+    private ProductInterface fetchProduct(String slug) {
         // Search parameters
         FilterTypeInput input = new FilterTypeInput().setEq(slug);
         ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
@@ -379,7 +377,7 @@ public class ProductImpl implements Product {
             .storeConfig(generateStoreConfigQuery())).toString();
 
         // Send GraphQL request
-        GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class);
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         // Get product list from response
         Query rootQuery = response.getData();

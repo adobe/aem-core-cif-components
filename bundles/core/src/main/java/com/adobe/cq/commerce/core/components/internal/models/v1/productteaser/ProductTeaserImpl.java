@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -68,7 +67,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private ProductInterface product;
     private NumberFormat priceFormatter;
     private Page productPage;
-    private MagentoGraphqlClient client;
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     private void initModel() {
@@ -80,14 +79,15 @@ public class ProductTeaserImpl implements ProductTeaser {
         if (productPath != null && !productPath.isEmpty()) {
             String sku = getSkuFromPath(productPath);
 
-            // Get GraphqlClient from the resource.
-            client = new MagentoGraphqlClient(resource);
-            if (client == null) {
-                LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
+            // Get MagentoGraphqlClient from the resource.
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+
+            // Fetch product data
+            if (magentoGraphqlClient != null) {
+                product = fetchProduct(sku);
             }
 
             Locale locale = currentPage.getLanguage(false);
-            product = getProduct(sku);
             priceFormatter = Utils.buildPriceFormatter(locale, getCurrency());
         }
     }
@@ -138,7 +138,7 @@ public class ProductTeaserImpl implements ProductTeaser {
         return StringUtils.substringAfterLast(productPath, "/");
     }
 
-    private ProductInterface getProduct(String sku) {
+    private ProductInterface fetchProduct(String sku) {
         FilterTypeInput input = new FilterTypeInput().setEq(sku);
         ProductFilterInput filter = new ProductFilterInput().setSku(input);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
@@ -146,7 +146,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
         String queryString = Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
 
-        GraphqlResponse<Query, Error> response = client.execute(new GraphqlRequest(queryString), Query.class, Error.class);
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
         Query rootQuery = response.getData();
         List<ProductInterface> products = rootQuery.getProducts().getItems();
         if (products.size() > 0) {
