@@ -64,7 +64,7 @@
         this._element.querySelector(selectors.sku).innerText = variant.sku;
         this._element.querySelector(selectors.name).innerText = variant.name;
         this._element.querySelector(selectors.price).innerText = variant.formattedPrice;
-        this._element.querySelector(selectors.description).innerHTML = DOMPurify.sanitize(variant.description);
+        this._element.querySelector(selectors.description).innerHTML = variant.description;
     };
 
     function onDocumentReady() {
