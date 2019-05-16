@@ -46,8 +46,11 @@
             this.emptyTemplate = Handlebars.compile(templates.emptyMiniCart);
             this.bodyTemplate = Handlebars.compile(templates.body);
             this.footerTemplate = Handlebars.compile(templates.footer);
+            this.editTemplate = Handlebars.compile(templates.edit);
 
             this.removeItemHandler = this.removeItemHandler.bind(this);
+            this.editHandler = this.editHandler.bind(this);
+
             this.items = [];
             this.state = {currentState: 'empty', previousState: 'empty'};
             this.init();
@@ -63,7 +66,7 @@
                 await this.refreshItems();
                 this.renderBody();
             } else if (state === 'edit') {
-                this.renderEditItem();
+                this.renderEdit();
             }
 
         }
@@ -109,7 +112,6 @@
             }
         }
 
-
         refreshItems() {
             if (!this.cartData) {
                 return;
@@ -119,7 +121,6 @@
 
             const handlers = {
                 removeItemHandler: this.removeItemHandler,
-                addToFavesHandler: this.addToFavesHandler,
                 editHandler: this.editHandler
             };
 
@@ -138,8 +139,17 @@
             document.dispatchEvent(customEvent);
         };
 
-        editHandler(index) {
-            console.log(`Editing...`);
+        async editHandler(itemId) {
+            console.log(`Editing item ${itemId}`);
+            const miniCartItem = this.items.find(item => item.itemId === itemId);
+
+            if (!miniCartItem) {
+                return;
+            }
+
+            this.currentlyEditing = miniCartItem;
+
+            this.setState('edit');
         };
 
         /**
@@ -199,13 +209,47 @@
         }
 
         emptyDom() {
-
             const elements = this.rootNode.children;
-
-            while(this.rootNode.childElementCount > 1) {
+            while (this.rootNode.childElementCount > 1) {
                 this.rootNode.removeChild(this.rootNode.lastChild);
             }
+        }
 
+        async _handleSaveItem() {
+
+            let selectField = this.rootNode.querySelector('select[name="quantity"]');
+            let itemData = this.currentlyEditing.itemData;
+            let itemId = itemData.item_id;
+
+            let newItemData = await this.commerceApi.updateCartEntry(this.cartId, itemId, {
+                sku: itemData.sku,
+                qty: selectField.value,
+                quoteId: this.cartQuote
+            });
+
+            let response = await this.refreshData();
+            
+            this.setState('full');
+
+        }
+
+        renderEdit() {
+            console.log(`Rendering the edit form...`);
+            this.emptyDom();
+            let html = this.editTemplate();
+
+            this.rootNode.insertAdjacentHTML('beforeend', html);
+
+            this.rootNode.querySelector('button[data-action="cancel"]').addEventListener('click', (e) => {
+                this.setState('full');
+            });
+
+            this.rootNode.querySelector('button[data-action="save"').addEventListener("click", (event) => {
+                this._handleSaveItem()
+            });
+
+            let qtySelectField = this.rootNode.querySelector(`select[name="quantity"]`);
+            qtySelectField.selectedIndex = this.currentlyEditing.qty - 1;
         }
 
         renderEmpty() {
@@ -252,7 +296,7 @@
                     dd.classList.remove("kebab__dropdown_active");
                 })
             });
-            
+
             //render the totals
             let totalsData = {
                 quantity: this.cartTotals.items_qty,

@@ -23,7 +23,7 @@ window.CIF = window.CIF || {};
             byId: (id) => (`/guest-carts/${id}`),
             addEntry: (id) => (`/guest-carts/${id}/items`),
             totals: (id) => (`/guest-carts/${id}/totals`),
-            removeItem: (cartId,itemId) => (`/guest-carts/${cartId}/items/${itemId}`)
+            itemOperation: (cartId, itemId) => (`/guest-carts/${cartId}/items/${itemId}`)
         }
 
     };
@@ -51,11 +51,10 @@ window.CIF = window.CIF || {};
             return response.json();
         }
 
-        async _post(endpoint, params) {
-
+        async _update(endpoint, params, method) {
             let url = `${this.rootEndpoint}${endpoint}`;
             let defaultParams = {
-                method: "POST",
+                method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -63,7 +62,15 @@ window.CIF = window.CIF || {};
 
             let extendedParams = Object.assign({}, params, defaultParams);
 
-            return this._fetch(url,extendedParams);
+            return this._fetch(url, extendedParams);
+        }
+
+        async _post(endpoint, params) {
+            return this._update(endpoint, params, 'POST');
+        }
+
+        async _put(endpoint, params) {
+            return this._update(endpoint, params, 'PUT');
         }
 
         //TODO update error checking
@@ -86,8 +93,22 @@ window.CIF = window.CIF || {};
         }
 
         async createCart() {
-
             return await this._post(endpoints.guestcarts.create);
+        }
+
+        async updateCartEntry(cartId, itemId, {sku, qty, quoteId}) {
+            let url = `${endpoints.guestcarts.itemOperation(cartId, itemId)}`;
+            let params = {
+                cartItem: {
+                    sku,
+                    qty,
+                    quote_id: quoteId
+                }
+            };
+
+            let body = {body: JSON.stringify(params)};
+            return this._put(url, body)
+
         }
 
         async postCartEntry(cartId, {sku, qty, quoteId}) {
@@ -108,7 +129,7 @@ window.CIF = window.CIF || {};
         }
 
         async removeItem(cartQuote, itemId) {
-            return await this._delete(endpoints.guestcarts.removeItem(cartQuote, itemId));
+            return await this._delete(endpoints.guestcarts.itemOperation(cartQuote, itemId));
         }
 
 

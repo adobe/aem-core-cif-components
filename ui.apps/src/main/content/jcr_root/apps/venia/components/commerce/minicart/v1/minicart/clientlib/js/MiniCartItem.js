@@ -17,11 +17,10 @@ const MiniCartItem = (function (templates) {
 
     class MiniCartItem {
 
-        constructor(itemData, {removeItemHandler, addToFavesHandler, editHandler}) {
+        constructor(itemData, {removeItemHandler, editHandler}) {
             this.template = Handlebars.compile(templates.cartItem);
 
             this.removeItemHandler = removeItemHandler;
-            this.addToFavesHandler = addToFavesHandler;
             this.editHandler = editHandler;
             this.itemData = itemData;
         }
@@ -36,6 +35,10 @@ const MiniCartItem = (function (templates) {
 
         get itemId() {
             return this.itemData.item_id;
+        }
+
+        get name() {
+            return this.itemData.name;
         }
 
         renderTo(node) {
