@@ -40,16 +40,16 @@ import com.day.cq.wcm.api.PageManager;
  * path in order to set the Magento <code>Store</code> HTTP header. This wrapper also sets the custom
  * Magento Gson deserializer from {@link QueryDeserializer}.
  */
-public class GraphqlClientWrapper implements GraphqlClient {
+public class MagentoGraphqlClient implements GraphqlClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphqlClientWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
 
     public static final String STORE_CODE_PROPERTY = "cq:magentoStore";
 
     private GraphqlClient graphqlClient;
     private RequestOptions requestOptions;
 
-    public GraphqlClientWrapper(Resource resource) {
+    public MagentoGraphqlClient(Resource resource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
             LOGGER.warn("GraphQL client not available for resource " + resource.getPath());
@@ -77,7 +77,7 @@ public class GraphqlClientWrapper implements GraphqlClient {
     }
 
     /**
-     * <b>This method uses the {@link RequestOptions} set by the GraphqlClientWrapper class.</b>
+     * <b>This method uses the {@link RequestOptions} set by the MagentoGraphqlClient class.</b>
      * <br/>
      * <br/>
      * {@inheritDoc}
@@ -88,7 +88,7 @@ public class GraphqlClientWrapper implements GraphqlClient {
     }
 
     /**
-     * <b>Only use this method if you do NOT want to use the {@link RequestOptions} set by the GraphqlClientWrapper class.</b>
+     * <b>Only use this method if you do NOT want to use the {@link RequestOptions} set by the MagentoGraphqlClient class.</b>
      * <br/>
      * <br/>
      * {@inheritDoc}

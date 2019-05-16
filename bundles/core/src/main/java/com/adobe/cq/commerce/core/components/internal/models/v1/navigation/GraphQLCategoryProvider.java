@@ -21,7 +21,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.GraphqlClientWrapper;
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -42,10 +42,10 @@ class GraphQLCategoryProvider {
         categoriesQuery.apply(query).children(categoriesQuery::apply);
     };
 
-    private GraphqlClientWrapper client;
+    private MagentoGraphqlClient client;
 
     GraphQLCategoryProvider(Page page) {
-        client = new GraphqlClientWrapper(page.getContentResource());
+        client = new MagentoGraphqlClient(page.getContentResource());
         if (client == null) {
             LOGGER.warn("GraphQL client not available for resource {}", page.getContentResource().getPath());
         }

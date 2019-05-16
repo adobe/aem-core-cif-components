@@ -34,7 +34,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-public class GraphqlClientWrapperTest {
+public class MagentoGraphqlClientTest {
 
     private GraphqlClient graphqlClient;
 
@@ -59,7 +59,7 @@ public class GraphqlClientWrapperTest {
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        GraphqlClientWrapper wrapper = new GraphqlClientWrapper(resource);
+        MagentoGraphqlClient wrapper = new MagentoGraphqlClient(resource);
         GraphqlRequest request = new GraphqlRequest("{dummy}");
         wrapper.execute(request, String.class, String.class);
 
@@ -95,7 +95,7 @@ public class GraphqlClientWrapperTest {
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        GraphqlClientWrapper wrapper = new GraphqlClientWrapper(resource);
+        MagentoGraphqlClient wrapper = new MagentoGraphqlClient(resource);
         GraphqlRequest request = new GraphqlRequest("{dummy}");
         RequestOptions requestOptions = new RequestOptions();
         wrapper.execute(request, String.class, String.class, requestOptions);

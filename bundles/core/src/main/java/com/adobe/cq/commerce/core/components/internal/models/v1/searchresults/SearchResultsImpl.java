@@ -32,7 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.GraphqlClientWrapper;
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
@@ -74,14 +74,14 @@ public class SearchResultsImpl implements SearchResults {
     private Page currentPage;
 
     private String searchTerm;
-    private GraphqlClientWrapper client;
+    private MagentoGraphqlClient client;
 
     Page productPage;
 
     @PostConstruct
     protected void initModel() {
         searchTerm = request.getParameter("search_query");
-        client = new GraphqlClientWrapper(resource);
+        client = new MagentoGraphqlClient(resource);
         if (client == null) {
             LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
         }

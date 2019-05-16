@@ -32,7 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.GraphqlClientWrapper;
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
@@ -86,7 +86,7 @@ public class ProductImpl implements Product {
     private String mediaBaseUrl;
     private NumberFormat priceFormatter;
     private Boolean configurable;
-    private GraphqlClientWrapper client;
+    private MagentoGraphqlClient client;
 
     @PostConstruct
     private void initModel() {
@@ -94,7 +94,7 @@ public class ProductImpl implements Product {
         String slug = parseProductSlug();
 
         // Get GraphqlClient from the resource.
-        client = new GraphqlClientWrapper(resource);
+        client = new MagentoGraphqlClient(resource);
         if (client == null) {
             LOGGER.warn("GraphQL client not available for resource {}", resource.getPath());
         }
