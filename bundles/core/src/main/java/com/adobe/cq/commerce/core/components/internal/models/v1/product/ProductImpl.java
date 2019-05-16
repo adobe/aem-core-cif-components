@@ -35,6 +35,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,9 @@ public class ProductImpl implements Product {
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private XSSAPI xssApi;
 
     private ProductInterface product;
 
@@ -403,6 +407,8 @@ public class ProductImpl implements Product {
         if (description == null) {
             return null;
         }
-        return description.getHtml();
+
+        // Filter HTML
+        return xssApi.filterHTML(description.getHtml());
     }
 }
