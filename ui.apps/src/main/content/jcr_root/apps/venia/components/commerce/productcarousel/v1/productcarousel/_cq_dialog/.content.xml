@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Product Carousel"
+    sling:resourceType="cq/gui/components/authoring/dialog">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <column
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <content
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/foundation/form/multifield"
+                        fieldDescription="Provide List of Products to be rendered in Carousel"
+                        fieldLabel="Carousel content"
+                        typeHint="[product@String[]]">
+                        <field
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="commerce/gui/components/common/cifproductfield"
+                            fieldLabel="Product"
+                            name="./product"
+                            rootPath="/var/commerce/products"
+                            selectionId="sku"/>
+                    </content>
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>
