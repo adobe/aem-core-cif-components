@@ -25,4 +25,10 @@ public interface Header {
     @Nullable
     String getSearchResultsPageUrl();
 
+    /**
+     * @return the URL of the navigation root page
+     */
+    @Nullable
+    String getNavigationRootPageUrl();
+
 }

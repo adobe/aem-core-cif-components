@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
-import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -26,6 +25,7 @@ import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -100,6 +101,11 @@ public class ProductImplTest {
 
         // Set number formatter
         Whitebox.setInternalState(this.slingModel, "priceFormatter", NumberFormat.getCurrencyInstance(Locale.US));
+
+        // XSS Filter
+        XSSAPI xssApi = mock(XSSAPI.class);
+        when(xssApi.filterHTML(anyString())).then(i -> i.getArgumentAt(0, String.class));
+        Whitebox.setInternalState(this.slingModel, "xssApi", xssApi);
     }
 
     @Test

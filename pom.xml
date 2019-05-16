@@ -256,7 +256,6 @@
                         <exclude>**/css.txt</exclude>
                         <exclude>**/*.css</exclude>
                         <exclude>**/*.less</exclude>
-                        <exclude>**/purify.min.js</exclude>
                     </excludes>
                 </configuration>
                 <executions>

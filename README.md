@@ -9,6 +9,17 @@ This project is intended to be used in conjunction with the [AEM Sites Core Comp
 ## Documentation
 > TODO
 
+### Sanitizing Product Description HTML
+Our components sanitize HTML that is retrieved via GraphQL to prevent cross-site scripting (XSS) attacks.
+This is done using `XSSAPI` provided by Apache Sling which needs to be configured according to your needs if you want to use
+extensive HTML in your product descriptions. You can find more details at https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/security.html.
+
+Every time the XSS library filters forbidden syntax from your product description, it will post an *INFO* log message similar to:
+```
+*INFO* GET /content/venia/us/en/products/product-page.sku.html HTTP/1.1 org.apache.sling.xss.impl.HtmlToHtmlContentContext AntiSamy warning: The div tag had a style attribute, "border&#45;bottom&#45;right&#45;radius", that could not be allowed for security reasons.
+```
+To prevent those log messages either allow the filtered syntax in your AntiSamy configuration, remove it from your product description or raise the log level above *INFO*.
+
 ## Available Components
 * [Product](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/product/v1/product)
 * [Product List](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productlist/v1/productlist)
