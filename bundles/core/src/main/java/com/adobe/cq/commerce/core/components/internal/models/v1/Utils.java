@@ -20,6 +20,7 @@ import java.util.Currency;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,11 @@ public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
     private static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
     private static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
-
     private static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
+    /**
+     * Boolean property to mark the navigation root page.
+     */
+    static final String PN_NAV_ROOT = "navRoot";
 
     private Utils() {
     }
@@ -87,6 +91,26 @@ public class Utils {
     @Nullable
     public static Page getSearchResultsPage(Page page) {
         return getGenericPage(PN_CIF_SEARCH_RESULTS_PAGE, page);
+    }
+
+    /**
+     * Retrieves the navigation root related to the specified page.
+     * The page and its parents is searched for the navRoot=true property, marking the navigation root.
+     *
+     * @param page the page
+     *
+     * @return the navigation root page if found,  otherwise {@code null}
+     */
+    @Nullable
+    public static Page getNavigationRootPage(Page page) {
+        while (page != null) {
+            if (page.getContentResource().getValueMap().get(PN_NAV_ROOT, false)) {
+                break;
+            }
+
+            page = page.getParent();
+        }
+        return page;
     }
 
     /**

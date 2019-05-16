@@ -12,11 +12,12 @@
 
 -->
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.searchbar="searchbar.html">
+     data-sly-use.searchbar="searchbar.html"
+     data-sly-use.header="com.adobe.cq.commerce.core.components.models.header.Header">
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.header'}"/>
     <header class="header__root header__closed">
         <div class="header__toolbar">
-            <a href="#"><img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="Venia" title="Venia"/></a>
+            <a href="${header.navigationRootPageUrl}"><img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="Venia" title="Venia"/></a>
             <div class="header__primaryActions">
                 <sly data-sly-test="${resource['navigation/navigationRoot']}" data-sly-resource="${resource.path}/navigation"/>
             </div>

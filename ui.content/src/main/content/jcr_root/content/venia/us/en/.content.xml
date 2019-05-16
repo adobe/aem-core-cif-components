@@ -15,6 +15,7 @@
         jcr:mixinTypes="[cq:LiveRelationship,cq:LiveSync,cq:PropertyLiveSyncCancelled]"
         jcr:primaryType="cq:PageContent"
         jcr:title="English"
+        navRoot="{Boolean}true"
         sling:resourceType="venia/components/structure/page/v1/page">
         <root
             cq:lastRolledout="{Date}2019-04-17T13:22:08.484+02:00"
