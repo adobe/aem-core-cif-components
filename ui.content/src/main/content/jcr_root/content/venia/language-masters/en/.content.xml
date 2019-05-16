@@ -4,6 +4,7 @@
     <jcr:content
         cq:cifCategoryPage="/content/venia/language-masters/en/products/category-page"
         cq:cifProductPage="/content/venia/language-masters/en/products/product-page"
+        cq:cifSearchResultsPage="/content/venia/language-masters/en/search"
         cq:lastModified="{Date}2019-04-17T10:53:32.687+02:00"
         cq:lastModifiedBy="admin"
         cq:template="/conf/venia/settings/wcm/templates/landing-page"
