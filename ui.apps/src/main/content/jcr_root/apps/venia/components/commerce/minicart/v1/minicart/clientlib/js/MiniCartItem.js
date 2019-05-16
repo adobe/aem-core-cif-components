@@ -49,21 +49,24 @@ const MiniCartItem = (function (templates) {
 
             let html = this.template(this.itemData);
 
-            const installDropDownTrigger = (el) => {
-                const button = el.querySelector("button");
-                const menu = el.querySelector("ul");
-                button.addEventListener("click", e => {
-                    e.stopImmediatePropagation();
-                    menu.classList.toggle("kebab__dropdown_active");
-                });
-            };
+            // insert the rendered HTML into the DOM
+            node.insertAdjacentHTML('beforeend', html);
 
-            node.insertAdjacentHTML('beforeend',html);
+            // install the drop-down trigger
+            let trigger = node.querySelector(".kebab__root");
+            let button = trigger.querySelector("button");
+            let menu = trigger.querySelector("ul");
+            button.addEventListener("click", e => {
+                e.stopImmediatePropagation();
+                menu.classList.toggle("kebab__dropdown_active");
+            });
 
-            installDropDownTrigger(node.querySelector(".kebab__root"));
+            this.mask = node.querySelector(".product__mask");
 
+            // install the menu listeners
             node.querySelector("button[data-action='remove']").addEventListener("click", e => {
                 const parent = e.target.parentElement;
+                this.mask.style.visibility = "visible";
                 this.removeItemHandler(this.itemId);
             });
 

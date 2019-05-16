@@ -211,16 +211,16 @@
 .product__root_masked {
 }
 
-.product__mask {
-    display: block;
+.product__root .product__mask {
+    position: absolute;
+    left: -24px;
+    right: -24px;
+    top: -7px;
+    bottom: -7px;
     background-color: rgb(var(--venia-grey));
-    position: fixed;
-    grid-row-start: 1;
-    grid-row-end: 4;
-    grid-column-start: 1;
-    grid-column-end: 4;
+    opacity: 0.5;
+    z-index: 2;
     visibility: hidden;
-    opacity: 0;
 }
 
 .product__mask_active {
