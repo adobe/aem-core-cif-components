@@ -4,6 +4,7 @@
     <jcr:content
         cq:cifCategoryPage="/content/venia/us/en/products/category-page"
         cq:cifProductPage="/content/venia/us/en/products/product-page"
+        cq:cifSearchResultsPage="/content/venia/us/en/search"
         cq:lastModified="{Date}2019-04-17T13:22:49.862+02:00"
         cq:lastModifiedBy="admin"
         cq:lastRolledout="{Date}2019-04-17T13:22:08.490+02:00"
@@ -14,6 +15,7 @@
         jcr:mixinTypes="[cq:LiveRelationship,cq:LiveSync,cq:PropertyLiveSyncCancelled]"
         jcr:primaryType="cq:PageContent"
         jcr:title="English"
+        navRoot="{Boolean}true"
         sling:resourceType="venia/components/structure/page/v1/page">
         <root
             cq:lastRolledout="{Date}2019-04-17T13:22:08.484+02:00"
