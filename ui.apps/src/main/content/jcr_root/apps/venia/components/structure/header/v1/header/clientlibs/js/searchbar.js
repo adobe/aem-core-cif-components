@@ -104,6 +104,7 @@
 
         _show() {
             this._searchBarRoot.classList.add(this._classes.open);
+            this._searchBox.focus();
             this._registerSearchBoxListener();
         }
 
