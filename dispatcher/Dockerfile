@@ -45,3 +45,6 @@ RUN echo 'Include conf/magento-proxy.conf' >> "${HTTPD_PREFIX}/conf/httpd.conf"
 
 # Go back to apache root
 RUN cd $HTTPD_PREFIX
+
+# Fix permissions for dispatcher caching folder
+RUN chown daemon:www-data htdocs
