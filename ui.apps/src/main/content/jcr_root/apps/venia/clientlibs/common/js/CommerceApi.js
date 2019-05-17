@@ -69,8 +69,8 @@ window.CIF = window.CIF || {};
          * @returns {Promise<any>}
          * @private
          */
-        async _update(url, params, method) {
-            let url = `${this.rootEndpoint}${url}`;
+        async _update(endpoint, params, method) {
+            let url = `${this.rootEndpoint}${endpoint}`;
             let defaultParams = {
                 method,
                 headers: {
@@ -91,7 +91,6 @@ window.CIF = window.CIF || {};
             return this._update(endpoint, params, 'PUT');
         }
 
-        //TODO update error checking
         async _get(endpoint) {
             let url = `${this.rootEndpoint}${endpoint}`;
             return this._fetch(url);
@@ -110,7 +109,7 @@ window.CIF = window.CIF || {};
          * @returns {Promise<T>}
          */
         async getCart(id) {
-            return await this._get(endpoints.guestcarts.byId(id)).then(response => response.json());
+            return await this._get(endpoints.guestcarts.byId(id));
         }
 
         /**
@@ -172,7 +171,7 @@ window.CIF = window.CIF || {};
          * @returns {Promise<T>}
          */
         async getTotals(cartId) {
-            return await this._get(endpoints.guestcarts.totals(cartId)).then(response => response.json());
+            return await this._get(endpoints.guestcarts.totals(cartId));
         }
 
         /**

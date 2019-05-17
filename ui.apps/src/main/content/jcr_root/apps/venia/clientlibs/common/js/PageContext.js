@@ -11,7 +11,6 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-'use strict';
 
 /**
  * A context object which controls the page behaviour and holds the state of the various components on the page
@@ -33,44 +32,27 @@ window.CIF = window.CIF || {};
     function PageContext() {
         // define the pageMask that is displayed when the sides are open (minicart and nav)
         let pageMask = document.querySelector("button.mask__root");
-
+        let cartInfo = {};
         // process the cif.cart cookie, containing the cartId and cartQuote
         const cookieName = "cif.cart";
-        let cartInfo;
+        if (checkCookie(cookieName)) {
+            const cifCartCookie = cookieValue(cookieName);
 
-        if (!checkCookie(cookieName)) {
-            return;
-        }
 
-        const cifCartCookie = cookieValue(cookieName);
-        if (cifCartCookie.length > 0) {
-            let [cartId, cartQuote] = cifCartCookie.split("#");
-            cartInfo = {cartId, cartQuote}
+            if (cifCartCookie.length > 0) {
+                let [cartId, cartQuote] = cifCartCookie.split("#");
+                cartInfo = {cartId, cartQuote}
+            }
         }
 
         return {
-            /**
-             * The information for the current cart. The shape of this object is {cartId, cartQuote}
-             */
             cartInfo: cartInfo,
-
-            /**
-             * Opens the page mask
-             */
             maskPage: function () {
                 pageMask.classList.add("mask__root_active");
             },
-            /**
-             * Closes the page mask
-             */
             unmaskPage: function () {
                 pageMask.classList.remove("mask__root_active");
             },
-            /**
-             * sets the information in the cartInfo cookie.
-             * @param cartId
-             * @param cartQuote
-             */
             setCartInfoCookie: function ({cartId, cartQuote}) {
                 document.cookie = `cif.cart=${cartId}#${cartQuote}`;
             }

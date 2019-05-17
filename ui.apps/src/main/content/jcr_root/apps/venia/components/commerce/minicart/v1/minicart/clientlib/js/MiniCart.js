@@ -109,8 +109,6 @@
             closeButton.addEventListener('click', event => {
                 this.close();
             });
-
-
         }
 
         /*
@@ -127,10 +125,13 @@
 
                 //issue the request for the cart items images as well
 
-                return Promise.all([cartDataPromise, cartTotalsPromise]).then(result => {
+                Promise.all([cartDataPromise, cartTotalsPromise]).then(result => {
                     this.cartData = result[0];
                     this.cartTotals = result[1];
 
+                    let itemIds = this.cartData.items.map( item => item.sku);
+                    console.log(`Collected item ids ${itemIds}`);
+                    
                     if (this.cartData.items.length > 0) {
                         this.setState('full');
                     } else {
@@ -207,9 +208,9 @@
 
         /**
          * Adds an entry to this cart.
-         * @param args. An object in the shape of {masterSku, sku, qty}
+         * @param args. An object in the shape of {sku, qty}
          */
-        async addItem(args) {
+        async addItem({sku,qty}) {
 
             if (!this.cartQuote || !this.cartId) {
                 // if we don't have a cart yet we have to create one, then add the item
@@ -219,10 +220,10 @@
             let params = {
                 sku,
                 qty,
-                quote_id: this.cartQuote
+                quoteId:this.cartQuote
             };
 
-            let response = await this.commerceApi.postCartEntry(this.cartId, args);
+            let response = await this.commerceApi.postCartEntry(this.cartId, params);
             console.log(response);
             await this.refreshData();
 
@@ -247,7 +248,7 @@
             let cartInfo = {};
             cartInfo.cartQuote = cartQuote;
             cartInfo.cartId = cart.id;
-            window.CIF.PageContext.setCartInfo(cartInfo);
+            window.CIF.PageContext.setCartInfoCookie(cartInfo);
 
         }
 
