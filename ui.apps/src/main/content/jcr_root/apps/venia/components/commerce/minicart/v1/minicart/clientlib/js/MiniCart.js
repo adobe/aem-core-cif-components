@@ -14,6 +14,9 @@
 
 'use strict';
 
+/**
+ * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
+ */
 (function (templates) {
 
     class MiniCart {
@@ -32,8 +35,13 @@
                 throw new Error('The PageContext was not supplied to the MiniCart library');
             }
 
+            if (!props.storage) {
+                throw new Error('The Storage was not supplied to the MiniCart library');
+            }
+
             this.pageContext = props.pageContext;
             this.commerceApi = props.commerceApi;
+            this.storage = props.storage;
 
             if (this.pageContext.cartInfo) {
                 this.cartQuote = this.pageContext.cartInfo.cartQuote;
@@ -56,6 +64,15 @@
             this.init();
         }
 
+        /**
+         * Sets the state of the MiniCart component. The state can be one of the following:
+         * empty - when the cart is empty
+         * full - when the cart has some items in it
+         * edit - when an item is in edit mode
+         *
+         * @param state
+         * @returns {Promise<void>}
+         */
         async setState(state) {
             this.state.previousState = this.state.currentState;
             this.state.currentState = state;
@@ -71,6 +88,10 @@
 
         }
 
+        /**
+         * Initializes the shopping cart component
+         * @returns {Promise<void>}
+         */
         async init() {
             this._initializeBehavior();
             await this.refreshData();
@@ -93,7 +114,7 @@
         }
 
         /*
-         * Initializes the data for to be displayed by the MiniCart
+         *  Updates the data for to be displayed by the MiniCart
          */
         async refreshData() {
             if (!this.cartId || !this.cartQuote) {
@@ -101,17 +122,27 @@
                 this.setState('empty');
             } else {
 
-                this.cartData = await this.commerceApi.getCart(this.cartQuote);
-                this.cartTotals = await this.commerceApi.getTotals(this.cartQuote);
+                let cartDataPromise = this.commerceApi.getCart(this.cartQuote);
+                let cartTotalsPromise = this.commerceApi.getTotals(this.cartQuote);
 
-                if (this.cartData.items.length > 0) {
-                    this.setState('full');
-                } else {
-                    this.setState('empty');
-                }
+                //issue the request for the cart items images as well
+
+                return Promise.all([cartDataPromise, cartTotalsPromise]).then(result => {
+                    this.cartData = result[0];
+                    this.cartTotals = result[1];
+
+                    if (this.cartData.items.length > 0) {
+                        this.setState('full');
+                    } else {
+                        this.setState('empty');
+                    }
+                });
             }
         }
 
+        /**
+         * Builds the cart items based on the cart data.
+         */
         refreshItems() {
             if (!this.cartData) {
                 return;
@@ -130,6 +161,11 @@
         }
 
 
+        /**
+         * Removes an item from the cart.
+         * @param itemId the id of the cart item to remove
+         * @returns {Promise<void>}
+         */
         async removeItemHandler(itemId) {
             console.log(`Removing item ${itemId}`);
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
@@ -139,16 +175,17 @@
             document.dispatchEvent(customEvent);
         };
 
+        /**
+         * Opens the edit side-panel for a cart item
+         * @param itemId the id of the cart item.
+         * @returns {Promise<void>}
+         */
         async editHandler(itemId) {
-            console.log(`Editing item ${itemId}`);
             const miniCartItem = this.items.find(item => item.itemId === itemId);
-
             if (!miniCartItem) {
                 return;
             }
-
             this.currentlyEditing = miniCartItem;
-
             this.setState('edit');
         };
 
@@ -170,7 +207,7 @@
 
         /**
          * Adds an entry to this cart.
-         * @param args. An object in the shape of {sku, qty}
+         * @param args. An object in the shape of {masterSku, sku, qty}
          */
         async addItem(args) {
 
@@ -179,7 +216,12 @@
                 await this._createEmptyCart();
             }
 
-            args.quoteId = this.cartQuote;
+            let params = {
+                sku,
+                qty,
+                quote_id: this.cartQuote
+            };
+
             let response = await this.commerceApi.postCartEntry(this.cartId, args);
             console.log(response);
             await this.refreshData();
@@ -190,6 +232,11 @@
             this.open();
         };
 
+        /**
+         * Creates an empty shopping cart and sets the data in the page context.
+         * @returns {Promise<void>}
+         * @private
+         */
         async _createEmptyCart() {
             let cartQuote = await window.CIF.CommerceApi.createCart();
             let cart = await window.CIF.CommerceApi.getCart(cartQuote);
@@ -208,6 +255,9 @@
             return this.cartTotals ? this.cartTotals.items_qty : 0;
         }
 
+        /**
+         * Empties the DOM element of the MiniCart component
+         */
         emptyDom() {
             const elements = this.rootNode.children;
             while (this.rootNode.childElementCount > 1) {
@@ -215,6 +265,11 @@
             }
         }
 
+        /**
+         * Saves a cart item after being edited. This function only sets the quantity of the item in the cart.
+         * @returns {Promise<void>}
+         * @private
+         */
         async _handleSaveItem() {
 
             let selectField = this.rootNode.querySelector('select[name="quantity"]');
@@ -228,11 +283,14 @@
             });
 
             let response = await this.refreshData();
-            
+
             this.setState('full');
 
         }
 
+        /**
+         * Renders the edit window DOM
+         */
         renderEdit() {
             console.log(`Rendering the edit form...`);
             this.emptyDom();
@@ -252,6 +310,9 @@
             qtySelectField.selectedIndex = this.currentlyEditing.qty - 1;
         }
 
+        /**
+         * Renders an empty shopping cart.
+         */
         renderEmpty() {
             console.log(`Rendering empty cart..`);
             this.emptyDom();
@@ -259,6 +320,9 @@
             this.rootNode.insertAdjacentHTML('beforeend', html);
         }
 
+        /**
+         * Renders the body of the shopping cart with items and totals.
+         */
         renderBody() {
             console.log(`Rendering the body...`);
             if (this.state.previousState !== this.state.currentState) {
@@ -319,8 +383,9 @@
     function onDocumentReady() {
         const pageContext = window.CIF.PageContext;
         const commerceApi = window.CIF.CommerceApi;
+        const storage = window.CIF.Storage;
         createTestCart().then(res => {
-            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi});
+            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi, storage});
         });
     }
 
@@ -335,7 +400,7 @@
         let cartInfo = {};
         cartInfo.cartQuote = cartQuote;
         cartInfo.cartId = cart.id;
-        window.CIF.PageContext.setCartInfo(cartInfo);
+        window.CIF.PageContext.setCartInfoCookie(cartInfo);
     }
 
 

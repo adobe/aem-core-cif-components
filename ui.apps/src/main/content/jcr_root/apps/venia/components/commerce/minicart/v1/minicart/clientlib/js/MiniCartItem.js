@@ -12,8 +12,13 @@
  *
  *
  ******************************************************************************/
-const MiniCartItem = (function (templates) {
+'use strict';
 
+/**
+ * A class describing a MiniCart item. It's responsible for rendering the item in the MiniCart component
+ * @type {MiniCartItem}
+ */
+const MiniCartItem = (function (templates) {
 
     class MiniCartItem {
 

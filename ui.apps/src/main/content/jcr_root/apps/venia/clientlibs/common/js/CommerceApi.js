@@ -12,9 +12,12 @@
  *
  *
  ******************************************************************************/
-
+'use strict';
 window.CIF = window.CIF || {};
 
+/**
+ * The CommerceApi is responsible for interacting with the Commerce backend using REST API calls
+ */
 (function () {
 
     const endpoints = {
@@ -42,6 +45,13 @@ window.CIF = window.CIF || {};
             this.rootEndpoint = props.endpoint;
         }
 
+        /**
+         * Issues a request to the supplied URL using the provided parameters
+         * @param url
+         * @param params
+         * @returns {Promise<any>} the JSON response or throws an error
+         * @private
+         */
         async _fetch(url, params) {
             let response = await fetch(url, params);
             if (!response.ok) {
@@ -51,8 +61,16 @@ window.CIF = window.CIF || {};
             return response.json();
         }
 
-        async _update(endpoint, params, method) {
-            let url = `${this.rootEndpoint}${endpoint}`;
+        /**
+         * Performs an update operation (POST or PUT).
+         * @param url the request URL
+         * @param params the URL parameters
+         * @param method the method to use for the update - POST or PUT
+         * @returns {Promise<any>}
+         * @private
+         */
+        async _update(url, params, method) {
+            let url = `${this.rootEndpoint}${url}`;
             let defaultParams = {
                 method,
                 headers: {
@@ -76,9 +94,7 @@ window.CIF = window.CIF || {};
         //TODO update error checking
         async _get(endpoint) {
             let url = `${this.rootEndpoint}${endpoint}`;
-            return fetch(url).catch(err => {
-                throw new Error(err);
-            })
+            return this._fetch(url);
         }
 
         async _delete(endpoint) {
@@ -88,14 +104,32 @@ window.CIF = window.CIF || {};
             return this._fetch(url, params);
         }
 
+        /**
+         * Retrieves the cart data in JSON format
+         * @param id the cart id
+         * @returns {Promise<T>}
+         */
         async getCart(id) {
             return await this._get(endpoints.guestcarts.byId(id)).then(response => response.json());
         }
 
+        /**
+         * Creates an empty shopping cart.
+         * @returns {Promise<*>}
+         */
         async createCart() {
             return await this._post(endpoints.guestcarts.create);
         }
 
+        /**
+         * Updates a cart entry
+         * @param cartId
+         * @param itemId
+         * @param sku
+         * @param qty
+         * @param quoteId
+         * @returns {Promise<*>}
+         */
         async updateCartEntry(cartId, itemId, {sku, qty, quoteId}) {
             let url = `${endpoints.guestcarts.itemOperation(cartId, itemId)}`;
             let params = {
@@ -111,6 +145,14 @@ window.CIF = window.CIF || {};
 
         }
 
+        /**
+         * Adds a new cart entry
+         * @param cartId
+         * @param sku
+         * @param qty
+         * @param quoteId
+         * @returns {Promise<*>}
+         */
         async postCartEntry(cartId, {sku, qty, quoteId}) {
             const url = `${endpoints.guestcarts.addEntry(cartId)}`;
             const params = {
@@ -124,10 +166,21 @@ window.CIF = window.CIF || {};
             return await this._post(url, body);
         }
 
+        /**
+         * Retrieves the cart totals.
+         * @param cartId
+         * @returns {Promise<T>}
+         */
         async getTotals(cartId) {
             return await this._get(endpoints.guestcarts.totals(cartId)).then(response => response.json());
         }
 
+        /**
+         * Removes an item from the cart
+         * @param cartQuote
+         * @param itemId
+         * @returns {Promise<*>}
+         */
         async removeItem(cartQuote, itemId) {
             return await this._delete(endpoints.guestcarts.itemOperation(cartQuote, itemId));
         }
