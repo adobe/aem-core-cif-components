@@ -12,12 +12,13 @@
  *
  ******************************************************************************/
 
-'use strict';
 
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
  */
 (function (templates) {
+
+    'use strict';
 
     class MiniCart {
 
@@ -39,9 +40,14 @@
                 throw new Error('The Storage was not supplied to the MiniCart library');
             }
 
+            if (!props.graphqlApi) {
+                throw new Error('The grapqhql API was not supplied to the MiniCart library');
+            }
+
             this.pageContext = props.pageContext;
             this.commerceApi = props.commerceApi;
             this.storage = props.storage;
+            this.graphqlApi = props.graphqlApi;
 
             if (this.pageContext.cartInfo) {
                 this.cartQuote = this.pageContext.cartInfo.cartQuote;
@@ -125,13 +131,14 @@
 
                 //issue the request for the cart items images as well
 
-                Promise.all([cartDataPromise, cartTotalsPromise]).then(result => {
+                Promise.all([cartDataPromise, cartTotalsPromise]).then(async result => {
                     this.cartData = result[0];
                     this.cartTotals = result[1];
 
-                    let itemIds = this.cartData.items.map( item => item.sku);
-                    console.log(`Collected item ids ${itemIds}`);
-                    
+                    let productData = this.cartData.items.map(item => ({[item.name]: item.sku})).reduce((acc, item) => (Object.assign(acc, item)), {});
+
+                    this.images = await this.graphqlApi.getProductImageUrls(productData);
+
                     if (this.cartData.items.length > 0) {
                         this.setState('full');
                     } else {
@@ -156,9 +163,12 @@
                 editHandler: this.editHandler
             };
 
-            let moneyData = {currency: this.cartData.currency.store_currency_code};
+            let additionalData = {currency: this.cartData.currency.store_currency_code};
 
-            cartItems.map(cartItem => this.items.push(new MiniCartItem(Object.assign({}, cartItem, moneyData), handlers)));
+            cartItems.map(cartItem => {
+                additionalData.imageUrl = this.images[cartItem.sku];
+                this.items.push(new MiniCartItem(Object.assign({}, cartItem, additionalData), handlers))
+            });
         }
 
 
@@ -210,7 +220,7 @@
          * Adds an entry to this cart.
          * @param args. An object in the shape of {sku, qty}
          */
-        async addItem({sku,qty}) {
+        async addItem({sku, qty}) {
 
             if (!this.cartQuote || !this.cartId) {
                 // if we don't have a cart yet we have to create one, then add the item
@@ -220,7 +230,7 @@
             let params = {
                 sku,
                 qty,
-                quoteId:this.cartQuote
+                quoteId: this.cartQuote
             };
 
             let response = await this.commerceApi.postCartEntry(this.cartId, params);
@@ -385,8 +395,9 @@
         const pageContext = window.CIF.PageContext;
         const commerceApi = window.CIF.CommerceApi;
         const storage = window.CIF.Storage;
+        const graphqlApi = window.CIF.CommerceGraphqlApi;
         createTestCart().then(res => {
-            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi, storage});
+            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi, storage, graphqlApi});
         });
     }
 

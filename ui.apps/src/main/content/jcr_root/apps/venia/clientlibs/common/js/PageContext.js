@@ -19,6 +19,7 @@
 
 window.CIF = window.CIF || {};
 (function () {
+    'use strict'
 
     const checkCookie = (cookieName) => {
         return document.cookie.split(';').filter((item) => item.trim().startsWith(`${cookieName}=`)).length > 0;

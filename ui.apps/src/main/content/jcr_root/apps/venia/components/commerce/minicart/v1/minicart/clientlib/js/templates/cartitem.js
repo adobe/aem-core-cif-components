@@ -18,7 +18,7 @@ window.CIF.MiniCart = window.CIF.MiniCart || {};
 const cartItem = `
 
     <div class="product__image"
-         style="min-height: 100px; width: 80px; background-image: url('{{image_url}}');"></div>
+         style="min-height: 100px; width: 80px; background-image: url('{{imageUrl}}');"></div>
     <div class="product__name">{{name}}</div>
     <div class="product__quantity">
         <div class="product__quantityRow">

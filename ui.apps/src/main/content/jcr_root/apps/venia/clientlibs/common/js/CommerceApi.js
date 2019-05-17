@@ -12,7 +12,6 @@
  *
  *
  ******************************************************************************/
-'use strict';
 window.CIF = window.CIF || {};
 
 /**
@@ -20,6 +19,7 @@ window.CIF = window.CIF || {};
  */
 (function () {
 
+    'use strict';
     const endpoints = {
         guestcarts: {
             create: '/guest-carts',
