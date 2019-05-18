@@ -17,7 +17,7 @@
 
     'use strict';
     //todo update the proxy rules so that this gets router through the dispatcher
-    const imageUrlPrefix = "https://master-7rqtwti-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product";
+    const imageUrlPrefix = "/magento/img";
 
     class CommerceGraphqlApi {
 
@@ -63,8 +63,7 @@
                 throw new Error(JSON.stringify(response.errors));
             }
             let items = response.data.products.items;
-            console.log(`Found items ${items}`);
-            let images = items.map(item => {
+            return items.map(item => {
                 let variants = item.variants;
                 if (variants.length > 0) {
 
@@ -76,7 +75,6 @@
                 }
             }).reduce((acc, item) => (Object.assign(acc, item)));
 
-            return images;
         }
     }
 

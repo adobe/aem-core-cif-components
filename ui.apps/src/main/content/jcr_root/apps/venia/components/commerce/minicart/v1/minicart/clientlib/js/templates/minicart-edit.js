@@ -12,9 +12,11 @@
  *
  ******************************************************************************/
 
-'use strict';
+(function () {
 
-const minicartEdit = `<form class="cartOptions__root">
+    'use strict';
+
+    const minicartEdit = `<form class="cartOptions__root">
     <div class="cartOptions__focusItem">
         <span class="cartOptions__name">{{name}} {{currency}}{{price}}</span>
     </div>
@@ -55,6 +57,7 @@ const minicartEdit = `<form class="cartOptions__root">
     </div>
 </form>`;
 
-window.CIF = window.CIF || {};
-window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-window.CIF.MiniCart.templates.edit = minicartEdit;
+    window.CIF = window.CIF || {};
+    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
+    window.CIF.MiniCart.templates.edit = minicartEdit;
+})();

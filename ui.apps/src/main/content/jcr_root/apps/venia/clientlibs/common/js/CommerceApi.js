@@ -188,7 +188,7 @@ window.CIF = window.CIF || {};
     }
 
     function onDocumentReady() {
-        const endpoint = "http://localhost/magento/rest/default/V1";
+        const endpoint = "/magento/rest/default/V1";
 
         window.CIF.CommerceApi = new CommerceApi({endpoint});
     }

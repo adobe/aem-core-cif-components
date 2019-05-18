@@ -12,13 +12,16 @@
  *
  ******************************************************************************/
 
-'use strict';
+(function () {
 
-const minicartBody = `<div class="miniCart__body">
-<ul class="productList__root">
-</ul>
-</div>`;
+    'use strict';
 
-window.CIF = window.CIF || {};
-window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-window.CIF.MiniCart.templates.body = minicartBody;
+    const minicartBody = `<div class="miniCart__body">
+        <ul class="productList__root">
+        </ul>
+        </div>`;
+
+    window.CIF = window.CIF || {};
+    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
+    window.CIF.MiniCart.templates.body = minicartBody;
+})();

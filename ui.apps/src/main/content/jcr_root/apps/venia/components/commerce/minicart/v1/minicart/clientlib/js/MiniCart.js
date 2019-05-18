@@ -100,7 +100,7 @@
          */
         async init() {
             this._initializeBehavior();
-            await this.refreshData();
+            let response = await this.refreshData();
 
             // just trigger an event to let other components know we're ready.
             const event = new CustomEvent("aem.cif.cart-intialized", {detail: {quantity: this.cartQuantity}});
@@ -131,7 +131,7 @@
 
                 //issue the request for the cart items images as well
 
-                Promise.all([cartDataPromise, cartTotalsPromise]).then(async result => {
+                return Promise.all([cartDataPromise, cartTotalsPromise]).then(async result => {
                     this.cartData = result[0];
                     this.cartTotals = result[1];
 

@@ -12,25 +12,28 @@
  *
  ******************************************************************************/
 
-'use strict'
+(function () {
 
-const minicartFooter = `<div class="miniCart__footer">
+    'use strict'
+
+    const minicartFooter = `<div class="miniCart__footer">
     <div>
-    <div data-placeholder="totals">
-
-    </div>
+        <div data-placeholder="totals">
+    
+        </div>
     <div class="flow__root">
-    <div class="cart__root flow__footer">
-    <div>
-    <button class="button__root_highPriority button__root clickable__root button__filled" type="button">
-    <span class="button__content"><span class="icon__root icon__root_lock">
-    </span>Checkout</span></button>
-</div>
-</div>
-</div>
-</div>
-</div>`;
+        <div class="cart__root flow__footer">
+            <div>
+                <button class="button__root_highPriority button__root clickable__root button__filled" type="button">
+                    <span class="button__content"><span class="icon__root icon__root_lock"></span>Checkout</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>`;
 
-window.CIF = window.CIF || {};
-window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-window.CIF.MiniCart.templates.footer = minicartFooter;
+    window.CIF = window.CIF || {};
+    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
+    window.CIF.MiniCart.templates.footer = minicartFooter;
+})();

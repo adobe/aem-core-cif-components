@@ -12,14 +12,16 @@
  *
  ******************************************************************************/
 
+(function () {
 
-'use strict';
+    'use strict';
 
-const emptyMiniCart = `<div class="emptyMiniCart__root">
+    const emptyMiniCart = `<div class="emptyMiniCart__root">
 <h3 class="emptyMiniCart__emptyTitle">There are no items in your shopping cart</h3>
 <button class="trigger__root clickable__root">
 <span class="emptyMiniCart__continue button__root clickable__root">Continue Shopping</span></button></div>`;
 
-window.CIF = window.CIF || {};
-window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-window.CIF.MiniCart.templates.emptyMiniCart = emptyMiniCart;
+    window.CIF = window.CIF || {};
+    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
+    window.CIF.MiniCart.templates.emptyMiniCart = emptyMiniCart;
+})();
