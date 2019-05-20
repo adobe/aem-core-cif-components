@@ -31,6 +31,8 @@ To prevent those log messages either allow the filtered syntax in your AntiSamy 
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
 3. Switch to the `all` project and run a `mvn clean install content-package:install`.
 
+Here is a full [video walk trough of the setup process](https://images-tv.adobe.com/mpcv3/c2f213a8-a219-4be7-b80b-3281b962394d_1558051150.1920x1080at3000_h264.mp4).
+
 ### UberJar
 This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly available on https://repo.adobe.com
 
