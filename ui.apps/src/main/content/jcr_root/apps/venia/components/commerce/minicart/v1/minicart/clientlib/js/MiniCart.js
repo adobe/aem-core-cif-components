@@ -36,10 +36,6 @@
                 throw new Error('The PageContext was not supplied to the MiniCart library');
             }
 
-            if (!props.storage) {
-                throw new Error('The Storage was not supplied to the MiniCart library');
-            }
-
             if (!props.graphqlApi) {
                 throw new Error('The grapqhql API was not supplied to the MiniCart library');
             }

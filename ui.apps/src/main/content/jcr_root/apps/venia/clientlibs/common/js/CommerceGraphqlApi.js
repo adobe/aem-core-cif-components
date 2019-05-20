@@ -73,7 +73,7 @@
                 } else {
                     return {};
                 }
-            }).reduce((acc, item) => (Object.assign(acc, item)));
+            }).reduce((acc, item) => (Object.assign(acc, item)),{});
 
         }
     }
