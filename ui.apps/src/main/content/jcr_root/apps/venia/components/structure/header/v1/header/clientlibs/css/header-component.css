@@ -44,13 +44,6 @@
     color: rgb(var(--venia-teal));
 }
 
-.header {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
 .header__root {
     background-color: rgb(var(--venia-grey));
     box-shadow: 0 1px rgb(var(--venia-border));
