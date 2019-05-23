@@ -3,4 +3,4 @@
     jcr:description="A page footer component for the Venia theme"
     jcr:primaryType="cq:Component"
     jcr:title="Page Footer"
-    componentGroup="AEM.Venia"/>
+    componentGroup=".hidden"/>

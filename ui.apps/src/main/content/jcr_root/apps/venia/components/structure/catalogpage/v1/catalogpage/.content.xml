@@ -4,4 +4,4 @@
     jcr:primaryType="cq:Component"
     jcr:title="AEM Venia Catalog Landing Page"
     sling:resourceSuperType="venia/components/structure/page/v1/page"
-    componentGroup="AEM.Venia"/>
+    componentGroup=".hidden"/>
