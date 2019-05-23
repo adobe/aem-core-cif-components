@@ -44,6 +44,13 @@
     color: rgb(var(--venia-teal));
 }
 
+.header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
 .header__root {
     background-color: rgb(var(--venia-grey));
     box-shadow: 0 1px rgb(var(--venia-border));
@@ -235,7 +242,7 @@
 .field__input:focus {
     border-color: rgb(var(--venia-teal));
     box-shadow: 0 0 0 2px rgb(var(--venia-teal-light)),
-        0 0 0.5rem 2px rgba(var(--venia-teal), 0.2);
+    0 0 0.5rem 2px rgba(var(--venia-teal), 0.2);
     outline: none;
 }
 
