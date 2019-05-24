@@ -17,9 +17,8 @@
  * @type {*|{}}
  */
 
-window.CIF = window.CIF || {};
-(function () {
-    'use strict'
+let PageContext = (function (document) {
+    'use strict';
 
     const checkCookie = (cookieName) => {
         return document.cookie.split(';').filter((item) => item.trim().startsWith(`${cookieName}=`)).length > 0;
@@ -55,20 +54,11 @@ window.CIF = window.CIF || {};
                 pageMask.classList.remove("mask__root_active");
             },
             setCartInfoCookie: function ({cartId, cartQuote}) {
-                document.cookie = `cif.cart=${cartId}#${cartQuote}`;
+                document.cookie = `${cookieName}=${cartId}#${cartQuote}`;
             }
         }
     }
 
-    function onDocumentReady() {
-        window.CIF.PageContext = new PageContext();
-    }
+    return PageContext;
 
-    if (document.readyState !== "loading") {
-        onDocumentReady()
-    } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
-    }
-
-
-})();
+})(window.document);

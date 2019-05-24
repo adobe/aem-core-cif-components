@@ -47,12 +47,13 @@ window.CIF = window.CIF || {};
 
         /**
          * Issues a request to the supplied URL using the provided parameters
-         * @param url
+         * @param endpoint the endpoint to which the request is issued
          * @param params
          * @returns {Promise<any>} the JSON response or throws an error
          * @private
          */
-        async _fetch(url, params) {
+        async _fetch(endpoint, params) {
+            let url = `${this.rootEndpoint}${endpoint}`;
             let response = await fetch(url, params);
             if (!response.ok) {
                 let message = await response.text();
@@ -63,14 +64,13 @@ window.CIF = window.CIF || {};
 
         /**
          * Performs an update operation (POST or PUT).
-         * @param url the request URL
+         * @param endpoint the endpoint to which the request is issued
          * @param params the URL parameters
          * @param method the method to use for the update - POST or PUT
          * @returns {Promise<any>}
          * @private
          */
         async _update(endpoint, params, method) {
-            let url = `${this.rootEndpoint}${endpoint}`;
             let defaultParams = {
                 method,
                 headers: {
@@ -80,7 +80,7 @@ window.CIF = window.CIF || {};
 
             let extendedParams = Object.assign({}, params, defaultParams);
 
-            return this._fetch(url, extendedParams);
+            return this._fetch(endpoint, extendedParams);
         }
 
         async _post(endpoint, params) {
@@ -92,15 +92,13 @@ window.CIF = window.CIF || {};
         }
 
         async _get(endpoint) {
-            let url = `${this.rootEndpoint}${endpoint}`;
-            return this._fetch(url);
+            return this._fetch(endpoint);
         }
 
         async _delete(endpoint) {
-            let url = `${this.rootEndpoint}${endpoint}`;
             let params = {"method": "DELETE"};
 
-            return this._fetch(url, params);
+            return this._fetch(endpoint, params);
         }
 
         /**
