@@ -26,6 +26,8 @@
                     skipNavigationRoot="true"
                     sling:resourceType="venia/components/structure/navigation/v1/navigation"
                     structureDepth="2"/>
+                <minicart jcr:primaryType="nt:unstructured"
+                          sling:resourceType="venia/components/commerce/minicart/v1/minicart"/>
             </header>
             <responsivegrid
                 jcr:created="{Date}2018-10-17T10:18:24.968+02:00"

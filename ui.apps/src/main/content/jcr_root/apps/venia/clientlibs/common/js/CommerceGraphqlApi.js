@@ -47,6 +47,9 @@
         async getProductImageUrls(productData) {
             //ugly but effective
             let names = Object.keys(productData).reduce((acc, name) => (acc += '\"' + name + '\",'), '');
+            if (names.length === 0) {
+                return {};
+            }
             const query = `query { products(filter: {name: {in: [${names.substring(0, names.length - 1)}]}}) { items { sku name ... on ConfigurableProduct { variants { product { sku media_gallery_entries { file } } } } } } }`;
             console.log(query);
 
