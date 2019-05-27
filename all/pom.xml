@@ -135,7 +135,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>graphql-client</artifactId>
-            <version>0.1.4</version>
+            <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

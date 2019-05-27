@@ -9,6 +9,17 @@ This project is intended to be used in conjunction with the [AEM Sites Core Comp
 ## Documentation
 > TODO
 
+### Sanitizing Product Description HTML
+Our components sanitize HTML that is retrieved via GraphQL to prevent cross-site scripting (XSS) attacks.
+This is done using `XSSAPI` provided by Apache Sling which needs to be configured according to your needs if you want to use
+extensive HTML in your product descriptions. You can find more details at https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/security.html.
+
+Every time the XSS library filters forbidden syntax from your product description, it will post an *INFO* log message similar to:
+```
+*INFO* GET /content/venia/us/en/products/product-page.sku.html HTTP/1.1 org.apache.sling.xss.impl.HtmlToHtmlContentContext AntiSamy warning: The div tag had a style attribute, "border&#45;bottom&#45;right&#45;radius", that could not be allowed for security reasons.
+```
+To prevent those log messages either allow the filtered syntax in your AntiSamy configuration, remove it from your product description or raise the log level above *INFO*.
+
 ## Available Components
 * [Product](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/product/v1/product)
 * [Product List](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productlist/v1/productlist)
@@ -19,6 +30,8 @@ This project is intended to be used in conjunction with the [AEM Sites Core Comp
 1. Clone this repository.
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
 3. Switch to the `all` project and run a `mvn clean install content-package:install`.
+
+Here is a full [video walk trough of the setup process](https://images-tv.adobe.com/mpcv3/c2f213a8-a219-4be7-b80b-3281b962394d_1558051150.1920x1080at3000_h264.mp4).
 
 ### UberJar
 This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly available on https://repo.adobe.com
@@ -53,6 +66,7 @@ The AEM CIF Core Components connect to a Magento via GraphQL that has to be conf
     * Go to http://localhost:4502/crx/de/index.jsp
     * Navigate to the page root node e.g. /content/venia/jcr:content for the Venia sample page
     * Add a property `cq:graphqlClient` with the value of the service identifier of step 1
+    * You can also add a property `cq:magentoStore` with the code of your Magento store view if it's not "default"
     
 3) Assign the Magento root category to your website
     * Go to AEM Sites console http://localhost:4502/sites.html/

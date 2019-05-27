@@ -1,0 +1,25 @@
+{
+  "products": {
+    "items": [
+      {
+        "__typename": "ConfigurableProduct",
+        "name": "Sussex Rain Boots",
+        "image": {
+          "url": "https://test-domain/s/u/sussex_2.jpg"
+        },
+        "url_key": "sussex-rain-boots",
+        "price": {
+          "regularPrice": {
+            "amount": {
+              "currency": "USD",
+              "value": 65
+            }
+          }
+        }
+      }
+    ]
+  },
+  "storeConfig": {
+    "secure_base_media_url": "https://test-url.magentosite.cloud/media/"
+  }
+}

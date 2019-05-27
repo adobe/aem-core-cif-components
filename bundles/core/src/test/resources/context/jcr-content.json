@@ -1,0 +1,28 @@
+{
+  "pageA": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType":"cq:PageContent",
+      "cq:magentoStore": "my-store"
+    }
+  },
+  "pageB": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType":"cq:PageContent",
+      "cq:magentoStore": "my-store"
+    },
+    "pageC": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent"
+      }
+    }
+  },
+  "pageD": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType":"cq:PageContent"
+    }
+  }
+}
