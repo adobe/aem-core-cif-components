@@ -182,6 +182,100 @@ public class NavigationImplTest {
     }
 
     @Test
+    public void testNavigationPagesHierarchy() {
+        //check the properties of a navigation item related to a normal page
+
+        String pageTitle = "Page 1";
+        String pageURL = "/page1";
+        boolean active = true;
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getTitle()).thenReturn(pageTitle);
+        when(item.getURL()).thenReturn(pageURL);
+        when(item.isActive()).thenReturn(active);
+        navigationItems.add(item);
+
+        String childPageTitle = "Page 1 1";
+        String childPageURL = "/page1/page11";
+        boolean childActive = true;
+
+        NavigationItem childItem = mock(NavigationItem.class);
+        when(childItem.getTitle()).thenReturn(childPageTitle);
+        when(childItem.getURL()).thenReturn(childPageURL);
+        when(childItem.isActive()).thenReturn(childActive);
+
+        List<NavigationItem> children = new ArrayList<>();
+        children.add(childItem);
+
+        when(item.getChildren()).thenReturn(children);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+        Assert.assertEquals(pageTitle, navigationItem.getTitle());
+        Assert.assertEquals(pageURL, navigationItem.getURL());
+        Assert.assertEquals(active, navigationItem.isActive());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(2, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
+    }
+
+    @Test
+    public void testNavigationPagesHierarchySelection() {
+        //check the properties of a navigation item related to a normal page
+
+        String pageTitle = "Page 1";
+        String pageURL = "/page1";
+        boolean active = true;
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getTitle()).thenReturn(pageTitle);
+        when(item.getURL()).thenReturn(pageURL);
+        when(item.isActive()).thenReturn(active);
+        navigationItems.add(item);
+
+        String childPageTitle = "Page 1 1";
+        String childPageURL = "/page1/page11";
+        boolean childActive = true;
+
+        NavigationItem childItem = mock(NavigationItem.class);
+        when(childItem.getTitle()).thenReturn(childPageTitle);
+        when(childItem.getURL()).thenReturn(childPageURL);
+        when(childItem.isActive()).thenReturn(childActive);
+
+        List<NavigationItem> children = new ArrayList<>();
+        children.add(childItem);
+
+        when(item.getChildren()).thenReturn(children);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+        Assert.assertEquals(pageTitle, navigationItem.getTitle());
+        Assert.assertEquals(pageURL, navigationItem.getURL());
+        Assert.assertEquals(active, navigationItem.isActive());
+
+        when(request.getRequestURI()).thenReturn("/page1/page11");
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(2, navigationList.size());
+        final Navigation navigation0 = navigationList.get(0);
+        Assert.assertEquals(this.navigation, navigation0);
+        Assert.assertTrue(navigation0.getItems().get(0).isActive());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Navigation navigation1 = navigationList.get(1);
+        Assert.assertEquals(activeNavigation, navigation1);
+        Assert.assertTrue(navigation1.getItems().get(0).isActive());
+
+        Assert.assertEquals(navigation0.getId(), navigation1.getParentId());
+    }
+
+    @Test
     public void testNavigationCategoriesOnly() {
         //check the properties of a navigation item related to a category
 
