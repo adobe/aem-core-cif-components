@@ -133,6 +133,11 @@
                             <name>cq-ui-wcm-editor-content</name>
                             <version>(1.0.138,)</version>
                         </dependency>
+                        <dependency>
+                            <group>day/cq60/product</group>
+                            <name>cif-connector-content</name>
+                            <version>0.1.1</version>
+                        </dependency>
                     </dependencies>
                 </configuration>
             </plugin>
@@ -144,6 +149,18 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>cif-connector-content</artifactId>
+            <version>0.1.1</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <!-- ====================================================================== -->
     <!-- P R O F I L E S                                                        -->
     <!-- ====================================================================== -->
