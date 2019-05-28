@@ -3,7 +3,7 @@
 
 .blank-placeholder {
   text-align: center;
-	background-color: #ffffff;
+  background-color: #ffffff;
   margin: 1rem 0;
   padding: 1rem;
   line-height: 3rem;
@@ -17,6 +17,11 @@
 
 .product-price {
   font-size:15px;
+}
+
+.product-image {
+  width:240px;
+  height:240px;
 }
 
 .product-carousel {
