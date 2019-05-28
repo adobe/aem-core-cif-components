@@ -1,25 +1,25 @@
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" 
-	 data-sly-call="${clientlib.all @ categories='aem.venia.productcarousel'}"/>
+data-sly-call="${clientlib.all @ categories='aem.venia.productcarousel'}"/>
 
 <sly data-sly-test="${!properties.product}">
-    <div class="blank-placeholder product-carousel-title" data-sly-text="${component.title}"></div>
+  <div class="blank-placeholder product-carousel-title" data-sly-text="${component.title}"></div>
 </sly>
 
 <sly data-sly-test="${properties.product}">
-    <div class="product-carousel carousel-root">
-        <div class ="product-carousel-parent" data-sly-use.productList="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}">
-            <div class="cards-container"  data-sly-list.product=${productList.products}>
-		    <div class="card product-card">
-                    	<a href="${product.URL}">
-                            <img style="width:240px;height:240px;"  src="${product.imageURL}"  data-gallery-role="currentimage"/>
-                            <div>${product.Title}</div>
-                            <div class="product-price">${product.Currency} ${product.Price}</div>
-                        </a>
-                   </div>
-	    </div>
-            <button id="prev-btn" class="product-carousel-btn product-carousel-btn-prev" type="button" ></button>
-            <button  id="next-btn" class="product-carousel-btn product-carousel-btn-next" type="button" ></button>
-        </div>    
-    </div> 
-</sly
+  <div data-comp-is="productcarousel" class="product-carousel carousel-root">
+    <div class ="product-carousel-parent" data-sly-use.productList="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}">
+      <div class="cards-container"  data-sly-list.product=${productList.products}>
+        <div role="displaycard" class="card product-card">
+          <a href="${product.URL}">
+            <img class="product-image" src="${product.imageURL}"  data-gallery-role="currentimage"/>
+            <div>${product.Title}</div>
+            <div class="product-price">${product.Currency} ${product.Price}</div>
+          </a>
+        </div>
+      </div>
+      <button  data-carousel-action='prev' class="product-carousel-btn product-carousel-btn-prev" type="button" ></button>
+      <button  data-carousel-action='next' class="product-carousel-btn product-carousel-btn-next" type="button" ></button>
+    </div>    
+  </div> 
+</sly>
