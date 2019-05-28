@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
 public class ProductCarouselImpl implements ProductCarousel{
     
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/product/v1/productcarousel";
+    protected static final String RESOURCE_TYPE = "venia/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
     
     @Inject
@@ -74,13 +74,11 @@ public class ProductCarouselImpl implements ProductCarousel{
         if (productPage == null) {
             productPage = currentPage;
         }
-        
-        GraphqlClient client = resource.adaptTo(GraphqlClient.class);
-        if (client == null) {
+        if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", 
                     resource.getPath());
         }
-        this.productList = this.fetchProductFromGraphql(client, productKeys);
+        this.productList = this.fetchProductFromGraphql(magentoGraphqlClient, productKeys);
     }
     
     public ProductPricesQueryDefinition generatePriceQuery() {
@@ -101,7 +99,7 @@ public class ProductCarouselImpl implements ProductCarousel{
             .price(this.generatePriceQuery());
     }
     
-    private List<ProductInterface> fetchProductFromGraphql(GraphqlClient client,
+    private List<ProductInterface> fetchProductFromGraphql(MagentoGraphqlClient client,
             final List<String> productKey) {
         FilterTypeInput input = new FilterTypeInput().setIn(productKey);
         ProductFilterInput filter = new ProductFilterInput().setSku(input);
