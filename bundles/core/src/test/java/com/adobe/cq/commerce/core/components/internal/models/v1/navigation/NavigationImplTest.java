@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -43,12 +45,14 @@ import static org.mockito.Mockito.when;
 public class NavigationImplTest {
     private static final String CATALOG_PAGE_PATH = "catalog_page_path";
     private static final String CATEGORY_PAGE_PATH = "category_page_path";
-    NavigationImpl navigation;
+    Navigation navigation;
     com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl wcmNavigation;
     GraphQLCategoryProvider categoryProvider;
     PageManager pageManager;
     List<NavigationItem> navigationItems;
     List<CategoryTree> categoryList;
+    NavigationModel navigationModel;
+    SlingHttpServletRequest request;
 
     @Before
     public void init() {
@@ -78,17 +82,30 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(),any())).thenReturn(categoryList);
 
         //current request
-        SlingHttpServletRequest request = mock(SlingHttpServletRequest.class);
+        request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
+
+        navigationModel = new NavigationModelImpl();
+        Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
+        Whitebox.setInternalState(navigationModel, "request", request);
     }
 
     @Test
     public void testEmptyNavigationNoPagesNoCategories() {
         Assert.assertTrue(navigation.getItems().isEmpty());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(NavigationImpl.ROOT_NAVIGATION_ID, navigation.getId());
+        Assert.assertNull(navigation.getParentId());
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
     }
 
     @Test
@@ -104,6 +121,13 @@ public class NavigationImplTest {
 
         Assert.assertEquals(1, navigation.getItems().size());
         Assert.assertEquals(catalogTitle, navigation.getItems().get(0).getTitle());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
     }
 
     @Test
@@ -119,6 +143,13 @@ public class NavigationImplTest {
 
         Assert.assertEquals(1, navigation.getItems().size());
         Assert.assertEquals(catalogTitle, navigation.getItems().get(0).getTitle());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
     }
 
     @Test
@@ -141,6 +172,13 @@ public class NavigationImplTest {
         Assert.assertEquals(pageTitle, navigationItem.getTitle());
         Assert.assertEquals(pageURL, navigationItem.getURL());
         Assert.assertEquals(active, navigationItem.isActive());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
     }
 
     @Test
@@ -166,6 +204,125 @@ public class NavigationImplTest {
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
         Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
+    }
+
+    @Test
+    public void testNavigationCategoryHierarchy() {
+        //check the properties of a navigation item related to a category
+
+        Integer categoryId = 0;
+        String categoryName = "Category 1";
+
+        initCatalogPage(true, true);
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getPath()).thenReturn(CATALOG_PAGE_PATH);
+        navigationItems.add(item);
+
+        CategoryTree category = mock(CategoryTree.class);
+        when(category.getId()).thenReturn(categoryId);
+        when(category.getName()).thenReturn(categoryName);
+        categoryList.add(category);
+
+        List<CategoryTree> children = new ArrayList<>();
+        Integer childCategoryId = 1;
+        String childCategoryName = "Category 1 1";
+        CategoryTree childCategory = mock(CategoryTree.class);
+        when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getName()).thenReturn(childCategoryName);
+        children.add(childCategory);
+
+        when(category.getChildren()).thenReturn(children);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+        Assert.assertEquals(categoryName, navigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(2, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
+
+        Navigation childNavigation = navigationList.get(1);
+        final List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> childItems = childNavigation.getItems();
+        Assert.assertEquals(1, childItems.size());
+
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
+        Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html", childNavigationItem.getURL());
+
+    }
+
+    @Test
+    public void testNavigationCategoryHierarchySelection() {
+        //check the properties of a navigation item related to a category
+
+        Integer categoryId = 0;
+        String categoryName = "Category 1";
+
+        initCatalogPage(true, true);
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getPath()).thenReturn(CATALOG_PAGE_PATH);
+        navigationItems.add(item);
+
+        CategoryTree category = mock(CategoryTree.class);
+        when(category.getId()).thenReturn(categoryId);
+        when(category.getName()).thenReturn(categoryName);
+        categoryList.add(category);
+
+        List<CategoryTree> children = new ArrayList<>();
+        Integer childCategoryId = 1;
+        String childCategoryName = "Category 1 1";
+        CategoryTree childCategory = mock(CategoryTree.class);
+        when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getName()).thenReturn(childCategoryName);
+        children.add(childCategory);
+
+        when(category.getChildren()).thenReturn(children);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+        Assert.assertEquals(categoryName, navigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+
+        when(request.getRequestURI()).thenReturn(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html");
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(2, navigationList.size());
+        final Navigation navigation0 = navigationList.get(0);
+        Assert.assertEquals(navigation, navigation0);
+
+        Navigation childNavigation = navigationList.get(1);
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(childNavigation, activeNavigation);
+        Assert.assertEquals(navigation0.getId(), childNavigation.getParentId());
+        final List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items0 = navigation0.getItems();
+        Assert.assertEquals(1, items0.size());
+        Assert.assertTrue(items0.get(0).isActive());
+
+
+        final List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> childItems = childNavigation.getItems();
+        Assert.assertEquals(1, childItems.size());
+
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
+        Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html", childNavigationItem.getURL());
+        Assert.assertTrue(childNavigationItem.isActive());
+
     }
 
     @Test
@@ -178,7 +335,7 @@ public class NavigationImplTest {
         testNavigationItemOrdering(false);
     }
 
-    public void testNavigationItemOrdering(boolean pageBeforeCategory) {
+    private void testNavigationItemOrdering(boolean pageBeforeCategory) {
         //checks that the navigation items are ordered according to the underlying page nodes
 
         String pageTitle = "Page 1";
@@ -212,6 +369,13 @@ public class NavigationImplTest {
             Assert.assertEquals(categoryTitle, navigation.getItems().get(0).getTitle());
             Assert.assertEquals(pageTitle, navigation.getItems().get(1).getTitle());
         }
+
+        Navigation activeNavigation = navigationModel.getActiveNavigation();
+        Assert.assertEquals(navigation, activeNavigation);
+
+        List<Navigation> navigationList = navigationModel.getNavigationList();
+        Assert.assertEquals(1, navigationList.size());
+        Assert.assertEquals(navigation, navigationList.get(0));
     }
 
     private void initCatalogPage(boolean catalogRoot, boolean showMainCategories) {

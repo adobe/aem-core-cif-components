@@ -1,0 +1,7 @@
+.categoryTree__root--shadow {
+    display: none;
+}
+
+.cmp-navigation__item--active .categoryLeaf__text {
+    color: #c53457;
+}
