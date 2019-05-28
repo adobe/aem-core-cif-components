@@ -225,7 +225,7 @@ public class ProductListImpl implements ProductList {
 
         try {
             categoryId = Integer.parseInt(this.request.getRequestPathInfo().getSelectorString());
-        } catch (NumberFormatException nef) {
+        } catch (NullPointerException | NumberFormatException nef) {
             LOGGER.warn("Could not parse category id from current page selectors.");
         }
         return categoryId;
