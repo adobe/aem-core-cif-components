@@ -49,6 +49,7 @@ public class ProductListImpl implements ProductList {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
+    private static int PAGE_SIZE_DEFAULT = 6;
 
     @Self
     private SlingHttpServletRequest request;
@@ -78,6 +79,7 @@ public class ProductListImpl implements ProductList {
     private void initModel() {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
 
         // get product template page
         productPage = Utils.getProductPage(currentPage);
@@ -104,13 +106,11 @@ public class ProductListImpl implements ProductList {
             }
         }
 
-        //check if pageSize is set in component Property - if not, assume 6 as default
-        try {
-            this.navPageSize = currentPage.getProperties().get("pageSize") == null ? 6 : Integer.parseInt(currentPage.getProperties().get("pageSize").toString());
-        } catch (NumberFormatException numEx) {
-            LOGGER.error("found non-numeric value for pageSize in properties :" + currentPage.getProperties().get("pageSize") + ", using default=6");
+        if((this.getTotalCount() % this.navPageSize )==0){
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize) ];
+        }else{
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
         }
-        this.navPages = new int[(this.getTotalCount() / this.navPageSize)+1];
 
         for (int i = 0; i < this.navPages.length; i++) {
             this.navPages[i] = (i + 1);
@@ -132,6 +132,7 @@ public class ProductListImpl implements ProductList {
     @Override
     public Collection<ProductListItem> getProducts() {
         Collection<ProductListItem> listItems = new ArrayList<>();
+
 
         if (category != null) {
             final CategoryProducts products = category.getProducts();
@@ -171,13 +172,9 @@ public class ProductListImpl implements ProductList {
 
     private CategoryTreeQueryDefinition generateProductListQuery() {
 
-        final Integer cPage = request.getCookie("currentPage") == null ? 1 : Integer.parseInt(request.getCookie("currentPage").getValue()); //cant trap NumberFormatException as only `final` var to be passed in Lambda
-
-        final Integer pSize = currentPage.getProperties().get("pageSize") == null ? 6 : Integer.parseInt(currentPage.getProperties().get("pageSize").toString());
-
         CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-                .currentPage(cPage)
-                .pageSize(pSize);
+                .currentPage(this.navPageCursor)
+                .pageSize(this.navPageSize);
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
                 .id()
                 .description()
