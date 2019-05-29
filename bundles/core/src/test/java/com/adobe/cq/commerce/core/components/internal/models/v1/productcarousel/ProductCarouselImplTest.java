@@ -15,15 +15,12 @@
  */
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Collection;
@@ -31,8 +28,10 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
@@ -94,6 +93,5 @@ public class ProductCarouselImplTest {
             Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getThumbnail().getUrl()));
         }
     }
- 
 }
 
