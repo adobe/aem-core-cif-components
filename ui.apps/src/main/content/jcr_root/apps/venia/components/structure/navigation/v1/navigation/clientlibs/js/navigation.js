@@ -14,6 +14,7 @@
 
 (function () {
     "use strict";
+
     const selectors = {
         navigationTrigger: '.header__primaryActions .navTrigger__root',
         navigationRoot: 'aside.navigation__root',
@@ -29,76 +30,80 @@
 
     const CSS_NAVIGATION_OPEN = 'navigation__root_open';
 
-    let backNavigationButton;
-    let backNavigationEmpty;
-    let categoryTreeRoot;
-    let shadowTreeRoot;
-    let navigationPanel;
+    class Navigation {
 
-    function setNavigationPanelVisible(visible) {
-        if (visible) {
-            navigationPanel.classList.add(CSS_NAVIGATION_OPEN);
-        } else {
-            navigationPanel.classList.remove(CSS_NAVIGATION_OPEN);
+        constructor() {
+            this.navigationPanel = document.querySelector(selectors.navigationRoot);
+            this.backNavigationButton = document.querySelector(selectors.backNavigationButton);
+            this.backNavigationEmpty = document.querySelector(selectors.backNavigationEmpty);
+            this.categoryTreeRoot = document.querySelector(selectors.categoryTreeRoot);
+            this.shadowTreeRoot = document.querySelector(selectors.shadowTreeRoot);
+
+            const backNavigationBinding = this.backNavigation.bind(this);
+            const downNavigationBinding = this.downNavigation.bind(this);
+
+            document.querySelector(selectors.navigationTrigger).addEventListener('click', () => this.setNavigationPanelVisible(true));
+            document.querySelector(selectors.closeNavigationButton).addEventListener('click', () => this.setNavigationPanelVisible(false));
+            this.backNavigationButton.addEventListener('click', backNavigationBinding);
+            document.querySelectorAll(selectors.downNavigationButton).forEach((a) => a.addEventListener('click', downNavigationBinding));
+
+            this.configureBackNavigation();
         }
-    }
 
-    function setVisible(element, visible) {
-        if (visible) {
-            element.style.display = 'block';
-        } else {
-            element.style.display = 'none';
+        setNavigationPanelVisible(visible) {
+            if (visible) {
+                this.navigationPanel.classList.add(CSS_NAVIGATION_OPEN);
+            } else {
+                this.navigationPanel.classList.remove(CSS_NAVIGATION_OPEN);
+            }
         }
-    }
 
-    function getActiveNavigation() {
-        return document.querySelector(selectors.activeNavigation);
-    }
-
-    function configureBackNavigation() {
-        let hasParent = getActiveNavigation().dataset.parent;
-        if (hasParent) {
-            setVisible(backNavigationButton, true);
-            setVisible(backNavigationEmpty, false);
-        } else {
-            setVisible(backNavigationButton, false);
-            setVisible(backNavigationEmpty, true);
+        getActiveNavigation() {
+            return document.querySelector(selectors.activeNavigation);
         }
-    }
 
-    function activateNavigation(id) {
-        let navigation = document.querySelector(selectors.shadowNavigations + '[data-id="' + id + '"]');
-        if (navigation) {
-            shadowTreeRoot.append(getActiveNavigation());
-            categoryTreeRoot.append(navigation);
-
-            configureBackNavigation();
+        configureBackNavigation() {
+            let hasParent = this.getActiveNavigation().dataset.parent;
+            if (hasParent) {
+                this.setVisible(this.backNavigationButton, true);
+                this.setVisible(this.backNavigationEmpty, false);
+            } else {
+                this.setVisible(this.backNavigationButton, false);
+                this.setVisible(this.backNavigationEmpty, true);
+            }
         }
-    }
 
-    function backNavigation() {
-        let id = getActiveNavigation().dataset.parent;
-        activateNavigation(id);
-    }
+        activateNavigation(id) {
+            let navigation = document.querySelector(selectors.shadowNavigations + '[data-id="' + id + '"]');
+            if (navigation) {
+                this.shadowTreeRoot.append(this.getActiveNavigation());
+                this.categoryTreeRoot.append(navigation);
 
-    function downNavigation(event) {
-        const id = event.target.parentElement.parentElement.dataset.id;
-        activateNavigation(id);
+                this.configureBackNavigation();
+            }
+        }
+
+        backNavigation() {
+            let id = this.getActiveNavigation().dataset.parent;
+            this.activateNavigation(id);
+        }
+
+        downNavigation(event) {
+            let id = event.target.parentElement.parentElement.dataset.id;
+            this.activateNavigation(id);
+        }
+
+        setVisible(element, visible) {
+            if (visible) {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        }
     }
 
     function onDocumentReady() {
-        navigationPanel = document.querySelector(selectors.navigationRoot);
-        backNavigationButton = document.querySelector(selectors.backNavigationButton);
-        backNavigationEmpty = document.querySelector(selectors.backNavigationEmpty);
-        categoryTreeRoot = document.querySelector(selectors.categoryTreeRoot);
-        shadowTreeRoot = document.querySelector(selectors.shadowTreeRoot);
-
-        document.querySelector(selectors.navigationTrigger).addEventListener('click', () => setNavigationPanelVisible(true));
-        document.querySelector(selectors.closeNavigationButton).addEventListener('click', () => setNavigationPanelVisible(false));
-        backNavigationButton.addEventListener('click', backNavigation);
-        document.querySelectorAll(selectors.downNavigationButton).forEach((a) => {a.addEventListener('click', downNavigation)});
-
-        configureBackNavigation();
+        new Navigation();
     }
 
     if (document.readyState !== "loading") {
@@ -106,5 +111,5 @@
     } else {
         document.addEventListener("DOMContentLoaded", onDocumentReady);
     }
-    
+
 })();

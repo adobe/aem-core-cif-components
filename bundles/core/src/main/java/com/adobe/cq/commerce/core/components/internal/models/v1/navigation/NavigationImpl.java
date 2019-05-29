@@ -52,6 +52,8 @@ public class NavigationImpl implements Navigation {
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "venia/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
+    static final int DEFAULT_STRUCTURE_DEPTH = 2;
+    static final int MAX_STRUCTURE_DEPTH = 10;
 
     @ScriptVariable
     private Page currentPage = null;
@@ -76,7 +78,11 @@ public class NavigationImpl implements Navigation {
     @PostConstruct
     private void initModel() {
         graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
-        structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, 1));
+        structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
+        if (structureDepth > MAX_STRUCTURE_DEPTH) {
+            LOGGER.warn("Navigation structure depth ({}) is above max value ({}). Using max value.", PN_STRUCTURE_DEPTH, MAX_STRUCTURE_DEPTH);
+            structureDepth = MAX_STRUCTURE_DEPTH;
+        }
     }
 
     @Override
