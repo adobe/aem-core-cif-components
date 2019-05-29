@@ -27,7 +27,13 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 | ------------------- | ------- | ------- | ------- | ---- |
 | 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
-Additionally, it is highly recommended to use this project together with the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector). This is no hard dependency but some authoring functionality will be limited without the AEM Commerce connector for Magento as product pickers, product assets view and consoles are not available.
+### AEM Commerce connector for Magento
+
+This project uses the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package.
+
+### AEM Sites Core Components
+
+This project relies on the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). They are typically installed as part of AEM. If you install AEM without sample content option you have to [deploy them manually](https://github.com/adobe/aem-core-wcm-components#installation) before using the AEM CIF Core Components.
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
@@ -45,10 +51,6 @@ This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly a
 
 For more details about the UberJar please head over to the
 [How to Build AEM Projects using Apache Maven](https://helpx.adobe.com/experience-manager/6-4/sites/developing/using/ht-projects-maven.html) documentation page.
-
-### AEM Sites Core Components
-
-This project relies on the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). They are typically installed as part of AEM. If you install AEM without sample content option you have to [deploy them manually](https://github.com/adobe/aem-core-wcm-components#installation) before using the AEM CIF Core Components.
 
 ## Configuration
 
