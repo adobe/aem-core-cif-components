@@ -14,7 +14,6 @@
                     <content
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/foundation/form/multifield"
-                        fieldDescription="Provide List of Products to be rendered in Carousel"
                         fieldLabel="Carousel content"
                         typeHint="[product@String[]]">
                         <field
