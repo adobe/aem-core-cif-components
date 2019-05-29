@@ -38,6 +38,8 @@
                     skipNavigationRoot="true"
                     sling:resourceType="venia/components/structure/navigation/v1/navigation"
                     structureDepth="2"/>
+                <minicart jcr:primaryType="nt:unstructured"
+                          sling:resourceType="venia/components/commerce/minicart/v1/minicart"/>
             </header>
             <responsivegrid_167903988
                 jcr:created="{Date}2019-03-29T17:01:47.254+02:00"
