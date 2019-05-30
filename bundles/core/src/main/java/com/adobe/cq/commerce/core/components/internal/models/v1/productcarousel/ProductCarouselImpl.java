@@ -33,7 +33,6 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.day.cq.wcm.api.Page;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -117,8 +116,8 @@ public class ProductCarouselImpl implements ProductCarousel {
     }
 
     @Override
-    public Collection<ProductListItem> getProducts() {
-        Collection<ProductListItem> carouselProductList = new ArrayList<>();
+    public List<ProductListItem> getProducts() {
+        List<ProductListItem> carouselProductList = new ArrayList<>();
         if (!this.productList.isEmpty()) {
             for (ProductInterface product : this.productList) {
                 carouselProductList.add(new ProductListItemImpl(

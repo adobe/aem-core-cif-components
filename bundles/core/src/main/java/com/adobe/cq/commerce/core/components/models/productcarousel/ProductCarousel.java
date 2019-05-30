@@ -15,21 +15,20 @@
  */
 package com.adobe.cq.commerce.core.components.models.productcarousel;
 
-
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface ProductCarousel {
-    
+
     /**
      * returns the product list  for Product Carousel
-     * @return {@link Collection} of {@link ProductListItem}s
+     * @return {@link List} of {@link ProductListItem}s
      */
     @Nonnull
-    default Collection<ProductListItem> getProducts() {
+    default List<ProductListItem> getProducts() {
         throw new UnsupportedOperationException();
     }
 }
