@@ -8,7 +8,7 @@
           "name": "Hiking Poles",
           "thumbnail": {
             "label": "Hiking Poles",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/1/7/170227049_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/1/7/170227049_2.jpg"
           },
           "url_key": "hiking-poles",
           "price": {
@@ -27,7 +27,7 @@
           "name": "El Greco 8' Shorty",
           "thumbnail": {
             "label": "El Greco 8' Shorty",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/e/l/el_greco_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/e/l/el_greco_2.jpg"
           },
           "url_key": "el-greco-8-shorty",
           "price": {
@@ -46,7 +46,7 @@
           "name": "Analog Dark Wash Jean",
           "thumbnail": {
             "label": "Analog Dark Wash Jean",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/a/n/analog_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/a/n/analog_2.jpg"
           },
           "url_key": "analog-dark-wash-jean",
           "price": {
@@ -65,7 +65,7 @@
           "name": "Tribeca Cargo Pants",
           "thumbnail": {
             "label": "Tribeca Cargo Pants",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/t/r/tribeca_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/t/r/tribeca_2.jpg"
           },
           "url_key": "tribeca-cargo-pants",
           "price": {
@@ -84,7 +84,7 @@
           "name": "Midweight Fleece Gloves",
           "thumbnail": {
             "label": "Midweight Fleece Gloves",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/i/midweight_fleece_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/i/midweight_fleece_2.jpg"
           },
           "url_key": "midweight-fleece-gloves",
           "price": {
@@ -103,7 +103,7 @@
           "name": "Pipeline Board Shorts",
           "thumbnail": {
             "label": "Pipeline Board Shorts",
-            "url": "https://staging-5em2ouy-7ztex4hq2b6mu.us-3.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/p/i/pipeline_orange_2.jpg"
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/p/i/pipeline_orange_2.jpg"
           },
           "url_key": "pipeline-board-shorts",
           "price": {
@@ -117,6 +117,4 @@
         }
       ]
     }
-  
-  
 }
