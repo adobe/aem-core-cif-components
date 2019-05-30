@@ -241,6 +241,7 @@
                         <exclude>**/.vltignore</exclude>
                         <!-- Ignore vendor files -->
                         <exclude>**/clientlibs/vendor/**/*</exclude>
+                        <exclude>**/clientlibs/common/js/lib/*</exclude>
                         <!-- Exclude all JSON files -->
                         <exclude>**/*.json</exclude>
                         <!-- Generated for release source archives -->

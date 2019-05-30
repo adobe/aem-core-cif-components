@@ -11,8 +11,7 @@
     governing permissions and limitations under the License.
 
 -->
-<template data-sly-template.searchbar="searchbar"
-          data-sly-use.header="com.adobe.cq.commerce.core.components.models.header.Header">
+<template data-sly-template.searchbar="${ @header}">
     <div class="searchBar__root" role="search">
         <div class="searchBar__searchInner">
             <form class="searchBar__form" autocomplete="off" _lpchecked="1" action="${header.searchResultsPageUrl}">
