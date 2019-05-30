@@ -132,5 +132,4 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
         return carouselProductList;
     }
-
 }
