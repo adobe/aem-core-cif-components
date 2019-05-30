@@ -16,9 +16,9 @@
 
     selectors = {
 
-        self: "[data-comp-is=productcarousel]",
-        btnPrev: "[data-carousel-action=prev]",
-        btnNext: "[data-carousel-action=next]"
+        self: "[data-comp-is='productcarousel']",
+        btnPrev: "[data-carousel-action='prev']",
+        btnNext: "[data-carousel-action='next']"
 
     }
 
