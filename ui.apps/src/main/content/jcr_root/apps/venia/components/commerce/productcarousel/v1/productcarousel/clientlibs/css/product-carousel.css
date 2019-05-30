@@ -1,113 +1,109 @@
-
-
-
-.blank-placeholder {
-  text-align: center;
-  background-color: #ffffff;
-  margin: 1rem 0;
-  padding: 1rem;
-  line-height: 3rem;
-  border: 3px #ccc dashed
+.placeholder__empty {
+    text-align: center;
+    background-color: #ffffff;
+    margin: 1rem 0;
+    padding: 1rem;
+    line-height: 3rem;
+    border: 3px #ccc dashed
 }
 
-.product-carousel-title {
-  text-align: center;
-	color:#333;      
+.product__carousel__title {
+    text-align: center;
+    color: #333;
 }
 
-.product-price {
-  font-size:15px;
+.product__price {
+    font-size: 15px;
 }
 
-.product-image {
-  width:240px;
-  height:240px;
+.product__image {
+    width: 240px;
+    height: 240px;
 }
 
-.product-carousel {
-  margin: 50px auto;
-  overflow: hidden;
-  position: relative;
-  width: 240px;
+.product__carousel {
+    margin: 50px auto;
+    overflow: hidden;
+    position: relative;
+    width: 240px;
 }
 
-@media screen and  (min-width: 768px) {
-  .product-carousel {
-    width: 720px;
-  }
+@media screen and (min-width: 768px) {
+    .product__carousel {
+        width: 720px;
+    }
 }
 
 @media screen and (min-width: 992px) {
-  .product-carousel {
-    width: 960px;
-  }
+    .product__carousel {
+        width: 960px;
+    }
 }
 
-.product-carousel:before,
-.product-carousel:after {
-  content: "";
-  display: table;
+.product__carousel:before,
+.product__carousel:after {
+    content: "";
+    display: table;
 }
 
-.product-carousel:after {
-  clear: both;
+.product__carousel:after {
+    clear: both;
 }
 
 .card {
-  border: 10px solid #fff;
-  float: left;
-  font-size: 20px;
-  height: 307;
-  text-align: center;
-  width: 240px;
+    border: 10px solid #fff;
+    float: left;
+    font-size: 20px;
+    height: 307;
+    text-align: center;
+    width: 240px;
 }
 
-.carousel-root {
-  overflow: hidden;
+.carousel__root {
+    overflow: hidden;
 }
 
-.cards-container:before,
-.cards-container:after {
-  content: "";
-  display: table;
+.cards__container:before,
+.cards__container:after {
+    content: "";
+    display: table;
 }
 
-.cards-container:after {
-  clear: both;
+.cards__container:after {
+    clear: both;
 }
 
-.product-card {
-  float: left;
+.product__card {
+    float: left;
 }
 
-.product-carousel-btn {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  outline: none;
-  cursor: pointer;
-  height: 20px;
-  margin-top: -25px;
-  position: absolute;
-  top: 50%;
-  width: 20px;
+.product__carousel__btn {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: none;
+    cursor: pointer;
+    height: 20px;
+    margin-top: -25px;
+    position: absolute;
+    top: 50%;
+    width: 20px;
 }
 
-.product-carousel-btn-next {
-  border-bottom: 8px solid #aaa;
-  border-right: 8px solid #aaa;
-  right: 5px;
-  -moz-transform: rotate(315deg);
-  -webkit-transform: rotate(315deg);
-  transform: rotate(315deg);
+.product__carousel__btn__next {
+    border-bottom: 8px solid #aaa;
+    border-right: 8px solid #aaa;
+    right: 5px;
+    -moz-transform: rotate(315deg);
+    -webkit-transform: rotate(315deg);
+    transform: rotate(315deg);
 }
 
-.product-carousel-btn-prev {
-  border-bottom: 8px solid #aaa;
-  border-left: 8px solid #aaa;
-  left: 5px;
-  -moz-transform: rotate(45deg);
-  -webkit-transform: rotate(45deg);
-  transform: rotate(45deg);
+.product__carousel__btn__prev {
+    border-bottom: 8px solid #aaa;
+    border-left: 8px solid #aaa;
+    left: 5px;
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
 }
-
