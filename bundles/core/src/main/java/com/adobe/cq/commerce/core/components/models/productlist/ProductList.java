@@ -14,11 +14,11 @@
 
 package com.adobe.cq.commerce.core.components.models.productlist;
 
-import java.util.Collection;
+import org.osgi.annotation.versioning.ProviderType;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.osgi.annotation.versioning.ProviderType;
+import java.util.Collection;
 
 @ProviderType
 public interface ProductList {
@@ -31,7 +31,7 @@ public interface ProductList {
     /**
      * Name of the String resource property indicating number of products to render on front-end.
      */
-    String PN_PAGE_SIZE= "pageSize";
+    String PN_PAGE_SIZE = "pageSize";
 
     /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
@@ -62,7 +62,19 @@ public interface ProductList {
         throw new UnsupportedOperationException();
     }
 
-    default int getTotalCount(){throw new UnsupportedOperationException();}
+    default int getTotalCount() {
+        throw new UnsupportedOperationException();
+    }
 
-    default int getCurrentPage(){throw new UnsupportedOperationException();}
+    default int getCurrentNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getNextNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getPreviousNavPage() {
+        throw new UnsupportedOperationException();
+    }
 }
