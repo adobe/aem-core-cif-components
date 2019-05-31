@@ -60,11 +60,11 @@ let productCtx = (function(document) {
         price: ".productFullDetail__productPrice [role=price]",
         description: ".productFullDetail__description [role=description]",
         mainImage: ".carousel__currentImage",
-    };
+    }
 
     Product.events = {
         variantChanged: "variantchanged"
-    };
+    }
 
     function onDocumentReady() {
         // Initialize product component
