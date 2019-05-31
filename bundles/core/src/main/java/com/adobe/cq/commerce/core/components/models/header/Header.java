@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.models.header;
 
 import javax.annotation.Nullable;
 
+import org.apache.sling.api.resource.Resource;
+
 /**
  * Sling Model API for the Header component
  */
@@ -31,4 +33,9 @@ public interface Header {
     @Nullable
     String getNavigationRootPageUrl();
 
+    /**
+     * @return the {@link Resource} representing the "mincart" component, or <code>null</code> if there is no child resource with the name <code>minicart</code>
+     */
+    @Nullable
+    Resource getMinicartResource();
 }
