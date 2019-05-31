@@ -291,6 +291,8 @@
 
             let response = await this.refreshData();
 
+            let customEvent = new CustomEvent("aem.cif.product-cart-updated", {detail: {quantity: this.cartQuantity}});
+            document.dispatchEvent(customEvent);
             this.setState('full');
 
         }
