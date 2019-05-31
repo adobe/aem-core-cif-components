@@ -1,1 +1,2 @@
 dist/css/productlist-component.css
+dist/css/productlist-aem.css
