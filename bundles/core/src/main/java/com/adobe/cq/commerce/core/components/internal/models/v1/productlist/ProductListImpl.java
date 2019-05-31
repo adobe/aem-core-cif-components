@@ -49,7 +49,7 @@ public class ProductListImpl implements ProductList {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
-    private static int PAGE_SIZE_DEFAULT = 6;
+    private static final int PAGE_SIZE_DEFAULT = 6;
 
     @Self
     private SlingHttpServletRequest request;
@@ -72,7 +72,9 @@ public class ProductListImpl implements ProductList {
     private MagentoGraphqlClient magentoGraphqlClient;
 
     private int navPageCursor = 1;
-    private int navPageSize = 6;
+    private int navPagePrev;
+    private int navPageNext;
+    private int navPageSize;
     private int[] navPages;
 
     @PostConstruct
@@ -87,13 +89,17 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
-        //check if pageCursor available in queryString, set to 1 if not.
-        if (request.getParameter("page") == null) {
-            this.navPageCursor = 1;
-        } else {
-            this.navPageCursor = Integer.parseInt(request.getParameter("page"));
+        //check if pageCursor available in queryString, already set to 1 if not.
+        if (request.getParameter("page") != null) {
+            try {
+                this.navPageCursor = Integer.parseInt(request.getParameter("page"));
+
+            } catch (NumberFormatException nfe) {
+                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
+            }
         }
 
+        this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
 
         // Parse category id from URL
         final Integer categoryId = parseCategoryId();
@@ -105,13 +111,17 @@ public class ProductListImpl implements ProductList {
                 category = fetchCategory(categoryId);
             }
         }
+        if ((this.getTotalCount() % this.navPageSize) == 0) {
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
 
-        if((this.getTotalCount() % this.navPageSize )==0){
-            this.navPages = new int[(this.getTotalCount() / this.navPageSize) ];
-        }else{
+            //if currentNavPage is already at last, set navPageNext to currentNavPage
+            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
+
+        } else {
             this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
-        }
+            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
 
+        }
         for (int i = 0; i < this.navPages.length; i++) {
             this.navPages[i] = (i + 1);
         }
@@ -128,11 +138,34 @@ public class ProductListImpl implements ProductList {
         return showTitle;
     }
 
+    @Override
+    public int getTotalCount() {
+        return category.getProducts().getTotalCount();
+    }
+
+    @Override
+    public int getCurrentNavPage() {
+        return this.navPageCursor;
+    }
+
+    @Override
+    public int getNextNavPage() {
+        return this.navPageNext;
+    }
+
+    @Override
+    public int getPreviousNavPage() {
+        return this.navPagePrev;
+    }
+
+    public int[] getPageList() {
+        return this.navPages;
+    }
+
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
         Collection<ProductListItem> listItems = new ArrayList<>();
-
 
         if (category != null) {
             final CategoryProducts products = category.getProducts();
@@ -227,20 +260,5 @@ public class ProductListImpl implements ProductList {
         }
         return categoryId;
     }
-
-    @Override
-    public int getTotalCount() {
-        return category.getProducts().getTotalCount();
-    }
-
-    @Override
-    public int getCurrentPage() {
-        return this.navPageCursor;
-    }
-
-    public int[] getPageList() {
-        return this.navPages;
-    }
-
 }
 
