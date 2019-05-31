@@ -77,4 +77,8 @@ public interface ProductList {
     default int getPreviousNavPage() {
         throw new UnsupportedOperationException();
     }
+
+    default  int[] getPageList(){
+        throw new UnsupportedOperationException();
+    }
 }

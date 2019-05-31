@@ -158,6 +158,7 @@ public class ProductListImpl implements ProductList {
         return this.navPagePrev;
     }
 
+    @Override
     public int[] getPageList() {
         return this.navPages;
     }
@@ -242,7 +243,6 @@ public class ProductListImpl implements ProductList {
         return rootQuery.getCategory();
     }
 
-
     /**
      * Returns the selector of the current request which is expected to be the category id.
      *
@@ -261,4 +261,3 @@ public class ProductListImpl implements ProductList {
         return categoryId;
     }
 }
-
