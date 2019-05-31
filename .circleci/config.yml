@@ -34,12 +34,12 @@ jobs:
       - checkout
       - run:
           name: Provision
-          command: |
-            cd ui.apps
-            npm install
+          command: npm install
+          working_directory: ./ui.apps
       - run:
           name: Run Unit Tests
           command: npm test
+          working_directory: ./ui.apps
       - store_test_results:
           path: ui.apps/junit
       - store_artifacts:
