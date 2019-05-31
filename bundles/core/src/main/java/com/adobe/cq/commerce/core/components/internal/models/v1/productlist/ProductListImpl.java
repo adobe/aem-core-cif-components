@@ -93,7 +93,10 @@ public class ProductListImpl implements ProductList {
         if (request.getParameter("page") != null) {
             try {
                 this.navPageCursor = Integer.parseInt(request.getParameter("page"));
-
+                if (this.navPageCursor <= 0) {
+                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
+                    this.navPageCursor = 1;
+                }
             } catch (NumberFormatException nfe) {
                 LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
             }
