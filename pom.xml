@@ -257,6 +257,9 @@
                         <exclude>**/css.txt</exclude>
                         <exclude>**/*.css</exclude>
                         <exclude>**/*.less</exclude>
+
+                        <!-- Karma tests -->
+                        <exclude>**/junit/*.xml</exclude>
                     </excludes>
                 </configuration>
                 <executions>
