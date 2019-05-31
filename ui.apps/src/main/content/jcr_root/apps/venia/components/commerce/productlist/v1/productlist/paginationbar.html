@@ -17,80 +17,80 @@
             <sly data-sly-list.page="${productList.pageList}">
 
                 <!--/*First Page button & Previous page button inactive */-->
-                <sly data-sly-test="${pageList.first && productList.currentPage==1} ">
+                <sly data-sly-test="${pageList.first && productList.currentNavPage==1} ">
 
-                    <button class=" category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the first page">
+                    <a class=" category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the first page">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
                         </span>
-                    </button>
+                    </a>
 
-                    <button class=" category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page">
+                    <a class=" category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
-                    </button>
+                    </a>
                 </sly>
 
                 <!--/*First Page button & Previous page button Active */-->
-                <sly data-sly-test="${pageList.first && productList.currentPage!=1} ">
+                <sly data-sly-test="${pageList.first && productList.currentNavPage!=1} ">
 
-                    <button class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the first page" onclick="switchToPageNumber(1)">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the first page" href="?page=1">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#000" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
                         </span>
-                    </button>
+                    </a>
 
-                    <button class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page" onclick="var p=${productList.currentPage @context ='unsafe'} - 1; switchToPageNumber(p);">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page" href="?page=${productList.previousNavPage  @context ='unsafe'}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
-                    </button>
+                    </a>
                 </sly>
 
                 <!--/*Page numbers iterated*/-->
-                <button class=" category__pagination_tilebutton" onclick="switchToPageNumber(${page @context ='unsafe'})">
-                    <div class="category__pagination_tilebutton-marker" data-sly-test="${page==productList.currentPage}"></div>
+                <a class=" category__pagination_tilebutton" href="?page=${page @context ='unsafe'}">
+                    <div class="category__pagination_tilebutton-marker" data-sly-test="${page==productList.currentNavPage}"></div>
                     ${page}
-                </button>
+                </a>
 
                 <!--/* Next page button & Last Page button Active */-->
-                <sly data-sly-test="${pageList.last && productList.currentPage!=page}">
-                    <button class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page" onclick="var p=${productList.currentPage @context ='unsafe'} + 1; switchToPageNumber(p);">
+                <sly data-sly-test="${pageList.last && productList.currentNavPage!=page}">
+                    <a class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page" href="?page=${productList.nextNavPage  @context ='unsafe'}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                         </span>
-                    </button>
-                    <button class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page" onclick="switchToPageNumber(${page @context ='unsafe'});">
+                    </a>
+                    <a class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page" href="?page=${page @context ='unsafe'}">
                         <span class="icon-root-1sI">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#000" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="13 19 22 12 13 5 13 19"></polygon>
                                 <polygon points="2 19 11 12 2 5 2 19"></polygon>
                             </svg>
                         </span>
-                    </button>
+                    </a>
 
                 </sly>
 
                 <!--/* Next page button & Last Page button Inactive */-->
-                <sly data-sly-test="${pageList.last && productList.currentPage==page}">
-                    <button class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page">
+                <sly data-sly-test="${pageList.last && productList.currentNavPage==page}">
+                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                         </span>
-                    </button>
-                    <button class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page">
+                    </a>
+                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page">
                         <span class="icon-root-1sI">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="13 19 22 12 13 5 13 19"></polygon>
                                 <polygon points="2 19 11 12 2 5 2 19"></polygon>
                             </svg>
                         </span>
-                    </button>
+                    </a>
 
                 </sly>
             </sly>
