@@ -19,13 +19,19 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.header;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Source;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.header.Header;
+import com.adobe.xfa.ut.StringUtils;
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.StringUtil;
 
 /**
  * Concrete implementation of the Sling Model API for the Header component
@@ -38,9 +44,16 @@ public class HeaderImpl implements Header {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeaderImpl.class);
 
     static final String RESOURCE_TYPE = "venia/components/structure/header/v1/header" ;
+    static final String MINICART_NODE_NAME = "minicart";
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private Resource resource;
+
+    @Inject 
+    private String minicartNodeName;
 
     private Page searchResultsPage;
     private Page navigationRootPage;
@@ -66,5 +79,12 @@ public class HeaderImpl implements Header {
         }
 
         return navigationRootPage.getPath() + ".html";
+    }
+
+    public Resource getMinicartResource() {
+        Resource miniCart = resource.getChild(minicartNodeName);
+
+        return miniCart;
+
     }
 }
