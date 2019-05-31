@@ -27,11 +27,27 @@ jobs:
           name: Upload Code Coverage
           command: bash <(curl -s https://codecov.io/bash)
 
+  karma:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision
+          command: |
+            cd ui.apps
+            npm install
+      - run:
+          name: Run Unit Tests
+          command: npm test
+      - store_test_results:
+          path: ui.apps/junit
+      - store_artifacts:
+          path: ui.apps/junit
+
 workflows:
   version: 2
   build:
     jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
+      - build
+      - karma
