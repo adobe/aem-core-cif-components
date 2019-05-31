@@ -25,7 +25,7 @@ jobs:
           path: bundles/core/target/surefire-reports
       - run:
           name: Upload Code Coverage
-          command: bash <(curl -s https://codecov.io/bash)
+          command: bash <(curl -s https://codecov.io/bash) -F unittests
 
   karma:
     docker:
@@ -44,6 +44,9 @@ jobs:
           path: ui.apps/junit
       - store_artifacts:
           path: ui.apps/junit
+      - run:
+          name: Upload Code Coverage
+          command: bash <(curl -s https://codecov.io/bash) -F karma
 
 workflows:
   version: 2

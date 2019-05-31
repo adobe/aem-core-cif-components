@@ -260,6 +260,7 @@
 
                         <!-- Karma tests -->
                         <exclude>**/junit/*.xml</exclude>
+                        <exclude>**/coverage/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

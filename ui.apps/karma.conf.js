@@ -39,18 +39,28 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      // source files, that you wanna generate coverage for
+      // do not include tests or libraries
+      // (these files will be instrumented by Istanbul)
+      'src/main/content/**/*.js': ['coverage']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'junit'],
+    reporters: ['progress', 'junit', 'coverage'],
 
     // the default configuration
     junitReporter: {
       outputDir: './junit', // results will be saved as $outputDir/$browserName.xml
       useBrowserName: true, // add browser name to report and classes names
+    },
+
+    // optionally, configure the reporter
+    coverageReporter: {
+      type : 'lcov',
+      dir : './coverage/'
     },
 
     // web server port
