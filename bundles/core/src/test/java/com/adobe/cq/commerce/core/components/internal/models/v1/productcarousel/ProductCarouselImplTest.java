@@ -23,7 +23,6 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -69,31 +68,31 @@ public class ProductCarouselImplTest {
     @Test
     public void getProducts() {
 
-        Collection<ProductListItem> products = this.slingModel.getProducts();
+        List<ProductListItem> products = this.slingModel.getProducts();
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-
+        
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
-        if (!results.isEmpty()) {
-            for (int i = 0; i < results.size(); i++) {
+        Assert.assertFalse(results.isEmpty());
+        
+        for (int i = 0; i < results.size(); i++) {
 
-                ProductInterface productInterface = productsList.get(i);
-                ProductListItem item = results.get(i);
+            ProductInterface productInterface = productsList.get(i);
+            ProductListItem item = results.get(i);
 
-                Assert.assertEquals(productInterface.getName(), item.getTitle());
-                Assert.assertEquals(productInterface.getSku(), item.getSKU());
-                Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
-                Assert.assertEquals(String.format("/content/test-product-page.%s.html", productInterface.getUrlKey()),
-                        item.getURL());
-                Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getValue(),
-                        item.getPrice(), 0);
-                Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                        item.getCurrency());
-                priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
-                Assert.assertEquals(priceFormatter.format(productInterface.getPrice().getRegularPrice().getAmount().getValue()),
-                        item.getFormattedPrice());
-                Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getThumbnail().getUrl()));
-            }
+            Assert.assertEquals(productInterface.getName(), item.getTitle());
+            Assert.assertEquals(productInterface.getSku(), item.getSKU());
+            Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
+            Assert.assertEquals(String.format("/content/test-product-page.%s.html", productInterface.getUrlKey()),
+                    item.getURL());
+            Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getValue(),
+                    item.getPrice(), 0);
+            Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                    item.getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+            Assert.assertEquals(priceFormatter.format(productInterface.getPrice().getRegularPrice().getAmount().getValue()),
+                    item.getFormattedPrice());
+            Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getThumbnail().getUrl()));
         }
-
     }
+    
 }
