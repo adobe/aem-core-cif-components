@@ -41,5 +41,5 @@ hs_err_pid*
 *.iws
 
 **/node_modules/**
-**/junit/**
+**/karma-junit/**
 **/coverage/**

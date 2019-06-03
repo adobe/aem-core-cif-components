@@ -259,7 +259,7 @@
                         <exclude>**/*.less</exclude>
 
                         <!-- Karma tests -->
-                        <exclude>**/junit/*.xml</exclude>
+                        <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
                     </excludes>
                 </configuration>
