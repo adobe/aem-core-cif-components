@@ -41,9 +41,9 @@ jobs:
           command: npm test
           working_directory: ./ui.apps
       - store_test_results:
-          path: ui.apps/junit
+          path: ui.apps/karma-junit
       - store_artifacts:
-          path: ui.apps/junit
+          path: ui.apps/karma-junit
       - run:
           name: Upload Code Coverage
           command: bash <(curl -s https://codecov.io/bash) -F karma
