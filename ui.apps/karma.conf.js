@@ -49,7 +49,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'junit', 'coverage'],
+    reporters: ['spec', 'junit', 'coverage'],
 
     // the default configuration
     junitReporter: {
@@ -60,7 +60,12 @@ module.exports = function(config) {
     // optionally, configure the reporter
     coverageReporter: {
       type : 'lcov',
-      dir : './coverage/'
+      dir : './coverage/',
+    },
+
+    specReporter: {
+      suppressSkipped: false,
+      showSpecTiming: true,
     },
 
     // web server port

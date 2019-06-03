@@ -154,7 +154,7 @@ let variantSelectorCtx = (function(document) {
 
     return {
         VariantSelector: VariantSelector,
-        factory: (config) => {
+        factory: config => {
             return new VariantSelector(config);
         }
     }

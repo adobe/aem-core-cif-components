@@ -80,7 +80,7 @@ let productCtx = (function(document) {
 
     return {
         Product: Product,
-        factory: (config) => {
+        factory: config => {
             return new Product(config);
         }
     }
