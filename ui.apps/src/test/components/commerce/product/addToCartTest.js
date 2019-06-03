@@ -33,6 +33,9 @@ describe('Product', () => {
         });
 
         beforeEach(() => {
+            while (pageRoot.firstChild) {
+                pageRoot.removeChild(pageRoot.firstChild);
+            }
             pageRoot.insertAdjacentHTML('afterbegin', `
                 <div data-cmp-is="product">
                     <div class="productFullDetail__details">
