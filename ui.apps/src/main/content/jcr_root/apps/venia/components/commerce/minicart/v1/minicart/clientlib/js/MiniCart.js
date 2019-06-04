@@ -131,7 +131,16 @@
                     this.cartData = result[0];
                     this.cartTotals = result[1];
 
-                    let productData = this.cartData.items.map(item => ({[item.name]: item.sku})).reduce((acc, item) => (Object.assign(acc, item)), {});
+                    let productData = {};
+
+                    this.cartData.items.forEach(item => {
+                        let itemData = productData[item.name];
+                        if (!itemData) {
+                            productData[item.name] = [item.sku];
+                        } else {
+                            itemData.push(item.sku);
+                        }
+                    });
 
                     this.images = await this.graphqlApi.getProductImageUrls(productData);
 
@@ -291,6 +300,8 @@
 
             let response = await this.refreshData();
 
+            let customEvent = new CustomEvent("aem.cif.product-cart-updated", {detail: {quantity: this.cartQuantity}});
+            document.dispatchEvent(customEvent);
             this.setState('full');
 
         }
