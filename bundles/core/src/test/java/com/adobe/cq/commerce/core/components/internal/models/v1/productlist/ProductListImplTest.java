@@ -23,6 +23,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,6 +42,8 @@ public class ProductListImplTest {
 
     Page productPage;
 
+    SlingHttpServletRequest incomingRequest;
+
     private ProductList slingModel;
     private CategoryInterface categoryQueryResult;
 
@@ -54,6 +57,13 @@ public class ProductListImplTest {
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         categoryQueryResult = rootQuery.getCategory();
         Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
+
+
+        incomingRequest = mock(SlingHttpServletRequest.class);
+
+        when(incomingRequest.getParameter("page")).thenReturn("3");
+        Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+
 
         // AEM page
         productPage = mock(Page.class);
@@ -82,7 +92,7 @@ public class ProductListImplTest {
     public void getProducts() {
         Collection<ProductListItem> products = this.slingModel.getProducts();
         Assert.assertNotNull(products);
-        Assert.assertEquals(categoryQueryResult.getProducts().getTotalCount().intValue(), products.size());
+        Assert.assertEquals(true, categoryQueryResult.getProducts().getItems().size() <= products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
@@ -121,4 +131,36 @@ public class ProductListImplTest {
         Assert.assertEquals(true, (((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) <= categoryQueryResult.getProductCount()));
 
     }
+
+    @Test
+    public void getNextNavPage() {
+        //currentPage+1 iff currentPage<(totalPages=(totalProducts/pageSize))
+
+        boolean isOnlyPage = ((this.slingModel.getTotalCount()) <= ((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)));
+        boolean isLastPage = ((this.slingModel.getTotalCount() / ((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE))) == this.slingModel.getCurrentNavPage());
+
+        Assert.assertEquals(true, (
+                ((this.slingModel.getCurrentNavPage() + 1) == this.slingModel.getNextNavPage())
+                        || isLastPage || isOnlyPage)
+        );
+    }
+
+    @Test
+    public void getPreviousNavPage() {
+        //currentPage-1 iff currentPage>1
+
+        boolean isFirstPage = (this.slingModel.getCurrentNavPage() == 1);
+
+        Assert.assertEquals(true, isFirstPage || ((this.slingModel.getCurrentNavPage() - 1) == this.slingModel.getPreviousNavPage()));
+    }
+
+    @Test
+    public void getPageList() {
+//        System.out.println(this.slingModel.getProducts().size() + "," + this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
+        Assert.assertEquals(true,
+                this.slingModel.getProducts().size() <=
+                        (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
+    }
+
+
 }

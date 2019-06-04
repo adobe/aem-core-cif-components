@@ -74,7 +74,7 @@ public class ProductListImpl implements ProductList {
     private int navPageCursor = 1;
     private int navPagePrev;
     private int navPageNext;
-    private int navPageSize;
+    private int navPageSize=PAGE_SIZE_DEFAULT;
     private int[] navPages;
 
     @PostConstruct
@@ -153,6 +153,15 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getNextNavPage() {
+        if ((this.getTotalCount() % this.navPageSize) == 0) {
+
+            //if currentNavPage is already at last, set navPageNext to currentNavPage
+            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
+
+        } else {
+            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
+
+        }
         return this.navPageNext;
     }
 
