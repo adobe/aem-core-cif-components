@@ -13,7 +13,7 @@
 -->
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.searchbar="searchbar.html"
-     data-sly-use.header="com.adobe.cq.commerce.core.components.models.header.Header">
+     data-sly-use.header="${'com.adobe.cq.commerce.core.components.models.header.Header' @ minicartNodeName = 'minicart'}">
     <sly data-sly-call="${clientlib.all @ categories='aem.venia.header'}"/>
     <header class="header__root header__closed">
         <div class="header__toolbar">
@@ -32,8 +32,9 @@
                         d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </span>
                 </button>
+                <sly data-sly-test="${header.minicartResource}" data-sly-resource="${header.minicartResource}"></sly>
             </div>
         </div>
-        <sly data-sly-call="${searchbar.searchbar}"></sly>
+        <sly data-sly-call="${searchbar.searchbar @ header=header}"></sly>
     </header>
 </sly>

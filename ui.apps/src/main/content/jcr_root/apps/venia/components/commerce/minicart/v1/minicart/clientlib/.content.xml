@@ -5,6 +5,6 @@
           xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
           jcr:primaryType="cq:ClientLibraryFolder"
           allowProxy="{Boolean}true"
-          categories="[aem.venia.product]"
+          categories="[aem.venia.minicart]"
           dependencies="[aem.venia.theme, aem.venia.common]">
 </jcr:root>
