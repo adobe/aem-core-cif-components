@@ -50,8 +50,8 @@
 
                 <!--/*Page numbers iterated*/-->
                 <a class=" category__pagination_tilebutton" href="?page=${page @context ='unsafe'}">
-                    <div class="category__pagination_tilebutton-marker" data-sly-test="${page==productList.currentNavPage}"></div>
-                    ${page}
+                    <div class="category__pagination_tilebutton-text category__pagination_tilebutton-marker" data-sly-test="${page==productList.currentNavPage}">${page}</div>
+                    <div class="category__pagination_tilebutton-text" data-sly-test="${page!=productList.currentNavPage}">${page}</div>
                 </a>
 
                 <!--/* Next page button & Last Page button Active */-->
@@ -64,7 +64,7 @@
                         </span>
                     </a>
                     <a class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page" href="?page=${page @context ='unsafe'}">
-                        <span class="icon-root-1sI">
+                        <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#000" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="13 19 22 12 13 5 13 19"></polygon>
                                 <polygon points="2 19 11 12 2 5 2 19"></polygon>
@@ -84,7 +84,7 @@
                         </span>
                     </a>
                     <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the last page">
-                        <span class="icon-root-1sI">
+                        <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="#999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="13 19 22 12 13 5 13 19"></polygon>
                                 <polygon points="2 19 11 12 2 5 2 19"></polygon>

@@ -11,7 +11,7 @@
     text-align: center;
 }
 
-.category__pagination_navbutton-inactive{
+.category__pagination_navbutton-inactive {
     color: #999;
 }
 
@@ -23,6 +23,15 @@
 .category__pagination_tilebutton {
     grid-row-start: 1;
     outline: none;
+}
+
+.category__pagination_tilebutton-text {
+    position: absolute;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0px;
+    bottom: 0.75rem;
+    /*margin-bottom: 2px;*/
 }
 
 .category__pagination_icon-root {
@@ -40,6 +49,7 @@
     border-radius: 2px;
     bottom: 0.75rem;
     margin-bottom: 2px;
+    padding-top: 2px;
 }
 
 .category__pagination_button {
