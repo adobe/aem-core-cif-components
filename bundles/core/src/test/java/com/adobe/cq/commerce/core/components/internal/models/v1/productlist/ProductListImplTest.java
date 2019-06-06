@@ -111,50 +111,34 @@ public class ProductListImplTest {
 
     @Test
     public void testPagination() {
-
-        //get value of page from query string ; assert pageVal > 0 && pageVal x page.property.get ("pageSize") <= totalCount
-        // get currentPage from response
-        // get TotalCount from Response
-        // check productList.size <= page.property.get ("pageSize")
-        //
-
         Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) >= this.slingModel.getProducts().size());
-
         Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) <= categoryQueryResult.getProductCount());
 
         incomingRequest = mock(SlingHttpServletRequest.class);
 
-        //set currentPage = 1 , check prevPage, check lastPage, check nextPage
-
         when(incomingRequest.getParameter("page")).thenReturn("" + 1);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
-
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 1);
         Assert.assertTrue(this.slingModel.getNextNavPage() == 2);
         Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
 
-        //set currentPage > 1,  check prevPage===currentPage-1, check lastPage===(totalCount/pageSize), check nextPage===currentPage+1<(totalCount/pageSize)?currentPage+1:currentPage
         when(incomingRequest.getParameter("page")).thenReturn("" + 2);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
-
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 2);
         Assert.assertTrue(this.slingModel.getNextNavPage() == 3);
         Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
 
-        //set currentPage===(totalCount/pageSize),  check prevPage===currentPage-1, check lastPage===currentPage, check nextPage===currentPage
         when(incomingRequest.getParameter("page")).thenReturn("" + 3);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
-
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 3);
         Assert.assertTrue(this.slingModel.getNextNavPage() == 3);
         Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
-
     }
 
 
