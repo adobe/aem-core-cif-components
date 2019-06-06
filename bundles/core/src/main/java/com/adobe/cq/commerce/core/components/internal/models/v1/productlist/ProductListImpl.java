@@ -74,7 +74,7 @@ public class ProductListImpl implements ProductList {
     private int navPageCursor = 1;
     private int navPagePrev;
     private int navPageNext;
-    private int navPageSize=PAGE_SIZE_DEFAULT;
+    private int navPageSize = PAGE_SIZE_DEFAULT;
     private int[] navPages;
 
     @PostConstruct
@@ -89,45 +89,7 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
-        //check if pageCursor available in queryString, already set to 1 if not.
-        if (request.getParameter("page") != null) {
-            try {
-                this.navPageCursor = Integer.parseInt(request.getParameter("page"));
-                if (this.navPageCursor <= 0) {
-                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
-                    this.navPageCursor = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
-            }
-        }
-
-        this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
-
-        // Parse category id from URL
-        final Integer categoryId = parseCategoryId();
-
-        // get GraphQL client and query data
-        if (categoryId != null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            if (magentoGraphqlClient != null) {
-                category = fetchCategory(categoryId);
-            }
-        }
-        if ((this.getTotalCount() % this.navPageSize) == 0) {
-            this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
-
-            //if currentNavPage is already at last, set navPageNext to currentNavPage
-            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
-
-        } else {
-            this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
-            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
-
-        }
-        for (int i = 0; i < this.navPages.length; i++) {
-            this.navPages[i] = (i + 1);
-        }
+        setupPagination();
     }
 
     @Nullable
@@ -271,5 +233,48 @@ public class ProductListImpl implements ProductList {
             LOGGER.warn("Could not parse category id from current page selectors.");
         }
         return categoryId;
+    }
+
+    public void setupPagination() {
+
+        //check if pageCursor available in queryString, already set to 1 if not.
+        if (request.getParameter("page") != null) {
+            try {
+                this.navPageCursor = Integer.parseInt(request.getParameter("page"));
+                if (this.navPageCursor <= 0) {
+                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
+                    this.navPageCursor = 1;
+                }
+            } catch (NumberFormatException nfe) {
+                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
+            }
+        }
+
+        this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
+
+        // Parse category id from URL
+        final Integer categoryId = parseCategoryId();
+
+        // get GraphQL client and query data
+        if (categoryId != null) {
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            if (magentoGraphqlClient != null) {
+                category = fetchCategory(categoryId);
+            }
+        }
+        if ((this.getTotalCount() % this.navPageSize) == 0) {
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
+
+            //if currentNavPage is already at last, set navPageNext to currentNavPage
+            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
+
+        } else {
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
+            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
+
+        }
+        for (int i = 0; i < this.navPages.length; i++) {
+            this.navPages[i] = (i + 1);
+        }
     }
 }
