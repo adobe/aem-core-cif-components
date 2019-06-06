@@ -68,14 +68,12 @@
             let items = response.data.products.items;
 
             let productsMedia = {};
-
             items.forEach(item => {
                 let variants = item.variants;
                 if (variants.length > 0) {
-
                     let skus = productData[item.name];
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
-                    if (media && media.length > 1) {
+                    if (media && media.length > 0) {
                         media.forEach( v => productsMedia[v.product.sku] = `${imageUrlPrefix}${v.product.media_gallery_entries[0].file}`);
                     }
                 }
