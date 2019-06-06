@@ -13,16 +13,16 @@
 -->
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" data-sly-call="${clientlib.all @ categories='aem.venia.productcarousel'}" />
 <sly data-sly-test="${!properties.product}">
-    <div class="placeholder__empty product__carousel__title" data-sly-text="${component.title}"></div>
+    <div class="placeholder__empty productcarousel__title" data-sly-text="${component.title}"></div>
 </sly>
-<sly data-sly-use.productTpl="product.html" data-sly-test="${properties.product}">
-    <div data-comp-is="productcarousel" class="product__carousel carousel__root">
-        <div class="product__carousel__parent" data-sly-use.productList="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}">
-            <div class="cards__container" data-sly-list.product=${productList.products}>
-                <sly data-sly-call="${productTpl.product @ product=product}"></sly>
+<sly data-sly-use.productTpl="productcard.html" data-sly-test="${properties.product}">
+    <div data-comp-is="productcarousel" class="productcarousel productcarousel__root">
+        <div class="productcarousel__parent" data-sly-use.productList="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}">
+            <div class="productcarousel__cardscontainer" data-sly-list.product=${productList.products}>
+                <sly data-sly-call="${productTpl.productcard @ product=product}"></sly>
             </div>
-            <button data-carousel-action='prev' class="product__carousel__btn product__carousel__btn__prev" type="button"></button>
-            <button data-carousel-action='next' class="product__carousel__btn product__carousel__btn__next" type="button"></button>
+            <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button"></button>
+            <button data-carousel-action='next' class="productcarousel__btn productcarousel__btn--next" type="button"></button>
         </div>
     </div>
 </sly>

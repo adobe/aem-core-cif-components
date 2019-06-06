@@ -7,7 +7,7 @@
     border: 3px #ccc dashed
 }
 
-.product__carousel__title {
+.productcarousel__title {
     text-align: center;
     color: #333;
 }
@@ -21,7 +21,7 @@
     height: 240px;
 }
 
-.product__carousel {
+.productcarousel {
     margin: 50px auto;
     overflow: hidden;
     position: relative;
@@ -29,24 +29,24 @@
 }
 
 @media screen and (min-width: 768px) {
-    .product__carousel {
+    .productcarousel {
         width: 720px;
     }
 }
 
 @media screen and (min-width: 992px) {
-    .product__carousel {
+    .productcarousel {
         width: 960px;
     }
 }
 
-.product__carousel:before,
-.product__carousel:after {
+.productcarousel:before,
+.productcarousel:after {
     content: "";
     display: table;
 }
 
-.product__carousel:after {
+.productcarousel:after {
     clear: both;
 }
 
@@ -59,17 +59,17 @@
     width: 240px;
 }
 
-.carousel__root {
+.productcarousel__root {
     overflow: hidden;
 }
 
-.cards__container:before,
-.cards__container:after {
+.productcarousel__cardscontainer:before,
+.productcarousel__cardscontainer:after {
     content: "";
     display: table;
 }
 
-.cards__container:after {
+.productcarousel__cardscontainer:after {
     clear: both;
 }
 
@@ -77,7 +77,7 @@
     float: left;
 }
 
-.product__carousel__btn {
+.productcarousel__btn {
     background: transparent;
     border: 0;
     box-shadow: none;
@@ -90,7 +90,7 @@
     width: 20px;
 }
 
-.product__carousel__btn__next {
+.productcarousel__btn--next {
     border-bottom: 8px solid #aaa;
     border-right: 8px solid #aaa;
     right: 5px;
@@ -99,7 +99,7 @@
     transform: rotate(315deg);
 }
 
-.product__carousel__btn__prev {
+.productcarousel__btn--prev {
     border-bottom: 8px solid #aaa;
     border-left: 8px solid #aaa;
     left: 5px;

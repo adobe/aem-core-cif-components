@@ -31,8 +31,8 @@
             this._speed = 300;
             this._delay = 0;
             this._effect = 'linear';
-            this._product_carousel_parent = rootElement.querySelector('.product__carousel__parent');
-            this._cardsContainer = rootElement.querySelector('.cards__container');
+            this._product_carousel_parent = rootElement.querySelector('.productcarousel__parent');
+            this._cardsContainer = rootElement.querySelector('.productcarousel__cardscontainer');
             this._cards = this._cardsContainer.querySelectorAll('.product__card');
             this._btnPrev = rootElement.querySelector(selectors.btnPrev);
             this._btnNext = rootElement.querySelector(selectors.btnNext);
