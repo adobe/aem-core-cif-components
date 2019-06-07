@@ -14,13 +14,11 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.day.cq.wcm.api.Page;
+import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -30,10 +28,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +54,7 @@ public class ProductListImplTest {
 
         // ProductList entry items
         String json = IOUtils.toString(this.getClass()
-                .getResourceAsStream("/graphql/magento-graphql-category-result.json"), StandardCharsets.UTF_8);
+            .getResourceAsStream("/graphql/magento-graphql-category-result.json"), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         categoryQueryResult = rootQuery.getCategory();
         Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
@@ -64,7 +65,7 @@ public class ProductListImplTest {
         when(productPage.getPath()).thenReturn("/content/test-product-page");
         Map<String, Object> pageProperties = new HashMap<>();
 
-        pageProperties.put(ProductList.PN_PAGE_SIZE, 6); //setting page size to 6
+        pageProperties.put(ProductList.PN_PAGE_SIZE, 6); // setting page size to 6
 
         ValueMapDecorator vMD = new ValueMapDecorator(pageProperties);
 
@@ -97,22 +98,25 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getSku(), item.getSKU());
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format("/content/test-product-page.%s.html", productInterface.getUrlKey()),
-                    item.getURL());
+                item.getURL());
             Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getValue(),
-                    item.getPrice(), 0);
+                item.getPrice(), 0);
             Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                    item.getCurrency());
-            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+                item.getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency()
+                .toString()));
             Assert.assertEquals(priceFormatter.format(productInterface.getPrice().getRegularPrice().getAmount().getValue()),
-                    item.getFormattedPrice());
+                item.getFormattedPrice());
             Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getSmallImage().getUrl()));
         }
     }
 
     @Test
     public void testPagination() {
-        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) >= this.slingModel.getProducts().size());
-        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) <= categoryQueryResult.getProductCount());
+        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) >= this.slingModel.getProducts()
+            .size());
+        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) <= categoryQueryResult
+            .getProductCount());
 
         incomingRequest = mock(SlingHttpServletRequest.class);
 
@@ -140,6 +144,5 @@ public class ProductListImplTest {
         Assert.assertTrue(this.slingModel.getNextNavPage() == 3);
         Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
     }
-
 
 }

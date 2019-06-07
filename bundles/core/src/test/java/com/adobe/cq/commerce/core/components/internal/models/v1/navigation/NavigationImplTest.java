@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -28,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -38,7 +38,6 @@ import static com.adobe.cq.commerce.core.components.models.navigation.Navigation
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class NavigationImplTest {
     private static final String CATALOG_PAGE_PATH = "catalog_page_path";
@@ -54,7 +53,7 @@ public class NavigationImplTest {
     public void init() {
         navigation = new NavigationImpl();
 
-        //current page
+        // current page
         Page currentPage = mock(Page.class);
         pageManager = mock(PageManager.class);
         when(currentPage.getPageManager()).thenReturn(pageManager);
@@ -68,19 +67,19 @@ public class NavigationImplTest {
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
 
-        //WCM navigation model
+        // WCM navigation model
         wcmNavigation = mock(com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl.class);
         Whitebox.setInternalState(navigation, "wcmNavigation", wcmNavigation);
         navigationItems = new ArrayList<>();
         when(wcmNavigation.getItems()).thenReturn(navigationItems);
 
-        //Magento category provider
+        // Magento category provider
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
         when(categoryProvider.getChildCategories(any())).thenReturn(categoryList);
 
-        //current request
+        // current request
         SlingHttpServletRequest request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
@@ -123,7 +122,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationPagesOnly() {
-        //check the properties of a navigation item related to a normal page
+        // check the properties of a navigation item related to a normal page
 
         String pageTitle = "Page 1";
         String pageURL = "/page1";
@@ -145,7 +144,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationCategoriesOnly() {
-        //check the properties of a navigation item related to a category
+        // check the properties of a navigation item related to a category
 
         Integer categoryId = 0;
         String categoryName = "Category 1";
@@ -179,7 +178,7 @@ public class NavigationImplTest {
     }
 
     public void testNavigationItemOrdering(boolean pageBeforeCategory) {
-        //checks that the navigation items are ordered according to the underlying page nodes
+        // checks that the navigation items are ordered according to the underlying page nodes
 
         String pageTitle = "Page 1";
         String categoryTitle = "Category 1";

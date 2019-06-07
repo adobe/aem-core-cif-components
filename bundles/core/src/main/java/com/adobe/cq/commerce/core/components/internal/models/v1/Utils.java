@@ -14,13 +14,13 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1;
 
-import javax.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +39,14 @@ public class Utils {
      */
     static final String PN_NAV_ROOT = "navRoot";
 
-    private Utils() {
-    }
+    private Utils() {}
 
     /**
      * Builds a NumberFormat instance used for formatting prices based on the given
      * locale and currency code. If the given currency code is not valid in respect to
      * ISO 4217, the default currency for the given locale is used.
      *
-     * @param locale       Price locale
+     * @param locale Price locale
      * @param currencyCode Additional currency code
      * @return Price formatter
      */
@@ -99,7 +98,7 @@ public class Utils {
      *
      * @param page the page
      *
-     * @return the navigation root page if found,  otherwise {@code null}
+     * @return the navigation root page if found, otherwise {@code null}
      */
     @Nullable
     public static Page getNavigationRootPage(Page page) {
@@ -138,7 +137,8 @@ public class Utils {
         }
         return categoryPage;
     }
-    public static String constructUrlfromSlug(String pagePath, String slug){
+
+    public static String constructUrlfromSlug(String pagePath, String slug) {
         return String.format("%s.%s.html", pagePath, slug);
     }
 

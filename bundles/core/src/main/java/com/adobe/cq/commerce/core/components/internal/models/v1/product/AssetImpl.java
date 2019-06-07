@@ -32,7 +32,8 @@ public class AssetImpl implements Asset {
 
     private String path;
 
-    @Override public String getLabel() {
+    @Override
+    public String getLabel() {
         return label;
     }
 
@@ -40,7 +41,8 @@ public class AssetImpl implements Asset {
         this.label = label;
     }
 
-    @Override public Integer getPosition() {
+    @Override
+    public Integer getPosition() {
         return position;
     }
 
@@ -48,7 +50,8 @@ public class AssetImpl implements Asset {
         this.position = position;
     }
 
-    @Override public String getType() {
+    @Override
+    public String getType() {
         return type;
     }
 
@@ -56,7 +59,8 @@ public class AssetImpl implements Asset {
         this.type = type;
     }
 
-    @Override public String getPath() {
+    @Override
+    public String getPath() {
         return path;
     }
 

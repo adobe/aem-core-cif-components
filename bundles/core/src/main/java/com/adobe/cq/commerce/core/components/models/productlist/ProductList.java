@@ -14,11 +14,12 @@
 
 package com.adobe.cq.commerce.core.components.models.productlist;
 
-import org.osgi.annotation.versioning.ProviderType;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
 public interface ProductList {
@@ -78,7 +79,7 @@ public interface ProductList {
         throw new UnsupportedOperationException();
     }
 
-    default  int[] getPageList(){
+    default int[] getPageList() {
         throw new UnsupportedOperationException();
     }
 }
