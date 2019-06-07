@@ -66,18 +66,19 @@
                 throw new Error(JSON.stringify(response.errors));
             }
             let items = response.data.products.items;
-            return items.map(item => {
+
+            let productsMedia = {};
+            items.forEach(item => {
                 let variants = item.variants;
                 if (variants.length > 0) {
-
-                    let variant = variants.find(v => v.product.sku === productData[item.name]);
-                    return variant ? {[variant.product.sku]: imageUrlPrefix + variant.product.media_gallery_entries[0].file} : {};
-
-                } else {
-                    return {};
+                    let skus = productData[item.name];
+                    let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
+                    if (media && media.length > 0) {
+                        media.forEach( v => productsMedia[v.product.sku] = `${imageUrlPrefix}${v.product.media_gallery_entries[0].file}`);
+                    }
                 }
-            }).reduce((acc, item) => (Object.assign(acc, item)),{});
-
+            });
+            return productsMedia;
         }
     }
 
