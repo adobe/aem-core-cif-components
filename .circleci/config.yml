@@ -25,13 +25,32 @@ jobs:
           path: bundles/core/target/surefire-reports
       - run:
           name: Upload Code Coverage
-          command: bash <(curl -s https://codecov.io/bash)
+          command: bash <(curl -s https://codecov.io/bash) -F unittests
+
+  karma:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision
+          command: npm install
+          working_directory: ./ui.apps
+      - run:
+          name: Run Unit Tests
+          command: npm test
+          working_directory: ./ui.apps
+      - store_test_results:
+          path: ui.apps/karma-junit
+      - store_artifacts:
+          path: ui.apps/karma-junit
+      - run:
+          name: Upload Code Coverage
+          command: bash <(curl -s https://codecov.io/bash) -F karma
 
 workflows:
   version: 2
   build:
     jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
+      - build
+      - karma

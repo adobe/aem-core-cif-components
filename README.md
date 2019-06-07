@@ -56,12 +56,24 @@ For more details about the UberJar please head over to the
 
 To connect the AEM CIF Core Components with your Magento instance follow the [configuration steps](https://github.com/adobe/aem-core-cif-components/wiki/configuration). For a multi store / site setup one [additional step](https://github.com/adobe/aem-core-cif-components/wiki/configuration#multi-store--site-configuration) is needed to link an AEM site to a Magento store view.
 
-### Contributing
+## Testing
+### Karma Unit Tests
+The client-side JavaScript code of the components is covered using Mocha unit tests executed with Karma. Please make sure that for every contribution new client-side code is covered by tests and that all tests pass.
 
+```bash
+cd ui.apps
+npm install
+npm test
+```
+
+Karma will test with Chrome and Firefox. Make sure you have both browsers installed.
+
+## Contributing
+ 
 Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
-
-### Licensing
-
+ 
+## Licensing
+ 
 This project is licensed under the Apache V2 License. See [LICENSE](LICENSE) for more information.
 
 ---

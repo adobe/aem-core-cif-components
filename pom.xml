@@ -257,6 +257,10 @@
                         <exclude>**/css.txt</exclude>
                         <exclude>**/*.css</exclude>
                         <exclude>**/*.less</exclude>
+
+                        <!-- Karma tests -->
+                        <exclude>**/karma-junit/*.xml</exclude>
+                        <exclude>**/coverage/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
