@@ -13,8 +13,7 @@
  ******************************************************************************/
 'use strict';
 
-(function () {
-
+(function() {
     window.CIF.MiniCart = window.CIF.MiniCart || {};
 
     const cartItem = `
@@ -41,7 +40,6 @@
     </div>
 
 `;
-
 
     window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
     window.CIF.MiniCart.templates.cartItem = cartItem;

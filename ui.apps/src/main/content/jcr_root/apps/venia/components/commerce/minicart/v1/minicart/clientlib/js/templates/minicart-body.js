@@ -12,8 +12,7 @@
  *
  ******************************************************************************/
 
-(function () {
-
+(function() {
     'use strict';
 
     const minicartBody = `<div class="miniCart__body">

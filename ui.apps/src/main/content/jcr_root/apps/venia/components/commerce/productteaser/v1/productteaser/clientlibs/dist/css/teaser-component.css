@@ -7,12 +7,11 @@
     margin: 1rem 0;
     padding: 1rem;
     line-height: 3rem;
-    border: 3px #ccc dashed
+    border: 3px #ccc dashed;
 }
 
 .blank-placeholder p {
     text-align: left;
-
 }
 
 .item__images {
@@ -31,7 +30,6 @@
     visibility: visible;
     width: 100%;
 }
-
 
 .item__name,
 .item__price {

@@ -12,14 +12,13 @@
  *
  ******************************************************************************/
 
-(function () {
-
-    const cartCounterDom = (counter) => (`<span class="cartCounter__root">${counter}</span>`);
+(function() {
+    const cartCounterDom = counter => `<span class="cartCounter__root">${counter}</span>`;
 
     class CartTrigger {
         constructor() {
-            this.rootNode = document.querySelector("button.cartTrigger__root");
-            this.rootNode.addEventListener("click", event => {
+            this.rootNode = document.querySelector('button.cartTrigger__root');
+            this.rootNode.addEventListener('click', event => {
                 if (window.CIF.MiniCart) {
                     window.CIF.MiniCart.open();
                 }
@@ -27,16 +26,16 @@
 
             this.count = 0;
 
-            const qtyChangedEventHandler = (ev) => {
+            const qtyChangedEventHandler = ev => {
                 console.log(`Receives cart event ${ev.detail}`);
                 const data = ev.detail;
                 this.updateCounterText(data.quantity);
             };
 
-            document.addEventListener("aem.cif.product-added-to-cart", qtyChangedEventHandler);
-            document.addEventListener("aem.cif.product-removed-from-cart",qtyChangedEventHandler);
-            document.addEventListener("aem.cif.cart-intialized", qtyChangedEventHandler);
-            document.addEventListener("aem.cif.product-cart-updated", qtyChangedEventHandler);
+            document.addEventListener('aem.cif.product-added-to-cart', qtyChangedEventHandler);
+            document.addEventListener('aem.cif.product-removed-from-cart', qtyChangedEventHandler);
+            document.addEventListener('aem.cif.cart-intialized', qtyChangedEventHandler);
+            document.addEventListener('aem.cif.product-cart-updated', qtyChangedEventHandler);
         }
 
         updateCounterText(count) {
@@ -44,32 +43,29 @@
                 return;
             }
 
-            const counter = this.rootNode.querySelector(".cartCounter__root");
+            const counter = this.rootNode.querySelector('.cartCounter__root');
             if (counter) {
                 this.rootNode.removeChild(counter);
             }
             if (count === 0) {
                 return;
             }
-            const toElement = (count) => {
-                const html = new DOMParser().parseFromString(cartCounterDom(count), "text/html");
+            const toElement = count => {
+                const html = new DOMParser().parseFromString(cartCounterDom(count), 'text/html');
                 return html.body.firstChild;
             };
 
             this.rootNode.appendChild(toElement(count));
         }
-
     }
 
     function initializeCartTrigger() {
         window.CIF.CartTrigger = new CartTrigger();
-
     }
 
-    if (document.readyState !== "loading") {
-        initializeCartTrigger()
+    if (document.readyState !== 'loading') {
+        initializeCartTrigger();
     } else {
-        document.addEventListener("DOMContentLoaded", initializeCartTrigger);
+        document.addEventListener('DOMContentLoaded', initializeCartTrigger);
     }
-
 })();

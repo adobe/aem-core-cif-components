@@ -17,29 +17,28 @@ window.CIF = window.CIF || {};
 /**
  * The CommerceApi is responsible for interacting with the Commerce backend using REST API calls
  */
-(function () {
-
+(function() {
     'use strict';
     const endpoints = {
         guestcarts: {
             create: '/guest-carts',
-            byId: (id) => (`/guest-carts/${id}`),
-            addEntry: (id) => (`/guest-carts/${id}/items`),
-            totals: (id) => (`/guest-carts/${id}/totals`),
-            itemOperation: (cartId, itemId) => (`/guest-carts/${cartId}/items/${itemId}`)
+            byId: id => `/guest-carts/${id}`,
+            addEntry: id => `/guest-carts/${id}/items`,
+            totals: id => `/guest-carts/${id}/totals`,
+            itemOperation: (cartId, itemId) => `/guest-carts/${cartId}/items/${itemId}`
         }
-
     };
 
     class CommerceApi {
-
         /**
          * initializes the commerce API.
          * @param props {Object} the props have the following structure: { endpoint }
          */
         constructor(props) {
             if (!props.endpoint) {
-                throw new Error('The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object');
+                throw new Error(
+                    'The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object'
+                );
             }
 
             this.rootEndpoint = props.endpoint;
@@ -75,7 +74,7 @@ window.CIF = window.CIF || {};
                 method,
                 headers: {
                     'Content-Type': 'application/json'
-                },
+                }
             };
 
             let extendedParams = Object.assign({}, params, defaultParams);
@@ -96,7 +95,7 @@ window.CIF = window.CIF || {};
         }
 
         async _delete(endpoint) {
-            let params = {"method": "DELETE"};
+            let params = { method: 'DELETE' };
 
             return this._fetch(endpoint, params);
         }
@@ -127,7 +126,7 @@ window.CIF = window.CIF || {};
          * @param quoteId
          * @returns {Promise<*>}
          */
-        async updateCartEntry(cartId, itemId, {sku, qty, quoteId}) {
+        async updateCartEntry(cartId, itemId, { sku, qty, quoteId }) {
             let url = `${endpoints.guestcarts.itemOperation(cartId, itemId)}`;
             let params = {
                 cartItem: {
@@ -137,9 +136,8 @@ window.CIF = window.CIF || {};
                 }
             };
 
-            let body = {body: JSON.stringify(params)};
-            return this._put(url, body)
-
+            let body = { body: JSON.stringify(params) };
+            return this._put(url, body);
         }
 
         /**
@@ -150,7 +148,7 @@ window.CIF = window.CIF || {};
          * @param quoteId
          * @returns {Promise<*>}
          */
-        async postCartEntry(cartId, {sku, qty, quoteId}) {
+        async postCartEntry(cartId, { sku, qty, quoteId }) {
             const url = `${endpoints.guestcarts.addEntry(cartId)}`;
             const params = {
                 cartItem: {
@@ -159,7 +157,7 @@ window.CIF = window.CIF || {};
                     quote_id: quoteId
                 }
             };
-            const body = {body: JSON.stringify(params)};
+            const body = { body: JSON.stringify(params) };
             return await this._post(url, body);
         }
 
@@ -181,21 +179,17 @@ window.CIF = window.CIF || {};
         async removeItem(cartQuote, itemId) {
             return await this._delete(endpoints.guestcarts.itemOperation(cartQuote, itemId));
         }
-
-
     }
 
     function onDocumentReady() {
-        const endpoint = "/magento/rest/default/V1";
+        const endpoint = '/magento/rest/default/V1';
 
-        window.CIF.CommerceApi = new CommerceApi({endpoint});
+        window.CIF.CommerceApi = new CommerceApi({ endpoint });
     }
 
-
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
-}());
+})();

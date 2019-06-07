@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 
-(function () {
-    "use strict";
+(function() {
+    'use strict';
 
     const CLEAR_BUTTON_HTML = `<button class="trigger__root clickable__root" type="button">
             <span class="icon__root">
@@ -25,7 +25,7 @@
     class Searchbar {
         constructor(props) {
             this._classes = {
-                open: "searchBar__root_open"
+                open: 'searchBar__root_open'
             };
 
             this._searchBarRoot = document.querySelector(Searchbar.selectors.searchBarRoot);
@@ -50,7 +50,7 @@
 
         _getOrCreateResetButton() {
             if (!this._resetButtonElement) {
-                const html = new DOMParser().parseFromString(CLEAR_BUTTON_HTML, "text/html");
+                const html = new DOMParser().parseFromString(CLEAR_BUTTON_HTML, 'text/html');
                 this._resetButtonElement = html.body.firstChild;
             }
             return this._resetButtonElement;
@@ -59,10 +59,9 @@
         _installListeners() {
             let that = this;
             // listen to onclick on the "search" icon in the header
-            document.querySelector("header button.searchTrigger__root")
-                .addEventListener('click', (event) => {
-                    this.toggle();
-                });
+            document.querySelector('header button.searchTrigger__root').addEventListener('click', event => {
+                this.toggle();
+            });
         }
 
         toggle() {
@@ -76,11 +75,10 @@
         }
 
         _showResetButton() {
-
-            const afterField = this._searchBarRoot.querySelector(".fieldIcons__after");
+            const afterField = this._searchBarRoot.querySelector('.fieldIcons__after');
             afterField.appendChild(this._getOrCreateResetButton());
 
-            this._searchBarRoot.querySelector(".fieldIcons__after .trigger__root").addEventListener('click', (e) => {
+            this._searchBarRoot.querySelector('.fieldIcons__after .trigger__root').addEventListener('click', e => {
                 //clear the search field
                 this._searchBox.value = '';
 
@@ -89,12 +87,11 @@
 
                 //re-register the listener on the searchbox
                 this._registerSearchBoxListener();
-            })
-
+            });
         }
 
         _registerSearchBoxListener() {
-            const _handleKeyDown = (e) => {
+            const _handleKeyDown = e => {
                 const input = e.currentTarget;
                 this._showResetButton();
                 this._searchBox.removeEventListener('keydown', _handleKeyDown);
@@ -120,17 +117,16 @@
 
     function onDocumentReady() {
         const queryParams = new URLSearchParams(location.search);
-        if (queryParams.has("search_query")) {
-            const searchBar = new Searchbar({params: {query: queryParams.get("search_query")}});
+        if (queryParams.has('search_query')) {
+            const searchBar = new Searchbar({ params: { query: queryParams.get('search_query') } });
         } else {
             const searchBar = new Searchbar({});
         }
     }
 
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
 })();

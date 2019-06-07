@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  *
  *     Copyright ${year} Adobe. All rights reserved.
@@ -19,10 +18,9 @@ window.CIF = window.CIF || {};
         window.CIF.PageContext = new PageContext();
     }
 
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
 })();
-

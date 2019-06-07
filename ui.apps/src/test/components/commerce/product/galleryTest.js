@@ -15,20 +15,18 @@
 'use strict';
 
 describe('Product', () => {
-
     describe('Gallery', () => {
-
         let galleryRoot;
         let pageRoot;
         let body;
         let galleryItems = [
             {
-                "path": "http://hostname.tld/image-a.jpg",
-                "label": "Image A"
+                path: 'http://hostname.tld/image-a.jpg',
+                label: 'Image A'
             },
             {
-                "path": "http://hostname.tld/image-b.jpg",
-                "label": "Image B"
+                path: 'http://hostname.tld/image-b.jpg',
+                label: 'Image B'
             }
         ];
 
@@ -42,8 +40,9 @@ describe('Product', () => {
             while (pageRoot.firstChild) {
                 pageRoot.removeChild(pageRoot.firstChild);
             }
-            pageRoot.insertAdjacentHTML('afterbegin', `
-                <div data-gallery-role="galleryroot">
+            pageRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div data-gallery-role="galleryroot">
                     <img src="" data-gallery-role="currentimage" />
                     <div class="thumbnailList__root">
                         <button data-gallery-role="galleryitem" data-gallery-index="0"></button>
@@ -51,8 +50,8 @@ describe('Product', () => {
                     </div>
                     <button data-gallery-role="moveleft"></button>
                     <button data-gallery-role="moveright"></button>
-                </div>
-            `);
+                </div>`
+            );
 
             galleryRoot = pageRoot.querySelector(galleryCtx.Gallery.selectors.galleryRoot);
         });
@@ -81,12 +80,12 @@ describe('Product', () => {
 
             let newGalleryItems = [
                 {
-                    "path": "http://hostname.tld/image-c.jpg",
-                    "label": "Image C"
+                    path: 'http://hostname.tld/image-c.jpg',
+                    label: 'Image C'
                 },
                 {
-                    "path": "http://hostname.tld/image-d.jpg",
-                    "label": "Image D"
+                    path: 'http://hostname.tld/image-d.jpg',
+                    label: 'Image D'
                 }
             ];
 
@@ -166,7 +165,5 @@ describe('Product', () => {
             assert.isFalse(second.classList.contains('thumbnail__rootSelected'));
             assert.equal(imageContainer.src, galleryItems[0].path);
         });
-
     });
-
 });

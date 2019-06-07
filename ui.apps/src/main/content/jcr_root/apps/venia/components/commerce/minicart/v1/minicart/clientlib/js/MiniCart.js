@@ -12,18 +12,14 @@
  *
  ******************************************************************************/
 
-
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
  */
-(function (templates) {
-
+(function(templates) {
     'use strict';
 
     class MiniCart {
-
         constructor(props) {
-
             if (!props) {
                 throw new Error('Missing props for the MiniCart library');
             }
@@ -50,7 +46,7 @@
                 this.cartId = this.pageContext.cartInfo.cartId;
             }
 
-            this.rootNode = document.querySelector(".miniCart__root");
+            this.rootNode = document.querySelector('.miniCart__root');
 
             this.totalsTemplate = Handlebars.compile(templates.totals);
             this.emptyTemplate = Handlebars.compile(templates.emptyMiniCart);
@@ -62,7 +58,7 @@
             this.editHandler = this.editHandler.bind(this);
 
             this.items = [];
-            this.state = {currentState: 'empty', previousState: 'empty'};
+            this.state = { currentState: 'empty', previousState: 'empty' };
             this.init();
         }
 
@@ -87,7 +83,6 @@
             } else if (state === 'edit') {
                 this.renderEdit();
             }
-
         }
 
         /**
@@ -99,7 +94,7 @@
             let response = await this.refreshData();
 
             // just trigger an event to let other components know we're ready.
-            const event = new CustomEvent("aem.cif.cart-intialized", {detail: {quantity: this.cartQuantity}});
+            const event = new CustomEvent('aem.cif.cart-intialized', { detail: { quantity: this.cartQuantity } });
             document.dispatchEvent(event);
         }
 
@@ -121,7 +116,6 @@
                 console.log(`No cart information present, nothing to do`);
                 this.setState('empty');
             } else {
-
                 let cartDataPromise = this.commerceApi.getCart(this.cartQuote);
                 let cartTotalsPromise = this.commerceApi.getTotals(this.cartQuote);
 
@@ -168,14 +162,13 @@
                 editHandler: this.editHandler
             };
 
-            let additionalData = {currency: this.cartData.currency.store_currency_code};
+            let additionalData = { currency: this.cartData.currency.store_currency_code };
 
             cartItems.map(cartItem => {
                 additionalData.imageUrl = this.images[cartItem.sku];
-                this.items.push(new MiniCartItem(Object.assign({}, cartItem, additionalData), handlers))
+                this.items.push(new MiniCartItem(Object.assign({}, cartItem, additionalData), handlers));
             });
         }
-
 
         /**
          * Removes an item from the cart.
@@ -187,9 +180,11 @@
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
             await this.refreshData();
 
-            let customEvent = new CustomEvent("aem.cif.product-removed-from-cart", {detail: {quantity: this.cartQuantity}});
+            let customEvent = new CustomEvent('aem.cif.product-removed-from-cart', {
+                detail: { quantity: this.cartQuantity }
+            });
             document.dispatchEvent(customEvent);
-        };
+        }
 
         /**
          * Opens the edit side-panel for a cart item
@@ -203,13 +198,13 @@
             }
             this.currentlyEditing = miniCartItem;
             this.setState('edit');
-        };
+        }
 
         /**
          * Opens the MiniCart popup.
          */
         open() {
-            this.rootNode.classList.add("miniCart__root_open");
+            this.rootNode.classList.add('miniCart__root_open');
             this.pageContext.maskPage();
         }
 
@@ -217,7 +212,7 @@
          * Closes the MiniCart popup
          */
         close() {
-            this.rootNode.classList.remove("miniCart__root_open");
+            this.rootNode.classList.remove('miniCart__root_open');
             this.pageContext.unmaskPage();
         }
 
@@ -225,8 +220,7 @@
          * Adds an entry to this cart.
          * @param args. An object in the shape of {sku, qty}
          */
-        async addItem({sku, qty}) {
-
+        async addItem({ sku, qty }) {
             if (!this.cartQuote || !this.cartId) {
                 // if we don't have a cart yet we have to create one, then add the item
                 await this._createEmptyCart();
@@ -242,11 +236,13 @@
             console.log(response);
             await this.refreshData();
 
-            let customEvent = new CustomEvent("aem.cif.product-added-to-cart", {detail: {quantity: this.cartQuantity}});
+            let customEvent = new CustomEvent('aem.cif.product-added-to-cart', {
+                detail: { quantity: this.cartQuantity }
+            });
             document.dispatchEvent(customEvent);
 
             this.open();
-        };
+        }
 
         /**
          * Creates an empty shopping cart and sets the data in the page context.
@@ -264,7 +260,6 @@
             cartInfo.cartQuote = cartQuote;
             cartInfo.cartId = cart.id;
             window.CIF.PageContext.setCartInfoCookie(cartInfo);
-
         }
 
         get cartQuantity() {
@@ -287,7 +282,6 @@
          * @private
          */
         async _handleSaveItem() {
-
             let selectField = this.rootNode.querySelector('select[name="quantity"]');
             let itemData = this.currentlyEditing.itemData;
             let itemId = itemData.item_id;
@@ -300,10 +294,11 @@
 
             let response = await this.refreshData();
 
-            let customEvent = new CustomEvent("aem.cif.product-cart-updated", {detail: {quantity: this.cartQuantity}});
+            let customEvent = new CustomEvent('aem.cif.product-cart-updated', {
+                detail: { quantity: this.cartQuantity }
+            });
             document.dispatchEvent(customEvent);
             this.setState('full');
-
         }
 
         /**
@@ -316,12 +311,12 @@
 
             this.rootNode.insertAdjacentHTML('beforeend', html);
 
-            this.rootNode.querySelector('button[data-action="cancel"]').addEventListener('click', (e) => {
+            this.rootNode.querySelector('button[data-action="cancel"]').addEventListener('click', e => {
                 this.setState('full');
             });
 
-            this.rootNode.querySelector('button[data-action="save"').addEventListener("click", (event) => {
-                this._handleSaveItem()
+            this.rootNode.querySelector('button[data-action="save"').addEventListener('click', event => {
+                this._handleSaveItem();
             });
 
             let qtySelectField = this.rootNode.querySelector(`select[name="quantity"]`);
@@ -351,32 +346,31 @@
                 this.rootNode.insertAdjacentHTML('beforeend', bodyHtml);
                 let footerHtml = this.footerTemplate();
                 this.rootNode.insertAdjacentHTML('beforeend', footerHtml);
-
             }
 
             // render the items, but empty the list first
-            let itemListNode = this.rootNode.querySelector("ul.productList__root");
+            let itemListNode = this.rootNode.querySelector('ul.productList__root');
             while (itemListNode.firstChild) {
                 itemListNode.removeChild(itemListNode.firstChild);
             }
 
             this.items.forEach((item, index) => {
-                let li = document.createElement("li");
+                let li = document.createElement('li');
                 item.renderTo(li);
 
-                li.classList.add("product__root");
+                li.classList.add('product__root');
                 li.dataset.index = index;
                 li.dataset.key = item.sku;
                 itemListNode.appendChild(li);
             });
 
-            let miniCartBody = this.rootNode.querySelector(".miniCart__body");
+            let miniCartBody = this.rootNode.querySelector('.miniCart__body');
 
-            miniCartBody.addEventListener("click", e => {
-                const dropdowns = miniCartBody.querySelectorAll("ul.kebab__dropdown_active");
+            miniCartBody.addEventListener('click', e => {
+                const dropdowns = miniCartBody.querySelectorAll('ul.kebab__dropdown_active');
                 dropdowns.forEach(dd => {
-                    dd.classList.remove("kebab__dropdown_active");
-                })
+                    dd.classList.remove('kebab__dropdown_active');
+                });
             });
 
             //render the totals
@@ -394,9 +388,7 @@
             }
             totalsRoot.insertAdjacentHTML('beforeend', html);
         }
-
     }
-
 
     function onDocumentReady() {
         const pageContext = window.CIF.PageContext;
@@ -404,12 +396,16 @@
         const storage = window.CIF.Storage;
         const graphqlApi = window.CIF.CommerceGraphqlApi;
         createTestCart().then(res => {
-            window.CIF.MiniCart = new MiniCart({pageContext, commerceApi, storage, graphqlApi});
+            window.CIF.MiniCart = new MiniCart({ pageContext, commerceApi, storage, graphqlApi });
         });
     }
 
     async function createTestCart() {
-        if (window.CIF.PageContext.cartInfo && window.CIF.PageContext.cartInfo.cartId && window.CIF.PageContext.cartInfo.cartQuote) {
+        if (
+            window.CIF.PageContext.cartInfo &&
+            window.CIF.PageContext.cartInfo.cartId &&
+            window.CIF.PageContext.cartInfo.cartQuote
+        ) {
             return;
         }
 
@@ -422,11 +418,9 @@
         window.CIF.PageContext.setCartInfoCookie(cartInfo);
     }
 
-
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
 })(window.CIF.MiniCart.templates);
