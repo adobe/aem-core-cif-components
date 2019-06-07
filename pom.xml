@@ -261,6 +261,8 @@
                         <!-- Karma tests -->
                         <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
+
+                        <exclude>**/.prettierrc</exclude>
                     </excludes>
                 </configuration>
                 <executions>
