@@ -263,6 +263,7 @@
                         <exclude>**/coverage/**</exclude>
 
                         <exclude>**/.prettierrc</exclude>
+                        <exclude>**/.prettierignore</exclude>
                     </excludes>
                 </configuration>
                 <executions>
