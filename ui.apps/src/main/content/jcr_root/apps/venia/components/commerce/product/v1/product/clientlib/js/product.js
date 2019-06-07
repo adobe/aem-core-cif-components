@@ -12,64 +12,63 @@
  *
  ******************************************************************************/
 
-(function() {
-    "use strict";
+let productCtx = (function(document) {
+    'use strict';
 
-    const selectors = {
+    class Product {
+        constructor(config) {
+            this._element = config.element;
+
+            // Local state
+            this._state = {
+                // Current sku, either from the base product or from a variant
+                sku: null,
+
+                // True if this product is configurable and has variants
+                configurable: false
+            };
+            this._state.configurable = this._element.dataset.configurable !== undefined;
+            this._state.sku = !this._state.configurable ? this._element.querySelector(Product.selectors.sku).innerHTML : null;
+
+            // Update product data
+            this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
+        }
+
+        /**
+        * Variant changed event handler that updates the displayed product attributes
+        * based on the given event.
+        */
+        _onUpdateVariant(event) {
+            const variant = event.detail.variant;
+            if(!variant) return;
+
+            // Update internal state
+            this._state.sku = variant.sku;
+
+            // Update values and enable add to cart button
+            this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
+            this._element.querySelector(Product.selectors.name).innerText = variant.name;
+            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
+            this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+        }
+    }
+
+    Product.selectors = {
         self: "[data-cmp-is=product]",
         sku: ".productFullDetail__details [role=sku]",
         name: ".productFullDetail__title [role=name]",
         price: ".productFullDetail__productPrice [role=price]",
         description: ".productFullDetail__description [role=description]",
         mainImage: ".carousel__currentImage",
-    };
-
-    const events = {
-        variantChanged: "variantchanged"
-    };
-
-    /**
-     * Product component.
-     */
-    function Product(config) {
-        this._element = config.element;
-
-        // Local state
-        this._state = {
-            // Current sku, either from the base product or from a variant
-            sku: null,
-
-            // True if this product is configurable and has variants
-            configurable: false
-        };
-        this._state.configurable = this._element.dataset.configurable !== undefined;
-        this._state.sku = !this._state.configurable ? this._element.querySelector(selectors.sku).innerHTML : null;
-
-        // Update product data
-        this._element.addEventListener(events.variantChanged, this._onUpdateVariant.bind(this));
     }
 
-    /**
-     * Variant changed event handler that updates the displayed product attributes
-     * based on the given event.
-     */
-    Product.prototype._onUpdateVariant = function(event) {
-        const variant = event.detail.variant;
-        if(!variant) return;
-
-        // Update internal state
-        this._state.sku = variant.sku;
-
-        // Update values and enable add to cart button
-        this._element.querySelector(selectors.sku).innerText = variant.sku;
-        this._element.querySelector(selectors.name).innerText = variant.name;
-        this._element.querySelector(selectors.price).innerText = variant.formattedPrice;
-        this._element.querySelector(selectors.description).innerHTML = variant.description;
-    };
+    Product.events = {
+        variantChanged: "variantchanged"
+    }
 
     function onDocumentReady() {
         // Initialize product component
-        const productCmp = document.querySelector(selectors.self);
+        const productCmp = document.querySelector(Product.selectors.self);
         if (productCmp) new Product({ element: productCmp });
     }
 
@@ -79,4 +78,11 @@
         document.addEventListener("DOMContentLoaded", onDocumentReady);
     }
 
-})();
+    return {
+        Product: Product,
+        factory: config => {
+            return new Product(config);
+        }
+    }
+
+})(window.document);

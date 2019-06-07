@@ -12,13 +12,8 @@
  *
  ******************************************************************************/
 
-(function () {
+let galleryCtx = (function(document) {
     "use strict";
-
-    //TODO make this global so that other components would use it
-    const events = {
-        variantChanged: "variantchanged"
-    };
 
     class Gallery {
         constructor(props) {
@@ -27,7 +22,7 @@
             this._galleryItems = props.galleryItems || [];
             if (this._galleryItems.length > 0) {
                 this._rootNode = document.querySelector(Gallery.selectors.galleryRoot);
-                const firstThumbail = this._rootNode.querySelector("button.thumbnail:first-of-type");
+                const firstThumbail = this._rootNode.querySelector(Gallery.selectors.galleryThumbnail); // querySelector will return the first element
                 if (firstThumbail) {
                     firstThumbail.classList.add("thumbnail__rootSelected");
                 }
@@ -38,7 +33,7 @@
             this.updateGalleryItems = this.updateGalleryItems.bind(this);
             this._recreateDomThumbnails = this._recreateDomThumbnails.bind(this);
 
-            document.addEventListener(events.variantChanged, (event) => {
+            document.addEventListener(Gallery.events.variantChanged, (event) => {
                 if (!event.detail.variant || !event.detail.variant.assets) {
                     return;
                 }
@@ -75,11 +70,13 @@
          Recreates the DOM nodes for the thumbnails
          */
         _recreateDomThumbnails() {
-            const thumbnailList = this._rootNode.querySelector("div.thumbnailList__root");
+            const thumbnailList = this._rootNode.querySelector(Gallery.selectors.thumbnailRoot);
 
             /* Creates an thumbnail DOM string from an item data  */
             const createItemDomString = ({path, label}, index) => (
-                `<button class="thumbnail thumbnail__root" data-gallery-role="galleryitem" data-gallery-index="${index}">\n\t<img class="thumbnail__image" src="${path}" alt="${label}"/>\n</button>`
+                `<button class="thumbnail thumbnail__root" data-gallery-role="galleryitem" data-gallery-index="${index}">
+                    <img class="thumbnail__image" src="${path}" alt="${label}"/>
+                </button>`
             );
 
             /* Transforms a DOM string into an actual DOM Node object */
@@ -135,7 +132,6 @@
         _installThumbnailEvents() {
             const handleThumbnailClick = (idx, event) => {
                 let currentTarget = event.currentTarget;
-                let src = currentTarget.firstElementChild.src;
                 this._switchCurrentImage(idx);
             };
 
@@ -188,16 +184,21 @@
         galleryRoot: "div[data-gallery-role='galleryroot']",
         currentImageContainer: "img[data-gallery-role='currentimage']",
         galleryThumbnail: "button[data-gallery-role='galleryitem']",
+        thumbnailRoot: "div.thumbnailList__root",
         leftArrow: "button[data-gallery-role='moveleft']",
         rightArrow: "button[data-gallery-role='moveright']"
     };
 
+    Gallery.events = {
+        variantChanged: "variantchanged"
+    };
+
     function onDocumentReady() {
         const galleryRoot = document.querySelector(Gallery.selectors.galleryRoot);
-        let galleryItemsJson = galleryRoot ? galleryRoot.dataset.galleryItems : {"assets": []};
+        let galleryItemsJson = galleryRoot ? galleryRoot.dataset.galleryItems : { "assets": [] };
 
         const galleryItems = JSON.parse(galleryItemsJson);
-        const gallery = new Gallery({galleryItems});
+        const gallery = new Gallery({ galleryItems });
     }
 
     if (document.readyState !== "loading") {
@@ -205,4 +206,12 @@
     } else {
         document.addEventListener("DOMContentLoaded", onDocumentReady);
     }
-})();
+
+    return {
+        Gallery: Gallery,
+        factory: props => {
+            return new Gallery(props);
+        }
+    }
+
+})(window.document);
