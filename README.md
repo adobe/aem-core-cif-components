@@ -68,6 +68,12 @@ npm test
 
 Karma will test with Chrome and Firefox. Make sure you have both browsers installed.
 
+### Code Formatting
+You can find the code formatting rules in the `eclipse-formatter.xml` file. The code formatting is automatically checked for each build. To automatically format your code, please run:
+```bash
+mvn clean install -Pformat-code
+```
+
 ## Contributing
  
 Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.

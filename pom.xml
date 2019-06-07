@@ -541,6 +541,46 @@
                     <artifactId>apache-rat-plugin</artifactId>
                     <version>0.12</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>net.revelc.code.formatter</groupId>
+                    <artifactId>formatter-maven-plugin</artifactId>
+                    <version>2.9.0</version>
+                    <executions>
+                        <execution>
+                            <id>verify-code-formatting</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>validate</goal>
+                            </goals>
+                            <configuration>
+                                <configFile>${formatter.config}</configFile>
+                                <encoding>UTF-8</encoding>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>net.revelc.code</groupId>
+                    <artifactId>impsort-maven-plugin</artifactId>
+                    <version>1.2.0</version>
+                    <configuration>
+                        <groups>java, javax, org</groups>
+                        <staticGroups>*</staticGroups>
+                        <staticAfter>true</staticAfter>
+                        <removeUnused>true</removeUnused>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>verify-import-sorting</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -591,6 +631,52 @@
                     </snapshots>
                 </pluginRepository>
             </pluginRepositories>
+        </profile>
+
+        <profile>
+            <id>format-code</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.revelc.code.formatter</groupId>
+                        <artifactId>formatter-maven-plugin</artifactId>
+                        <version>2.9.0</version>
+                        <executions>
+                            <execution>
+                                <id>format-code</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                                <configuration>
+                                    <configFile>${formatter.config}</configFile>
+                                    <encoding>UTF-8</encoding>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.revelc.code</groupId>
+                        <artifactId>impsort-maven-plugin</artifactId>
+                        <version>1.2.0</version>
+                        <configuration>
+                            <groups>java, javax, org</groups>
+                            <staticGroups>*</staticGroups>
+                            <staticAfter>true</staticAfter>
+                            <removeUnused>true</removeUnused>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sort-imports</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>sort</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
