@@ -40,10 +40,9 @@
 
             this._minPos = (this._product_carousel_parent.offsetWidth - (this._cards.length * this._cards[0].offsetWidth));
 
-            this._maxPosIndex = ((this._cardsContainer.offsetWidth - this._product_carousel_parent.offsetWidth) / this._cards[0].offsetWidth)
             this._cardsContainer.style.marginLeft = '0px';
             this._cardsContainer.style.width = (this._cards[0].offsetWidth * this._cards.length) + 'px';
-
+	    this._maxPosIndex = ((this._cardsContainer.offsetWidth - this._product_carousel_parent.offsetWidth) / this._cards[0].offsetWidth);
             this._btnPrev.addEventListener("click", e => this._goToPrevProductCard());
             this._btnNext.addEventListener("click", e => this._goToNextProductCard());
 
