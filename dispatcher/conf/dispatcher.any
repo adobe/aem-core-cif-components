@@ -112,7 +112,7 @@
       /0041
         {
         /type "allow"
-        /extension '(clientlibs|css|gif|ico|js|png|swf|jpe?g|woff2?)'
+        /extension '(clientlibs|css|gif|ico|js|png|swf|jpe?g|woff2?|svg)'
         }
 
       # Enable features 

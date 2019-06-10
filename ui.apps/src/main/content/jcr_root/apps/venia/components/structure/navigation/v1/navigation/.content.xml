@@ -3,5 +3,5 @@
     jcr:description="The top level navigation component for the web store"
     jcr:primaryType="cq:Component"
     jcr:title="Top Navigation"
-    componentGroup="AEM.Venia"
+    componentGroup=".hidden"
     sling:resourceSuperType="core/wcm/components/navigation/v1/navigation"/>
