@@ -113,7 +113,11 @@ describe('Product', () => {
 
         it('adds a product to the cart on click', () => {
             let spy = sinon.spy(addToCartCtx.AddToCart.prototype, '_onAddToCart');
-
+            window.CIF = {
+                MiniCart: {
+                    addItem: sinon.spy()
+                }
+            }
             let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
 

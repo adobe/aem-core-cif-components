@@ -70,9 +70,12 @@ let addToCartCtx = (function(document) {
             const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
             if (this._state.sku) {
-                if (window.CIF.MiniCart) {
+             if(window.CIF && window.CIF.MiniCart){
                     window.CIF.MiniCart.addItem({sku:this._state.sku,qty:quantity});
                 }
+                else {
+                 console.log(`Mini cart not available !Ensure that you  have used the correct template for product`);
+             }
                 console.log(`Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`, this._state.attributes);
                 return;
             }
