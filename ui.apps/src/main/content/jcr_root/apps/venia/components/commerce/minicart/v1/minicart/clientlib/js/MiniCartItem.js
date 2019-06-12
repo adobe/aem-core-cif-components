@@ -17,12 +17,11 @@
  * A class describing a MiniCart item. It's responsible for rendering the item in the MiniCart component
  * @type {MiniCartItem}
  */
-const MiniCartItem = (function (templates) {
+const MiniCartItem = (function(templates) {
     'use strict';
 
     class MiniCartItem {
-
-        constructor(itemData, {removeItemHandler, editHandler}) {
+        constructor(itemData, { removeItemHandler, editHandler }) {
             this.template = Handlebars.compile(templates.cartItem);
 
             this.removeItemHandler = removeItemHandler;
@@ -47,7 +46,6 @@ const MiniCartItem = (function (templates) {
         }
 
         renderTo(node) {
-
             if (!node) {
                 return;
             }
@@ -58,33 +56,29 @@ const MiniCartItem = (function (templates) {
             node.insertAdjacentHTML('beforeend', html);
 
             // install the drop-down trigger
-            let trigger = node.querySelector(".kebab__root");
-            let button = trigger.querySelector("button");
-            let menu = trigger.querySelector("ul");
-            button.addEventListener("click", e => {
+            let trigger = node.querySelector('.kebab__root');
+            let button = trigger.querySelector('button');
+            let menu = trigger.querySelector('ul');
+            button.addEventListener('click', e => {
                 e.stopImmediatePropagation();
-                menu.classList.toggle("kebab__dropdown_active");
+                menu.classList.toggle('kebab__dropdown_active');
             });
 
-            this.mask = node.querySelector(".product__mask");
+            this.mask = node.querySelector('.product__mask');
 
             // install the menu listeners
-            node.querySelector("button[data-action='remove']").addEventListener("click", e => {
+            node.querySelector("button[data-action='remove']").addEventListener('click', e => {
                 const parent = e.target.parentElement;
-                this.mask.style.visibility = "visible";
+                this.mask.style.visibility = 'visible';
                 this.removeItemHandler(this.itemId);
             });
 
-            node.querySelector("button[data-action='edit']").addEventListener("click", e => {
+            node.querySelector("button[data-action='edit']").addEventListener('click', e => {
                 const parent = e.target.parentElement;
                 this.editHandler(this.itemId);
             });
-
-
         }
-
     }
 
     return MiniCartItem;
-
 })(window.CIF.MiniCart.templates);

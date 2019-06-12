@@ -28,19 +28,21 @@ let productCtx = (function(document) {
                 configurable: false
             };
             this._state.configurable = this._element.dataset.configurable !== undefined;
-            this._state.sku = !this._state.configurable ? this._element.querySelector(Product.selectors.sku).innerHTML : null;
+            this._state.sku = !this._state.configurable
+                ? this._element.querySelector(Product.selectors.sku).innerHTML
+                : null;
 
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
         }
 
         /**
-        * Variant changed event handler that updates the displayed product attributes
-        * based on the given event.
-        */
+         * Variant changed event handler that updates the displayed product attributes
+         * based on the given event.
+         */
         _onUpdateVariant(event) {
             const variant = event.detail.variant;
-            if(!variant) return;
+            if (!variant) return;
 
             // Update internal state
             this._state.sku = variant.sku;
@@ -54,17 +56,17 @@ let productCtx = (function(document) {
     }
 
     Product.selectors = {
-        self: "[data-cmp-is=product]",
-        sku: ".productFullDetail__details [role=sku]",
-        name: ".productFullDetail__title [role=name]",
-        price: ".productFullDetail__productPrice [role=price]",
-        description: ".productFullDetail__description [role=description]",
-        mainImage: ".carousel__currentImage",
-    }
+        self: '[data-cmp-is=product]',
+        sku: '.productFullDetail__details [role=sku]',
+        name: '.productFullDetail__title [role=name]',
+        price: '.productFullDetail__productPrice [role=price]',
+        description: '.productFullDetail__description [role=description]',
+        mainImage: '.carousel__currentImage'
+    };
 
     Product.events = {
-        variantChanged: "variantchanged"
-    }
+        variantChanged: 'variantchanged'
+    };
 
     function onDocumentReady() {
         // Initialize product component
@@ -72,10 +74,10 @@ let productCtx = (function(document) {
         if (productCmp) new Product({ element: productCmp });
     }
 
-    if (document.readyState !== "loading") {
+    if (document.readyState !== 'loading') {
         onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
 
     return {
@@ -83,6 +85,5 @@ let productCtx = (function(document) {
         factory: config => {
             return new Product(config);
         }
-    }
-
+    };
 })(window.document);

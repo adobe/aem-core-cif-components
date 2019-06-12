@@ -12,8 +12,7 @@
  *
  ******************************************************************************/
 
-(function () {
-
+(function() {
     'use strict';
 
     const minicartEdit = `<form class="cartOptions__root">

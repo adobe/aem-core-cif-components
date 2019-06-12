@@ -15,9 +15,7 @@
 'use strict';
 
 describe('Product', () => {
-
     describe('VariantSelector', () => {
-
         let selectorRoot;
         let variantData = [
             {
@@ -38,14 +36,15 @@ describe('Product', () => {
             selectorRoot = document.createElement('div');
             selectorRoot.dataset.variants = JSON.stringify(variantData);
 
-            selectorRoot.insertAdjacentHTML('afterbegin', `
-                <div class="productFullDetail__options">
+            selectorRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div class="productFullDetail__options">
                     <div class="tileList__root" data-id="color">
                         <button class="swatch__root" data-id="red" />
                         <button data-id="blue" />
                     </div>
-                </div>
-            `);
+                </div>`
+            );
         });
 
         it('initializes a variantselector component', () => {
@@ -108,7 +107,5 @@ describe('Product', () => {
             assert.isTrue(blueButton.classList.contains('tile__root_selected'));
             assert.isFalse(blueButton.classList.contains('swatch__root_selected'));
         });
-
     });
-
 });

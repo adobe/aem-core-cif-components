@@ -17,48 +17,46 @@
  * @type {*|{}}
  */
 
-let PageContext = (function (document) {
+let PageContext = (function(document) {
     'use strict';
 
-    const checkCookie = (cookieName) => {
-        return document.cookie.split(';').filter((item) => item.trim().startsWith(`${cookieName}=`)).length > 0;
+    const checkCookie = cookieName => {
+        return document.cookie.split(';').filter(item => item.trim().startsWith(`${cookieName}=`)).length > 0;
     };
 
-    const cookieValue = (cookieName) => {
+    const cookieValue = cookieName => {
         let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
-        return b ? b.pop() : "";
+        return b ? b.pop() : '';
     };
 
     function PageContext() {
         // define the pageMask that is displayed when the sides are open (minicart and nav)
-        let pageMask = document.querySelector("button.mask__root");
+        let pageMask = document.querySelector('button.mask__root');
         let cartInfo = {};
         // process the cif.cart cookie, containing the cartId and cartQuote
-        const cookieName = "cif.cart";
+        const cookieName = 'cif.cart';
         if (checkCookie(cookieName)) {
             const cifCartCookie = cookieValue(cookieName);
 
-
             if (cifCartCookie.length > 0) {
-                let [cartId, cartQuote] = cifCartCookie.split("#");
-                cartInfo = {cartId, cartQuote}
+                let [cartId, cartQuote] = cifCartCookie.split('#');
+                cartInfo = { cartId, cartQuote };
             }
         }
 
         return {
             cartInfo: cartInfo,
-            maskPage: function () {
-                pageMask.classList.add("mask__root_active");
+            maskPage: function() {
+                pageMask.classList.add('mask__root_active');
             },
-            unmaskPage: function () {
-                pageMask.classList.remove("mask__root_active");
+            unmaskPage: function() {
+                pageMask.classList.remove('mask__root_active');
             },
-            setCartInfoCookie: function ({cartId, cartQuote}) {
+            setCartInfoCookie: function({ cartId, cartQuote }) {
                 document.cookie = `${cookieName}=${cartId}#${cartQuote}`;
             }
-        }
+        };
     }
 
     return PageContext;
-
 })(window.document);

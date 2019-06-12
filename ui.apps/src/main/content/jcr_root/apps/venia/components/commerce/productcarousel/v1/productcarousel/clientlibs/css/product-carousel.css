@@ -4,7 +4,7 @@
     margin: 1rem 0;
     padding: 1rem;
     line-height: 3rem;
-    border: 3px #ccc dashed
+    border: 3px #ccc dashed;
 }
 
 .productcarousel__title {
@@ -42,7 +42,7 @@
 
 .productcarousel:before,
 .productcarousel:after {
-    content: "";
+    content: '';
     display: table;
 }
 
@@ -65,7 +65,7 @@
 
 .productcarousel__cardscontainer:before,
 .productcarousel__cardscontainer:after {
-    content: "";
+    content: '';
     display: table;
 }
 

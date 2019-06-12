@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+
 import javax.annotation.Nullable;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;

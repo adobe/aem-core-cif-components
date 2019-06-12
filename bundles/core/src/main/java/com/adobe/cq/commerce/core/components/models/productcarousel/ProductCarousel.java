@@ -15,16 +15,20 @@
  */
 package com.adobe.cq.commerce.core.components.models.productcarousel;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import java.util.List;
+
 import javax.annotation.Nonnull;
+
 import org.osgi.annotation.versioning.ProviderType;
+
+import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 
 @ProviderType
 public interface ProductCarousel {
 
     /**
-     * returns the product list  for Product Carousel
+     * returns the product list for Product Carousel
+     * 
      * @return {@link List} of {@link ProductListItem}s
      */
     @Nonnull

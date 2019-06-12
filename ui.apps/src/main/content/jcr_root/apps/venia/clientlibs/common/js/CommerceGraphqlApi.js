@@ -12,18 +12,17 @@
  *
  ******************************************************************************/
 
-
-(function () {
-
+(function() {
     'use strict';
     //todo update the proxy rules so that this gets router through the dispatcher
-    const imageUrlPrefix = "/magento/img";
+    const imageUrlPrefix = '/magento/img';
 
     class CommerceGraphqlApi {
-
         constructor(props) {
             if (!props.endpoint) {
-                throw new Error('The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object');
+                throw new Error(
+                    'The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object'
+                );
             }
 
             this.endpoint = props.endpoint;
@@ -46,19 +45,37 @@
          */
         async getProductImageUrls(productData) {
             //ugly but effective
-            let names = Object.keys(productData).reduce((acc, name) => (acc += '\"' + name + '\",'), '');
+            let names = Object.keys(productData).reduce((acc, name) => (acc += '"' + name + '",'), '');
             if (names.length === 0) {
                 return {};
             }
-            const query = `query { products(filter: {name: {in: [${names.substring(0, names.length - 1)}]}}) { items { sku name ... on ConfigurableProduct { variants { product { sku media_gallery_entries { file } } } } } } }`;
+            // prettier-ignore
+            const query = `query { 
+                products(filter: {name: {in: [${names.substring(0, names.length - 1)}]}}) {
+                    items {
+                        sku
+                        name
+                        ... on ConfigurableProduct {
+                            variants {
+                                product {
+                                    sku
+                                    media_gallery_entries {
+                                        file
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
             console.log(query);
 
             let params = {
-                method: "POST",
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({query})
+                body: JSON.stringify({ query })
             };
 
             let response = await this._fetch(this.endpoint, params);
@@ -74,7 +91,9 @@
                     let skus = productData[item.name];
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
                     if (media && media.length > 0) {
-                        media.forEach( v => productsMedia[v.product.sku] = `${imageUrlPrefix}${v.product.media_gallery_entries[0].file}`);
+                        media.forEach(v => {
+                            productsMedia[v.product.sku] = imageUrlPrefix + v.product.media_gallery_entries[0].file;
+                        });
                     }
                 }
             });
@@ -83,16 +102,14 @@
     }
 
     function onDocumentReady() {
-        const endpoint = "/magento/graphql";
+        const endpoint = '/magento/graphql';
 
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({endpoint});
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint });
     }
 
-
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
 })();

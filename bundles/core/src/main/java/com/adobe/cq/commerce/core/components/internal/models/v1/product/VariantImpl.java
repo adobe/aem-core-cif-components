@@ -14,12 +14,12 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
-import com.adobe.cq.commerce.core.components.models.product.Asset;
-import com.adobe.cq.commerce.core.components.models.product.Variant;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.Variant;
 
 public class VariantImpl implements Variant {
 
@@ -43,7 +43,8 @@ public class VariantImpl implements Variant {
 
     private Map<String, Integer> variantAttributes = new HashMap<>();
 
-    @Override public String getName() {
+    @Override
+    public String getName() {
         return name;
     }
 
@@ -51,7 +52,8 @@ public class VariantImpl implements Variant {
         this.name = name;
     }
 
-    @Override public String getDescription() {
+    @Override
+    public String getDescription() {
         return description;
     }
 
@@ -59,7 +61,8 @@ public class VariantImpl implements Variant {
         this.description = description;
     }
 
-    @Override public String getSku() {
+    @Override
+    public String getSku() {
         return sku;
     }
 
@@ -67,7 +70,8 @@ public class VariantImpl implements Variant {
         this.sku = sku;
     }
 
-    @Override public String getCurrency() {
+    @Override
+    public String getCurrency() {
         return currency;
     }
 
@@ -75,7 +79,8 @@ public class VariantImpl implements Variant {
         this.currency = currency;
     }
 
-    @Override public Double getPrice() {
+    @Override
+    public Double getPrice() {
         return price;
     }
 
@@ -83,11 +88,17 @@ public class VariantImpl implements Variant {
         this.price = price;
     }
 
-    @Override public String getFormattedPrice() { return formattedPrice; }
+    @Override
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
 
-    public void setFormattedPrice(String formattedPrice) { this.formattedPrice = formattedPrice; };
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
+    };
 
-    @Override public Boolean getInStock() {
+    @Override
+    public Boolean getInStock() {
         return inStock;
     }
 
@@ -95,11 +106,13 @@ public class VariantImpl implements Variant {
         this.inStock = inStock;
     }
 
-    @Override public Integer getColor() {
+    @Override
+    public Integer getColor() {
         return color;
     }
 
-    @Override public Map<String, Integer> getVariantAttributes() {
+    @Override
+    public Map<String, Integer> getVariantAttributes() {
         return variantAttributes;
     }
 
@@ -107,7 +120,8 @@ public class VariantImpl implements Variant {
         this.color = color;
     }
 
-    @Override public List<Asset> getAssets() {
+    @Override
+    public List<Asset> getAssets() {
         return assets;
     }
 

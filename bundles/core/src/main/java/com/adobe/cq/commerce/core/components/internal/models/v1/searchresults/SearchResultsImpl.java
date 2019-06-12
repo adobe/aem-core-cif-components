@@ -52,9 +52,10 @@ import com.day.cq.wcm.api.Page;
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
  */
-@Model(adaptables = SlingHttpServletRequest.class,
-        adapters = SearchResults.class,
-        resourceType = SearchResultsImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = SearchResults.class,
+    resourceType = SearchResultsImpl.RESOURCE_TYPE)
 public class SearchResultsImpl implements SearchResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
@@ -109,7 +110,9 @@ public class SearchResultsImpl implements SearchResults {
 
     /**
      * Processes the search term to prepare it for the actual query.
-     * This method just prepends/appends the default wildcard character % to the search term. Overriding methods can implement their own processing.
+     * This method just prepends/appends the default wildcard character % to the search term. Overriding methods can implement their own
+     * processing.
+     * 
      * @return the processed search term, by default {@code "%searchTerm%"}
      */
     @Nonnull
@@ -122,6 +125,7 @@ public class SearchResultsImpl implements SearchResults {
 
     /**
      * Generates a query string for the specified search term. This query string condition is 'like'.
+     * 
      * @param searchTerm the search term used for filtering
      * @return the query string
      */
@@ -132,32 +136,31 @@ public class SearchResultsImpl implements SearchResults {
 
         ProductsQueryDefinition queryArgs = productsQuery -> productsQuery.items(generateProductQuery());
         return Operations.query(query -> query.products(searchArgs, queryArgs))
-                         .toString();
+            .toString();
 
     }
 
     /**
-     * Generates a query object for a product. The generated query contains the following fields: id, name, slug (url_key), image url, regular price, regular price currency
+     * Generates a query object for a product. The generated query contains the following fields: id, name, slug (url_key), image url,
+     * regular price, regular price currency
      *
      * @return a {@link ProductInterfaceQueryDefinition} object
      */
     @Nonnull
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q.id()
-                     .urlKey()
-                     .name()
-                     .smallImage(i -> i.label()
-                                       .url())
-                     .price(price -> price.regularPrice(
-                             regularPrice -> regularPrice.amount(
-                                     moneyQuery -> moneyQuery.value().currency()
-                             )
-                        )
-                     );
+            .urlKey()
+            .name()
+            .smallImage(i -> i.label()
+                .url())
+            .price(price -> price.regularPrice(
+                regularPrice -> regularPrice.amount(
+                    moneyQuery -> moneyQuery.value().currency())));
     }
 
     /**
      * Checks the graphql response for errors and logs out to the error console if any are found
+     * 
      * @param response the {@link GraphqlResponse}
      * @return {@link true} if any errors were found, {@link false} otherwise
      */
@@ -173,7 +176,10 @@ public class SearchResultsImpl implements SearchResults {
     }
 
     /**
-     * Extracts a list of products from the graphql response. This method uses {@link SearchResultsImpl#generateItemFromProductInterface(ProductInterface)} to tranform the objects from the Graphql response to {@link ProductListItem} objects
+     * Extracts a list of products from the graphql response. This method uses
+     * {@link SearchResultsImpl#generateItemFromProductInterface(ProductInterface)} to tranform the objects from the Graphql response to
+     * {@link ProductListItem} objects
+     * 
      * @param response a {@link GraphqlResponse} object
      * @return a list of {@link ProductListItem} objects
      */
@@ -181,13 +187,13 @@ public class SearchResultsImpl implements SearchResults {
     protected List<ProductListItem> extractProductsFromResponse(GraphqlResponse<Query, Error> response) {
         Query rootQuery = response.getData();
         List<ProductInterface> products = rootQuery.getProducts()
-                                                   .getItems();
+            .getItems();
 
         LOGGER.debug("Found {} products for search term {}", products.size(), searchTerm);
 
         return products.stream()
-                       .map(product -> generateItemFromProductInterface(product))
-                       .collect(Collectors.toList());
+            .map(product -> generateItemFromProductInterface(product))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -200,20 +206,20 @@ public class SearchResultsImpl implements SearchResults {
     protected ProductListItem generateItemFromProductInterface(ProductInterface product) {
 
         ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-                                                                  product.getUrlKey(),
-                                                                  product.getName(),
-                                                                  product.getPrice()
-                                                                         .getRegularPrice()
-                                                                         .getAmount()
-                                                                         .getValue(),
-                                                                  product.getPrice()
-                                                                         .getRegularPrice()
-                                                                         .getAmount()
-                                                                         .getCurrency()
-                                                                         .toString(),
-                                                                  product.getSmallImage()
-                                                                         .getUrl(),
-                                                                  productPage);
+            product.getUrlKey(),
+            product.getName(),
+            product.getPrice()
+                .getRegularPrice()
+                .getAmount()
+                .getValue(),
+            product.getPrice()
+                .getRegularPrice()
+                .getAmount()
+                .getCurrency()
+                .toString(),
+            product.getSmallImage()
+                .getUrl(),
+            productPage);
 
         return productListItem;
     }

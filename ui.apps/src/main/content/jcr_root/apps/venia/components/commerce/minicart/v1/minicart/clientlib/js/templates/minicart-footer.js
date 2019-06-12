@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 
-(function () {
-
-    'use strict'
+(function() {
+    'use strict';
 
     const minicartFooter = `<div class="miniCart__footer">
     <div>

@@ -12,8 +12,7 @@
  *
  ******************************************************************************/
 
-(function () {
-
+(function() {
     'use strict';
 
     const emptyMiniCart = `<div class="emptyMiniCart__root">

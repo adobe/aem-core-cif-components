@@ -14,6 +14,18 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.sling.xss.XSSAPI;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
+
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -25,17 +37,6 @@ import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import org.apache.sling.xss.XSSAPI;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;

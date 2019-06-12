@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 let galleryCtx = (function(document) {
-    "use strict";
+    'use strict';
 
     class Gallery {
         constructor(props) {
@@ -24,7 +24,7 @@ let galleryCtx = (function(document) {
                 this._rootNode = document.querySelector(Gallery.selectors.galleryRoot);
                 const firstThumbail = this._rootNode.querySelector(Gallery.selectors.galleryThumbnail); // querySelector will return the first element
                 if (firstThumbail) {
-                    firstThumbail.classList.add("thumbnail__rootSelected");
+                    firstThumbail.classList.add('thumbnail__rootSelected');
                 }
                 this._installEvents();
             }
@@ -33,7 +33,7 @@ let galleryCtx = (function(document) {
             this.updateGalleryItems = this.updateGalleryItems.bind(this);
             this._recreateDomThumbnails = this._recreateDomThumbnails.bind(this);
 
-            document.addEventListener(Gallery.events.variantChanged, (event) => {
+            document.addEventListener(Gallery.events.variantChanged, event => {
                 if (!event.detail.variant || !event.detail.variant.assets) {
                     return;
                 }
@@ -64,7 +64,7 @@ let galleryCtx = (function(document) {
             this._currentItemIndex = 0;
             this._recreateDomThumbnails();
             this._switchCurrentImage(this._currentItemIndex);
-        };
+        }
 
         /*
          Recreates the DOM nodes for the thumbnails
@@ -73,15 +73,14 @@ let galleryCtx = (function(document) {
             const thumbnailList = this._rootNode.querySelector(Gallery.selectors.thumbnailRoot);
 
             /* Creates an thumbnail DOM string from an item data  */
-            const createItemDomString = ({path, label}, index) => (
+            const createItemDomString = ({ path, label }, index) =>
                 `<button class="thumbnail thumbnail__root" data-gallery-role="galleryitem" data-gallery-index="${index}">
                     <img class="thumbnail__image" src="${path}" alt="${label}"/>
-                </button>`
-            );
+                </button>`;
 
             /* Transforms a DOM string into an actual DOM Node object */
-            const toElement = (domString) => {
-                const html = new DOMParser().parseFromString(domString, "text/html");
+            const toElement = domString => {
+                const html = new DOMParser().parseFromString(domString, 'text/html');
                 return html.body.firstChild;
             };
 
@@ -96,11 +95,11 @@ let galleryCtx = (function(document) {
             });
 
             /* Preselect the first element */
-            thumbnailList.firstChild.classList.add("thumbnail__rootSelected");
+            thumbnailList.firstChild.classList.add('thumbnail__rootSelected');
 
             /* Re-install the events since the listeners are lost when we remove the nodes */
             this._installThumbnailEvents();
-        };
+        }
 
         /**
          * Switches the current image displayed by the gallery to the one at the supplied position.
@@ -116,14 +115,13 @@ let galleryCtx = (function(document) {
             this._currentItemIndex = index;
 
             // update the style of the selected / unselected thumbnails
-            const currentlySelectedThumb = this._rootNode.querySelector("button.thumbnail__rootSelected");
+            const currentlySelectedThumb = this._rootNode.querySelector('button.thumbnail__rootSelected');
             if (currentlySelectedThumb) {
-                currentlySelectedThumb.classList.remove("thumbnail__rootSelected");
+                currentlySelectedThumb.classList.remove('thumbnail__rootSelected');
             }
             const currentThumb = this._rootNode.querySelector(`button[data-gallery-index='${index}']`);
-            currentThumb.classList.add("thumbnail__rootSelected");
+            currentThumb.classList.add('thumbnail__rootSelected');
         }
-
 
         /**
          * Adds the listeners to the thumbnails
@@ -136,7 +134,7 @@ let galleryCtx = (function(document) {
             };
 
             document.querySelectorAll(Gallery.selectors.galleryThumbnail).forEach((node, idx) => {
-                node.addEventListener('click', (event) => {
+                node.addEventListener('click', event => {
                     event.preventDefault();
                     handleThumbnailClick(idx, event);
                 });
@@ -148,9 +146,13 @@ let galleryCtx = (function(document) {
          * @private
          */
         _installEvents() {
-            this._installThumbnailEvents()
-            document.querySelector(Gallery.selectors.leftArrow).addEventListener('click', event => this._handleArrowClick(event));
-            document.querySelector(Gallery.selectors.rightArrow).addEventListener('click', event => this._handleArrowClick(event));
+            this._installThumbnailEvents();
+            document
+                .querySelector(Gallery.selectors.leftArrow)
+                .addEventListener('click', event => this._handleArrowClick(event));
+            document
+                .querySelector(Gallery.selectors.rightArrow)
+                .addEventListener('click', event => this._handleArrowClick(event));
         }
 
         /**
@@ -160,13 +162,13 @@ let galleryCtx = (function(document) {
          */
         _handleArrowClick(event) {
             event.preventDefault();
-            const direction = event.currentTarget.dataset["galleryRole"];
+            const direction = event.currentTarget.dataset['galleryRole'];
 
             if (direction === 'moveleft') {
                 if (this._currentItemIndex <= 0) {
                     this._currentItemIndex = this._galleryItems.length - 1;
                 } else {
-                    this._currentItemIndex--
+                    this._currentItemIndex--;
                 }
             } else if (direction === 'moveright') {
                 if (this._currentItemIndex >= this._galleryItems.length - 1) {
@@ -177,34 +179,34 @@ let galleryCtx = (function(document) {
             }
 
             this._switchCurrentImage(this._currentItemIndex);
-        };
+        }
     }
 
     Gallery.selectors = {
         galleryRoot: "div[data-gallery-role='galleryroot']",
         currentImageContainer: "img[data-gallery-role='currentimage']",
         galleryThumbnail: "button[data-gallery-role='galleryitem']",
-        thumbnailRoot: "div.thumbnailList__root",
+        thumbnailRoot: 'div.thumbnailList__root',
         leftArrow: "button[data-gallery-role='moveleft']",
         rightArrow: "button[data-gallery-role='moveright']"
     };
 
     Gallery.events = {
-        variantChanged: "variantchanged"
+        variantChanged: 'variantchanged'
     };
 
     function onDocumentReady() {
         const galleryRoot = document.querySelector(Gallery.selectors.galleryRoot);
-        let galleryItemsJson = galleryRoot ? galleryRoot.dataset.galleryItems : { "assets": [] };
+        let galleryItemsJson = galleryRoot ? galleryRoot.dataset.galleryItems : { assets: [] };
 
         const galleryItems = JSON.parse(galleryItemsJson);
         const gallery = new Gallery({ galleryItems });
     }
 
-    if (document.readyState !== "loading") {
-        onDocumentReady()
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
 
     return {
@@ -212,6 +214,5 @@ let galleryCtx = (function(document) {
         factory: props => {
             return new Gallery(props);
         }
-    }
-
+    };
 })(window.document);

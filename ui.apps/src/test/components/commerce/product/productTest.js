@@ -15,15 +15,14 @@
 'use strict';
 
 describe('Product', () => {
-
     describe('Core', () => {
-
         let productRoot;
 
         beforeEach(() => {
             productRoot = document.createElement('div');
-            productRoot.insertAdjacentHTML('afterbegin', `
-                <div class="productFullDetail__title">
+            productRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div class="productFullDetail__title">
                     <span role="name"></span>
                 </div>
                 <div class="productFullDetail__details">
@@ -34,9 +33,8 @@ describe('Product', () => {
                 </div>
                 <div class="productFullDetail__description">
                     <span role="description"></span>
-                </div>
-            `);
-
+                </div>`
+            );
         });
 
         it('initializes a configurable product component', () => {
@@ -87,7 +85,5 @@ describe('Product', () => {
             assert.equal(price, variant.formattedPrice);
             assert.equal(description, variant.description);
         });
-
     });
-
 });

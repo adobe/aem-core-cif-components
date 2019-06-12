@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 let addToCartCtx = (function(document) {
-    "use strict";
+    'use strict';
 
     /**
      * Add to cart button component.
@@ -41,7 +41,7 @@ let addToCartCtx = (function(document) {
             config.product.addEventListener(AddToCart.events.variantChanged, this._onUpdateVariant.bind(this));
 
             // Add click handler to add to cart button
-            this._element.addEventListener("click", this._onAddToCart.bind(this));
+            this._element.addEventListener('click', this._onAddToCart.bind(this));
         }
 
         /**
@@ -51,7 +51,7 @@ let addToCartCtx = (function(document) {
             const variant = event.detail.variant;
 
             // Disable add to cart button if no valid variant is available
-            if(!variant) {
+            if (!variant) {
                 this._element.disabled = true;
                 return;
             }
@@ -69,24 +69,27 @@ let addToCartCtx = (function(document) {
             const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
             if (this._state.sku) {
-                console.log(`Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`, this._state.attributes);
+                console.log(
+                    `Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`,
+                    this._state.attributes
+                );
                 return;
             }
 
-            console.log("No variant selected that could be added to the cart.");
+            console.log('No variant selected that could be added to the cart.');
         }
     }
 
     AddToCart.selectors = {
-        self: ".productFullDetail__cartActions button",
-        sku: ".productFullDetail__details [role=sku]",
-        quantity: ".productFullDetail__quantity select",
-        product: "[data-cmp-is=product]"
-    }
+        self: '.productFullDetail__cartActions button',
+        sku: '.productFullDetail__details [role=sku]',
+        quantity: '.productFullDetail__quantity select',
+        product: '[data-cmp-is=product]'
+    };
 
     AddToCart.events = {
-        variantChanged: "variantchanged"
-    }
+        variantChanged: 'variantchanged'
+    };
 
     function onDocumentReady() {
         // Initialize AddToCart component
@@ -95,10 +98,10 @@ let addToCartCtx = (function(document) {
         if (addToCartCmp) new AddToCart({ element: addToCartCmp, product: productCmp });
     }
 
-    if (document.readyState !== "loading") {
+    if (document.readyState !== 'loading') {
         onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
 
     return {
@@ -106,6 +109,5 @@ let addToCartCtx = (function(document) {
         factory: config => {
             return new AddToCart(config);
         }
-    }
-
+    };
 })(window.document);
