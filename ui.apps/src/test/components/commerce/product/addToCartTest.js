@@ -116,7 +116,7 @@ describe('Product', () => {
                 MiniCart: {
                     addItem: sinon.spy()
                 }
-            }
+            };
             let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
 
