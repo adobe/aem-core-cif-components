@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 
-(function () {
-    "use strict";
+(function() {
+    'use strict';
 
     const selectors = {
         navigationTrigger: '.header__primaryActions .navTrigger__root',
@@ -31,7 +31,6 @@
     const CSS_NAVIGATION_OPEN = 'navigation__root_open';
 
     class Navigation {
-
         constructor() {
             this.navigationPanel = document.querySelector(selectors.navigationRoot);
             this.backNavigationButton = document.querySelector(selectors.backNavigationButton);
@@ -42,10 +41,16 @@
             const backNavigationBinding = this.backNavigation.bind(this);
             const downNavigationBinding = this.downNavigation.bind(this);
 
-            document.querySelector(selectors.navigationTrigger).addEventListener('click', () => this.setNavigationPanelVisible(true));
-            document.querySelector(selectors.closeNavigationButton).addEventListener('click', () => this.setNavigationPanelVisible(false));
+            document
+                .querySelector(selectors.navigationTrigger)
+                .addEventListener('click', () => this.setNavigationPanelVisible(true));
+            document
+                .querySelector(selectors.closeNavigationButton)
+                .addEventListener('click', () => this.setNavigationPanelVisible(false));
             this.backNavigationButton.addEventListener('click', backNavigationBinding);
-            document.querySelectorAll(selectors.downNavigationButton).forEach((a) => a.addEventListener('click', downNavigationBinding));
+            document
+                .querySelectorAll(selectors.downNavigationButton)
+                .forEach(a => a.addEventListener('click', downNavigationBinding));
 
             this.configureBackNavigation();
         }
@@ -106,10 +111,9 @@
         new Navigation();
     }
 
-    if (document.readyState !== "loading") {
+    if (document.readyState !== 'loading') {
         onDocumentReady();
     } else {
-        document.addEventListener("DOMContentLoaded", onDocumentReady);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
 })();
