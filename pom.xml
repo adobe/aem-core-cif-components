@@ -32,9 +32,7 @@
     <!-- ====================================================================== -->
     <modules>
         <module>ui.apps</module>
-        <module>ui.content</module>
         <module>bundles/core</module>
-        <module>all</module>
     </modules>
 
     <!-- ====================================================================== -->
