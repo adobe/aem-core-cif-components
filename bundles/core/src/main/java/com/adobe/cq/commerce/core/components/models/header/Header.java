@@ -34,7 +34,8 @@ public interface Header {
     String getNavigationRootPageUrl();
 
     /**
-     * @return the {@link Resource} representing the "mincart" component, or <code>null</code> if there is no child resource with the name <code>minicart</code>
+     * @return the {@link Resource} representing the "mincart" component, or <code>null</code> if there is no child resource with the name
+     *         <code>minicart</code>
      */
     @Nullable
     Resource getMinicartResource();

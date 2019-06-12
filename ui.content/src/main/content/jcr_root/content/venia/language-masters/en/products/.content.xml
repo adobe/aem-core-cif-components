@@ -5,7 +5,7 @@
         cq:template="/conf/venia/settings/wcm/templates/catalog-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Catalog Page"
-        sling:resourceType="venia/components/structure/catalogpage/v1/catalogpage"
+        sling:resourceType="core/cif/components/structure/catalogpage/v1/catalogpage"
         showMainCategories="{Boolean}true"/>
     <category-page/>
     <product-page/>

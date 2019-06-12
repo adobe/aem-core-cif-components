@@ -15,6 +15,19 @@
  */
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.models.annotations.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
@@ -31,21 +44,11 @@ import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.day.cq.wcm.api.Page;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.models.annotations.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
 public class ProductCarouselImpl implements ProductCarousel {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/productcarousel/v1/productcarousel";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
 
     @Inject
@@ -73,38 +76,38 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}",
-                    resource.getPath());
+                resource.getPath());
         }
         this.productList = this.fetchProductFromGraphql(magentoGraphqlClient, productSkus);
     }
 
     public ProductPricesQueryDefinition generatePriceQuery() {
         return q -> q
-                .regularPrice(rp -> rp
-                        .amount(a -> a
-                                .currency()
-                                .value()));
+            .regularPrice(rp -> rp
+                .amount(a -> a
+                    .currency()
+                    .value()));
     }
 
     public ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q
-                .id()
-                .sku()
-                .name()
-                .thumbnail(t -> t.label().url())
-                .urlKey()
-                .price(this.generatePriceQuery());
+            .id()
+            .sku()
+            .name()
+            .thumbnail(t -> t.label().url())
+            .urlKey()
+            .price(this.generatePriceQuery());
     }
 
     private List<ProductInterface> fetchProductFromGraphql(MagentoGraphqlClient client,
-            final List<String> productSkus) {
+        final List<String> productSkus) {
         FilterTypeInput input = new FilterTypeInput().setIn(productSkus);
         ProductFilterInput filter = new ProductFilterInput().setSku(input);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(this.generateProductQuery());
         final String queryString = Operations.query(query -> query
-                .products(searchArgs, queryArgs)).toString();
+            .products(searchArgs, queryArgs)).toString();
 
         GraphqlResponse<Query, com.adobe.cq.commerce.magento.graphql.gson.Error> response = magentoGraphqlClient.execute(queryString);
         Query rootQuery = response.getData();
@@ -121,13 +124,13 @@ public class ProductCarouselImpl implements ProductCarousel {
         if (!this.productList.isEmpty()) {
             for (ProductInterface product : this.productList) {
                 carouselProductList.add(new ProductListItemImpl(
-                        product.getSku(),
-                        product.getUrlKey(),
-                        product.getName(),
-                        product.getPrice().getRegularPrice().getAmount().getValue(),
-                        product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                        product.getThumbnail().getUrl(),
-                        productPage));
+                    product.getSku(),
+                    product.getUrlKey(),
+                    product.getName(),
+                    product.getPrice().getRegularPrice().getAmount().getValue(),
+                    product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                    product.getThumbnail().getUrl(),
+                    productPage));
             }
         }
         return carouselProductList;

@@ -39,13 +39,13 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
 @Model(
-        adaptables = SlingHttpServletRequest.class,
-        adapters = Navigation.class,
-        resourceType = NavigationImpl.RESOURCE_TYPE)
+    adaptables = SlingHttpServletRequest.class,
+    adapters = Navigation.class,
+    resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String RESOURCE_TYPE = "venia/components/structure/navigation/v1/navigation";
+    static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
 
     @ScriptVariable
     private Page currentPage = null;
@@ -107,7 +107,7 @@ public class NavigationImpl implements Navigation {
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
         Page categoryPage = Utils.getCategoryPage(currentPage);
-        if (categoryPage == null){
+        if (categoryPage == null) {
             return;
         }
 

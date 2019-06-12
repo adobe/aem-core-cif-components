@@ -1,0 +1,340 @@
+.icon__root {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.cartCounter__root {
+    font-weight: 600;
+    margin-left: 0.3rem;
+}
+
+.clickable__root {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    pointer-events: auto;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.cartTrigger__root {
+    height: 3rem;
+    min-width: 3rem;
+}
+
+.navTrigger__root {
+    height: 3rem;
+    width: 3rem;
+}
+
+.searchTrigger__root {
+    transition-property: color;
+    transition-duration: 224ms;
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    height: 3rem;
+    width: 3rem;
+}
+
+.searchTrigger__open {
+    color: rgb(var(--venia-teal));
+}
+
+.header__root {
+    background-color: rgb(var(--venia-grey));
+    box-shadow: 0 1px rgb(var(--venia-border));
+    display: grid;
+    grid-auto-columns: 100%;
+    grid-auto-flow: row;
+    grid-auto-rows: auto;
+    grid-row-gap: 0.5rem;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header__open {
+}
+
+.header__closed {
+}
+
+.header__toolbar {
+    align-content: center;
+    align-items: center;
+    display: grid;
+    grid-template-areas: 'primary title secondary';
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: 3rem;
+    justify-items: center;
+    min-height: 3.5rem;
+    padding: 0 1rem;
+}
+
+.header__navTrigger,
+.header__cartTrigger {
+    height: 3rem;
+    width: 3rem;
+}
+
+.header__logo {
+    grid-area: title;
+}
+
+.header__primaryActions {
+    grid-area: primary;
+    justify-self: start;
+}
+
+.header__secondaryActions {
+    grid-area: secondary;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: end;
+}
+
+.indicator__root {
+    align-content: center;
+    align-items: center;
+    display: grid;
+    gap: 3rem;
+    height: calc(100% - 6rem);
+    justify-content: center;
+    justify-items: center;
+    margin: 3rem 0;
+    width: 100%;
+}
+
+.indicator__message {
+    color: rgb(var(--venia-text-alt));
+    font-size: 1rem;
+    letter-spacing: 0.25rem;
+    text-transform: uppercase;
+}
+
+.indicator__indicator {
+    animation-direction: alternate;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-name: indicator__pulse;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes indicator__pulse {
+    0% {
+        filter: grayscale(1);
+        transform: scale(0.75) rotate(-540deg);
+    }
+    100% {
+        filter: grayscale(0);
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.suggestedCategories__root {
+    padding: 0 1.5rem 1rem;
+}
+
+.suggestedCategories__item {
+    padding-bottom: 0.72rem;
+}
+
+.suggestedCategories__item:last-child {
+    padding-bottom: 0;
+}
+
+.suggestedProduct__root {
+    align-content: start;
+    align-items: center;
+    display: grid;
+    grid-gap: 0.375rem 1rem;
+    grid-template-areas: 'image name price';
+    grid-template-columns: 60px 1fr;
+    grid-template-rows: min-content;
+    padding-bottom: 1rem;
+}
+
+.suggestedProduct__root:last-child {
+    padding-bottom: 0;
+}
+
+.suggestedProduct__productImage {
+    display: block;
+    height: auto;
+    width: 100%;
+}
+
+.suggestedProduct__productName {
+    padding-right: 50%;
+    word-break: break-word;
+}
+
+.suggestedProducts__items {
+    padding: 0 1.5rem;
+}
+
+.suggestedProducts__title {
+    padding-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.suggestedProducts__titleText {
+    display: block;
+    border-bottom: 2px solid rgb(var(--venia-border));
+    padding: 0.5rem 1.5rem;
+}
+
+.autocomplete__root {
+    border: 1px solid rgb(var(--venia-border));
+    font-size: 0.8125rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    z-index: 2;
+    padding: 1rem 0;
+}
+
+.autocomplete__statusContent {
+    padding: 0.5rem 1.5rem;
+}
+
+.field__root {
+    color: rgb(var(--venia-text));
+    display: grid;
+}
+
+.field__label {
+    align-items: center;
+    display: flex;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    padding: 0.375rem 0.125rem;
+}
+
+.field__input {
+    background: white;
+    border: 1px solid rgb(var(--venia-text-alt));
+    border-radius: 2px;
+    color: rgb(var(--venia-text));
+    display: inline-flex;
+    flex: 0 0 100%;
+    font-size: 1rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: calc(0.375rem - 1px) calc(0.625rem - 1px);
+    width: 100%;
+    -webkit-appearance: none;
+}
+
+.field__input:focus {
+    border-color: rgb(var(--venia-teal));
+    box-shadow: 0 0 0 2px rgb(var(--venia-teal-light)), 0 0 0.5rem 2px rgba(var(--venia-teal), 0.2);
+    outline: none;
+}
+
+.fieldIcons__root {
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-template-areas: 'before input after';
+    grid-template-columns: auto 1fr auto;
+    height: 2.25rem;
+}
+
+.fieldIcons__input {
+    align-items: center;
+    display: flex;
+    grid-column: before-start / after-end;
+    grid-row: input-start / input-end;
+}
+
+.fieldIcons__input > input {
+    padding-left: calc(1.875rem * var(--iconsBefore) + 0.375rem - 1px);
+    padding-right: calc(1.875rem * var(--iconsAfter) + 0.375rem - 1px);
+}
+
+.fieldIcons__before,
+.fieldIcons__after {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    width: 2.25rem;
+}
+
+.fieldIcons__before:empty,
+.fieldIcons__after:empty {
+    display: none;
+}
+
+.fieldIcons__before {
+    grid-area: before;
+}
+
+.fieldIcons__after {
+    grid-area: after;
+}
+
+.message__root {
+    color: rgb(var(--venia-text));
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1rem;
+    padding: 0.375rem 0.125rem 0.125rem;
+}
+
+.message__root:empty {
+    display: none;
+}
+
+.message__root_error {
+    color: rgb(var(--venia-error));
+}
+
+.textInput__input {
+}
+
+.trigger__root {
+}
+
+.searchBar__root {
+    align-items: center;
+    display: none;
+    justify-content: center;
+    padding: 0 1rem;
+}
+
+.searchBar__root_open {
+    display: flex;
+}
+
+.searchBar__form {
+    align-items: center;
+    display: grid;
+    justify-items: stretch;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.searchBar__searchInner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 24rem;
+    width: 100%;
+}
+
+.searchBar__SearchAutocompleteWrapper {
+    text-align: left;
+    margin: -0.5rem 0 0.5rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+}

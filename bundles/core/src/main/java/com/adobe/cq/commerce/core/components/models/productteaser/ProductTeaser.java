@@ -30,7 +30,6 @@ public interface ProductTeaser {
      */
     String getName();
 
-
     /**
      * Returns formatted price string with currency for this {@code ProductTeaser}
      *
@@ -51,6 +50,5 @@ public interface ProductTeaser {
      * @return the url of the product page of the configured product or {@code null}
      */
     String getUrl();
-
 
 }

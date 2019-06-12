@@ -13,11 +13,11 @@ See our [wiki](https://github.com/adobe/aem-core-wcm-components/wiki) for usage 
 
 ## Available Components
 
-- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productteaser/v1/productteaser)
-- [Product](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/product/v1/product)
-- [Product List](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productlist/v1/productlist)
-- [Navigation](ui.apps/src/main/content/jcr_root/apps/venia/components/structure/navigation/v1/navigation)
-- [Search Results](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/searchresults/v1/searchresults)
+- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
+- [Product](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
+- [Product List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
+- [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v1/navigation)
+- [Search Results](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
 
 ## System Requirements
 
@@ -67,6 +67,19 @@ npm test
 ```
 
 Karma will test with Chrome and Firefox. Make sure you have both browsers installed.
+
+## Code Formatting
+### Java
+You can find the code formatting rules in the `eclipse-formatter.xml` file. The code formatting is automatically checked for each build. To automatically format your code, please run:
+```bash
+mvn clean install -Pformat-code
+```
+
+### JavaScript & CSS
+For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The formatting is automatically checked when running `npm test` in the `ui.apps` project. To automatically format your code, please run the following command in `ui.apps`:
+```bash
+npm run prettier-fix
+```
 
 ## Contributing
  

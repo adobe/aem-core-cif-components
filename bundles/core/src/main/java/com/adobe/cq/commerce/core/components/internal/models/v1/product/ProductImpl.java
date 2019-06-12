@@ -69,7 +69,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = Product.class, resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl implements Product {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/product/v1/product";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 
@@ -98,7 +98,7 @@ public class ProductImpl implements Product {
 
         // Get MagentoGraphqlClient from the resource.
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-        
+
         // Fetch product data
         if (magentoGraphqlClient != null) {
             product = fetchProduct(slug);
@@ -274,8 +274,7 @@ public class ProductImpl implements Product {
                 .variants(v -> v
                     .attributes(a -> a
                         .code()
-                        .valueIndex()
-                    )
+                        .valueIndex())
                     .product(generateSimpleProductQuery())));
     }
 
@@ -384,7 +383,8 @@ public class ProductImpl implements Product {
         List<ProductInterface> products = rootQuery.getProducts().getItems();
 
         // TODO WORKAROUND
-        // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images file names but no full URLs
+        // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images
+        // file names but no full URLs
         mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
 
         // Return first product in list

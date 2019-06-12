@@ -5,8 +5,10 @@
   "description": "AEM Core CIF Components - ui.apps",
   "main": "index.js",
   "scripts": {
-    "test": "karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
-    "test-debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js"
+    "test": "npm run prettier && karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
+    "test-debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
+    "prettier": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
+    "prettier-fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc"
   },
   "author": "Adobe",
   "repository": {
@@ -26,6 +28,7 @@
     "karma-sinon": "^1.0.5",
     "karma-spec-reporter": "0.0.32",
     "mocha": "^6.1.4",
+    "prettier": "^1.18.1",
     "sinon": "^7.3.2"
   }
 }
