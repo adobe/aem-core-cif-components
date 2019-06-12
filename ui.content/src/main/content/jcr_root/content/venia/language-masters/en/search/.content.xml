@@ -9,7 +9,7 @@
             jcr:primaryType="cq:PageContent"
             jcr:title="Search Results"
             hideInNav="true"
-            sling:resourceType="venia/components/structure/page/v1/page">
+            sling:resourceType="core/cif/components/structure/page/v1/page">
         <root
                 jcr:primaryType="nt:unstructured"
                 sling:resourceType="wcm/foundation/components/responsivegrid">
@@ -26,7 +26,7 @@
                         jcr:lastModified="{Date}2019-04-12T16:32:26.551+03:00"
                         jcr:lastModifiedBy="admin"
                         jcr:primaryType="nt:unstructured"
-                        sling:resourceType="venia/components/commerce/searchresults/v1/searchresults"/>
+                        sling:resourceType="core/cif/components/commerce/searchresults/v1/searchresults"/>
             </responsivegrid>
         </root>
     </jcr:content>

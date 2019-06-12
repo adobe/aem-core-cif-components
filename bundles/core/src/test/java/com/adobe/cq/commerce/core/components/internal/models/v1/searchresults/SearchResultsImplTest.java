@@ -21,9 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,6 +28,7 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.Price;
@@ -38,6 +36,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductPrices;
 import com.adobe.cq.commerce.magento.graphql.Products;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -72,7 +72,7 @@ public class SearchResultsImplTest {
 
         // Search results
         String json = IOUtils.toString(this.getClass()
-                                           .getResourceAsStream("/graphql/magento-graphql-search-result.json"), StandardCharsets.UTF_8);
+            .getResourceAsStream("/graphql/magento-graphql-search-result.json"), StandardCharsets.UTF_8);
         JsonParser parser = new JsonParser();
         resultRoot = parser.parse(json);
     }
@@ -85,7 +85,7 @@ public class SearchResultsImplTest {
         Assert.assertEquals("Process the search term", expectedProcessedTerm, actualProcessedTerm);
         String emptyProcessedTerm = modelUnderTest.processSearchTerm("%a3@$%@^@%^!@#$!@%^&*(*&^%$#@'aaaaaaa%");
 
-        Assert.assertEquals("Empty search term if bogus characters are entered","", emptyProcessedTerm);
+        Assert.assertEquals("Empty search term if bogus characters are entered", "", emptyProcessedTerm);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class SearchResultsImplTest {
     public void testCheckErrors() {
         boolean checked = modelUnderTest.checkAndLogErrors(mockErrorResponse());
         Assert.assertTrue("Returns <true> in case of errors", checked);
-     
+
         checked = modelUnderTest.checkAndLogErrors(mockSuccessfulResponse());
         Assert.assertFalse("Returns <false> if there are no errors", checked);
     }
@@ -141,37 +141,37 @@ public class SearchResultsImplTest {
 
         List<ProductInterface> productElements = new ArrayList<>();
         JsonArray items = resultRoot.getAsJsonObject()
-                                    .get("data")
-                                    .getAsJsonObject()
-                                    .get("products")
-                                    .getAsJsonObject()
-                                    .get("items")
-                                    .getAsJsonArray();
+            .get("data")
+            .getAsJsonObject()
+            .get("products")
+            .getAsJsonObject()
+            .get("items")
+            .getAsJsonArray();
         items.iterator()
-             .forEachRemaining(jsonElement -> {
-                 JsonObject jsonObject = jsonElement.getAsJsonObject();
-                 Integer id = jsonObject.get("id")
-                                        .getAsInt();
-                 String name = jsonObject.get("name")
-                                         .getAsString();
-                 String urlKey = jsonObject.get("url_key")
-                                           .getAsString();
-                 JsonObject priceAmount = jsonObject.get("price")
-                                                    .getAsJsonObject()
-                                                    .get("regularPrice")
-                                                    .getAsJsonObject()
-                                                    .get("amount")
-                                                    .getAsJsonObject();
-                 double price = priceAmount.get("value")
-                                           .getAsDouble();
-                 String currency = priceAmount.get("currency")
-                                              .getAsString();
-                 String imageUrl = jsonObject.get("small_image")
-                                             .getAsJsonObject()
-                                             .get("url")
-                                             .getAsString();
-                 productElements.add(mockProduct(id, name, urlKey, price, currency, imageUrl));
-             });
+            .forEachRemaining(jsonElement -> {
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                Integer id = jsonObject.get("id")
+                    .getAsInt();
+                String name = jsonObject.get("name")
+                    .getAsString();
+                String urlKey = jsonObject.get("url_key")
+                    .getAsString();
+                JsonObject priceAmount = jsonObject.get("price")
+                    .getAsJsonObject()
+                    .get("regularPrice")
+                    .getAsJsonObject()
+                    .get("amount")
+                    .getAsJsonObject();
+                double price = priceAmount.get("value")
+                    .getAsDouble();
+                String currency = priceAmount.get("currency")
+                    .getAsString();
+                String imageUrl = jsonObject.get("small_image")
+                    .getAsJsonObject()
+                    .get("url")
+                    .getAsString();
+                productElements.add(mockProduct(id, name, urlKey, price, currency, imageUrl));
+            });
         Products products = new Products();
         products.setItems(productElements);
 

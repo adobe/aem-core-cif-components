@@ -14,16 +14,14 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
+import java.util.ArrayList;
+import java.util.Collection;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.designer.Style;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -34,17 +32,20 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl implements ProductList {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/productlist/v1/productlist";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
@@ -83,12 +84,14 @@ public class ProductListImpl implements ProductList {
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
 
+        setNavPageCursor();
+
         // get product template page
         productPage = Utils.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
-        
+
         // Parse category id from URL
         final Integer categoryId = parseCategoryId();
 
@@ -127,11 +130,13 @@ public class ProductListImpl implements ProductList {
     public int getNextNavPage() {
         if ((this.getTotalCount() % this.navPageSize) == 0) {
 
-            //if currentNavPage is already at last, set navPageNext to currentNavPage
-            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
+            // if currentNavPage is already at last, set navPageNext to currentNavPage
+            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1)
+                : this.navPageCursor;
 
         } else {
-            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
+            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1)
+                : this.navPageCursor;
 
         }
         return this.navPageNext;
@@ -157,13 +162,13 @@ public class ProductListImpl implements ProductList {
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
                     listItems.add(new ProductListItemImpl(
-                            product.getSku(),
-                            product.getUrlKey(),
-                            product.getName(),
-                            product.getPrice().getRegularPrice().getAmount().getValue(),
-                            product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                            product.getSmallImage().getUrl(),
-                            productPage));
+                        product.getSku(),
+                        product.getUrlKey(),
+                        product.getName(),
+                        product.getPrice().getRegularPrice().getAmount().getValue(),
+                        product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                        product.getSmallImage().getUrl(),
+                        productPage));
                 }
             }
         }
@@ -173,32 +178,32 @@ public class ProductListImpl implements ProductList {
     /* --- GraphQL queries --- */
     private ProductPricesQueryDefinition generatePriceQuery() {
         return q -> q
-                .regularPrice(rp -> rp
-                        .amount(a -> a
-                                .currency()
-                                .value()));
+            .regularPrice(rp -> rp
+                .amount(a -> a
+                    .currency()
+                    .value()));
     }
 
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q
-                .id()
-                .name()
-                .smallImage(i -> i.url())
-                .urlKey()
-                .price(generatePriceQuery());
+            .id()
+            .name()
+            .smallImage(i -> i.url())
+            .urlKey()
+            .price(generatePriceQuery());
     }
 
     private CategoryTreeQueryDefinition generateProductListQuery() {
 
         CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-                .currentPage(this.navPageCursor)
-                .pageSize(this.navPageSize);
+            .currentPage(this.navPageCursor)
+            .pageSize(this.navPageSize);
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
-                .id()
-                .description()
-                .name()
-                .productCount()
-                .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
+            .id()
+            .description()
+            .name()
+            .productCount()
+            .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
         return categoryTreeQueryDefinition;
     }
 
@@ -234,7 +239,7 @@ public class ProductListImpl implements ProductList {
      */
     private Integer parseCategoryId() {
         // TODO this should be change to slug/url_path if that is available to retrieve category data,
-        //  currently we only can use the category id for that.
+        // currently we only can use the category id for that.
         Integer categoryId = null;
 
         try {
@@ -251,7 +256,28 @@ public class ProductListImpl implements ProductList {
      * @return void
      */
     void setupPagination() {
-        //check if pageCursor available in queryString, already set to 1 if not.
+        this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
+        if ((this.getTotalCount() % this.navPageSize) == 0) {
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
+            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1)
+                : this.navPageCursor;
+        } else {
+            this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
+            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1)
+                : this.navPageCursor;
+        }
+        for (int i = 0; i < this.navPages.length; i++) {
+            this.navPages[i] = (i + 1);
+        }
+    }
+
+    /**
+     * Sets value of navPageCursor from URL param if provided, else keeps it to default 1
+     *
+     * @return void
+     */
+    void setNavPageCursor() {
+        // check if pageCursor available in queryString, already set to 1 if not.
         if (request.getParameter("page") != null) {
             try {
                 this.navPageCursor = Integer.parseInt(request.getParameter("page"));
@@ -262,17 +288,6 @@ public class ProductListImpl implements ProductList {
             } catch (NumberFormatException nfe) {
                 LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
             }
-        }
-        this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
-        if ((this.getTotalCount() % this.navPageSize) == 0) {
-            this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
-            this.navPageNext = (this.navPageCursor < (this.getTotalCount() / this.navPageSize)) ? (this.navPageCursor + 1) : this.navPageCursor;
-        } else {
-            this.navPages = new int[(this.getTotalCount() / this.navPageSize) + 1];
-            this.navPageNext = (this.navPageCursor < ((this.getTotalCount() / this.navPageSize) + 1)) ? (this.navPageCursor + 1) : this.navPageCursor;
-        }
-        for (int i = 0; i < this.navPages.length; i++) {
-            this.navPages[i] = (i + 1);
         }
     }
 }

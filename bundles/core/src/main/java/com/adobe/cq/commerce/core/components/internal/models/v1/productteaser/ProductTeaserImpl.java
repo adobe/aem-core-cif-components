@@ -51,7 +51,7 @@ import com.day.cq.wcm.api.Page;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
 public class ProductTeaserImpl implements ProductTeaser {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/productteaser/v1/productteaser";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductTeaserImpl.class);
     private static final String PRODUCT_PATH_PROP = "productPath";
 

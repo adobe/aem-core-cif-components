@@ -14,10 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
+import java.util.List;
+
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-
-import java.util.List;
 
 public class VariantAttributeImpl implements VariantAttribute {
 
@@ -27,7 +27,8 @@ public class VariantAttributeImpl implements VariantAttribute {
 
     private List<VariantValue> values;
 
-    @Override public String getLabel() {
+    @Override
+    public String getLabel() {
         return label;
     }
 
@@ -35,7 +36,8 @@ public class VariantAttributeImpl implements VariantAttribute {
         this.label = label;
     }
 
-    @Override public String getId() {
+    @Override
+    public String getId() {
         return id;
     }
 
@@ -43,7 +45,8 @@ public class VariantAttributeImpl implements VariantAttribute {
         this.id = id;
     }
 
-    @Override public List<VariantValue> getValues() {
+    @Override
+    public List<VariantValue> getValues() {
         return values;
     }
 
