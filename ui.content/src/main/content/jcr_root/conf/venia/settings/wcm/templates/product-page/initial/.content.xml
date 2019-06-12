@@ -7,7 +7,7 @@
         cq:template="/conf/venia/settings/wcm/templates/product-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Product page"
-        sling:resourceType="venia/components/structure/page/v1/page">
+        sling:resourceType="core/cif/structure/page/v1/page">
         <root jcr:primaryType="nt:unstructured">
             <responsivegrid
                 jcr:primaryType="nt:unstructured"
@@ -25,7 +25,7 @@
                     jcr:lastModified="{Date}2019-03-29T17:03:33.122+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="venia/components/commerce/product/v1/product"/>
+                    sling:resourceType="core/cif/commerce/product/v1/product"/>
             </responsivegrid_167903988>
         </root>
     </jcr:content>

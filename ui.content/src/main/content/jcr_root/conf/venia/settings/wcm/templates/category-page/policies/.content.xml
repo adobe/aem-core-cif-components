@@ -18,7 +18,7 @@
             </responsivegrid>
             <product-list-container jcr:primaryType="nt:unstructured">
                 <productlist jcr:primaryType="nt:unstructured"
-                             cq:policy="venia/components/commerce/productlist/v1/productlist/default"
+                             cq:policy="core/cif/commerce/productlist/v1/productlist/default"
                              sling:resourceType="wcm/core/components/policies/mapping"/>
             </product-list-container>
         </root>

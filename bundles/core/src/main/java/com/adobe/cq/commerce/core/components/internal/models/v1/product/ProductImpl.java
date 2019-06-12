@@ -69,7 +69,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = Product.class, resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl implements Product {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/product/v1/product";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 

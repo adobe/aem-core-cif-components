@@ -40,7 +40,7 @@ import com.day.cq.wcm.api.Page;
 public class HeaderImpl implements Header {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeaderImpl.class);
 
-    static final String RESOURCE_TYPE = "venia/components/structure/header/v1/header";
+    static final String RESOURCE_TYPE = "core/cif/components/structure/header/v1/header";
     static final String MINICART_NODE_NAME = "minicart";
 
     @Inject

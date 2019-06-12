@@ -11,7 +11,7 @@
         jcr:primaryType="cq:PageContent"
         jcr:title="English"
         navRoot="{Boolean}true"
-        sling:resourceType="venia/components/structure/page/v1/page">
+        sling:resourceType="core/cif/structure/page/v1/page">
         <root
             jcr:primaryType="nt:unstructured"
             sling:resourceType="wcm/foundation/components/responsivegrid">
@@ -24,7 +24,7 @@
                     jcr:lastModified="{Date}2019-04-17T10:53:32.685+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="venia/components/content/heroimage/v1/heroimage"
+                    sling:resourceType="core/cif/content/heroimage/v1/heroimage"
                     fileReference="/content/dam/we-retail/en/activities/hiking-camping/hiker-anapurna.jpg"
                     heading="All-new reference storefront"
                     title="Venia Experience"/>

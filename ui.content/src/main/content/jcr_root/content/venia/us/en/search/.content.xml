@@ -11,7 +11,7 @@
         jcr:mixinTypes="[cq:LiveRelationship]"
         jcr:primaryType="cq:PageContent"
         jcr:title="Search Results"
-        sling:resourceType="venia/components/structure/page/v1/page"
+        sling:resourceType="core/cif/structure/page/v1/page"
         hideInNav="true">
         <root
             cq:lastRolledout="{Date}2019-04-17T13:22:08.551+02:00"
@@ -38,7 +38,7 @@
                     cq:lastRolledoutBy="admin"
                     jcr:mixinTypes="[cq:LiveRelationship]"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="venia/components/commerce/searchresults/v1/searchresults"/>
+                    sling:resourceType="core/cif/commerce/searchresults/v1/searchresults"/>
             </responsivegrid>
         </root>
     </jcr:content>

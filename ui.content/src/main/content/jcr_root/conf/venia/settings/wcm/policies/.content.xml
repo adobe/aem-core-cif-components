@@ -32,7 +32,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Default Layout Container"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia]">
+                        components="[/libs/wcm/foundation/components/image,/libs/wcm/foundation/components/responsivegrid,group:CIF Core Components]">
                         <cq:authoring jcr:primaryType="nt:unstructured">
                             <assetToComponentMapping jcr:primaryType="nt:unstructured">
                                 <document
@@ -68,13 +68,13 @@
                                     assetGroup="media"
                                     assetMimetype="[image/*]"
                                     droptarget="image"
-                                    resourceType="venia/components/content/image/v1/image"
+                                    resourceType="core/cif/content/image/v1/image"
                                     type="veniaimage"/>
                                 <mapping_1557379287803
                                     jcr:primaryType="nt:unstructured"
                                     assetGroup="product"
                                     droptarget="product-data-reference"
-                                    resourceType="venia/components/commerce/productteaser/v1/productteaser"/>
+                                    resourceType="core/cif/commerce/productteaser/v1/productteaser"/>
                             </assetToComponentMapping>
                         </cq:authoring>
                         <jcr:content
@@ -88,7 +88,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="AEM Venia Page"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/libs/wcm/foundation/components/responsivegrid,group:AEM.Venia]">
+                        components="[/libs/wcm/foundation/components/responsivegrid,group:CIF Core Components]">
                         <jcr:content jcr:primaryType="nt:unstructured"/>
                     </policy_215532890674867>
                     <policy_543301810849945
@@ -97,7 +97,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="AEM Commerce Core Components"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="group:AEM.Venia">
+                        components="group:CIF Core Components">
                         <jcr:content jcr:primaryType="nt:unstructured"/>
                     </policy_543301810849945>
                 </responsivegrid>

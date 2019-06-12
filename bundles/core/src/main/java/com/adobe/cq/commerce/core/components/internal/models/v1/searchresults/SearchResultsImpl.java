@@ -62,7 +62,7 @@ public class SearchResultsImpl implements SearchResults {
 
     private static final String WILDCARD = "%";
 
-    static final String RESOURCE_TYPE = "venia/components/commerce/searchresults";
+    static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
 
     @Self
     private SlingHttpServletRequest request;

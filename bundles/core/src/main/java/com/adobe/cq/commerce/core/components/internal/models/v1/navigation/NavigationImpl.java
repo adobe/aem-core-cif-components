@@ -45,7 +45,7 @@ import com.day.cq.wcm.api.PageManager;
 public class NavigationImpl implements Navigation {
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String RESOURCE_TYPE = "venia/components/structure/navigation/v1/navigation";
+    static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
 
     @ScriptVariable
     private Page currentPage = null;

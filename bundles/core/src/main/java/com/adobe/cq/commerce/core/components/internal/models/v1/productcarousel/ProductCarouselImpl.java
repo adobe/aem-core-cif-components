@@ -48,7 +48,7 @@ import com.day.cq.wcm.api.Page;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
 public class ProductCarouselImpl implements ProductCarousel {
 
-    protected static final String RESOURCE_TYPE = "venia/components/commerce/productcarousel/v1/productcarousel";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
 
     @Inject
