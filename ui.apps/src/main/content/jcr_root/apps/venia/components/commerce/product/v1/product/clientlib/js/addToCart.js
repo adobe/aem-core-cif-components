@@ -68,8 +68,6 @@ let addToCartCtx = (function(document) {
         _onAddToCart() {
             const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
-
-
             if (this._state.sku) {
                 window.CIF.MiniCart.addItem({sku:this._state.sku,qty:quantity});
                 console.log(`Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`, this._state.attributes);
