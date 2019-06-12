@@ -122,6 +122,7 @@ public class ProductListImplTest {
 
         when(incomingRequest.getParameter("page")).thenReturn("" + 1);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 1);
@@ -130,6 +131,7 @@ public class ProductListImplTest {
 
         when(incomingRequest.getParameter("page")).thenReturn("" + 2);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 2);
@@ -138,6 +140,7 @@ public class ProductListImplTest {
 
         when(incomingRequest.getParameter("page")).thenReturn("" + 3);
         Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
         ((ProductListImpl) this.slingModel).setupPagination();
 
         Assert.assertTrue(this.slingModel.getCurrentNavPage() == 3);

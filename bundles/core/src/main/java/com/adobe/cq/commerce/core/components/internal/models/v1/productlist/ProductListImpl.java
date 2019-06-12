@@ -84,6 +84,8 @@ public class ProductListImpl implements ProductList {
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
 
+        setNavPageCursor();
+
         // get product template page
         productPage = Utils.getProductPage(currentPage);
         if (productPage == null) {
@@ -254,18 +256,6 @@ public class ProductListImpl implements ProductList {
      * @return void
      */
     void setupPagination() {
-        // check if pageCursor available in queryString, already set to 1 if not.
-        if (request.getParameter("page") != null) {
-            try {
-                this.navPageCursor = Integer.parseInt(request.getParameter("page"));
-                if (this.navPageCursor <= 0) {
-                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
-                    this.navPageCursor = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
-            }
-        }
         this.navPagePrev = (this.navPageCursor <= 1) ? 1 : (this.navPageCursor - 1);
         if ((this.getTotalCount() % this.navPageSize) == 0) {
             this.navPages = new int[(this.getTotalCount() / this.navPageSize)];
@@ -278,6 +268,26 @@ public class ProductListImpl implements ProductList {
         }
         for (int i = 0; i < this.navPages.length; i++) {
             this.navPages[i] = (i + 1);
+        }
+    }
+
+    /**
+     * Sets value of navPageCursor from URL param if provided, else keeps it to default 1
+     *
+     * @return void
+     */
+    void setNavPageCursor() {
+        // check if pageCursor available in queryString, already set to 1 if not.
+        if (request.getParameter("page") != null) {
+            try {
+                this.navPageCursor = Integer.parseInt(request.getParameter("page"));
+                if (this.navPageCursor <= 0) {
+                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
+                    this.navPageCursor = 1;
+                }
+            } catch (NumberFormatException nfe) {
+                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
+            }
         }
     }
 }
