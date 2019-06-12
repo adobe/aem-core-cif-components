@@ -15,6 +15,7 @@
 let addToCartCtx = (function(document) {
     "use strict";
 
+
     /**
      * Add to cart button component.
      */
@@ -69,7 +70,9 @@ let addToCartCtx = (function(document) {
             const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
             if (this._state.sku) {
-                window.CIF.MiniCart.addItem({sku:this._state.sku,qty:quantity});
+                if (window.CIF.MiniCart) {
+                    window.CIF.MiniCart.addItem({sku:this._state.sku,qty:quantity});
+                }
                 console.log(`Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`, this._state.attributes);
                 return;
             }
