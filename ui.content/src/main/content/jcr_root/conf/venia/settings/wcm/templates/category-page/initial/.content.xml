@@ -8,7 +8,7 @@
         cq:template="/conf/venia/settings/wcm/templates/category-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Category page"
-        sling:resourceType="core/cif/structure/page/v1/page">
+        sling:resourceType="core/cif/components/structure/page/v1/page">
         <root jcr:primaryType="nt:unstructured">
             <responsivegrid
                 jcr:primaryType="nt:unstructured"
@@ -22,7 +22,7 @@
                     jcr:lastModified="{Date}2019-03-26T14:33:35.239+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/cif/commerce/productlist/v1/productlist"/>
+                    sling:resourceType="core/cif/components/commerce/productlist/v1/productlist"/>
             </product-list-container>
         </root>
     </jcr:content>

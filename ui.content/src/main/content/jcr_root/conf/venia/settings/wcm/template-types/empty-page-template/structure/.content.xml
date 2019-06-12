@@ -6,7 +6,7 @@
         cq:lastModified="{Date}2018-10-17T10:18:24.970+02:00"
         cq:lastModifiedBy="admin"
         jcr:primaryType="cq:PageContent"
-        sling:resourceType="core/cif/structure/page/v1/page">
+        sling:resourceType="core/cif/components/structure/page/v1/page">
         <root
             jcr:primaryType="nt:unstructured"
             sling:resourceType="wcm/foundation/components/responsivegrid">

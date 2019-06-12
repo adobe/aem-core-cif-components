@@ -8,7 +8,7 @@
         cq:lastModifiedBy="admin"
         cq:template="/conf/venia/settings/wcm/templates/category-page"
         jcr:primaryType="cq:PageContent"
-        sling:resourceType="core/cif/structure/page/v1/page">
+        sling:resourceType="core/cif/components/structure/page/v1/page">
         <cq:responsive jcr:primaryType="nt:unstructured">
             <breakpoints jcr:primaryType="nt:unstructured">
                 <phone
@@ -30,17 +30,17 @@
                 jcr:lastModified="{Date}2019-03-05T11:43:21.074+02:00"
                 jcr:lastModifiedBy="admin"
                 jcr:primaryType="nt:unstructured"
-                sling:resourceType="core/cif/structure/header/v1/header">
+                sling:resourceType="core/cif/components/structure/header/v1/header">
                 <logo.svg/>
                 <navigation
                     collectAllPages="false"
                     jcr:primaryType="nt:unstructured"
                     navigationRoot="/content/venia/language-masters/en"
                     skipNavigationRoot="true"
-                    sling:resourceType="core/cif/structure/navigation/v1/navigation"
+                    sling:resourceType="core/cif/components/structure/navigation/v1/navigation"
                     structureDepth="2"/>
                 <minicart jcr:primaryType="nt:unstructured"
-                          sling:resourceType="core/cif/commerce/minicart/v1/minicart"/>
+                          sling:resourceType="core/cif/components/commerce/minicart/v1/minicart"/>
             </header>
             <product-list-container
                 jcr:primaryType="nt:unstructured"
@@ -51,7 +51,7 @@
                     jcr:lastModified="{Date}2019-03-26T14:33:35.239+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/cif/commerce/productlist/v1/productlist"
+                    sling:resourceType="core/cif/components/commerce/productlist/v1/productlist"
                     editable="{Boolean}true"/>
             </product-list-container>
             <responsivegrid
@@ -70,7 +70,7 @@
                 jcr:lastModified="{Date}2019-03-05T11:43:17.308+02:00"
                 jcr:lastModifiedBy="admin"
                 jcr:primaryType="nt:unstructured"
-                sling:resourceType="core/cif/structure/footer/v1/footer"/>
+                sling:resourceType="core/cif/components/structure/footer/v1/footer"/>
         </root>
     </jcr:content>
 </jcr:root>

@@ -68,13 +68,13 @@
                                     assetGroup="media"
                                     assetMimetype="[image/*]"
                                     droptarget="image"
-                                    resourceType="core/cif/content/image/v1/image"
+                                    resourceType="core/cif/components/content/image/v1/image"
                                     type="veniaimage"/>
                                 <mapping_1557379287803
                                     jcr:primaryType="nt:unstructured"
                                     assetGroup="product"
                                     droptarget="product-data-reference"
-                                    resourceType="core/cif/commerce/productteaser/v1/productteaser"/>
+                                    resourceType="core/cif/components/commerce/productteaser/v1/productteaser"/>
                             </assetToComponentMapping>
                         </cq:authoring>
                         <jcr:content

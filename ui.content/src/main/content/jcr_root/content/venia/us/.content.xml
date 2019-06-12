@@ -9,6 +9,6 @@
         cq:template="/conf/venia/settings/wcm/templates/content-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="United States"
-        sling:resourceType="core/cif/structure/page/v1/page"/>
+        sling:resourceType="core/cif/components/structure/page/v1/page"/>
     <en/>
 </jcr:root>

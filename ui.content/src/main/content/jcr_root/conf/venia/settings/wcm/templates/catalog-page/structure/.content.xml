@@ -6,23 +6,23 @@
         cq:template="/conf/venia/settings/wcm/templates/catalog-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Catalog Page"
-        sling:resourceType="core/cif/structure/catalogpage/v1/catalogpage">
+        sling:resourceType="core/cif/components/structure/catalogpage/v1/catalogpage">
         <root
             jcr:primaryType="nt:unstructured"
             sling:resourceType="wcm/foundation/components/responsivegrid">
             <header
                 jcr:primaryType="nt:unstructured"
-                sling:resourceType="core/cif/structure/header/v1/header">
+                sling:resourceType="core/cif/components/structure/header/v1/header">
                 <logo.svg/>
                 <navigation
                     collectAllPages="false"
                     jcr:primaryType="nt:unstructured"
                     navigationRoot="/content/venia/language-masters/en"
                     skipNavigationRoot="true"
-                    sling:resourceType="core/cif/structure/navigation/v1/navigation"
+                    sling:resourceType="core/cif/components/structure/navigation/v1/navigation"
                     structureDepth="2"/>
                 <minicart jcr:primaryType="nt:unstructured"
-                          sling:resourceType="core/cif/commerce/minicart/v1/minicart"/>
+                          sling:resourceType="core/cif/components/commerce/minicart/v1/minicart"/>
             </header>
             <responsivegrid
                 jcr:primaryType="nt:unstructured"
@@ -32,7 +32,7 @@
             </responsivegrid>
             <footer
                 jcr:primaryType="nt:unstructured"
-                sling:resourceType="core/cif/structure/footer/v1/footer"/>
+                sling:resourceType="core/cif/components/structure/footer/v1/footer"/>
         </root>
         <cq:responsive jcr:primaryType="nt:unstructured">
             <breakpoints jcr:primaryType="nt:unstructured">

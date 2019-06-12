@@ -7,7 +7,7 @@
         cq:template="/conf/venia/settings/wcm/templates/landing-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Landing Page"
-        sling:resourceType="core/cif/structure/page/v1/page">
+        sling:resourceType="core/cif/components/structure/page/v1/page">
         <root
             jcr:primaryType="nt:unstructured"
             sling:resourceType="wcm/foundation/components/responsivegrid">
@@ -20,7 +20,7 @@
                     jcr:lastModified="{Date}2019-03-13T17:48:50.777+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/cif/content/heroimage/v1/heroimage"/>
+                    sling:resourceType="core/cif/components/content/heroimage/v1/heroimage"/>
             </responsivegrid>
         </root>
     </jcr:content>
