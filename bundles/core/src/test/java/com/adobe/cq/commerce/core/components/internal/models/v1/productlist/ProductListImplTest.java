@@ -14,19 +14,15 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,19 +32,18 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.shopify.graphql.support.SchemaViolationError;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ProductListImplTest {
+
+    Page productPage;
+
+    SlingHttpServletRequest incomingRequest;
 
     private ProductList slingModel;
     private CategoryInterface categoryQueryResult;
@@ -65,9 +60,17 @@ public class ProductListImplTest {
         Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
 
         // AEM page
-        Page productPage = mock(Page.class);
+        productPage = mock(Page.class);
         when(productPage.getLanguage(false)).thenReturn(Locale.US);
         when(productPage.getPath()).thenReturn("/content/test-product-page");
+        Map<String, Object> pageProperties = new HashMap<>();
+
+        pageProperties.put(ProductList.PN_PAGE_SIZE, 6); // setting page size to 6
+
+        ValueMapDecorator vMD = new ValueMapDecorator(pageProperties);
+
+        when(productPage.getProperties()).thenReturn(vMD);
+
         Whitebox.setInternalState(this.slingModel, "productPage", productPage);
     }
 
@@ -81,7 +84,7 @@ public class ProductListImplTest {
     public void getProducts() {
         Collection<ProductListItem> products = this.slingModel.getProducts();
         Assert.assertNotNull(products);
-        Assert.assertEquals(categoryQueryResult.getProducts().getTotalCount().intValue(), products.size());
+        Assert.assertEquals(true, categoryQueryResult.getProducts().getItems().size() <= products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
@@ -100,11 +103,49 @@ public class ProductListImplTest {
                 item.getPrice(), 0);
             Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                 item.getCurrency());
-            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency()
+                .toString()));
             Assert.assertEquals(priceFormatter.format(productInterface.getPrice().getRegularPrice().getAmount().getValue()),
                 item.getFormattedPrice());
             Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getSmallImage().getUrl()));
         }
+    }
+
+    @Test
+    public void testPagination() {
+        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) >= this.slingModel.getProducts()
+            .size());
+        Assert.assertTrue(((Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE)) <= categoryQueryResult
+            .getProductCount());
+
+        incomingRequest = mock(SlingHttpServletRequest.class);
+
+        when(incomingRequest.getParameter("page")).thenReturn("" + 1);
+        Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
+        ((ProductListImpl) this.slingModel).setupPagination();
+
+        Assert.assertTrue(this.slingModel.getCurrentNavPage() == 1);
+        Assert.assertTrue(this.slingModel.getNextNavPage() == 2);
+        Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
+
+        when(incomingRequest.getParameter("page")).thenReturn("" + 2);
+        Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
+        ((ProductListImpl) this.slingModel).setupPagination();
+
+        Assert.assertTrue(this.slingModel.getCurrentNavPage() == 2);
+        Assert.assertTrue(this.slingModel.getNextNavPage() == 3);
+        Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
+
+        when(incomingRequest.getParameter("page")).thenReturn("" + 3);
+        Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+        ((ProductListImpl) this.slingModel).setNavPageCursor();
+        ((ProductListImpl) this.slingModel).setupPagination();
+
+        Assert.assertTrue(this.slingModel.getCurrentNavPage() == 3);
+        Assert.assertTrue(this.slingModel.getNextNavPage() == 3);
+        Assert.assertTrue(this.slingModel.getProducts().size() <= (Integer) this.productPage.getProperties().get(ProductList.PN_PAGE_SIZE));
     }
 
 }

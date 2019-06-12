@@ -39,3 +39,7 @@ hs_err_pid*
 *.iml
 *.ipr
 *.iws
+
+**/node_modules/**
+**/karma-junit/**
+**/coverage/**

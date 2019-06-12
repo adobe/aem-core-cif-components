@@ -10,7 +10,7 @@
         jcr:mixinTypes="[cq:LiveRelationship]"
         jcr:primaryType="cq:PageContent"
         jcr:title="Catalog Page"
-        sling:resourceType="venia/components/structure/catalogpage/v1/catalogpage"
+        sling:resourceType="core/cif/components/structure/catalogpage/v1/catalogpage"
         magentoRootCategoryId="4"
         showMainCategories="{Boolean}true"/>
     <category-page/>

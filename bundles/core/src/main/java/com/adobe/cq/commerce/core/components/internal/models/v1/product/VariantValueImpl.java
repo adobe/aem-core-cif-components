@@ -22,7 +22,8 @@ public class VariantValueImpl implements VariantValue {
 
     private Integer id;
 
-    @Override public String getLabel() {
+    @Override
+    public String getLabel() {
         return label;
     }
 
@@ -30,7 +31,8 @@ public class VariantValueImpl implements VariantValue {
         this.label = label;
     }
 
-    @Override public Integer getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="cq:Page">
+    <jcr:content
+        cq:lastModified="{Date}2019-04-15T16:46:32.553+03:00"
+        cq:lastModifiedBy="admin"
+        cq:template="/conf/venia/settings/wcm/templates/search-results"
+        jcr:primaryType="cq:PageContent"
+        sling:resourceType="core/cif/components/structure/page/v1/page">
+        <root
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="wcm/foundation/components/responsivegrid">
+            <responsivegrid
+                jcr:created="{Date}2018-10-17T10:18:24.968+02:00"
+                jcr:createdBy="admin"
+                jcr:lastModified="{Date}2019-04-12T16:31:45.779+03:00"
+                jcr:lastModifiedBy="admin"
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="wcm/foundation/components/responsivegrid">
+                <searchresults
+                    jcr:created="{Date}2019-04-12T16:32:26.551+03:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-04-12T16:32:26.551+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core/cif/components/commerce/searchresults/v1/searchresults"/>
+            </responsivegrid>
+        </root>
+    </jcr:content>
+</jcr:root>

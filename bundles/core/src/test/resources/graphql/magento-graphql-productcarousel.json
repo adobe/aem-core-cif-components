@@ -1,0 +1,120 @@
+{
+    "products": {
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "id": 1073,
+          "sku": "170227049",
+          "name": "Hiking Poles",
+          "thumbnail": {
+            "label": "Hiking Poles",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/1/7/170227049_2.jpg"
+          },
+          "url_key": "hiking-poles",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 79.99
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 1107,
+          "sku": "eqsusuely",
+          "name": "El Greco 8' Shorty",
+          "thumbnail": {
+            "label": "El Greco 8' Shorty",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/e/l/el_greco_2.jpg"
+          },
+          "url_key": "el-greco-8-shorty",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 750
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "id": 1177,
+          "sku": "meotsuann",
+          "name": "Analog Dark Wash Jean",
+          "thumbnail": {
+            "label": "Analog Dark Wash Jean",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/a/n/analog_2.jpg"
+          },
+          "url_key": "analog-dark-wash-jean",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 98
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "id": 1194,
+          "sku": "meotsutrs",
+          "name": "Tribeca Cargo Pants",
+          "thumbnail": {
+            "label": "Tribeca Cargo Pants",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/t/r/tribeca_2.jpg"
+          },
+          "url_key": "tribeca-cargo-pants",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 65
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 1250,
+          "sku": "meskwimis",
+          "name": "Midweight Fleece Gloves",
+          "thumbnail": {
+            "label": "Midweight Fleece Gloves",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/i/midweight_fleece_2.jpg"
+          },
+          "url_key": "midweight-fleece-gloves",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 30
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "id": 1251,
+          "sku": "mesusupis",
+          "name": "Pipeline Board Shorts",
+          "thumbnail": {
+            "label": "Pipeline Board Shorts",
+            "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/p/i/pipeline_orange_2.jpg"
+          },
+          "url_key": "pipeline-board-shorts",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "currency": "USD",
+                "value": 24
+              }
+            }
+          }
+        }
+      ]
+    }
+}

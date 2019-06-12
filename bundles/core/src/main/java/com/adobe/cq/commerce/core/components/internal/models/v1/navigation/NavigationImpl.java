@@ -44,13 +44,13 @@ import com.day.cq.wcm.api.designer.Style;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
 @Model(
-        adaptables = SlingHttpServletRequest.class,
-        adapters = Navigation.class,
-        resourceType = NavigationImpl.RESOURCE_TYPE)
+    adaptables = SlingHttpServletRequest.class,
+    adapters = Navigation.class,
+    resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String RESOURCE_TYPE = "venia/components/structure/navigation/v1/navigation";
+    static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
     static final int MAX_STRUCTURE_DEPTH = 10;
@@ -127,7 +127,7 @@ public class NavigationImpl implements Navigation {
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
         Page categoryPage = Utils.getCategoryPage(currentPage);
-        if (categoryPage == null){
+        if (categoryPage == null) {
             return;
         }
 

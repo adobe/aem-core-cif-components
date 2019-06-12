@@ -8,7 +8,7 @@
         cq:template="/conf/venia/settings/wcm/templates/content-page"
         jcr:primaryType="cq:PageContent"
         jcr:title="Language Masters"
-        sling:resourceType="venia/components/structure/page/v1/page"
+        sling:resourceType="core/cif/components/structure/page/v1/page"
         hideInNav="true"/>
     <en/>
 </jcr:root>

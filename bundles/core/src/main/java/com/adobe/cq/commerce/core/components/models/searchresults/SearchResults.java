@@ -15,9 +15,9 @@
  */
 package com.adobe.cq.commerce.core.components.models.searchresults;
 
-import javax.annotation.Nonnull;
-
 import java.util.Collection;
+
+import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 

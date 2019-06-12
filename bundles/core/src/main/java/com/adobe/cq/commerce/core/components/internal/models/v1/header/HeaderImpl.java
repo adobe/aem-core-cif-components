@@ -21,29 +21,26 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Source;
-import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.header.Header;
-import com.adobe.xfa.ut.StringUtils;
 import com.day.cq.wcm.api.Page;
-import com.drew.lang.StringUtil;
 
 /**
  * Concrete implementation of the Sling Model API for the Header component
+ * 
  * @see Header
  */
-@Model(adaptables = SlingHttpServletRequest.class,
-        adapters = Header.class,
-        resourceType = HeaderImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = Header.class,
+    resourceType = HeaderImpl.RESOURCE_TYPE)
 public class HeaderImpl implements Header {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeaderImpl.class);
 
-    static final String RESOURCE_TYPE = "venia/components/structure/header/v1/header" ;
+    static final String RESOURCE_TYPE = "core/cif/components/structure/header/v1/header";
     static final String MINICART_NODE_NAME = "minicart";
 
     @Inject
@@ -52,7 +49,7 @@ public class HeaderImpl implements Header {
     @Inject
     private Resource resource;
 
-    @Inject 
+    @Inject
     private String minicartNodeName;
 
     private Page searchResultsPage;
@@ -64,7 +61,7 @@ public class HeaderImpl implements Header {
             searchResultsPage = Utils.getSearchResultsPage(currentPage);
         }
 
-        return searchResultsPage.getPath()+".html";
+        return searchResultsPage.getPath() + ".html";
     }
 
     @Override
