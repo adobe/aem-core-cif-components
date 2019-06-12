@@ -48,13 +48,12 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     adapters = Navigation.class,
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
     static final int MAX_STRUCTURE_DEPTH = 10;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     @ScriptVariable
     private Page currentPage = null;
 
@@ -80,7 +79,8 @@ public class NavigationImpl implements Navigation {
         graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth > MAX_STRUCTURE_DEPTH) {
-            LOGGER.warn("Navigation structure depth ({}) is above max value ({}). Using max value.", PN_STRUCTURE_DEPTH, MAX_STRUCTURE_DEPTH);
+            LOGGER.warn("Navigation structure depth ({}) is above max value ({}). Using max value.", PN_STRUCTURE_DEPTH,
+                MAX_STRUCTURE_DEPTH);
             structureDepth = MAX_STRUCTURE_DEPTH;
         }
     }
@@ -169,7 +169,8 @@ public class NavigationImpl implements Navigation {
     static class PageNavigationItem extends AbstractNavigationItem {
         private final com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem;
 
-        PageNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active, com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem) {
+        PageNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active,
+                           com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem) {
             super(parent, title, url, active);
             this.wcmItem = wcmItem;
         }
@@ -196,7 +197,8 @@ public class NavigationImpl implements Navigation {
         private SlingHttpServletRequest request;
         private Page categoryPage;
 
-        CategoryNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active, CategoryTree category, SlingHttpServletRequest request, Page categoryPage) {
+        CategoryNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active, CategoryTree category,
+                               SlingHttpServletRequest request, Page categoryPage) {
             super(parent, title, url, active);
             this.category = category;
             this.request = request;

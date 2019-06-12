@@ -27,9 +27,9 @@ import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 
 @Model(
-        adaptables = SlingHttpServletRequest.class,
-        adapters = NavigationModel.class,
-        resourceType = NavigationImpl.RESOURCE_TYPE)
+    adaptables = SlingHttpServletRequest.class,
+    adapters = NavigationModel.class,
+    resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationModelImpl implements NavigationModel {
     @Self
     @Via

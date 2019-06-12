@@ -19,9 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
-import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -30,6 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
@@ -41,7 +40,6 @@ import static com.adobe.cq.commerce.core.components.models.navigation.Navigation
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class NavigationImplTest {
     private static final String CATALOG_PAGE_PATH = "catalog_page_path";
@@ -83,7 +81,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(),any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
 
         // current request
         request = mock(SlingHttpServletRequest.class);
@@ -184,7 +182,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationPagesHierarchy() {
-        //check the properties of a navigation item related to a normal page
+        // check the properties of a navigation item related to a normal page
 
         String pageTitle = "Page 1";
         String pageURL = "/page1";
@@ -227,7 +225,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationPagesHierarchySelection() {
-        //check the properties of a navigation item related to a normal page
+        // check the properties of a navigation item related to a normal page
 
         String pageTitle = "Page 1";
         String pageURL = "/page1";
@@ -310,7 +308,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationCategoryHierarchy() {
-        //check the properties of a navigation item related to a category
+        // check the properties of a navigation item related to a category
 
         Integer categoryId = 0;
         String categoryName = "Category 1";
@@ -361,7 +359,7 @@ public class NavigationImplTest {
 
     @Test
     public void testNavigationCategoryHierarchySelection() {
-        //check the properties of a navigation item related to a category
+        // check the properties of a navigation item related to a category
 
         Integer categoryId = 0;
         String categoryName = "Category 1";
@@ -408,7 +406,6 @@ public class NavigationImplTest {
         final List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items0 = navigation0.getItems();
         Assert.assertEquals(1, items0.size());
         Assert.assertTrue(items0.get(0).isActive());
-
 
         final List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> childItems = childNavigation.getItems();
         Assert.assertEquals(1, childItems.size());
