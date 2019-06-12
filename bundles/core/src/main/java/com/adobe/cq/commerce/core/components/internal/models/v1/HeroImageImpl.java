@@ -27,7 +27,7 @@ import com.adobe.cq.commerce.core.components.models.HeroImage;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = HeroImage.class, resourceType = HeroImageImpl.RESOURCE_TYPE)
 public class HeroImageImpl implements HeroImage {
 
-    protected static final String RESOURCE_TYPE = "venia/components/content/heroimage/v1/heroimage";
+    protected static final String RESOURCE_TYPE = "core/cif/components/content/heroimage/v1/heroimage";
     private static final String PN_FULL_WIDTH = "useFullWidth";
 
     @Self
