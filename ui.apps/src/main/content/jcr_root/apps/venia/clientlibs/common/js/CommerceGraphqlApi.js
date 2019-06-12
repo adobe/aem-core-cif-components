@@ -49,10 +49,25 @@
             if (names.length === 0) {
                 return {};
             }
-            const query = `query { products(filter: {name: {in: [${names.substring(
-                0,
-                names.length - 1
-            )}]}}) { items { sku name ... on ConfigurableProduct { variants { product { sku media_gallery_entries { file } } } } } } }`;
+            // prettier-ignore
+            const query = `query { 
+                products(filter: {name: {in: [${names.substring(0, names.length - 1)}]}}) {
+                    items {
+                        sku
+                        name
+                        ... on ConfigurableProduct {
+                            variants {
+                                product {
+                                    sku
+                                    media_gallery_entries {
+                                        file
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
             console.log(query);
 
             let params = {
@@ -76,12 +91,9 @@
                     let skus = productData[item.name];
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
                     if (media && media.length > 0) {
-                        media.forEach(
-                            v =>
-                                (productsMedia[
-                                    v.product.sku
-                                ] = `${imageUrlPrefix}${v.product.media_gallery_entries[0].file}`)
-                        );
+                        media.forEach(v => {
+                            productsMedia[v.product.sku] = imageUrlPrefix + v.product.media_gallery_entries[0].file;
+                        });
                     }
                 }
             });
