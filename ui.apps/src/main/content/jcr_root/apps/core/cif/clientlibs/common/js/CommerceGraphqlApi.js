@@ -55,7 +55,7 @@
                     items {
                         sku
                         name
-                        image {  
+                        thumbnail {  
                             url
                             }
                         ... on ConfigurableProduct {
@@ -99,7 +99,7 @@
                         });
                     }
                 } else {
-                    productsMedia[item.sku] = item.image.url;
+                    productsMedia[item.sku] = item.thumbnail.url;
                 }
             });
             return productsMedia;
