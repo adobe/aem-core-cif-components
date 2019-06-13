@@ -62,8 +62,8 @@
                             variants {
                                 product {
                                     sku
-                                    media_gallery_entries {
-                                        file
+                                    thumbnail {  
+                                       url
                                     }
                                 }
                             }
@@ -95,7 +95,7 @@
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
                     if (media && media.length > 0) {
                         media.forEach(v => {
-                            productsMedia[v.product.sku] = imageUrlPrefix + v.product.media_gallery_entries[0].file;
+                            productsMedia[v.product.sku] = v.product.thumbnail.url;
                         });
                     }
                 } else {
