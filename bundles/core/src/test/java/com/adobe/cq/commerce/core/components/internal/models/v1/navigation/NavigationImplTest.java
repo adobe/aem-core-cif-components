@@ -33,10 +33,15 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.designer.Style;
 
+import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MIN_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_ID;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.PN_SHOW_MAIN_CATEGORIES;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
+import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class NavigationImplTest {
     private static final String CATALOG_PAGE_PATH = "catalog_page_path";
     private static final String CATEGORY_PAGE_PATH = "category_page_path";
-    Navigation navigation;
+    NavigationImpl navigation;
     com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl wcmNavigation;
     GraphQLCategoryProvider categoryProvider;
     PageManager pageManager;
@@ -91,6 +96,57 @@ public class NavigationImplTest {
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
         Whitebox.setInternalState(navigationModel, "request", request);
+    }
+
+    @Test
+    public void testStructureDepthProperty() {
+
+        // set up
+        ValueMapDecorator properties = new ValueMapDecorator(new HashMap<>());
+        Whitebox.setInternalState(navigation, "properties", properties);
+        Style style = mock(Style.class);
+        Whitebox.setInternalState(navigation, "currentStyle", style);
+        when(style.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH)).thenReturn(DEFAULT_STRUCTURE_DEPTH);
+        navigation.initModel();
+
+        // structure depth not in properties or style
+        Assert.assertEquals(DEFAULT_STRUCTURE_DEPTH, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in style bellow min value
+        when(style.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH)).thenReturn(MIN_STRUCTURE_DEPTH - 1);
+        navigation.initModel();
+
+        Assert.assertEquals(MIN_STRUCTURE_DEPTH, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in style above max value
+        when(style.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH)).thenReturn(MAX_STRUCTURE_DEPTH + 1);
+        navigation.initModel();
+
+        Assert.assertEquals(MAX_STRUCTURE_DEPTH, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in style OK
+        when(style.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH)).thenReturn(DEFAULT_STRUCTURE_DEPTH + 1);
+        navigation.initModel();
+
+        Assert.assertEquals(DEFAULT_STRUCTURE_DEPTH + 1, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in properties bellow min value
+        properties.put(PN_STRUCTURE_DEPTH, MIN_STRUCTURE_DEPTH - 1);
+        navigation.initModel();
+
+        Assert.assertEquals(MIN_STRUCTURE_DEPTH, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in properties above max value
+        properties.put(PN_STRUCTURE_DEPTH, MAX_STRUCTURE_DEPTH + 1);
+        navigation.initModel();
+
+        Assert.assertEquals(MAX_STRUCTURE_DEPTH, Whitebox.getInternalState(navigation, "structureDepth"));
+
+        // structure depth in properties OK
+        properties.put(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH + 1);
+        navigation.initModel();
+
+        Assert.assertEquals(DEFAULT_STRUCTURE_DEPTH + 1, Whitebox.getInternalState(navigation, "structureDepth"));
     }
 
     @Test

@@ -52,6 +52,7 @@ public class NavigationImpl implements Navigation {
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
+    static final int MIN_STRUCTURE_DEPTH = 1;
     static final int MAX_STRUCTURE_DEPTH = 10;
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     @ScriptVariable
@@ -75,9 +76,14 @@ public class NavigationImpl implements Navigation {
     private int structureDepth;
 
     @PostConstruct
-    private void initModel() {
+    void initModel() {
         graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
+        if (structureDepth < MIN_STRUCTURE_DEPTH) {
+            LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
+                MIN_STRUCTURE_DEPTH);
+            structureDepth = MIN_STRUCTURE_DEPTH;
+        }
         if (structureDepth > MAX_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is above max value ({}). Using max value.", PN_STRUCTURE_DEPTH,
                 MAX_STRUCTURE_DEPTH);

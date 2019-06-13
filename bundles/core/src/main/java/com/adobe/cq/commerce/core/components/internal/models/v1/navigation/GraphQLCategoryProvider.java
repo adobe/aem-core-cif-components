@@ -36,15 +36,6 @@ class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
     private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
-
-    private CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {
-        if (depth <= 0) {
-            return CATEGORIES_QUERY::apply;
-        } else {
-            return t -> CATEGORIES_QUERY.apply(t).children(defineCategoriesQuery(depth - 1));
-        }
-    }
-
     private MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(Page page) {
@@ -73,5 +64,13 @@ class GraphQLCategoryProvider {
         }
 
         return children;
+    }
+
+    static CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {
+        if (depth <= 0) {
+            return CATEGORIES_QUERY::apply;
+        } else {
+            return t -> CATEGORIES_QUERY.apply(t).children(defineCategoriesQuery(depth - 1));
+        }
     }
 }
