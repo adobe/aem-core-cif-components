@@ -118,15 +118,7 @@ public class NavigationImplTest {
         when(catalogItem.getTitle()).thenReturn(catalogTitle);
         navigationItems.add(catalogItem);
 
-        Assert.assertEquals(1, navigation.getItems().size());
-        Assert.assertEquals(catalogTitle, navigation.getItems().get(0).getTitle());
-
-        Navigation activeNavigation = navigationModel.getActiveNavigation();
-        Assert.assertEquals(navigation, activeNavigation);
-
-        List<Navigation> navigationList = navigationModel.getNavigationList();
-        Assert.assertEquals(1, navigationList.size());
-        Assert.assertEquals(navigation, navigationList.get(0));
+        checkNavigationRoot(catalogTitle);
     }
 
     @Test
@@ -140,6 +132,10 @@ public class NavigationImplTest {
         when(catalogItem.getTitle()).thenReturn(catalogTitle);
         navigationItems.add(catalogItem);
 
+        checkNavigationRoot(catalogTitle);
+    }
+
+    private void checkNavigationRoot(String catalogTitle) {
         Assert.assertEquals(1, navigation.getItems().size());
         Assert.assertEquals(catalogTitle, navigation.getItems().get(0).getTitle());
 
