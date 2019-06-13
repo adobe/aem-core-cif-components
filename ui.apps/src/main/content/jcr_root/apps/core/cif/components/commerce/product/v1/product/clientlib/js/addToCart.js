@@ -72,7 +72,7 @@ let addToCartCtx = (function(document) {
                 if (window.CIF && window.CIF.MiniCart) {
                     window.CIF.MiniCart.addItem({ sku: this._state.sku, qty: quantity });
                 } else {
-                    console.log(`Mini cart not available !Ensure that you  have used the correct template for product`);
+                    console.log(`MiniCart component not available! Ensure that you have used the correct template.`);
                 }
                 console.log(
                     `Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`,

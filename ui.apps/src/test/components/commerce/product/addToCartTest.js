@@ -111,18 +111,15 @@ describe('Product', () => {
         });
 
         it('adds a product to the cart on click', () => {
-            let spy = sinon.spy(addToCartCtx.AddToCart.prototype, '_onAddToCart');
+            let spy = sinon.spy();
             window.CIF = {
                 MiniCart: {
-                    addItem: sinon.spy()
+                    addItem: spy
                 }
             };
             let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
-
-            spy.restore();
-
-            assert.isTrue(spy.called);
+            sinon.assert.calledOnce(spy);
         });
     });
 });
