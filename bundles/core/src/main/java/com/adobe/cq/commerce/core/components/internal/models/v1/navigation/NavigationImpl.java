@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -37,16 +39,22 @@ import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.designer.Style;
+
+import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Navigation.class,
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
-
+    static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
+    static final int DEFAULT_STRUCTURE_DEPTH = 2;
+    static final int MIN_STRUCTURE_DEPTH = 1;
+    static final int MAX_STRUCTURE_DEPTH = 10;
+    private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
     @ScriptVariable
     private Page currentPage = null;
 
@@ -57,12 +65,30 @@ public class NavigationImpl implements Navigation {
     @Self
     private SlingHttpServletRequest request = null;
 
+    @ScriptVariable
+    private ValueMap properties = null;
+
+    @ScriptVariable
+    private Style currentStyle = null;
+
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
+    private int structureDepth;
 
     @PostConstruct
-    private void initModel() {
+    void initModel() {
         graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
+        structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
+        if (structureDepth < MIN_STRUCTURE_DEPTH) {
+            LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
+                MIN_STRUCTURE_DEPTH);
+            structureDepth = MIN_STRUCTURE_DEPTH;
+        }
+        if (structureDepth > MAX_STRUCTURE_DEPTH) {
+            LOGGER.warn("Navigation structure depth ({}) is above max value ({}). Using max value.", PN_STRUCTURE_DEPTH,
+                MAX_STRUCTURE_DEPTH);
+            structureDepth = MAX_STRUCTURE_DEPTH;
+        }
     }
 
     @Override
@@ -75,10 +101,10 @@ public class NavigationImpl implements Navigation {
                 if (shouldExpandCatalogRoot(page)) {
                     expandCatalogRoot(page, items);
                 } else {
-                    final String title = wcmItem.getTitle();
-                    final String url = wcmItem.getURL();
-                    final boolean active = wcmItem.isActive();
-                    NavigationItem item = new NavigationItemImpl(title, url, active);
+                    String title = wcmItem.getTitle();
+                    String url = wcmItem.getURL();
+                    boolean active = wcmItem.isActive();
+                    NavigationItem item = new PageNavigationItem(null, title, url, active, wcmItem);
                     items.add(item);
                 }
 
@@ -118,7 +144,7 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId);
+        final List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId, structureDepth);
         if (children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -131,8 +157,85 @@ public class NavigationImpl implements Navigation {
             String title = child.getName();
             String url = categoryPagePath + "." + child.getId() + ".html";
             boolean active = request.getRequestURI().equals(url);
-            pages.add(new NavigationItemImpl(title, url, active));
+            CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, title, url, active, child, request, categoryPage);
+            pages.add(navigationItem);
         }
     }
 
+    @Override
+    public String getId() {
+        return ROOT_NAVIGATION_ID;
+    }
+
+    @Override
+    public String getParentId() {
+        return null;
+    }
+
+    static class PageNavigationItem extends AbstractNavigationItem {
+        private final com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem;
+
+        PageNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active,
+                           com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem) {
+            super(parent, title, url, active);
+            this.wcmItem = wcmItem;
+        }
+
+        @Override
+        public List<NavigationItem> getItems() {
+            final List<com.adobe.cq.wcm.core.components.models.NavigationItem> children = wcmItem.getChildren();
+            if (children == null)
+                return Collections.emptyList();
+
+            List<NavigationItem> items = new ArrayList<>();
+            for (com.adobe.cq.wcm.core.components.models.NavigationItem item : children) {
+                String title = item.getTitle();
+                String url = item.getURL();
+                boolean active = item.isActive();
+                items.add(new PageNavigationItem(this, title, url, active, item));
+            }
+            return items;
+        }
+    }
+
+    static class CategoryNavigationItem extends AbstractNavigationItem implements NavigationItem {
+        private CategoryTree category;
+        private SlingHttpServletRequest request;
+        private Page categoryPage;
+
+        CategoryNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active, CategoryTree category,
+                               SlingHttpServletRequest request, Page categoryPage) {
+            super(parent, title, url, active);
+            this.category = category;
+            this.request = request;
+            this.categoryPage = categoryPage;
+        }
+
+        @Override
+        public List<NavigationItem> getItems() {
+
+            if (category == null) {
+                return Collections.emptyList();
+            }
+
+            final List<CategoryTree> children = category.getChildren();
+            if (children == null || children.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            children.sort(Comparator.comparing(CategoryTree::getPosition));
+
+            List<NavigationItem> pages = new ArrayList<>();
+
+            String categoryPagePath = categoryPage.getPath();
+            for (CategoryTree child : children) {
+                String title = child.getName();
+                String url = categoryPagePath + "." + child.getId() + ".html";
+                boolean active = request.getRequestURI().equals(url);
+                pages.add(new CategoryNavigationItem(this, title, url, active, child, request, categoryPage));
+            }
+
+            return pages;
+        }
+    }
 }

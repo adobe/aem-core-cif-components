@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.models.navigation;
 
+import java.util.List;
+
 /**
  * Simple data model for a navigation item of the navigation component.
  */
@@ -32,4 +34,9 @@ public interface NavigationItem {
      * If true the current page is referred to by this navigation item.
      */
     boolean isActive();
+
+    /**
+     * Returns the navigation items to be rendered by the navigation component.
+     */
+    List<NavigationItem> getItems();
 }
