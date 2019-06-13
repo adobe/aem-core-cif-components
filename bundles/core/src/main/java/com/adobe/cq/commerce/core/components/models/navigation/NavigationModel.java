@@ -12,33 +12,25 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
+package com.adobe.cq.commerce.core.components.models.navigation;
 
-import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
+import java.util.List;
 
-public class NavigationItemImpl implements NavigationItem {
-    private String title;
-    private String url;
-    private boolean active;
+/**
+ * Sling model interface for the navigation component.
+ * The navigation instances are organised in a hierarchy. The root navigation parent id is null.
+ * The active navigation is either the root navigation or the navigation having the navigation
+ * item which refers to the current page.
+ */
+public interface NavigationModel {
 
-    public NavigationItemImpl(String title, String url, boolean active) {
-        this.title = title;
-        this.url = url;
-        this.active = active;
-    }
+    /**
+     * Returns the currently active navigation.
+     */
+    Navigation getActiveNavigation();
 
-    @Override
-    public String getTitle() {
-        return title;
-    }
-
-    @Override
-    public String getURL() {
-        return url;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
+    /**
+     * Returns all available navigation instances.
+     */
+    List<Navigation> getNavigationList();
 }

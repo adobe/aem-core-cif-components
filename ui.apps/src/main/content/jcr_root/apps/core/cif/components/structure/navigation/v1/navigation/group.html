@@ -11,10 +11,24 @@
     governing permissions and limitations under the License.
 
 -->
-<template data-sly-template.group="${@ items='The navigation items for the current level'}" data-sly-use.itemTemplate="item.html">
+<template data-sly-template.group="${@ navigationModel='The navigation model'}"
+          data-sly-use.itemTemplate="item.html">
     <div class="categoryTree__root">
-        <ul class="categoryTree__tree" data-sly-list="${items}">
+        <ul class="categoryTree__tree"
+            data-sly-list="${navigationModel.activeNavigation.items}"
+            data-parent="${navigationModel.activeNavigation.parentId}"
+            data-id="${navigationModel.activeNavigation.id}">
             <sly data-sly-call="${itemTemplate.item @ item=item}"></sly>
         </ul>
+    </div>
+    <div class="categoryTree__root--shadow">
+        <sly data-sly-list.navigation="${navigationModel.navigationList}">
+        <ul class="categoryTree__tree"
+            data-sly-list="${navigation.items}"
+            data-parent="${navigation.parentId}"
+            data-id="${navigation.id}">
+            <sly data-sly-call="${itemTemplate.item @ item=item}"></sly>
+        </ul>
+        </sly>
     </div>
 </template>
