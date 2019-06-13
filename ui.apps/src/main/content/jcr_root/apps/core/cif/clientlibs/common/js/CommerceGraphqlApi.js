@@ -55,6 +55,9 @@
                     items {
                         sku
                         name
+                        image {  
+                            url
+                            }
                         ... on ConfigurableProduct {
                             variants {
                                 product {
@@ -87,7 +90,7 @@
             let productsMedia = {};
             items.forEach(item => {
                 let variants = item.variants;
-                if (variants.length > 0) {
+                if (variants && variants.length > 0) {
                     let skus = productData[item.name];
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
                     if (media && media.length > 0) {
@@ -95,6 +98,8 @@
                             productsMedia[v.product.sku] = imageUrlPrefix + v.product.media_gallery_entries[0].file;
                         });
                     }
+                } else {
+                    productsMedia[item.sku] = item.image.url;
                 }
             });
             return productsMedia;
