@@ -89,6 +89,7 @@
                     <releaseProfiles>release</releaseProfiles>
                     <projectVersionPolicyId>OddEvenVersionPolicy</projectVersionPolicyId>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
             <!-- Maven Source Plugin -->
