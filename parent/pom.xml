@@ -47,7 +47,7 @@
         <sling.user>admin</sling.user>
         <sling.password>admin</sling.password>
 
-        <vault.package.group>adobe/aem650/sample</vault.package.group>
+        <vault.package.group>adobe/aem650</vault.package.group>
         <vault.package.company>Adobe Systems Inc.</vault.package.company>
         <vault.user>admin</vault.user>
         <vault.password>admin</vault.password>
