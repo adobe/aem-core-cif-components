@@ -44,7 +44,7 @@ For a list of requirements for previous versions, see [Historical System Require
 1. Clone this repository.
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
 
-Here is a full [video walk trough of the setup process](https://images-tv.adobe.com/mpcv3/c2f213a8-a219-4be7-b80b-3281b962394d_1558051150.1920x1080at3000_h264.mp4).
+Here is a full [video walk trough of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
 
 ### UberJar
 
