@@ -63,7 +63,7 @@ AEM CIF Core Components package into your own project maven build you can add th
      <groupId>com.adobe.commerce.cif</groupId>
      <artifactId>core-cif-components-all</artifactId>
      <type>zip</type>
-     <version>2.2.0</version>
+     <version>x.y.z</version>
  </dependency>
  ```
 
