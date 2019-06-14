@@ -43,6 +43,7 @@ For a list of requirements for previous versions, see [Historical System Require
 
 1. Clone this repository.
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
+3. Switch to the `all` project and run a `mvn clean install content-package:install`.
 
 Here is a full [video walk trough of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
 
@@ -52,6 +53,33 @@ This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly a
 
 For more details about the UberJar please head over to the
 [How to Build AEM Projects using Apache Maven](https://helpx.adobe.com/experience-manager/6-4/sites/developing/using/ht-projects-maven.html) documentation page.
+
+## Include core components as subpackage into your own project maven build
+
+The released version of the AEM CIF Core Components are available on the maven central repository. To include the
+AEM CIF Core Components package into your own project maven build you can add the dependency
+ ```
+ <dependency>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <type>zip</type>
+     <version>2.2.0</version>
+ </dependency>
+ ```
+
+ and sub package section
+```
+ <subPackage>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <filter>true</filter>
+ </subPackage>
+```
+
+ to the `content-package-maven-plugin`.
+ 
+You also need to add the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) all package, see above. Make sure you add that as a dependency as well.
+
 
 ## Configuration
 
