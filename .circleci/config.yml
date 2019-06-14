@@ -1,8 +1,13 @@
 version: 2.1
-jobs:
-  build:
+
+executors:
+  cif_executor:
     docker:
       - image: circleci/openjdk:8u212-jdk-stretch
+
+jobs:
+  build:
+    executor: cif_executor
     steps:
       - checkout
       - restore_cache:
@@ -48,9 +53,40 @@ jobs:
           name: Upload Code Coverage
           command: bash <(curl -s https://codecov.io/bash) -F karma
 
+  release:
+    executor: cif_executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - maven-repo-v1-{{ checksum "pom.xml" }}
+            - maven-repo-v1-
+      - run:
+          name: Release
+          # Only performs a 'mvn deploy' after the 'mvn release:prepare' because circleCI
+          # already checks out the git tag like 'mvn release:perform' would do.
+          command: |
+            echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import
+            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts
+            rm -rf /home/circleci/.gnupg
+
 workflows:
   version: 2
-  build:
+  build-and-release:
     jobs:
-      - build
-      - karma
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - karma:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
