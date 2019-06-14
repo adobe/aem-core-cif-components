@@ -44,6 +44,7 @@
         <module>parent</module>
         <module>ui.apps</module>
         <module>bundles/core</module>
+        <module>all</module>
     </modules>
 
     <!-- ====================================================================== -->
