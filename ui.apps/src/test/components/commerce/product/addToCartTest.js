@@ -15,9 +15,7 @@
 'use strict';
 
 describe('Product', () => {
-
     describe('AddToCart', () => {
-
         let productRoot;
         let addToCartRoot;
         let pageRoot;
@@ -36,8 +34,9 @@ describe('Product', () => {
             while (pageRoot.firstChild) {
                 pageRoot.removeChild(pageRoot.firstChild);
             }
-            pageRoot.insertAdjacentHTML('afterbegin', `
-                <div data-cmp-is="product">
+            pageRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div data-cmp-is="product">
                     <div class="productFullDetail__details">
                         <span role="sku">my-sample-sku</span>
                     </div>
@@ -49,8 +48,8 @@ describe('Product', () => {
                             <option value="5" selected></option>
                         </select>
                     </div>
-                </div>
-            `);
+                </div>`
+            );
 
             addToCartRoot = pageRoot.querySelector(addToCartCtx.AddToCart.selectors.self);
             productRoot = pageRoot.querySelector(addToCartCtx.AddToCart.selectors.product);
@@ -70,7 +69,7 @@ describe('Product', () => {
             let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
 
             assert.isFalse(addToCart._state.configurable);
-            assert.equal(addToCart._state.sku, "my-sample-sku");
+            assert.equal(addToCart._state.sku, 'my-sample-sku');
             assert.isFalse(addToCartRoot.disabled);
         });
 
@@ -112,15 +111,15 @@ describe('Product', () => {
         });
 
         it('adds a product to the cart on click', () => {
-            let spy = sinon.spy(addToCartCtx.AddToCart.prototype, '_onAddToCart');
-
+            let spy = sinon.spy();
+            window.CIF = {
+                MiniCart: {
+                    addItem: spy
+                }
+            };
             let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
-
-            spy.restore();
-
-            assert.isTrue(spy.called);
+            sinon.assert.calledOnce(spy);
         });
-
     });
 });

@@ -15,27 +15,30 @@
  */
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.day.cq.wcm.api.Page;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
+
+import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.internal.util.reflection.Whitebox;
 
 public class ProductCarouselImplTest {
 
@@ -59,7 +62,7 @@ public class ProductCarouselImplTest {
         Whitebox.setInternalState(this.slingModel, "productPage", productPage);
 
         String json = IOUtils.toString(this.getClass()
-                .getResourceAsStream("/graphql/magento-graphql-productcarousel.json"), StandardCharsets.UTF_8);
+            .getResourceAsStream("/graphql/magento-graphql-productcarousel.json"), StandardCharsets.UTF_8);
         Query productQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         productsList = productQuery.getProducts().getItems();
         Whitebox.setInternalState(this.slingModel, "productList", productsList);
@@ -70,10 +73,10 @@ public class ProductCarouselImplTest {
 
         List<ProductListItem> products = this.slingModel.getProducts();
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        
+
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
         Assert.assertFalse(results.isEmpty());
-        
+
         for (int i = 0; i < results.size(); i++) {
 
             ProductInterface productInterface = productsList.get(i);
@@ -83,16 +86,17 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(productInterface.getSku(), item.getSKU());
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format("/content/test-product-page.%s.html", productInterface.getUrlKey()),
-                    item.getURL());
+                item.getURL());
             Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getValue(),
-                    item.getPrice(), 0);
+                item.getPrice(), 0);
             Assert.assertEquals(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
-                    item.getCurrency());
-            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+                item.getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPrice().getRegularPrice().getAmount().getCurrency()
+                .toString()));
             Assert.assertEquals(priceFormatter.format(productInterface.getPrice().getRegularPrice().getAmount().getValue()),
-                    item.getFormattedPrice());
+                item.getFormattedPrice());
             Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getThumbnail().getUrl()));
         }
     }
-    
+
 }

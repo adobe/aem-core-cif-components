@@ -3,9 +3,11 @@
 
 # AEM CIF Core Components
 
-AEM Commerce reference store front project that serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components as well as a complete sample store front serving as documentation and showing best practices. The store front combines server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>.
+The AEM CIF Core Components project serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components which combine server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>.
 
 This project is intended to be used in conjunction with the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). AEM CIF Core Components use the AEM Sites Core Components as a foundation where possible and extending them.
+
+For starting a new project please have a look at our [CIF archetype](https://github.com/adobe/aem-cif-project-archetype) project. There you will also find a complete sample project that uses the WCM and CIF core components to deliver a stunning store-front experience.
 
 ## Documentation
 
@@ -13,11 +15,11 @@ See our [wiki](https://github.com/adobe/aem-core-wcm-components/wiki) for usage 
 
 ## Available Components
 
-- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productteaser/v1/productteaser)
-- [Product](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/product/v1/product)
-- [Product List](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/productlist/v1/productlist)
-- [Navigation](ui.apps/src/main/content/jcr_root/apps/venia/components/structure/navigation/v1/navigation)
-- [Search Results](ui.apps/src/main/content/jcr_root/apps/venia/components/commerce/searchresults/v1/searchresults)
+- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
+- [Product](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
+- [Product List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
+- [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v1/navigation)
+- [Search Results](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
 
 ## System Requirements
 
@@ -43,7 +45,7 @@ For a list of requirements for previous versions, see [Historical System Require
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
 3. Switch to the `all` project and run a `mvn clean install content-package:install`.
 
-Here is a full [video walk trough of the setup process](https://images-tv.adobe.com/mpcv3/c2f213a8-a219-4be7-b80b-3281b962394d_1558051150.1920x1080at3000_h264.mp4).
+Here is a full [video walk trough of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
 
 ### UberJar
 
@@ -51,6 +53,33 @@ This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly a
 
 For more details about the UberJar please head over to the
 [How to Build AEM Projects using Apache Maven](https://helpx.adobe.com/experience-manager/6-4/sites/developing/using/ht-projects-maven.html) documentation page.
+
+## Include core components as subpackage into your own project maven build
+
+The released version of the AEM CIF Core Components are available on the maven central repository. To include the
+AEM CIF Core Components package into your own project maven build you can add the dependency
+ ```
+ <dependency>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <type>zip</type>
+     <version>x.y.z</version>
+ </dependency>
+ ```
+
+ and sub package section
+```
+ <subPackage>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <filter>true</filter>
+ </subPackage>
+```
+
+ to the `content-package-maven-plugin`.
+ 
+You also need to add the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) all package, see above. Make sure you add that as a dependency as well.
+
 
 ## Configuration
 
@@ -67,6 +96,25 @@ npm test
 ```
 
 Karma will test with Chrome and Firefox. Make sure you have both browsers installed.
+
+## Code Formatting
+### Java
+You can find the code formatting rules in the `eclipse-formatter.xml` file. The code formatting is automatically checked for each build. To automatically format your code, please run:
+```bash
+mvn clean install -Pformat-code
+```
+
+### JavaScript & CSS
+For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The formatting is automatically checked when running `npm test` in the `ui.apps` project. To automatically format your code, please run the following command in `ui.apps`:
+```bash
+npm run prettier-fix
+```
+
+## Releases to Maven Central
+
+Releases of this project are triggered by manually running `mvn release:prepare release:clean` on the `master` branch on the root folder of this repository. Once you choose the release and the next snapshot versions, this commits the change along with a release git tag like for example `core-cif-components-reactor-x.y.z`. Note that the commits are not automatically pushed to the git repository, so you have some time to check your changes and then manually push them. The push then triggers a dedicated `CircleCI` build that performs the deployment of the tagged artifact to Maven Central.
+
+_Important_: this project does Maven reactor releases, do **not** trigger releases from sub modules!
 
 ## Contributing
  
