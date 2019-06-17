@@ -1,5 +1,7 @@
 [![CircleCI](https://circleci.com/gh/adobe/aem-core-cif-components.svg?style=svg)](https://circleci.com/gh/adobe/aem-core-cif-components)
 [![codecov](https://codecov.io/gh/adobe/aem-core-cif-components/branch/master/graph/badge.svg)](https://codecov.io/gh/adobe/aem-core-cif-components)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all)
+![GitHub](https://img.shields.io/github/license/adobe/aem-core-cif-components.svg)
 
 # AEM CIF Core Components
 
@@ -29,7 +31,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento | Java |
 | ------------------- | ------- | ------- | ------- | ---- |
-| 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
+| 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
 ### AEM Commerce connector for Magento
 
@@ -58,7 +60,7 @@ For more details about the UberJar please head over to the
 
 ## Include core components as subpackage into your own project maven build
 
-The released version of the AEM CIF Core Components are available on the maven central repository. To include the
+The released version of the AEM CIF Core Components are available on the [maven central repository](https://search.maven.org/search?q=g:com.adobe.commerce.cif%20AND%20a:core-cif-components-all). To include the
 AEM CIF Core Components package into your own project maven build you can add the dependency
  ```
  <dependency>
