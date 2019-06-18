@@ -53,7 +53,7 @@ let PageContext = (function(document) {
             maskPage: function(callback) {
                 pageMask.classList.add('mask__root_active');
                 if (callback && typeof callback === 'function') {
-                    const clickHandler = (event) => {
+                    const clickHandler = event => {
                         callback();
                         pageMask.removeEventListener('click', clickHandler);
                     };

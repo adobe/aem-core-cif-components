@@ -44,12 +44,8 @@
             const backNavigationBinding = this.backNavigation.bind(this);
             const downNavigationBinding = this.downNavigation.bind(this);
 
-            document
-                .querySelector(selectors.navigationTrigger)
-                .addEventListener('click', () => this.showPanel());
-            document
-                .querySelector(selectors.closeNavigationButton)
-                .addEventListener('click', () => this.hidePanel());
+            document.querySelector(selectors.navigationTrigger).addEventListener('click', () => this.showPanel());
+            document.querySelector(selectors.closeNavigationButton).addEventListener('click', () => this.hidePanel());
             this.backNavigationButton.addEventListener('click', backNavigationBinding);
             document
                 .querySelectorAll(selectors.downNavigationButton)
@@ -67,7 +63,6 @@
             this.navigationPanel.classList.remove(CSS_CLASS_NAVIGATION_OPEN);
             window.CIF.PageContext.unmaskPage();
         }
-
 
         getActiveNavigation() {
             return document.querySelector(selectors.activeNavigation);
