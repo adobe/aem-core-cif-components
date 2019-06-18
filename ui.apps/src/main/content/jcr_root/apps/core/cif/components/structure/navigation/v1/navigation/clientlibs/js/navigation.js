@@ -44,12 +44,8 @@
             const backNavigationBinding = this.backNavigation.bind(this);
             const downNavigationBinding = this.downNavigation.bind(this);
 
-            document
-                .querySelector(selectors.navigationTrigger)
-                .addEventListener('click', () => this.setNavigationPanelVisible(true));
-            document
-                .querySelector(selectors.closeNavigationButton)
-                .addEventListener('click', () => this.setNavigationPanelVisible(false));
+            document.querySelector(selectors.navigationTrigger).addEventListener('click', () => this.showPanel());
+            document.querySelector(selectors.closeNavigationButton).addEventListener('click', () => this.hidePanel());
             this.backNavigationButton.addEventListener('click', backNavigationBinding);
             document
                 .querySelectorAll(selectors.downNavigationButton)
@@ -58,12 +54,14 @@
             this.updateDynamicElements();
         }
 
-        setNavigationPanelVisible(visible) {
-            if (visible) {
-                this.navigationPanel.classList.add(CSS_CLASS_NAVIGATION_OPEN);
-            } else {
-                this.navigationPanel.classList.remove(CSS_CLASS_NAVIGATION_OPEN);
-            }
+        showPanel() {
+            this.navigationPanel.classList.add(CSS_CLASS_NAVIGATION_OPEN);
+            window.CIF.PageContext.maskPage(this.hidePanel.bind(this));
+        }
+
+        hidePanel() {
+            this.navigationPanel.classList.remove(CSS_CLASS_NAVIGATION_OPEN);
+            window.CIF.PageContext.unmaskPage();
         }
 
         getActiveNavigation() {
