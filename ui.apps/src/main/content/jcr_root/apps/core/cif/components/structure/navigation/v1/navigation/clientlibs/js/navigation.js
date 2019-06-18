@@ -46,10 +46,10 @@
 
             document
                 .querySelector(selectors.navigationTrigger)
-                .addEventListener('click', () => this.showPanel(true));
+                .addEventListener('click', () => this.showPanel());
             document
                 .querySelector(selectors.closeNavigationButton)
-                .addEventListener('click', () => this.showPanel(false));
+                .addEventListener('click', () => this.hidePanel());
             this.backNavigationButton.addEventListener('click', backNavigationBinding);
             document
                 .querySelectorAll(selectors.downNavigationButton)
