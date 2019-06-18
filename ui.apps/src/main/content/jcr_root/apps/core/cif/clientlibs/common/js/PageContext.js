@@ -46,9 +46,23 @@ let PageContext = (function(document) {
 
         return {
             cartInfo: cartInfo,
-            maskPage: function() {
+            /**
+             * Shows the page overlay and installs a click listener handled by the callback supplied by the consumer. The listener will be removed after the event.
+             * @param callback a function which will be installed as the click listener
+             */
+            maskPage: function(callback) {
                 pageMask.classList.add('mask__root_active');
+                if (callback && typeof callback === 'function') {
+                    const clickHandler = (event) => {
+                        callback();
+                        pageMask.removeEventListener('click', clickHandler);
+                    };
+                    pageMask.addEventListener('click', clickHandler);
+                }
             },
+            /**
+             * Hides the page overlay
+             */
             unmaskPage: function() {
                 pageMask.classList.remove('mask__root_active');
             },

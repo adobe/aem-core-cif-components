@@ -46,10 +46,10 @@
 
             document
                 .querySelector(selectors.navigationTrigger)
-                .addEventListener('click', () => this.setNavigationPanelVisible(true));
+                .addEventListener('click', () => this.showPanel(true));
             document
                 .querySelector(selectors.closeNavigationButton)
-                .addEventListener('click', () => this.setNavigationPanelVisible(false));
+                .addEventListener('click', () => this.showPanel(false));
             this.backNavigationButton.addEventListener('click', backNavigationBinding);
             document
                 .querySelectorAll(selectors.downNavigationButton)
@@ -58,13 +58,16 @@
             this.updateDynamicElements();
         }
 
-        setNavigationPanelVisible(visible) {
-            if (visible) {
-                this.navigationPanel.classList.add(CSS_CLASS_NAVIGATION_OPEN);
-            } else {
-                this.navigationPanel.classList.remove(CSS_CLASS_NAVIGATION_OPEN);
-            }
+        showPanel() {
+            this.navigationPanel.classList.add(CSS_CLASS_NAVIGATION_OPEN);
+            window.CIF.PageContext.maskPage(this.hidePanel.bind(this));
         }
+
+        hidePanel() {
+            this.navigationPanel.classList.remove(CSS_CLASS_NAVIGATION_OPEN);
+            window.CIF.PageContext.unmaskPage();
+        }
+
 
         getActiveNavigation() {
             return document.querySelector(selectors.activeNavigation);
