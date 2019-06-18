@@ -55,12 +55,15 @@
                     items {
                         sku
                         name
+                        thumbnail {  
+                            url
+                            }
                         ... on ConfigurableProduct {
                             variants {
                                 product {
                                     sku
-                                    media_gallery_entries {
-                                        file
+                                    thumbnail {  
+                                       url
                                     }
                                 }
                             }
@@ -87,14 +90,16 @@
             let productsMedia = {};
             items.forEach(item => {
                 let variants = item.variants;
-                if (variants.length > 0) {
+                if (variants && variants.length > 0) {
                     let skus = productData[item.name];
                     let media = variants.filter(v => skus.indexOf(v.product.sku) !== -1);
                     if (media && media.length > 0) {
                         media.forEach(v => {
-                            productsMedia[v.product.sku] = imageUrlPrefix + v.product.media_gallery_entries[0].file;
+                            productsMedia[v.product.sku] = v.product.thumbnail.url;
                         });
                     }
+                } else {
+                    productsMedia[item.sku] = item.thumbnail.url;
                 }
             });
             return productsMedia;

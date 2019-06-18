@@ -1,11 +1,15 @@
 [![CircleCI](https://circleci.com/gh/adobe/aem-core-cif-components.svg?style=svg)](https://circleci.com/gh/adobe/aem-core-cif-components)
 [![codecov](https://codecov.io/gh/adobe/aem-core-cif-components/branch/master/graph/badge.svg)](https://codecov.io/gh/adobe/aem-core-cif-components)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all)
+![GitHub](https://img.shields.io/github/license/adobe/aem-core-cif-components.svg)
 
 # AEM CIF Core Components
 
-AEM Commerce reference store front project that serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components as well as a complete sample store front serving as documentation and showing best practices. The store front combines server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>.
+The AEM CIF Core Components project serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components which combine server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>.
 
 This project is intended to be used in conjunction with the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). AEM CIF Core Components use the AEM Sites Core Components as a foundation where possible and extending them.
+
+For starting a new project please have a look at our [CIF archetype](https://github.com/adobe/aem-cif-project-archetype) project. There you will also find a complete sample project that uses the WCM and CIF core components to deliver a stunning store-front experience.
 
 ## Documentation
 
@@ -13,11 +17,13 @@ See our [wiki](https://github.com/adobe/aem-core-wcm-components/wiki) for usage 
 
 ## Available Components
 
-- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
 - [Product](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
 - [Product List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
+- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
+- [Product Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcarousel/v1/productcarousel)
 - [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v1/navigation)
 - [Search Results](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
+- [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
 
 ## System Requirements
 
@@ -25,7 +31,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento | Java |
 | ------------------- | ------- | ------- | ------- | ---- |
-| 0.0.1               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
+| 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
 ### AEM Commerce connector for Magento
 
@@ -51,6 +57,33 @@ This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly a
 
 For more details about the UberJar please head over to the
 [How to Build AEM Projects using Apache Maven](https://helpx.adobe.com/experience-manager/6-4/sites/developing/using/ht-projects-maven.html) documentation page.
+
+## Include core components as subpackage into your own project maven build
+
+The released version of the AEM CIF Core Components are available on the [maven central repository](https://search.maven.org/search?q=g:com.adobe.commerce.cif%20AND%20a:core-cif-components-all). To include the
+AEM CIF Core Components package into your own project maven build you can add the dependency
+ ```
+ <dependency>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <type>zip</type>
+     <version>x.y.z</version>
+ </dependency>
+ ```
+
+ and sub package section
+```
+ <subPackage>
+     <groupId>com.adobe.commerce.cif</groupId>
+     <artifactId>core-cif-components-all</artifactId>
+     <filter>true</filter>
+ </subPackage>
+```
+
+ to the `content-package-maven-plugin`.
+ 
+You also need to add the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) all package, see above. Make sure you add that as a dependency as well.
+
 
 ## Configuration
 
@@ -80,6 +113,12 @@ For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The f
 ```bash
 npm run prettier-fix
 ```
+
+## Releases to Maven Central
+
+Releases of this project are triggered by manually running `mvn release:prepare release:clean` on the `master` branch on the root folder of this repository. Once you choose the release and the next snapshot versions, this commits the change along with a release git tag like for example `core-cif-components-reactor-x.y.z`. Note that the commits are not automatically pushed to the git repository, so you have some time to check your changes and then manually push them. The push then triggers a dedicated `CircleCI` build that performs the deployment of the tagged artifact to Maven Central.
+
+_Important_: this project does Maven reactor releases, do **not** trigger releases from sub modules!
 
 ## Contributing
  

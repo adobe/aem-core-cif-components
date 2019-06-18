@@ -21,7 +21,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-reactor</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
 
     <name>AEM CIF Core Components Reactor</name>
     <description>Reactor POM for AEM CIF Core Components</description>
@@ -33,7 +33,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.1.1-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
 
@@ -43,7 +43,6 @@
     <modules>
         <module>parent</module>
         <module>ui.apps</module>
-        <module>ui.content</module>
         <module>bundles/core</module>
         <module>all</module>
     </modules>
@@ -57,49 +56,4 @@
         <url>https://github.com/adobe/aem-core-cif-components</url>
         <tag>HEAD</tag>
     </scm>
-
-    <organization>
-        <name>Adobe</name>
-        <url>https://www.adobe.com</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Mark J. Becker</name>
-            <email>mabecker@adobe.com</email>
-            <organization>Adobe</organization>
-            <organizationUrl>https://www.adobe.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Markus Haack</name>
-            <email>mhaack@adobe.com</email>
-            <organization>Adobe</organization>
-            <organizationUrl>https://www.adobe.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Christophe Jelger</name>
-            <email>jelger@adobe.com</email>
-            <organization>Adobe</organization>
-            <organizationUrl>https://www.adobe.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Daniel Platon</name>
-            <email>platon@adobe.com</email>
-            <organization>Adobe</organization>
-            <organizationUrl>https://www.adobe.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Levente Santha</name>
-            <email>sntha@adobe.com</email>
-            <organization>Adobe</organization>
-            <organizationUrl>https://www.adobe.com</organizationUrl>
-        </developer>
-    </developers>
-
 </project>
