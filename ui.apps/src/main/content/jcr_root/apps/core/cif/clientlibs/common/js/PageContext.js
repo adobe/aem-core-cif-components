@@ -67,7 +67,7 @@ let PageContext = (function(document) {
                 pageMask.classList.remove('mask__root_active');
             },
             setCartInfoCookie: function({ cartId, cartQuote }) {
-                document.cookie = `${cookieName}=${cartId}#${cartQuote}`;
+                document.cookie = `${cookieName}=${cartId}#${cartQuote};path=/`;
             }
         };
     }
