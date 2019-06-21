@@ -28,7 +28,10 @@ let productCtx = (function(document) {
                 configurable: false,
 
                 // Map with client-side fetched prices
-                prices: {}
+                prices: {},
+
+                // Intl.NumberFormat instance for formatting prices
+                formatter: null
             };
             this._state.configurable = this._element.dataset.configurable !== undefined;
 
@@ -53,7 +56,14 @@ let productCtx = (function(document) {
         }
 
         _formatPrice(price) {
-            return `${price.value} ${price.currency}`;
+            if (!this._state.formatter) {
+                this._state.formatter = new Intl.NumberFormat(this._element.dataset.locale, {
+                    style: 'currency',
+                    currency: price.currency
+                });
+            }
+
+            return this._state.formatter.format(price.value);
         }
 
         /**

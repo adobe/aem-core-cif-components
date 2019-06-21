@@ -22,7 +22,8 @@
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.product.v1'}"/>
     <form class="productFullDetail__root"
           data-configurable="${product.configurable}"
-          data-cmp-is="product">
+          data-cmp-is="product"
+          data-locale="en-US">
         <sly data-sly-test.found="${product.found}">
             <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${product.name}</span></h1>
                 <sly data-sly-call="${priceTpl.price @ product=product}"></sly>
