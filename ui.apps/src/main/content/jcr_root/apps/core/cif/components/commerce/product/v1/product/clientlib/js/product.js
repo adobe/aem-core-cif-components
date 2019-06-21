@@ -22,18 +22,38 @@ let productCtx = (function(document) {
             // Local state
             this._state = {
                 // Current sku, either from the base product or from a variant
-                sku: null,
+                sku: this._element.querySelector(Product.selectors.sku).innerHTML,
 
                 // True if this product is configurable and has variants
-                configurable: false
+                configurable: false,
+
+                // Map with client-side fetched prices
+                prices: {}
             };
             this._state.configurable = this._element.dataset.configurable !== undefined;
-            this._state.sku = !this._state.configurable
-                ? this._element.querySelector(Product.selectors.sku).innerHTML
-                : null;
 
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
+
+            // Retrieve current prices
+            if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+            window.CIF.CommerceGraphqlApi.getProductPrice([this._state.sku])
+                .then(prices => {
+                    this._state.prices = prices;
+
+                    // Update price
+                    if (!(this._state.sku in prices)) return;
+                    this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                        prices[this._state.sku]
+                    );
+                })
+                .catch(err => {
+                    console.error('Could not fetch prices');
+                });
+        }
+
+        _formatPrice(price) {
+            return `${price.value} ${price.currency}`;
         }
 
         /**
@@ -50,8 +70,17 @@ let productCtx = (function(document) {
             // Update values and enable add to cart button
             this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
             this._element.querySelector(Product.selectors.name).innerText = variant.name;
-            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
             this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+
+            // Use client-side fetched price
+            if (this._state.sku in this._state.prices) {
+                this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                    this._state.prices[this._state.sku]
+                );
+            } else {
+                // or server-side price as a backup
+                this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
+            }
         }
     }
 

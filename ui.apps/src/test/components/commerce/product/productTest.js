@@ -26,7 +26,7 @@ describe('Product', () => {
                     <span role="name"></span>
                 </div>
                 <div class="productFullDetail__details">
-                    <span role="sku"></span>
+                    <span role="sku">sample-sku</span>
                 </div>
                 <div class="productFullDetail__productPrice">
                     <span role="price"></span>
@@ -42,12 +42,10 @@ describe('Product', () => {
 
             let product = productCtx.factory({ element: productRoot });
             assert.isTrue(product._state.configurable);
-            assert.isNull(product._state.sku);
+            assert.equal(product._state.sku, 'sample-sku');
         });
 
         it('initializes a simple product component', () => {
-            productRoot.querySelector(productCtx.Product.selectors.sku).innerHTML = 'sample-sku';
-
             let product = productCtx.factory({ element: productRoot });
             assert.isFalse(product._state.configurable);
             assert.equal(product._state.sku, 'sample-sku');
