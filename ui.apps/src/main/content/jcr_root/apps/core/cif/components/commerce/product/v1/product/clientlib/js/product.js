@@ -38,9 +38,13 @@ let productCtx = (function(document) {
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
 
+            this._initPrices();
+        }
+
+        _initPrices() {
             // Retrieve current prices
             if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-            window.CIF.CommerceGraphqlApi.getProductPrice([this._state.sku])
+            return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku])
                 .then(prices => {
                     this._state.prices = prices;
 
@@ -51,7 +55,7 @@ let productCtx = (function(document) {
                     );
                 })
                 .catch(err => {
-                    console.error('Could not fetch prices');
+                    console.error('Could not fetch prices', err);
                 });
         }
 

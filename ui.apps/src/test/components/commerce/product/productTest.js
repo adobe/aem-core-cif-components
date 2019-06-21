@@ -51,6 +51,28 @@ describe('Product', () => {
             assert.equal(product._state.sku, 'sample-sku');
         });
 
+        it('retrieves prices via GraphQL', done => {
+            window.CIF = window.CIF || {};
+            window.CIF.CommerceGraphqlApi = window.CIF.CommerceGraphqlApi || {
+                getProductPrices: () => {}
+            };
+
+            let prices = { 'sample-sku': { currency: 'USD', value: '156.89' } };
+            let stub = sinon.stub(window.CIF.CommerceGraphqlApi, 'getProductPrices').resolves(prices);
+
+            let product = productCtx.factory({ element: productRoot });
+            product
+                ._initPrices()
+                .then(() => {
+                    assert.isTrue(stub.called);
+                    assert.deepEqual(product._state.prices, prices);
+
+                    let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+                    assert.include(price, '156.89');
+                })
+                .finally(done);
+        });
+
         it('changes variant when receiving variantchanged event', () => {
             let product = productCtx.factory({ element: productRoot });
 
@@ -82,6 +104,41 @@ describe('Product', () => {
             assert.equal(name, variant.name);
             assert.equal(price, variant.formattedPrice);
             assert.equal(description, variant.description);
+        });
+
+        it('changes variant with client-side price when receiving variantchanged event', () => {
+            let product = productCtx.factory({ element: productRoot });
+            product._state.prices = {
+                'variant-sku': {
+                    currency: 'USD',
+                    value: 130.42
+                }
+            };
+
+            // Send event
+            let variant = { sku: 'variant-sku' };
+            let changeEvent = new CustomEvent(productCtx.Product.events.variantChanged, {
+                bubbles: true,
+                detail: {
+                    variant: variant
+                }
+            });
+            productRoot.dispatchEvent(changeEvent);
+
+            // Check fields
+            let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+            assert.include(price, '130.42');
+        });
+
+        it('formats a currency', () => {
+            productRoot.dataset.locale = 'de-DE';
+
+            let product = productCtx.factory({ element: productRoot });
+            assert.isNull(product._state.formatter);
+
+            let formattedPrice = product._formatPrice({ currency: 'EUR', value: 100.13 });
+            assert.isNotNull(product._state.formatter);
+            assert.equal(formattedPrice, '100,13 €');
         });
     });
 });
