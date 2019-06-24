@@ -1,0 +1,34 @@
+.categoryList-root-2i- {
+    padding: 1rem;
+}
+.categoryList-content--D4 {
+    display: grid;
+    grid-gap: 3rem 1rem;
+    grid-template-columns: repeat(auto-fit, 6rem);
+    justify-content: center;
+}
+.categoryTile-root-LE5 {
+    display: block;
+    line-height: 1rem;
+    text-align: center;
+    width: 6rem;
+}
+.categoryTile-imageWrapper-2jR {
+
+    background-position: 50% 50%;
+    background-size: cover;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgb(var(--venia-border));
+    display: block;
+    height: 5rem;
+    margin: 0 auto 1rem auto;
+    width: 5rem;
+}
+.categoryTile-image-1yp {
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+.categoryTile-name-2k2 {
+    display: block;
+}
