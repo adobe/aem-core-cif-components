@@ -43,3 +43,6 @@ hs_err_pid*
 **/node_modules/**
 **/karma-junit/**
 **/coverage/**
+# Mac unwanteds
+**/.DS_store
+.DS_Store
