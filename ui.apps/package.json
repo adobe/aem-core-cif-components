@@ -5,11 +5,13 @@
   "description": "AEM Core CIF Components - ui.apps",
   "main": "index.js",
   "scripts": {
-    "test": "npm run prettier && karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
-    "test-debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
-    "prettier": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
-    "prettier-fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc",
-    "compile": "babel src/main --out-dir src/main --presets=@babel/env --ignore **/*.min.js"
+    "test": "npm run prettier:check && npm run karma:run",
+    "karma:run": "karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
+    "karma:debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
+    "prettier:check": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc",
+    "babel:compile": "babel src/javascript --out-dir src/main/content/jcr_root --presets=@babel/env --ignore **/*.min.js && npm run babel:polyfill",
+    "babel:polyfill": "cp node_modules/@babel/polyfill/dist/polyfill.min.js src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/lib/"
   },
   "author": "Adobe",
   "repository": {
