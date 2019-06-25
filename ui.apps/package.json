@@ -9,7 +9,7 @@
     "test-debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
     "prettier": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
     "prettier-fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc",
-    "compule": "babel src/main --out-dir src/main --presets=@babel/env --ignore **/*.min.js"
+    "compile": "babel src/main --out-dir src/main --presets=@babel/env --ignore **/*.min.js"
   },
   "author": "Adobe",
   "repository": {
