@@ -8,15 +8,39 @@
     "test": "npm run prettier && karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
     "test-debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
     "prettier": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
-    "prettier-fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc"
+    "prettier-fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc",
+    "compule": "babel src/main --out-dir src/main --presets=@babel/env --ignore **/*.min.js"
   },
   "author": "Adobe",
   "repository": {
     "type": "git",
     "url": "https://github.com/adobe/aem-core-cif-components.git"
   },
+  "browserslist": [
+    "> 0.05%",
+    "not dead",
+    "not android 4.1",
+    "not android 4.2",
+    "not android 4.4",
+    "not android 4.4.3",
+    "not chrome 29",
+    "not chrome 43",
+    "not chrome 49",
+    "not chrome 54",
+    "not firefox 47",
+    "not firefox 48",
+    "not firefox 51",
+    "not firefox 52",
+    "not ios 8.1",
+    "not ios 9.3",
+    "not safari 5.1",
+    "not safari 9.1"
+  ],
   "license": "Apache-2.0",
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "chai": "^4.2.0",
     "karma": "^4.1.0",
     "karma-chai": "^0.1.0",
@@ -30,5 +54,8 @@
     "mocha": "^6.1.4",
     "prettier": "^1.18.1",
     "sinon": "^7.3.2"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4"
   }
 }
