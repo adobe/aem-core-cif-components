@@ -42,7 +42,7 @@ let productListCtx = (function(document) {
         _fetchPrices() {
             // Retrieve current prices
             if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-            return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus)
+            return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false)
                 .then(prices => {
                     this._state.prices = prices;
 
