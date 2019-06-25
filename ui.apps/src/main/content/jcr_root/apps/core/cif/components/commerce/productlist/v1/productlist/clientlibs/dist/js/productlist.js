@@ -25,12 +25,14 @@ let productListCtx = (function(document) {
                 skus: [],
 
                 // Map with client-side fetched prices
-                prices: {},
-
-                // Intl.NumberFormat instance for formatting prices
-                formatter: null
+                prices: {}
             };
-            document.querySelectorAll(ProductList.selectors.item).forEach(item => {
+
+            // Intl.NumberFormat instance for formatting prices
+            this._formatter =
+                window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
+
+            this._element.querySelectorAll(ProductList.selectors.item).forEach(item => {
                 this._state.skus.push(item.dataset.sku);
             });
 
@@ -52,21 +54,10 @@ let productListCtx = (function(document) {
                 });
         }
 
-        _formatPrice(price) {
-            if (!this._state.formatter) {
-                this._state.formatter = new Intl.NumberFormat(this._element.dataset.locale, {
-                    style: 'currency',
-                    currency: price.currency
-                });
-            }
-
-            return this._state.formatter.format(price.value);
-        }
-
         _updatePrices() {
-            document.querySelectorAll('.item__root[role=product]').forEach(item => {
+            this._element.querySelectorAll(ProductList.selectors.item).forEach(item => {
                 if (!(item.dataset.sku in this._state.prices)) return;
-                item.querySelector('.item__price [role=price]').innerText = this._formatPrice(
+                item.querySelector('.item__price [role=price]').innerText = this._formatter.formatPrice(
                     this._state.prices[item.dataset.sku]
                 );
             });

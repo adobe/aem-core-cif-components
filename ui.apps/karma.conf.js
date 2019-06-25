@@ -26,8 +26,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js',
+      'src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/**/*.js',
       'src/main/content/jcr_root/apps/core/cif/components/commerce/product/**/*.js',
-      'src/test/components/commerce/**/*Test.js'
+      'src/test/**/*Test.js'
     ],
 
 
