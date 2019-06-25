@@ -13,7 +13,7 @@
  *
  ******************************************************************************/
 
-import cartItem from "./templates/cartitem.js"
+import cartItem from './templates/cartitem.js';
 
 /**
  * A class describing a MiniCart item. It's responsible for rendering the item in the MiniCart component

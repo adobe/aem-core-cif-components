@@ -12,12 +12,12 @@
  *
  ******************************************************************************/
 
-import tplTotals from "./templates/carttotals.js"
-import tplEmptyMiniCart from "./templates/minicart-empty.js"
-import tplBody from "./templates/minicart-body.js"
-import tplFooter from "./templates/minicart-footer.js"
-import tplEdit from "./templates/minicart-edit.js"
-import MiniCartItem from "./MiniCartItem.js"
+import tplTotals from './templates/carttotals.js';
+import tplEmptyMiniCart from './templates/minicart-empty.js';
+import tplBody from './templates/minicart-body.js';
+import tplFooter from './templates/minicart-footer.js';
+import tplEdit from './templates/minicart-edit.js';
+import MiniCartItem from './MiniCartItem.js';
 
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
