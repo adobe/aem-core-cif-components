@@ -13,18 +13,18 @@
  *
  ******************************************************************************/
 
-import "./templates/cartitem"
+import cartItem from "./templates/cartitem.js"
 
 /**
  * A class describing a MiniCart item. It's responsible for rendering the item in the MiniCart component
  * @type {MiniCartItem}
  */
-const MiniCartItem = (function(templates) {
+const MiniCartItem = (function() {
     'use strict';
 
     class MiniCartItem {
         constructor(itemData, { removeItemHandler, editHandler }) {
-            this.template = Handlebars.compile(templates.cartItem);
+            this.template = Handlebars.compile(cartItem);
 
             this.removeItemHandler = removeItemHandler;
             this.editHandler = editHandler;
@@ -83,4 +83,6 @@ const MiniCartItem = (function(templates) {
     }
 
     return MiniCartItem;
-})(window.CIF.MiniCart.templates);
+})();
+
+export default MiniCartItem;

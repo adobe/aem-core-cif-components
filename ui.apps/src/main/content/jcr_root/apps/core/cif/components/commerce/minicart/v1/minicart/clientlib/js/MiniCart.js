@@ -12,16 +12,17 @@
  *
  ******************************************************************************/
 
-import "./templates/carttotals"
-import "./templates/minicart-empty"
-import "./templates/minicart-body"
-import "./templates/minicart-footer"
-import "./templates/minicart-edit"
+import tplTotals from "./templates/carttotals.js"
+import tplEmptyMiniCart from "./templates/minicart-empty.js"
+import tplBody from "./templates/minicart-body.js"
+import tplFooter from "./templates/minicart-footer.js"
+import tplEdit from "./templates/minicart-edit.js"
+import MiniCartItem from "./MiniCartItem.js"
 
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
  */
-(function(templates) {
+(function() {
     'use strict';
 
     class MiniCart {
@@ -54,11 +55,11 @@ import "./templates/minicart-edit"
 
             this.rootNode = document.querySelector('.miniCart__root');
 
-            this.totalsTemplate = Handlebars.compile(templates.totals);
-            this.emptyTemplate = Handlebars.compile(templates.emptyMiniCart);
-            this.bodyTemplate = Handlebars.compile(templates.body);
-            this.footerTemplate = Handlebars.compile(templates.footer);
-            this.editTemplate = Handlebars.compile(templates.edit);
+            this.totalsTemplate = Handlebars.compile(tplTotals);
+            this.emptyTemplate = Handlebars.compile(tplEmptyMiniCart);
+            this.bodyTemplate = Handlebars.compile(tplBody);
+            this.footerTemplate = Handlebars.compile(tplFooter);
+            this.editTemplate = Handlebars.compile(tplEdit);
 
             this.removeItemHandler = this.removeItemHandler.bind(this);
             this.editHandler = this.editHandler.bind(this);
@@ -429,4 +430,4 @@ import "./templates/minicart-edit"
     } else {
         document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-})(window.CIF.MiniCart.templates);
+})();

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-import "./PageContext.js" // temporary to define correct order
+import PageContext from "./PageContext.js" // temporary to define correct order
 
 window.CIF = window.CIF || {};
 

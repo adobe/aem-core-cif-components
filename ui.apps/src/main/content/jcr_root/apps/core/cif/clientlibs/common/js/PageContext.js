@@ -74,3 +74,5 @@ let PageContext = (function(document) {
 
     return PageContext;
 })(window.document);
+
+export default PageContext;
