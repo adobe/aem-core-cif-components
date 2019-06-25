@@ -19,7 +19,7 @@ const APPS_ROOT = './src/main/content/jcr_root/apps';
 
 module.exports = {
     entry: {
-        'apps/core/cif/clientlibs/common': glob.sync(APPS_ROOT + '/core/cif/clientlibs/common/js/**/*.js'),
+        'apps/core/cif/clientlibs/common': ['@babel/polyfill', ...glob.sync(APPS_ROOT + '/core/cif/clientlibs/common/js/**/*.js')],
         'apps/core/cif/components/commerce/minicart/v1/minicart/clientlib': glob.sync(APPS_ROOT + '/core/cif/components/commerce/minicart/v1/minicart/clientlib/js/**/*.js'),
         'apps/core/cif/components/commerce/product/v1/product/clientlib': glob.sync(APPS_ROOT + '/core/cif/components/commerce/product/v1/product/clientlib/js/**/*.js'),
         'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs': glob.sync(APPS_ROOT + '/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs/js/**/*.js'),
@@ -29,6 +29,20 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "src/main/content/jcr_root"),
         filename: './[name]/dist/index.js'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
+            }
+        ]
     },
     devtool: 'source-map',
     target: 'web'
