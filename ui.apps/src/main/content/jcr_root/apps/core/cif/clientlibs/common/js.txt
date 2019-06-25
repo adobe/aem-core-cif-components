@@ -1,9 +1,5 @@
-#base=js
 lib/polyfill.min.js
 lib/purify.min.js
 lib/handlebars.min.js
 
-pageContextLoader.js
-PageContext.js
-CommerceApi.js
-CommerceGraphqlApi.js
+dist/index.js

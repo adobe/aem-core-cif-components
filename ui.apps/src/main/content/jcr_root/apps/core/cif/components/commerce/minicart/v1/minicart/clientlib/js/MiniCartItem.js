@@ -13,6 +13,8 @@
  *
  ******************************************************************************/
 
+import "./templates/cartitem"
+
 /**
  * A class describing a MiniCart item. It's responsible for rendering the item in the MiniCart component
  * @type {MiniCartItem}

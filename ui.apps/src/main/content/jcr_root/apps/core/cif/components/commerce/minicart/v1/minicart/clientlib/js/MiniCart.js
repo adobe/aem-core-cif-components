@@ -12,6 +12,12 @@
  *
  ******************************************************************************/
 
+import "./templates/carttotals"
+import "./templates/minicart-empty"
+import "./templates/minicart-body"
+import "./templates/minicart-footer"
+import "./templates/minicart-edit"
+
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
  */

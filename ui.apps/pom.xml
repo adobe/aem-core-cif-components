@@ -85,6 +85,8 @@
                     <exclude>**/.settings/**</exclude>
                     <exclude>**/.DS_Store</exclude>
                     <exclude>**/target/**</exclude>
+                    <!-- Exclude un-transpiled JavaScript files -->
+                    <exclude>**/js/**</exclude>
                 </excludes>
             </resource>
         </resources>

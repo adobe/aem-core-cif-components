@@ -11,6 +11,9 @@
  *     governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+import "./PageContext.js" // temporary to define correct order
+
 window.CIF = window.CIF || {};
 
 (function() {
