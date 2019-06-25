@@ -15,7 +15,7 @@ limitations under the License.
 -->
 Product List (v1)
 ====
-Product List component is a sever side component written in HTL, allowing to display product listings. The product listings
+Product List component is a server side component written in HTL, allowing to display product listings. The product listings
 for a category are retrieved from Magento via GraphQL. The main usage of this component would be on a category page. 
 
 ## Features
@@ -39,7 +39,7 @@ The following configuration properties are used:
 
 ### Edit Dialog Properties
 
-The following properties are written to JCR for this Title component and are expected to be available as `Resource` properties:
+The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./pageSize` - the number of products shown on one page
 
