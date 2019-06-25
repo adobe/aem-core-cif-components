@@ -23,6 +23,7 @@ for a category are retrieved from Magento via GraphQL. The main usage of this co
 * Support for pagination
 * Configurable number of products on one page
 * Configurable category title display
+* Client-side loaded prices using GraphQL
 
 ### Use Object
 The Product List component uses the `com.adobe.cq.commerce.core.components.models.productlist.ProductList` Sling model as its Use-object.
