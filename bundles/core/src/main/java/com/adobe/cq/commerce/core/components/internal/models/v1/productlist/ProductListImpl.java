@@ -51,6 +51,7 @@ public class ProductListImpl implements ProductList {
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final int PAGE_SIZE_DEFAULT = 6;
+    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Self
     private SlingHttpServletRequest request;
@@ -71,6 +72,8 @@ public class ProductListImpl implements ProductList {
     private CategoryInterface category;
     private boolean showTitle;
     private MagentoGraphqlClient magentoGraphqlClient;
+
+    private String mediaBaseUrl;
 
     private int navPageCursor = 1;
     private int navPagePrev;
@@ -143,6 +146,16 @@ public class ProductListImpl implements ProductList {
     }
 
     @Override
+    public String getImage() {
+        return mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage();
+    }
+
+    @Override
+    public boolean showImage() {
+        return true;
+    }
+
+    @Override
     public int getPreviousNavPage() {
         return this.navPagePrev;
     }
@@ -202,9 +215,14 @@ public class ProductListImpl implements ProductList {
             .id()
             .description()
             .name()
+            .image()
             .productCount()
             .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
         return categoryTreeQueryDefinition;
+    }
+
+    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+        return q -> q.secureBaseMediaUrl();
     }
 
     /* --- Utility methods --- */
@@ -222,13 +240,20 @@ public class ProductListImpl implements ProductList {
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
 
         CategoryTreeQueryDefinition queryArgs = generateProductListQuery();
-        String queryString = Operations.query(query -> query.category(searchArgs, queryArgs)).toString();
+        String queryString = Operations.query(query -> query
+            .category(searchArgs, queryArgs)
+            .storeConfig(generateStoreConfigQuery())).toString();
 
         // Send GraphQL request
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         // Get category & product list from response
         Query rootQuery = response.getData();
+
+        // GraphQL API provides only file name of the category image, but not the full url. We need the mediaBaseUrl to construct the full
+        // path.
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+
         return rootQuery.getCategory();
     }
 

@@ -75,6 +75,14 @@ public interface ProductList {
         throw new UnsupportedOperationException();
     }
 
+    default String getImage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean showImage() {
+        throw new UnsupportedOperationException();
+    }
+
     default int getPreviousNavPage() {
         throw new UnsupportedOperationException();
     }
