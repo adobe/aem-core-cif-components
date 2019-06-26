@@ -37,10 +37,6 @@ jobs:
       - image: circleci/node:lts-browsers
     steps:
       - checkout
-      - restore_cache:
-          keys: 
-            - maven-repo-v1-{{ checksum "pom.xml" }}
-            - maven-repo-v1-
       - run:
           name: Provision
           command: |
