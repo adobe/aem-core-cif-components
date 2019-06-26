@@ -137,6 +137,7 @@
                 }
             }`;
 
+            // prettier-ignore
             const query = `query {
                 products(filter: { sku: { in: [${skuQuery}] }} ) {
                     items {
