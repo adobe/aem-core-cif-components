@@ -18,6 +18,7 @@ import tplBody from './templates/minicart-body.js';
 import tplFooter from './templates/minicart-footer.js';
 import tplEdit from './templates/minicart-edit.js';
 import MiniCartItem from './MiniCartItem.js';
+import Handlebars from 'handlebars';
 
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.

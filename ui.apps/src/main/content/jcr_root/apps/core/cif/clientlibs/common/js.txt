@@ -1,5 +1,3 @@
-lib/polyfill.min.js
-lib/purify.min.js
 lib/handlebars.min.js
 
 dist/index.js

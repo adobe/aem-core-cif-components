@@ -15,16 +15,24 @@
 const path = require('path');
 const glob = require('glob');
 
-const APPS_ROOT = './src/main/content/jcr_root/apps';
+const JCR_ROOT = './src/main/content/jcr_root/';
+const LIB = {
+    COMMON: 'apps/core/cif/clientlibs/common',
+    MINICART: 'apps/core/cif/components/commerce/minicart/v1/minicart/clientlib',
+    PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
+    PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
+    HEADER: 'apps/core/cif/components/structure/header/v1/header/clientlibs',
+    NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs'
+};
 
 module.exports = {
     entry: {
-        'apps/core/cif/clientlibs/common': ['@babel/polyfill', ...glob.sync(APPS_ROOT + '/core/cif/clientlibs/common/js/**/*.js')],
-        'apps/core/cif/components/commerce/minicart/v1/minicart/clientlib': glob.sync(APPS_ROOT + '/core/cif/components/commerce/minicart/v1/minicart/clientlib/js/**/*.js'),
-        'apps/core/cif/components/commerce/product/v1/product/clientlib': glob.sync(APPS_ROOT + '/core/cif/components/commerce/product/v1/product/clientlib/js/**/*.js'),
-        'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs': glob.sync(APPS_ROOT + '/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs/js/**/*.js'),
-        'apps/core/cif/components/structure/header/v1/header/clientlibs': glob.sync(APPS_ROOT + '/core/cif/components/structure/header/v1/header/clientlibs/js/**/*.js'),
-        'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs': glob.sync(APPS_ROOT + '/core/cif/components/structure/navigation/v1/navigation/clientlibs/js/**/*.js'),
+        [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
+        [LIB.MINICART]: glob.sync(JCR_ROOT + LIB.MINICART + '/js/**/*.js'),
+        [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
+        [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
+        [LIB.HEADER]: glob.sync(JCR_ROOT + LIB.HEADER + '/js/**/*.js'),
+        [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js')
     },
     output: {
         path: path.resolve(__dirname, "src/main/content/jcr_root"),
@@ -43,6 +51,9 @@ module.exports = {
                 }
             }
         ]
+    },
+    externals: {
+        handlebars: 'Handlebars'
     },
     devtool: 'source-map',
     target: 'web'
