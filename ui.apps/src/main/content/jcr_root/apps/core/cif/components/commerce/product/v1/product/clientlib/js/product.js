@@ -25,15 +25,15 @@ let productCtx = (function(document) {
                 sku: this._element.querySelector(Product.selectors.sku).innerHTML,
 
                 // True if this product is configurable and has variants
-                configurable: false,
+                configurable: this._element.dataset.configurable !== undefined,
 
                 // Map with client-side fetched prices
-                prices: {},
-
-                // Intl.NumberFormat instance for formatting prices
-                formatter: null
+                prices: {}
             };
-            this._state.configurable = this._element.dataset.configurable !== undefined;
+
+            // Intl.NumberFormat instance for formatting prices
+            this._formatter =
+                window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
@@ -44,30 +44,19 @@ let productCtx = (function(document) {
         _initPrices() {
             // Retrieve current prices
             if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-            return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku])
+            return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku], true)
                 .then(prices => {
                     this._state.prices = prices;
 
                     // Update price
                     if (!(this._state.sku in prices)) return;
-                    this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                    this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
                         prices[this._state.sku]
                     );
                 })
                 .catch(err => {
                     console.error('Could not fetch prices', err);
                 });
-        }
-
-        _formatPrice(price) {
-            if (!this._state.formatter) {
-                this._state.formatter = new Intl.NumberFormat(this._element.dataset.locale, {
-                    style: 'currency',
-                    currency: price.currency
-                });
-            }
-
-            return this._state.formatter.format(price.value);
         }
 
         /**
@@ -88,7 +77,7 @@ let productCtx = (function(document) {
 
             // Use client-side fetched price
             if (this._state.sku in this._state.prices) {
-                this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
                     this._state.prices[this._state.sku]
                 );
             } else {
