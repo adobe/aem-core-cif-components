@@ -22,18 +22,52 @@ let productCtx = (function(document) {
             // Local state
             this._state = {
                 // Current sku, either from the base product or from a variant
-                sku: null,
+                sku: this._element.querySelector(Product.selectors.sku).innerHTML,
 
                 // True if this product is configurable and has variants
-                configurable: false
+                configurable: false,
+
+                // Map with client-side fetched prices
+                prices: {},
+
+                // Intl.NumberFormat instance for formatting prices
+                formatter: null
             };
             this._state.configurable = this._element.dataset.configurable !== undefined;
-            this._state.sku = !this._state.configurable
-                ? this._element.querySelector(Product.selectors.sku).innerHTML
-                : null;
 
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
+
+            this._initPrices();
+        }
+
+        _initPrices() {
+            // Retrieve current prices
+            if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+            return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku])
+                .then(prices => {
+                    this._state.prices = prices;
+
+                    // Update price
+                    if (!(this._state.sku in prices)) return;
+                    this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                        prices[this._state.sku]
+                    );
+                })
+                .catch(err => {
+                    console.error('Could not fetch prices', err);
+                });
+        }
+
+        _formatPrice(price) {
+            if (!this._state.formatter) {
+                this._state.formatter = new Intl.NumberFormat(this._element.dataset.locale, {
+                    style: 'currency',
+                    currency: price.currency
+                });
+            }
+
+            return this._state.formatter.format(price.value);
         }
 
         /**
@@ -50,8 +84,17 @@ let productCtx = (function(document) {
             // Update values and enable add to cart button
             this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
             this._element.querySelector(Product.selectors.name).innerText = variant.name;
-            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
             this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+
+            // Use client-side fetched price
+            if (this._state.sku in this._state.prices) {
+                this._element.querySelector(Product.selectors.price).innerText = this._formatPrice(
+                    this._state.prices[this._state.sku]
+                );
+            } else {
+                // or server-side price as a backup
+                this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
+            }
         }
     }
 
