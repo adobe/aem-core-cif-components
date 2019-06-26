@@ -3,7 +3,7 @@ version: 2.1
 executors:
   cif_executor:
     docker:
-      - image: circleci/openjdk:8u212-jdk-stretch
+      - image: circleci/openjdk:8u212-jdk-stretch-node
 
 jobs:
   build:
@@ -37,9 +37,18 @@ jobs:
       - image: circleci/node:lts-browsers
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - maven-repo-v1-{{ checksum "pom.xml" }}
+            - maven-repo-v1-
       - run:
           name: Provision
-          command: mvn -B clean install
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:build
+          working_directory: ./ui.apps
       - run:
           name: Run Unit Tests
           command: npm test
