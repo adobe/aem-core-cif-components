@@ -39,8 +39,7 @@ jobs:
       - checkout
       - run:
           name: Provision
-          command: npm install
-          working_directory: ./ui.apps
+          command: mvn clean install
       - run:
           name: Run Unit Tests
           command: npm test
