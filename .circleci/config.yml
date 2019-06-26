@@ -39,7 +39,7 @@ jobs:
       - checkout
       - run:
           name: Provision
-          command: mvn clean install
+          command: mvn -B clean install
       - run:
           name: Run Unit Tests
           command: npm test
