@@ -43,7 +43,7 @@ import com.day.cq.wcm.api.Page;
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCateogoryListImpl.RESOURCE_TYPE)
-    public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
+public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory
@@ -60,7 +60,7 @@ import com.day.cq.wcm.api.Page;
     @ScriptVariable
     private ValueMap properties;
 
-    public List<CategoryInterface> categories;
+    public List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
 
     private Page categoryPage;
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -78,20 +78,27 @@ import com.day.cq.wcm.api.Page;
         }
 
     }
+
     // WIP
     private void fetchCategoriesData(List<String> categoryIds) {
-        categories = new ArrayList<CategoryInterface>();
-        for (String categoryId : categoryIds) {
-            QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
-            CategoryTreeQueryDefinition def = q -> q.id().name().urlPath().position().image();
-            String queryString = Operations.query(query -> query.category(searchArgs, def)).toString();
-            GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-            Query rootQuery = response.getData();
-            CategoryTree category = rootQuery.getCategory();
-            categories.add(category);
-        }
+
+        categoryIds.forEach(categoryId -> {
+            fetchCategoryData(categoryId);
+        });
 
     }
+
+    private void fetchCategoryData(String categoryId) {
+        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
+        CategoryTreeQueryDefinition def = q -> q.id().name().urlPath().position().image();
+        String queryString = Operations.query(query -> query.category(searchArgs, def)).toString();
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
+        Query rootQuery = response.getData();
+        CategoryTree category = rootQuery.getCategory();
+        category.setPath(String.format("%p.%c.html", categoryPage.getPath(), categoryId));
+        categories.add(category);
+    }
+
     @Override
     public List<CategoryInterface> getCategories() {
         return categories;
