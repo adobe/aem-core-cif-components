@@ -22,18 +22,41 @@ let productCtx = (function(document) {
             // Local state
             this._state = {
                 // Current sku, either from the base product or from a variant
-                sku: null,
+                sku: this._element.querySelector(Product.selectors.sku).innerHTML,
 
                 // True if this product is configurable and has variants
-                configurable: false
+                configurable: this._element.dataset.configurable !== undefined,
+
+                // Map with client-side fetched prices
+                prices: {}
             };
-            this._state.configurable = this._element.dataset.configurable !== undefined;
-            this._state.sku = !this._state.configurable
-                ? this._element.querySelector(Product.selectors.sku).innerHTML
-                : null;
+
+            // Intl.NumberFormat instance for formatting prices
+            this._formatter =
+                window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
+
+            this._initPrices();
+        }
+
+        _initPrices() {
+            // Retrieve current prices
+            if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+            return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku], true)
+                .then(prices => {
+                    this._state.prices = prices;
+
+                    // Update price
+                    if (!(this._state.sku in prices)) return;
+                    this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
+                        prices[this._state.sku]
+                    );
+                })
+                .catch(err => {
+                    console.error('Could not fetch prices', err);
+                });
         }
 
         /**
@@ -50,8 +73,17 @@ let productCtx = (function(document) {
             // Update values and enable add to cart button
             this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
             this._element.querySelector(Product.selectors.name).innerText = variant.name;
-            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
             this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+
+            // Use client-side fetched price
+            if (this._state.sku in this._state.prices) {
+                this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
+                    this._state.prices[this._state.sku]
+                );
+            } else {
+                // or server-side price as a backup
+                this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
+            }
         }
     }
 

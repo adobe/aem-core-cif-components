@@ -17,12 +17,14 @@
      data-sly-use.priceTpl="price.html"
      data-sly-use.actionsTpl="actions.html"
      data-sly-use.quantityTpl="quantity.html"
-     data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product">
+     data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product"
+     data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.product.v1'}"/>
     <form class="productFullDetail__root"
           data-configurable="${product.configurable}"
-          data-cmp-is="product">
+          data-cmp-is="product"
+          data-locale="${page.language}">
         <sly data-sly-test.found="${product.found}">
             <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${product.name}</span></h1>
                 <sly data-sly-call="${priceTpl.price @ product=product}"></sly>

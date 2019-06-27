@@ -187,6 +187,7 @@ public class ProductListImpl implements ProductList {
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q
             .id()
+            .sku()
             .name()
             .smallImage(i -> i.url())
             .urlKey()
