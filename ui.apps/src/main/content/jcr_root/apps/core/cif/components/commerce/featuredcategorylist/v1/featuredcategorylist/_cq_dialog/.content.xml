@@ -32,7 +32,7 @@
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                 fieldDescription="Magento Category Path"
                                                 fieldLabel="Select Product "
-                                                name="./categoryId"
+                                                name="./categoryIds"
                                                 multiple="{Boolean}true"
                                                 selectionId="id"/>
                                         </items>

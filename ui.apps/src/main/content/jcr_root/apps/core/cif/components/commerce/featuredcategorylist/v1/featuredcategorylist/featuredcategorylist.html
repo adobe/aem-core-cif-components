@@ -17,6 +17,7 @@
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList">
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.categorylist.v1.featuredcategories'}"/>
+    <sly data-sly-test.ispropavailable="${properties.categoryIds}">
     <div class="cmp-categorylist">
         <div class="categoryList-header">
             <h2 class="categoryList-title">
@@ -27,13 +28,21 @@
             <a class="cmp-categorylist__anchor" href="${item.path}">
 
             <span  class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='unsafe'});" >
-                <img class="cmp-categorylist__image" src='${item.image' alt="Bottoms">
+                <img class="cmp-categorylist__image" src='${item.image}' alt="Bottoms">
             </span>
                 <span class="cmp-categorylist__name">${item.name}
                 </span>
             </a>
         </div>
     </div>
+    </sly>
+    <div data-sly-test=${!ispropavailable} class="blank-placeholder">
+        <strong>Featured Category List</strong><br>
+        <p>Please configure categories </p>
+
+
+    </div>
+
 </sly>
 </sly>
 

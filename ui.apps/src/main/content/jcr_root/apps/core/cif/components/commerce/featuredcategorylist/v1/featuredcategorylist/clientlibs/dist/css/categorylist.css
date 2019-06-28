@@ -35,3 +35,9 @@
 .cmp-categorylist .cmp-categorylist-content .cmp-categorylist__name {
     display: block;
 }
+
+.cmp-categorylist .categoryList-title{
+    text-align: center;
+    padding: 2rem;
+}
+
