@@ -40,3 +40,12 @@
     text-align: center;
     padding: 2rem;
 }
+
+.placeholder__empty {
+    text-align: center;
+    background-color: #fafafa;
+    margin: 1rem 0;
+    padding: 1rem;
+    line-height: 3rem;
+    border: 3px #ccc dashed;
+}
