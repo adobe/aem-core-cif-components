@@ -16,13 +16,13 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -31,13 +31,11 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.Page;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -49,7 +47,7 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
     private static final Logger LOGGER = LoggerFactory
         .getLogger(com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCateogoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryId";
-    private static final String imageFolder = "/media/catalog/category/";
+    private static final String IMAGE_URL_PREFIX = "/media/catalog/category";
 
     @Inject
     private Resource resource;
@@ -75,14 +73,16 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
         if (categoryIds != null) {
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             fetchCategoriesData(Arrays.asList(categoryIds));
+        }else {
+            LOGGER.error("There are no categories chosen for CategoryList Component, Choose catetories to ");
         }
 
     }
 
-    // WIP
     private void fetchCategoriesData(List<String> categoryIds) {
-
         categoryIds.forEach(categoryId -> {
+            // CIF-930 raised to fix Alias support in category query ,
+            // this will be improved rather than using a loop.
             fetchCategoryData(categoryId);
         });
 
@@ -95,7 +95,8 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
         Query rootQuery = response.getData();
         CategoryTree category = rootQuery.getCategory();
-        category.setPath(String.format("%p.%c.html", categoryPage.getPath(), categoryId));
+        category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
+        category.setImage(String.format("%s%s", IMAGE_URL_PREFIX, category.getImage()));
         categories.add(category);
     }
 
