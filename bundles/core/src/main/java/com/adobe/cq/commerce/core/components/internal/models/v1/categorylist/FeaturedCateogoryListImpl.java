@@ -49,7 +49,7 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
     private static final Logger LOGGER = LoggerFactory
         .getLogger(com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCateogoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
-    private static final String IMAGE_URL_PREFIX = "/magento/category/img"; // This is configured in dispatcher conf
+    private static final String IMAGE_URL_PREFIX = "/magento/category/img";
 
     @Inject
     private Resource resource;
@@ -105,6 +105,7 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
     @Override
     public List<CategoryInterface> getCategories() {
         return categories;
+
     }
 
 }
