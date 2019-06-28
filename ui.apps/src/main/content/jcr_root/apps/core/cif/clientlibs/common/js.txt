@@ -6,3 +6,4 @@ pageContextLoader.js
 PageContext.js
 CommerceApi.js
 CommerceGraphqlApi.js
+PriceFormatter.js
