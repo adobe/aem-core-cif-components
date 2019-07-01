@@ -64,6 +64,5 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertEquals(categories.get(0).getImage(), slingModel.getCategories().get(0).getImage());
         Assert.assertEquals(String.format("%s.%s.html", TEST_PRODUCT_PAGE_URL, categories.get(0).getId()), slingModel.getCategories().get(0)
             .getPath());
-
     }
 }
