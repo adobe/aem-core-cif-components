@@ -17,15 +17,12 @@ package com.adobe.cq.commerce.core.components.models.teaser;
 
 import java.util.List;
 
-import org.apache.sling.api.resource.Resource;
-import org.jetbrains.annotations.NotNull;
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 
 @ProviderType
-public interface CifTeaser extends ComponentExporter {
+public interface CifTeaser {
 
     /**
      * Name of the resource property that defines whether or not the teaser has Call-to-Action elements
@@ -40,13 +37,6 @@ public interface CifTeaser extends ComponentExporter {
      * @since com.adobe.cq.wcm.core.components.models 12.4.0
      */
     String NN_ACTIONS = "actions";
-
-    /**
-     * Name of the resource property that stores the Call-to-Action link
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_ACTION_LINK = "link";
 
     /**
      * Name of the resource property that stores the Call-to-Action text
@@ -70,46 +60,11 @@ public interface CifTeaser extends ComponentExporter {
     String PN_ACTION_CATEGORY_ID = "categoryId";
 
     /**
-     * Name of the policy property that defines whether or not Call-to-Actions are disabled
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_ACTIONS_DISABLED = "actionsDisabled";
-
-    /**
-     * Name of the policy property that defines whether or not the image link is hidden.
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_IMAGE_LINK_HIDDEN = "imageLinkHidden";
-
-    /**
-     * Name of the policy property that defines whether or not the title is hidden.
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_TITLE_HIDDEN = "titleHidden";
-
-    /**
-     * Name of the policy property that defines whether or not the title link is hidden.
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_TITLE_LINK_HIDDEN = "titleLinkHidden";
-
-    /**
      * Name of the resource property that defines whether or not the title value is taken from the linked page.
      *
      * @since com.adobe.cq.wcm.core.components.models 12.4.0
      */
     String PN_TITLE_FROM_PAGE = "titleFromPage";
-
-    /**
-     * Name of the policy property that defines whether or not the description is hidden.
-     *
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_DESCRIPTION_HIDDEN = "descriptionHidden";
 
     /**
      * Name of the resource property that defines whether or not the description value is taken from the linked page.
@@ -147,81 +102,12 @@ public interface CifTeaser extends ComponentExporter {
     }
 
     /**
-     * Returns the URL to which this teaser links, if one was defined.
-     *
-     * @return the URL to which teaser links or {@code null}
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default String getLinkURL() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the image resource for this teaser.
-     *
-     * @return the image resource for this teaser or {@code null}
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default Resource getImageResource() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Checks if the link on the image is hidden.
-     *
-     * @return {@code true} if link is hidden on the image, {@code false} otherwise
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default boolean isImageLinkHidden() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Returns this teaser's title, if one was defined.
      *
      * @return the teaser's title or {@code null}
      * @since com.adobe.cq.wcm.core.components.models 12.4.0
      */
     default String getTitle() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Checks if the link on the title is hidden.
-     *
-     * @return {@code true} if link is hidden on the title, {@code false} otherwise
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default boolean isTitleLinkHidden() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns this teaser's description, if one was defined.
-     *
-     * @return the teaser's description or {@code null}
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default String getDescription() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the HTML element type (h1-h6) used for the title.
-     *
-     * @return the element type
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    default String getTitleType() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    @NotNull
-    @Override
-    default String getExportedType() {
         throw new UnsupportedOperationException();
     }
 }

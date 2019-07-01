@@ -15,15 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.teaser.CifTeaser;
-import com.adobe.cq.wcm.core.components.models.ListItem;
-import com.day.cq.commons.DownloadResource;
-import com.day.cq.commons.ImageResource;
-import com.day.cq.commons.jcr.JcrConstants;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -35,10 +32,14 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.models.teaser.CifTeaser;
+import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.day.cq.commons.ImageResource;
+import com.day.cq.commons.jcr.JcrConstants;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = CifTeaser.class, resourceType = CifTeaserImpl.RESOURCE_TYPE)
 public class CifTeaserImpl implements CifTeaser {
@@ -55,14 +56,10 @@ public class CifTeaserImpl implements CifTeaser {
     private Page productPage;
     private Page categoryPage;
     private String title;
-    private String description;
     private String linkURL;
-    private String titleType;
     private boolean actionsEnabled = false;
     private boolean titleHidden = false;
     private boolean descriptionHidden = false;
-    private boolean imageLinkHidden = false;
-    private boolean titleLinkHidden = false;
     private boolean titleFromPage = false;
     private boolean descriptionFromPage = false;
     private List<ListItem> actions = new ArrayList<>();
@@ -75,9 +72,9 @@ public class CifTeaserImpl implements CifTeaser {
     @ScriptVariable
     private PageManager pageManager;
 
-//    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-//    @JsonIgnore
-//    protected Style currentStyle;
+    // @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
+    // @JsonIgnore
+    // protected Style currentStyle;
 
     @Self
     private SlingHttpServletRequest request;
@@ -92,7 +89,7 @@ public class CifTeaserImpl implements CifTeaser {
         productPage = Utils.getProductPage(currentPage);
         categoryPage = Utils.getCategoryPage(currentPage);
 
-//        populateStyleProperties();
+        // populateStyleProperties();
 
         titleFromPage = properties.get(CifTeaser.PN_TITLE_FROM_PAGE, titleFromPage);
         descriptionFromPage = properties.get(CifTeaser.PN_DESCRIPTION_FROM_PAGE, descriptionFromPage);
@@ -112,48 +109,48 @@ public class CifTeaserImpl implements CifTeaser {
             targetPage = pageManager.getPage(linkURL);
         }
 
-        if (titleHidden) {
-            title = null;
-        } else {
-            title = properties.get(JcrConstants.JCR_TITLE, String.class);
-            if (titleFromPage) {
-                if (targetPage != null) {
-                    title = StringUtils.defaultIfEmpty(targetPage.getPageTitle(), targetPage.getTitle());
-                } else {
-                    title = null;
-                }
-            }
-        }
-        if (descriptionHidden) {
-            description = null;
-        } else {
-            description = properties.get(JcrConstants.JCR_DESCRIPTION, String.class);
-            if (descriptionFromPage) {
-                if (targetPage != null) {
-                    description = targetPage.getDescription();
-                } else {
-                    description = null;
-                }
-            }
-        }
-        String fileReference = properties.get(DownloadResource.PN_REFERENCE, String.class);
-        boolean hasImage = true;
-        if (StringUtils.isEmpty(linkURL)) {
-            LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not define a link.");
-        }
-        if (StringUtils.isEmpty(fileReference)) {
-            if (request.getResource().getChild(DownloadResource.NN_FILE) == null) {
-                LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not have an asset or an image file " +
-                    "configured.");
-                hasImage = false;
-            }
-        } else {
-            if (request.getResourceResolver().getResource(fileReference) == null) {
-                LOGGER.error("Asset " + fileReference + " configured for the teaser component from " + request.getResource().getPath() +
-                        " doesn't exist.");
-                hasImage = false;
-            }
-        }
+        // if (titleHidden) {
+        // title = null;
+        // } else {
+        // title = properties.get(JcrConstants.JCR_TITLE, String.class);
+        // if (titleFromPage) {
+        // if (targetPage != null) {
+        // title = StringUtils.defaultIfEmpty(targetPage.getPageTitle(), targetPage.getTitle());
+        // } else {
+        // title = null;
+        // }
+        // }
+        // }
+        // if (descriptionHidden) {
+        // description = null;
+        // } else {
+        // description = properties.get(JcrConstants.JCR_DESCRIPTION, String.class);
+        // if (descriptionFromPage) {
+        // if (targetPage != null) {
+        // description = targetPage.getDescription();
+        // } else {
+        // description = null;
+        // }
+        // }
+        // }
+        // String fileReference = properties.get(DownloadResource.PN_REFERENCE, String.class);
+        // boolean hasImage = true;
+        // if (StringUtils.isEmpty(linkURL)) {
+        // LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not define a link.");
+        // }
+        // if (StringUtils.isEmpty(fileReference)) {
+        // if (request.getResource().getChild(DownloadResource.NN_FILE) == null) {
+        // LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not have an asset or an image file " +
+        // "configured.");
+        // hasImage = false;
+        // }
+        // } else {
+        // if (request.getResourceResolver().getResource(fileReference) == null) {
+        // LOGGER.error("Asset " + fileReference + " configured for the teaser component from " + request.getResource().getPath() +
+        // " doesn't exist.");
+        // hasImage = false;
+        // }
+        // }
         // if (hasImage) {
         // setImageResource(component, request.getResource(), hiddenImageResourceProperties);
         // }
@@ -161,6 +158,7 @@ public class CifTeaserImpl implements CifTeaser {
         // linkURL = com.adobe.cq.wcm.core.components.internal.Utils.getURL(request, targetPage);
         // }
     }
+
     private void populateActions() {
         Resource actionsNode = resource.getChild(CifTeaser.NN_ACTIONS);
         if (actionsNode != null) {
