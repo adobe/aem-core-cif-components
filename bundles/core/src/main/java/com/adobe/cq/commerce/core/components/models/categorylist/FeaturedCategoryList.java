@@ -20,9 +20,16 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 
+/**
+ * Provides the list of categories to CategoryList Componenet.
+ */
 @ProviderType
 public interface FeaturedCategoryList {
 
+    /**
+     * Returns the categories data in a list from Magento depending on  configurations.
+     * @return {@code  List<CategoryInterface>}
+     */
     List<CategoryInterface> getCategories();
 
 }

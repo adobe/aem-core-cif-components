@@ -76,7 +76,7 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             fetchCategoriesData(Arrays.asList(categoryIds));
         } else {
-            LOGGER.error("There are no categories chosen for CategoryList Component, Choose catetories to ");
+            LOGGER.debug("There are no categories chosen for CategoryList Component, Choose catetories to ");
         }
 
     }
