@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-Teaser (v1) - WIP
+CIF Teaser (v1)
 ====
-Teaser component written in HTL, allowing definition of an image, title, rich text description and actions/links.
+CIF Teaser component written in HTL extends core wcm component Teaser, In addition to allowing definition of an image, title, rich text description and actions/links it also supports Call-To-Action to a commerce product or category page.
 Teaser variations can include some or all of these elements.
 
 ## Features
+* Call to action linked to CIF Product or Category.
 * Combines image, title, rich text description and actions/links.
 * Allows disabling of teaser elements through policy configuration.
 * Allows control over whether title and description should be inherited from a linked page.
@@ -48,8 +49,9 @@ The following properties are written to JCR for this Teaser component and are ex
 
 1. `./actionsEnabled` - property that defines whether or not the teaser has Call-to-Action elements
 2. `./actions` - child node where the Call-to-Action elements are stored as a list of `item` nodes with the following properties
-    1. `link` - property that stores the Call-to-Action link
-    2. `text` - property that stores the Call-to-Action text
+    1. `productSKU` - property that stores the Call-to-Action link to a product page for selected SKU.
+    2. `categoryID` - property that stores the Call-to-Action to Selected category, it is preferred over `productSKU`.
+    3. `text` - property that stores the Call-to-Action text
 3. `./fileReference` - property or `file` child node - will store either a reference to the image file, or the image file
 4. `./linkURL` - link applied to teaser elements. URL or path to a content page
 5. `./jcr:title` - defines the value of the teaser title and HTML `title` attribute of the teaser image
@@ -81,7 +83,7 @@ BLOCK cmp-teaser
 ## Information
 * **Vendor**: Adobe
 * **Version**: v1
-* **Compatibility**: AEM 6.3
-* **Status**: production-ready
+* **Compatibility**: AEM 6.4.4
+* **Status**: under construction
 * **Documentation**: [https://www.adobe.com/go/aem\_cmp\_teaser\_v1](https://www.adobe.com/go/aem_cmp_teaser_v1)
 * **Component Library**: [https://www.adobe.com/go/aem\_cmp\_library\_teaser](https://www.adobe.com/go/aem_cmp_library_teaser)
