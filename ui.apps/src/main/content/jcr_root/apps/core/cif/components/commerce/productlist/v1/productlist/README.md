@@ -23,6 +23,7 @@ for a category are retrieved from Magento via GraphQL. The main usage of this co
 * Support for pagination
 * Configurable number of products on one page
 * Configurable category title display
+* Displays category image, if set in Magento and enabled in design dialog
 * Client-side loaded prices using GraphQL
 
 ### Use Object
@@ -37,6 +38,7 @@ This component is targeted for a category page listing products of a category.
 The following configuration properties are used:
 
 1. `./showTitle` - controls the visibility of the product category title
+2. `./showImage` - controls the visibility of the product category image
 
 ### Edit Dialog Properties
 
@@ -53,6 +55,7 @@ BLOCK category
     ELEMENT category__pagination
     ELEMENT category__placeholder
     ELEMENT category__categoryTitle
+    ELEMENT category__image
     
 BLOCK gallery
     ELEMENT gallery__root
