@@ -40,6 +40,11 @@ public interface ProductList {
     String PN_PAGE_SIZE = "pageSize";
 
     /**
+     * Name of the boolean resource property indicating if the product list should load prices on the client-side.
+     */
+    String PN_CLIENT_PRICE = "clientPrice";
+
+    /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
      *
      * @return {@link Collection} of {@link ProductListItem}s
@@ -85,6 +90,10 @@ public interface ProductList {
     }
 
     default boolean showImage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean loadClientPrice() {
         throw new UnsupportedOperationException();
     }
 

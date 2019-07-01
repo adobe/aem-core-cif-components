@@ -28,7 +28,10 @@ let productCtx = (function(document) {
                 configurable: this._element.dataset.configurable !== undefined,
 
                 // Map with client-side fetched prices
-                prices: {}
+                prices: {},
+
+                // Load prices on the client-side
+                loadPrices: this._element.dataset.clientPrice !== undefined
             };
 
             // Intl.NumberFormat instance for formatting prices
@@ -38,7 +41,7 @@ let productCtx = (function(document) {
             // Update product data
             this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
 
-            this._initPrices();
+            this._state.loadPrices && this._initPrices();
         }
 
         _initPrices() {
