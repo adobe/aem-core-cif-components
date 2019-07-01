@@ -15,44 +15,43 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
-import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.teaser.CifTeaser;
-import com.adobe.cq.wcm.core.components.internal.models.v1.AbstractImageDelegatingModel;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.commons.DownloadResource;
 import com.day.cq.commons.ImageResource;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
-import com.day.cq.wcm.api.components.Component;
-import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = CifTeaser.class, resourceType = CifTeaserImpl.RESOURCE_TYPE)
-public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTeaser {
+public class CifTeaserImpl implements CifTeaser {
 
     protected static final String RESOURCE_TYPE = "core/wcm/components/commerce/teaser/v1/teaser";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CifTeaserImpl.class);
+    private final List<String> hiddenImageResourceProperties = new ArrayList<String>() {
+        {
+            add(JcrConstants.JCR_TITLE);
+            add(JcrConstants.JCR_DESCRIPTION);
+        }
+    };
     private Page productPage;
     private Page categoryPage;
     private String title;
@@ -67,16 +66,6 @@ public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTe
     private boolean titleFromPage = false;
     private boolean descriptionFromPage = false;
     private List<ListItem> actions = new ArrayList<>();
-    private final List<String> hiddenImageResourceProperties = new ArrayList<String>() {
-        {
-            add(JcrConstants.JCR_TITLE);
-            add(JcrConstants.JCR_DESCRIPTION);
-        }
-    };
-
-    @ScriptVariable
-    private Component component;
-
     @Inject
     private Resource resource;
 
@@ -86,9 +75,9 @@ public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTe
     @ScriptVariable
     private PageManager pageManager;
 
-    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    @JsonIgnore
-    protected Style currentStyle;
+//    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
+//    @JsonIgnore
+//    protected Style currentStyle;
 
     @Self
     private SlingHttpServletRequest request;
@@ -103,7 +92,7 @@ public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTe
         productPage = Utils.getProductPage(currentPage);
         categoryPage = Utils.getCategoryPage(currentPage);
 
-        populateStyleProperties();
+//        populateStyleProperties();
 
         titleFromPage = properties.get(CifTeaser.PN_TITLE_FROM_PAGE, titleFromPage);
         descriptionFromPage = properties.get(CifTeaser.PN_DESCRIPTION_FROM_PAGE, descriptionFromPage);
@@ -161,34 +150,17 @@ public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTe
         } else {
             if (request.getResourceResolver().getResource(fileReference) == null) {
                 LOGGER.error("Asset " + fileReference + " configured for the teaser component from " + request.getResource().getPath() +
-                    " doesn't exist.");
+                        " doesn't exist.");
                 hasImage = false;
             }
         }
-        if (hasImage) {
-            setImageResource(component, request.getResource(), hiddenImageResourceProperties);
-        }
-        if (targetPage != null) {
-            linkURL = com.adobe.cq.wcm.core.components.internal.Utils.getURL(request, targetPage);
-        }
+        // if (hasImage) {
+        // setImageResource(component, request.getResource(), hiddenImageResourceProperties);
+        // }
+        // if (targetPage != null) {
+        // linkURL = com.adobe.cq.wcm.core.components.internal.Utils.getURL(request, targetPage);
+        // }
     }
-
-    private void populateStyleProperties() {
-        if (currentStyle != null) {
-            titleHidden = currentStyle.get(CifTeaser.PN_TITLE_HIDDEN, titleHidden);
-            descriptionHidden = currentStyle.get(CifTeaser.PN_DESCRIPTION_HIDDEN, descriptionHidden);
-            titleType = currentStyle.get(CifTeaser.PN_TITLE_TYPE, titleType);
-            imageLinkHidden = currentStyle.get(CifTeaser.PN_IMAGE_LINK_HIDDEN, imageLinkHidden);
-            titleLinkHidden = currentStyle.get(CifTeaser.PN_TITLE_LINK_HIDDEN, titleLinkHidden);
-            if (imageLinkHidden) {
-                hiddenImageResourceProperties.add(ImageResource.PN_LINK_URL);
-            }
-            if (currentStyle.get(CifTeaser.PN_ACTIONS_DISABLED, false)) {
-                actionsEnabled = false;
-            }
-        }
-    }
-
     private void populateActions() {
         Resource actionsNode = resource.getChild(CifTeaser.NN_ACTIONS);
         if (actionsNode != null) {
@@ -255,51 +227,8 @@ public class CifTeaserImpl extends AbstractImageDelegatingModel implements CifTe
     }
 
     @Override
-    public String getLinkURL() {
-        return linkURL;
-    }
-
-    public String getImagePath() {
-        Resource image = getImageResource();
-        if (image == null) {
-            return null;
-        }
-        return image.getPath();
-    }
-
-    @Override
-    public boolean isImageLinkHidden() {
-        return imageLinkHidden;
-    }
-
-    @Override
     public String getTitle() {
         return title;
     }
 
-    @Override
-    public boolean isTitleLinkHidden() {
-        return titleLinkHidden;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getTitleType() {
-        com.adobe.cq.wcm.core.components.internal.Utils.Heading heading = com.adobe.cq.wcm.core.components.internal.Utils.Heading
-            .getHeading(titleType);
-        if (heading != null) {
-            return heading.getElement();
-        }
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public String getExportedType() {
-        return request.getResource().getResourceType();
-    }
 }
