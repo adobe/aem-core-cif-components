@@ -27,7 +27,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 public interface FeaturedCategoryList {
 
     /**
-     * Returns the categories data in a list from Magento depending on  configurations.
+     * Returns the categories data in a list from Magento depending on configurations.
      *
      * @return {@code  List<CategoryInterface>}
      */
