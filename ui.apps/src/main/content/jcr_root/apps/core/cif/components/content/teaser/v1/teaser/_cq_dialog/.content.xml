@@ -84,8 +84,8 @@
                                                             sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                             emptyText="Product"
                                                             fieldLabel="Product Page"
-                                                            name="link"
-                                                            required="{Boolean}true"
+                                                            name="productSKU"
+                                                            required="{Boolean}false"
                                                             rootPath="/var/commerce/products">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
@@ -96,8 +96,8 @@
                                                             sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                             emptyText="Catagory"
                                                             fieldLabel="Catagory Page"
-                                                            name="catLink"
-                                                            required="{Boolean}true"
+                                                            name="categoryId"
+                                                            required="{Boolean}false"
                                                             rootPath="/var/commerce/products">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
