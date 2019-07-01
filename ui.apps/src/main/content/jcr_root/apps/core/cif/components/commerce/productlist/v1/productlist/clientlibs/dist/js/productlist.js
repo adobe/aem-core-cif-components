@@ -28,7 +28,7 @@ let productListCtx = (function(document) {
                 prices: {},
 
                 // Load prices on the client-side
-                loadPrices: this._element.dataset.clientPrice !== undefined
+                loadPrices: this._element.dataset.loadClientPrice !== undefined
             };
 
             // Intl.NumberFormat instance for formatting prices

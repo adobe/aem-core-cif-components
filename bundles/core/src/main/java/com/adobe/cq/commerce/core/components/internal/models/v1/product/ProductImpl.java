@@ -76,7 +76,7 @@ public class ProductImpl implements Product {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 
-    private static final boolean CLIENT_PRICE_DEFAULT = true;
+    private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
 
     @Self
     private SlingHttpServletRequest request;
@@ -101,7 +101,7 @@ public class ProductImpl implements Product {
     private NumberFormat priceFormatter;
     private Boolean configurable;
     private MagentoGraphqlClient magentoGraphqlClient;
-    private Boolean clientPrice;
+    private Boolean loadClientPrice;
 
     @PostConstruct
     private void initModel() {
@@ -116,7 +116,7 @@ public class ProductImpl implements Product {
             product = fetchProduct(slug);
         }
 
-        clientPrice = properties.get(PN_CLIENT_PRICE, currentStyle.get(PN_CLIENT_PRICE, CLIENT_PRICE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
@@ -227,7 +227,7 @@ public class ProductImpl implements Product {
 
     @Override
     public Boolean loadClientPrice() {
-        return clientPrice;
+        return loadClientPrice;
     }
 
     @Override

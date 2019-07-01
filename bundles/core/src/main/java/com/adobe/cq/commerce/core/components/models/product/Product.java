@@ -27,7 +27,7 @@ public interface Product {
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.
      */
-    String PN_CLIENT_PRICE = "clientPrice";
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     Boolean getFound();
 

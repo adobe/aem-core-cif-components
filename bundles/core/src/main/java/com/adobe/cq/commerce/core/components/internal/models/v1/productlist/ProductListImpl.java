@@ -51,7 +51,7 @@ public class ProductListImpl implements ProductList {
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
-    private static final boolean CLIENT_PRICE_DEFAULT = true;
+    private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final int PAGE_SIZE_DEFAULT = 6;
     private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
@@ -74,7 +74,7 @@ public class ProductListImpl implements ProductList {
     private CategoryInterface category;
     private boolean showTitle;
     private boolean showImage;
-    private boolean clientPrice;
+    private boolean loadClientPrice;
     private MagentoGraphqlClient magentoGraphqlClient;
 
     private String mediaBaseUrl;
@@ -91,7 +91,7 @@ public class ProductListImpl implements ProductList {
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
-        clientPrice = properties.get(PN_CLIENT_PRICE, currentStyle.get(PN_CLIENT_PRICE, CLIENT_PRICE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
         setNavPageCursor();
 
@@ -166,7 +166,7 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public boolean loadClientPrice() {
-        return clientPrice;
+        return loadClientPrice;
     }
 
     @Override

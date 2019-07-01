@@ -73,7 +73,7 @@ describe('Productlist', () => {
     });
 
     it('retrieves prices via GraphQL', () => {
-        listRoot.dataset.clientPrice = true;
+        listRoot.dataset.loadClientPrice = true;
         let list = productListCtx.factory({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 

@@ -42,7 +42,7 @@ public interface ProductList {
     /**
      * Name of the boolean resource property indicating if the product list should load prices on the client-side.
      */
-    String PN_CLIENT_PRICE = "clientPrice";
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
