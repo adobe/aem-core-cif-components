@@ -30,6 +30,11 @@ public interface ProductList {
     String PN_SHOW_TITLE = "showTitle";
 
     /**
+     * Name of the boolean resource property indicating if the product list should render the category image.
+     */
+    String PN_SHOW_IMAGE = "showImage";
+
+    /**
      * Name of the String resource property indicating number of products to render on front-end.
      */
     String PN_PAGE_SIZE = "pageSize";
@@ -72,6 +77,14 @@ public interface ProductList {
     }
 
     default int getNextNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getImage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean showImage() {
         throw new UnsupportedOperationException();
     }
 
