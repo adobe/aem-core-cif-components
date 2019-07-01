@@ -53,7 +53,7 @@
             };
 
             let response = await this._fetch(this.endpoint, params);
-            if (response.errors) {
+            if (response.data === undefined && response.errors) {
                 throw new Error(JSON.stringify(response.errors));
             }
 
