@@ -28,6 +28,7 @@ public interface FeaturedCategoryList {
 
     /**
      * Returns the categories data in a list from Magento depending on  configurations.
+     *
      * @return {@code  List<CategoryInterface>}
      */
     List<CategoryInterface> getCategories();
