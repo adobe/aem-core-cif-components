@@ -117,8 +117,25 @@
          * @param {array} skus  Array of product SKUs.
          * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
          */
-        async getProductPrices(skus) {
+        async getProductPrices(skus, includeVariants) {
             let skuQuery = '"' + skus.join('", "') + '"';
+
+            // prettier-ignore
+            const variantQuery = `... on ConfigurableProduct {
+                variants {
+                    product {
+                        sku
+                        price {
+                            regularPrice {
+                                amount {
+                                    currency
+                                    value
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
 
             // prettier-ignore
             const query = `query {
@@ -133,21 +150,7 @@
                                 }
                             }
                         }
-                        ... on ConfigurableProduct {
-                            variants {
-                                product {
-                                    sku
-                                    price {
-                                        regularPrice {
-                                            amount {
-                                                currency
-                                                value
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        ${includeVariants ? variantQuery : ''}
                     }
                 }
             }`;
