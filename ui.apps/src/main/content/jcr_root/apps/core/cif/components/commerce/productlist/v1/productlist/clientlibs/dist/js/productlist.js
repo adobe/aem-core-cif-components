@@ -25,7 +25,10 @@ let productListCtx = (function(document) {
                 skus: [],
 
                 // Map with client-side fetched prices
-                prices: {}
+                prices: {},
+
+                // Load prices on the client-side
+                loadPrices: this._element.dataset.loadClientPrice !== undefined
             };
 
             // Intl.NumberFormat instance for formatting prices
@@ -36,7 +39,7 @@ let productListCtx = (function(document) {
                 this._state.skus.push(item.dataset.sku);
             });
 
-            this._fetchPrices();
+            this._state.loadPrices && this._fetchPrices();
         }
 
         _fetchPrices() {
