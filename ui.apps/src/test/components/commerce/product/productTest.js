@@ -75,7 +75,10 @@ describe('Product', () => {
         });
 
         it('retrieves prices via GraphQL', () => {
+            productRoot.dataset.clientPrice = true;
             let product = productCtx.factory({ element: productRoot });
+            assert.isTrue(product._state.loadPrices);
+
             return product._initPrices().then(() => {
                 assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
                 assert.deepEqual(product._state.prices, clientPrices);
@@ -83,6 +86,11 @@ describe('Product', () => {
                 let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
                 assert.include(price, '123.45');
             });
+        });
+
+        it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
+            let product = productCtx.factory({ element: productRoot });
+            assert.isFalse(product._state.loadPrices);
         });
 
         it('changes variant when receiving variantchanged event', () => {
