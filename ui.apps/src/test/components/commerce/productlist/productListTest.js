@@ -73,7 +73,9 @@ describe('Productlist', () => {
     });
 
     it('retrieves prices via GraphQL', () => {
+        listRoot.dataset.loadClientPrice = true;
         let list = productListCtx.factory({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
 
         return list._fetchPrices().then(() => {
             assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
@@ -84,5 +86,10 @@ describe('Productlist', () => {
             assert.include(listRoot.querySelector('[data-sku=sku-b] [role=price]').innerText, '123.45');
             assert.include(listRoot.querySelector('[data-sku=sku-c] [role=price]').innerText, '0.0');
         });
+    });
+
+    it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
+        let list = productListCtx.factory({ element: listRoot });
+        assert.isFalse(list._state.loadPrices);
     });
 });

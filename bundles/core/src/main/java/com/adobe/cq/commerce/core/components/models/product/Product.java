@@ -24,6 +24,11 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface Product {
 
+    /**
+     * Name of the boolean resource property indicating if the product component should load prices on the client-side.
+     */
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
+
     Boolean getFound();
 
     String getName();
@@ -51,4 +56,7 @@ public interface Product {
     String getAssetsJson();
 
     List<VariantAttribute> getVariantAttributes();
+
+    Boolean loadClientPrice();
+
 }
