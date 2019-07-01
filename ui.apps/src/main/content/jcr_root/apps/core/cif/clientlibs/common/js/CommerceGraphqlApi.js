@@ -38,6 +38,10 @@
         }
 
         async _fetchGraphql(query) {
+
+            // Minimize query
+            query = query.split("\n").map(a => a.trim()).join(' ');
+
             let params = {
                 method: 'POST',
                 headers: {
