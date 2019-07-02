@@ -26,7 +26,6 @@ See our [wiki](https://github.com/adobe/aem-core-wcm-components/wiki) for usage 
 - [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
 - [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
 
-
 ## System Requirements
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
