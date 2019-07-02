@@ -46,14 +46,14 @@ public interface CifTeaser {
     String PN_ACTION_TEXT = "text";
 
     /**
-     * Name of the resource property that stores the Call-to-Action link
+     * Name of the resource property that stores the Call-to-Action link for Product Page
      *
      * @since com.adobe.cq.wcm.core.components.models 12.4.0
      */
     String PN_ACTION_PRODUCT_SKU = "productSKU";
 
     /**
-     * Name of the resource property that stores the Call-to-Action link
+     * Name of the resource property that stores the Call-to-Action link for Category Page
      *
      * @since com.adobe.cq.wcm.core.components.models 12.4.0
      */
