@@ -25,7 +25,8 @@ Teaser variations can include some or all of these elements.
 * Allows control over whether title and description should be inherited from a linked page.
 
 ### Use Object
-The Teaser component uses the `com.adobe.cq.wcm.core.components.models.Teaser` Sling model as its Use-object.
+This component uses (specifically for  `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CifTeaser` Sling Model as it's use Object.
+And as CifTeaser component is extended from core wcm Teaser component, it further uses the `com.adobe.cq.wcm.core.components.models.Teaser` Sling model as its Use-object,  
 
 ### Component Policy Configuration Properties
 The following configuration properties are used:
@@ -84,6 +85,5 @@ BLOCK cmp-teaser
 * **Vendor**: Adobe
 * **Version**: v1
 * **Compatibility**: AEM 6.4.4
-* **Status**: under construction
-* **Documentation**: [https://www.adobe.com/go/aem\_cmp\_teaser\_v1](https://www.adobe.com/go/aem_cmp_teaser_v1)
-* **Component Library**: [https://www.adobe.com/go/aem\_cmp\_library\_teaser](https://www.adobe.com/go/aem_cmp_library_teaser)
+* **Status**: production-ready
+* **Author**: deesingh@adobe.com
