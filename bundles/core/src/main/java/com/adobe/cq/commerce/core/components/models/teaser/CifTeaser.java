@@ -74,14 +74,6 @@ public interface CifTeaser {
     String PN_DESCRIPTION_FROM_PAGE = "descriptionFromPage";
 
     /**
-     * Name of the policy property that stores the value for this title's HTML element type.
-     *
-     * @see #getTitleType()
-     * @since com.adobe.cq.wcm.core.components.models 12.4.0
-     */
-    String PN_TITLE_TYPE = "titleType";
-
-    /**
      * Checks if the teaser has Call-to-Action elements
      *
      * @return {@code true} if teaser has CTAs, {@code false} otherwise

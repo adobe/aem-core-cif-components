@@ -72,10 +72,6 @@ public class CifTeaserImpl implements CifTeaser {
     @ScriptVariable
     private PageManager pageManager;
 
-    // @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    // @JsonIgnore
-    // protected Style currentStyle;
-
     @Self
     private SlingHttpServletRequest request;
 
@@ -88,8 +84,6 @@ public class CifTeaserImpl implements CifTeaser {
 
         productPage = Utils.getProductPage(currentPage);
         categoryPage = Utils.getCategoryPage(currentPage);
-
-        // populateStyleProperties();
 
         titleFromPage = properties.get(CifTeaser.PN_TITLE_FROM_PAGE, titleFromPage);
         descriptionFromPage = properties.get(CifTeaser.PN_DESCRIPTION_FROM_PAGE, descriptionFromPage);
@@ -108,55 +102,6 @@ public class CifTeaserImpl implements CifTeaser {
         } else {
             targetPage = pageManager.getPage(linkURL);
         }
-
-        // if (titleHidden) {
-        // title = null;
-        // } else {
-        // title = properties.get(JcrConstants.JCR_TITLE, String.class);
-        // if (titleFromPage) {
-        // if (targetPage != null) {
-        // title = StringUtils.defaultIfEmpty(targetPage.getPageTitle(), targetPage.getTitle());
-        // } else {
-        // title = null;
-        // }
-        // }
-        // }
-        // if (descriptionHidden) {
-        // description = null;
-        // } else {
-        // description = properties.get(JcrConstants.JCR_DESCRIPTION, String.class);
-        // if (descriptionFromPage) {
-        // if (targetPage != null) {
-        // description = targetPage.getDescription();
-        // } else {
-        // description = null;
-        // }
-        // }
-        // }
-        // String fileReference = properties.get(DownloadResource.PN_REFERENCE, String.class);
-        // boolean hasImage = true;
-        // if (StringUtils.isEmpty(linkURL)) {
-        // LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not define a link.");
-        // }
-        // if (StringUtils.isEmpty(fileReference)) {
-        // if (request.getResource().getChild(DownloadResource.NN_FILE) == null) {
-        // LOGGER.debug("Teaser component from " + request.getResource().getPath() + " does not have an asset or an image file " +
-        // "configured.");
-        // hasImage = false;
-        // }
-        // } else {
-        // if (request.getResourceResolver().getResource(fileReference) == null) {
-        // LOGGER.error("Asset " + fileReference + " configured for the teaser component from " + request.getResource().getPath() +
-        // " doesn't exist.");
-        // hasImage = false;
-        // }
-        // }
-        // if (hasImage) {
-        // setImageResource(component, request.getResource(), hiddenImageResourceProperties);
-        // }
-        // if (targetPage != null) {
-        // linkURL = com.adobe.cq.wcm.core.components.internal.Utils.getURL(request, targetPage);
-        // }
     }
 
     private void populateActions() {
