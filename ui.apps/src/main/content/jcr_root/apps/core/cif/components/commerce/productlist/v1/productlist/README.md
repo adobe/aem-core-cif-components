@@ -39,6 +39,7 @@ The following configuration properties are used:
 
 1. `./showTitle` - controls the visibility of the product category title
 2. `./showImage` - controls the visibility of the product category image
+3. `./loadClientPrice` - enables client-side price fetching
 
 ### Edit Dialog Properties
 
