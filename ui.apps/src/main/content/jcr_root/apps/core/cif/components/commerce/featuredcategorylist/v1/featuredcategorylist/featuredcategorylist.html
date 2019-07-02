@@ -19,16 +19,16 @@
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.categorylist.v1'}"/>
     <sly data-sly-test.isConfigured="${properties.categoryIds}">
     <div class="cmp-categorylist">
-        <div class="categoryList-header">
-            <h2 class="categoryList-title">
+        <div class="cmp-categorylist__header">
+            <h2 class="cmp-categorylist__title">
                 <span>${'Shop by category' @ i18n}</span>
             </h2>
         </div>
-        <div data-sly-list="${category.categories}" class="cmp-categorylist-content">
+        <div data-sly-list="${category.categories}" class="cmp-categorylist__content">
             <a class="cmp-categorylist__anchor" href="${item.path}">
 
-            <span  class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='unsafe'});" >
-                <img class="cmp-categorylist__image" src='${item.image}' alt="Bottoms">
+            <span  class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});" >
+                <img class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
             </span>
                 <span class="cmp-categorylist__name">${item.name}
                 </span>

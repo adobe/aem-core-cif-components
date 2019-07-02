@@ -47,7 +47,7 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory
-        .getLogger(com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCateogoryListImpl.class);
+        .getLogger(FeaturedCateogoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
     private static final String IMAGE_URL_PREFIX = "/magento/category/img";
 
