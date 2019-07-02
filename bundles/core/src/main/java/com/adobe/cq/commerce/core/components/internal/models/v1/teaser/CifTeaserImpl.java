@@ -104,6 +104,14 @@ public class CifTeaserImpl implements CifTeaser {
         }
     }
 
+    void testHelper(Resource mockedResource, Page productPage, Page categoryPage) {
+        this.resource = mockedResource;
+        this.productPage = productPage;
+        this.categoryPage = categoryPage;
+
+        this.populateActions();
+    }
+
     private void populateActions() {
         Resource actionsNode = resource.getChild(CifTeaser.NN_ACTIONS);
         if (actionsNode != null) {
