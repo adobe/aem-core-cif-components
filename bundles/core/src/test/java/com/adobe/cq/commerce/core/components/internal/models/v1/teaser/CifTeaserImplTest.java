@@ -48,7 +48,7 @@ public class CifTeaserImplTest {
         when(productPage.getPath()).thenReturn(productPath);
         when(categoryPage.getPath()).thenReturn(categoryPath);
 
-        List<Resource> actionResources = new ArrayList<>();// mock(Resource.class);
+        List<Resource> actionResources = new ArrayList<>();
 
         // Action node 1 - productSKU configured, category left blank, text set to some value
         actionResources.add(getActionNodeResource("278", null, "My Product"));
@@ -66,12 +66,7 @@ public class CifTeaserImplTest {
         Resource mockedChildResource = mock(Resource.class);
 
         when(mockedChildResource.getChildren()).thenReturn(actionResources);
-
         when(mockedResource.getChild(CifTeaser.NN_ACTIONS)).thenReturn(mockedChildResource);
-
-        // cifTeaser.testHelper(mockedResource, productPage, categoryPage);
-
-        // Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
 
         Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
         Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
