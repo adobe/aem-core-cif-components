@@ -86,7 +86,8 @@
                                                             fieldLabel="Product Page"
                                                             name="productSKU"
                                                             required="{Boolean}false"
-                                                            rootPath="/var/commerce/products">
+                                                            rootPath="/var/commerce/products"
+                                                            selectionId="sku">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
                                                                 cmp-teaser-v1-dialog-edit-hook="actionLink"/>
