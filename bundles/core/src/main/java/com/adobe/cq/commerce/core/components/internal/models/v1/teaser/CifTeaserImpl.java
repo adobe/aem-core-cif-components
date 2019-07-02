@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Model(adaptables = SlingHttpServletRequest.class, adapters = CifTeaser.class, resourceType = CifTeaserImpl.RESOURCE_TYPE)
 public class CifTeaserImpl implements CifTeaser {
 
-    protected static final String RESOURCE_TYPE = "core/wcm/components/commerce/teaser/v1/teaser";
+    protected static final String RESOURCE_TYPE = "core/cif/components/content/teaser/v1/teaser";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CifTeaserImpl.class);
     private final List<String> hiddenImageResourceProperties = new ArrayList<String>() {
@@ -104,16 +104,7 @@ public class CifTeaserImpl implements CifTeaser {
         }
     }
 
-    void testHelper(Resource mockedResource, Page productPage, Page categoryPage) {
-        this.resource = mockedResource;
-        this.productPage = productPage;
-        this.categoryPage = categoryPage;
-
-        this.actionsEnabled = true;
-        this.populateActions();
-    }
-
-    private void populateActions() {
+    void populateActions() {
         Resource actionsNode = resource.getChild(CifTeaser.NN_ACTIONS);
         if (actionsNode != null) {
             for (Resource action : actionsNode.getChildren()) {

@@ -22,6 +22,7 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.teaser.CifTeaser;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -32,13 +33,14 @@ import static org.mockito.Mockito.when;
 
 public class CifTeaserImplTest {
 
-    CifTeaserImpl cifTeaser = new CifTeaserImpl();
+    private CifTeaser slingModel;
 
     final private String productPath = "/content/test-product-page";
     final private String categoryPath = "/content/test-category-page";
 
     @Before
     public void setup() {
+        CifTeaserImpl cifTeaser = new CifTeaserImpl();
 
         Page productPage = mock(Page.class);
         Page categoryPage = mock(Page.class);
@@ -67,7 +69,17 @@ public class CifTeaserImplTest {
 
         when(mockedResource.getChild(CifTeaser.NN_ACTIONS)).thenReturn(mockedChildResource);
 
-        cifTeaser.testHelper(mockedResource, productPage, categoryPage);
+        // cifTeaser.testHelper(mockedResource, productPage, categoryPage);
+
+        // Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
+
+        Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
+        Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
+        Whitebox.setInternalState(cifTeaser, "productPage", productPage);
+        Whitebox.setInternalState(cifTeaser, "actionsEnabled", true);
+
+        cifTeaser.populateActions();
+        this.slingModel = cifTeaser;
 
     }
 
@@ -90,9 +102,9 @@ public class CifTeaserImplTest {
     @Test
     public void verifyActions() {
 
-        List<ListItem> actionItems = cifTeaser.getActions();
+        List<ListItem> actionItems = this.slingModel.getActions();
 
-        Assert.assertTrue(cifTeaser.isActionsEnabled());
+        Assert.assertTrue(this.slingModel.isActionsEnabled());
         Assert.assertTrue(actionItems.size() == 4);
 
         Assert.assertTrue(actionItems.get(0).getURL().equalsIgnoreCase(this.productPath + ".278.html"));
