@@ -19,8 +19,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.models.button.Button;
 import com.adobe.cq.sightly.WCMBindings;
@@ -31,7 +29,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ButtonImplTest {
 
     @Rule
