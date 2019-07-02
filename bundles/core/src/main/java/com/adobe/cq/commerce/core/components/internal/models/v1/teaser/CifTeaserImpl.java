@@ -109,6 +109,7 @@ public class CifTeaserImpl implements CifTeaser {
         this.productPage = productPage;
         this.categoryPage = categoryPage;
 
+        this.actionsEnabled = true;
         this.populateActions();
     }
 
@@ -175,11 +176,6 @@ public class CifTeaserImpl implements CifTeaser {
     @Override
     public List<ListItem> getActions() {
         return actions;
-    }
-
-    @Override
-    public String getTitle() {
-        return title;
     }
 
 }

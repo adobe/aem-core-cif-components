@@ -46,10 +46,6 @@ public class CifTeaserImplTest {
         when(productPage.getPath()).thenReturn(productPath);
         when(categoryPage.getPath()).thenReturn(categoryPath);
 
-        Map<String, Object> pageProperties = new HashMap<>();
-
-        pageProperties.put(CifTeaser.PN_ACTIONS_ENABLED, true);
-
         List<Resource> actionResources = new ArrayList<>();// mock(Resource.class);
 
         // Action node 1 - productSKU configured, category left blank, text set to some value
@@ -95,6 +91,8 @@ public class CifTeaserImplTest {
     public void verifyActions() {
 
         List<ListItem> actionItems = cifTeaser.getActions();
+
+        Assert.assertTrue(cifTeaser.isActionsEnabled());
         Assert.assertTrue(actionItems.size() == 4);
 
         Assert.assertTrue(actionItems.get(0).getURL().equalsIgnoreCase(this.productPath + ".278.html"));
