@@ -30,7 +30,7 @@
                                             <title
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
-                                                fieldDescription="Magento Category Path"
+                                                fieldDescription="Magento Categories"
                                                 fieldLabel="Select Categories"
                                                 name="./categoryIds"
                                                 multiple="{Boolean}true"

@@ -73,4 +73,3 @@ BLOCK placeholder__empty
 * Version: v1
 * Compatibility: AEM 6.4 / 6.5
 * Status: production-ready
-* Author: [Abhishek Kumar Singh](https://github.com/AKumarSingh)
