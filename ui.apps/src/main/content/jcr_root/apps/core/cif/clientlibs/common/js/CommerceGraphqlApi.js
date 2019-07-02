@@ -94,7 +94,6 @@
                     }
                 }
             }`;
-            console.log(query);
 
             let response = await this._fetchGraphql(query);
             let items = response.data.products.items;
