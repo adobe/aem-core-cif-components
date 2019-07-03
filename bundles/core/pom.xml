@@ -151,7 +151,7 @@
                                             <element>BUNDLE</element>
                                             <limits>
                                                 <limit>
-                                                    <counter>INSTRUCTION</counter>
+                                                    <counter>BRANCH</counter>
                                                     <value>COVEREDRATIO</value>
                                                     <minimum>0.55</minimum>
                                                 </limit>
