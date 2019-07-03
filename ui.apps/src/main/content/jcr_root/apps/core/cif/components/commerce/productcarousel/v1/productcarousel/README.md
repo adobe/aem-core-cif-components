@@ -17,7 +17,7 @@ limitations under the License.
 # Product Carousel (v1)
 
 Product Carousel component is a server-side component written in HTL, allowing to display a list of featured products in a carousel style.
-The product is retrieved from Magento via GraphQL. This component can be used on any experience page.
+The products are retrieved from Magento via GraphQL. This component can be used on any experience page.
 
 ## Features
 
