@@ -10,7 +10,7 @@ coverage:
         flags: unittests
       karma:
         enabled: true
-        target: 91%
+        target: 90%
         threshold: null
         base: auto
         flags: karma
@@ -24,7 +24,7 @@ coverage:
         flags: unittests
       karma:
         enabled: true
-        target: 91%
+        target: 90%
         threshold: null
         base: auto
         flags: karma
