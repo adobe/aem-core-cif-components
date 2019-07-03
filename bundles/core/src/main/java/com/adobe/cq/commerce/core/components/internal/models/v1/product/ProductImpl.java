@@ -27,7 +27,9 @@ import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
@@ -63,6 +65,7 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -73,6 +76,8 @@ public class ProductImpl implements Product {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 
+    private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+
     @Self
     private SlingHttpServletRequest request;
 
@@ -82,6 +87,12 @@ public class ProductImpl implements Product {
     @Inject
     private Page currentPage;
 
+    @ScriptVariable
+    private Style currentStyle;
+
+    @ScriptVariable
+    private ValueMap properties;
+
     @Inject
     private XSSAPI xssApi;
 
@@ -90,6 +101,7 @@ public class ProductImpl implements Product {
     private NumberFormat priceFormatter;
     private Boolean configurable;
     private MagentoGraphqlClient magentoGraphqlClient;
+    private Boolean loadClientPrice;
 
     @PostConstruct
     private void initModel() {
@@ -103,6 +115,8 @@ public class ProductImpl implements Product {
         if (magentoGraphqlClient != null) {
             product = fetchProduct(slug);
         }
+
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
@@ -209,6 +223,11 @@ public class ProductImpl implements Product {
         }
 
         return optionList;
+    }
+
+    @Override
+    public Boolean loadClientPrice() {
+        return loadClientPrice;
     }
 
     @Override

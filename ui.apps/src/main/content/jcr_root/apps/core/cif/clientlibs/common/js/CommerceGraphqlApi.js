@@ -38,6 +38,12 @@
         }
 
         async _fetchGraphql(query) {
+            // Minimize query
+            query = query
+                .split('\n')
+                .map(a => a.trim())
+                .join(' ');
+
             let params = {
                 method: 'POST',
                 headers: {
@@ -47,7 +53,7 @@
             };
 
             let response = await this._fetch(this.endpoint, params);
-            if (response.errors) {
+            if (response.data === undefined && response.errors) {
                 throw new Error(JSON.stringify(response.errors));
             }
 
@@ -88,7 +94,6 @@
                     }
                 }
             }`;
-            console.log(query);
 
             let response = await this._fetchGraphql(query);
             let items = response.data.products.items;

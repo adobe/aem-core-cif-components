@@ -68,20 +68,10 @@ let addToCartCtx = (function(document) {
         _onAddToCart() {
             const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
-            if (this._state.sku) {
-                if (window.CIF && window.CIF.MiniCart) {
-                    window.CIF.MiniCart.addItem({ sku: this._state.sku, qty: quantity });
-                } else {
-                    console.log(`MiniCart component not available! Ensure that you have used the correct template.`);
-                }
-                console.log(
-                    `Add product with sku ${this._state.sku} with quantity ${quantity} to cart.`,
-                    this._state.attributes
-                );
+            if (this._state.sku && window.CIF && window.CIF.MiniCart) {
+                window.CIF.MiniCart.addItem({ sku: this._state.sku, qty: quantity });
                 return;
             }
-
-            console.log('No variant selected that could be added to the cart.');
         }
     }
 
