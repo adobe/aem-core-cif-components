@@ -35,25 +35,20 @@ import com.day.cq.wcm.api.Page;
 class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
-
-    private static final CategoryTreeQueryDefinition categoryQueryDefinition = query -> {
-        Function<CategoryTreeQuery, CategoryTreeQuery> categoriesQuery = q -> q.id().name().urlPath().position();
-        categoriesQuery.apply(query).children(categoriesQuery::apply);
-    };
-
+    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(Page page) {
         magentoGraphqlClient = MagentoGraphqlClient.create(page.getContentResource());
     }
 
-    List<CategoryTree> getChildCategories(Integer categoryId) {
+    List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {
         if (magentoGraphqlClient == null || categoryId == null) {
             return Collections.emptyList();
         }
 
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
-        String queryString = Operations.query(query -> query.category(searchArgs, categoryQueryDefinition)).toString();
+        String queryString = Operations.query(query -> query.category(searchArgs, defineCategoriesQuery(depth))).toString();
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         Query rootQuery = response.getData();
@@ -62,6 +57,20 @@ class GraphQLCategoryProvider {
             LOGGER.warn("Magento category not found for id: " + categoryId);
             return Collections.emptyList();
         }
-        return category.getChildren();
+
+        List<CategoryTree> children = category.getChildren();
+        if (children == null) {
+            return Collections.emptyList();
+        }
+
+        return children;
+    }
+
+    static CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {
+        if (depth <= 0) {
+            return CATEGORIES_QUERY::apply;
+        } else {
+            return t -> CATEGORIES_QUERY.apply(t).children(defineCategoriesQuery(depth - 1));
+        }
     }
 }

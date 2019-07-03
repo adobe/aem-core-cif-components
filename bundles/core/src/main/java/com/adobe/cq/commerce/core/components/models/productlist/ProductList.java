@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.Collection;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -27,6 +28,21 @@ public interface ProductList {
      * Name of the boolean resource property indicating if the product list should render the category title.
      */
     String PN_SHOW_TITLE = "showTitle";
+
+    /**
+     * Name of the boolean resource property indicating if the product list should render the category image.
+     */
+    String PN_SHOW_IMAGE = "showImage";
+
+    /**
+     * Name of the String resource property indicating number of products to render on front-end.
+     */
+    String PN_PAGE_SIZE = "pageSize";
+
+    /**
+     * Name of the boolean resource property indicating if the product list should load prices on the client-side.
+     */
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
@@ -54,6 +70,38 @@ public interface ProductList {
      */
     @Nullable
     default String getTitle() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getTotalCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getCurrentNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getNextNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getImage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean showImage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean loadClientPrice() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getPreviousNavPage() {
+        throw new UnsupportedOperationException();
+    }
+
+    default int[] getPageList() {
         throw new UnsupportedOperationException();
     }
 }

@@ -1,0 +1,40 @@
+.item__root {
+}
+
+.blank-placeholder {
+    text-align: center;
+    background-color: #fafafa;
+    margin: 1rem 0;
+    padding: 1rem;
+    line-height: 3rem;
+    border: 3px #ccc dashed;
+}
+
+.blank-placeholder p {
+    text-align: left;
+}
+
+.item__images {
+    display: grid;
+    grid-template-areas: 'main';
+}
+
+.item__image {
+    display: block;
+    grid-area: main;
+    height: auto;
+    opacity: 1;
+    transition-duration: 512ms;
+    transition-property: opacity, visibility;
+    transition-timing-function: ease-out;
+    visibility: visible;
+    width: 100%;
+}
+
+.item__name,
+.item__price {
+    font-size: 0.875rem;
+    line-height: 1rem;
+    margin: 0.5rem 0;
+    min-height: 1rem;
+}

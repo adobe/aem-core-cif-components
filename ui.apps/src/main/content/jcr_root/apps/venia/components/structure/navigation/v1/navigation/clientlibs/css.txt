@@ -1,2 +1,0 @@
-#base=css
-navigation-component.css

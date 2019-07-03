@@ -14,15 +14,20 @@
 
 package com.adobe.cq.commerce.core.components.models.product;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import java.util.List;
+
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Product is the sling model interface for the CIF core product component.
  */
 @ProviderType
 public interface Product {
+
+    /**
+     * Name of the boolean resource property indicating if the product component should load prices on the client-side.
+     */
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     Boolean getFound();
 
@@ -47,7 +52,11 @@ public interface Product {
     List<Variant> getVariants();
 
     List<Asset> getAssets();
+
     String getAssetsJson();
 
     List<VariantAttribute> getVariantAttributes();
+
+    Boolean loadClientPrice();
+
 }

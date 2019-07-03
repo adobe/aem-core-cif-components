@@ -1,0 +1,60 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ 
+  ~ Copyright 2019 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~ 
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.itemContent="${@ item='The navigation item'}">
+    <span class="categoryLeaf__root">
+        <span class="categoryLeaf__root categoryLeaf__root--box">
+            <a class="categoryLeaf__root categoryLeaf__root--link" href="${item.URL}" title="${item.title}">
+                <span class="categoryLeaf__text">${item.title}</span>
+            </a>
+
+            <button
+                class="trigger__root clickable__root"
+                type="button"
+                data-id="${item.URL}"
+                data-sly-test.expand="${item.items}"
+            >
+                <span class="icon__root">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 30 30"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 19 12 12 5"></polyline>
+                    </svg>
+                </span>
+            </button>
+
+            <span class="icon__root" data-sly-test="${!expand}">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 30 30"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                ></svg>
+            </span>
+        </span>
+    </span>
+</template>

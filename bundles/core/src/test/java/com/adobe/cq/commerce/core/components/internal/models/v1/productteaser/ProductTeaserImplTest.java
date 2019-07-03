@@ -13,10 +13,12 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.day.cq.wcm.api.Page;
+import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.List;
+import java.util.Locale;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -24,11 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.util.Currency;
-import java.util.List;
-import java.util.Locale;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +44,7 @@ public class ProductTeaserImplTest {
     public void setup() throws Exception {
         this.slingModel = new ProductTeaserImpl();
         String json = IOUtils.toString(this.getClass()
-                .getResourceAsStream("/graphql/magento-graphql-product-result.json"), StandardCharsets.UTF_8);
+            .getResourceAsStream("/graphql/magento-graphql-product-result.json"), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         List<ProductInterface> products = rootQuery.getProducts().getItems();
         this.queryResultProduct = products.get(0);
@@ -61,10 +62,11 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(queryResultProduct.getName(), slingModel.getName());
         Assert.assertEquals(TEST_PRODUCT_PAGE_URL + "." + queryResultProduct.getUrlKey() + ".html", slingModel.getUrl());
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        priceFormatter.setCurrency(Currency.getInstance(queryResultProduct.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+        priceFormatter.setCurrency(Currency.getInstance(queryResultProduct.getPrice().getRegularPrice().getAmount().getCurrency()
+            .toString()));
         Assert.assertEquals(priceFormatter.format(queryResultProduct.getPrice().getRegularPrice().getAmount().getValue()),
-                slingModel.getFormattedPrice());
+            slingModel.getFormattedPrice());
         Assert.assertNotNull(slingModel.getImage());
-        Assert.assertTrue(StringUtils.endsWith( slingModel.getImage(),queryResultProduct.getImage().getUrl()));
+        Assert.assertTrue(StringUtils.endsWith(slingModel.getImage(), queryResultProduct.getImage().getUrl()));
     }
 }

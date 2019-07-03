@@ -1,0 +1,70 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ 
+  ~ Copyright 2019 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~ 
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.gallery="${ @ product}">
+    <div class="carousel__root" data-gallery-items="${product.assetsJson}" data-gallery-role="galleryroot">
+        <div class="carousel__imageContainer">
+            <button class="carousel__chevron-left" data-gallery-role="moveleft">
+                <span class="icon__root">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </span>
+            </button>
+            <img
+                data-sly-test.firstAsset="${product.assets[0]}"
+                class="carousel__currentImage"
+                src="${firstAsset.path}"
+                alt="${firstAsset.label}"
+                data-gallery-role="currentimage"
+            />
+            <button class="carousel__chevron-right" data-gallery-role="moveright">
+                <span class="icon__root">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polyline points="9 18 15 12 9 6"></polyline></svg
+                ></span>
+            </button>
+        </div>
+        <div class="thumbnailList__root">
+            <sly data-sly-list.asset="${product.assets}">
+                <button
+                    class="thumbnail thumbnail__root"
+                    data-gallery-index="${assetList.index}"
+                    data-gallery-role="galleryitem"
+                >
+                    <img class="thumbnail__image" src="${asset.path}" alt="${asset.label}" />
+                </button>
+            </sly>
+        </div>
+    </div>
+</template>

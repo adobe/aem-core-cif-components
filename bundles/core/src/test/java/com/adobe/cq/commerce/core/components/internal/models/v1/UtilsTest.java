@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.day.cq.wcm.api.Page;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,26 +44,26 @@ public class UtilsTest {
         Page page3 = mockPage(null);
         when(page2.getParent()).thenReturn(page3);
 
-        //returns null for null
+        // returns null for null
         Assert.assertNull(Utils.getNavigationRootPage(null));
 
-        //returns navigation root for navigation root
+        // returns navigation root for navigation root
         Assert.assertSame(navRootPage, Utils.getNavigationRootPage(navRootPage));
 
-        //returns navigation root for navigation root child
+        // returns navigation root for navigation root child
         Assert.assertSame(navRootPage, Utils.getNavigationRootPage(page1));
 
-        //returns navigation root for child of navigation root child
+        // returns navigation root for child of navigation root child
         Assert.assertSame(navRootPage, Utils.getNavigationRootPage(page0));
 
-        //returns null for page with no parent
+        // returns null for page with no parent
         Assert.assertNull(Utils.getNavigationRootPage(page3));
 
-        //returns null for page with no navigation root parent
+        // returns null for page with no navigation root parent
         Assert.assertNull(Utils.getNavigationRootPage(page2));
     }
 
-    private static Page mockPage(Map<String, Object> contentProperties){
+    private static Page mockPage(Map<String, Object> contentProperties) {
         Page page = mock(Page.class);
         Resource contentResource = mock(Resource.class);
         ValueMap properties = new ValueMapDecorator(contentProperties == null ? new HashMap<>() : contentProperties);

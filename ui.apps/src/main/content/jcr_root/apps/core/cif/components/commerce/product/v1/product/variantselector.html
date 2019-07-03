@@ -1,0 +1,41 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ 
+  ~ Copyright 2019 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~ 
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.variants="${ @ product}">
+    <sly data-sly-list.variantAttribute="${product.variantAttributes}">
+        <div class="option__root">
+            <h3 class="option__title"><span>${variantAttribute.label}</span></h3>
+            <div
+                data-sly-test.isColor="${variantAttribute.label == 'Color'}"
+                data-id="${variantAttribute.id}"
+                class="swatchList__root tileList__root"
+            >
+                <sly data-sly-list.variantValue="${variantAttribute.values}">
+                    <button
+                        class="swatch__root tile__root clickable__root"
+                        title="${variantValue.label}"
+                        data-id="${variantValue.id}"
+                        style="${'background-color: {0};' @ format=[variantValue.label], context='styleString'}"
+                    ></button>
+                </sly>
+            </div>
+            <div class="tileList__root" data-sly-test="${!isColor}" data-id="${variantAttribute.id}">
+                <sly data-sly-list.variantValue="${variantAttribute.values}">
+                    <button class="tile__root clickable__root" data-id="${variantValue.id}">
+                        <span>${variantValue.label}</span>
+                    </button>
+                </sly>
+            </div>
+        </div>
+    </sly>
+</template>

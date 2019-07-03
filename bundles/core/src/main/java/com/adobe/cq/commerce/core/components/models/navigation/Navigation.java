@@ -17,13 +17,13 @@ package com.adobe.cq.commerce.core.components.models.navigation;
 import java.util.List;
 
 /**
- * Sling model interface for the navigation component.
+ * Sling model interface to represent a navigation.
  */
 public interface Navigation {
     /**
      * Sling resource type for catalog landing page.
      */
-    String RT_CATALOG_PAGE = "venia/components/structure/catalogpage/v1/catalogpage";
+    String RT_CATALOG_PAGE = "core/cif/components/structure/catalogpage/v1/catalogpage";
 
     /**
      * Boolean property for adding to navigation the main categories of the catalog instead of the catalog
@@ -36,4 +36,14 @@ public interface Navigation {
      * Returns the navigation items to be rendered by the navigation component.
      */
     List<NavigationItem> getItems();
+
+    /**
+     * Returns the identifier of this navigation.
+     */
+    String getId();
+
+    /**
+     * Returns the identifier of the parent navigation or null for the root navigation.
+     */
+    String getParentId();
 }
