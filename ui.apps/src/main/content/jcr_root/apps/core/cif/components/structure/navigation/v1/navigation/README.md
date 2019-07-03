@@ -16,14 +16,14 @@ limitations under the License.
 
 # Commerce Navigation (v1)
 
-Commerce Navigation component is a server side component written in HTL, rendering a combined AEM page and commerce catalog navigation tree.
-The category tree details are retrieved from Magento via GraphQL. The main usage of this component would be as part of all page templates which include a navigation.
+Commerce Navigation component is a server-side component written in HTL, rendering a combined AEM page and commerce catalog navigation tree.
+The category tree details are retrieved from Magento via GraphQL. The main usage of this component would be as part of all page templates which include navigation.
 
 ## Features
 
 - Combines AEM page and commerce categories
-- Supports multi level navigation
-- Optionally can use catalog page as main anchor for commerce categories
+- Supports multi-level navigation
+- Optionally can use catalog page as the main anchor for commerce categories
 
 ### Use Object
 
