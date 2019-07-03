@@ -1,0 +1,51 @@
+.cmp-categorylist {
+    padding: 1rem;
+}
+
+.cmp-categorylist__content {
+    display: grid;
+    grid-gap: 3rem 1rem;
+    grid-template-columns: repeat(auto-fit, 6rem);
+    justify-content: center;
+}
+
+.cmp-categorylist__anchor {
+    display: block;
+    line-height: 1rem;
+    text-align: center;
+    width: 6rem;
+}
+
+.cmp-categorylist__imagewrapper {
+    background-position: 50% 50%;
+    background-size: cover;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px;
+    display: block;
+    height: 5rem;
+    margin: 0 auto 1rem auto;
+    width: 5rem;
+}
+
+.cmp-categorylist__image {
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+.cmp-categorylist__name {
+    display: block;
+}
+
+.cmp-categorylist__title {
+    text-align: center;
+    padding: 2rem;
+}
+
+.placeholder__empty {
+    text-align: center;
+    background-color: #fafafa;
+    margin: 1rem 0;
+    padding: 1rem;
+    line-height: 3rem;
+    border: 3px #ccc dashed;
+}
