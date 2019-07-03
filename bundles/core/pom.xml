@@ -153,26 +153,11 @@
                                                 <limit>
                                                     <counter>INSTRUCTION</counter>
                                                     <value>COVEREDRATIO</value>
-                                                    <minimum>0.0</minimum>
-                                                </limit>
-                                            </limits>
-                                        </rule>
-                                        <rule>
-                                            <element>CLASS</element>
-                                            <limits>
-                                                <limit>
-                                                    <counter>INSTRUCTION</counter>
-                                                    <value>COVEREDRATIO</value>
-                                                    <minimum>0.0</minimum>
+                                                    <minimum>0.55</minimum>
                                                 </limit>
                                             </limits>
                                         </rule>
                                     </rules>
-                                    <excludes>
-                                        <!-- private enum; cannot test valueOf / values -->
-                                        <exclude>**/SocialMediaHelperImpl$WebsiteMetadata$Type.class</exclude>
-                                        <exclude>**/AdaptiveImageServlet$Source.class</exclude>
-                                    </excludes>
                                 </configuration>
                             </execution>
                             <execution>
