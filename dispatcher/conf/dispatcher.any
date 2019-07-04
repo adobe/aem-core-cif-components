@@ -48,9 +48,9 @@
       /rend01
         {
         # Hostname or IP of the render
-        /hostname "aem-hostname"
+        /hostname "mhaack-macbook.local"
         # Port of the render
-        /port "4503"
+        /port "4502"
         # Connect timeout in milliseconds, 0 to wait indefinitely
         # /timeout "0"
         }
