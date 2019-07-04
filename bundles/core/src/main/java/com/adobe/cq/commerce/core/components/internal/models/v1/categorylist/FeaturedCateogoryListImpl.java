@@ -76,9 +76,8 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             fetchCategoriesData(Arrays.asList(categoryIds));
         } else {
-            LOGGER.debug("There are no categories chosen for CategoryList Component, Choose catetories to ");
+            LOGGER.debug("There are no categories configured for CategoryList Component.");
         }
-
     }
 
     private void fetchCategoriesData(List<String> categoryIds) {
@@ -87,25 +86,26 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             // this will be improved rather than using a loop.
             fetchCategoryData(categoryId);
         });
-
     }
 
     private void fetchCategoryData(String categoryId) {
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
         CategoryTreeQueryDefinition def = q -> q.id().name().urlPath().position().image();
         String queryString = Operations.query(query -> query.category(searchArgs, def)).toString();
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-        Query rootQuery = response.getData();
-        CategoryTree category = rootQuery.getCategory();
-        category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
-        category.setImage(String.format("%s/%s", IMAGE_URL_PREFIX, category.getImage()));
-        categories.add(category);
+        if (magentoGraphqlClient != null) {
+            GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
+            if (response != null) {
+                Query rootQuery = response.getData();
+                CategoryTree category = rootQuery.getCategory();
+                category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
+                category.setImage(String.format("%s/%s", IMAGE_URL_PREFIX, category.getImage()));
+                categories.add(category);
+            }
+        }
     }
 
     @Override
     public List<CategoryInterface> getCategories() {
         return categories;
-
     }
-
 }
