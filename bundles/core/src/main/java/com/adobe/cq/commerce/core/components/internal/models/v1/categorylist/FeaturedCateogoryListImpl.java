@@ -46,8 +46,7 @@ import com.day.cq.wcm.api.Page;
 public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
-    private static final Logger LOGGER = LoggerFactory
-        .getLogger(FeaturedCateogoryListImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCateogoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
     private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
@@ -99,12 +98,12 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
     private void fetchCategoryData(String categoryId) {
         // Construct GraphQL query
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
-        String queryString = Operations.query(query -> query
-            .category(searchArgs, generateCategoryQuery())
-            .storeConfig(generateStoreConfigQuery())).toString();
+        String queryString = Operations.query(
+            query -> query.category(searchArgs, generateCategoryQuery()).storeConfig(generateStoreConfigQuery()))
+            .toString();
 
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-        if (response != null) {      
+        if (response != null) {
             Query rootQuery = response.getData();
 
             // GraphQL API provides only file name of the category image, but not the full url.
