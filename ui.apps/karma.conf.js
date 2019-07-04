@@ -63,6 +63,17 @@ module.exports = function(config) {
     coverageReporter: {
       type : 'lcov',
       dir : './coverage/',
+      check: {
+        global: {
+          statements: 90,
+          branches: 70
+        },
+        each: {
+          statements: 80,
+          branches: 65,
+          excludes: []
+        }
+      }
     },
 
     specReporter: {
