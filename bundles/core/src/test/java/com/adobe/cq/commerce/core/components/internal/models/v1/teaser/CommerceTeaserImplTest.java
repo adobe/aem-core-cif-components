@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.teaser.CifTeaser;
+import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
@@ -33,14 +33,14 @@ import static org.mockito.Mockito.when;
 
 public class CommerceTeaserImplTest {
 
-    private CifTeaser slingModel;
+    private CommerceTeaser slingModel;
 
     final private String productPath = "/content/test-product-page";
     final private String categoryPath = "/content/test-category-page";
 
     @Before
     public void setup() {
-        CifTeaserImpl cifTeaser = new CifTeaserImpl();
+        CommerceTeaserImpl cifTeaser = new CommerceTeaserImpl();
 
         Page productPage = mock(Page.class);
         Page categoryPage = mock(Page.class);
@@ -66,7 +66,7 @@ public class CommerceTeaserImplTest {
         Resource mockedChildResource = mock(Resource.class);
 
         when(mockedChildResource.getChildren()).thenReturn(actionResources);
-        when(mockedResource.getChild(CifTeaser.NN_ACTIONS)).thenReturn(mockedChildResource);
+        when(mockedResource.getChild(CommerceTeaser.NN_ACTIONS)).thenReturn(mockedChildResource);
 
         Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
         Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
@@ -83,9 +83,9 @@ public class CommerceTeaserImplTest {
 
         Map<String, Object> actionProperties = new HashMap<>();
 
-        actionProperties.put(CifTeaser.PN_ACTION_PRODUCT_SKU, sku);
-        actionProperties.put(CifTeaser.PN_ACTION_CATEGORY_ID, categoryId);
-        actionProperties.put(CifTeaser.PN_ACTION_TEXT, text);
+        actionProperties.put(CommerceTeaser.PN_ACTION_PRODUCT_SKU, sku);
+        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_ID, categoryId);
+        actionProperties.put(CommerceTeaser.PN_ACTION_TEXT, text);
 
         ValueMapDecorator vMD = new ValueMapDecorator(actionProperties);
 
