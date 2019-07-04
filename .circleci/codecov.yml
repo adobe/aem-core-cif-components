@@ -28,3 +28,11 @@ coverage:
         threshold: null
         base: auto
         flags: karma
+
+flags:
+  unittests:
+    paths:
+      - bundles/core/
+  karma:
+    paths:
+      - ui.apps/
