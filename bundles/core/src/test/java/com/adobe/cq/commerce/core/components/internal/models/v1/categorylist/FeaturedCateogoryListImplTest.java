@@ -14,55 +14,101 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.wcm.api.Page;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FeaturedCateogoryListImplTest {
 
-    FeaturedCateogoryListImpl slingModel;
-    private static final String TEST_PRODUCT_PAGE_URL = "/content/test-category-page";
-    private CategoryTree queryCategory;
-    List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
+    private GraphqlClient graphqlClient;
+    private FeaturedCateogoryListImpl slingModel;
+    private Query rootQuery;
+    private List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
+    private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
+    private static final String TEST_IMAGE_URL = "/magento/category/img/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
+    private static final int TEST_CATEGORY = 3;
+    private static final String TEST_CATEGORY_NAME = "Equipment";
+
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
 
     @Before
     public void setup() throws Exception {
-        this.slingModel = new FeaturedCateogoryListImpl();
         String json = IOUtils.toString(this.getClass()
             .getResourceAsStream("/graphql/magento-graphql-singlecategory-result.json"), StandardCharsets.UTF_8);
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-        CategoryTree category = rootQuery.getCategory();
-        category.setPath(TEST_PRODUCT_PAGE_URL + ".3.html");
-        this.queryCategory = category;
-        this.categories.add(category);
-        Whitebox.setInternalState(this.slingModel, "categories", categories);
+        rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         Page categoryPage = mock(Page.class);
         when(categoryPage.getLanguage(false)).thenReturn(Locale.US);
-        when(categoryPage.getPath()).thenReturn("/content/test-category-page");
-        Whitebox.setInternalState(this.slingModel, "categoryPage", categoryPage);
+        when(categoryPage.getPath()).thenReturn(TEST_CATEGORY_PAGE_URL);
+        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
+        graphqlClient = Mockito.mock(GraphqlClient.class);
+        Page page = mock(Page.class);
+        MockSlingHttpServletRequest request = context.request();
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(request));
+        slingBindings.put("currentPage", page);
+        slingBindings.put("resource", resource);
+        Integer categoryId[] = { TEST_CATEGORY };
+        Map<String, Object> pageProperties = new HashMap<>();
+        pageProperties.put("categoryIds", categoryId);
+        ValueMapDecorator vMap = new ValueMapDecorator(pageProperties);
+        slingBindings.put("currentPage", categoryPage);
+        slingBindings.put("properties", vMap);
+        GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
+        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn((GraphqlResponse) response);
+        when(response.getData()).thenReturn(rootQuery);
+        slingModel = request.adaptTo(FeaturedCateogoryListImpl.class);
+    }
+
+    @Test
+    public void verifyModel() {
+        Assert.assertNotNull(slingModel);
+        List<CategoryInterface> list = slingModel.getCategories();
+        Assert.assertNotNull(list);
+        Assert.assertEquals(list.size(), 1);
     }
 
     @Test
     public void verifyCategory() {
+        categories = slingModel.getCategories();
         Assert.assertNotNull(categories);
-        Assert.assertEquals(categories.get(0).getName(), slingModel.getCategories().get(0).getName());
-        Assert.assertEquals(categories.get(0).getImage(), slingModel.getCategories().get(0).getImage());
-        Assert.assertEquals(String.format("%s.%s.html", TEST_PRODUCT_PAGE_URL, categories.get(0).getId()), slingModel.getCategories().get(0)
-            .getPath());
+        Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
+        Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
+        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", TEST_CATEGORY_PAGE_URL, TEST_CATEGORY));
+
+    }
+
+    private AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
     }
 }

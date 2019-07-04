@@ -76,9 +76,8 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             fetchCategoriesData(Arrays.asList(categoryIds));
         } else {
-            LOGGER.debug("There are no categories chosen for CategoryList Component, Choose catetories to ");
+            LOGGER.debug("There are no categories configured for CategoryList Component.");
         }
-
     }
 
     private void fetchCategoriesData(List<String> categoryIds) {
@@ -87,7 +86,6 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             // this will be improved rather than using a loop.
             fetchCategoryData(categoryId);
         });
-
     }
 
     private CategoryTreeQueryDefinition generateCategoryQuery() {
@@ -106,24 +104,24 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
             .storeConfig(generateStoreConfigQuery())).toString();
 
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-        Query rootQuery = response.getData();
+        if (response != null) {      
+            Query rootQuery = response.getData();
 
-        // GraphQL API provides only file name of the category image, but not the full url.
-        // We need the mediaBaseUrl to construct the full path.
-        String mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+            // GraphQL API provides only file name of the category image, but not the full url.
+            // We need the mediaBaseUrl to construct the full path.
+            String mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
 
-        CategoryTree category = rootQuery.getCategory();
-        category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
-        if (category.getImage() != null) {
-            category.setImage(mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage());
+            CategoryTree category = rootQuery.getCategory();
+            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
+            if (category.getImage() != null) {
+                category.setImage(mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage());
+            }
+            categories.add(category);
         }
-        categories.add(category);
     }
 
     @Override
     public List<CategoryInterface> getCategories() {
         return categories;
-
     }
-
 }
