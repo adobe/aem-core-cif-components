@@ -63,6 +63,12 @@ public class CommerceTeaserImplTest {
         actionResources.add(getActionNodeResource(null, null, "This Page"));
 
         Resource mockedResource = mock(Resource.class);
+        Map<String, Object> actionProperties = new HashMap<>();
+
+        actionProperties.put(CommerceTeaser.PN_ACTIONS_ENABLED, true);// Setting action enabled TRUE
+
+        when(mockedResource.getValueMap()).thenReturn(new ValueMapDecorator(actionProperties));
+
         Resource mockedChildResource = mock(Resource.class);
 
         when(mockedChildResource.getChildren()).thenReturn(actionResources);
@@ -71,8 +77,9 @@ public class CommerceTeaserImplTest {
         Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
         Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
         Whitebox.setInternalState(cifTeaser, "productPage", productPage);
-        Whitebox.setInternalState(cifTeaser, "actionsEnabled", true);
+        // Whitebox.setInternalState(cifTeaser, "actionsEnabled", true);
 
+        cifTeaser.setActionsEnabled();
         cifTeaser.populateActions();
         this.slingModel = cifTeaser;
 
@@ -103,8 +110,13 @@ public class CommerceTeaserImplTest {
         Assert.assertTrue(actionItems.size() == 4);
 
         Assert.assertTrue(actionItems.get(0).getURL().equalsIgnoreCase(this.productPath + ".278.html"));
+        Assert.assertTrue(actionItems.get(0).getTitle().equalsIgnoreCase("My Product"));
+
         Assert.assertTrue(actionItems.get(1).getURL().equalsIgnoreCase(this.categoryPath + ".30.html"));
+        Assert.assertTrue(actionItems.get(1).getTitle().equalsIgnoreCase("My Category"));
+
         Assert.assertTrue(actionItems.get(2).getURL().equalsIgnoreCase(this.categoryPath + ".30.html"));
+        Assert.assertTrue(actionItems.get(2).getTitle().equalsIgnoreCase("My Category"));
 
     }
 }

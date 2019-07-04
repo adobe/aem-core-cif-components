@@ -56,10 +56,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     private SlingHttpServletRequest request;
 
     @PostConstruct
-    private void initModel() {
-        ValueMap properties = resource.getValueMap();
-        actionsEnabled = properties.get(CommerceTeaser.PN_ACTIONS_ENABLED, actionsEnabled);
-
+    void initModel() {
+        setActionsEnabled();
         productPage = Utils.getProductPage(currentPage);
         categoryPage = Utils.getCategoryPage(currentPage);
 
@@ -69,6 +67,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 ListItem firstAction = actions.get(0);
             }
         }
+    }
+
+    void setActionsEnabled() {
+        ValueMap properties = resource.getValueMap();
+        actionsEnabled = properties.get(CommerceTeaser.PN_ACTIONS_ENABLED, actionsEnabled);
     }
 
     void populateActions() {

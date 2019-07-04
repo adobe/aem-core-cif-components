@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class CommerceTeaserActionItem implements ListItem {
 
@@ -38,13 +37,6 @@ public class CommerceTeaserActionItem implements ListItem {
     @Override
     public String getTitle() {
         return title;
-    }
-
-    @Nullable
-    @Override
-    @JsonIgnore
-    public String getPath() {
-        return Utils.constructUrlfromSlug(page.getPath(), selector);
     }
 
     @Nullable
