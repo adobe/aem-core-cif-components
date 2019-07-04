@@ -31,7 +31,7 @@ import com.day.cq.wcm.api.Page;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CifTeaserImplTest {
+public class CommerceTeaserImplTest {
 
     private CifTeaser slingModel;
 
