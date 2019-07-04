@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-CIF Teaser (v1)
+Commerce Teaser (v1)
 ====
-CIF Teaser component written in HTL extends core wcm component Teaser, In addition to allowing definition of an image, title, rich text description and actions/links it also supports Call-To-Action to a commerce product or category page.
+Commerce Teaser component written in HTL extends core wcm component Teaser, In addition to allowing definition of an image, title, rich text description and actions/links it also supports Call-To-Action to a commerce product or category page.
 Teaser variations can include some or all of these elements.
 
 ## Features
@@ -25,8 +25,8 @@ Teaser variations can include some or all of these elements.
 * Allows control over whether title and description should be inherited from a linked page.
 
 ### Use Object
-This component uses (specifically for  `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CifTeaser` Sling Model as it's use Object.
-And as CifTeaser component is extended from core wcm Teaser component, it further uses the `com.adobe.cq.wcm.core.components.models.Teaser` Sling model as its Use-object,  
+This component uses (specifically for  `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser` Sling Model as it's use Object.
+And as CommerceTeaser component is extended from core wcm Teaser component, it further uses the `com.adobe.cq.wcm.core.components.models.Teaser` Sling model as its Use-object,  
 
 ### Component Policy Configuration Properties
 The following configuration properties are used:
