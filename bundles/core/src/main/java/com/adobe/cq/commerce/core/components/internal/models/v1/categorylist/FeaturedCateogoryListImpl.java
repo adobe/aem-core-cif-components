@@ -46,10 +46,9 @@ import com.day.cq.wcm.api.Page;
 public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
-    private static final Logger LOGGER = LoggerFactory
-        .getLogger(FeaturedCateogoryListImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCateogoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
-    private static final String IMAGE_URL_PREFIX = "/magento/category/img";
+    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Inject
     private Resource resource;
@@ -88,19 +87,35 @@ public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
         });
     }
 
+    private CategoryTreeQueryDefinition generateCategoryQuery() {
+        return q -> q.id().name().urlPath().position().image();
+    }
+
+    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+        return q -> q.secureBaseMediaUrl();
+    }
+
     private void fetchCategoryData(String categoryId) {
+        // Construct GraphQL query
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
-        CategoryTreeQueryDefinition def = q -> q.id().name().urlPath().position().image();
-        String queryString = Operations.query(query -> query.category(searchArgs, def)).toString();
-        if (magentoGraphqlClient != null) {
-            GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-            if (response != null) {
-                Query rootQuery = response.getData();
-                CategoryTree category = rootQuery.getCategory();
-                category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
-                category.setImage(String.format("%s/%s", IMAGE_URL_PREFIX, category.getImage()));
-                categories.add(category);
+        String queryString = Operations.query(
+            query -> query.category(searchArgs, generateCategoryQuery()).storeConfig(generateStoreConfigQuery()))
+            .toString();
+
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
+        if (response != null) {
+            Query rootQuery = response.getData();
+
+            // GraphQL API provides only file name of the category image, but not the full url.
+            // We need the mediaBaseUrl to construct the full path.
+            String mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+
+            CategoryTree category = rootQuery.getCategory();
+            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
+            if (category.getImage() != null) {
+                category.setImage(mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage());
             }
+            categories.add(category);
         }
     }
 
