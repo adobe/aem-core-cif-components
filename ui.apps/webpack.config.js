@@ -21,6 +21,7 @@ const LIB = {
     MINICART: 'apps/core/cif/components/commerce/minicart/v1/minicart/clientlib',
     PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
+    PRODUCTLIST: 'apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs',
     HEADER: 'apps/core/cif/components/structure/header/v1/header/clientlibs',
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs'
 };
@@ -31,6 +32,7 @@ module.exports = {
         [LIB.MINICART]: glob.sync(JCR_ROOT + LIB.MINICART + '/js/**/*.js'),
         [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
         [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
+        [LIB.PRODUCTLIST]: glob.sync(JCR_ROOT + LIB.PRODUCTLIST + '/js/**/*.js'),
         [LIB.HEADER]: glob.sync(JCR_ROOT + LIB.HEADER + '/js/**/*.js'),
         [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js')
     },
