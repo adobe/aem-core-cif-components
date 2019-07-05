@@ -37,6 +37,29 @@
             return response.json();
         }
 
+        async _fetchGraphql(query) {
+            // Minimize query
+            query = query
+                .split('\n')
+                .map(a => a.trim())
+                .join(' ');
+
+            let params = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query })
+            };
+
+            let response = await this._fetch(this.endpoint, params);
+            if (response.data === undefined && response.errors) {
+                throw new Error(JSON.stringify(response.errors));
+            }
+
+            return response;
+        }
+
         /**
          * Retrieves the URL of the images for an array of product data
          * @param productData a dictionary object with the following structure {productName:productSku}.
@@ -71,20 +94,8 @@
                     }
                 }
             }`;
-            console.log(query);
 
-            let params = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ query })
-            };
-
-            let response = await this._fetch(this.endpoint, params);
-            if (response.errors) {
-                throw new Error(JSON.stringify(response.errors));
-            }
+            let response = await this._fetchGraphql(query);
             let items = response.data.products.items;
 
             let productsMedia = {};
@@ -103,6 +114,66 @@
                 }
             });
             return productsMedia;
+        }
+
+        /**
+         * Retrieves the prices of the products with the given SKUs and their variants.
+         *
+         * @param {array} skus  Array of product SKUs.
+         * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
+         */
+        async getProductPrices(skus, includeVariants) {
+            let skuQuery = '"' + skus.join('", "') + '"';
+
+            // prettier-ignore
+            const variantQuery = `... on ConfigurableProduct {
+                variants {
+                    product {
+                        sku
+                        price {
+                            regularPrice {
+                                amount {
+                                    currency
+                                    value
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
+
+            // prettier-ignore
+            const query = `query {
+                products(filter: { sku: { in: [${skuQuery}] }} ) {
+                    items {
+                        sku
+                        price {
+                            regularPrice {
+                                amount {
+                                    currency
+                                    value
+                                }
+                            }
+                        }
+                        ${includeVariants ? variantQuery : ''}
+                    }
+                }
+            }`;
+            let response = await this._fetchGraphql(query);
+
+            // Transform response in a SKU to price map
+            let items = response.data.products.items;
+            let dict = {};
+            for (let item of items) {
+                dict[item.sku] = item.price.regularPrice.amount;
+
+                // Go through variants
+                if (!item.variants) continue;
+                for (let variant of item.variants) {
+                    dict[variant.product.sku] = variant.product.price.regularPrice.amount;
+                }
+            }
+            return dict;
         }
     }
 

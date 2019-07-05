@@ -27,7 +27,6 @@
             this.count = 0;
 
             const qtyChangedEventHandler = ev => {
-                console.log(`Receives cart event ${ev.detail}`);
                 const data = ev.detail;
                 this.updateCounterText(data.quantity);
             };

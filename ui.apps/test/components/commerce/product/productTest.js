@@ -17,6 +17,29 @@
 describe('Product', () => {
     describe('Core', () => {
         let productRoot;
+        let windowCIF;
+
+        const clientPrices = { 'sample-sku': { currency: 'USD', value: '156.89' } };
+
+        before(() => {
+            // Create empty context
+            windowCIF = window.CIF;
+            window.CIF = {};
+
+            window.CIF.PriceFormatter = class {
+                formatPrice(price) {}
+            };
+            sinon.stub(window.CIF.PriceFormatter.prototype, 'formatPrice').returns('$123.45');
+
+            window.CIF.CommerceGraphqlApi = {
+                getProductPrices: sinon.stub().resolves(clientPrices)
+            };
+        });
+
+        after(() => {
+            // Restore original context
+            window.CIF = windowCIF;
+        });
 
         beforeEach(() => {
             productRoot = document.createElement('div');
@@ -26,7 +49,7 @@ describe('Product', () => {
                     <span role="name"></span>
                 </div>
                 <div class="productFullDetail__details">
-                    <span role="sku"></span>
+                    <span role="sku">sample-sku</span>
                 </div>
                 <div class="productFullDetail__productPrice">
                     <span role="price"></span>
@@ -42,15 +65,32 @@ describe('Product', () => {
 
             let product = productCtx.factory({ element: productRoot });
             assert.isTrue(product._state.configurable);
-            assert.isNull(product._state.sku);
+            assert.equal(product._state.sku, 'sample-sku');
         });
 
         it('initializes a simple product component', () => {
-            productRoot.querySelector(productCtx.Product.selectors.sku).innerHTML = 'sample-sku';
-
             let product = productCtx.factory({ element: productRoot });
             assert.isFalse(product._state.configurable);
             assert.equal(product._state.sku, 'sample-sku');
+        });
+
+        it('retrieves prices via GraphQL', () => {
+            productRoot.dataset.loadClientPrice = true;
+            let product = productCtx.factory({ element: productRoot });
+            assert.isTrue(product._state.loadPrices);
+
+            return product._initPrices().then(() => {
+                assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+                assert.deepEqual(product._state.prices, clientPrices);
+
+                let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+                assert.include(price, '123.45');
+            });
+        });
+
+        it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
+            let product = productCtx.factory({ element: productRoot });
+            assert.isFalse(product._state.loadPrices);
         });
 
         it('changes variant when receiving variantchanged event', () => {
@@ -84,6 +124,30 @@ describe('Product', () => {
             assert.equal(name, variant.name);
             assert.equal(price, variant.formattedPrice);
             assert.equal(description, variant.description);
+        });
+
+        it('changes variant with client-side price when receiving variantchanged event', () => {
+            let product = productCtx.factory({ element: productRoot });
+            product._state.prices = {
+                'variant-sku': {
+                    currency: 'USD',
+                    value: 130.42
+                }
+            };
+
+            // Send event
+            let variant = { sku: 'variant-sku' };
+            let changeEvent = new CustomEvent(productCtx.Product.events.variantChanged, {
+                bubbles: true,
+                detail: {
+                    variant: variant
+                }
+            });
+            productRoot.dispatchEvent(changeEvent);
+
+            // Check fields
+            let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+            assert.include(price, '123.45');
         });
     });
 });

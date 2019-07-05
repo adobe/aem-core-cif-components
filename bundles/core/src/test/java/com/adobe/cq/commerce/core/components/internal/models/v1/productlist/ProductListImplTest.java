@@ -31,6 +31,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -59,6 +60,9 @@ public class ProductListImplTest {
         categoryQueryResult = rootQuery.getCategory();
         Whitebox.setInternalState(this.slingModel, "category", categoryQueryResult);
 
+        String mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        Whitebox.setInternalState(this.slingModel, "mediaBaseUrl", mediaBaseUrl);
+
         // AEM page
         productPage = mock(Page.class);
         when(productPage.getLanguage(false)).thenReturn(Locale.US);
@@ -78,6 +82,24 @@ public class ProductListImplTest {
     public void getTitle() {
         String title = this.slingModel.getTitle();
         Assert.assertEquals(categoryQueryResult.getName(), title);
+    }
+
+    @Test
+    public void getImage() {
+        String image = this.slingModel.getImage();
+
+        Assert.assertEquals("https://my-magento.hostname/media/catalog/category/timeless.jpg", image);
+    }
+
+    @Test
+    public void getImageWhenMissingInResponse() {
+        ProductList list = new ProductListImpl();
+        CategoryTree category = mock(CategoryTree.class);
+        when(category.getImage()).thenReturn("");
+        Whitebox.setInternalState(list, "category", category);
+
+        String image = list.getImage();
+        Assert.assertEquals("", image);
     }
 
     @Test

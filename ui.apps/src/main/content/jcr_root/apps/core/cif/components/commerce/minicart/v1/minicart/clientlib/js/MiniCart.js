@@ -82,7 +82,6 @@ import Handlebars from 'handlebars';
         async setState(state) {
             this.state.previousState = this.state.currentState;
             this.state.currentState = state;
-            console.log(`Setting component state to ${state}`);
             if (state === 'empty') {
                 this.renderEmpty();
             } else if (state === 'full') {
@@ -121,7 +120,6 @@ import Handlebars from 'handlebars';
          */
         async refreshData() {
             if (!this.cartId || !this.cartQuote) {
-                console.log(`No cart information present, nothing to do`);
                 this.setState('empty');
             } else {
                 let cartDataPromise = this.commerceApi.getCart(this.cartQuote);
@@ -184,7 +182,6 @@ import Handlebars from 'handlebars';
          * @returns {Promise<void>}
          */
         async removeItemHandler(itemId) {
-            console.log(`Removing item ${itemId}`);
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
             await this.refreshData();
 
@@ -241,7 +238,6 @@ import Handlebars from 'handlebars';
             };
 
             let response = await this.commerceApi.postCartEntry(this.cartId, params);
-            console.log(response);
             await this.refreshData();
 
             let customEvent = new CustomEvent('aem.cif.product-added-to-cart', {
@@ -313,7 +309,6 @@ import Handlebars from 'handlebars';
          * Renders the edit window DOM
          */
         renderEdit() {
-            console.log(`Rendering the edit form...`);
             this.emptyDom();
             let html = this.editTemplate();
 
@@ -335,7 +330,6 @@ import Handlebars from 'handlebars';
          * Renders an empty shopping cart.
          */
         renderEmpty() {
-            console.log(`Rendering empty cart..`);
             this.emptyDom();
             let html = this.emptyTemplate();
             this.rootNode.insertAdjacentHTML('beforeend', html);
@@ -345,10 +339,8 @@ import Handlebars from 'handlebars';
          * Renders the body of the shopping cart with items and totals.
          */
         renderBody() {
-            console.log(`Rendering the body...`);
             if (this.state.previousState !== this.state.currentState) {
                 this.emptyDom();
-                console.log(`Recreating the DOM...`);
                 // recreate the sections from template and add them to the minicart
                 let bodyHtml = this.bodyTemplate();
                 this.rootNode.insertAdjacentHTML('beforeend', bodyHtml);

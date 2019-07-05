@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -144,12 +145,13 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId, structureDepth);
-        if (children.isEmpty()) {
+        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId, structureDepth);
+        if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
         }
 
+        children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
         children.sort(Comparator.comparing(CategoryTree::getPosition));
 
         String categoryPagePath = categoryPage.getPath();
@@ -184,8 +186,9 @@ public class NavigationImpl implements Navigation {
         @Override
         public List<NavigationItem> getItems() {
             final List<com.adobe.cq.wcm.core.components.models.NavigationItem> children = wcmItem.getChildren();
-            if (children == null)
+            if (children == null) {
                 return Collections.emptyList();
+            }
 
             List<NavigationItem> items = new ArrayList<>();
             for (com.adobe.cq.wcm.core.components.models.NavigationItem item : children) {
@@ -218,11 +221,12 @@ public class NavigationImpl implements Navigation {
                 return Collections.emptyList();
             }
 
-            final List<CategoryTree> children = category.getChildren();
+            List<CategoryTree> children = category.getChildren();
             if (children == null || children.isEmpty()) {
                 return Collections.emptyList();
             }
 
+            children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
             children.sort(Comparator.comparing(CategoryTree::getPosition));
 
             List<NavigationItem> pages = new ArrayList<>();

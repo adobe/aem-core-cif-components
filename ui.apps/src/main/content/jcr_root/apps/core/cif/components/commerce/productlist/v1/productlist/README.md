@@ -15,7 +15,7 @@ limitations under the License.
 -->
 Product List (v1)
 ====
-Product List component is a sever side component written in HTL, allowing to display product listings. The product listings
+Product List component is a server side component written in HTL, allowing to display product listings. The product listings
 for a category are retrieved from Magento via GraphQL. The main usage of this component would be on a category page. 
 
 ## Features
@@ -23,6 +23,8 @@ for a category are retrieved from Magento via GraphQL. The main usage of this co
 * Support for pagination
 * Configurable number of products on one page
 * Configurable category title display
+* Displays category image, if set in Magento and enabled in design dialog
+* Client-side loaded prices using GraphQL. Can be disabled in the design dialog.
 
 ### Use Object
 The Product List component uses the `com.adobe.cq.commerce.core.components.models.productlist.ProductList` Sling model as its Use-object.
@@ -36,10 +38,12 @@ This component is targeted for a category page listing products of a category.
 The following configuration properties are used:
 
 1. `./showTitle` - controls the visibility of the product category title
+2. `./showImage` - controls the visibility of the product category image
+3. `./loadClientPrice` - enables client-side price fetching
 
 ### Edit Dialog Properties
 
-The following properties are written to JCR for this Title component and are expected to be available as `Resource` properties:
+The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./pageSize` - the number of products shown on one page
 
@@ -52,6 +56,7 @@ BLOCK category
     ELEMENT category__pagination
     ELEMENT category__placeholder
     ELEMENT category__categoryTitle
+    ELEMENT category__image
     
 BLOCK gallery
     ELEMENT gallery__root
