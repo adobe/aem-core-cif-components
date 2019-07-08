@@ -12,15 +12,7 @@
  *
  ******************************************************************************/
 
-(function() {
-    'use strict';
-
-    const cartTotalsTemplate = `<dl class="miniCart__totals">
-                            <dt class="miniCart__subtotalLabel"><span>Cart Total:&nbsp;{{currency}}{{value}}</span></dt>
-                            <dd class="miniCart__subtotalValue">({{quantity}} items)</dd>
-                        </dl>`;
-
-    window.CIF = window.CIF || {};
-    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-    window.CIF.MiniCart.templates.totals = cartTotalsTemplate;
-})();
+export default `<dl class="miniCart__totals">
+    <dt class="miniCart__subtotalLabel"><span>Cart Total:&nbsp;{{currency}}{{value}}</span></dt>
+    <dd class="miniCart__subtotalValue">({{quantity}} items)</dd>
+</dl>`;

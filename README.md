@@ -114,8 +114,11 @@ mvn clean install -Pformat-code
 ### JavaScript & CSS
 For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The formatting is automatically checked when running `npm test` in the `ui.apps` project. To automatically format your code, please run the following command in `ui.apps`:
 ```bash
-npm run prettier-fix
+npm run prettier:fix
 ```
+
+## Packing Clientlibs with Webpack
+We use `webpack` to build our clientlibs. Please read [Packing Clientlibs with Webpack](https://github.com/adobe/aem-core-cif-components/wiki/Packing-Clientlibs-with-Webpack) for more information.
 
 ## Releases to Maven Central
 

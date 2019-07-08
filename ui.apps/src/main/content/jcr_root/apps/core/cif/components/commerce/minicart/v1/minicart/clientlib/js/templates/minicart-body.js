@@ -12,15 +12,7 @@
  *
  ******************************************************************************/
 
-(function() {
-    'use strict';
-
-    const minicartBody = `<div class="miniCart__body">
-        <ul class="productList__root">
-        </ul>
-        </div>`;
-
-    window.CIF = window.CIF || {};
-    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-    window.CIF.MiniCart.templates.body = minicartBody;
-})();
+export default `<div class="miniCart__body">
+    <ul class="productList__root">
+    </ul>
+</div>`;

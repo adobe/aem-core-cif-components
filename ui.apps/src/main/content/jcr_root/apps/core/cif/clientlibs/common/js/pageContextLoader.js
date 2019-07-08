@@ -11,6 +11,9 @@
  *     governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+import PageContext from './PageContext.js';
+
 window.CIF = window.CIF || {};
 
 (function() {

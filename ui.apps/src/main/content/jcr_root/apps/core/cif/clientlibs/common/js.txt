@@ -1,9 +1,3 @@
-#base=js
-lib/purify.min.js
-lib/handlebars.min-latest.js
+lib/handlebars.min.js
 
-pageContextLoader.js
-PageContext.js
-CommerceApi.js
-CommerceGraphqlApi.js
-PriceFormatter.js
+dist/index.js
