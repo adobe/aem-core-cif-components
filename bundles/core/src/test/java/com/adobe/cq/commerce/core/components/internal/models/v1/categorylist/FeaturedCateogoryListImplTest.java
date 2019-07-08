@@ -50,7 +50,7 @@ public class FeaturedCateogoryListImplTest {
     private Query rootQuery;
     private List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
     private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
-    private static final String TEST_IMAGE_URL = "/magento/category/img/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
+    private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
     private static final int TEST_CATEGORY = 3;
     private static final String TEST_CATEGORY_NAME = "Equipment";
 
@@ -59,8 +59,9 @@ public class FeaturedCateogoryListImplTest {
 
     @Before
     public void setup() throws Exception {
-        String json = IOUtils.toString(this.getClass()
-            .getResourceAsStream("/graphql/magento-graphql-singlecategory-result.json"), StandardCharsets.UTF_8);
+        String json = IOUtils.toString(
+            this.getClass().getResourceAsStream("/graphql/magento-graphql-singlecategory-result.json"),
+            StandardCharsets.UTF_8);
         rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         Page categoryPage = mock(Page.class);
         when(categoryPage.getLanguage(false)).thenReturn(Locale.US);
@@ -81,7 +82,8 @@ public class FeaturedCateogoryListImplTest {
         slingBindings.put("properties", vMap);
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn((GraphqlResponse) response);
+        when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn((GraphqlResponse) response);
         when(response.getData()).thenReturn(rootQuery);
         slingModel = request.adaptTo(FeaturedCateogoryListImpl.class);
     }
@@ -100,15 +102,14 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
-        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", TEST_CATEGORY_PAGE_URL, TEST_CATEGORY));
+        Assert.assertEquals(categories.get(0).getPath(),
+            String.format("%s.%s.html", TEST_CATEGORY_PAGE_URL, TEST_CATEGORY));
 
     }
 
     private AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
+        return new AemContext((AemContextCallback) context -> {
+            context.load().json(contentPath, "/content");
+        }, ResourceResolverType.JCR_MOCK);
     }
 }
