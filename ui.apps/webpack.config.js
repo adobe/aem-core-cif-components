@@ -28,6 +28,9 @@ const LIB = {
 
 module.exports = {
     entry: {
+        // Map of clientlib base paths and a corresponding array of JavaScript files that should be packed. We use the
+        // key to specify the target destination of the packed code and the glob module to generate a list of JavaScript
+        // files matching the given glob expression.
         [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
         [LIB.MINICART]: glob.sync(JCR_ROOT + LIB.MINICART + '/js/**/*.js'),
         [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
@@ -38,10 +41,13 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, "src/main/content/jcr_root"),
+        // [name] will be replaced by the base path of the clientlib (key of the entry map).
         filename: './[name]/dist/index.js'
     },
     module: {
         rules: [
+            // Transpile .js files with babel. Babel will by default pick up the browserslist definition in the 
+            // package.json file.
             {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
@@ -54,6 +60,7 @@ module.exports = {
             }
         ]
     },
+    // External libraries from the /lib folder should be excluded from packing and are added manually to the clientlib.
     externals: {
         handlebars: 'Handlebars'
     },

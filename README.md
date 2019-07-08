@@ -117,6 +117,9 @@ For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The f
 npm run prettier:fix
 ```
 
+## Packing Clientlibs with Webpack
+We use `webpack` to build our clientlibs. Please read [Packing Clientlibs with Webpack](https://github.com/adobe/aem-core-cif-components/wiki/Packing-Clientlibs-with-Webpack) for more information.
+
 ## Releases to Maven Central
 
 Releases of this project are triggered by manually running `mvn release:prepare release:clean` on the `master` branch on the root folder of this repository. Once you choose the release and the next snapshot versions, this commits the change along with a release git tag like for example `core-cif-components-reactor-x.y.z`. Note that the commits are not automatically pushed to the git repository, so you have some time to check your changes and then manually push them. The push then triggers a dedicated `CircleCI` build that performs the deployment of the tagged artifact to Maven Central.
