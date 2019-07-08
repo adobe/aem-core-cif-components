@@ -37,22 +37,34 @@
             return response.json();
         }
 
-        async _fetchGraphql(query) {
+        async _fetchGraphql(query, cached) {
             // Minimize query
             query = query
                 .split('\n')
                 .map(a => a.trim())
                 .join(' ');
+            query = { query };
 
             let params = {
-                method: 'POST',
+                method: cached ? 'GET' : 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ query })
+                }
             };
 
-            let response = await this._fetch(this.endpoint, params);
+            let url = this.endpoint;
+            if (cached) {
+                // For cached GET request, add query as query parameters
+                let queryString = Object.keys(query)
+                    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(query[k])}`)
+                    .join('&');
+                url += '?' + queryString;
+            } else {
+                // For un-cached POST request, add query to body
+                params.body = JSON.stringify(query);
+            }
+
+            let response = await this._fetch(url, params);
             if (response.data === undefined && response.errors) {
                 throw new Error(JSON.stringify(response.errors));
             }
@@ -95,7 +107,7 @@
                 }
             }`;
 
-            let response = await this._fetchGraphql(query);
+            let response = await this._fetchGraphql(query, true);
             let items = response.data.products.items;
 
             let productsMedia = {};
@@ -159,7 +171,7 @@
                     }
                 }
             }`;
-            let response = await this._fetchGraphql(query);
+            let response = await this._fetchGraphql(query, true);
 
             // Transform response in a SKU to price map
             let items = response.data.products.items;
