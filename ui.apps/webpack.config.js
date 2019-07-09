@@ -26,7 +26,7 @@ const LIB = {
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs'
 };
 
-function generaseBaseConfig() {
+function generateBaseConfig() {
     return {
         entry: {
             // Map of clientlib base paths and a corresponding array of JavaScript files that should be packed. We use the
@@ -71,7 +71,7 @@ function generaseBaseConfig() {
 }
 
 function applyKarmaOptions() {
-    let karma = generaseBaseConfig();
+    let karma = generateBaseConfig();
 
     // Disable minification
     karma.mode = 'development';
@@ -90,5 +90,5 @@ module.exports = function(env, argv) {
         
     }
 
-    return generaseBaseConfig();
+    return generateBaseConfig();
 }
