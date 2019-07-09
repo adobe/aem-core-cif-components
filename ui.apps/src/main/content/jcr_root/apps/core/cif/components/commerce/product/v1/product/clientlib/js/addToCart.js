@@ -84,7 +84,6 @@ AddToCart.events = {
     variantChanged: 'variantchanged'
 };
 
-
 (function(document) {
     function onDocumentReady() {
         // Initialize AddToCart component

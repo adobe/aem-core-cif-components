@@ -11,7 +11,6 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
 
 import PriceFormatter from '../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';

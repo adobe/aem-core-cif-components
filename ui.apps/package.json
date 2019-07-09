@@ -8,8 +8,8 @@
     "test": "npm run prettier:check && npm run karma:run",
     "karma:run": "karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
     "karma:debug": "karma start --single-run=false --browsers Chrome --debug karma.conf.js",
-    "prettier:check": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
-    "prettier:fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "webpack:build": "webpack --config webpack.config.js --env.production --mode development"
   },
   "author": "Adobe",
