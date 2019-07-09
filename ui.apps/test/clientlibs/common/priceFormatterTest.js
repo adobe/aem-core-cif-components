@@ -14,21 +14,28 @@
 
 'use strict';
 
+import PriceFormatter from '../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+
 describe('PriceFormatter', () => {
     let locale = 'de-CH';
 
     it('initializes a PriceFormatter', () => {
-        let formatter = priceFormatterCtx.factory(locale);
+        let formatter = new PriceFormatter(locale);
 
         assert.equal(formatter._locale, locale);
         assert.isNull(formatter._formatter);
     });
 
     it('formats a currency', () => {
-        let formatter = priceFormatterCtx.factory(locale);
+        let formatter = new PriceFormatter(locale);
 
         let formattedPrice = formatter.formatPrice({ currency: 'CHF', value: 100.13 });
         assert.isNotNull(formatter._formatter);
         assert.equal(formattedPrice, 'CHF 100.13');
+
+        // Formatter stores first given currency and will subsequently ignore
+        // different currencies.
+        formattedPrice = formatter.formatPrice({ currency: 'EUR', value: 25 });
+        assert.equal(formattedPrice, 'CHF 25.00');
     });
 });
