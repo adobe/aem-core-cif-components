@@ -28,14 +28,15 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      //'src/main/content/jcr_root/apps/core/cif/components/commerce/product/**/js/*.js',
+      'src/main/content/jcr_root/apps/core/cif/components/commerce/product/**/js/*.js',
       //'src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/**/js/*.js',
 
       //'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js',
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js',
       
       //'test/**/*Test.js'
-      'test/**/priceFormatterTest.js'
+      'test/**/priceFormatterTest.js',
+      'test/**/product/*.js'
     ],
 
 
@@ -50,7 +51,6 @@ module.exports = function(config) {
       // source files, that you wanna generate coverage for
       // do not include tests or libraries
       // (these files will be instrumented by Istanbul)
-      //'src/main/content/**/*.js': ['coverage']
       'test/**/*.js': ['webpack'],
       'src/main/content/**/*.js': ['webpack']
     },
