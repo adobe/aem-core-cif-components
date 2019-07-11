@@ -33,6 +33,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento | Java |
 | ------------------- | ------- | ------- | ------- | ---- |
+| 0.2.0               | 6.4.4.0 | 6.5.0   | 2.3.1 / 2.3.2   | 1.8  |
 | 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
 ### AEM Commerce connector for Magento
@@ -113,8 +114,11 @@ mvn clean install -Pformat-code
 ### JavaScript & CSS
 For formatting JavaScript and CSS we use [prettier](https://prettier.io/). The formatting is automatically checked when running `npm test` in the `ui.apps` project. To automatically format your code, please run the following command in `ui.apps`:
 ```bash
-npm run prettier-fix
+npm run prettier:fix
 ```
+
+## Packing Clientlibs with Webpack
+We use `webpack` to build our clientlibs. Please read [Packing Clientlibs with Webpack](https://github.com/adobe/aem-core-cif-components/wiki/Packing-Clientlibs-with-Webpack) for more information.
 
 ## Releases to Maven Central
 

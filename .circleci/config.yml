@@ -1,9 +1,12 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@1.0.5
+
 executors:
   cif_executor:
     docker:
-      - image: circleci/openjdk:8u212-jdk-stretch
+      - image: circleci/openjdk:8u212-jdk-stretch-node
 
 jobs:
   build:
@@ -28,9 +31,9 @@ jobs:
           path: bundles/core/target/surefire-reports
       - store_artifacts:
           path: bundles/core/target/surefire-reports
-      - run:
-          name: Upload Code Coverage
-          command: bash <(curl -s https://codecov.io/bash) -F unittests
+      - codecov/upload:
+          conf: .circleci/codecov.yml
+          flags: unittests
 
   karma:
     docker:
@@ -39,7 +42,11 @@ jobs:
       - checkout
       - run:
           name: Provision
-          command: npm install
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:build
           working_directory: ./ui.apps
       - run:
           name: Run Unit Tests
@@ -49,9 +56,9 @@ jobs:
           path: ui.apps/karma-junit
       - store_artifacts:
           path: ui.apps/karma-junit
-      - run:
-          name: Upload Code Coverage
-          command: bash <(curl -s https://codecov.io/bash) -F karma
+      - codecov/upload:
+          conf: .circleci/codecov.yml
+          flags: karma
 
   release:
     executor: cif_executor

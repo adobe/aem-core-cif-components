@@ -1,1 +1,1 @@
-dist/js/productlist.js
+dist/index.js

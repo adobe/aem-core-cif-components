@@ -1,0 +1,38 @@
+coverage:
+  status:
+    project:
+      default: off
+      unittests:
+        enabled: true
+        target: 55%
+        threshold: null
+        base: auto
+        flags: unittests
+      karma:
+        enabled: true
+        target: 90%
+        threshold: null
+        base: auto
+        flags: karma
+    patch:
+      default: off
+      unittests:
+        enabled: true
+        target: 55%
+        threshold: null
+        base: auto
+        flags: unittests
+      karma:
+        enabled: true
+        target: 90%
+        threshold: null
+        base: auto
+        flags: karma
+
+flags:
+  unittests:
+    paths:
+      - bundles/core/
+  karma:
+    paths:
+      - ui.apps/

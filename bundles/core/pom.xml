@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.1-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-core</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>AEM CIF Core Components - Core Bundle</name>
@@ -151,28 +151,13 @@
                                             <element>BUNDLE</element>
                                             <limits>
                                                 <limit>
-                                                    <counter>INSTRUCTION</counter>
+                                                    <counter>BRANCH</counter>
                                                     <value>COVEREDRATIO</value>
-                                                    <minimum>0.0</minimum>
-                                                </limit>
-                                            </limits>
-                                        </rule>
-                                        <rule>
-                                            <element>CLASS</element>
-                                            <limits>
-                                                <limit>
-                                                    <counter>INSTRUCTION</counter>
-                                                    <value>COVEREDRATIO</value>
-                                                    <minimum>0.0</minimum>
+                                                    <minimum>0.55</minimum>
                                                 </limit>
                                             </limits>
                                         </rule>
                                     </rules>
-                                    <excludes>
-                                        <!-- private enum; cannot test valueOf / values -->
-                                        <exclude>**/SocialMediaHelperImpl$WebsiteMetadata$Type.class</exclude>
-                                        <exclude>**/AdaptiveImageServlet$Source.class</exclude>
-                                    </excludes>
                                 </configuration>
                             </execution>
                             <execution>
@@ -507,7 +492,7 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>magento-graphql</artifactId>
-            <version>2.0.0-magento231</version>
+            <version>3.0.0-magento232</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
