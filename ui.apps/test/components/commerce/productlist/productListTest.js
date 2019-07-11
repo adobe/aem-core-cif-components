@@ -11,8 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
+
+import ProductList from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/js/productlist.js';
 
 describe('Productlist', () => {
     let listRoot;
@@ -33,10 +34,6 @@ describe('Productlist', () => {
             formatPrice(price) {}
         };
         sinon.stub(window.CIF.PriceFormatter.prototype, 'formatPrice').callsFake(p => p.value);
-
-        window.CIF.CommerceGraphqlApi = {
-            getProductPrices: sinon.stub().resolves(clientPrices)
-        };
     });
 
     after(() => {
@@ -64,17 +61,21 @@ describe('Productlist', () => {
                 </div>
             </div>`
         );
+
+        window.CIF.CommerceGraphqlApi = {
+            getProductPrices: sinon.stub().resolves(clientPrices)
+        };
     });
 
     it('initializes a product list component', () => {
-        let list = productListCtx.factory({ element: listRoot });
+        let list = new ProductList({ element: listRoot });
 
         assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c']);
     });
 
     it('retrieves prices via GraphQL', () => {
         listRoot.dataset.loadClientPrice = true;
-        let list = productListCtx.factory({ element: listRoot });
+        let list = new ProductList({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 
         return list._fetchPrices().then(() => {
@@ -88,8 +89,19 @@ describe('Productlist', () => {
         });
     });
 
+    it('skips retrieving of prices if CommerceGraphqlApi is not available', () => {
+        delete window.CIF.CommerceGraphqlApi;
+
+        listRoot.dataset.loadClientPrice = true;
+        let list = new ProductList({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
+
+        list._fetchPrices();
+        assert.isEmpty(list._state.prices);
+    });
+
     it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
-        let list = productListCtx.factory({ element: listRoot });
+        let list = new ProductList({ element: listRoot });
         assert.isFalse(list._state.loadPrices);
     });
 });

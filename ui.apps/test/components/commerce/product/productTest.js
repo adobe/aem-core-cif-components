@@ -11,8 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
+
+import Product from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
 
 describe('Product', () => {
     describe('Core', () => {
@@ -63,38 +64,38 @@ describe('Product', () => {
         it('initializes a configurable product component', () => {
             productRoot.dataset.configurable = true;
 
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
             assert.isTrue(product._state.configurable);
             assert.equal(product._state.sku, 'sample-sku');
         });
 
         it('initializes a simple product component', () => {
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
             assert.isFalse(product._state.configurable);
             assert.equal(product._state.sku, 'sample-sku');
         });
 
         it('retrieves prices via GraphQL', () => {
             productRoot.dataset.loadClientPrice = true;
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
             assert.isTrue(product._state.loadPrices);
 
             return product._initPrices().then(() => {
                 assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
                 assert.deepEqual(product._state.prices, clientPrices);
 
-                let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+                let price = productRoot.querySelector(Product.selectors.price).innerText;
                 assert.include(price, '123.45');
             });
         });
 
         it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
             assert.isFalse(product._state.loadPrices);
         });
 
         it('changes variant when receiving variantchanged event', () => {
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
 
             // Send event
             let variant = {
@@ -103,7 +104,7 @@ describe('Product', () => {
                 formattedPrice: '129,41 USD',
                 description: '<p>abc</p>'
             };
-            let changeEvent = new CustomEvent(productCtx.Product.events.variantChanged, {
+            let changeEvent = new CustomEvent(Product.events.variantChanged, {
                 bubbles: true,
                 detail: {
                     variant: variant
@@ -115,10 +116,10 @@ describe('Product', () => {
             assert.equal(product._state.sku, variant.sku);
 
             // Check fields
-            let sku = productRoot.querySelector(productCtx.Product.selectors.sku).innerText;
-            let name = productRoot.querySelector(productCtx.Product.selectors.name).innerText;
-            let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
-            let description = productRoot.querySelector(productCtx.Product.selectors.description).innerHTML;
+            let sku = productRoot.querySelector(Product.selectors.sku).innerText;
+            let name = productRoot.querySelector(Product.selectors.name).innerText;
+            let price = productRoot.querySelector(Product.selectors.price).innerText;
+            let description = productRoot.querySelector(Product.selectors.description).innerHTML;
 
             assert.equal(sku, variant.sku);
             assert.equal(name, variant.name);
@@ -127,7 +128,7 @@ describe('Product', () => {
         });
 
         it('changes variant with client-side price when receiving variantchanged event', () => {
-            let product = productCtx.factory({ element: productRoot });
+            let product = new Product({ element: productRoot });
             product._state.prices = {
                 'variant-sku': {
                     currency: 'USD',
@@ -137,7 +138,7 @@ describe('Product', () => {
 
             // Send event
             let variant = { sku: 'variant-sku' };
-            let changeEvent = new CustomEvent(productCtx.Product.events.variantChanged, {
+            let changeEvent = new CustomEvent(Product.events.variantChanged, {
                 bubbles: true,
                 detail: {
                     variant: variant
@@ -146,7 +147,7 @@ describe('Product', () => {
             productRoot.dispatchEvent(changeEvent);
 
             // Check fields
-            let price = productRoot.querySelector(productCtx.Product.selectors.price).innerText;
+            let price = productRoot.querySelector(Product.selectors.price).innerText;
             assert.include(price, '123.45');
         });
     });

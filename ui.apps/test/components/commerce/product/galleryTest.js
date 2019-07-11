@@ -11,8 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
+
+import Gallery from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/gallery.js';
 
 describe('Product', () => {
     describe('Gallery', () => {
@@ -53,7 +54,7 @@ describe('Product', () => {
                 </div>`
             );
 
-            galleryRoot = pageRoot.querySelector(galleryCtx.Gallery.selectors.galleryRoot);
+            galleryRoot = pageRoot.querySelector(Gallery.selectors.galleryRoot);
         });
 
         after(() => {
@@ -61,22 +62,22 @@ describe('Product', () => {
         });
 
         it('initializes a Gallery component', () => {
-            let gallery = galleryCtx.factory({ galleryItems });
+            let gallery = new Gallery({ galleryItems });
 
             assert.equal(gallery._rootNode, galleryRoot);
             // First thumbnail is selected
-            let first = galleryRoot.querySelector(galleryCtx.Gallery.selectors.galleryThumbnail);
+            let first = galleryRoot.querySelector(Gallery.selectors.galleryThumbnail);
             assert.isTrue(first.classList.contains('thumbnail__rootSelected'));
         });
 
         it('initializes an empty Gallery component', () => {
-            let gallery = galleryCtx.factory({});
+            let gallery = new Gallery({});
 
             assert.equal(gallery._galleryItems.length, 0);
         });
 
         it('updates gallery on variant change', () => {
-            let gallery = galleryCtx.factory({ galleryItems });
+            let gallery = new Gallery({ galleryItems });
 
             let newGalleryItems = [
                 {
@@ -90,7 +91,7 @@ describe('Product', () => {
             ];
 
             // Send event
-            let changeEvent = new CustomEvent(galleryCtx.Gallery.events.variantChanged, {
+            let changeEvent = new CustomEvent(Gallery.events.variantChanged, {
                 bubbles: true,
                 detail: {
                     variant: {
@@ -103,7 +104,7 @@ describe('Product', () => {
             assert.deepEqual(gallery._galleryItems, newGalleryItems);
 
             // Check DOM
-            let thumbnails = galleryRoot.querySelectorAll(galleryCtx.Gallery.selectors.galleryThumbnail);
+            let thumbnails = galleryRoot.querySelectorAll(Gallery.selectors.galleryThumbnail);
             assert.equal(thumbnails.length, 2);
 
             let [first, second] = thumbnails;
@@ -114,29 +115,29 @@ describe('Product', () => {
         });
 
         it('switches to a new image using a click', () => {
-            galleryCtx.factory({ galleryItems });
-            let [first, second] = galleryRoot.querySelectorAll(galleryCtx.Gallery.selectors.galleryThumbnail);
+            new Gallery({ galleryItems });
+            let [first, second] = galleryRoot.querySelectorAll(Gallery.selectors.galleryThumbnail);
 
             second.click();
 
             assert.isTrue(second.classList.contains('thumbnail__rootSelected'));
             assert.isFalse(first.classList.contains('thumbnail__rootSelected'));
 
-            let imageContainer = galleryRoot.querySelector(galleryCtx.Gallery.selectors.currentImageContainer);
+            let imageContainer = galleryRoot.querySelector(Gallery.selectors.currentImageContainer);
             assert.equal(imageContainer.src, galleryItems[1].path);
         });
 
         it('switches to a new image using the left arrow', () => {
-            galleryCtx.factory({ galleryItems });
-            let [first, second] = galleryRoot.querySelectorAll(galleryCtx.Gallery.selectors.galleryThumbnail);
+            new Gallery({ galleryItems });
+            let [first, second] = galleryRoot.querySelectorAll(Gallery.selectors.galleryThumbnail);
 
-            let leftArrow = galleryRoot.querySelector(galleryCtx.Gallery.selectors.leftArrow);
+            let leftArrow = galleryRoot.querySelector(Gallery.selectors.leftArrow);
 
             leftArrow.click();
             assert.isTrue(second.classList.contains('thumbnail__rootSelected'));
             assert.isFalse(first.classList.contains('thumbnail__rootSelected'));
 
-            let imageContainer = galleryRoot.querySelector(galleryCtx.Gallery.selectors.currentImageContainer);
+            let imageContainer = galleryRoot.querySelector(Gallery.selectors.currentImageContainer);
             assert.equal(imageContainer.src, galleryItems[1].path);
 
             // Click again to select first element again
@@ -147,16 +148,16 @@ describe('Product', () => {
         });
 
         it('switches to a new image using the right arrow', () => {
-            galleryCtx.factory({ galleryItems });
-            let [first, second] = galleryRoot.querySelectorAll(galleryCtx.Gallery.selectors.galleryThumbnail);
+            new Gallery({ galleryItems });
+            let [first, second] = galleryRoot.querySelectorAll(Gallery.selectors.galleryThumbnail);
 
-            let rightArrow = galleryRoot.querySelector(galleryCtx.Gallery.selectors.rightArrow);
+            let rightArrow = galleryRoot.querySelector(Gallery.selectors.rightArrow);
 
             rightArrow.click();
             assert.isTrue(second.classList.contains('thumbnail__rootSelected'));
             assert.isFalse(first.classList.contains('thumbnail__rootSelected'));
 
-            let imageContainer = galleryRoot.querySelector(galleryCtx.Gallery.selectors.currentImageContainer);
+            let imageContainer = galleryRoot.querySelector(Gallery.selectors.currentImageContainer);
             assert.equal(imageContainer.src, galleryItems[1].path);
 
             // Click again to select first element again
