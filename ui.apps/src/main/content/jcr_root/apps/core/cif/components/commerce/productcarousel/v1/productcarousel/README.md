@@ -48,7 +48,7 @@ BLOCK productcarousel
 
 BLOCK product
     ELEMENT product__card
-    ELEMENT product__card--image
+    ELEMENT product__card__image
     ELEMENT product__image
     ELEMENT product__price
 ```
