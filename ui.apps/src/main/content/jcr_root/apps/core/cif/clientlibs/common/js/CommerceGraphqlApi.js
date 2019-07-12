@@ -15,7 +15,7 @@
 
 class CommerceGraphqlApi {
     constructor(props) {
-        if (!props.endpoint) {
+        if (!props || !props.endpoint) {
             throw new Error(
                 'The commerce API is not properly initialized. The "endpoint" property is missing from the initialization object'
             );
