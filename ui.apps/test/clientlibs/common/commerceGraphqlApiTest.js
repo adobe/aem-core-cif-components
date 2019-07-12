@@ -240,7 +240,7 @@ describe('CommerceGraphqlApi', () => {
         return graphqlApi.getProductImageUrls({ 'product-a': 'sku-a-xl', 'product-b': 'sku-b' }).then(res => {
             assert.isTrue(fetchGraphqlSpy.calledOnce);
 
-            // Validate price dictionary
+            // Validate image url dictionary
             assert.hasAllKeys(res, ['sku-a-xl', 'sku-b']);
             assert.equal(res['sku-a-xl'], '/vsk12-la_main_2.jpg');
             assert.equal(res['sku-b'], '/vsk02-ll_main_2.jpg');
