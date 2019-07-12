@@ -12,6 +12,8 @@
  *
  ******************************************************************************/
 
+const webpackConfig = require('./webpack.config.js');
+
 module.exports = function(config) {
   config.set({
 
@@ -46,9 +48,11 @@ module.exports = function(config) {
       // source files, that you wanna generate coverage for
       // do not include tests or libraries
       // (these files will be instrumented by Istanbul)
-      'src/main/content/**/*.js': ['coverage']
+      'test/**/*.js': ['webpack'],
+      'src/main/content/**/*.js': ['webpack']
     },
 
+    webpack: webpackConfig({ karma: true }),
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -63,6 +67,7 @@ module.exports = function(config) {
 
     // optionally, configure the reporter
     coverageReporter: {
+      includeAllSources: true,
       type : 'lcov',
       dir : './coverage/',
       check: {

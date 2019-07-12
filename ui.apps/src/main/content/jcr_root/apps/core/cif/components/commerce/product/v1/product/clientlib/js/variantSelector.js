@@ -11,144 +11,140 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+'use strict';
 
-let variantSelectorCtx = (function(document) {
-    'use strict';
+/**
+ * Variant selector component.
+ */
+class VariantSelector {
+    constructor(config) {
+        this._element = config.element;
 
-    /**
-     * Variant selector component.
-     */
-    class VariantSelector {
-        constructor(config) {
-            this._element = config.element;
+        this._state = {
+            // Currently selected variant
+            variant: {},
 
-            this._state = {
-                // Currently selected variant
-                variant: {},
+            // Currently selected variant attributes
+            attributes: {},
 
-                // Currently selected variant attributes
-                attributes: {},
+            // Reference to buttons
+            buttons: [],
 
-                // Reference to buttons
-                buttons: [],
+            // List of product variants
+            variantData: []
+        };
 
-                // List of product variants
-                variantData: []
-            };
+        // Parse variant data
+        this._state.variantData = JSON.parse(this._element.dataset.variants);
 
-            // Parse variant data
-            this._state.variantData = JSON.parse(this._element.dataset.variants);
+        // Add click event handlers to variant selection buttons
+        this._state.buttons = this._element.querySelectorAll(VariantSelector.selectors.variantButtons);
+        this._state.buttons.forEach(function(button) {
+            button.addEventListener('click', this._onSelectVariant.bind(this));
+        }, this);
 
-            // Add click event handlers to variant selection buttons
-            this._state.buttons = this._element.querySelectorAll(VariantSelector.selectors.variantButtons);
-            this._state.buttons.forEach(function(button) {
-                button.addEventListener('click', this._onSelectVariant.bind(this));
-            }, this);
-
-            // Update button state on variant change
-            this._element.addEventListener(
-                VariantSelector.events.variantChanged,
-                this._updateButtonActiveClass.bind(this)
-            );
-        }
-
-        /**
-         * Variant changed event handler that adds or removes active styles on variant
-         * selection buttons based on the internal state.
-         */
-        _updateButtonActiveClass() {
-            this._state.buttons.forEach(function(button) {
-                const attributeIdentifier = button.closest('div.tileList__root').dataset.id;
-                const valueIdentifier = button.dataset.id;
-
-                if (
-                    this._state.attributes[attributeIdentifier] &&
-                    this._state.attributes[attributeIdentifier] === valueIdentifier
-                ) {
-                    if (button.classList.contains('swatch__root')) {
-                        button.classList.add('swatch__root_selected');
-                        button.innerHTML = VariantSelector.buttonCheckIcon; // Add check icon
-                    } else {
-                        button.classList.add('tile__root_selected');
-                    }
-                } else {
-                    if (button.classList.contains('swatch__root')) {
-                        button.classList.remove('swatch__root_selected');
-                        button.innerHTML = '';
-                    } else {
-                        button.classList.remove('tile__root_selected');
-                    }
-                }
-            }, this);
-        }
-
-        /**
-         * Returns the currently selected variant that matches the current selection stored
-         * in the internal state or null if no matching variant exists.
-         */
-        _findSelectedVariant() {
-            // Iterate variants
-            for (let variant of this._state.variantData) {
-                let match = true;
-
-                // Iterate variant attributes
-                for (let key in variant.variantAttributes) {
-                    let selectedValue = this._state.attributes[key];
-                    match = match && selectedValue == variant.variantAttributes[key];
-                }
-
-                // Return variant if all variant attributes match
-                if (match) return variant;
-            }
-
-            // Return null if nothing matches
-            return null;
-        }
-
-        /**
-         * Click event handler for a variant selection button that selects a new
-         * variant and stores it in the internal state and dispatches a variantchanged
-         * event.
-         */
-        _onSelectVariant(event) {
-            // Get value identifier from button
-            const button = event.target.closest('button');
-            const valueIdentifier = button.dataset.id;
-
-            // Get attribute identifier from parent
-            const parent = button.closest('div.tileList__root');
-            const attributeIdentifier = parent.dataset.id;
-
-            // Store selected variant
-            this._state.attributes[attributeIdentifier] = valueIdentifier;
-
-            // Find selected variant based on selected variants attributes
-            this._state.variant = this._findSelectedVariant.bind(this)();
-
-            // Emit variant change event
-            let variantEvent = new CustomEvent(VariantSelector.events.variantChanged, {
-                bubbles: true,
-                detail: this._state
-            });
-            this._element.dispatchEvent(variantEvent);
-
-            // Don't reload page on click
-            event.preventDefault();
-        }
+        // Update button state on variant change
+        this._element.addEventListener(VariantSelector.events.variantChanged, this._updateButtonActiveClass.bind(this));
     }
 
-    VariantSelector.selectors = {
-        self: '.productFullDetail__options',
-        variantButtons: '.productFullDetail__options button'
-    };
+    /**
+     * Variant changed event handler that adds or removes active styles on variant
+     * selection buttons based on the internal state.
+     */
+    _updateButtonActiveClass() {
+        this._state.buttons.forEach(function(button) {
+            const attributeIdentifier = button.closest('div.tileList__root').dataset.id;
+            const valueIdentifier = button.dataset.id;
 
-    VariantSelector.events = {
-        variantChanged: 'variantchanged'
-    };
+            if (
+                this._state.attributes[attributeIdentifier] &&
+                this._state.attributes[attributeIdentifier] === valueIdentifier
+            ) {
+                if (button.classList.contains('swatch__root')) {
+                    button.classList.add('swatch__root_selected');
+                    button.innerHTML = VariantSelector.buttonCheckIcon; // Add check icon
+                } else {
+                    button.classList.add('tile__root_selected');
+                }
+            } else {
+                if (button.classList.contains('swatch__root')) {
+                    button.classList.remove('swatch__root_selected');
+                    button.innerHTML = '';
+                } else {
+                    button.classList.remove('tile__root_selected');
+                }
+            }
+        }, this);
+    }
 
-    VariantSelector.buttonCheckIcon =
-        '<span class="icon__root"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
+    /**
+     * Returns the currently selected variant that matches the current selection stored
+     * in the internal state or null if no matching variant exists.
+     */
+    _findSelectedVariant() {
+        // Iterate variants
+        for (let variant of this._state.variantData) {
+            let match = true;
 
+            // Iterate variant attributes
+            for (let key in variant.variantAttributes) {
+                let selectedValue = this._state.attributes[key];
+                match = match && selectedValue == variant.variantAttributes[key];
+            }
+
+            // Return variant if all variant attributes match
+            if (match) return variant;
+        }
+
+        // Return null if nothing matches
+        return null;
+    }
+
+    /**
+     * Click event handler for a variant selection button that selects a new
+     * variant and stores it in the internal state and dispatches a variantchanged
+     * event.
+     */
+    _onSelectVariant(event) {
+        // Get value identifier from button
+        const button = event.target.closest('button');
+        const valueIdentifier = button.dataset.id;
+
+        // Get attribute identifier from parent
+        const parent = button.closest('div.tileList__root');
+        const attributeIdentifier = parent.dataset.id;
+
+        // Store selected variant
+        this._state.attributes[attributeIdentifier] = valueIdentifier;
+
+        // Find selected variant based on selected variants attributes
+        this._state.variant = this._findSelectedVariant.bind(this)();
+
+        // Emit variant change event
+        let variantEvent = new CustomEvent(VariantSelector.events.variantChanged, {
+            bubbles: true,
+            detail: this._state
+        });
+        this._element.dispatchEvent(variantEvent);
+
+        // Don't reload page on click
+        event.preventDefault();
+    }
+}
+
+VariantSelector.selectors = {
+    self: '.productFullDetail__options',
+    variantButtons: '.productFullDetail__options button'
+};
+
+VariantSelector.events = {
+    variantChanged: 'variantchanged'
+};
+
+VariantSelector.buttonCheckIcon =
+    '<span class="icon__root"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
+
+(function(document) {
     function onDocumentReady() {
         // Initialize variant selector
         const variantSelectorCmp = document.querySelector(VariantSelector.selectors.self);
@@ -160,11 +156,6 @@ let variantSelectorCtx = (function(document) {
     } else {
         document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
-    return {
-        VariantSelector: VariantSelector,
-        factory: config => {
-            return new VariantSelector(config);
-        }
-    };
 })(window.document);
+
+export default VariantSelector;
