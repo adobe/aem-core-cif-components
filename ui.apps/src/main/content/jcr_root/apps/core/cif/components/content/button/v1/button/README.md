@@ -27,24 +27,23 @@ Button Component meant to be placed on AEM pages and have the option to link it 
 * Default button color: black
 * Dialog can be used to configure Label and Link Type
 
-### Use Object
-com.adobe.cq.commerce.core.components.models.button.Button
+### Implementing class
+com.adobe.cq.commerce.core.components.internal.models.v1.button.ButtonImpl
 
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
-1) `./label` identifies the Label property
-2) `./linkType` identifies the Link Type to be connected with Button
-3) `./linkTo`  identifies the Link To AEM page property
-4) `./productSlug` identifies the Product to be connected with Button
-5) `./categoryId`  identifies the  Category to be connected with Button
+1) `./linkType` identifies the Link Type to be connected with Button
+2) `./linkTo`  identifies the Link To AEM page property
+3) `./productSlug` identifies the Product to be connected with Button
+4) `./categoryId`  identifies the  Category to be connected with Button
 5) `./externalLink` identifies the External Link to be connected with Button
 
 ## BEM Description
 
 ```
-1)btn
-2)btn-primary
+1)button
+2)button--secondary
 
 
 ## Information
