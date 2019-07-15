@@ -33,7 +33,7 @@ class CommerceGraphqlApi {
         return response.json();
     }
 
-    async _fetchGraphql(query, cached) {
+    async _fetchGraphql(query, ignoreCache = false) {
         // Minimize query
         query = query
             .split('\n')
@@ -42,22 +42,22 @@ class CommerceGraphqlApi {
         query = { query };
 
         let params = {
-            method: cached ? 'GET' : 'POST',
+            method: ignoreCache ? 'POST' : 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         };
 
         let url = this.endpoint;
-        if (cached) {
+        if (ignoreCache) {
+            // For un-cached POST request, add query to body
+            params.body = JSON.stringify(query);
+        } else {
             // For cached GET request, add query as query parameters
             let queryString = Object.keys(query)
                 .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(query[k])}`)
                 .join('&');
             url += '?' + queryString;
-        } else {
-            // For un-cached POST request, add query to body
-            params.body = JSON.stringify(query);
         }
 
         let response = await this._fetch(url, params);
@@ -103,7 +103,7 @@ class CommerceGraphqlApi {
             }
         }`;
 
-        let response = await this._fetchGraphql(query, true);
+        let response = await this._fetchGraphql(query);
         let items = response.data.products.items;
 
         let productsMedia = {};
@@ -167,7 +167,7 @@ class CommerceGraphqlApi {
                 }
             }
         }`;
-        let response = await this._fetchGraphql(query, true);
+        let response = await this._fetchGraphql(query);
 
         // Transform response in a SKU to price map
         let items = response.data.products.items;

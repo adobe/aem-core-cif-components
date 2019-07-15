@@ -40,7 +40,7 @@ describe('CommerceGraphqlApi', () => {
 
         let query = 'my-sample-query';
 
-        return graphqlApi._fetchGraphql(query, false).then(res => {
+        return graphqlApi._fetchGraphql(query, true).then(res => {
             // Verify requests
             assert.isTrue(fetchSpy.calledOnce);
             let fetchArguments = fetchSpy.firstCall.args;
@@ -63,7 +63,7 @@ describe('CommerceGraphqlApi', () => {
 
         let query = 'my-sample-query';
 
-        return graphqlApi._fetchGraphql(query, true).then(res => {
+        return graphqlApi._fetchGraphql(query).then(res => {
             // Verify requests
             assert.isTrue(fetchSpy.calledOnce);
             let fetchArguments = fetchSpy.firstCall.args;
