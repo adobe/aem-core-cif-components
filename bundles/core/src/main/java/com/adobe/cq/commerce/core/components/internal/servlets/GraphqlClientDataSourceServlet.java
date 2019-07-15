@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
+import com.day.cq.i18n.I18n;
 
 @Component(
     service = { Servlet.class },
@@ -53,9 +54,12 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
     @Reference
     ConfigurationAdmin configurationAdmin;
 
+    private I18n i18n;
+
     @Override
     protected void doGet(@NotNull SlingHttpServletRequest request, @NotNull SlingHttpServletResponse response) {
-        SimpleDataSource graphqlClientDataSource = new SimpleDataSource(this.getGraphqlClients(request).iterator());
+        i18n = new I18n(request);
+        SimpleDataSource graphqlClientDataSource = new SimpleDataSource(getGraphqlClients(request).iterator());
         request.setAttribute(DataSource.class.getName(), graphqlClientDataSource);
     }
 
@@ -71,9 +75,13 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
             return graphqlClients;
         }
 
+        // Add empty option
+        graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
+
+        // Add other configurations
         for (Configuration config : configs) {
             String identifier = (String) config.getProperties().get("identifier");
-            graphqlClients.add(new GraphqlClientResource(identifier, resolver));
+            graphqlClients.add(new GraphqlClientResource(identifier, identifier, resolver));
         }
 
         return graphqlClients;
@@ -85,11 +93,13 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         protected static final String PN_TEXT = "text";
 
         private String name;
+        private String value;
         private ValueMap valueMap;
 
-        GraphqlClientResource(String name, ResourceResolver resourceResolver) {
+        GraphqlClientResource(String name, String value, ResourceResolver resourceResolver) {
             super(resourceResolver, StringUtils.EMPTY, RESOURCE_TYPE_NON_EXISTING);
             this.name = name;
+            this.value = value;
         }
 
         @Override
@@ -116,7 +126,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         }
 
         protected String getValue() {
-            return name;
+            return value;
         }
 
         protected boolean getSelected() {
