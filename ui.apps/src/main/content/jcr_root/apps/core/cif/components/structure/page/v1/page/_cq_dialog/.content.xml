@@ -28,12 +28,12 @@
                                 jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                 <items jcr:primaryType="nt:unstructured">
-                                    <section
+                                    <graphqlsection
                                         jcr:primaryType="nt:unstructured"
                                         jcr:title="GraphQL Client Configuration"
                                         sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
                                         <items jcr:primaryType="nt:unstructured">
-                                            <commerceprovider
+                                            <graphqlclient
                                                 emptyOption="{Boolean}false"
                                                 granite:id="cq-commerce-graphql-client"
                                                 jcr:primaryType="nt:unstructured"
@@ -45,16 +45,23 @@
                                                 <datasource
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/page/v1/datasource/graphqlclients"/>
-                                            </commerceprovider>
+                                                <granite:data
+                                                        jcr:primaryType="nt:unstructured"
+                                                        cq-msm-lockable="graphqlclient"/>
+                                            </graphqlclient>
                                             <storeview
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                                                 fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used."
                                                 fieldLabel="Store View"
                                                 name="./cq:magentoStore"
-                                                renderReadOnly="{Boolean}false"/>
+                                                renderReadOnly="{Boolean}false">
+                                                <granite:data
+                                                        jcr:primaryType="nt:unstructured"
+                                                        cq-msm-lockable="storeview"/>
+                                            </storeview>
                                         </items>
-                                    </section>
+                                    </graphqlsection>
                                 </items>
                             </column>
                         </items>
