@@ -37,6 +37,8 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 | 0.2.0               | 6.4.4.0 | 6.5.0   | 2.3.1 / 2.3.2   | 1.8  |
 | 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1   | 1.8  |
 
+For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
+
 ### AEM Commerce connector for Magento
 
 This project uses the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package.
@@ -45,7 +47,12 @@ This project uses the [AEM Commerce connector for Magento](https://github.com/ad
 
 This project relies on the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). They are typically installed as part of AEM. If you install AEM without sample content option you have to [deploy them manually](https://github.com/adobe/aem-core-wcm-components#installation) before using the AEM CIF Core Components.
 
-For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
+### GraphQL Caching with Magento 2.3.2
+Starting with 2.3.2, Magento supports cache-able GraphQL requests and starting with version 0.2.1 the CIF core components will use it by default. To make the components work with Magento 2.3.1 you can manually disable this feature in the following locations:
+
+* For client-side components: [CommerceGraphqlApi.js](https://github.com/adobe/aem-core-cif-components/blob/master/ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js)
+
+
 
 ## Installation
 
