@@ -23,12 +23,15 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
+import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.button.Button;
+import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -55,10 +58,6 @@ public class ButtonImpl implements Button {
     private static final String LINK_TO = "linkTo";
 
     @ValueMapValue
-    @Default(values = DEFAULT_LABEL)
-    private String label;
-
-    @ValueMapValue
     @Default(values = DEFAULT_LINK)
     private String linkTo;
 
@@ -73,6 +72,10 @@ public class ButtonImpl implements Button {
     @ValueMapValue
     @Default(values = DEFAULT_LINK)
     private String externalLink;
+
+    @Self
+    @Via(type = ResourceSuperType.class)
+    private Button button;
 
     @ValueMapValue
     private String linkType;
@@ -107,7 +110,7 @@ public class ButtonImpl implements Button {
                     }
                     url = this.constructUrl(productPage.getPath(), productSlug);
                 } else {
-                    LOGGER.error("Can not get Product Slug!");
+                    LOGGER.debug("Can not get Product Slug!");
                 }
                 break;
             }
@@ -120,7 +123,7 @@ public class ButtonImpl implements Button {
                     }
                     url = this.constructUrl(categoryPage.getPath(), categoryId);
                 } else {
-                    LOGGER.error("Can not get Category Id!");
+                    LOGGER.debug("Can not get Category Id!");
                 }
                 break;
             }
@@ -129,7 +132,7 @@ public class ButtonImpl implements Button {
                 if (!externalLink.equals(DEFAULT_LINK)) {
                     url = this.externalLink;
                 } else {
-                    LOGGER.error("Can not get External Link!");
+                    LOGGER.debug("Can not get External Link!");
                 }
                 break;
             }
@@ -138,7 +141,7 @@ public class ButtonImpl implements Button {
                 if (!linkTo.equals(DEFAULT_LINK)) {
                     url = this.linkTo + ".html";
                 } else {
-                    LOGGER.error("Can not get LinkToPage!");
+                    LOGGER.debug("Can not get LinkToPage!");
                 }
                 break;
             }
@@ -147,16 +150,17 @@ public class ButtonImpl implements Button {
     }
 
     @Override
-    public String getUrl() {
-        return StringUtils.isNotBlank(url) ? url : DEFAULT_LINK;
+    public String getText() {
+        return StringUtils.isNotBlank(button.getText()) ? button.getText() : DEFAULT_LABEL;
     }
 
     @Override
-    public String getLabel() {
-        return StringUtils.isNotBlank(label) ? label : DEFAULT_LABEL;
+    public String getLink() {
+        return StringUtils.isNotBlank(url) ? url : DEFAULT_LINK;
     }
 
     private String constructUrl(final String pagePath, final String urlKey) {
         return String.format("%s.%s.html", pagePath, urlKey);
     }
+
 }
