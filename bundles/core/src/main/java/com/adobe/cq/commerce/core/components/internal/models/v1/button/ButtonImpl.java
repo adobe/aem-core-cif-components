@@ -159,8 +159,18 @@ public class ButtonImpl implements Button {
         return StringUtils.isNotBlank(url) ? url : DEFAULT_LINK;
     }
 
+    @Override
+    public  String getIcon() {
+       return button.getIcon();
+    }
+
+    @Override
+    public String getExportedType() {
+       return button.getExportedType();
+    }
+    
     private String constructUrl(final String pagePath, final String urlKey) {
         return String.format("%s.%s.html", pagePath, urlKey);
     }
-
+  
 }
