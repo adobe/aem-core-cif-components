@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.models.button.Button;
 import com.adobe.cq.sightly.WCMBindings;
+import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -50,85 +50,58 @@ public class ButtonImplTest {
     }
 
     @Test
-    public void testGetUrlForProduct() {
+    public void testGetLinkForProduct() {
 
         final String expResult = "/content/sample-page.blast-mini-pump.html";
         context.currentResource("/content/linkTypeProduct");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getUrl();
+        String result = button.getLink();
         assertEquals(expResult, result);
     }
 
     @Test
-    public void testGetUrlForCategory() {
+    public void testGetLinkForCategory() {
 
         final String expResult = "/content/sample-page.11.html";
         context.currentResource("/content/linkTypeCategory");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getUrl();
+        String result = button.getLink();
         assertEquals(expResult, result);
 
     }
 
     @Test
-    public void testGetUrlForExternalLink() {
+    public void testGetLinkForExternalLink() {
 
         final String expResult = "http://sample-link.com";
         context.currentResource("/content/linkTypeExternalLink");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getUrl();
+        String result = button.getLink();
         assertEquals(expResult, result);
     }
 
     @Test
-    public void testGetUrlForLinkTo() {
+    public void testGetLinkForLinkTo() {
 
         final String expResult = "/content/venia/language-masters/en.html";
         context.currentResource("/content/linkTypeLinkToPage");
         button = context.request().adaptTo(Button.class);
-        String result = button.getUrl();
-        assertEquals(expResult, result);
-
-    }
-
-    /**
-     * Test of getLabel method, of class ButtonImpl.
-     */
-    @Test
-    public void testDefaultLabel() {
-
-        final String expResult = "Label";
-        context.currentResource("/content/defaultLabel");
-        button = context.request().adaptTo(Button.class);
-
-        String result = button.getLabel();
+        String result = button.getLink();
         assertEquals(expResult, result);
 
     }
 
     @Test
-    public void testDefaultUrl() {
+    public void testDefaultLink() {
 
         final String expResult = "#";
         context.currentResource("/content/defaultUrl");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getUrl();
-        assertEquals(expResult, result);
-
-    }
-
-    @Test
-    public void testGetLabel() {
-
-        final String expResult = "Demo Label";
-        context.currentResource("/content/demoLabel");
-        button = context.request().adaptTo(Button.class);
-
-        String result = button.getLabel();
+        String result = button.getLink();
         assertEquals(expResult, result);
 
     }

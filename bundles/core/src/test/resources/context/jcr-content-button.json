@@ -24,15 +24,6 @@
     "linkType": "externalLink",
     "externalLink": "http://sample-link.com"
   },
-  "defaultLabel": {
-    "jcr:primaryType": "nt:unstructured",
-    "sling:resourceType": "core/cif/components/content/button/v1/button"
-  },
-  "demoLabel": {
-    "jcr:primaryType": "nt:unstructured",
-    "sling:resourceType": "core/cif/components/content/button/v1/button",
-    "label":"Demo Label"
-  },
   "defaultUrl": {
     "jcr:primaryType": "nt:unstructured",
     "sling:resourceType": "core/cif/components/content/button/v1/button"
