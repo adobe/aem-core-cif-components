@@ -1,4 +1,4 @@
-.btn {
+.button {
     display: inline-block;
     font-weight: 400;
     color: #212529;
@@ -18,7 +18,7 @@
         box-shadow 0.15s ease-in-out;
 }
 
-.btn-primary {
+.button--secondary {
     color: #fff;
     background-color: #000000;
     border-color: #000000;
