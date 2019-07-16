@@ -63,7 +63,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         request.setAttribute(DataSource.class.getName(), graphqlClientDataSource);
     }
 
-    private List<Resource> getGraphqlClients(@NotNull SlingHttpServletRequest request) {
+    protected List<Resource> getGraphqlClients(@NotNull SlingHttpServletRequest request) {
         ResourceResolver resolver = request.getResourceResolver();
         List<Resource> graphqlClients = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         return graphqlClients;
     }
 
-    private static class GraphqlClientResource extends SyntheticResource {
+    protected static class GraphqlClientResource extends SyntheticResource {
 
         protected static final String PN_VALUE = "value";
         protected static final String PN_TEXT = "text";
