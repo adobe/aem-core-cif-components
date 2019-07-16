@@ -15,9 +15,10 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Servlet;
 
@@ -30,12 +31,14 @@ import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.jetbrains.annotations.NotNull;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
 import com.day.cq.i18n.I18n;
@@ -51,10 +54,23 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
 
     public final static String RESOURCE_TYPE = "core/cif/components/page/v1/datasource/graphqlclients";
 
-    @Reference
-    ConfigurationAdmin configurationAdmin;
-
     private I18n i18n;
+
+    private Set<String> identifiers = new ConcurrentHashSet<>();
+
+    @Reference(
+        service = GraphqlClient.class,
+        bind = "bindGraphqlClient",
+        unbind = "unbindGraphqlClient",
+        cardinality = ReferenceCardinality.MULTIPLE,
+        policy = ReferencePolicy.DYNAMIC)
+    void bindGraphqlClient(GraphqlClient graphqlClient, Map<?, ?> properties) {
+        identifiers.add(graphqlClient.getIdentifier());
+    }
+
+    void unbindGraphqlClient(GraphqlClient graphqlClient, Map<?, ?> properties) {
+        identifiers.remove(graphqlClient.getIdentifier());
+    }
 
     @Override
     protected void doGet(@NotNull SlingHttpServletRequest request, @NotNull SlingHttpServletResponse response) {
@@ -63,24 +79,15 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         request.setAttribute(DataSource.class.getName(), graphqlClientDataSource);
     }
 
-    protected List<Resource> getGraphqlClients(@NotNull SlingHttpServletRequest request) {
+    List<Resource> getGraphqlClients(@NotNull SlingHttpServletRequest request) {
         ResourceResolver resolver = request.getResourceResolver();
         List<Resource> graphqlClients = new ArrayList<>();
-
-        List<Configuration> configs = null;
-        try {
-            configs = Arrays.asList(
-                configurationAdmin.listConfigurations("(service.factoryPid=com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl)"));
-        } catch (Exception e) {
-            return graphqlClients;
-        }
 
         // Add empty option
         graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
 
         // Add other configurations
-        for (Configuration config : configs) {
-            String identifier = (String) config.getProperties().get("identifier");
+        for (String identifier : identifiers) {
             graphqlClients.add(new GraphqlClientResource(identifier, identifier, resolver));
         }
 

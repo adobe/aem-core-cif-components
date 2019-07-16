@@ -46,8 +46,8 @@
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/page/v1/datasource/graphqlclients"/>
                                                 <granite:data
-                                                        jcr:primaryType="nt:unstructured"
-                                                        cq-msm-lockable="graphqlclient"/>
+                                                    jcr:primaryType="nt:unstructured"
+                                                    cq-msm-lockable="cq:graphqlClient"/>
                                             </graphqlclient>
                                             <storeview
                                                 jcr:primaryType="nt:unstructured"
@@ -57,8 +57,8 @@
                                                 name="./cq:magentoStore"
                                                 renderReadOnly="{Boolean}false">
                                                 <granite:data
-                                                        jcr:primaryType="nt:unstructured"
-                                                        cq-msm-lockable="storeview"/>
+                                                    jcr:primaryType="nt:unstructured"
+                                                    cq-msm-lockable="cq:magentoStore"/>
                                             </storeview>
                                         </items>
                                     </graphqlsection>

@@ -45,8 +45,8 @@
                                                     text="Show main categories"
                                                     value="true">
                                                 <granite:data
-                                                        jcr:primaryType="nt:unstructured"
-                                                        cq-msm-lockable="showMainCategories"/>
+                                                    jcr:primaryType="nt:unstructured"
+                                                    cq-msm-lockable="showMainCategories"/>
                                             </showMainCategories>
                                             <categoryId
                                                 cq:showOnCreate="{Boolean}true"

@@ -16,7 +16,11 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.sling.api.resource.Resource;
@@ -28,9 +32,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.day.cq.i18n.I18n;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -85,13 +88,10 @@ public class GraphqlClientDataSourceServletTest {
         Mockito.doReturn("inherit-translated").when(i18n).get(eq("Inherit"), any());
         Whitebox.setInternalState(servlet, "i18n", i18n);
 
-        // Stub configurationAdmin
-        Configuration myConfig = mock(Configuration.class, Mockito.RETURNS_DEEP_STUBS);
-        Mockito.when(myConfig.getProperties().get("identifier")).thenReturn("my-identifier");
-
-        ConfigurationAdmin configurationAdmin = mock(ConfigurationAdmin.class);
-        Mockito.doReturn(new Configuration[] { myConfig }).when(configurationAdmin).listConfigurations(any());
-        servlet.configurationAdmin = configurationAdmin;
+        // Add fake identifiers
+        Set<String> identifiers = new HashSet<>();
+        identifiers.add("my-identifier");
+        Whitebox.setInternalState(servlet, "identifiers", identifiers);
 
         // Call method
         List<Resource> resources = servlet.getGraphqlClients(context.request());
@@ -126,5 +126,31 @@ public class GraphqlClientDataSourceServletTest {
         // Verify ValueMap
         Assert.assertEquals("my-name", map.get(GraphqlClientDataSourceServlet.GraphqlClientResource.PN_TEXT));
         Assert.assertEquals("my-value", map.get(GraphqlClientDataSourceServlet.GraphqlClientResource.PN_VALUE));
+    }
+
+    @Test
+    public void testBindGraphqlClient() {
+        GraphqlClient mockClient = mock(GraphqlClient.class);
+        Mockito.doReturn("my-identifier").when(mockClient).getIdentifier();
+
+        servlet.bindGraphqlClient(mockClient, Collections.emptyMap());
+
+        Set<String> identifiers = (Set<String>) Whitebox.getInternalState(servlet, "identifiers");
+        Assert.assertEquals(1, identifiers.size());
+        Assert.assertTrue(identifiers.contains("my-identifier"));
+    }
+
+    @Test
+    public void testUnbindGraphqlClient() {
+        GraphqlClient mockClient = mock(GraphqlClient.class);
+        Mockito.doReturn("my-identifier").when(mockClient).getIdentifier();
+
+        Set<String> identifiers = new HashSet<>(Arrays.asList("my-identifier", "another-identifier"));
+        Whitebox.setInternalState(servlet, "identifiers", identifiers);
+
+        servlet.unbindGraphqlClient(mockClient, Collections.emptyMap());
+
+        Assert.assertEquals(1, identifiers.size());
+        Assert.assertTrue(identifiers.contains("another-identifier"));
     }
 }
