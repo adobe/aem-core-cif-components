@@ -480,6 +480,8 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.core</artifactId>
             <scope>provided</scope>
+            <version>2.5.0</version>
+            
         </dependency>
 
         <!-- CIF Dependencies -->
