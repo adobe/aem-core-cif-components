@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +33,6 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.eclipse.jetty.util.ConcurrentHashSet;
-import org.jetbrains.annotations.NotNull;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -73,13 +73,13 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
     }
 
     @Override
-    protected void doGet(@NotNull SlingHttpServletRequest request, @NotNull SlingHttpServletResponse response) {
+    protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
         i18n = new I18n(request);
         SimpleDataSource graphqlClientDataSource = new SimpleDataSource(getGraphqlClients(request).iterator());
         request.setAttribute(DataSource.class.getName(), graphqlClientDataSource);
     }
 
-    List<Resource> getGraphqlClients(@NotNull SlingHttpServletRequest request) {
+    List<Resource> getGraphqlClients(@Nonnull SlingHttpServletRequest request) {
         ResourceResolver resolver = request.getResourceResolver();
         List<Resource> graphqlClients = new ArrayList<>();
 
