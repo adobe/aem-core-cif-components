@@ -17,6 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel
 
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -47,14 +49,13 @@ public class ProductCarouselImplTest {
     private ProductCarousel slingModel;
     private List<ProductInterface> productsList;
 
-    @Mock
-    private String[] productSkuList;
+    private String[] productSkuList = { "170227049", "eqsusuely", "meotsuann", "meotsutrs", "mesusupis", "meskwimis" };
 
     @Before
     public void setUp() throws Exception {
 
         this.slingModel = new ProductCarouselImpl();
-        Whitebox.setInternalState(this.slingModel, "productSkuList", productSkuList);
+        Whitebox.setInternalState(this.slingModel, "productSkuList", this.productSkuList);
 
         Page productPage = mock(Page.class);
         when(productPage.getLanguage(false)).thenReturn(Locale.US);
@@ -97,6 +98,16 @@ public class ProductCarouselImplTest {
                 item.getFormattedPrice());
             Assert.assertTrue(StringUtils.endsWith(item.getImageURL(), productInterface.getThumbnail().getUrl()));
         }
+    }
+
+    @Test
+    public void testProductListOrder() {
+
+        List<ProductListItem> productList = this.slingModel.getProducts();
+        final List<String> productSkus = Arrays.asList(this.productSkuList);
+
+        Collections.sort(productList, Comparator.comparing(item -> productSkus.indexOf(item.getSKU())));
+        Assert.assertTrue(productSkus.equals(productList.stream().map(item -> item.getSKU()).collect(Collectors.toList())));
     }
 
 }
