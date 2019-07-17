@@ -1,3 +1,2 @@
-#base=js
-product-carousel.js
+dist/index.js
 

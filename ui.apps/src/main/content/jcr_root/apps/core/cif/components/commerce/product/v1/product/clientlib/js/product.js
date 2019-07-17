@@ -11,63 +11,97 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+'use strict';
 
-let productCtx = (function(document) {
-    'use strict';
+class Product {
+    constructor(config) {
+        this._element = config.element;
 
-    class Product {
-        constructor(config) {
-            this._element = config.element;
+        // Local state
+        this._state = {
+            // Current sku, either from the base product or from a variant
+            sku: this._element.querySelector(Product.selectors.sku).innerHTML,
 
-            // Local state
-            this._state = {
-                // Current sku, either from the base product or from a variant
-                sku: null,
+            // True if this product is configurable and has variants
+            configurable: this._element.dataset.configurable !== undefined,
 
-                // True if this product is configurable and has variants
-                configurable: false
-            };
-            this._state.configurable = this._element.dataset.configurable !== undefined;
-            this._state.sku = !this._state.configurable
-                ? this._element.querySelector(Product.selectors.sku).innerHTML
-                : null;
+            // Map with client-side fetched prices
+            prices: {},
 
-            // Update product data
-            this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
-        }
+            // Load prices on the client-side
+            loadPrices: this._element.dataset.loadClientPrice !== undefined
+        };
 
-        /**
-         * Variant changed event handler that updates the displayed product attributes
-         * based on the given event.
-         */
-        _onUpdateVariant(event) {
-            const variant = event.detail.variant;
-            if (!variant) return;
+        // Intl.NumberFormat instance for formatting prices
+        this._formatter =
+            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
-            // Update internal state
-            this._state.sku = variant.sku;
+        // Update product data
+        this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
 
-            // Update values and enable add to cart button
-            this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
-            this._element.querySelector(Product.selectors.name).innerText = variant.name;
-            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
-            this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
-        }
+        this._state.loadPrices && this._initPrices();
     }
 
-    Product.selectors = {
-        self: '[data-cmp-is=product]',
-        sku: '.productFullDetail__details [role=sku]',
-        name: '.productFullDetail__title [role=name]',
-        price: '.productFullDetail__productPrice [role=price]',
-        description: '.productFullDetail__description [role=description]',
-        mainImage: '.carousel__currentImage'
-    };
+    _initPrices() {
+        // Retrieve current prices
+        if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+        return window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku], true)
+            .then(prices => {
+                this._state.prices = prices;
 
-    Product.events = {
-        variantChanged: 'variantchanged'
-    };
+                // Update price
+                if (!(this._state.sku in prices)) return;
+                this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
+                    prices[this._state.sku]
+                );
+            })
+            .catch(err => {
+                console.error('Could not fetch prices', err);
+            });
+    }
 
+    /**
+     * Variant changed event handler that updates the displayed product attributes
+     * based on the given event.
+     */
+    _onUpdateVariant(event) {
+        const variant = event.detail.variant;
+        if (!variant) return;
+
+        // Update internal state
+        this._state.sku = variant.sku;
+
+        // Update values and enable add to cart button
+        this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
+        this._element.querySelector(Product.selectors.name).innerText = variant.name;
+        this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+
+        // Use client-side fetched price
+        if (this._state.sku in this._state.prices) {
+            this._element.querySelector(Product.selectors.price).innerText = this._formatter.formatPrice(
+                this._state.prices[this._state.sku]
+            );
+        } else {
+            // or server-side price as a backup
+            this._element.querySelector(Product.selectors.price).innerText = variant.formattedPrice;
+        }
+    }
+}
+
+Product.selectors = {
+    self: '[data-cmp-is=product]',
+    sku: '.productFullDetail__details [role=sku]',
+    name: '.productFullDetail__title [role=name]',
+    price: '.productFullDetail__productPrice [role=price]',
+    description: '.productFullDetail__description [role=description]',
+    mainImage: '.carousel__currentImage'
+};
+
+Product.events = {
+    variantChanged: 'variantchanged'
+};
+
+(function(document) {
     function onDocumentReady() {
         // Initialize product component
         const productCmp = document.querySelector(Product.selectors.self);
@@ -79,11 +113,6 @@ let productCtx = (function(document) {
     } else {
         document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
-    return {
-        Product: Product,
-        factory: config => {
-            return new Product(config);
-        }
-    };
 })(window.document);
+
+export default Product;

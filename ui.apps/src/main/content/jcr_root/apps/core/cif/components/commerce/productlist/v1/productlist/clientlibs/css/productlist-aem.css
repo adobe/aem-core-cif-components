@@ -68,3 +68,13 @@
     cursor: default;
     touch-action: none;
 }
+
+.category__image {
+    min-height: 460px;
+    padding: 20px 0;
+    margin-bottom: 40px;
+    background: rgb(var(--venia-grey)) 50% no-repeat;
+    background-size: cover;
+    position: relative;
+    text-align: center;
+}

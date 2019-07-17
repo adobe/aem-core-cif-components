@@ -5,6 +5,7 @@
 .classpath
 .project
 .settings
+.DS_Store
 
 # Ignore Maven stuff
 target/
@@ -43,3 +44,6 @@ hs_err_pid*
 **/node_modules/**
 **/karma-junit/**
 **/coverage/**
+
+**/dist/index.js
+**/dist/index.js.map

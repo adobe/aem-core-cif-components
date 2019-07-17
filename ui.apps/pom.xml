@@ -20,14 +20,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.2.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -85,6 +85,8 @@
                     <exclude>**/.settings/**</exclude>
                     <exclude>**/.DS_Store</exclude>
                     <exclude>**/target/**</exclude>
+                    <!-- Exclude un-transpiled JavaScript files -->
+                    <exclude>**/js/**</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -145,6 +147,42 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>webpack:build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                
             </plugin>
         </plugins>
     </build>

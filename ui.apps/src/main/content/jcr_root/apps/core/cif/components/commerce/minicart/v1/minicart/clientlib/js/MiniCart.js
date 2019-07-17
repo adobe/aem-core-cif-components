@@ -12,10 +12,18 @@
  *
  ******************************************************************************/
 
+import tplTotals from './templates/carttotals.js';
+import tplEmptyMiniCart from './templates/minicart-empty.js';
+import tplBody from './templates/minicart-body.js';
+import tplFooter from './templates/minicart-footer.js';
+import tplEdit from './templates/minicart-edit.js';
+import MiniCartItem from './MiniCartItem.js';
+import Handlebars from 'handlebars';
+
 /**
  * The object that drives the MiniCart component. It is responsible for fetching the data and rendering the cart items.
  */
-(function(templates) {
+(function() {
     'use strict';
 
     class MiniCart {
@@ -48,11 +56,11 @@
 
             this.rootNode = document.querySelector('.miniCart__root');
 
-            this.totalsTemplate = Handlebars.compile(templates.totals);
-            this.emptyTemplate = Handlebars.compile(templates.emptyMiniCart);
-            this.bodyTemplate = Handlebars.compile(templates.body);
-            this.footerTemplate = Handlebars.compile(templates.footer);
-            this.editTemplate = Handlebars.compile(templates.edit);
+            this.totalsTemplate = Handlebars.compile(tplTotals);
+            this.emptyTemplate = Handlebars.compile(tplEmptyMiniCart);
+            this.bodyTemplate = Handlebars.compile(tplBody);
+            this.footerTemplate = Handlebars.compile(tplFooter);
+            this.editTemplate = Handlebars.compile(tplEdit);
 
             this.removeItemHandler = this.removeItemHandler.bind(this);
             this.editHandler = this.editHandler.bind(this);
@@ -74,7 +82,6 @@
         async setState(state) {
             this.state.previousState = this.state.currentState;
             this.state.currentState = state;
-            console.log(`Setting component state to ${state}`);
             if (state === 'empty') {
                 this.renderEmpty();
             } else if (state === 'full') {
@@ -113,7 +120,6 @@
          */
         async refreshData() {
             if (!this.cartId || !this.cartQuote) {
-                console.log(`No cart information present, nothing to do`);
                 this.setState('empty');
             } else {
                 let cartDataPromise = this.commerceApi.getCart(this.cartQuote);
@@ -176,7 +182,6 @@
          * @returns {Promise<void>}
          */
         async removeItemHandler(itemId) {
-            console.log(`Removing item ${itemId}`);
             const success = await this.commerceApi.removeItem(this.cartQuote, itemId);
             await this.refreshData();
 
@@ -233,7 +238,6 @@
             };
 
             let response = await this.commerceApi.postCartEntry(this.cartId, params);
-            console.log(response);
             await this.refreshData();
 
             let customEvent = new CustomEvent('aem.cif.product-added-to-cart', {
@@ -305,7 +309,6 @@
          * Renders the edit window DOM
          */
         renderEdit() {
-            console.log(`Rendering the edit form...`);
             this.emptyDom();
             let html = this.editTemplate();
 
@@ -327,7 +330,6 @@
          * Renders an empty shopping cart.
          */
         renderEmpty() {
-            console.log(`Rendering empty cart..`);
             this.emptyDom();
             let html = this.emptyTemplate();
             this.rootNode.insertAdjacentHTML('beforeend', html);
@@ -337,10 +339,8 @@
          * Renders the body of the shopping cart with items and totals.
          */
         renderBody() {
-            console.log(`Rendering the body...`);
             if (this.state.previousState !== this.state.currentState) {
                 this.emptyDom();
-                console.log(`Recreating the DOM...`);
                 // recreate the sections from template and add them to the minicart
                 let bodyHtml = this.bodyTemplate();
                 this.rootNode.insertAdjacentHTML('beforeend', bodyHtml);
@@ -423,4 +423,4 @@
     } else {
         document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-})(window.CIF.MiniCart.templates);
+})();

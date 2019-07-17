@@ -12,10 +12,7 @@
  *
  ******************************************************************************/
 
-(function() {
-    'use strict';
-
-    const minicartEdit = `<form class="cartOptions__root">
+export default `<form class="cartOptions__root">
     <div class="cartOptions__focusItem">
         <span class="cartOptions__name">{{name}} {{currency}}{{price}}</span>
     </div>
@@ -55,8 +52,3 @@
         </div>
     </div>
 </form>`;
-
-    window.CIF = window.CIF || {};
-    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-    window.CIF.MiniCart.templates.edit = minicartEdit;
-})();

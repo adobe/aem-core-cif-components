@@ -1,2 +1,2 @@
-dist/css/productlist-component.css
-dist/css/productlist-aem.css
+css/productlist-component.css
+css/productlist-aem.css

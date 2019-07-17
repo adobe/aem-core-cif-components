@@ -13,10 +13,7 @@
  ******************************************************************************/
 'use strict';
 
-(function() {
-    window.CIF.MiniCart = window.CIF.MiniCart || {};
-
-    const cartItem = `
+export default `
     <div class="product__image"
          style="min-height: 100px; width: 80px; background-image: url('{{imageUrl}}');"></div>
     <div class="product__name">{{name}}</div>
@@ -37,10 +34,4 @@
                 <button data-action="remove"><span class="icon__root icon__root_trash"></span><span class="section__text">Remove item</span></button>
             </li>
         </ul>
-    </div>
-
-`;
-
-    window.CIF.MiniCart.templates = window.CIF.MiniCart.templates || {};
-    window.CIF.MiniCart.templates.cartItem = cartItem;
-})();
+    </div>`;
