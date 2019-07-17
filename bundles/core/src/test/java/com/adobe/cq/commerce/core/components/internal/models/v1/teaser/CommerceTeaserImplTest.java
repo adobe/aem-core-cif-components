@@ -37,6 +37,7 @@ public class CommerceTeaserImplTest {
 
     final private String productPath = "/content/test-product-page";
     final private String categoryPath = "/content/test-category-page";
+    final private String currentPath = "/content/venia/teaserTest";
 
     @Before
     public void setup() {
@@ -44,9 +45,11 @@ public class CommerceTeaserImplTest {
 
         Page productPage = mock(Page.class);
         Page categoryPage = mock(Page.class);
+        Page currentPage = mock(Page.class);
 
         when(productPage.getPath()).thenReturn(productPath);
         when(categoryPage.getPath()).thenReturn(categoryPath);
+        when(currentPage.getPath()).thenReturn(currentPath);
 
         List<Resource> actionResources = new ArrayList<>();
 
@@ -77,6 +80,7 @@ public class CommerceTeaserImplTest {
         Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
         Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
         Whitebox.setInternalState(cifTeaser, "productPage", productPage);
+        Whitebox.setInternalState(cifTeaser, "currentPage", currentPage);
         // Whitebox.setInternalState(cifTeaser, "actionsEnabled", true);
 
         cifTeaser.setActionsEnabled();
@@ -117,6 +121,9 @@ public class CommerceTeaserImplTest {
 
         Assert.assertTrue(actionItems.get(2).getURL().equalsIgnoreCase(this.categoryPath + ".30.html"));
         Assert.assertTrue(actionItems.get(2).getTitle().equalsIgnoreCase("My Category"));
+
+        Assert.assertTrue(actionItems.get(3).getURL().equalsIgnoreCase(this.currentPath + ".html"));
+        Assert.assertTrue(actionItems.get(3).getTitle().equalsIgnoreCase("This Page"));
 
     }
 }
