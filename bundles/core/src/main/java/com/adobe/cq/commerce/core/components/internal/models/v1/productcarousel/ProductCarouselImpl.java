@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -79,6 +81,7 @@ public class ProductCarouselImpl implements ProductCarousel {
                 resource.getPath());
         }
         this.productList = this.fetchProductFromGraphql(magentoGraphqlClient, productSkus);
+        Collections.sort(this.productList, Comparator.comparing(item -> productSkus.indexOf(item.getSku())));
     }
 
     public ProductPricesQueryDefinition generatePriceQuery() {

@@ -6,7 +6,7 @@ orbs:
 executors:
   cif_executor:
     docker:
-      - image: circleci/openjdk:8u212-jdk-stretch
+      - image: circleci/openjdk:8u212-jdk-stretch-node
 
 jobs:
   build:
@@ -42,7 +42,11 @@ jobs:
       - checkout
       - run:
           name: Provision
-          command: npm install
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:build
           working_directory: ./ui.apps
       - run:
           name: Run Unit Tests
