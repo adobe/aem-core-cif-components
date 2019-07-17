@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -33,13 +33,13 @@ public class CommerceTeaserActionItem implements ListItem {
         this.page = page;
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public String getTitle() {
         return title;
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public String getURL() {
         return Utils.constructUrlfromSlug(page.getPath(), selector);

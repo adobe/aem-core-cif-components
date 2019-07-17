@@ -367,12 +367,6 @@
             <artifactId>uber-jar</artifactId>
             <classifier>apis</classifier>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>17.0.0</version>
-        </dependency>
 
         <!-- Testing -->
         <dependency>
