@@ -5,6 +5,7 @@
 .classpath
 .project
 .settings
+.DS_Store
 
 # Ignore Maven stuff
 target/

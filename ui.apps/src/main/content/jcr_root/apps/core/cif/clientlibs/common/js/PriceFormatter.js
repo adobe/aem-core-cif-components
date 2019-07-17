@@ -11,30 +11,28 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+'use strict';
 
-window.CIF = window.CIF || {};
-
-let priceFormatterCtx = (function() {
-    'use strict';
-
-    class PriceFormatter {
-        constructor(locale) {
-            this._locale = locale;
-            this._formatter = null;
-        }
-
-        formatPrice(price) {
-            if (!this._formatter) {
-                this._formatter = new Intl.NumberFormat(this._locale, {
-                    style: 'currency',
-                    currency: price.currency
-                });
-            }
-            return this._formatter.format(price.value);
-        }
+class PriceFormatter {
+    constructor(locale) {
+        this._locale = locale;
+        this._formatter = null;
     }
 
+    formatPrice(price) {
+        if (!this._formatter) {
+            this._formatter = new Intl.NumberFormat(this._locale, {
+                style: 'currency',
+                currency: price.currency
+            });
+        }
+        return this._formatter.format(price.value);
+    }
+}
+
+(function() {
     function onDocumentReady() {
+        window.CIF = window.CIF || {};
         window.CIF.PriceFormatter = PriceFormatter;
     }
 
@@ -43,11 +41,6 @@ let priceFormatterCtx = (function() {
     } else {
         document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
-
-    return {
-        PriceFormatter: PriceFormatter,
-        factory: locale => {
-            return new PriceFormatter(locale);
-        }
-    };
 })();
+
+export default PriceFormatter;

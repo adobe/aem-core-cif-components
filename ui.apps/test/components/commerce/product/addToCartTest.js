@@ -11,8 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
+
+import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/addToCart.js';
 
 describe('Product', () => {
     describe('AddToCart', () => {
@@ -51,14 +52,14 @@ describe('Product', () => {
                 </div>`
             );
 
-            addToCartRoot = pageRoot.querySelector(addToCartCtx.AddToCart.selectors.self);
-            productRoot = pageRoot.querySelector(addToCartCtx.AddToCart.selectors.product);
+            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            productRoot = pageRoot.querySelector(AddToCart.selectors.product);
         });
 
         it('initializes an AddToCart component for a configurable product', () => {
             productRoot.dataset.configurable = true;
 
-            let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
 
             assert.isTrue(addToCart._state.configurable);
             assert.isNull(addToCart._state.sku);
@@ -66,7 +67,7 @@ describe('Product', () => {
         });
 
         it('initializes an AddToCart component for a simple product', () => {
-            let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
 
             assert.isFalse(addToCart._state.configurable);
             assert.equal(addToCart._state.sku, 'my-sample-sku');
@@ -75,10 +76,10 @@ describe('Product', () => {
 
         it('is disabled on invalid variant', () => {
             productRoot.dataset.configurable = true;
-            let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
 
             // Send event
-            let changeEvent = new CustomEvent(addToCartCtx.AddToCart.events.variantChanged, {
+            let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
                 bubbles: true,
                 detail: {}
             });
@@ -89,10 +90,10 @@ describe('Product', () => {
 
         it('reacts to a variantchanged event', () => {
             productRoot.dataset.configurable = true;
-            let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
 
             // Send event
-            let changeEvent = new CustomEvent(addToCartCtx.AddToCart.events.variantChanged, {
+            let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
                 bubbles: true,
                 detail: {
                     variant: {
@@ -117,7 +118,7 @@ describe('Product', () => {
                     addItem: spy
                 }
             };
-            let addToCart = addToCartCtx.factory({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
         });

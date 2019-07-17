@@ -11,8 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 'use strict';
+
+import VariantSelector from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/variantSelector.js';
 
 describe('Product', () => {
     describe('VariantSelector', () => {
@@ -48,14 +49,14 @@ describe('Product', () => {
         });
 
         it('initializes a variantselector component', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
 
             assert.deepEqual(selector._state.variantData, variantData);
             assert.equal(selector._state.buttons.length, 2);
         });
 
         it('returns the selected variant', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
             selector._state.attributes['color'] = 'red';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -63,7 +64,7 @@ describe('Product', () => {
         });
 
         it('returns null if no variant can be found', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
             selector._state.attributes['color'] = 'purple';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -71,9 +72,9 @@ describe('Product', () => {
         });
 
         it('dispatches a variantchanged event on changing the variant', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
             let spy = sinon.spy();
-            selectorRoot.addEventListener(variantSelectorCtx.VariantSelector.events.variantChanged, spy);
+            selectorRoot.addEventListener(VariantSelector.events.variantChanged, spy);
 
             // Simulate button click
             selector._onSelectVariant({
@@ -85,7 +86,7 @@ describe('Product', () => {
         });
 
         it('updates swatch button on receiving a variantchanged event', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
             selector._state.attributes['color'] = 'red';
 
             selector._updateButtonActiveClass();
@@ -97,7 +98,7 @@ describe('Product', () => {
         });
 
         it('updates tile button on receiving a variantchanged event', () => {
-            let selector = variantSelectorCtx.factory({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot });
             selector._state.attributes['color'] = 'blue';
 
             selector._updateButtonActiveClass();
