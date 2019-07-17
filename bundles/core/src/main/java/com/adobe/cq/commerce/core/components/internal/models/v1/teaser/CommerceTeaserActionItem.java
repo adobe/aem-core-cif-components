@@ -42,6 +42,7 @@ public class CommerceTeaserActionItem implements ListItem {
     @Nonnull
     @Override
     public String getURL() {
-        return Utils.constructUrlfromSlug(page.getPath(), selector);
+        return (selector == null || selector.trim().equalsIgnoreCase("")) ? (page.getPath() + ".html")
+            : Utils.constructUrlfromSlug(page.getPath(), selector);
     }
 }
