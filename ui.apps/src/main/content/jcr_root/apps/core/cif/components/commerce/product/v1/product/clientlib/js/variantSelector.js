@@ -46,12 +46,19 @@ class VariantSelector {
         // Update button state on variant change
         this._element.addEventListener(VariantSelector.events.variantChanged, this._updateButtonActiveClass.bind(this));
 
-        // Check for hash and update variant
+        // Check for initial variant sku in hash and listen for url changes
         this._initFromHash();
+        window.addEventListener('popstate', this._initFromHash.bind(this));
     }
 
+    /**
+     * Select variant from the current location hash. This method will update
+     * the internal state and emit a variantchanged event, so all components can
+     * update accordingly.
+     */
     _initFromHash() {
         let sku = window.location.hash.replace('#', '');
+        if (!sku) return;
 
         // Find variant with given sku
         this._state.variant = this._findSelectedVariant(sku);
@@ -59,11 +66,14 @@ class VariantSelector {
         // If variant is valid, store variant attributes and emit event to update
         // buttons and parent components.
         if (this._state.variant) {
-            this._state.attributes = this._state.variant.variantAttributes;
+            this._state.attributes = { ...this._state.variant.variantAttributes };
             this._emitVariantChangedEvent();
         }
     }
 
+    /**
+     * Emit a variantchanged event with a copy of the current component state.
+     */
     _emitVariantChangedEvent() {
         let variantEvent = new CustomEvent(VariantSelector.events.variantChanged, {
             bubbles: true,
@@ -118,6 +128,7 @@ class VariantSelector {
             }
 
             // Iterate variant attributes
+            if (sku) continue;
             for (let key in variant.variantAttributes) {
                 let selectedValue = this._state.attributes[key];
                 match = match && selectedValue == variant.variantAttributes[key];
@@ -161,6 +172,9 @@ class VariantSelector {
         event.preventDefault();
     }
 
+    /**
+     * Set location hash by pushing to the history state.
+     */
     _setHash(sku) {
         history.pushState(null, null, '#' + sku);
     }
