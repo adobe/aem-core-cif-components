@@ -90,15 +90,15 @@ public class MagentoGraphqlClient {
     }
 
     /**
-     * Executes the given Magento query and returns the response. This method now uses
-     * by default an HTTP GET request to fetch the data. Use {@link #execute(String, HttpMethod)}
-     * if you want to specify the HTTP method yourself.
+     * Executes the given Magento query and returns the response. This method will use
+     * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
+     * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.
      * 
      * @param query The GraphQL query.
      * @return The GraphQL response.
      */
     public GraphqlResponse<Query, Error> execute(String query) {
-        return execute(query, HttpMethod.GET);
+        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
     }
 
     /**
@@ -110,7 +110,13 @@ public class MagentoGraphqlClient {
      * @return The GraphQL response.
      */
     public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
-        requestOptions.withHttpMethod(httpMethod);
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
+
+        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
+        RequestOptions options = new RequestOptions()
+            .withGson(requestOptions.getGson())
+            .withHeaders(requestOptions.getHeaders())
+            .withHttpMethod(httpMethod);
+
+        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
     }
 }
