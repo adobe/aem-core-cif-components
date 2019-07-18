@@ -45,6 +45,31 @@ class VariantSelector {
 
         // Update button state on variant change
         this._element.addEventListener(VariantSelector.events.variantChanged, this._updateButtonActiveClass.bind(this));
+
+        // Check for hash and update variant
+        this._initFromHash();
+    }
+
+    _initFromHash() {
+        let sku = window.location.hash.replace('#', '');
+
+        // Find variant with given sku
+        this._state.variant = this._findSelectedVariant(sku);
+
+        // If variant is valid, store variant attributes and emit event to update
+        // buttons and parent components.
+        if (this._state.variant) {
+            this._state.attributes = this._state.variant.variantAttributes;
+            this._emitVariantChangedEvent();
+        }
+    }
+
+    _emitVariantChangedEvent() {
+        let variantEvent = new CustomEvent(VariantSelector.events.variantChanged, {
+            bubbles: true,
+            detail: this._state
+        });
+        this._element.dispatchEvent(variantEvent);
     }
 
     /**
@@ -58,7 +83,7 @@ class VariantSelector {
 
             if (
                 this._state.attributes[attributeIdentifier] &&
-                this._state.attributes[attributeIdentifier] === valueIdentifier
+                this._state.attributes[attributeIdentifier] == valueIdentifier
             ) {
                 if (button.classList.contains('swatch__root')) {
                     button.classList.add('swatch__root_selected');
@@ -78,13 +103,19 @@ class VariantSelector {
     }
 
     /**
-     * Returns the currently selected variant that matches the current selection stored
-     * in the internal state or null if no matching variant exists.
+     * Returns the currently selected variant that matches either the sku given
+     * as argument or the current variant attribute selection stored in the
+     * internal state or null if no matching variant exists.
      */
-    _findSelectedVariant() {
+    _findSelectedVariant(sku) {
         // Iterate variants
         for (let variant of this._state.variantData) {
             let match = true;
+
+            // If sku is given, match with sku
+            if (sku && variant.sku == sku) {
+                return variant;
+            }
 
             // Iterate variant attributes
             for (let key in variant.variantAttributes) {
@@ -119,16 +150,19 @@ class VariantSelector {
 
         // Find selected variant based on selected variants attributes
         this._state.variant = this._findSelectedVariant.bind(this)();
+        this._emitVariantChangedEvent();
 
-        // Emit variant change event
-        let variantEvent = new CustomEvent(VariantSelector.events.variantChanged, {
-            bubbles: true,
-            detail: this._state
-        });
-        this._element.dispatchEvent(variantEvent);
+        // Update hash only if a proper variant was found
+        if (this._state.variant) {
+            this._setHash(this._state.variant.sku);
+        }
 
         // Don't reload page on click
         event.preventDefault();
+    }
+
+    _setHash(sku) {
+        history.pushState(null, null, '#' + sku);
     }
 }
 
