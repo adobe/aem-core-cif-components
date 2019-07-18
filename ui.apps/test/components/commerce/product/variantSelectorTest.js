@@ -21,12 +21,14 @@ describe('Product', () => {
         let variantData = [
             {
                 name: 'Red Jeans',
+                sku: 'red',
                 variantAttributes: {
                     color: 'red'
                 }
             },
             {
                 name: 'Blue Jeans',
+                sku: 'blue',
                 variantAttributes: {
                     color: 'blue'
                 }
@@ -53,6 +55,14 @@ describe('Product', () => {
 
             assert.deepEqual(selector._state.variantData, variantData);
             assert.equal(selector._state.buttons.length, 2);
+        });
+
+        it('initializes from a window location hash', () => {
+            window.location.hash = '#red';
+
+            let selector = new VariantSelector({ element: selectorRoot });
+
+            assert.equal(selector._state.variant.sku, 'red');
         });
 
         it('returns the selected variant', () => {
@@ -83,6 +93,19 @@ describe('Product', () => {
             });
 
             assert.isTrue(spy.called);
+        });
+
+        it('updates the window location hash on changing the variant', () => {
+            let selector = new VariantSelector({ element: selectorRoot });
+
+            // Simulate button click
+            selector._onSelectVariant({
+                target: selectorRoot.querySelector("[data-id='red']"),
+                preventDefault: () => {}
+            });
+
+            // Verify location hash
+            assert.equal(window.location.hash, '#red');
         });
 
         it('updates swatch button on receiving a variantchanged event', () => {
