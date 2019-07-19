@@ -23,6 +23,7 @@ Product component is a server side component written in HTL, allowing to display
 * Displays product gallery.
 * Displays "add to cart" button to add a simple product or selected variant to the cart.
 * Client-side loaded prices using GraphQL. Can be disabled in the design dialog.
+* Variant selection respects variant SKUs in location hash (e.g. `#variant-a`) and supports the browser history API.
 
 ### Use Object
 The Product component uses the `com.adobe.cq.commerce.core.components.models.product.Product` Sling model as its Use-object.
