@@ -50,6 +50,10 @@ describe('Product', () => {
             );
         });
 
+        afterEach(() => {
+            window.location.hash = '';
+        });
+
         it('initializes a variantselector component', () => {
             let selector = new VariantSelector({ element: selectorRoot });
 
@@ -57,7 +61,7 @@ describe('Product', () => {
             assert.equal(selector._state.buttons.length, 2);
         });
 
-        it('initializes from a window location hash', () => {
+        it('initializes variant from a window location hash', () => {
             window.location.hash = '#red';
 
             let selector = new VariantSelector({ element: selectorRoot });
@@ -65,12 +69,27 @@ describe('Product', () => {
             assert.equal(selector._state.variant.sku, 'red');
         });
 
-        it('returns the selected variant', () => {
+        it('initializes base product for invalid window location hash', () => {
+            window.location.hash = '#purple';
+
+            let selector = new VariantSelector({ element: selectorRoot });
+
+            assert.isNull(selector._state.variant);
+        });
+
+        it('returns the selected variant based on attributes', () => {
             let selector = new VariantSelector({ element: selectorRoot });
             selector._state.attributes['color'] = 'red';
 
             let selectedVariant = selector._findSelectedVariant();
             assert.equal(selectedVariant.name, variantData[0].name);
+        });
+
+        it('returns the selected variant based on sku', () => {
+            let selector = new VariantSelector({ element: selectorRoot });
+
+            let selectedVariant = selector._findSelectedVariant('blue');
+            assert.equal(selectedVariant.name, variantData[1].name);
         });
 
         it('returns null if no variant can be found', () => {
