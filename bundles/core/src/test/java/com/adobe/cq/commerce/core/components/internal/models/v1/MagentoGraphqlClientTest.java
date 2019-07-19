@@ -29,6 +29,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -58,13 +59,17 @@ public class MagentoGraphqlClientTest {
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+
+        // Verify parameters with default execute() method and store property
         client.execute("{dummy}");
-
         List<Header> headers = withStoreHeader ? Collections.singletonList(new BasicHeader("Store", "my-store")) : Collections.emptyList();
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers);
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
 
+        // Verify setting a custom HTTP method
+        client.execute("{dummy}", HttpMethod.GET);
+        matcher = new RequestOptionsMatcher(headers, HttpMethod.GET);
         Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
@@ -105,9 +110,11 @@ public class MagentoGraphqlClientTest {
     private static class RequestOptionsMatcher extends ArgumentMatcher<RequestOptions> {
 
         private List<Header> headers;
+        private HttpMethod httpMethod;
 
-        public RequestOptionsMatcher(List<Header> headers) {
+        public RequestOptionsMatcher(List<Header> headers, HttpMethod httpMethod) {
             this.headers = headers;
+            this.httpMethod = httpMethod;
         }
 
         @Override
@@ -130,6 +137,11 @@ public class MagentoGraphqlClientTest {
                         return false;
                     }
                 }
+
+                if (httpMethod != null && !httpMethod.equals(requestOptions.getHttpMethod())) {
+                    return false;
+                }
+
                 return true;
             } catch (Exception e) {
                 return false;
