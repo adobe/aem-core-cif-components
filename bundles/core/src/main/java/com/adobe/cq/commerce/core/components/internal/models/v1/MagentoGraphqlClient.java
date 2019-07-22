@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -89,7 +90,9 @@ public class MagentoGraphqlClient {
     }
 
     /**
-     * Executes the given Magento request and returns the response.
+     * Executes the given Magento query and returns the response. This method will use
+     * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
+     * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.
      * 
      * @param query The GraphQL query.
      * @return The GraphQL response.
@@ -98,4 +101,22 @@ public class MagentoGraphqlClient {
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
     }
 
+    /**
+     * Executes the given Magento query and returns the response. This method
+     * uses the given <code>httpMethod</code> to fetch the data.
+     * 
+     * @param query The GraphQL query.
+     * @param httpMethod The HTTP method that will be used to fetch the data.
+     * @return The GraphQL response.
+     */
+    public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
+
+        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
+        RequestOptions options = new RequestOptions()
+            .withGson(requestOptions.getGson())
+            .withHeaders(requestOptions.getHeaders())
+            .withHttpMethod(httpMethod);
+
+        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    }
 }
