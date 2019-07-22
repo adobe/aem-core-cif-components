@@ -169,7 +169,7 @@
                     </execution>
                     <execution>
                         <id>npm-webpack-build</id>
-                        <phase>compile</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
