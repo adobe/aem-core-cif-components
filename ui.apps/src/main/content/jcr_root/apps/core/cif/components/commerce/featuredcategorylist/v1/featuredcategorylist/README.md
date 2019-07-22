@@ -43,13 +43,6 @@ The Featured category list component uses the `com.adobe.cq.commerce.core.compon
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
  `./categoryIds` - Category ids in an Array of string saved by Category Picker  .
- 
- 
-## Client Libraries
-The component provides a `core.cif.components.categorylist.v1` client library category that contains a recommended base
-CSS styling and JavaScript component
-
- 
 
 ### CSS API (BEM)
 

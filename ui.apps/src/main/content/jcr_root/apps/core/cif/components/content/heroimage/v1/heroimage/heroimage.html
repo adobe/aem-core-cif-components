@@ -11,9 +11,7 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.heroImage="com.adobe.cq.commerce.core.components.models.HeroImage"
-     data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html">
-    <sly data-sly-call="${clientlib.all @ categories='core.cif.components.heroimage.v1'}"/>
+<sly data-sly-use.heroImage="com.adobe.cq.commerce.core.components.models.HeroImage">
     <div class="${heroImage.classList} jumbotron"
          style="background-image: url('${(properties.fileReference || properties.fileName) ? heroImage.imageSrc : '' @ context='uri'}');">
         <div class="container cq-dd-image">

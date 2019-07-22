@@ -1,2 +1,0 @@
-css/productlist-component.css
-css/productlist-aem.css
