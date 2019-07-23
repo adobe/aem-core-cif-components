@@ -29,8 +29,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
@@ -52,7 +50,6 @@ import com.day.cq.wcm.api.Page;
 public class ProductTeaserImpl implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductTeaserImpl.class);
     private static final String PRODUCT_PATH_PROP = "productPath";
 
     @Inject
