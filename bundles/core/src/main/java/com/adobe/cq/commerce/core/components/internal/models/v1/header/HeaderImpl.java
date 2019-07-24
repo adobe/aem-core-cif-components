@@ -52,16 +52,11 @@ public class HeaderImpl implements Header {
     @Inject
     private String minicartNodeName;
 
-    private Page searchResultsPage;
     private Page navigationRootPage;
 
     @Override
     public String getSearchResultsPageUrl() {
-        if (searchResultsPage == null) {
-            searchResultsPage = Utils.getSearchResultsPage(currentPage);
-        }
-
-        return searchResultsPage.getPath() + ".html";
+        throw new UnsupportedOperationException();
     }
 
     @Override

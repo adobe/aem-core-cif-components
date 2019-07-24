@@ -13,31 +13,15 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.adobe.cq.commerce.core.components.models.header;
+package com.adobe.cq.commerce.core.components.models.searchbar;
 
 import javax.annotation.Nullable;
 
-import org.apache.sling.api.resource.Resource;
-
 /**
- * Sling Model API for the Header component
+ * Sling Model API for the Searchbar component
  */
-public interface Header {
+public interface Searchbar {
 
-    @Deprecated
     @Nullable
     String getSearchResultsPageUrl();
-
-    /**
-     * @return the URL of the navigation root page
-     */
-    @Nullable
-    String getNavigationRootPageUrl();
-
-    /**
-     * @return the {@link Resource} representing the "mincart" component, or <code>null</code> if there is no child resource with the name
-     *         <code>minicart</code>
-     */
-    @Nullable
-    Resource getMinicartResource();
 }

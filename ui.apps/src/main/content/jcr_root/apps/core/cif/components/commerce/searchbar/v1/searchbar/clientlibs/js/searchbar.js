@@ -22,6 +22,8 @@
             </span>
             </button>`;
 
+    const SEARCHBAR_TOGGLE = '.searchTrigger__root';
+
     class Searchbar {
         constructor(props) {
             this._classes = {
@@ -59,7 +61,7 @@
         _installListeners() {
             let that = this;
             // listen to onclick on the "search" icon in the header
-            document.querySelector('header button.searchTrigger__root').addEventListener('click', event => {
+            document.querySelector(SEARCHBAR_TOGGLE).addEventListener('click', event => {
                 this.toggle();
             });
         }
