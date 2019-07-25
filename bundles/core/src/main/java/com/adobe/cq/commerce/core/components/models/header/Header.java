@@ -24,10 +24,6 @@ import org.apache.sling.api.resource.Resource;
  */
 public interface Header {
 
-    @Deprecated
-    @Nullable
-    String getSearchResultsPageUrl();
-
     /**
      * @return the URL of the navigation root page
      */

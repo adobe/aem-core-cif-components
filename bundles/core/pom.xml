@@ -57,6 +57,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jacoco.data.file>${project.build.directory}/jacoco.exec</jacoco.data.file>
         <formatter.config>../../eclipse-formatter.xml</formatter.config>
+        <baseline.skip>true</baseline.skip>
     </properties>
 
     <build>
@@ -181,9 +182,6 @@
                                 <Bundle-RequiredExecutionEnvironment>JavaSE-1.${aem.java.version}</Bundle-RequiredExecutionEnvironment>
                             </instructions>
                         </configuration>
-                        <!-- 
-                        TODO:BASELINE DISABLED UNTIL VERSION 1.0.0
-
                         <executions>
                             <execution>
                                 <id>baseline</id>
@@ -191,7 +189,7 @@
                                     <goal>baseline</goal>
                                 </goals>
                             </execution>
-                        </executions> -->
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

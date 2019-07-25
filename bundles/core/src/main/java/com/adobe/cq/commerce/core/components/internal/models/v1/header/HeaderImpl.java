@@ -53,11 +53,6 @@ public class HeaderImpl implements Header {
     private Page navigationRootPage;
 
     @Override
-    public String getSearchResultsPageUrl() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getNavigationRootPageUrl() {
         if (navigationRootPage == null) {
             navigationRootPage = Utils.getNavigationRootPage(currentPage);
