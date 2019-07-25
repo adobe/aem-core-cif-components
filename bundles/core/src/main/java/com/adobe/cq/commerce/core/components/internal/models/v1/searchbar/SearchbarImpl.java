@@ -20,8 +20,6 @@ import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
@@ -37,8 +35,6 @@ import com.day.cq.wcm.api.Page;
     adapters = Searchbar.class,
     resourceType = SearchbarImpl.RESOURCE_TYPE)
 public class SearchbarImpl implements Searchbar {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchbarImpl.class);
-
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchbar/v1/searchbar";
 
     @Inject
