@@ -42,6 +42,7 @@ public class HeaderImpl implements Header {
 
     static final String RESOURCE_TYPE = "core/cif/components/structure/header/v1/header";
     static final String MINICART_NODE_NAME = "minicart";
+    static final String SEARCHBAR_NODE_NAME = "searchbar";
 
     @Inject
     private Page currentPage;
@@ -49,20 +50,7 @@ public class HeaderImpl implements Header {
     @Inject
     private Resource resource;
 
-    @Inject
-    private String minicartNodeName;
-
-    private Page searchResultsPage;
     private Page navigationRootPage;
-
-    @Override
-    public String getSearchResultsPageUrl() {
-        if (searchResultsPage == null) {
-            searchResultsPage = Utils.getSearchResultsPage(currentPage);
-        }
-
-        return searchResultsPage.getPath() + ".html";
-    }
 
     @Override
     public String getNavigationRootPageUrl() {
@@ -79,9 +67,10 @@ public class HeaderImpl implements Header {
     }
 
     public Resource getMinicartResource() {
-        Resource miniCart = resource.getChild(minicartNodeName);
+        return resource.getChild(MINICART_NODE_NAME);
+    }
 
-        return miniCart;
-
+    public Resource getSearchbarResource() {
+        return resource.getChild(SEARCHBAR_NODE_NAME);
     }
 }

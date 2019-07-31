@@ -12,7 +12,6 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.searchbar="searchbar.html"
      data-sly-use.header="${'com.adobe.cq.commerce.core.components.models.header.Header' @ minicartNodeName = 'minicart'}">
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.header.v1'}"/>
     <header class="header__root header__closed">
@@ -35,6 +34,6 @@
                 <sly data-sly-test="${header.minicartResource}" data-sly-resource="${header.minicartResource}"></sly>
             </div>
         </div>
-        <sly data-sly-call="${searchbar.searchbar @ header=header}"></sly>
+        <sly data-sly-test="${header.searchbarResource}" data-sly-resource="${header.searchbarResource}"/>
     </header>
 </sly>
