@@ -53,16 +53,16 @@ public class CommerceTeaserImplTest {
 
         List<Resource> actionResources = new ArrayList<>();
 
-        // Action node 1 - productSKU configured, category left blank, text set to some value
+        // Action node 1 - productSlug configured, category left blank, text set to some value
         actionResources.add(getActionNodeResource("278", null, "My Product"));
 
-        // Action node 2 - productSKU left blank, category configured, text set to some value
+        // Action node 2 - productSlug left blank, category configured, text set to some value
         actionResources.add(getActionNodeResource(null, "30", "My Category"));
 
-        // Action node 3 - productSKU configured, category also configured, text set to some value
+        // Action node 3 - productSlug configured, category also configured, text set to some value
         actionResources.add(getActionNodeResource("278", "30", "My Category"));
 
-        // Action node 4 - productSKU left blank, category also left blank, text set to some value
+        // Action node 4 - productSlug left blank, category also left blank, text set to some value
         actionResources.add(getActionNodeResource(null, null, "This Page"));
 
         Resource mockedResource = mock(Resource.class);
@@ -89,13 +89,13 @@ public class CommerceTeaserImplTest {
 
     }
 
-    Resource getActionNodeResource(String sku, String categoryId, String text) {
+    Resource getActionNodeResource(String productSlug, String categorySlug, String text) {
         Resource actionResource = mock(Resource.class);
 
         Map<String, Object> actionProperties = new HashMap<>();
 
-        actionProperties.put(CommerceTeaser.PN_ACTION_PRODUCT_SKU, sku);
-        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_ID, categoryId);
+        actionProperties.put(CommerceTeaser.PN_ACTION_PRODUCT_SLUG, productSlug);
+        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_SLUG, categorySlug);
         actionProperties.put(CommerceTeaser.PN_ACTION_TEXT, text);
 
         ValueMapDecorator vMD = new ValueMapDecorator(actionProperties);
