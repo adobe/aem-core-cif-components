@@ -57,6 +57,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jacoco.data.file>${project.build.directory}/jacoco.exec</jacoco.data.file>
         <formatter.config>../../eclipse-formatter.xml</formatter.config>
+        <baseline.skip>true</baseline.skip>
     </properties>
 
     <build>

@@ -1,0 +1,15 @@
+{
+  "pageA": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType":"cq:PageContent",
+      "cq:cifSearchResultsPage": "/content/pageB"
+    }
+  },
+  "pageB": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent"
+    }
+  }
+}
