@@ -1,0 +1,26 @@
+{
+  "name": "minicart",
+  "version": "1.0.0",
+  "description": "A shopping cart component implemented in React",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack",
+    "build:clientlib": "yarn run build && node scripts/postbuild.js"
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-feather": "^2.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "css-loader": "^3.1.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.38.0"
+  }
+}

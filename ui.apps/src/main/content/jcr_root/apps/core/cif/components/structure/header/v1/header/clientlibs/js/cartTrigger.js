@@ -19,9 +19,10 @@
         constructor() {
             this.rootNode = document.querySelector('button.cartTrigger__root');
             this.rootNode.addEventListener('click', event => {
-                if (window.CIF.MiniCart) {
-                    window.CIF.MiniCart.open();
-                }
+            // trigger event on click;
+                const customEvent = new CustomEvent('aem.cif.open-cart');
+                document.dispatchEvent(customEvent);
+
             });
 
             this.count = 0;
