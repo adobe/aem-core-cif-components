@@ -4,7 +4,7 @@ const fs = require('fs');
 const DEST_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist';
 const SRC_PATH = path.resolve('.', 'dist');
 console.log(SRC_PATH);
-const FILE_NAME = 'main';
+const FILE_NAME = 'index';
 
 fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js`, `${DEST_PATH}/${FILE_NAME}.js`, err => {
     if (err) {
