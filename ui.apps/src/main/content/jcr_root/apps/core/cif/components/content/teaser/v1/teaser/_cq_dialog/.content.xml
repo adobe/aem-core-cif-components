@@ -97,8 +97,8 @@
                                                             granite:class="cmp-teaser__editor-actionField"
                                                             jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="commerce/gui/components/common/cifcategoryfield"
-                                                            emptyText="Catagory"
-                                                            fieldLabel="Catagory Page"
+                                                            emptyText="Category"
+                                                            fieldLabel="Category Page"
                                                             name="categoryId"
                                                             required="{Boolean}false"
                                                             rootPath="/var/commerce/products">
