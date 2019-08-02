@@ -80,23 +80,25 @@
                                                     name="./actions">
                                                     <items jcr:primaryType="nt:unstructured">
                                                         <link
+                                                            granite:class="cmp-teaser__editor-actionField"
                                                             jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                             emptyText="Product"
                                                             fieldLabel="Product Page"
-                                                            name="productSKU"
+                                                            name="productSlug"
                                                             required="{Boolean}false"
                                                             rootPath="/var/commerce/products"
-                                                            selectionId="sku">
+                                                            selectionId="slug">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
                                                                 cmp-teaser-v1-dialog-edit-hook="actionLink"/>
                                                         </link>
                                                         <catLink
+                                                            granite:class="cmp-teaser__editor-actionField"
                                                             jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="commerce/gui/components/common/cifcategoryfield"
-                                                            emptyText="Catagory"
-                                                            fieldLabel="Catagory Page"
+                                                            emptyText="Category"
+                                                            fieldLabel="Category Page"
                                                             name="categoryId"
                                                             required="{Boolean}false"
                                                             rootPath="/var/commerce/products">
@@ -105,6 +107,7 @@
                                                                 cmp-teaser-v1-dialog-edit-hook="actionLink"/>
                                                         </catLink>
                                                         <text
+                                                            granite:class="cmp-teaser__editor-actionField"
                                                             jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                                                             emptyText="Text"
