@@ -23,6 +23,7 @@ const LIB = {
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
     PRODUCTLIST: 'apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs',
     HEADER: 'apps/core/cif/components/structure/header/v1/header/clientlibs',
+    SEARCHBAR: 'apps/core/cif/components/commerce/searchbar/v1/searchbar/clientlibs',
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs'
 };
 
@@ -38,6 +39,7 @@ function generateBaseConfig() {
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTLIST]: glob.sync(JCR_ROOT + LIB.PRODUCTLIST + '/js/**/*.js'),
             [LIB.HEADER]: glob.sync(JCR_ROOT + LIB.HEADER + '/js/**/*.js'),
+            [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
             [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js')
         },
         output: {

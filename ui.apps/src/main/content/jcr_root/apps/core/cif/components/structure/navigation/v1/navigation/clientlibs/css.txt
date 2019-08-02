@@ -1,3 +1,0 @@
-#base=css
-navigation-component.css
-navigation-aem.css
