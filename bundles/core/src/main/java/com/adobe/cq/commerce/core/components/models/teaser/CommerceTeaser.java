@@ -32,6 +32,6 @@ public interface CommerceTeaser extends Teaser {
      * Name of the resource property that stores Category Slug which is used to build Call-to-Action link for Category Page
      *
      */
-    String PN_ACTION_CATEGORY_SLUG = "categorySlug";
+    String PN_ACTION_CATEGORY_ID = "categoryId";
 
 }

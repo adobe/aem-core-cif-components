@@ -51,7 +51,7 @@ The following properties are written to JCR for this Teaser component and are ex
 1. `./actionsEnabled` - property that defines whether or not the teaser has Call-to-Action elements
 2. `./actions` - child node where the Call-to-Action elements are stored as a list of `item` nodes with the following properties
     1. `productSlug` - property that stores the Call-to-Action link to a product page for selected product.
-    2. `categorySlug` - property that stores the Call-to-Action to Selected category, it is preferred over `productSlug`.
+    2. `categoryID` - property that stores the Call-to-Action to Selected category, it is preferred over `productSlug`.
     3. `text` - property that stores the Call-to-Action text
 3. `./fileReference` - property or `file` child node - will store either a reference to the image file, or the image file
 4. `./linkURL` - link applied to teaser elements. URL or path to a content page

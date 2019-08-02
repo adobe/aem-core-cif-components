@@ -89,13 +89,13 @@ public class CommerceTeaserImplTest {
 
     }
 
-    Resource getActionNodeResource(String productSlug, String categorySlug, String text) {
+    Resource getActionNodeResource(String productSlug, String categoryId, String text) {
         Resource actionResource = mock(Resource.class);
 
         Map<String, Object> actionProperties = new HashMap<>();
 
         actionProperties.put(CommerceTeaser.PN_ACTION_PRODUCT_SLUG, productSlug);
-        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_SLUG, categorySlug);
+        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_ID, categoryId);
         actionProperties.put(CommerceTeaser.PN_ACTION_TEXT, text);
 
         ValueMapDecorator vMD = new ValueMapDecorator(actionProperties);

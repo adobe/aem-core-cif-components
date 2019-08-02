@@ -82,13 +82,13 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 ValueMap properties = action.getValueMap();
                 String title = properties.get(PN_ACTION_TEXT, String.class);
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
-                String categorySlug = properties.get(PN_ACTION_CATEGORY_SLUG, String.class);
+                String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
                 String selector = "";
                 Page page = null;
 
-                if (categorySlug != null) {
+                if (categoryId != null) {
                     page = categoryPage;
-                    selector = categorySlug;
+                    selector = categoryId;
                 } else if (productSlug != null) {
                     page = productPage;
                     selector = productSlug;

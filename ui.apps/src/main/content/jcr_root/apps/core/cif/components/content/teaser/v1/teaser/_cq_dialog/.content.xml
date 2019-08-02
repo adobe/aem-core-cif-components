@@ -99,10 +99,9 @@
                                                             sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                             emptyText="Catagory"
                                                             fieldLabel="Catagory Page"
-                                                            name="categorySlug"
+                                                            name="categoryId"
                                                             required="{Boolean}false"
-                                                            rootPath="/var/commerce/products"
-                                                            selectionId="slug">
+                                                            rootPath="/var/commerce/products">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
                                                                 cmp-teaser-v1-dialog-edit-hook="actionLink"/>
