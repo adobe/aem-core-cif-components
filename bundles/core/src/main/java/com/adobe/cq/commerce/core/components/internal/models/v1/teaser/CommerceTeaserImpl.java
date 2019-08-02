@@ -29,8 +29,8 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
@@ -58,8 +58,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @PostConstruct
     void initModel() {
         setActionsEnabled();
-        productPage = Utils.getProductPage(currentPage);
-        categoryPage = Utils.getCategoryPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
+        categoryPage = SiteNavigation.getCategoryPage(currentPage);
 
         if (actionsEnabled) {
             populateActions();

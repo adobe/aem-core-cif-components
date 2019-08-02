@@ -32,11 +32,11 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -85,7 +85,7 @@ public class SearchResultsImpl implements SearchResults {
 
         // Get MagentoGraphqlClient from the resource.
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-        productPage = Utils.getProductPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
     }
 
     /**
