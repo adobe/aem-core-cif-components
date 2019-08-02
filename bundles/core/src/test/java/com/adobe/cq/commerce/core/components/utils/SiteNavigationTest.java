@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.adobe.cq.commerce.core.components.internal.models.v1;
+package com.adobe.cq.commerce.core.components.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,17 +24,18 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UtilsTest {
+public class SiteNavigationTest {
 
     @Test
     public void testGetNavigationRootPage() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(Utils.PN_NAV_ROOT, true);
+        properties.put(SiteNavigation.PN_NAV_ROOT, true);
         Page navRootPage = mockPage(properties);
         Page page0 = mockPage(null);
         Page page1 = mockPage(null);
@@ -45,22 +46,22 @@ public class UtilsTest {
         when(page2.getParent()).thenReturn(page3);
 
         // returns null for null
-        Assert.assertNull(Utils.getNavigationRootPage(null));
+        Assert.assertNull(SiteNavigation.getNavigationRootPage(null));
 
         // returns navigation root for navigation root
-        Assert.assertSame(navRootPage, Utils.getNavigationRootPage(navRootPage));
+        Assert.assertSame(navRootPage, SiteNavigation.getNavigationRootPage(navRootPage));
 
         // returns navigation root for navigation root child
-        Assert.assertSame(navRootPage, Utils.getNavigationRootPage(page1));
+        Assert.assertSame(navRootPage, SiteNavigation.getNavigationRootPage(page1));
 
         // returns navigation root for child of navigation root child
-        Assert.assertSame(navRootPage, Utils.getNavigationRootPage(page0));
+        Assert.assertSame(navRootPage, SiteNavigation.getNavigationRootPage(page0));
 
         // returns null for page with no parent
-        Assert.assertNull(Utils.getNavigationRootPage(page3));
+        Assert.assertNull(SiteNavigation.getNavigationRootPage(page3));
 
         // returns null for page with no navigation root parent
-        Assert.assertNull(Utils.getNavigationRootPage(page2));
+        Assert.assertNull(SiteNavigation.getNavigationRootPage(page2));
     }
 
     private static Page mockPage(Map<String, Object> contentProperties) {
