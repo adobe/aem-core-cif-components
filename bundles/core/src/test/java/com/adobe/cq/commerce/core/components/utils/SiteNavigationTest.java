@@ -24,7 +24,6 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 import static org.mockito.Mockito.mock;
