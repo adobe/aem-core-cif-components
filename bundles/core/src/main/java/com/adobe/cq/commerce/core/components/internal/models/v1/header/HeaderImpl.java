@@ -24,8 +24,8 @@ import org.apache.sling.models.annotations.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.header.Header;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -55,7 +55,7 @@ public class HeaderImpl implements Header {
     @Override
     public String getNavigationRootPageUrl() {
         if (navigationRootPage == null) {
-            navigationRootPage = Utils.getNavigationRootPage(currentPage);
+            navigationRootPage = SiteNavigation.getNavigationRootPage(currentPage);
         }
 
         if (navigationRootPage == null) {

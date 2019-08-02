@@ -30,7 +30,7 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
 
@@ -104,7 +104,7 @@ public class ButtonImpl implements Button {
             case PRODUCT: {
 
                 if (!productSlug.equals(DEFAULT_LINK)) {
-                    productPage = Utils.getProductPage(currentPage);
+                    productPage = SiteNavigation.getProductPage(currentPage);
                     if (productPage == null) {
                         productPage = currentPage;
                     }
@@ -117,7 +117,7 @@ public class ButtonImpl implements Button {
             case CATEGORY: {
 
                 if (!categoryId.equals(DEFAULT_LINK)) {
-                    categoryPage = Utils.getCategoryPage(currentPage);
+                    categoryPage = SiteNavigation.getCategoryPage(currentPage);
                     if (categoryPage == null) {
                         categoryPage = currentPage;
                     }
