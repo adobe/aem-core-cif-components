@@ -30,9 +30,10 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -68,7 +69,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     @PostConstruct
     private void initModel() {
-        productPage = Utils.getProductPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
@@ -105,7 +106,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     @Override
     public String getUrl() {
-        return (product != null ? Utils.constructUrlfromSlug(productPage.getPath(), product.getUrlKey()) : null);
+        return (product != null ? SiteNavigation.toProductUrl(productPage.getPath(), product.getUrlKey()) : null);
     }
 
     @Override

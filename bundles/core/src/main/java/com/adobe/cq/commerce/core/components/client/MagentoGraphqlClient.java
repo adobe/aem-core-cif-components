@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1;
+package com.adobe.cq.commerce.core.components.client;
 
 import java.util.Collections;
 
