@@ -5,22 +5,38 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "lint": "eslint ./src/**/*.js",
     "build": "webpack",
     "build:clientlib": "yarn run build && node scripts/postbuild.js"
   },
   "dependencies": {
+    "@babel/runtime": "^7.5.5",
+    "@magento/peregrine": "^3.0.0",
+    "apollo-boost": "^0.4.3",
+    "apollo-client": "^2.6.3",
+    "dotenv": "^8.0.0",
+    "eslint-plugin-react": "^7.14.3",
+    "graphql": "^14.4.2",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
+    "react-apollo": "^2.5.8",
     "react-dom": "^16.8.6",
-    "react-feather": "^2.0.3"
+    "react-feather": "^2.0.3",
+    "react-router-dom": "^5.0.1",
+    "react-test-renderer": "^16.8.6"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "css-loader": "^3.1.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-header": "^3.0.0",
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "file-loader": "^4.1.0",
     "mini-css-extract-plugin": "^0.8.0",
     "style-loader": "^0.23.1",
-    "webpack": "^4.38.0"
+    "webpack": "^4.38.0",
+    "webpack-node-externals": "^1.7.2"
   }
 }

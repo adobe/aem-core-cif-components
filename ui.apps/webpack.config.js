@@ -18,7 +18,6 @@ const glob = require('glob');
 const JCR_ROOT = './src/main/content/jcr_root/';
 const LIB = {
     COMMON: 'apps/core/cif/clientlibs/common',
-    MINICART: 'apps/core/cif/components/commerce/minicart/v1/minicart/clientlib',
     PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
     PRODUCTLIST: 'apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs',
@@ -34,7 +33,6 @@ function generateBaseConfig() {
             // key to specify the target destination of the packed code and the glob module to generate a list of JavaScript
             // files matching the given glob expression.
             [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
-            [LIB.MINICART]: glob.sync(JCR_ROOT + LIB.MINICART + '/js/**/*.js'),
             [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTLIST]: glob.sync(JCR_ROOT + LIB.PRODUCTLIST + '/js/**/*.js'),

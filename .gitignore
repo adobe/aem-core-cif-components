@@ -50,3 +50,4 @@ hs_err_pid*
 **/dist/index.js.map
 
 yarn-error.log
+.env
