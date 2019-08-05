@@ -20,6 +20,7 @@ module.exports = {
         es6: true
     },
     extends: ['eslint:recommended', 'plugin:react/recommended'],
+    parser: 'babel-eslint',
     globals: {
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly'
@@ -33,7 +34,7 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header'],
     rules: {
-        'no-undef': 'warn',
+        'no-undef': 'error',
         'no-unused-vars': 'warn',
         'no-console': 'off',
         'header/header': [2, 'block', headerBlock],

@@ -19,6 +19,9 @@ query cartDetails($cartId: String!) {
                         }
                     }
                 }
+                image {
+                    url
+                }
             }
         }
     }

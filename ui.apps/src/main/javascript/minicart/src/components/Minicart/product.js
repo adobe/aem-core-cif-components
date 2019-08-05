@@ -11,23 +11,49 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
 
+import { transparentPlaceholder } from '../../utils/transparentPlaceholder';
+import makeUrl from '../../utils/makeUrl';
+import Kebab from './kebab';
+import Section from './section';
+
+const imageWidth = 80;
+const imageHeight = 100;
+
 const Product = props => {
-    const { beginEditItem, item: {product, quantity} = {product:undefined, quantity:0}, removeItemFromCart } = props;
+    const {
+        beginEditItem,
+        item: { product, quantity } = { product: undefined, quantity: 0 },
+        removeItemFromCart
+    } = props;
 
     const { image, name, options, price } = product;
 
     console.log(`Product  is ${product}`);
     const [isLoading, setIsLoading] = useState(false);
 
-    const {value, currency} = price.regularPrice.amount;
+    const { value, currency } = price.regularPrice.amount;
 
     const mask = isLoading ? <div className={classes.mask} /> : null;
+
+    const productImage = useMemo(() => {
+        const src =
+            image && image.url
+                ? makeUrl(image.url, { type: 'image-product', width: imageWidth, height: imageHeight })
+                : transparentPlaceholder;
+        return <img alt={name} className={classes.image} placeholder={transparentPlaceholder} src={src} />;
+    });
+
+    const handleEditItem = useCallback(() => {
+        beginEditItem(product);
+    }, [beginEditItem, product]);
+
     return (
         <li className={classes.root}>
+            {productImage}
             <div className={classes.name}>{name}</div>
             <div className={classes.quantity}>
                 <div className={classes.quantityRow}>
@@ -39,6 +65,10 @@ const Product = props => {
                 </div>
             </div>
             {mask}
+            <Kebab>
+                <Section text="Edit item" onclick={handleEditItem} icon="Edit2" />
+                <Section text="Remove item" icon="Trash" />
+            </Kebab>
         </li>
     );
 };
