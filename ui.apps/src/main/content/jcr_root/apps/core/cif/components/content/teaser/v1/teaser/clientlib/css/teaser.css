@@ -1,0 +1,21 @@
+.cmp-teaser__editor-action {
+    display: block;
+}
+
+.cmp-teaser__editor-action .coral-Form-fieldwrapper label {
+    padding-left: 12px;
+}
+
+.cmp-teaser__editor-action .cmp-teaser__editor-actionField.coral-Form-field {
+    width: 100%;
+}
+
+.cmp-teaser__editor-multifield_actions .coral3-Multifield-remove {
+    right: 0.1rem;
+    top: -0.1rem;
+}
+
+.cmp-teaser__editor-multifield_actions .coral3-Multifield-move {
+    right: 0.1rem;
+    top: 2rem;
+}
