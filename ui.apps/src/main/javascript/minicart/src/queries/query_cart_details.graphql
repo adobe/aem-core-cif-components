@@ -1,0 +1,25 @@
+query cartDetails($cartId: String!) {
+    cart(cart_id: $cartId) {
+        prices {
+            grand_total {
+                currency
+                value
+            }
+        }
+        items {
+            id
+            quantity
+            product {
+                name
+                price {
+                    regularPrice {
+                        amount {
+                            currency
+                            value
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
