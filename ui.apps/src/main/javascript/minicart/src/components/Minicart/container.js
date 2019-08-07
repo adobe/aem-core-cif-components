@@ -16,22 +16,42 @@ import { useQuery } from '@magento/peregrine';
 
 import Minicart from './minicart';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
+import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
+
 import getCurrencyCode from '../../utils/getCurrencyCode';
+import { useMutation } from '../../utils/useMutation';
 
 const CART_ID = 'hx7geWblhhU0znC4rFPR166UvNy2Mp1k';
 
 const Container = props => {
+    const [cart, setCart] = useState({
+        cartId: CART_ID,
+        isEmpty: true,
+        details: undefined,
+        currencyCode: ''
+    });
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
     const [queryResult, queryApi] = useQuery(CART_DETAILS_QUERY);
     const { data, error, loading } = queryResult;
-    const { resetState, runQuery, setLoading } = queryApi;
+    const { runQuery, setLoading } = queryApi;
 
     useEffect(() => {
         console.log(`Running the query...`);
         setLoading(true), runQuery({ variables: { cartId: CART_ID } });
-    }, [runQuery, setLoading, isOpen]);
+
+        if (error) {
+            console.log(`Error loading cart`);
+        } else {
+            setCart({
+                cartId: CART_ID,
+                isEmpty: !data || !data.cart || data.cart.items.length === 0,
+                details: data && data.cart,
+                currencyCode: data ? getCurrencyCode(data.cart) : ''
+            });
+        }
+    }, [runQuery, setLoading, isOpen, setCart]);
 
     useEffect(() => {
         document.addEventListener('aem.cif.open-cart', event => {
@@ -47,16 +67,26 @@ const Container = props => {
         setIsEditing(true);
     };
 
-    const cart = {
-        isLoading: loading,
-        isEmpty: !data || !data.cart || data.cart.items.length === 0,
-        details: data && data.cart,
-        currencyCode: data ? getCurrencyCode(data.cart) : ''
+    const [removeItemResult, removeItemApi] = useMutation(MUTATION_REMOVE_ITEM);
+    const { runMutation } = removeItemApi;
+    const removeItemFromCart = itemId => {
+        console.log(`What's our cart??`, cart);
+        console.log(`Peforming the mutation on cart ${cart.cartId}`);
+        runMutation({ variables: { cartId: cart.cartId, itemId } });
+        const { data, error, loading } = removeItemResult;
+
+        console.log(`Do we have data after that? `, data);
+        console.log(`Do we have errors? `, error);
     };
 
-    console.log(data);
-    console.log(`Is this loading? ${loading}`);
-    return <Minicart isOpen={isOpen} handleCloseCart={handleCloseCart} cart={cart} />;
+    return (
+        <Minicart
+            isOpen={isOpen}
+            handleCloseCart={handleCloseCart}
+            removeItemFromCart={removeItemFromCart}
+            cart={cart}
+        />
+    );
 };
 
 export default Container;

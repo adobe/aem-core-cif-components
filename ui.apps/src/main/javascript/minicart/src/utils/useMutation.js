@@ -38,7 +38,7 @@ export const useMutation = (mutation, toRefetch) => {
      *
      * @param {DocumentNode} query A GraphQL document
      */
-    const runQuery = useCallback(
+    const runMutation = useCallback(
         async ({ variables }) => {
             let payload;
             try {
@@ -69,9 +69,9 @@ export const useMutation = (mutation, toRefetch) => {
     const api = useMemo(
         () => ({
             ...queryResultApi,
-            runQuery
+            runMutation
         }),
-        [queryResultApi, runQuery]
+        [queryResultApi, runMutation]
     );
 
     return [queryResultState, api];

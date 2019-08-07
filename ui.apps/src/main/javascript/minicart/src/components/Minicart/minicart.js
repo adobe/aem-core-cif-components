@@ -22,7 +22,7 @@ import Footer from './footer';
 import classes from './minicart.css';
 
 const MiniCart = props => {
-    const { isOpen, handleCloseCart, handleRemoveItemFromCart, cart } = props;
+    const { isOpen, handleCloseCart, removeItemFromCart, cart } = props;
 
     const { isLoading, details, isEmpty, currencyCode, cartId } = cart;
     const isEditing = false;
@@ -39,7 +39,7 @@ const MiniCart = props => {
                     isLoading={isLoading}
                     cart={details}
                     currencyCode={currencyCode}
-                    removeItemFromCart={handleRemoveItemFromCart}
+                    removeItemFromCart={removeItemFromCart}
                 />
                 <Footer />
             </aside>
