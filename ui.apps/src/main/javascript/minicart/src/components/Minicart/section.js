@@ -11,54 +11,54 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component } from 'react';
-import { func, object, oneOf, shape, string } from 'prop-types';
+import React from 'react';
+import { func, oneOf, shape, string, bool } from 'prop-types';
 import HeartIcon from 'react-feather/dist/icons/heart';
 import Edit2Icon from 'react-feather/dist/icons/edit-2';
 import TrashIcon from 'react-feather/dist/icons/trash';
-import classes from './section.css';
 
-const SectionIcons = {
+import classes from './section.css';
+import Icon from '../Icon';
+
+const defaultIconAttributes = {
+    color: 'rgb(var(--venia-teal))',
+    width: '14px',
+    height: '14px'
+};
+const filledIconAttributes = {
+    ...defaultIconAttributes,
+    fill: 'rgb(var(--venia-teal))'
+};
+const icons = {
     Heart: HeartIcon,
     Edit2: Edit2Icon,
     Trash: TrashIcon
 };
 
-class Section extends Component {
-    static propTypes = {
-        classes: shape({
-            menuItem: string,
-            text: string
-        }),
-        icon: oneOf(['Heart', 'Edit2', 'Trash']),
-        iconAttributes: object,
-        onClick: func,
+const Section = props => {
+    const { icon, isFilled, onClick, text } = props;
+    const attributes = isFilled ? filledIconAttributes : defaultIconAttributes;
+
+    const iconSrc = icons[icon];
+    return (
+        <li className={classes.menuItem}>
+            <button onMouseDown={onClick}>
+                {iconSrc && <Icon src={iconSrc} attrs={attributes} />}
+                <span className={classes.text}>{text}</span>
+            </button>
+        </li>
+    );
+};
+
+Section.propTypes = {
+    classes: shape({
+        menuItem: string,
         text: string
-    };
-
-    get Icon() {
-        const { icon } = this.props;
-        const defaultAttributes = {
-            color: 'rgb(var(--venia-teal))',
-            width: '14px',
-            height: '14px'
-        };
-
-        return icon ? SectionIcons[icon] : null;
-    }
-
-    render() {
-        const { Icon } = this;
-        const { onClick, text } = this.props;
-        return (
-            <li className={classes.menuItem}>
-                <button onClick={onClick}>
-                    <Icon />
-                    <span className={classes.text}>{text}</span>
-                </button>
-            </li>
-        );
-    }
-}
+    }),
+    icon: oneOf(Object.keys(icons)),
+    isFilled: bool,
+    onClick: func,
+    text: string
+};
 
 export default Section;

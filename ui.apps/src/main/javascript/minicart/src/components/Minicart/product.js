@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState, useMemo, useCallback } from 'react';
+import { func, number, shape, object } from 'prop-types';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
 
@@ -19,6 +20,7 @@ import { transparentPlaceholder } from '../../utils/transparentPlaceholder';
 import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
+import { string } from 'postcss-selector-parser';
 
 const imageWidth = 80;
 const imageHeight = 100;
@@ -26,7 +28,7 @@ const imageHeight = 100;
 const Product = props => {
     const {
         beginEditItem,
-        item: { product, quantity } = { product: undefined, quantity: 0 },
+        item: { id, product, quantity } = { id: '', product: undefined, quantity: 0 },
         removeItemFromCart
     } = props;
 
@@ -51,6 +53,11 @@ const Product = props => {
         beginEditItem(product);
     }, [beginEditItem, product]);
 
+    const handleRemoveItem = useCallback(() => {
+        setIsLoading(true);
+        removeItemFromCart(id);
+    }, [id, removeItemFromCart]);
+
     return (
         <li className={classes.root}>
             {productImage}
@@ -67,10 +74,22 @@ const Product = props => {
             {mask}
             <Kebab>
                 <Section text="Edit item" onclick={handleEditItem} icon="Edit2" />
-                <Section text="Remove item" icon="Trash" />
+                <Section text="Remove item" icon="Trash" onClick={handleRemoveItem} />
             </Kebab>
         </li>
     );
+};
+
+Product.propTypes = {
+    removeItemFromCart: func.isRequired,
+    item: shape({
+        id: string.isRequired,
+        product: shape({
+            name: string.isRequired,
+            price: object.isRequired,
+            image: object
+        })
+    })
 };
 
 export default Product;

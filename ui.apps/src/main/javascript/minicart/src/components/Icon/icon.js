@@ -11,36 +11,35 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { List } from '@magento/peregrine';
-import { array, func, shape, string } from 'prop-types';
+import React, { Component } from 'react';
+import { func, number, object, oneOfType, shape, string } from 'prop-types';
 
-import Product from './product';
-import classes from './productList.css';
+import classes from './icon.css';
 
-const ProductList = props => {
-    const { cartItems, removeItemFromCart } = props;
+/**
+ * The Icon component allows us to wrap each icon with some default styling.
+ */
 
+const Icon = props => {
+    const { attrs: { width, ...restAttrs } = {}, size, src: IconComponent } = props;
+
+    // Permit both prop styles:
+    // <Icon src={Foo} attrs={{ width: 18 }} />
+    // <Icon src={Foo} size={18} />
     return (
-        <List
-            classes={classes}
-            render="ul"
-            items={cartItems}
-            getItemKey={item => item.id}
-            renderItem={props => {
-                return <Product item={props.item} removeItemFromCart={removeItemFromCart} />;
-            }}></List>
+        <span className={classes.root}>
+            <IconComponent size={size || width} {...restAttrs} />
+        </span>
     );
 };
 
-ProductList.propTypes = {
-    beginEditItem: func,
-    cartItems: array,
+Icon.propTypes = {
     classes: shape({
         root: string
     }),
-    currencyCode: string,
-    removeItemFromCart: func
+    size: number,
+    attrs: object,
+    src: oneOfType([func, shape({ render: func.isRequired })]).isRequired
 };
 
-export default ProductList;
+export default Icon;

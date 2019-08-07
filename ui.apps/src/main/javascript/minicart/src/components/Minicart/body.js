@@ -23,7 +23,7 @@ import CartOptions from './cartOptions';
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
 const Body = props => {
-    const { isEmpty, isEditing, isLoading, cart, currencyCode } = props;
+    const { isEmpty, isEditing, isLoading, cart, currencyCode, removeItemFromCart } = props;
 
     if (isLoading) {
         return loadingIndicator;
@@ -40,7 +40,7 @@ const Body = props => {
     console.log(`Is this empty ${isEmpty}`);
     return (
         <div className={classes.root}>
-            <ProductList cartItems={cartItems} currencyCode={currencyCode} />
+            <ProductList cartItems={cartItems} currencyCode={currencyCode} removeItemFromCart={removeItemFromCart} />
         </div>
     );
 };

@@ -12,61 +12,51 @@
  *
  ******************************************************************************/
 
-import React, { Component, createRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { shape, string } from 'prop-types';
-import classes from './kebab.css';
-
 import MoreVerticalIcon from 'react-feather/dist/icons/more-vertical';
 
-class Kebab extends Component {
-    static propTypes = {
-        classes: shape({
-            dropdown: string,
-            dropdown_active: string,
-            kebab: string,
-            root: string
-        })
-    };
+import classes from './kebab.css';
+import Icon from '../Icon';
+import { useEventListener } from '../../utils/hooks';
 
-    constructor(props) {
-        super(props);
-        this.kebabButtonRef = createRef();
+const Kebab = props => {
+    const { children } = props;
 
-        this.state = {
-            isOpen: false
-        };
-    }
+    const [open, isOpen] = useState(false);
+    const kebabRef = useRef(null);
 
-    componentDidMount() {
-        document.addEventListener('click', this.handleDocumentClick);
-        document.addEventListener('touchend', this.handleDocumentClick);
-    }
+    const handleOutsideKebabClick = useCallback(event => {
+        if (!kebabRef.current.contains(event.target)) {
+            isOpen(false);
+        }
+    }, []);
 
-    handleDocumentClick = event => {
-        this.kebabButtonRef.current.contains(event.target)
-            ? this.setState({ isOpen: true })
-            : this.setState({ isOpen: false });
-    };
+    useEventListener(document, 'mousedown', handleOutsideKebabClick);
+    useEventListener(document, 'touchend', handleOutsideKebabClick);
 
-    componentWillUnmount() {
-        document.removeEventListener('click', this.handleDocumentClick);
-        document.removeEventListener('touchend', this.handleDocumentClick);
-    }
+    const handleKebabClick = useCallback(() => {
+        isOpen(!open);
+    }, [isOpen]);
 
-    render() {
-        const { children, ...restProps } = this.props;
+    const toggleClass = open ? classes.dropdown_active : classes.dropdown;
 
-        const toggleClass = this.state.isOpen ? classes.dropdown_active : classes.dropdown;
+    return (
+        <div className={classes.root}>
+            <button className={classes.kebab} onClick={handleKebabClick} ref={kebabRef}>
+                <Icon src={MoreVerticalIcon} />
+            </button>
+            <ul className={toggleClass}>{children}</ul>
+        </div>
+    );
+};
 
-        return (
-            <div {...restProps} className={classes.root}>
-                <button className={classes.kebab} ref={this.kebabButtonRef}>
-                    <MoreVerticalIcon />
-                </button>
-                <ul className={toggleClass}>{children}</ul>
-            </div>
-        );
-    }
-}
-
+Kebab.propTypes = {
+    classes: shape({
+        dropdown: string,
+        dropdown_active: string,
+        kebab: string,
+        root: string
+    })
+};
 export default Kebab;

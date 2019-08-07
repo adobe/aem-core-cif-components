@@ -11,18 +11,20 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import classes from './minicart.css';
+import React, { useCallback } from 'react';
+import { func, shape, string, bool, object } from 'prop-types';
+
+import Mask from '../Mask';
 
 import Header from './header';
 import Body from './body';
 import Footer from './footer';
-import Mask from '../Mask';
+import classes from './minicart.css';
 
 const MiniCart = props => {
-    const { isOpen, handleCloseCart, cart } = props;
+    const { isOpen, handleCloseCart, handleRemoveItemFromCart, cart } = props;
 
-    const { isLoading, details, isEmpty, currencyCode } = cart;
+    const { isLoading, details, isEmpty, currencyCode, cartId } = cart;
     const isEditing = false;
     const rootClass = isOpen ? classes.root_open : classes.root;
 
@@ -37,11 +39,25 @@ const MiniCart = props => {
                     isLoading={isLoading}
                     cart={details}
                     currencyCode={currencyCode}
+                    removeItemFromCart={handleRemoveItemFromCart}
                 />
                 <Footer />
             </aside>
         </>
     );
+};
+
+MiniCart.propTypes = {
+    isOpen: bool.isRequired,
+    handleCloseCart: func,
+    handleRemoveItemFromCart: func,
+    cart: shape({
+        details: object,
+        cartId: string,
+        currencyCode: string.isRequired,
+        isEmpty: bool.isRequired,
+        isLoading: bool
+    })
 };
 
 export default MiniCart;
