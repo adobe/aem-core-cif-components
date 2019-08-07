@@ -11,8 +11,12 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { func, shape, string, bool, object } from 'prop-types';
+import { useQuery } from '@magento/peregrine';
+
+import { useMutation } from '../../utils/useMutation';
+import getCurrencyCode from '../../utils/getCurrencyCode';
 
 import Mask from '../Mask';
 
@@ -21,12 +25,67 @@ import Body from './body';
 import Footer from './footer';
 import classes from './minicart.css';
 
-const MiniCart = props => {
-    const { isOpen, handleCloseCart, removeItemFromCart, cart } = props;
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
+import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 
-    const { isLoading, details, isEmpty, currencyCode, cartId } = cart;
-    const isEditing = false;
+//TODO retrieve this from the cookie.
+const CART_ID = 'hx7geWblhhU0znC4rFPR166UvNy2Mp1k';
+
+const MiniCart = props => {
+    const [cart, setCart] = useState({
+        details: undefined,
+        currencyCode: ''
+    });
+    const [isOpen, setIsOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isEmpty, setIsEmpty] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [queryResult, queryApi] = useQuery(CART_DETAILS_QUERY);
+    const { data, error, loading } = queryResult;
+    const { runQuery, setLoading } = queryApi;
+
     const rootClass = isOpen ? classes.root_open : classes.root;
+
+    useEffect(() => {
+        console.log(`Running the query...`);
+        setIsLoading(true), runQuery({ variables: { cartId: CART_ID } });
+
+        if (error) {
+            console.log(`Error loading cart`);
+        } else {
+            setCart({
+                details: data && data.cart,
+                currencyCode: data ? getCurrencyCode(data.cart) : ''
+            });
+            setIsEmpty(!data || !data.cart || data.cart.items.length === 0);
+            setIsLoading(false);
+        }
+    }, [runQuery, setIsLoading, isOpen, setCart, setIsEmpty]);
+
+    useEffect(() => {
+        document.addEventListener('aem.cif.open-cart', event => {
+            setIsOpen(true);
+        });
+    });
+
+    const handleCloseCart = () => {
+        setIsOpen(false);
+    };
+
+    const handleBeginEditing = () => {
+        setIsEditing(true);
+    };
+
+    const [removeItemResult, removeItemApi] = useMutation(MUTATION_REMOVE_ITEM);
+    const { runMutation } = removeItemApi;
+    const removeItemFromCart = itemId => {
+        runMutation({ variables: { cartId: CART_ID, itemId } });
+        const { data, error, loading } = removeItemResult;
+
+        console.log(`Do we have data after that? `, data);
+        console.log(`Do we have errors? `, error);
+    };
 
     return (
         <>
@@ -37,27 +96,14 @@ const MiniCart = props => {
                     isEmpty={isEmpty}
                     isEditing={isEditing}
                     isLoading={isLoading}
-                    cart={details}
-                    currencyCode={currencyCode}
+                    cart={cart.details}
+                    currencyCode={cart.currencyCode}
                     removeItemFromCart={removeItemFromCart}
                 />
                 <Footer />
             </aside>
         </>
     );
-};
-
-MiniCart.propTypes = {
-    isOpen: bool.isRequired,
-    handleCloseCart: func,
-    handleRemoveItemFromCart: func,
-    cart: shape({
-        details: object,
-        cartId: string,
-        currencyCode: string.isRequired,
-        isEmpty: bool.isRequired,
-        isLoading: bool
-    })
 };
 
 export default MiniCart;
