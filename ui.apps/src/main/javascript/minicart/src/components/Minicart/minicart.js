@@ -11,11 +11,11 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { func, shape, string, bool, object } from 'prop-types';
-import { useQuery } from '@magento/peregrine';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 
-import { useMutation } from '../../utils/useMutation';
+import { useEventListener } from '../../utils/hooks';
 import getCurrencyCode from '../../utils/getCurrencyCode';
 
 import Mask from '../Mask';
@@ -36,38 +36,26 @@ const MiniCart = props => {
         details: undefined,
         currencyCode: ''
     });
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isEmpty, setIsEmpty] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const [queryResult, queryApi] = useQuery(CART_DETAILS_QUERY);
-    const { data, error, loading } = queryResult;
-    const { runQuery, setLoading } = queryApi;
+    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId: CART_ID } }]
+    });
 
+    const { data, error, loading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId: CART_ID } });
     const rootClass = isOpen ? classes.root_open : classes.root;
 
-    useEffect(() => {
-        console.log(`Running the query...`);
-        setIsLoading(true), runQuery({ variables: { cartId: CART_ID } });
+    if (error) {
+        console.log(`Error loading cart`, error);
+    }
 
-        if (error) {
-            console.log(`Error loading cart`);
-        } else {
-            setCart({
-                details: data && data.cart,
-                currencyCode: data ? getCurrencyCode(data.cart) : ''
-            });
-            setIsEmpty(!data || !data.cart || data.cart.items.length === 0);
-            setIsLoading(false);
-        }
-    }, [runQuery, setIsLoading, isOpen, setCart, setIsEmpty]);
+    const openCart = () => {
+        setIsOpen(true);
+    };
 
-    useEffect(() => {
-        document.addEventListener('aem.cif.open-cart', event => {
-            setIsOpen(true);
-        });
-    });
+    useEventListener(document, 'aem.cif.open-cart', openCart);
 
     const handleCloseCart = () => {
         setIsOpen(false);
@@ -77,14 +65,8 @@ const MiniCart = props => {
         setIsEditing(true);
     };
 
-    const [removeItemResult, removeItemApi] = useMutation(MUTATION_REMOVE_ITEM);
-    const { runMutation } = removeItemApi;
     const removeItemFromCart = itemId => {
-        runMutation({ variables: { cartId: CART_ID, itemId } });
-        const { data, error, loading } = removeItemResult;
-
-        console.log(`Do we have data after that? `, data);
-        console.log(`Do we have errors? `, error);
+        removeItem({ variables: { cartId: CART_ID, itemId } });
     };
 
     return (
@@ -93,10 +75,10 @@ const MiniCart = props => {
             <aside className={rootClass}>
                 <Header handleCloseCart={handleCloseCart} />
                 <Body
-                    isEmpty={isEmpty}
+                    isEmpty={data && data.cart && data.cart.items.length === 0}
                     isEditing={isEditing}
-                    isLoading={isLoading}
-                    cart={cart.details}
+                    isLoading={loading}
+                    cart={data.cart}
                     currencyCode={cart.currencyCode}
                     removeItemFromCart={removeItemFromCart}
                 />
