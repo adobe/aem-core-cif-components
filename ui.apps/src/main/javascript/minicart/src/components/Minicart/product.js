@@ -26,20 +26,14 @@ const imageWidth = 80;
 const imageHeight = 100;
 
 const Product = props => {
-    const {
-        beginEditItem,
-        item: { id, product, quantity } = { id: '', product: undefined, quantity: 0 },
-        removeItemFromCart
-    } = props;
+    const { beginEditItem, item, removeItemFromCart } = props;
 
+    const { product = undefined, quantity = 0, id = '' } = item;
     const { image, name, options, price } = product;
-
-    console.log(`Product  is ${product}`);
-    const [isLoading, setIsLoading] = useState(false);
-
     const { value, currency } = price.regularPrice.amount;
 
-    const mask = isLoading ? <div className={classes.mask} /> : null;
+    console.log(`Product  is`, product);
+    const [isLoading, setIsLoading] = useState(false);
 
     const productImage = useMemo(() => {
         const src =
@@ -50,7 +44,8 @@ const Product = props => {
     });
 
     const handleEditItem = useCallback(() => {
-        beginEditItem(product);
+        console.log(`Edit cart item`);
+        beginEditItem(item);
     }, [beginEditItem, product]);
 
     const handleRemoveItem = useCallback(() => {
@@ -58,6 +53,7 @@ const Product = props => {
         removeItemFromCart(id);
     }, [id, removeItemFromCart]);
 
+    const mask = isLoading ? <div className={classes.mask} /> : null;
     return (
         <li className={classes.root}>
             {productImage}
@@ -73,8 +69,8 @@ const Product = props => {
             </div>
             {mask}
             <Kebab>
-                <Section text="Edit item" onclick={handleEditItem} icon="Edit2" />
-                <Section text="Remove item" icon="Trash" onClick={handleRemoveItem} />
+                <Section text="Edit item" onClick={handleEditItem} icon="Edit2" />
+                <Section text="Remove item" onClick={handleRemoveItem} icon="Trash" />
             </Kebab>
         </li>
     );
@@ -82,8 +78,10 @@ const Product = props => {
 
 Product.propTypes = {
     removeItemFromCart: func.isRequired,
+    beginEditItem: func.isRequired,
     item: shape({
         id: string.isRequired,
+        quantity: number.isRequired,
         product: shape({
             name: string.isRequired,
             price: object.isRequired,

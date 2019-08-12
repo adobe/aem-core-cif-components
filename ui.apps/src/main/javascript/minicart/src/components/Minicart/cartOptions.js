@@ -13,11 +13,27 @@
  ******************************************************************************/
 
 import React from 'react';
+import { Price } from '@magento/peregrine';
 
 import classes from './cartOptions.css';
 
 const CartOptions = props => {
-    return <div className={classes.root}></div>;
+    const { currencyCode, editItem } = props;
+
+    const { product, quantity } = editItem;
+    const { name, price: productPrice } = product;
+
+    const { value, currency } = productPrice.regularPrice.amount;
+    return (
+        <div className={classes.root}>
+            <div className={classes.focusItem}>
+                <span className={classes.name}>{name}</span>
+                <span className={classes.price}>
+                    <Price currencyCode={currency} value={value} />
+                </span>
+            </div>
+        </div>
+    );
 };
 
 export default CartOptions;

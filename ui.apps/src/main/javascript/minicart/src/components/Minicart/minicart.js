@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
-import { func, shape, string, bool, object } from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -32,14 +31,9 @@ import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 const CART_ID = 'hx7geWblhhU0znC4rFPR166UvNy2Mp1k';
 
 const MiniCart = props => {
-    const [cart, setCart] = useState({
-        details: undefined,
-        currencyCode: ''
-    });
     const [isOpen, setIsOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    const [isEmpty, setIsEmpty] = useState(true);
-
+    const [editItem, setEditItem] = useState({});
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId: CART_ID } }]
     });
@@ -61,28 +55,33 @@ const MiniCart = props => {
         setIsOpen(false);
     };
 
-    const handleBeginEditing = () => {
+    const handleBeginEditing = item => {
         setIsEditing(true);
+        setEditItem(item);
     };
 
     const removeItemFromCart = itemId => {
         removeItem({ variables: { cartId: CART_ID, itemId } });
     };
 
+    const isEmpty = data && data.cart && data.cart.items.length === 0;
+    const currencyCode = getCurrencyCode(data.cart);
     return (
         <>
             <Mask isActive={isOpen} dismiss={handleCloseCart} />
             <aside className={rootClass}>
                 <Header handleCloseCart={handleCloseCart} />
                 <Body
-                    isEmpty={data && data.cart && data.cart.items.length === 0}
+                    editItem={editItem}
+                    isEmpty={isEmpty}
                     isEditing={isEditing}
                     isLoading={loading}
                     cart={data.cart}
-                    currencyCode={cart.currencyCode}
+                    currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
+                    beginEditItem={handleBeginEditing}
                 />
-                <Footer />
+                {loading || isEmpty || <Footer />}
             </aside>
         </>
     );

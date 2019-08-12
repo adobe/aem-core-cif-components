@@ -14,27 +14,33 @@
 
 const path = require('path');
 const fs = require('fs');
+const fsExtra = require('fs-extra');
 const { exec } = require('child_process');
 
-const DEST_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist';
+const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib';
 const SRC_PATH = path.resolve('.', 'dist');
-console.log(SRC_PATH);
 const FILE_NAME = 'index';
 
-const copySource = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js`, `${DEST_PATH}/${FILE_NAME}.js`, err => {
+const copySource = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js`, `${CLIENTLIB_PATH}/dist/${FILE_NAME}.js`, err => {
     if (err) {
         throw err;
     }
-    console.error(`Output copied to ${DEST_PATH}`);
+    console.error(`Output copied to ${CLIENTLIB_PATH}`);
 });
-const copyMap = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js.map`, `${DEST_PATH}/${FILE_NAME}.js.map`, err => {
+const copyMap = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js.map`, `${CLIENTLIB_PATH}/dist/${FILE_NAME}.js.map`, err => {
     if (err) {
         throw err;
     }
-    console.error(`Output copied to ${DEST_PATH}`);
+    console.error(`Output copied to ${CLIENTLIB_PATH}`);
+});
+fsExtra.copy(`${SRC_PATH}/resources`, `${CLIENTLIB_PATH}/resources`, err => {
+    if (err) {
+        throw err;
+    }
+    console.error(`Output copied to ${CLIENTLIB_PATH}`);
 });
 
-exec(`repo put -f ${DEST_PATH}`, (err, stdout, stderr) => {
+exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
     if (err) {
         console.log(err);
     } else {

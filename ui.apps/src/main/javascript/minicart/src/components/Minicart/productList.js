@@ -19,7 +19,7 @@ import Product from './product';
 import classes from './productList.css';
 
 const ProductList = props => {
-    const { cartItems, removeItemFromCart } = props;
+    const { cartItems, removeItemFromCart, beginEditItem } = props;
 
     return (
         <List
@@ -28,19 +28,21 @@ const ProductList = props => {
             items={cartItems}
             getItemKey={item => item.id}
             renderItem={props => {
-                return <Product item={props.item} removeItemFromCart={removeItemFromCart} />;
+                return (
+                    <Product item={props.item} removeItemFromCart={removeItemFromCart} beginEditItem={beginEditItem} />
+                );
             }}></List>
     );
 };
 
 ProductList.propTypes = {
-    beginEditItem: func,
     cartItems: array,
     classes: shape({
         root: string
     }),
     currencyCode: string,
-    removeItemFromCart: func
+    beginEditItem: func.isRequired,
+    removeItemFromCart: func.isRequired
 };
 
 export default ProductList;

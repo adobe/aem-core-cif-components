@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { bool, shape, string, func, array } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -23,7 +24,7 @@ import CartOptions from './cartOptions';
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
 const Body = props => {
-    const { isEmpty, isEditing, isLoading, cart, currencyCode, removeItemFromCart } = props;
+    const { isEmpty, isEditing, isLoading, cart, currencyCode, removeItemFromCart, beginEditItem, editItem } = props;
 
     if (isLoading) {
         return loadingIndicator;
@@ -33,16 +34,32 @@ const Body = props => {
         return <EmptyMinicartBody />;
     }
     if (isEditing) {
-        return <CartOptions />;
+        return <CartOptions currencyCode={currencyCode} editItem={editItem} />;
     }
 
     const cartItems = cart.items;
-    console.log(`Is this empty ${isEmpty}`);
     return (
         <div className={classes.root}>
-            <ProductList cartItems={cartItems} currencyCode={currencyCode} removeItemFromCart={removeItemFromCart} />
+            <ProductList
+                cartItems={cartItems}
+                currencyCode={currencyCode}
+                removeItemFromCart={removeItemFromCart}
+                beginEditItem={beginEditItem}
+            />
         </div>
     );
 };
 
 export default Body;
+
+Body.propTypes = {
+    isEmpty: bool,
+    isEditing: bool,
+    isLoading: bool,
+    cart: shape({
+        items: array.isRequired
+    }),
+    currencyCode: string.isRequired,
+    removeItemFromCart: func.isRequired,
+    beginEditItem: func.isRequired
+};
