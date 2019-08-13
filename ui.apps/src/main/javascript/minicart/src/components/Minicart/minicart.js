@@ -28,19 +28,17 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 
 //TODO retrieve this from the cookie.
-const CART_ID = 'hx7geWblhhU0znC4rFPR166UvNy2Mp1k';
+const CART_ID = 'V1bvif5UxQThb84iukrxHx9dYQg9nr8j';
 
 const MiniCart = props => {
     const [isOpen, setIsOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [editItem, setEditItem] = useState({});
-    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId: CART_ID } }]
-    });
+    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
 
     const { data, error, loading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId: CART_ID } });
     const rootClass = isOpen ? classes.root_open : classes.root;
-
+    console.log(`Using cart id ${CART_ID}`);
     if (error) {
         console.log(`Error loading cart`, error);
     }
@@ -58,6 +56,10 @@ const MiniCart = props => {
     const handleBeginEditing = item => {
         setIsEditing(true);
         setEditItem(item);
+    };
+
+    const handleEndEditing = () => {
+        setIsEditing(false);
     };
 
     const removeItemFromCart = itemId => {
@@ -80,8 +82,10 @@ const MiniCart = props => {
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
                     beginEditItem={handleBeginEditing}
+                    handleEndEditing={handleEndEditing}
+                    cartId={CART_ID}
                 />
-                {loading || isEmpty || <Footer />}
+                {loading || isEmpty || isEditing || <Footer />}
             </aside>
         </>
     );

@@ -29,6 +29,7 @@ const Product = props => {
     const { beginEditItem, item, removeItemFromCart } = props;
 
     const { product = undefined, quantity = 0, id = '' } = item;
+    console.log(`Our item is `, item);
     const { image, name, options, price } = product;
     const { value, currency } = price.regularPrice.amount;
 

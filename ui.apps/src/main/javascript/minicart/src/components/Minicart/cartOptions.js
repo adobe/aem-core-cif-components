@@ -12,27 +12,89 @@
  *
  ******************************************************************************/
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useMutation } from '@apollo/react-hooks';
+
 import { Price } from '@magento/peregrine';
 
+import Button from '../Button';
+import Select from '../Select';
 import classes from './cartOptions.css';
+import LoadingIndicator from '../LoadingIndicator';
+
+import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
 const CartOptions = props => {
-    const { currencyCode, editItem } = props;
+    const { editItem, handleEndEditing, cartId } = props;
 
     const { product, quantity } = editItem;
     const { name, price: productPrice } = product;
 
     const { value, currency } = productPrice.regularPrice.amount;
+
+    const [newQty, setNewQty] = useState(quantity);
+
+    const mockQtys = [
+        {
+            value: '1'
+        },
+        {
+            value: '2'
+        },
+        {
+            value: '3'
+        },
+        {
+            value: '4'
+        }
+    ];
+
+    const [updateCart, { error, called, loading }] = useMutation(MUTATION_UPDATE_CART_ITEM);
+
+    const modalClass = loading ? classes.modal_active : classes.modal;
+
+    const handleUpdateClick = () => {
+        console.log(`Clicked (quantity is ${newQty})`);
+        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity: newQty } });
+        console.log(`Is this called? ${called} loading? ${loading} error? ${error}`);
+        handleEndEditing();
+    };
+
     return (
-        <div className={classes.root}>
+        <form className={classes.root}>
             <div className={classes.focusItem}>
                 <span className={classes.name}>{name}</span>
                 <span className={classes.price}>
                     <Price currencyCode={currency} value={value} />
                 </span>
             </div>
-        </div>
+            <div className={classes.form}>
+                <section className={classes.quantity}>
+                    <h2 className={classes.quantityTitle}>
+                        <span>Quantity</span>
+                    </h2>
+                    <Select
+                        fieldState={{}}
+                        initialValue={newQty}
+                        field="quantity"
+                        items={mockQtys}
+                        handleOnChange={setNewQty}
+                    />
+                </section>
+            </div>
+            <div className={classes.save}>
+                <Button onClick={handleEndEditing}>
+                    <span>Cancel</span>
+                </Button>
+                <Button priority="high" onClick={handleUpdateClick}>
+                    <span>Update Cart</span>
+                </Button>
+            </div>
+            <div className={modalClass}>
+                <LoadingIndicator>Updating Cart</LoadingIndicator>
+            </div>
+        </form>
     );
 };
 

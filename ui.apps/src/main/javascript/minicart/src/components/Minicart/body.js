@@ -24,7 +24,18 @@ import CartOptions from './cartOptions';
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
 const Body = props => {
-    const { isEmpty, isEditing, isLoading, cart, currencyCode, removeItemFromCart, beginEditItem, editItem } = props;
+    const {
+        isEmpty,
+        isEditing,
+        isLoading,
+        cart,
+        currencyCode,
+        removeItemFromCart,
+        beginEditItem,
+        editItem,
+        handleEndEditing,
+        cartId
+    } = props;
 
     if (isLoading) {
         return loadingIndicator;
@@ -34,7 +45,14 @@ const Body = props => {
         return <EmptyMinicartBody />;
     }
     if (isEditing) {
-        return <CartOptions currencyCode={currencyCode} editItem={editItem} />;
+        return (
+            <CartOptions
+                currencyCode={currencyCode}
+                editItem={editItem}
+                handleEndEditing={handleEndEditing}
+                cartId={cartId}
+            />
+        );
     }
 
     const cartItems = cart.items;
