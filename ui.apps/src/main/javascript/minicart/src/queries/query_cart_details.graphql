@@ -19,7 +19,7 @@ query cartDetails($cartId: String!) {
                         }
                     }
                 }
-                image {
+                thumbnail {
                     url
                 }
             }

@@ -30,7 +30,7 @@ const Product = props => {
 
     const { product = undefined, quantity = 0, id = '' } = item;
     console.log(`Our item is `, item);
-    const { image, name, options, price } = product;
+    const { thumbnail, name, options, price } = product;
     const { value, currency } = price.regularPrice.amount;
 
     console.log(`Product  is`, product);
@@ -38,8 +38,8 @@ const Product = props => {
 
     const productImage = useMemo(() => {
         const src =
-            image && image.url
-                ? makeUrl(image.url, { type: 'image-product', width: imageWidth, height: imageHeight })
+            thumbnail && thumbnail.url
+                ? makeUrl(thumbnail.url, { type: 'image-product', width: imageWidth, height: imageHeight })
                 : transparentPlaceholder;
         return <img alt={name} className={classes.image} placeholder={transparentPlaceholder} src={src} />;
     });
