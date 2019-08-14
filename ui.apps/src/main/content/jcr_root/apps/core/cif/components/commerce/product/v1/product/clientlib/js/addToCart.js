@@ -66,12 +66,13 @@ class AddToCart {
     _onAddToCart() {
         const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
-        if (this._state.sku && window.CIF && window.CIF.MiniCart) {
-            window.CIF.MiniCart.addItem({ sku: this._state.sku, qty: quantity });
-            return;
+        if (this._state.sku && window.CIF) {
+            console.log('Adding product to cart');
+            const customEvent = new CustomEvent(AddToCart.events.addToCart, {detail: { sku: this._state.sku, quantity}});
+            document.dispatchEvent(customEvent);
         }
     }
-}
+}                   
 
 AddToCart.selectors = {
     self: '.productFullDetail__cartActions button',
@@ -81,7 +82,8 @@ AddToCart.selectors = {
 };
 
 AddToCart.events = {
-    variantChanged: 'variantchanged'
+    variantChanged: 'variantchanged',
+    addToCart:'aem.cif.add-to-cart'
 };
 
 (function(document) {

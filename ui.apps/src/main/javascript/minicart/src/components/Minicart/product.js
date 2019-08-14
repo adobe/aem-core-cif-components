@@ -29,8 +29,7 @@ const Product = props => {
     const { beginEditItem, item, removeItemFromCart } = props;
 
     const { product = undefined, quantity = 0, id = '' } = item;
-    console.log(`Our item is `, item);
-    const { thumbnail, name, options, price } = product;
+    const { thumbnail, name, price } = product;
     const { value, currency } = price.regularPrice.amount;
 
     console.log(`Product  is`, product);
@@ -45,14 +44,13 @@ const Product = props => {
     });
 
     const handleEditItem = useCallback(() => {
-        console.log(`Edit cart item`);
         beginEditItem(item);
-    }, [beginEditItem, product]);
+    }, [beginEditItem, item]);
 
     const handleRemoveItem = useCallback(() => {
         setIsLoading(true);
         removeItemFromCart(id);
-    }, [id, removeItemFromCart]);
+    }, [setIsLoading, id, removeItemFromCart]);
 
     const mask = isLoading ? <div className={classes.mask} /> : null;
     return (

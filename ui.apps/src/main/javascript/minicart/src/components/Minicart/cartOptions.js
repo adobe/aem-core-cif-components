@@ -23,7 +23,6 @@ import classes from './cartOptions.css';
 import LoadingIndicator from '../LoadingIndicator';
 
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
-import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
 const CartOptions = props => {
     const { editItem, handleEndEditing, cartId } = props;
@@ -55,9 +54,7 @@ const CartOptions = props => {
     const modalClass = loading ? classes.modal_active : classes.modal;
 
     const handleUpdateClick = () => {
-        console.log(`Clicked (quantity is ${newQty})`);
         updateCart({ variables: { cartId, cartItemId: editItem.id, quantity: newQty } });
-        console.log(`Is this called? ${called} loading? ${loading} error? ${error}`);
         handleEndEditing();
     };
 

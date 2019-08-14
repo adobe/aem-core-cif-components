@@ -26,19 +26,27 @@ import classes from './minicart.css';
 
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
+import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 
 //TODO retrieve this from the cookie.
 const CART_ID = 'V1bvif5UxQThb84iukrxHx9dYQg9nr8j';
 
 const MiniCart = props => {
-    const [isOpen, setIsOpen] = useState(true);
+    console.log(`Rendering the minicart`);
+    const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editItem, setEditItem] = useState({});
-    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
+    const [cartId, setCartId] = useState(CART_ID);
 
-    const { data, error, loading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId: CART_ID } });
-    const rootClass = isOpen ? classes.root_open : classes.root;
-    console.log(`Using cart id ${CART_ID}`);
+    const [addItem] = useMutation(MUTATION_ADD_TO_CART, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    });
+    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    });
+
+    const { data, error, loading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
+
     if (error) {
         console.log(`Error loading cart`, error);
     }
@@ -47,7 +55,18 @@ const MiniCart = props => {
         setIsOpen(true);
     };
 
+    const addToCart = ev => {
+        if (!ev.detail) {
+            return;
+        }
+
+        const { sku, quantity } = ev.detail;
+        addItem({ variables: { cartId, sku, quantity } });
+        setIsOpen(true);
+    };
+
     useEventListener(document, 'aem.cif.open-cart', openCart);
+    useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
     const handleCloseCart = () => {
         setIsOpen(false);
@@ -63,10 +82,12 @@ const MiniCart = props => {
     };
 
     const removeItemFromCart = itemId => {
-        removeItem({ variables: { cartId: CART_ID, itemId } });
+        removeItem({ variables: { cartId, itemId } });
     };
 
+    const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
+    console.log(`Is the mini-cart loading? ${loading}`);
     const currencyCode = getCurrencyCode(data.cart);
     return (
         <>
@@ -83,7 +104,7 @@ const MiniCart = props => {
                     removeItemFromCart={removeItemFromCart}
                     beginEditItem={handleBeginEditing}
                     handleEndEditing={handleEndEditing}
-                    cartId={CART_ID}
+                    cartId={cartId}
                 />
                 {loading || isEmpty || isEditing || <Footer />}
             </aside>
