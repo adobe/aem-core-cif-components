@@ -11,6 +11,18 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './field';
-export { default as FieldIcons } from './fieldIcons';
-export { default as Message } from './message';
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import classes from './cartCounter.css';
+
+const CartCounter = props => {
+    const { counter } = props;
+    return counter > 0 ? <span className={classes.root}>{counter}</span> : null;
+};
+
+CartCounter.propTypes = {
+    counter: PropTypes.number.isRequired
+};
+
+export default CartCounter;

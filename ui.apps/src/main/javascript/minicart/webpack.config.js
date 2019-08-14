@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -56,12 +57,20 @@ module.exports = {
                 ]
             },
             {
-                test: /\.svg/,
-                use: 'file-loader'
+                test: /\.svg$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            outputPath: 'resources',
+                            name: '[name].[ext]'
+                        }
+                    }
+                ]
             }
         ]
     },
+    plugins: [new Dotenv()],
     devtool: 'source-map',
     mode: 'development'
-    // externals: nodeExternals()
 };

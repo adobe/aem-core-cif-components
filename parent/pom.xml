@@ -290,13 +290,26 @@
                         <exclude>**/css.txt</exclude>
                         <exclude>**/*.css</exclude>
                         <exclude>**/*.less</exclude>
-
                         <!-- Karma tests -->
                         <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
 
                         <exclude>**/.prettierrc</exclude>
                         <exclude>**/.prettierignore</exclude>
+
+                        <!-- Graphql queries -->
+                        <exclude>**/*.graphql</exclude>
+
+                        <!-- Log files -->
+                        <exclude>**/*.log</exclude>
+                        <!-- file that should not be committed anywhere -->
+                        <exclude>**/.env</exclude>
+                        <!-- Ignore lock files -->
+                        <exclude>**/yarn.lock</exclude>
+                        <exclude>**/package-lock.json</exclude>
+                        <!-- Config files -->
+                        <exclude>**/.babelrc</exclude>
+
                     </excludes>
                 </configuration>
                 <executions>

@@ -28,7 +28,9 @@ module.exports = {
     parser: 'babel-eslint',
     globals: {
         Atomics: 'readonly',
-        SharedArrayBuffer: 'readonly'
+        SharedArrayBuffer: 'readonly',
+
+        process: true
     },
     parserOptions: {
         ecmaFeatures: {

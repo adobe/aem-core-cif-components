@@ -27,6 +27,7 @@ import classes from './minicart.css';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
+import CartTrigger from '../CartTrigger';
 
 //TODO retrieve this from the cookie.
 const CART_ID = 'V1bvif5UxQThb84iukrxHx9dYQg9nr8j';
@@ -89,8 +90,15 @@ const MiniCart = props => {
     const isEmpty = data && data.cart && data.cart.items.length === 0;
     console.log(`Is the mini-cart loading? ${loading}`);
     const currencyCode = getCurrencyCode(data.cart);
+    let cartQuantity;
+
+    if (data && data.cart) {
+        cartQuantity = data.cart.items.length;
+    }
+
     return (
         <>
+            <CartTrigger cartQuantity={cartQuantity} handler={setIsOpen} />
             <Mask isActive={isOpen} dismiss={handleCloseCart} />
             <aside className={rootClass}>
                 <Header handleCloseCart={handleCloseCart} />
