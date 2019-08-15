@@ -27,13 +27,9 @@ const absoluteUrl = /^(data|http|https)?:/i;
 
 // Simple path joiner that guarantees one and only one slash between segments
 const joinUrls = (base, url) =>
-    (base.endsWith('/') ? base.slice(0, -1) : base) +
-    '/' +
-    (url.startsWith('/') ? url.slice(1) : url);
+    (base.endsWith('/') ? base.slice(0, -1) : base) + '/' + (url.startsWith('/') ? url.slice(1) : url);
 
-const mediaBases = new Map()
-    .set('image-product', 'catalog/product/')
-    .set('image-category', 'catalog/category/');
+const mediaBases = new Map().set('image-product', 'catalog/product/').set('image-category', 'catalog/category/');
 
 /**
  * Creates an "optimized" url for a provided relative url based on

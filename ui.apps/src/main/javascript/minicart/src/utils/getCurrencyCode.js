@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  *
  *    Copyright 2019 Adobe. All rights reserved.
@@ -18,8 +17,8 @@ const getCurrencyCode = cart => {
     let result;
 
     try {
-        result = cart.prices.grand_total.currency
-    } catch (error){
+        result = cart.prices.grand_total.currency;
+    } catch (error) {
         result = DEFAULT_CURRENCY_CODE;
     }
 

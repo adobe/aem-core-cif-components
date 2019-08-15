@@ -68,11 +68,13 @@ class AddToCart {
 
         if (this._state.sku && window.CIF) {
             console.log('Adding product to cart');
-            const customEvent = new CustomEvent(AddToCart.events.addToCart, {detail: { sku: this._state.sku, quantity}});
+            const customEvent = new CustomEvent(AddToCart.events.addToCart, {
+                detail: { sku: this._state.sku, quantity }
+            });
             document.dispatchEvent(customEvent);
         }
     }
-}                   
+}
 
 AddToCart.selectors = {
     self: '.productFullDetail__cartActions button',
@@ -83,7 +85,7 @@ AddToCart.selectors = {
 
 AddToCart.events = {
     variantChanged: 'variantchanged',
-    addToCart:'aem.cif.add-to-cart'
+    addToCart: 'aem.cif.add-to-cart'
 };
 
 (function(document) {
