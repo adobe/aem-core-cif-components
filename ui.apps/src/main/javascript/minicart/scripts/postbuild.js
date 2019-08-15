@@ -14,7 +14,6 @@
 
 const path = require('path');
 const fs = require('fs');
-const fsExtra = require('fs-extra');
 const { exec } = require('child_process');
 
 const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib';
@@ -28,12 +27,6 @@ const copySource = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js`, `${CLIENTLIB_PATH}
     console.error(`Output copied to ${CLIENTLIB_PATH}`);
 });
 const copyMap = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js.map`, `${CLIENTLIB_PATH}/dist/${FILE_NAME}.js.map`, err => {
-    if (err) {
-        throw err;
-    }
-    console.error(`Output copied to ${CLIENTLIB_PATH}`);
-});
-fsExtra.copy(`${SRC_PATH}/resources`, `${CLIENTLIB_PATH}/resources`, err => {
     if (err) {
         throw err;
     }

@@ -46,8 +46,8 @@ hs_err_pid*
 **/karma-junit/**
 **/coverage/**
 
-**/dist/index.js
-**/dist/index.js.map
+**/dist
+**/dist
 
 yarn-error.log
 .env

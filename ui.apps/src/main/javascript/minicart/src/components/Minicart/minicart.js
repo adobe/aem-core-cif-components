@@ -39,14 +39,14 @@ const MiniCart = props => {
     const [editItem, setEditItem] = useState({});
     const [cartId, setCartId] = useState(CART_ID);
 
-    const [addItem] = useMutation(MUTATION_ADD_TO_CART, {
+    const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
     });
-    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM, {
+    const [removeItem, { loading: removeItemLoading }] = useMutation(MUTATION_REMOVE_ITEM, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
     });
 
-    const { data, error, loading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
+    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
 
     if (error) {
         console.log(`Error loading cart`, error);
@@ -88,13 +88,16 @@ const MiniCart = props => {
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
-    console.log(`Is the mini-cart loading? ${loading}`);
+
     const currencyCode = getCurrencyCode(data.cart);
     let cartQuantity;
-
     if (data && data.cart) {
         cartQuantity = data.cart.items.length;
     }
+
+    const isLoading = queryLoading || addItemLoading || removeItemLoading;
+    const showFooter = !(isLoading || isEmpty || isEditing);
+    const footer = showFooter ? <Footer isOpen={isOpen} cart={data.cart} /> : null;
 
     return (
         <>
@@ -106,7 +109,7 @@ const MiniCart = props => {
                     editItem={editItem}
                     isEmpty={isEmpty}
                     isEditing={isEditing}
-                    isLoading={loading}
+                    isLoading={isLoading}
                     cart={data.cart}
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
@@ -114,7 +117,7 @@ const MiniCart = props => {
                     handleEndEditing={handleEndEditing}
                     cartId={cartId}
                 />
-                {loading || isEmpty || isEditing || <Footer isOpen={isOpen} cart={data.cart} />}
+                {footer}
             </aside>
         </>
     );

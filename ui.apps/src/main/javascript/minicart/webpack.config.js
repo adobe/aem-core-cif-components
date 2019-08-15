@@ -13,6 +13,7 @@
  ******************************************************************************/
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -70,7 +71,7 @@ module.exports = {
             }
         ]
     },
-    plugins: [new Dotenv()],
+    plugins: [new Dotenv(), new CleanWebpackPlugin()],
     devtool: 'source-map',
     mode: 'development'
 };

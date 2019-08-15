@@ -15,14 +15,18 @@ import React from 'react';
 
 import classes from './indicator.css';
 
-import logo from '../Logo/logo.svg';
-
 const LoadingIndicator = props => {
     const className = props.global ? classes.global : classes.root;
 
     return (
         <div className={className}>
-            <img className={classes.indicator} src={logo} width="64" height="64" alt="Loading indicator" />
+            <img
+                className={classes.indicator}
+                src="/conf/venia/settings/wcm/templates/product-page/structure/_jcr_content/root/header/logo.svg"
+                width="64"
+                height="64"
+                alt="Loading indicator"
+            />
             <span className={classes.message}>{props.children}</span>
         </div>
     );

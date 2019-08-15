@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { Lock as LockIcon } from 'react-feather';
-
+import { object, bool } from 'prop-types';
 import Button from '../Button';
 import classes from './footer.css';
 
@@ -43,4 +43,8 @@ const Footer = props => {
     );
 };
 
+Footer.propTypes = {
+    cart: object.isRequired,
+    isOpen: bool
+};
 export default Footer;
