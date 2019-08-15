@@ -114,7 +114,7 @@ const MiniCart = props => {
                     handleEndEditing={handleEndEditing}
                     cartId={cartId}
                 />
-                {loading || isEmpty || isEditing || <Footer />}
+                {loading || isEmpty || isEditing || <Footer isOpen={isOpen} cart={data.cart} />}
             </aside>
         </>
     );

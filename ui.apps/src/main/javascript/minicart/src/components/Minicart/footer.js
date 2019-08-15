@@ -17,7 +17,14 @@ import { Lock as LockIcon } from 'react-feather';
 import Button from '../Button';
 import classes from './footer.css';
 
+import TotalsSummary from './totalsSummary';
+
 const Footer = props => {
+    const { isOpen, cart } = props;
+    const footerClassName = isOpen ? classes.root_open : classes.root;
+
+    const { currency, value: totalPrice } = cart.prices.grand_total;
+
     const placeholderButton = () => {
         return (
             <div className={classes.placeholderButton}>
@@ -28,7 +35,12 @@ const Footer = props => {
         );
     };
 
-    return placeholderButton();
+    return (
+        <div className={footerClassName}>
+            <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
+            {placeholderButton()}
+        </div>
+    );
 };
 
 export default Footer;
