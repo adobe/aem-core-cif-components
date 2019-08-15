@@ -67,7 +67,6 @@ class AddToCart {
         const quantity = document.querySelector(AddToCart.selectors.quantity).value;
 
         if (this._state.sku && window.CIF) {
-            console.log('Adding product to cart');
             const customEvent = new CustomEvent(AddToCart.events.addToCart, {
                 detail: { sku: this._state.sku, quantity }
             });
