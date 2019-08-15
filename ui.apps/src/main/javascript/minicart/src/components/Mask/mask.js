@@ -30,7 +30,7 @@ class Mask extends Component {
         const { dismiss, isActive } = this.props;
         const className = isActive ? classes.root_active : classes.root;
 
-        return <button className={className} onClick={dismiss} />;
+        return <button data-role="mask" className={className} onClick={dismiss} />;
     }
 }
 

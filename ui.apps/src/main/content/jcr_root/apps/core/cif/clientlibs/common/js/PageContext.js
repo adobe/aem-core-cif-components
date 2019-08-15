@@ -31,7 +31,7 @@ let PageContext = (function(document) {
 
     function PageContext() {
         // define the pageMask that is displayed when the sides are open (minicart and nav)
-        let pageMask = document.querySelector('button.mask__root');
+        let pageMask = document.querySelector('button[data-role="mask"]');
         let cartInfo = {};
         // process the cif.cart cookie, containing the cartId and cartQuote
         const cookieName = 'cif.cart';
@@ -51,6 +51,7 @@ let PageContext = (function(document) {
              * @param callback a function which will be installed as the click listener
              */
             maskPage: function(callback) {
+                let pageMask = document.querySelector('button[data-role="mask"]');
                 pageMask.classList.add('mask__root_active');
                 if (callback && typeof callback === 'function') {
                     const clickHandler = event => {

@@ -12,9 +12,20 @@
  *
  ******************************************************************************/
 import React from 'react';
+import MiniCart from './minicart';
 
-import LoadingIndicator from './indicator';
+import { useGuestCart } from '../../utils/hooks';
 
-const staticIndicator = <LoadingIndicator global={true}>{'Fetching Data...'}</LoadingIndicator>;
+const Container = props => {
+    console.log(`Rendering the container`);
+    const cartId = useGuestCart();
 
-export default staticIndicator;
+    if (!cartId || cartId.length === 0) {
+        console.log(`No cart id yet, loading...`);
+        return <p>Loading...</p>;
+    }
+
+    return <MiniCart cartId={cartId} />;
+};
+
+export default Container;

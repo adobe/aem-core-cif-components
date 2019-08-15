@@ -11,10 +11,11 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
+export const checkCookie = cookieName => {
+    return document.cookie.split(';').filter(item => item.trim().startsWith(`${cookieName}=`)).length > 0;
+};
 
-import LoadingIndicator from './indicator';
-
-const staticIndicator = <LoadingIndicator global={true}>{'Fetching Data...'}</LoadingIndicator>;
-
-export default staticIndicator;
+export const cookieValue = cookieName => {
+    let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
+    return b ? b.pop() : '';
+};

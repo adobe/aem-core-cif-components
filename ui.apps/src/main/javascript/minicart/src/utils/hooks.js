@@ -11,7 +11,11 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useMutation } from '@apollo/react-hooks';
+import { checkCookie, cookieValue } from './cookieUtils';
+import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
+
 export const useEventListener = (target, type, listener, ...rest) => {
     useEffect(() => {
         target.addEventListener(type, listener, ...rest);
@@ -21,4 +25,44 @@ export const useEventListener = (target, type, listener, ...rest) => {
             target.removeEventListener(type, listener, ...rest);
         };
     }, [listener, rest, target, type]);
+};
+
+export const useGuestCart = () => {
+    let cookieName = 'cif.cart';
+    const getInitialCartId = useCallback(() => {
+        console.log(`Check the cookie`);
+        if (checkCookie(cookieName)) {
+            console.log(`Found cookie ${cookieName}, checking value...`);
+            const cifCartCookie = cookieValue(cookieName);
+            console.log(`Found value ${cifCartCookie}`);
+            return cifCartCookie;
+        } else {
+            console.log(`No COOKIE!!!`);
+            return '';
+        }
+    }, [cookieName]);
+
+    let initialCartId = getInitialCartId();
+    if (initialCartId) {
+        console.log(`Cart id found in cookie ${initialCartId}`);
+        return initialCartId;
+    }
+
+    const [cartId, setCartId] = useState('');
+    const [createCart, { data, loading }] = useMutation(MUTATION_CREATE_CART);
+
+    useEffect(() => {
+        console.log(`Running the effect, loading is ${loading} and cartId is ${cartId}`);
+        if (!cartId || cartId.length === 0) {
+            createCart();
+
+            if (data) {
+                console.log(`We have data! ${data.createEmptyCart}`);
+                setCartId(data.createEmptyCart);
+                document.cookie = `${cookieName}=${data.createEmptyCart};path=/`;
+            }
+        }
+    }, [loading, document]);
+    console.log(`Cart id in state ${cartId}`);
+    return cartId;
 };

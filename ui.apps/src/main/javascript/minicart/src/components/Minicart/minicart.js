@@ -29,15 +29,13 @@ import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import CartTrigger from '../CartTrigger';
 
-//TODO retrieve this from the cookie.
-const CART_ID = 'V1bvif5UxQThb84iukrxHx9dYQg9nr8j';
-
 const MiniCart = props => {
-    console.log(`Rendering the minicart`);
+    const { cartId } = props;
+
+    console.log(`Rendering the minicart with id ${cartId}`);
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editItem, setEditItem] = useState({});
-    const [cartId, setCartId] = useState(CART_ID);
 
     const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
@@ -89,15 +87,17 @@ const MiniCart = props => {
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
 
-    const currencyCode = getCurrencyCode(data.cart);
     let cartQuantity;
-    if (data && data.cart) {
-        cartQuantity = data.cart.items.length;
-    }
-
-    const isLoading = queryLoading || addItemLoading || removeItemLoading;
+    let currencyCode = '';
+    let footer = null;
+    const isLoading = !data || !data.cart || queryLoading || addItemLoading || removeItemLoading;
     const showFooter = !(isLoading || isEmpty || isEditing);
-    const footer = showFooter ? <Footer isOpen={isOpen} cart={data.cart} /> : null;
+    console.log(`This is loading ${isLoading}`, data);
+    if (data && data.cart) {
+        currencyCode = getCurrencyCode(data.cart);
+        cartQuantity = data.cart.items.length;
+        footer = showFooter ? <Footer isOpen={isOpen} cart={data.cart} /> : null;
+    }
 
     return (
         <>
@@ -110,7 +110,7 @@ const MiniCart = props => {
                     isEmpty={isEmpty}
                     isEditing={isEditing}
                     isLoading={isLoading}
-                    cart={data.cart}
+                    cart={data && data.cart}
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
                     beginEditItem={handleBeginEditing}
