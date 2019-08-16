@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 public class ProductListItemImpl implements ProductListItem {
@@ -70,7 +71,7 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return Utils.constructUrlfromSlug(productPage.getPath(), this.getSlug());
+        return SiteNavigation.toProductUrl(productPage.getPath(), this.getSlug());
     }
 
     @Nullable

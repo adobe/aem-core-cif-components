@@ -29,8 +29,8 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
@@ -58,8 +58,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @PostConstruct
     void initModel() {
         setActionsEnabled();
-        productPage = Utils.getProductPage(currentPage);
-        categoryPage = Utils.getCategoryPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
+        categoryPage = SiteNavigation.getCategoryPage(currentPage);
 
         if (actionsEnabled) {
             populateActions();
@@ -81,7 +81,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
                 ValueMap properties = action.getValueMap();
                 String title = properties.get(PN_ACTION_TEXT, String.class);
-                String productSKU = properties.get(PN_ACTION_PRODUCT_SKU, String.class);
+                String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
                 String selector = "";
                 Page page = null;
@@ -89,9 +89,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 if (categoryId != null) {
                     page = categoryPage;
                     selector = categoryId;
-                } else if (productSKU != null) {
+                } else if (productSlug != null) {
                     page = productPage;
-                    selector = productSKU;
+                    selector = productSlug;
                 } else {
                     page = currentPage;
 

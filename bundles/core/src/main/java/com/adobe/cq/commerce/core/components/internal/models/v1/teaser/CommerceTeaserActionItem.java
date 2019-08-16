@@ -17,7 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
@@ -43,6 +43,6 @@ public class CommerceTeaserActionItem implements ListItem {
     @Override
     public String getURL() {
         return (selector == null || selector.trim().equalsIgnoreCase("")) ? (page.getPath() + ".html")
-            : Utils.constructUrlfromSlug(page.getPath(), selector);
+            : SiteNavigation.toProductUrl(page.getPath(), selector);
     }
 }

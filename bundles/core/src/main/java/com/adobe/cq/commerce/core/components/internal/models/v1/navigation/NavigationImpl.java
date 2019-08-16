@@ -32,9 +32,9 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
@@ -133,7 +133,7 @@ public class NavigationImpl implements Navigation {
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
-        Page categoryPage = Utils.getCategoryPage(currentPage);
+        Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
         if (categoryPage == null) {
             return;
         }

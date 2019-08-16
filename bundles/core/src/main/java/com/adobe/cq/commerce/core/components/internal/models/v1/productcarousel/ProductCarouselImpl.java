@@ -30,11 +30,11 @@ import org.apache.sling.models.annotations.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -72,7 +72,7 @@ public class ProductCarouselImpl implements ProductCarousel {
     private void initModel() {
         final List<String> productSkus = Arrays.asList(this.productSkuList);
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-        productPage = Utils.getProductPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }

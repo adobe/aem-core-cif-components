@@ -32,10 +32,10 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -96,7 +96,7 @@ public class ProductListImpl implements ProductList {
         setNavPageCursor();
 
         // get product template page
-        productPage = Utils.getProductPage(currentPage);
+        productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }

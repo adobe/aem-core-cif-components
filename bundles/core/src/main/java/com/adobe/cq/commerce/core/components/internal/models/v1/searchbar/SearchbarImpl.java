@@ -21,8 +21,8 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -45,7 +45,7 @@ public class SearchbarImpl implements Searchbar {
     @Override
     public String getSearchResultsPageUrl() {
         if (searchResultsPage == null) {
-            searchResultsPage = Utils.getSearchResultsPage(currentPage);
+            searchResultsPage = SiteNavigation.getSearchResultsPage(currentPage);
         }
 
         return searchResultsPage.getPath() + ".html";
