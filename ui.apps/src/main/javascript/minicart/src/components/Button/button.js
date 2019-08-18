@@ -11,42 +11,41 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component } from 'react';
-import { oneOf, shape, string } from 'prop-types';
+import React from 'react';
+import { oneOf, shape, string, node } from 'prop-types';
 
 import classes from './button.css';
 
 const getRootClassName = priority => `root_${priority}Priority`;
 
-export class Button extends Component {
-    static propTypes = {
-        classes: shape({
-            content: string,
-            root: string,
-            root_highPriority: string,
-            root_normalPriority: string
-        }).isRequired,
-        priority: oneOf(['high', 'normal']).isRequired,
-        type: oneOf(['button', 'reset', 'submit']).isRequired
-    };
+const Button = props => {
+    const { children, priority, type, ...restProps } = props;
 
-    static defaultProps = {
-        priority: 'normal',
-        type: 'button',
-        classes: classes
-    };
+    const rootClassName = classes[getRootClassName(priority)];
 
-    render() {
-        const { children, priority, type, ...restProps } = this.props;
+    return (
+        <button className={rootClassName} type={type} {...restProps}>
+            <span className={classes.content}>{children}</span>
+        </button>
+    );
+};
 
-        const rootClassName = classes[getRootClassName(priority)];
+Button.defaultProps = {
+    priority: 'normal',
+    type: 'button',
+    classes: classes
+};
 
-        return (
-            <button className={rootClassName} type={type} {...restProps}>
-                <span className={classes.content}>{children}</span>
-            </button>
-        );
-    }
-}
+Button.propTypes = {
+    classes: shape({
+        content: string,
+        root: string,
+        root_highPriority: string,
+        root_normalPriority: string
+    }).isRequired,
+    priority: oneOf(['high', 'normal']).isRequired,
+    type: oneOf(['button', 'reset', 'submit']).isRequired,
+    children: node
+};
 
 export default Button;

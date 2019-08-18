@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-
+import { bool, node } from 'prop-types';
 import classes from './indicator.css';
 
 const LoadingIndicator = props => {
@@ -30,6 +30,11 @@ const LoadingIndicator = props => {
             <span className={classes.message}>{props.children}</span>
         </div>
     );
+};
+
+LoadingIndicator.propTypes = {
+    global: bool,
+    children: node
 };
 
 export default LoadingIndicator;

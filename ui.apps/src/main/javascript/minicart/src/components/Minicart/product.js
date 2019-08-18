@@ -28,11 +28,10 @@ const imageHeight = 100;
 const Product = props => {
     const { beginEditItem, item, removeItemFromCart } = props;
 
-    const { product = undefined, quantity = 0, id = '' } = item;
+    const { product = {}, quantity = 0, id = '' } = item;
     const { thumbnail, name, price } = product;
     const { value, currency } = price.regularPrice.amount;
 
-    console.log(`Product  is`, product);
     const [isLoading, setIsLoading] = useState(false);
 
     const productImage = useMemo(() => {
@@ -83,7 +82,14 @@ Product.propTypes = {
         quantity: number.isRequired,
         product: shape({
             name: string.isRequired,
-            price: object.isRequired,
+            price: shape({
+                regularPrice: shape({
+                    amount: shape({
+                        value: number.isRequired,
+                        currency: string.isRequired
+                    }).isRequired
+                }).isRequired
+            }).isRequired,
             image: object
         })
     })

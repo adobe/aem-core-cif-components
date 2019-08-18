@@ -14,7 +14,7 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-
+import { object, string, number, shape, func } from 'prop-types';
 import { Price } from '@magento/peregrine';
 
 import Button from '../Button';
@@ -49,7 +49,7 @@ const CartOptions = props => {
         }
     ];
 
-    const [updateCart, { error, called, loading }] = useMutation(MUTATION_UPDATE_CART_ITEM);
+    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM);
 
     const modalClass = loading ? classes.modal_active : classes.modal;
 
@@ -93,6 +93,19 @@ const CartOptions = props => {
             </div>
         </form>
     );
+};
+
+CartOptions.propTypes = {
+    editItem: shape({
+        id: number.isRequired,
+        quantity: number.isRequired,
+        product: shape({
+            name: string,
+            price: object
+        })
+    }),
+    handleEndEditing: func.isRequired,
+    cartId: string
 };
 
 export default CartOptions;

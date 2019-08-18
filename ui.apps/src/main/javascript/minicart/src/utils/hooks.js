@@ -30,21 +30,16 @@ export const useEventListener = (target, type, listener, ...rest) => {
 export const useGuestCart = () => {
     let cookieName = 'cif.cart';
     const getInitialCartId = useCallback(() => {
-        console.log(`Check the cookie`);
         if (checkCookie(cookieName)) {
-            console.log(`Found cookie ${cookieName}, checking value...`);
             const cifCartCookie = cookieValue(cookieName);
-            console.log(`Found value ${cifCartCookie}`);
             return cifCartCookie;
         } else {
-            console.log(`No COOKIE!!!`);
             return '';
         }
     }, [cookieName]);
 
     let initialCartId = getInitialCartId();
     if (initialCartId) {
-        console.log(`Cart id found in cookie ${initialCartId}`);
         return initialCartId;
     }
 
@@ -52,17 +47,14 @@ export const useGuestCart = () => {
     const [createCart, { data, loading }] = useMutation(MUTATION_CREATE_CART);
 
     useEffect(() => {
-        console.log(`Running the effect, loading is ${loading} and cartId is ${cartId}`);
         if (!cartId || cartId.length === 0) {
             createCart();
 
             if (data) {
-                console.log(`We have data! ${data.createEmptyCart}`);
                 setCartId(data.createEmptyCart);
                 document.cookie = `${cookieName}=${data.createEmptyCart};path=/`;
             }
         }
     }, [loading, document]);
-    console.log(`Cart id in state ${cartId}`);
     return cartId;
 };

@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { func } from 'prop-types';
 import { X as CloseIcon } from 'react-feather';
 
 import classes from './header.css';
@@ -28,5 +29,7 @@ const Header = props => {
         </div>
     );
 };
-
+Header.propTypes = {
+    handleCloseCart: func.isRequired
+};
 export default Header;

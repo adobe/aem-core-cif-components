@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { arrayOf, node, number, oneOfType, shape, string } from 'prop-types';
+import { arrayOf, node, number, oneOfType, shape, string, func, symbol } from 'prop-types';
 
 import { FieldIcons, Message } from '../Field';
 import classes from './select.css';
@@ -59,7 +59,9 @@ Select.propTypes = {
             value: oneOfType([number, string])
         })
     ),
-    message: node
+    message: node,
+    handleOnChange: func,
+    initialValue: symbol
 };
 
 export default Select;

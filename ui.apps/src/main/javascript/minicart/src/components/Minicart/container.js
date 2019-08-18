@@ -16,12 +16,10 @@ import MiniCart from './minicart';
 
 import { useGuestCart } from '../../utils/hooks';
 
-const Container = props => {
-    console.log(`Rendering the container`);
+const Container = () => {
     const cartId = useGuestCart();
 
     if (!cartId || cartId.length === 0) {
-        console.log(`No cart id yet, loading...`);
         return <p>Loading...</p>;
     }
 

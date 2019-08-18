@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { number, shape, string } from 'prop-types';
+import { number, string } from 'prop-types';
 
 import { Price } from '@magento/peregrine';
 

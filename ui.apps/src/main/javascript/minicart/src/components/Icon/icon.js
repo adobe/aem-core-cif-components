@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component } from 'react';
+import React from 'react';
 import { func, number, object, oneOfType, shape, string } from 'prop-types';
 
 import classes from './icon.css';

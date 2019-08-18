@@ -41,6 +41,7 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header'],
     rules: {
+        'no-console': 'error',
         'no-undef': 'error',
         'no-unused-vars': 'warn',
         'no-console': 'off',

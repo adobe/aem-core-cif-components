@@ -15,7 +15,7 @@ import React from 'react';
 
 import classes from './emptyMiniCartBody.css';
 
-const EmptyMinicartBody = props => {
+const EmptyMinicartBody = () => {
     return (
         <div className={classes.root}>
             <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>

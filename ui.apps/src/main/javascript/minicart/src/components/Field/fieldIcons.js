@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { shape, string } from 'prop-types';
+import { string, node } from 'prop-types';
 
 import classes from './fieldIcons.css';
 
@@ -34,11 +34,10 @@ const FieldIcons = props => {
 };
 
 FieldIcons.propTypes = {
-    classes: shape({
-        after: string,
-        before: string,
-        root: string
-    })
+    after: string,
+    before: string,
+    root: string,
+    children: node
 };
 
 export default FieldIcons;

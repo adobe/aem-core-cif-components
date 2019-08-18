@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool, shape, string, func, array } from 'prop-types';
+import { bool, shape, string, func, array, number, object } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -71,6 +71,14 @@ const Body = props => {
 export default Body;
 
 Body.propTypes = {
+    editItem: shape({
+        id: number.isRequired,
+        quantity: number.isRequired,
+        product: shape({
+            name: string,
+            price: object
+        })
+    }),
     isEmpty: bool,
     isEditing: bool,
     isLoading: bool,
@@ -79,5 +87,7 @@ Body.propTypes = {
     }),
     currencyCode: string.isRequired,
     removeItemFromCart: func.isRequired,
-    beginEditItem: func.isRequired
+    beginEditItem: func.isRequired,
+    handleEndEditing: func.isRequired,
+    cartId: string
 };

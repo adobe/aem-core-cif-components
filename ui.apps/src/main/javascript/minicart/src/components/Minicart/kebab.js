@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 
-import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { shape, string } from 'prop-types';
+import React, { useCallback, useState, useRef } from 'react';
+import { shape, string, node } from 'prop-types';
 import MoreVerticalIcon from 'react-feather/dist/icons/more-vertical';
 
 import classes from './kebab.css';
@@ -57,6 +57,7 @@ Kebab.propTypes = {
         dropdown_active: string,
         kebab: string,
         root: string
-    })
+    }),
+    children: node
 };
 export default Kebab;

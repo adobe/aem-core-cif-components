@@ -11,7 +11,8 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { string } from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -32,7 +33,6 @@ import CartTrigger from '../CartTrigger';
 const MiniCart = props => {
     const { cartId } = props;
 
-    console.log(`Rendering the minicart with id ${cartId}`);
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editItem, setEditItem] = useState({});
@@ -67,22 +67,25 @@ const MiniCart = props => {
     useEventListener(document, 'aem.cif.open-cart', openCart);
     useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
-    const handleCloseCart = () => {
+    const handleCloseCart = useCallback(() => {
         setIsOpen(false);
-    };
+    });
 
-    const handleBeginEditing = item => {
+    const handleBeginEditing = useCallback(item => {
         setIsEditing(true);
         setEditItem(item);
-    };
+    });
 
-    const handleEndEditing = () => {
+    const handleEndEditing = useCallback(() => {
         setIsEditing(false);
-    };
+    });
 
-    const removeItemFromCart = itemId => {
-        removeItem({ variables: { cartId, itemId } });
-    };
+    const removeItemFromCart = useCallback(
+        itemId => {
+            removeItem({ variables: { cartId, itemId } });
+        },
+        [removeItem]
+    );
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
@@ -92,7 +95,6 @@ const MiniCart = props => {
     let footer = null;
     const isLoading = !data || !data.cart || queryLoading || addItemLoading || removeItemLoading;
     const showFooter = !(isLoading || isEmpty || isEditing);
-    console.log(`This is loading ${isLoading}`, data);
     if (data && data.cart) {
         currencyCode = getCurrencyCode(data.cart);
         cartQuantity = data.cart.items.length;
@@ -121,6 +123,10 @@ const MiniCart = props => {
             </aside>
         </>
     );
+};
+
+MiniCart.propTypes = {
+    cartId: string.isRequired
 };
 
 export default MiniCart;
