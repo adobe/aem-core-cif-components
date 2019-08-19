@@ -72,8 +72,8 @@ export default Body;
 
 Body.propTypes = {
     editItem: shape({
-        id: number.isRequired,
-        quantity: number.isRequired,
+        id: number,
+        quantity: number,
         product: shape({
             name: string,
             price: object

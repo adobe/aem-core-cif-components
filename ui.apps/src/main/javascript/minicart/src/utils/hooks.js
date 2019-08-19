@@ -29,14 +29,14 @@ export const useEventListener = (target, type, listener, ...rest) => {
 
 export const useGuestCart = () => {
     let cookieName = 'cif.cart';
-    const getInitialCartId = useCallback(() => {
+    const getInitialCartId = () => {
         if (checkCookie(cookieName)) {
             const cifCartCookie = cookieValue(cookieName);
             return cifCartCookie;
         } else {
             return '';
         }
-    }, [cookieName]);
+    };
 
     let initialCartId = getInitialCartId();
     if (initialCartId) {
@@ -56,5 +56,6 @@ export const useGuestCart = () => {
             }
         }
     }, [loading, document]);
+
     return cartId;
 };
