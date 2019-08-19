@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState, useMemo, useCallback } from 'react';
-import { func, number, shape, object } from 'prop-types';
+import { func, number, shape, object, string } from 'prop-types';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
 
@@ -20,7 +20,6 @@ import { transparentPlaceholder } from '../../utils/transparentPlaceholder';
 import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
-import { string } from 'postcss-selector-parser';
 
 const imageWidth = 80;
 const imageHeight = 100;
