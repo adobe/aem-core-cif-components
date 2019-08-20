@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { string, node } from 'prop-types';
+import { string, node, object } from 'prop-types';
 
 import classes from './fieldIcons.css';
 
@@ -34,7 +34,7 @@ const FieldIcons = props => {
 };
 
 FieldIcons.propTypes = {
-    after: string,
+    after: object,
     before: string,
     root: string,
     children: node

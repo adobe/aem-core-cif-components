@@ -97,7 +97,7 @@ const CartOptions = props => {
 
 CartOptions.propTypes = {
     editItem: shape({
-        id: number.isRequired,
+        id: string.isRequired,
         quantity: number.isRequired,
         product: shape({
             name: string,

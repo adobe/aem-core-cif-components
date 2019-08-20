@@ -61,7 +61,7 @@ Select.propTypes = {
     ),
     message: node,
     handleOnChange: func,
-    initialValue: symbol
+    initialValue: number
 };
 
 export default Select;
