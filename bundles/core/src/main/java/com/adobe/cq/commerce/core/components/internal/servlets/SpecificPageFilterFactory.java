@@ -82,7 +82,7 @@ public class SpecificPageFilterFactory implements Filter {
             if (filter == null) {
                 continue;
             }
-            
+
             // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
             String[] selectors = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
 
