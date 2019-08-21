@@ -22,7 +22,8 @@ module.exports = {
     },
     env: {
         browser: true,
-        es6: true
+        es6: true,
+        'jest/globals': true
     },
     extends: ['eslint:recommended', 'plugin:react/recommended'],
     parser: 'babel-eslint',
@@ -39,7 +40,7 @@ module.exports = {
         ecmaVersion: 2018,
         sourceType: 'module'
     },
-    plugins: ['react', 'react-hooks', 'header'],
+    plugins: ['react', 'react-hooks', 'header', 'jest'],
     rules: {
         'no-console': 'error',
         'no-undef': 'error',
