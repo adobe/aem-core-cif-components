@@ -15,8 +15,8 @@ import React from 'react';
 import { Lock as LockIcon } from 'react-feather';
 import { object, bool } from 'prop-types';
 import Button from '../Button';
+import Checkout from '../Checkout';
 import classes from './footer.css';
-
 import TotalsSummary from './totalsSummary';
 
 const Footer = props => {
@@ -38,7 +38,7 @@ const Footer = props => {
     return (
         <div className={footerClassName}>
             <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
-            {placeholderButton()}
+            <Checkout cart={cart} />
         </div>
     );
 };
