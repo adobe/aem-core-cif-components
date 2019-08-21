@@ -24,9 +24,12 @@ import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 
 /**
- * This class checks if a page is configured with a given page template.
+ * This class checks if the parent page of a page is configured with a given page template.
  * It is used by a <code>granite:rendercondition</code> component, in order to decide
  * if some page properties should be displayed or not.
+ * 
+ * Note that it checks the template of the parent page, so that it's possible to apply a
+ * different template to the child page.
  */
 public class TemplateRenderCondition {
 
@@ -51,7 +54,13 @@ public class TemplateRenderCondition {
                 return false;
             }
 
-            Resource jcrContent = pageResource.getChild(JcrConstants.JCR_CONTENT);
+            // Get the parent page, and check the template of the parent page
+            Resource parentPageResource = pageResource.getParent();
+            if (!parentPageResource.isResourceType(NameConstants.NT_PAGE)) {
+                return false;
+            }
+
+            Resource jcrContent = parentPageResource.getChild(JcrConstants.JCR_CONTENT);
             if (jcrContent == null) {
                 return false;
             }

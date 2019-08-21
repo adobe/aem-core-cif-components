@@ -2,7 +2,8 @@
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent"
+      "jcr:primaryType":"cq:PageContent",
+      "cq:template": "/conf/venia/settings/wcm/templates/product-page"
     },
     "ignored": {
       "jcr:primaryType": "cq:NotAPage"
@@ -12,21 +13,22 @@
       "jcr:content": {
         "jcr:primaryType":"cq:PageContent",
         "selectorFilter": "productId1",
-        "cq:template": "/conf/venia/settings/wcm/templates/product-page"
+        "cq:template": "/conf/venia/settings/wcm/templates/anything"
       }
     }
   },
   "category-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent"
+      "jcr:primaryType":"cq:PageContent",
+      "cq:template": "/conf/venia/settings/wcm/templates/category-page"
     },
     "sub-page": {
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
         "jcr:primaryType":"cq:PageContent",
         "selectorFilter": ["categoryId1", "categoryId2"],
-        "cq:template": "/conf/venia/settings/wcm/templates/category-page"
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
     }
   }
