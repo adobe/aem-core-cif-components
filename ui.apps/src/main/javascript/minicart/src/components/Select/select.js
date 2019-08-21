@@ -36,7 +36,9 @@ const Select = props => {
                 <select
                     className={classes.input}
                     defaultValue={initialValue}
-                    onChange={ev => handleOnChange(ev.target.value)}>
+                    onChange={ev => {
+                        handleOnChange(parseInt(ev.target.value));
+                    }}>
                     {options}
                 </select>
             </FieldIcons>
