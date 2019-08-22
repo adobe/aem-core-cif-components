@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { arrayOf, node, number, oneOfType, shape, string, func, symbol } from 'prop-types';
+import { arrayOf, node, number, oneOfType, shape, string, func } from 'prop-types';
 
 import { FieldIcons, Message } from '../Field';
 import classes from './select.css';

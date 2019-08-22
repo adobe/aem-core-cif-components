@@ -13,9 +13,43 @@
  ******************************************************************************/
 import React from 'react';
 import Product from '../product';
+import ShallowRenderer from 'react-test-renderer/shallow';
+
+jest.mock('react-feather');
+
+const mockCartItem = {
+    product: {
+        thumbnail: {
+            url: '/some/url'
+        },
+        name,
+        price: {
+            regularPrice: {
+                amount: {
+                    value: 22,
+                    currency: 'USD'
+                }
+            }
+        }
+    },
+    quantity: 2,
+    id: '1'
+};
 
 describe('<Product />', () => {
     it('renders the component', () => {
-        expect(true).toEqual(true);
+        const mockRemoveItemFromCart = jest.fn();
+        const mockBeginEditItem = jest.fn();
+
+        const renderer = new ShallowRenderer();
+
+        renderer.render(
+            <Product
+                beginEditItem={mockBeginEditItem}
+                removeItemFromCart={mockRemoveItemFromCart}
+                item={mockCartItem}
+            />
+        );
+        expect(renderer.getRenderOutput()).toMatchSnapshot();
     });
 });
