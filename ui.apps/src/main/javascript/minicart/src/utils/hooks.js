@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
 import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';

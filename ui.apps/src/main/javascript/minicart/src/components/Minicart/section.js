@@ -13,9 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { func, oneOf, shape, string, bool } from 'prop-types';
-import HeartIcon from 'react-feather/dist/icons/heart';
-import Edit2Icon from 'react-feather/dist/icons/edit-2';
-import TrashIcon from 'react-feather/dist/icons/trash';
+import { HeartIcon, Edit2Icon, TrashIcon } from 'react-feather';
 
 import classes from './section.css';
 import Icon from '../Icon';

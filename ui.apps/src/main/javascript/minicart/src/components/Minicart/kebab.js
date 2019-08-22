@@ -14,7 +14,7 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { shape, string, node } from 'prop-types';
-import MoreVerticalIcon from 'react-feather/dist/icons/more-vertical';
+import { MoreVerticalIcon } from 'react-feather';
 
 import classes from './kebab.css';
 import Icon from '../Icon';
