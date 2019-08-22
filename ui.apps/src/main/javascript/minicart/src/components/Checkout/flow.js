@@ -14,7 +14,7 @@
 import React, { useState } from 'react';
 
 import Cart from './cart';
-
+import Form from './form';
 import classes from './flow.css';
 
 const isCartReady = cart => {
@@ -29,12 +29,22 @@ const Flow = props => {
 
     const beginCheckout = () => {
         console.log(`Beginning checkout`);
+        setFlowState('form');
+    };
+
+    const cancelCheckout = () => {
+        console.log('Cancelling checkout');
+        setFlowState('cart');
     };
 
     let child;
     switch (flowState) {
         case 'cart': {
             child = <Cart beginCheckout={beginCheckout} ready={isCartReady(cart)} submitting={false} />;
+            break;
+        }
+        case 'form': {
+            child = <Form cancelCheckout={cancelCheckout} cart={cart} />;
             break;
         }
         default: {
