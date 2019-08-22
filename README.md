@@ -13,7 +13,7 @@ For starting a new project please have a look at our [CIF archetype](https://git
 
 ## Documentation
 
-See our [wiki](https://github.com/adobe/aem-core-wcm-components/wiki) for usage and configuration instructions of the AEM CIF Core Components.
+See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage and configuration instructions of the AEM CIF Core Components.
 
 ## Available Components
 
