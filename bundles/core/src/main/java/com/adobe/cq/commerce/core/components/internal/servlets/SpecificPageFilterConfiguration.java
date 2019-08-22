@@ -21,8 +21,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(name = "CIF page filter configuration")
 public @interface SpecificPageFilterConfiguration {
 
-    // Pattern for venia demo: /content/venia/.*?/(category-page|product-page)
-
     @AttributeDefinition(
         name = "Filter pattern",
         description = "Regex pattern to filter incoming HTTP requests",

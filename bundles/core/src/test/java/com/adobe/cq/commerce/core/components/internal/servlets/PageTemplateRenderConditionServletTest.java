@@ -12,19 +12,26 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.utils;
+package com.adobe.cq.commerce.core.components.internal.servlets;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.testing.resourceresolver.MockResource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.granite.ui.components.rendercondition.RenderCondition;
+import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-public class TemplateRenderConditionTest {
+public class PageTemplateRenderConditionServletTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-page-filter.json");
@@ -39,23 +46,38 @@ public class TemplateRenderConditionTest {
     }
 
     private MockSlingHttpServletRequest request;
+    private PageTemplateRenderConditionServlet servlet;
 
     @Before
     public void setUp() throws Exception {
+        Map<String, Object> props = Collections.singletonMap("templatePath", "/conf/venia/settings/wcm/templates/product-page");
+        Resource resource = new MockResource("/somewhere", props, context.resourceResolver());
+
         request = new MockSlingHttpServletRequest(context.resourceResolver());
+        request.setResource(resource);
+
+        servlet = new PageTemplateRenderConditionServlet();
     }
 
     @Test
     public void testConditionTrue() {
         request.setQueryString("item=%2Fcontent%2Fproduct-page%2Fsub-page");
         request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
-        Assert.assertTrue(TemplateRenderCondition.isTemplate(request, "/conf/venia/settings/wcm/templates/product-page"));
+
+        servlet.doGet(request, null);
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+
+        Assert.assertTrue(condition.check());
     }
 
     @Test
     public void testConditionFalse() {
         request.setQueryString("item=%2Fcontent%2Fproduct-page%2Fignored");
         request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
-        Assert.assertFalse(TemplateRenderCondition.isTemplate(request, "/conf/venia/settings/wcm/templates/product-page"));
+
+        servlet.doGet(request, null);
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+
+        Assert.assertFalse(condition.check());
     }
 }

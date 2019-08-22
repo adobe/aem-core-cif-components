@@ -12,34 +12,54 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.utils;
+package com.adobe.cq.commerce.core.components.internal.servlets;
+
+import javax.annotation.Nonnull;
+import javax.servlet.Servlet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.granite.ui.components.rendercondition.RenderCondition;
+import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 
 /**
- * This class checks if the parent page of a page is configured with a given page template.
- * It is used by a <code>granite:rendercondition</code> component, in order to decide
- * if some page properties should be displayed or not.
- * 
- * Note that it checks the template of the parent page, so that it's possible to apply a
- * different template to the child page.
+ * This servlet handles <code>granite:rendercondition</code> requests from the CIF page component,
+ * in order to decide if the product and category pickers should be displayed in the page properties dialog.
  */
-public class TemplateRenderCondition {
+@Component(
+    service = { Servlet.class },
+    property = {
+        "sling.servlet.resourceTypes=" + PageTemplateRenderConditionServlet.RESOURCE_TYPE,
+        "sling.servlet.methods=GET",
+        "sling.servlet.extensions=html"
+    })
+public class PageTemplateRenderConditionServlet extends SlingSafeMethodsServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TemplateRenderCondition.class);
+    public final static String RESOURCE_TYPE = "core/cif/components/renderconditions/pagetemplate";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageTemplateRenderConditionServlet.class);
     private static final String PAGE_PROPERTIES = "wcm/core/content/sites/properties";
+    private static final String TEMPLATE_PATH_PROPERTY = "templatePath";
 
-    public static boolean isTemplate(SlingHttpServletRequest slingRequest, String templatePath) {
+    @Override
+    protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
+        String path = request.getResource().getValueMap().get(TEMPLATE_PATH_PROPERTY, "");
+        request.setAttribute(RenderCondition.class.getName(), new SimpleRenderCondition(isTemplate(request, path)));
+    }
+
+    private static boolean isTemplate(SlingHttpServletRequest slingRequest, String templatePath) {
 
         if (StringUtils.isBlank(templatePath)) {
-            LOGGER.error("Template path is not defined!");
+            LOGGER.error("{} property is not defined at {}", TEMPLATE_PATH_PROPERTY, slingRequest.getResource().getPath());
             return false;
         }
 
