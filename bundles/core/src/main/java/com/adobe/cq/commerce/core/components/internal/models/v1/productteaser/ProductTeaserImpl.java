@@ -23,6 +23,7 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -67,7 +68,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private ValueMap properties;
 
     private ProductInterface product; // Can be the base product or one of its variant
-    private String baseProductSlug; // This is always ths lug of the base product, to build the product page url
+    private String baseProductSlug; // This is always the slug of the base product, to build the product page url
     private String variantSku; // If not null, this holds the sku of the selected variant
 
     private NumberFormat priceFormatter;
@@ -80,14 +81,14 @@ public class ProductTeaserImpl implements ProductTeaser {
         if (productPage == null) {
             productPage = currentPage;
         }
-        String combinedSku = properties.get(SELECTION_PROPERTY, String.class);
-        if (combinedSku != null && !combinedSku.isEmpty()) {
+        String selection = properties.get(SELECTION_PROPERTY, String.class);
+        if (selection != null && !selection.isEmpty()) {
             // Get MagentoGraphqlClient from the resource.
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {
-                product = fetchProduct(combinedSku);
+                product = fetchProduct(selection);
             }
 
             Locale locale = currentPage.getLanguage(false);
@@ -139,8 +140,14 @@ public class ProductTeaserImpl implements ProductTeaser {
         return null;
     }
 
-    private ProductInterface fetchProduct(String combinedSku) {
-        Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
+    private ProductInterface fetchProduct(String selection) {
+
+        // The product DnD from content finder provides the product path
+        if (selection.startsWith("/")) {
+            selection = StringUtils.substringAfterLast(selection, "/");
+        }
+
+        Pair<String, String> skus = SiteNavigation.toProductSkus(selection);
         String sku = skus.getLeft();
 
         FilterTypeInput input = new FilterTypeInput().setEq(sku);

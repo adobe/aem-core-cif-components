@@ -61,6 +61,7 @@ public class ProductTeaserImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
+    private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
 
     private Resource teaserResource;
     private ProductTeaserImpl productTeaser;
@@ -91,8 +92,17 @@ public class ProductTeaserImplTest {
     }
 
     @Test
-    public void verifyProduct() throws Exception {
-        setUp(PRODUCTTEASER_SIMPLE);
+    public void verifyProductBySku() throws Exception {
+        verifyProduct(PRODUCTTEASER_SIMPLE);
+    }
+
+    @Test
+    public void verifyProductByPath() throws Exception {
+        verifyProduct(PRODUCTTEASER_PATH);
+    }
+
+    public void verifyProduct(String resourcePath) throws Exception {
+        setUp(resourcePath);
 
         Assert.assertEquals(product.getName(), productTeaser.getName());
         Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey()), productTeaser.getUrl());
