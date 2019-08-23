@@ -22,6 +22,7 @@ import Select from '../Select';
 import classes from './cartOptions.css';
 import LoadingIndicator from '../LoadingIndicator';
 
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
 const CartOptions = props => {
@@ -49,7 +50,9 @@ const CartOptions = props => {
         }
     ];
 
-    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM);
+    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    });
 
     const modalClass = loading ? classes.modal_active : classes.modal;
 
