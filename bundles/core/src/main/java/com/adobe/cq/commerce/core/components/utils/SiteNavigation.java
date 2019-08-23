@@ -144,7 +144,7 @@ public class SiteNavigation {
      */
     public static String toProductUrl(String pagePath, String slug, String variantSku) {
         if (variantSku != null) {
-            return String.format("%s.%s.html#%s", pagePath, slug, variantSku);
+            return String.format("%s.%s.html%s%s", pagePath, slug, COMBINED_SKU_SEPARATOR, variantSku);
         } else {
             return String.format("%s.%s.html", pagePath, slug);
         }
