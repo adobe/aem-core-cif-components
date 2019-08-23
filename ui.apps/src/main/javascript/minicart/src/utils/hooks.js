@@ -27,35 +27,33 @@ export const useEventListener = (target, type, listener, ...rest) => {
     }, [listener, rest, target, type]);
 };
 
-export const useGuestCart = () => {
-    let cookieName = 'cif.cart';
-    const getInitialCartId = () => {
-        if (checkCookie(cookieName)) {
-            const cifCartCookie = cookieValue(cookieName);
-            return cifCartCookie;
-        } else {
-            return '';
-        }
-    };
-
-    let initialCartId = getInitialCartId();
-    if (initialCartId) {
-        return initialCartId;
+export const useCookieValue = cookieName => {
+    if (!cookieName || cookieName.length === 0) {
+        return '';
     }
 
-    const [cartId, setCartId] = useState('');
-    const [createCart, { data, loading }] = useMutation(MUTATION_CREATE_CART);
+    if (checkCookie(cookieName)) {
+        const cifCartCookie = cookieValue(cookieName);
+        return cifCartCookie;
+    } else {
+        return '';
+    }
+};
+
+export const useGuestCart = () => {
+    const cookieName = 'cif.cart';
+    let cartId = useCookieValue(cookieName);
+    const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
 
     useEffect(() => {
         if (!cartId || cartId.length === 0) {
             createCart();
 
             if (data) {
-                setCartId(data.createEmptyCart);
+                cartId = data.createEmptyCart;
                 document.cookie = `${cookieName}=${data.createEmptyCart};path=/`;
             }
         }
-    }, [loading, document]);
-
+    });
     return cartId;
 };
