@@ -16,7 +16,7 @@
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser">
-    <sly data-sly-test.ispropavailable="${properties.productPath}">
+    <sly data-sly-test.ispropavailable="${properties.selection}">
         <div data-sly-test.isvalid="${product.url}" class="item__root">
             <a class="item__images" href=${product.url}>
                 <img class="item__image" width="100%" height="100%"

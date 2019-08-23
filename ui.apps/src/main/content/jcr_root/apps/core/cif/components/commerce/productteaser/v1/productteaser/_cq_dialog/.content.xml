@@ -27,13 +27,13 @@
                                         jcr:primaryType="nt:unstructured"
                                         sling:resourceType="granite/ui/components/coral/foundation/container">
                                         <items jcr:primaryType="nt:unstructured">
-                                            <title
+                                            <product
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="/libs/commerce/gui/components/common/cifproductfield"
-                                                fieldDescription="Magento Product Path"
-                                                fieldLabel="Select Product "
-                                                name="./productPath"
-                                                selectionId="path"/>
+                                                fieldDescription="The product or product variant displayed by the teaser"
+                                                fieldLabel="Select Product"
+                                                name="./selection"
+                                                selectionId="combinedSku"/>
                                         </items>
                                     </column>
                                 </items>

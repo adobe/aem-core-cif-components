@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 public class FeaturedCateogoryListImplTest {
 
     private GraphqlClient graphqlClient;
-    private FeaturedCateogoryListImpl slingModel;
+    private FeaturedCategoryListImpl slingModel;
     private Query rootQuery;
     private List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
     private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
@@ -85,7 +85,7 @@ public class FeaturedCateogoryListImplTest {
         when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn((GraphqlResponse) response);
         when(response.getData()).thenReturn(rootQuery);
-        slingModel = request.adaptTo(FeaturedCateogoryListImpl.class);
+        slingModel = request.adaptTo(FeaturedCategoryListImpl.class);
     }
 
     @Test

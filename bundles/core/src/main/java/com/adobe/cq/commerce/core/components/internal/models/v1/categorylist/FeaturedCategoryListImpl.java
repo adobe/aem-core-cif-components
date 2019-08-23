@@ -42,11 +42,11 @@ import com.day.cq.wcm.api.Page;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
-    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCateogoryListImpl.RESOURCE_TYPE)
-public class FeaturedCateogoryListImpl implements FeaturedCategoryList {
+    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
+public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCateogoryListImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
     private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
