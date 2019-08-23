@@ -1,4 +1,4 @@
-mutation($cartId: String!, $cartItemId:Int!, $quantity: Float) {
+mutation($cartId: String!, $cartItemId:Int!, $quantity: Float!) {
   updateCartItems(
     input: {
       cart_id: $cartId,
