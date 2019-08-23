@@ -24,6 +24,7 @@
     "informed": "^2.11.8",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
+    "react-apollo": "~2.5.3",
     "react-dom": "^16.8.6",
     "react-feather": "^2.0.3",
     "react-router-dom": "^5.0.1",

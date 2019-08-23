@@ -16,7 +16,6 @@ import ReactDOM from 'react-dom';
 
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
-import { ApolloContext } from 'react-apollo/ApolloContext';
 
 import Cart from './components/Minicart';
 
@@ -26,11 +25,9 @@ const App = () => {
     });
 
     return (
-        <ApolloContext.Provider value={client}>
-            <ApolloProvider client={client}>
-                <Cart />
-            </ApolloProvider>
-        </ApolloContext.Provider>
+        <ApolloProvider client={client}>
+            <Cart />
+        </ApolloProvider>
     );
 };
 

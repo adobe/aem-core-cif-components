@@ -42,27 +42,28 @@ const mocks = [
 ];
 
 let container = null;
-beforeEach(() => {
-    // setup a DOM element as a render target
-    container = document.createElement('div');
-    document.body.appendChild(container);
-});
-
-afterEach(() => {
-    // cleanup on exiting
-    unmountComponentAtNode(container);
-    container.remove();
-    container = null;
-});
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
+        beforeEach(() => {
+            // setup a DOM element as a render target
+            container = document.createElement('div');
+            document.body.appendChild(container);
+        });
+
+        afterEach(() => {
+            // cleanup on exiting
+            unmountComponentAtNode(container);
+            container.remove();
+            container = null;
+        });
+
         it('works', async () => {
             let results;
             const HookWrapper = () => {
                 results = useCountries();
                 if (!results || results.length === 0) {
-                    return null;
+                    return <div id="results"></div>;
                 }
                 return (
                     <div id="results">
@@ -76,7 +77,10 @@ describe('Custom hooks', () => {
                     <MockedProvider mocks={mocks} addTypename={false}>
                         <HookWrapper />
                     </MockedProvider>,
-                    container
+                    container,
+                    () => {
+                        console.log('Rendered!');
+                    }
                 );
             });
 
