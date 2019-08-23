@@ -303,6 +303,7 @@
                         <exclude>**/*.log</exclude>
                         <!-- file that should not be committed anywhere -->
                         <exclude>**/.env</exclude>
+                        <exclude>**/.env.sample</exclude>
                         <!-- Ignore lock files -->
                         <exclude>**/yarn.lock</exclude>
                         <exclude>**/package-lock.json</exclude>
