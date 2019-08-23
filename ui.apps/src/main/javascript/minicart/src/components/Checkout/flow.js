@@ -22,7 +22,7 @@ const isCartReady = cart => {
 };
 
 const Flow = props => {
-    const { cart } = props;
+    const { cart, cartId } = props;
     console.log(`This is our cart `, cart);
 
     const [flowState, setFlowState] = useState('cart');

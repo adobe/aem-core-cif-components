@@ -59,7 +59,6 @@ export const validateRegionCode = (value, values, countries) => {
     if (!(Array.isArray(regions) && regions.length)) {
         return 'Country "US" does not contain any available regions.';
     }
-
     const region = regions.find(({ code }) => code === value);
     if (!region) {
         return `State "${value}" is not an valid state abbreviation.`;

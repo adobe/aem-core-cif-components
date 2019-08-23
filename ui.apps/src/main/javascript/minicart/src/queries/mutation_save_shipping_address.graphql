@@ -1,0 +1,54 @@
+mutation(
+    $cartId: String!
+    $city: String!
+    $company: String
+    $countryCode: String!
+    $firstname: String!
+    $lastname: String!
+    $postcode: String
+    $region_code: String
+    $street: [String]!
+    $telephone: String!
+) {
+    setShippingAddressesOnCart(
+        input: {
+            cart_id: $cartId
+            shipping_addresses: [
+                {
+                    address: {
+                        city: $city
+                        company: $company
+                        country_code: $countryCode
+                        firstname: $firstname
+                        lastname: $lastname
+                        postcode: $postcode
+                        region: $region_code
+                        street: $street
+                        telephone: $telephone
+                        save_in_address_book: false
+                    }
+                }
+            ]
+        }
+    ) {
+        cart {
+            items {
+                id
+                product {
+                    name
+                }
+            }
+            shipping_addresses {
+                city
+                company
+                country_code
+                firstname
+                lastname
+                postcode
+                region
+                street
+                telephone
+            }
+        }
+    }
+}

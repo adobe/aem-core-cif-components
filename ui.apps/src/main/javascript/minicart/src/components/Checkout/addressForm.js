@@ -43,7 +43,6 @@ const AddressForm = props => {
         },
         [submit]
     );
-    console.log(`We have countries! `, countries);
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>

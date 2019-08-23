@@ -6,6 +6,18 @@ query cartDetails($cartId: String!) {
                 value
             }
         }
+        shipping_addresses {
+            city
+            country {
+                code
+            }
+            lastname
+            firstname
+            region {
+                code
+            }
+            street
+        }
         items {
             id
             quantity

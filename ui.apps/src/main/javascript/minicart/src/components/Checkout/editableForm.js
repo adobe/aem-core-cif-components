@@ -16,6 +16,10 @@ import { array, bool, func, object, oneOf, shape, string } from 'prop-types';
 import { useCountries } from '../../utils/hooks';
 
 import AddressForm from './addressForm';
+import { useMutation } from '@apollo/react-hooks';
+
+import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
+
 // import PaymentsForm from './paymentsForm';
 // import ShippingForm from './shippingForm';
 
@@ -28,14 +32,18 @@ const EditableForm = props => {
     const {
         editing,
         setEditing,
+        setShippingAddress,
         submitPaymentMethodAndBillingAddress,
         submitShippingMethod,
         submitting,
         isAddressInvalid,
-        invalidAddressMessage
+        invalidAddressMessage,
+        cart
     } = props;
 
     let countries = useCountries();
+
+    const [setShippingAddressesOnCart, { data, error, loading }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
     const handleCancel = useCallback(() => {
         setEditing(null);
@@ -44,6 +52,9 @@ const EditableForm = props => {
     const handleSubmitAddressForm = useCallback(
         async formValues => {
             setEditing(null);
+            console.log(`These are the form values: `, formValues);
+            setShippingAddressesOnCart({ variables: { cartId: cart.cartId, countryCode: 'US', ...formValues } });
+            setShippingAddress(data.cart.shippingAddresses);
         },
         [setEditing]
     );

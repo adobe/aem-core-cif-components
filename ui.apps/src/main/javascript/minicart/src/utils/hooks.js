@@ -64,15 +64,9 @@ export const useGuestCart = () => {
 
 export const useCountries = () => {
     const { data, loading, error } = useQuery(QUERY_COUNTRIES);
-    const [countries, setCountries] = useState([]);
-    useEffect(() => {
-        if (error) {
-            throw new Error(error);
-        }
-        if (data) {
-            setCountries(data.countries);
-        }
-    });
+    if (!data && !data.countries) {
+        return [];
+    }
 
-    return countries;
+    return data.countries;
 };

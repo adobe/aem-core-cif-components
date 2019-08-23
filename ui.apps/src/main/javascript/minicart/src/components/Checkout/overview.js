@@ -53,7 +53,7 @@ const Overview = props => {
     const handleShippingFormClick = useCallback(() => {
         setEditing('shippingMethod');
     }, [setEditing]);
-
+    console.log(`Shipping address is `, shippingAddress);
     return (
         <Fragment>
             <div className={classes.body}>

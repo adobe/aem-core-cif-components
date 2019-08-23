@@ -20,7 +20,7 @@ import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
 
 const Footer = props => {
-    const { isOpen, cart } = props;
+    const { isOpen, cart, cartId } = props;
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
     const { currency, value: totalPrice } = cart.prices.grand_total;
@@ -38,7 +38,7 @@ const Footer = props => {
     return (
         <div className={footerClassName}>
             <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
-            <Checkout cart={cart} />
+            <Checkout cart={{ cartId, ...cart }} cartId={cartId} />
         </div>
     );
 };

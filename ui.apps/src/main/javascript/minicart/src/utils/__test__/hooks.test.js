@@ -18,6 +18,7 @@ import { render, unmountComponentAtNode } from 'react-dom';
 import { act } from 'react-dom/test-utils';
 import { useCountries } from '../hooks';
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
+import wait from 'waait';
 
 const mocks = [
     {
@@ -58,7 +59,7 @@ describe('Custom hooks', () => {
             container = null;
         });
 
-        it('works', async () => {
+        it('returns the correct country list', async () => {
             let results;
             const HookWrapper = () => {
                 results = useCountries();
@@ -72,18 +73,16 @@ describe('Custom hooks', () => {
                     </div>
                 );
             };
+            render(
+                <MockedProvider mocks={mocks} addTypename={false}>
+                    <HookWrapper />
+                </MockedProvider>,
+                container
+            );
             await act(async () => {
-                render(
-                    <MockedProvider mocks={mocks} addTypename={false}>
-                        <HookWrapper />
-                    </MockedProvider>,
-                    container,
-                    () => {
-                        console.log('Rendered!');
-                    }
-                );
+                await wait(0);
             });
-
+            expect(container.querySelector('#results *')).toEqual(expect.anything());
             expect(container.querySelector('#results .count').textContent).toEqual('2');
             expect(container.querySelector('#results .content').textContent).toEqual('US');
         });
