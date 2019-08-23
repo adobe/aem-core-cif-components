@@ -12,33 +12,20 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { oneOf, shape, string, node } from 'prop-types';
+import { shallow } from 'enzyme';
+import toJson from 'enzyme-to-json';
 
-import classes from './button.css';
+import Cart from '../cart';
 
-const getRootClassName = priority => `root_${priority}Priority`;
+describe('<Cart />', () => {
+    it('renders the checkout button', () => {
+        const wrapper = shallow(<Cart beginCheckout={jest.fn()} ready={true} submitting={false} />);
+        expect(toJson(wrapper.find('div'))).toMatchSnapshot();
+    });
 
-const Button = props => {
-    const { children, priority, type, ...restProps } = props;
+    it('renders a disabled checkout button', () => {
+        const wrapper = shallow(<Cart beginCheckout={jest.fn()} ready={false} submitting={false} />);
 
-    const rootClassName = classes[getRootClassName(priority)];
-
-    return (
-        <button className={rootClassName} type={type} {...restProps}>
-            <span className={classes.content}>{children}</span>
-        </button>
-    );
-};
-
-Button.defaultProps = {
-    priority: 'normal',
-    type: 'button'
-};
-
-Button.propTypes = {
-    priority: oneOf(['high', 'normal']).isRequired,
-    type: oneOf(['button', 'reset', 'submit']).isRequired,
-    children: node
-};
-
-export default Button;
+        expect(toJson(wrapper.find('div'))).toMatchSnapshot();
+    });
+});

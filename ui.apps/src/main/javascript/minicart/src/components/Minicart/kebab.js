@@ -14,7 +14,7 @@
 
 import React, { useCallback, useState, useRef } from 'react';
 import { shape, string, node } from 'prop-types';
-import { MoreVerticalIcon } from 'react-feather';
+import { MoreVertical } from 'react-feather';
 
 import classes from './kebab.css';
 import Icon from '../Icon';
@@ -44,7 +44,7 @@ const Kebab = props => {
     return (
         <div className={classes.root}>
             <button className={classes.kebab} onClick={handleKebabClick} ref={kebabRef}>
-                <Icon src={MoreVerticalIcon} />
+                <Icon src={MoreVertical} />
             </button>
             <ul className={toggleClass}>{children}</ul>
         </div>

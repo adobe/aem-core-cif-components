@@ -12,9 +12,11 @@
  *
  ******************************************************************************/
 import { useEffect, useState } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
+
 import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
+import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
 export const useEventListener = (target, type, listener, ...rest) => {
     useEffect(() => {
@@ -58,4 +60,20 @@ export const useGuestCart = () => {
     }, [loading, document]);
 
     return cartId;
+};
+
+export const useCountries = () => {
+    const { data, loading, error } = useQuery(QUERY_COUNTRIES);
+    const [countries, setCountries] = useState([]);
+    useEffect(() => {
+        console.log(`Is it loading?`, loading, data);
+        if (error) {
+            throw new Error(error);
+        }
+        if (data) {
+            setCountries(data.countries);
+        }
+    }, [loading]);
+
+    return countries;
 };

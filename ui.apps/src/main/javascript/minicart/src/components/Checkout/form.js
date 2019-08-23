@@ -16,6 +16,7 @@ import { shape, string } from 'prop-types';
 
 import Overview from './overview';
 import classes from './form.css';
+import EditableForm from './editableForm';
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
@@ -23,12 +24,11 @@ import classes from './form.css';
  */
 const Form = props => {
     const [editing, setEditing] = useState(null);
-    // const child = editing ? (
-    //     <EditableForm editing={editing} setEditing={setEditing} {...props} />
-    // ) : (
-    //     <Overview classes={classes} {...props} setEditing={setEditing} />
-    // );
-    const child = <Overview classes={classes} {...props} setEditing={setEditing} />;
+    const child = editing ? (
+        <EditableForm editing={editing} setEditing={setEditing} {...props} />
+    ) : (
+        <Overview classes={classes} {...props} setEditing={setEditing} />
+    );
     return <div className={classes.root}>{child}</div>;
 };
 

@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { func, oneOf, shape, string, bool } from 'prop-types';
-import { HeartIcon, Edit2Icon, TrashIcon } from 'react-feather';
+import { Heart, Edit2, Trash } from 'react-feather';
 
 import classes from './section.css';
 import Icon from '../Icon';
@@ -28,9 +28,9 @@ const filledIconAttributes = {
     fill: 'rgb(var(--venia-teal))'
 };
 const icons = {
-    Heart: HeartIcon,
-    Edit2: Edit2Icon,
-    Trash: TrashIcon
+    Heart,
+    Edit2,
+    Trash
 };
 
 const Section = props => {

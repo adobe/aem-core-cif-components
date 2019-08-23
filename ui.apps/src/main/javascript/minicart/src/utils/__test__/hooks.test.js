@@ -11,34 +11,3 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { oneOf, shape, string, node } from 'prop-types';
-
-import classes from './button.css';
-
-const getRootClassName = priority => `root_${priority}Priority`;
-
-const Button = props => {
-    const { children, priority, type, ...restProps } = props;
-
-    const rootClassName = classes[getRootClassName(priority)];
-
-    return (
-        <button className={rootClassName} type={type} {...restProps}>
-            <span className={classes.content}>{children}</span>
-        </button>
-    );
-};
-
-Button.defaultProps = {
-    priority: 'normal',
-    type: 'button'
-};
-
-Button.propTypes = {
-    priority: oneOf(['high', 'normal']).isRequired,
-    type: oneOf(['button', 'reset', 'submit']).isRequired,
-    children: node
-};
-
-export default Button;

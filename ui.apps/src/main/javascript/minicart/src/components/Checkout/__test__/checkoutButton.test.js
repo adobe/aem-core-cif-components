@@ -12,33 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { oneOf, shape, string, node } from 'prop-types';
+import CheckoutButton from '../checkoutButton';
+import Button from '../../Button';
+import { shallow } from 'enzyme';
+import toJson from 'enzyme-to-json';
 
-import classes from './button.css';
+jest.mock('react-feather');
+describe('<CheckoutButton />', () => {
+    it('renders the checkout button', () => {
+        const mockOnClick = jest.fn(() => {});
 
-const getRootClassName = priority => `root_${priority}Priority`;
+        const wrapper = shallow(<CheckoutButton disabled={false} onClick={mockOnClick} />);
 
-const Button = props => {
-    const { children, priority, type, ...restProps } = props;
+        expect(toJson(wrapper.find(Button))).toMatchSnapshot();
+    });
 
-    const rootClassName = classes[getRootClassName(priority)];
+    it('calls the onclick handler', () => {
+        const mockOnClick = jest.fn(() => {});
+        const wrapper = shallow(<CheckoutButton disabled={false} onClick={mockOnClick} />);
 
-    return (
-        <button className={rootClassName} type={type} {...restProps}>
-            <span className={classes.content}>{children}</span>
-        </button>
-    );
-};
-
-Button.defaultProps = {
-    priority: 'normal',
-    type: 'button'
-};
-
-Button.propTypes = {
-    priority: oneOf(['high', 'normal']).isRequired,
-    type: oneOf(['button', 'reset', 'submit']).isRequired,
-    children: node
-};
-
-export default Button;
+        wrapper.find(Button).simulate('click');
+        expect(mockOnClick.mock.calls.length).toBeGreaterThan(0);
+    });
+});

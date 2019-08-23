@@ -11,6 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+// eslint-disable-next-line no-undef
 module.exports = {
     collectCoverageFrom: ['lib/*.js', '!**/node_modules/**'],
     coverageDirectory: '<rootDir>/coverage',
@@ -23,7 +24,8 @@ module.exports = {
     },
     moduleNameMapper: {
         '\\.css$': 'identity-obj-proxy',
-        '\\.svg$': 'identity-obj-proxy'
+        '.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+            '<rootDir>/__mocks__/fileMock.js'
     },
     transformIgnorePatterns: ['node_modules/(?!@magento/)']
 };
