@@ -23,12 +23,29 @@ import EditableForm from './editableForm';
  * or the editable form based on the 'editing' state value.
  */
 const Form = props => {
-    const { cart } = props;
+    const {
+        cart: { shipping_addresses = [] }
+    } = props;
     const [editing, setEditing] = useState(null);
-    const hasShippingAddress = cart.shipping_addresses && cart.shipping_addresses.length > 0;
-    const [shippingAddress, setShippingAddress] = useState(cart.shipping_addresses[0]);
+
+    const hasShippingAddress = shipping_addresses && shipping_addresses.length > 0;
+    const actualAddress = hasShippingAddress
+        ? {
+              ...shipping_addresses[0],
+              region_code: shipping_addresses[0].region.code,
+              country: shipping_addresses[0].country.code
+          }
+        : {};
+
+    const [shippingAddress, setShippingAddress] = useState(actualAddress);
     const child = editing ? (
-        <EditableForm editing={editing} setEditing={setEditing} {...props} />
+        <EditableForm
+            editing={editing}
+            setEditing={setEditing}
+            setShippingAddress={setShippingAddress}
+            shippingAddress={shippingAddress}
+            {...props}
+        />
     ) : (
         <Overview
             classes={classes}

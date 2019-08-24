@@ -50,13 +50,10 @@ const EditableForm = props => {
     }, [setEditing]);
 
     const handleSubmitAddressForm = useCallback(
-        async formValues => {
-            setEditing(null);
-            console.log(`These are the form values: `, formValues);
+        formValues => {
             setShippingAddressesOnCart({ variables: { cartId: cart.cartId, countryCode: 'US', ...formValues } });
-            setShippingAddress(data.cart.shippingAddresses);
         },
-        [setEditing]
+        [setEditing, setShippingAddressesOnCart]
     );
 
     const handleSubmitPaymentsForm = useCallback(
@@ -79,6 +76,15 @@ const EditableForm = props => {
         [setEditing, submitShippingMethod]
     );
 
+    if (data) {
+        const shippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
+        setShippingAddress({
+            ...shippingAddress,
+            country: shippingAddress.country.code,
+            region_code: shippingAddress.region.code
+        });
+        setEditing(null);
+    }
     switch (editing) {
         case 'address': {
             const { shippingAddress } = props;

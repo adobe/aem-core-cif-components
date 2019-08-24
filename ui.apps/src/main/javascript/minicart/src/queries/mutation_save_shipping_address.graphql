@@ -41,11 +41,15 @@ mutation(
             shipping_addresses {
                 city
                 company
-                country_code
+                country {
+                    code
+                }
                 firstname
                 lastname
                 postcode
-                region
+                region {
+                    code
+                }
                 street
                 telephone
             }
