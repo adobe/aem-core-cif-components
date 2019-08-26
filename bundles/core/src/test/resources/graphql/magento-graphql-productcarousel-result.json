@@ -7,7 +7,7 @@
         "name": "Endurance Watch",
         "thumbnail": {
           "label": "Endurance Watch",
-          "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
+          "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
         },
         "url_key": "endurance-watch",
         "price": {
@@ -25,7 +25,7 @@
         "name": "Beaumont Summit Kit",
         "thumbnail": {
           "label": "Beaumont Summit Kit",
-          "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+          "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
         },
         "url_key": "beaumont-summit-kit",
         "price": {
@@ -43,7 +43,7 @@
               "name": "Beaumont Summit Kit-XS-Orange",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XS-Orange",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -61,7 +61,7 @@
               "name": "Beaumont Summit Kit-XS-Red",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XS-Red",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -79,7 +79,7 @@
               "name": "Beaumont Summit Kit-XS-Yellow",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XS-Yellow",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -97,7 +97,7 @@
               "name": "Beaumont Summit Kit-S-Orange",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-S-Orange",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -115,7 +115,7 @@
               "name": "Beaumont Summit Kit-S-Red",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-S-Red",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -133,7 +133,7 @@
               "name": "Beaumont Summit Kit-S-Yellow",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-S-Yellow",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -151,7 +151,7 @@
               "name": "Beaumont Summit Kit-M-Orange",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-M-Orange",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -169,7 +169,7 @@
               "name": "Beaumont Summit Kit-M-Red",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-M-Red",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -187,7 +187,7 @@
               "name": "Beaumont Summit Kit-M-Yellow",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-M-Yellow",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -205,7 +205,7 @@
               "name": "Beaumont Summit Kit-L-Orange",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-L-Orange",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -223,7 +223,7 @@
               "name": "Beaumont Summit Kit-L-Red",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-L-Red",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -241,7 +241,7 @@
               "name": "Beaumont Summit Kit-L-Yellow",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-L-Yellow",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -259,7 +259,7 @@
               "name": "Beaumont Summit Kit-XL-Orange",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XL-Orange",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -277,7 +277,7 @@
               "name": "Beaumont Summit Kit-XL-Red",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XL-Red",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
@@ -295,7 +295,7 @@
               "name": "Beaumont Summit Kit-XL-Yellow",
               "thumbnail": {
                 "label": "Beaumont Summit Kit-XL-Yellow",
-                "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
               "price": {
                 "regularPrice": {
