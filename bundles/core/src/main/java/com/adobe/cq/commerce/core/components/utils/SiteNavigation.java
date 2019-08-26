@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.utils;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,8 @@ public class SiteNavigation {
     private static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
     private static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
     private static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
+
+    private static final String COMBINED_SKU_SEPARATOR = "#";
 
     /**
      * Boolean property to mark the navigation root page.
@@ -128,7 +131,39 @@ public class SiteNavigation {
      * @return The product page URL.
      */
     public static String toProductUrl(String pagePath, String slug) {
-        return String.format("%s.%s.html", pagePath, slug);
+        return toProductUrl(pagePath, slug, null);
     }
 
+    /**
+     * Builds and returns a product page URL based on the given page path, slug, and variant sku.
+     * 
+     * @param pagePath The base page path for the URL.
+     * @param slug The slug of the product.
+     * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
+     * @return The product page URL.
+     */
+    public static String toProductUrl(String pagePath, String slug, String variantSku) {
+        if (variantSku != null) {
+            return String.format("%s.%s.html%s%s", pagePath, slug, COMBINED_SKU_SEPARATOR, variantSku);
+        } else {
+            return String.format("%s.%s.html", pagePath, slug);
+        }
+    }
+
+    /**
+     * Returns the base product sku and variant sku of the given <code>combinedSku</code>.
+     * The base product sku is returned in the <code>left</code> element of the pair, while
+     * the variant product sku is returned in the <code>right</code> element of the pair.
+     * 
+     * If the <code>combinedSku</code> refers to a base product without any selected variant,
+     * the <code>right</code> element of the pair will be null.
+     * 
+     * @param combinedSku The combined sku, typically selected and set via the product picker.
+     * @return The pair of skus.
+     */
+    public static Pair<String, String> toProductSkus(String combinedSku) {
+        String baseSku = StringUtils.substringBefore(combinedSku, COMBINED_SKU_SEPARATOR);
+        String variantSku = StringUtils.substringAfter(combinedSku, COMBINED_SKU_SEPARATOR);
+        return Pair.of(baseSku, variantSku);
+    }
 }

@@ -2,27 +2,44 @@
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent",
-      "cq:magentoStore": "my-store"
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "cq:magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "productteaser-simple": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-variant": {
+            "selection": "MJ01#MJ01-XS-Orange",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-path": {
+            "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          }
+        }
+      }
     }
   },
   "pageB": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent",
+      "jcr:primaryType": "cq:PageContent",
       "cq:magentoStore": "my-store"
     },
     "pageC": {
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
-        "jcr:primaryType":"cq:PageContent"
+        "jcr:primaryType": "cq:PageContent"
       }
     }
   },
   "pageD": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent"
+      "jcr:primaryType": "cq:PageContent"
     }
   }
 }

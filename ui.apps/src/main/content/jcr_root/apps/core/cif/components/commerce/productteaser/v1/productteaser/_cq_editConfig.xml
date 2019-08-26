@@ -7,6 +7,6 @@
             jcr:primaryType="cq:DropTargetConfig"
             accept="[.*]"
             groups="[product]"
-            propertyName="./productPath"/>
+            propertyName="./selection"/>
     </cq:dropTargets>
 </jcr:root>
