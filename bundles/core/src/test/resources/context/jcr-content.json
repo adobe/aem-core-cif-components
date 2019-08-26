@@ -18,6 +18,9 @@
           "productteaser-path": {
             "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
             "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "product": {
+            "sling:resourceType": "venia/components/commerce/product"
           }
         }
       }
