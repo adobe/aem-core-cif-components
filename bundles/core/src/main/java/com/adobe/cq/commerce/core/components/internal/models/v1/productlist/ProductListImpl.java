@@ -37,7 +37,17 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -195,7 +205,8 @@ public class ProductListImpl implements ProductList {
                         product.getPrice().getRegularPrice().getAmount().getValue(),
                         product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                         product.getSmallImage().getUrl(),
-                        productPage));
+                        productPage,
+                        null));
                 }
             }
         }
