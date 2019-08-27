@@ -143,7 +143,7 @@ public class SiteNavigation {
      * @return The product page URL.
      */
     public static String toProductUrl(String pagePath, String slug, String variantSku) {
-        if (variantSku != null) {
+        if (StringUtils.isNotBlank(variantSku)) {
             return String.format("%s.%s.html%s%s", pagePath, slug, COMBINED_SKU_SEPARATOR, variantSku);
         } else {
             return String.format("%s.%s.html", pagePath, slug);
@@ -164,6 +164,6 @@ public class SiteNavigation {
     public static Pair<String, String> toProductSkus(String combinedSku) {
         String baseSku = StringUtils.substringBefore(combinedSku, COMBINED_SKU_SEPARATOR);
         String variantSku = StringUtils.substringAfter(combinedSku, COMBINED_SKU_SEPARATOR);
-        return Pair.of(baseSku, variantSku);
+        return Pair.of(baseSku, variantSku.isEmpty() ? null : variantSku);
     }
 }

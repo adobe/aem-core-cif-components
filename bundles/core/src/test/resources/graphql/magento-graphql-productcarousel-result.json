@@ -1,0 +1,496 @@
+{
+  "products": {
+    "items": [
+      {
+        "__typename": "SimpleProduct",
+        "sku": "24-MG01",
+        "name": "Endurance Watch",
+        "thumbnail": {
+          "label": "Endurance Watch",
+          "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
+        },
+        "url_key": "endurance-watch",
+        "price": {
+          "regularPrice": {
+            "amount": {
+              "currency": "USD",
+              "value": 49
+            }
+          }
+        }
+      },
+      {
+        "__typename": "ConfigurableProduct",
+        "sku": "MJ01",
+        "name": "Beaumont Summit Kit",
+        "thumbnail": {
+          "label": "Beaumont Summit Kit",
+          "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+        },
+        "url_key": "beaumont-summit-kit",
+        "price": {
+          "regularPrice": {
+            "amount": {
+              "currency": "USD",
+              "value": 42
+            }
+          }
+        },
+        "variants": [
+          {
+            "product": {
+              "sku": "MJ01-XS-Orange",
+              "name": "Beaumont Summit Kit-XS-Orange",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XS-Orange",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-XS-Red",
+              "name": "Beaumont Summit Kit-XS-Red",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XS-Red",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-XS-Yellow",
+              "name": "Beaumont Summit Kit-XS-Yellow",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XS-Yellow",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-S-Orange",
+              "name": "Beaumont Summit Kit-S-Orange",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-S-Orange",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-S-Red",
+              "name": "Beaumont Summit Kit-S-Red",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-S-Red",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-S-Yellow",
+              "name": "Beaumont Summit Kit-S-Yellow",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-S-Yellow",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-M-Orange",
+              "name": "Beaumont Summit Kit-M-Orange",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-M-Orange",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-M-Red",
+              "name": "Beaumont Summit Kit-M-Red",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-M-Red",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-M-Yellow",
+              "name": "Beaumont Summit Kit-M-Yellow",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-M-Yellow",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-L-Orange",
+              "name": "Beaumont Summit Kit-L-Orange",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-L-Orange",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-L-Red",
+              "name": "Beaumont Summit Kit-L-Red",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-L-Red",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-L-Yellow",
+              "name": "Beaumont Summit Kit-L-Yellow",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-L-Yellow",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-XL-Orange",
+              "name": "Beaumont Summit Kit-XL-Orange",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XL-Orange",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-XL-Red",
+              "name": "Beaumont Summit Kit-XL-Red",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XL-Red",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "MJ01-XL-Yellow",
+              "name": "Beaumont Summit Kit-XL-Yellow",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit-XL-Yellow",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "__typename": "ConfigurableProduct",
+        "sku": "WJ01",
+        "name": "Stellar Solar Jacket",
+        "thumbnail": {
+          "label": "Stellar Solar Jacket",
+          "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+        },
+        "url_key": "stellar-solar-jacket",
+        "price": {
+          "regularPrice": {
+            "amount": {
+              "currency": "USD",
+              "value": 75
+            }
+          }
+        },
+        "variants": [
+          {
+            "product": {
+              "sku": "WJ01-S-Blue",
+              "name": "Stellar Solar Jacket-S-Blue",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-S-Blue",
+                "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-S-Red",
+              "name": "Stellar Solar Jacket-S-Red",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-S-Red",
+                "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-S-Yellow",
+              "name": "Stellar Solar Jacket-S-Yellow",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-S-Yellow",
+                "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-M-Blue",
+              "name": "Stellar Solar Jacket-M-Blue",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-M-Blue",
+                "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-M-Red",
+              "name": "Stellar Solar Jacket-M-Red",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-M-Red",
+                "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-M-Yellow",
+              "name": "Stellar Solar Jacket-M-Yellow",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-M-Yellow",
+                "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-L-Blue",
+              "name": "Stellar Solar Jacket-L-Blue",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-L-Blue",
+                "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-L-Red",
+              "name": "Stellar Solar Jacket-L-Red",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-L-Red",
+                "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          },
+          {
+            "product": {
+              "sku": "WJ01-L-Yellow",
+              "name": "Stellar Solar Jacket-L-Yellow",
+              "thumbnail": {
+                "label": "Stellar Solar Jacket-L-Yellow",
+                "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+              },
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 75
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -218,7 +218,8 @@ public class SearchResultsImpl implements SearchResults {
                 .toString(),
             product.getSmallImage()
                 .getUrl(),
-            productPage);
+            productPage,
+            null);
 
         return productListItem;
     }
