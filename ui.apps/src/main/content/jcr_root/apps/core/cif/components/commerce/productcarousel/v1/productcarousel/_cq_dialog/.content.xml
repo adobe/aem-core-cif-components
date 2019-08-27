@@ -20,9 +20,10 @@
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="commerce/gui/components/common/cifproductfield"
                             fieldLabel="Product"
+                            filter="folderOrProductOrVariant"
                             name="./product"
                             rootPath="/var/commerce/products"
-                            selectionId="sku"/>
+                            selectionId="combinedSku"/>
                     </content>
                 </items>
             </column>
