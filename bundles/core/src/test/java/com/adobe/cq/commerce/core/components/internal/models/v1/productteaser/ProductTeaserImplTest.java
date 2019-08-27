@@ -73,7 +73,7 @@ public class ProductTeaserImplTest {
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
-        String json = getResource("/graphql/magento-graphql-product-result.json");
+        String json = getResource("/graphql/magento-graphql-productteaser-result.json");
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         product = rootQuery.getProducts().getItems().get(0);
 

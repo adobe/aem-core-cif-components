@@ -14,159 +14,217 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.servlethelpers.MockRequestPathInfo;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
+import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
+import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.StoreConfig;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest {
 
-    ProductImpl slingModel;
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PAGE = "/content/pageA";
+    private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
+
+    private Resource productResource;
+    private ProductImpl productModel;
+    private ProductInterface product;
+    private StoreConfig storeConfig;
 
     @Before
-    public void setup() {
-        this.slingModel = new ProductImpl();
+    public void setUp() throws Exception {
+        Page page = context.currentPage(PAGE);
+        context.currentResource(PRODUCT);
+        productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
 
-        // Assets
-        MediaGalleryEntry assetA = mock(MediaGalleryEntry.class);
-        when(assetA.getLabel()).thenReturn("Image A");
-        when(assetA.getPosition()).thenReturn(200);
-        when(assetA.getMediaType()).thenReturn("image");
-        when(assetA.getDisabled()).thenReturn(false);
+        String json = getResource("/graphql/magento-graphql-product-result.json");
+        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        product = rootQuery.getProducts().getItems().get(0);
+        storeConfig = rootQuery.getStoreConfig();
 
-        MediaGalleryEntry assetB = mock(MediaGalleryEntry.class);
-        when(assetB.getLabel()).thenReturn("Image B");
-        when(assetB.getPosition()).thenReturn(100);
-        when(assetB.getMediaType()).thenReturn("image");
-        when(assetB.getDisabled()).thenReturn(false);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
+        response.setData(rootQuery);
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
-        MediaGalleryEntry assetC = mock(MediaGalleryEntry.class);
-        when(assetC.getPosition()).thenReturn(150);
-        when(assetC.getMediaType()).thenReturn("video");
-        when(assetC.getDisabled()).thenReturn(false);
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
 
-        MediaGalleryEntry assetD = mock(MediaGalleryEntry.class);
-        when(assetD.getPosition()).thenReturn(400);
-        when(assetD.getMediaType()).thenReturn("image");
-        when(assetD.getDisabled()).thenReturn(true);
+        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(productResource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
-        // Variant attributes
-        ConfigurableProductOptionsValues valueA = mock(ConfigurableProductOptionsValues.class);
-        when(valueA.getLabel()).thenReturn("Value A");
-        ConfigurableProductOptionsValues valueB = mock(ConfigurableProductOptionsValues.class);
-        when(valueB.getLabel()).thenReturn("Value B");
-
-        ConfigurableProductOptions variantAttribute = mock(ConfigurableProductOptions.class);
-        when(variantAttribute.getLabel()).thenReturn("Option A");
-        when(variantAttribute.getValues()).thenReturn(Arrays.asList(valueA, valueB));
-
-        // Variant
-        SimpleProduct gqlVariantProduct = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
-        when(gqlVariantProduct.getPrice().getRegularPrice().getAmount().getCurrency()).thenReturn(CurrencyEnum.USD);
-        when(gqlVariantProduct.getPrice().getRegularPrice().getAmount().getValue()).thenReturn(1234.5678d);
-        when(gqlVariantProduct.getStockStatus()).thenReturn(ProductStockStatus.IN_STOCK);
-        when(gqlVariantProduct.getMediaGalleryEntries()).thenReturn(Collections.emptyList());
-        ConfigurableVariant gqlVariant = mock(ConfigurableVariant.class);
-        when(gqlVariant.getProduct()).thenReturn(gqlVariantProduct);
-
-        // Base product
-        ConfigurableProduct gqlProduct = mock(ConfigurableProduct.class);
-        when(gqlProduct.getMediaGalleryEntries()).thenReturn(Arrays.asList(assetA, assetB, assetC, assetD));
-        when(gqlProduct.getVariants()).thenReturn(Collections.singletonList(gqlVariant));
-        when(gqlProduct.getConfigurableOptions()).thenReturn(Collections.singletonList(variantAttribute));
-        Whitebox.setInternalState(this.slingModel, "product", gqlProduct);
-
-        // Set number formatter
-        Whitebox.setInternalState(this.slingModel, "priceFormatter", NumberFormat.getCurrencyInstance(Locale.US));
-
-        // XSS Filter
         XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(anyString())).then(i -> i.getArgumentAt(0, String.class));
-        Whitebox.setInternalState(this.slingModel, "xssApi", xssApi);
+        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+        slingBindings.put("xssApi", xssApi);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        slingBindings.put("currentStyle", style);
+
+        productModel = context.request().adaptTo(ProductImpl.class);
     }
 
     @Test
-    public void testGetVariantsNotConfigurableProduct() {
-        SimpleProduct gqlProduct = mock(SimpleProduct.class);
-        Whitebox.setInternalState(this.slingModel, "product", gqlProduct);
+    public void testProduct() {
+        Assert.assertTrue(productModel.getFound());
+        Assert.assertEquals(product.getSku(), productModel.getSku());
+        Assert.assertEquals(product.getName(), productModel.getName());
+        Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
+        Assert.assertTrue(productModel.loadClientPrice());
 
-        List<Variant> variants = this.slingModel.getVariants();
+        NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+        priceFormatter.setCurrency(Currency.getInstance(product.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+
+        Money amount = product.getPrice().getRegularPrice().getAmount();
+        Assert.assertEquals(priceFormatter.format(amount.getValue()), productModel.getFormattedPrice());
+
+        Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
+
+        Assert.assertEquals(product.getMediaGalleryEntries().size(), productModel.getAssets().size());
+        String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/product";
+        for (int j = 0; j < product.getMediaGalleryEntries().size(); j++) {
+            MediaGalleryEntry mge = product.getMediaGalleryEntries().get(j);
+            Asset asset = productModel.getAssets().get(j);
+            Assert.assertEquals(mge.getLabel(), asset.getLabel());
+            Assert.assertEquals(mge.getPosition(), asset.getPosition());
+            Assert.assertEquals(mge.getMediaType(), asset.getType());
+            Assert.assertEquals(baseMediaPath + mge.getFile(), asset.getPath());
+        }
+    }
+
+    @Test
+    public void testVariants() {
+        List<Variant> variants = productModel.getVariants();
         Assert.assertNotNull(variants);
-        Assert.assertEquals(0, variants.size());
-    }
 
-    @Test
-    public void testGetVariants() {
-        List<Variant> variants = this.slingModel.getVariants();
-        Assert.assertNotNull(variants);
-        Assert.assertEquals(1, variants.size());
+        ConfigurableProduct cp = (ConfigurableProduct) product;
+        Assert.assertEquals(cp.getVariants().size(), variants.size());
 
-        Variant firstVariant = variants.get(0);
-        Assert.assertEquals("$1,234.57", firstVariant.getFormattedPrice());
-        Assert.assertTrue(firstVariant.getInStock());
-    }
+        NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+        priceFormatter.setCurrency(Currency.getInstance(product.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
 
-    @Test
-    public void testGetAssets() {
-        Assert.assertEquals(2, slingModel.getAssets().size());
-        Assert.assertEquals("Image B", slingModel.getAssets().get(0).getLabel());
-        Assert.assertEquals("Image A", slingModel.getAssets().get(1).getLabel());
-    }
+        for (int i = 0; i < variants.size(); i++) {
+            Variant variant = variants.get(i);
+            SimpleProduct sp = cp.getVariants().get(i).getProduct();
 
-    @Test
-    public void testGetVariantAttributesNotConfigurableProduct() {
-        SimpleProduct gqlProduct = mock(SimpleProduct.class);
-        Whitebox.setInternalState(this.slingModel, "product", gqlProduct);
+            Assert.assertEquals(sp.getSku(), variant.getSku());
+            Assert.assertEquals(sp.getName(), variant.getName());
+            Assert.assertEquals(sp.getDescription().getHtml(), variant.getDescription());
 
-        List<VariantAttribute> attributes = this.slingModel.getVariantAttributes();
-        Assert.assertNotNull(attributes);
-        Assert.assertEquals(0, attributes.size());
+            Money amount = cp.getPrice().getRegularPrice().getAmount();
+            Assert.assertEquals(priceFormatter.format(amount.getValue()), variant.getFormattedPrice());
+
+            Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
+            Assert.assertEquals(sp.getColor(), variant.getColor());
+
+            Assert.assertEquals(sp.getMediaGalleryEntries().size(), variant.getAssets().size());
+            String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/product";
+            for (int j = 0; j < sp.getMediaGalleryEntries().size(); j++) {
+                MediaGalleryEntry mge = sp.getMediaGalleryEntries().get(j);
+                Asset asset = variant.getAssets().get(j);
+                Assert.assertEquals(mge.getLabel(), asset.getLabel());
+                Assert.assertEquals(mge.getPosition(), asset.getPosition());
+                Assert.assertEquals(mge.getMediaType(), asset.getType());
+                Assert.assertEquals(baseMediaPath + mge.getFile(), asset.getPath());
+            }
+        }
     }
 
     @Test
     public void testGetVariantAttributes() {
-        List<VariantAttribute> attributes = this.slingModel.getVariantAttributes();
-
+        List<VariantAttribute> attributes = productModel.getVariantAttributes();
         Assert.assertNotNull(attributes);
-        Assert.assertEquals(1, attributes.size());
 
-        VariantAttribute first = attributes.get(0);
-        Assert.assertEquals("Option A", first.getLabel());
-        Assert.assertEquals(2, first.getValues().size());
-        Assert.assertEquals("Value A", first.getValues().get(0).getLabel());
-        Assert.assertEquals("Value B", first.getValues().get(1).getLabel());
+        ConfigurableProduct cp = (ConfigurableProduct) product;
+        Assert.assertEquals(cp.getConfigurableOptions().size(), attributes.size());
+
+        for (int i = 0; i < attributes.size(); i++) {
+            VariantAttribute attribute = attributes.get(i);
+            ConfigurableProductOptions option = cp.getConfigurableOptions().get(i);
+
+            Assert.assertEquals(option.getAttributeCode(), attribute.getId());
+            Assert.assertEquals(option.getLabel(), attribute.getLabel());
+
+            for (int j = 0; j < attribute.getValues().size(); j++) {
+                VariantValue value = attribute.getValues().get(j);
+                ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
+                Assert.assertEquals(optionValue.getValueIndex(), value.getId());
+                Assert.assertEquals(optionValue.getLabel(), value.getLabel());
+            }
+        }
+    }
+
+    @Test
+    public void testSimpleProduct() {
+        Whitebox.setInternalState(productModel, "product", new SimpleProduct());
+        Assert.assertTrue(productModel.getVariants().isEmpty());
+        Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
     }
 
     @Test
     public void testSafeDescriptionWithNull() {
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
-        Whitebox.setInternalState(this.slingModel, "product", product);
-        Assert.assertNull(this.slingModel.getDescription());
+        Whitebox.setInternalState(productModel, "product", product);
+        Assert.assertNull(productModel.getDescription());
     }
 
     @Test
@@ -176,9 +234,9 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(null);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(this.slingModel, "product", product);
+        Whitebox.setInternalState(productModel, "product", product);
 
-        Assert.assertNull(this.slingModel.getDescription());
+        Assert.assertNull(productModel.getDescription());
     }
 
     @Test
@@ -189,9 +247,9 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(this.slingModel, "product", product);
+        Whitebox.setInternalState(productModel, "product", product);
 
-        Assert.assertEquals(sampleString, this.slingModel.getDescription());
+        Assert.assertEquals(sampleString, productModel.getDescription());
     }
 
     @Test
@@ -202,8 +260,12 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(this.slingModel, "product", product);
+        Whitebox.setInternalState(productModel, "product", product);
 
-        Assert.assertEquals(sampleString, this.slingModel.getDescription());
+        Assert.assertEquals(sampleString, productModel.getDescription());
+    }
+
+    private String getResource(String filename) throws IOException {
+        return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }
