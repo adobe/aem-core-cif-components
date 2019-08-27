@@ -11,6 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
 import java.io.IOException;
