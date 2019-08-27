@@ -11,10 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
