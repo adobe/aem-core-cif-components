@@ -18,13 +18,15 @@ import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
 
+import isObjectEmpty from '../../utils/isObjectEmpty';
+
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
  */
 const Form = props => {
     const {
-        cart: { shipping_addresses = [] }
+        cart: { shipping_addresses = [], selected_payment_method = {} }
     } = props;
     const [editing, setEditing] = useState(null);
 
@@ -38,12 +40,17 @@ const Form = props => {
         : {};
 
     const [shippingAddress, setShippingAddress] = useState(actualAddress);
+
+    const hasPaymentMethod = !isObjectEmpty(selected_payment_method);
+
+    const [paymentData, setPaymentData] = useState({ details: { cardType: selected_payment_method.title } });
     const child = editing ? (
         <EditableForm
             editing={editing}
             setEditing={setEditing}
             setShippingAddress={setShippingAddress}
             shippingAddress={shippingAddress}
+            setPaymentData={setPaymentData}
             {...props}
         />
     ) : (
@@ -53,6 +60,8 @@ const Form = props => {
             setEditing={setEditing}
             shippingAddress={shippingAddress}
             hasShippingAddress={hasShippingAddress}
+            paymentData={paymentData}
+            hasPaymentMethod={hasPaymentMethod}
         />
     );
     return <div className={classes.root}>{child}</div>;

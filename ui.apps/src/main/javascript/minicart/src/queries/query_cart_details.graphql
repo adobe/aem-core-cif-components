@@ -8,6 +8,29 @@ query cartDetails($cartId: String!) {
         }
         shipping_addresses {
             city
+            company
+            country {
+                code
+            }
+            firstname
+            lastname
+            postcode
+            region {
+                code
+            }
+            street
+            telephone
+        }
+        available_payment_methods {
+            code
+            title
+        }
+        selected_payment_method {
+            code
+            title
+        }
+        billing_address {
+            city
             country {
                 code
             }
@@ -17,7 +40,10 @@ query cartDetails($cartId: String!) {
                 code
             }
             street
+            postcode
+            telephone
         }
+
         items {
             id
             quantity

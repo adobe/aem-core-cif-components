@@ -1,0 +1,55 @@
+# Welcome to Altair GraphQL Client.
+# You can send your request using CmdOrCtrl + Enter.
+
+# Enter your graphQL query here.
+
+mutation(
+    $cartId: String!
+    $city: String!
+    $company: String
+    $countryCode: String!
+    $firstname: String!
+    $lastname: String!
+    $postcode: String
+    $region: String
+    $street: [String]!
+    $telephone: String!
+) {
+    setBillingAddressOnCart(
+        input: {
+            cart_id: $cartId
+            billing_address: {
+                address: {
+                    city: $city
+                    company: $company
+                    country_code: $countryCode
+                    firstname: $firstname
+                    lastname: $lastname
+                    postcode: $postcode
+                    region: $region
+                    street: $street
+                    telephone: $telephone
+                    save_in_address_book: false
+                }
+            }
+        }
+    ) {
+        cart {
+            billing_address {
+                city
+                company
+                country {
+                    code
+                }
+                firstname
+                lastname
+                postcode
+                region {
+                    code
+                }
+                street
+                telephone
+            }
+        }
+    }
+}

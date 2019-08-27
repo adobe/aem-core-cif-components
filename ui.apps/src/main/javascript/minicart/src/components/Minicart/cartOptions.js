@@ -58,6 +58,10 @@ const CartOptions = props => {
         handleEndEditing();
     };
 
+    const handleOnChange = newVal => {
+        setNewQty(parseInt(newVal));
+    };
+
     return (
         <form className={classes.root}>
             <div className={classes.focusItem}>
@@ -76,7 +80,7 @@ const CartOptions = props => {
                         initialValue={newQty}
                         field="quantity"
                         items={mockQtys}
-                        handleOnChange={setNewQty}
+                        handleOnChange={handleOnChange}
                     />
                 </section>
             </div>

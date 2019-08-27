@@ -16,7 +16,7 @@ import { bool, shape, string } from 'prop-types';
 
 const PaymentMethodSummary = props => {
     const { classes, hasPaymentMethod, paymentData } = props;
-
+    console.log(`Some props`, props);
     if (!hasPaymentMethod) {
         return <span className={classes.informationPrompt}>Add Billing Information</span>;
     }

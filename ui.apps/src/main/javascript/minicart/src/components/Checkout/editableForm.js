@@ -12,16 +12,17 @@
  *
  ******************************************************************************/
 import React, { useCallback } from 'react';
-import { array, bool, func, object, oneOf, shape, string } from 'prop-types';
+import { array, bool, func, object, oneOf, string } from 'prop-types';
 import { useCountries } from '../../utils/hooks';
 
 import AddressForm from './addressForm';
+import PaymentsForm from './paymentsForm';
+
 import { useMutation } from '@apollo/react-hooks';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
-
-// import PaymentsForm from './paymentsForm';
-// import ShippingForm from './shippingForm';
+import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
+import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 
 /**
  * The EditableForm component renders the actual edit forms for the sections
@@ -32,10 +33,11 @@ const EditableForm = props => {
     const {
         editing,
         setEditing,
-        setShippingAddress,
-        submitPaymentMethodAndBillingAddress,
         submitShippingMethod,
         submitting,
+        setShippingAddress,
+        setBillingAddress,
+        setPaymentData: setPaymentMethodData,
         isAddressInvalid,
         invalidAddressMessage,
         cart
@@ -44,6 +46,14 @@ const EditableForm = props => {
     let countries = useCountries();
 
     const [setShippingAddressesOnCart, { data, error, loading }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+
+    const [setPaymentMethodOnCart, { data: setPaymentData, loading: setPaymentMethodLoading }] = useMutation(
+        MUTATION_SET_PAYMENT_METHOD
+    );
+
+    const [setBillingAddressOnCart, { data: setBillingAddressData, loading: setBillingAddressLoading }] = useMutation(
+        MUTATION_SET_BILLING_ADDRESS
+    );
 
     const handleCancel = useCallback(() => {
         setEditing(null);
@@ -57,13 +67,36 @@ const EditableForm = props => {
     );
 
     const handleSubmitPaymentsForm = useCallback(
-        async formValues => {
-            await submitPaymentMethodAndBillingAddress({
-                formValues
-            });
+        args => {
+            console.log(`Got arguments`, args);
+            if (args.billingAddress.sameAsShippingAddress) {
+                const { shippingAddress } = props;
+                console.log(`Already got shipping address`, shippingAddress);
+                if (shippingAddress) {
+                    setBillingAddressOnCart({
+                        variables: {
+                            cartId: cart.cartId,
+                            ...shippingAddress,
+                            countryCode: shippingAddress.country,
+                            region: shippingAddress.region.code
+                        }
+                    });
+                }
+            } else {
+                setBillingAddressOnCart({
+                    variables: {
+                        cartId: cart.cartId,
+                        ...args.billingAddress,
+                        countryCode: 'US'
+                    }
+                });
+            }
+
+            setPaymentMethodOnCart({ variables: { cartId: cart.cartId, paymentMethodCode: args.paymentMethod } });
+
             setEditing(null);
         },
-        [setEditing, submitPaymentMethodAndBillingAddress]
+        [setEditing]
     );
 
     const handleSubmitShippingForm = useCallback(
@@ -85,6 +118,18 @@ const EditableForm = props => {
         });
         setEditing(null);
     }
+
+    if (setPaymentData) {
+        setPaymentMethodData({
+            details: { cardType: setPaymentData.setPaymentMethodOnCart.cart.selected_payment_method }
+        });
+        setEditing(null);
+    }
+
+    if (setBillingAddressData) {
+        setBillingAddress({ ...setBillingAddressData.setBillingAddressOnCart.cart.billing_address });
+    }
+
     switch (editing) {
         case 'address': {
             const { shippingAddress } = props;
@@ -101,19 +146,21 @@ const EditableForm = props => {
                 />
             );
         }
-        // case 'paymentMethod': {
-        //     const { billingAddress } = props;
+        case 'paymentMethod': {
+            const { billingAddress } = props;
 
-        //     return (
-        //         <PaymentsForm
-        //             cancel={handleCancel}
-        //             countries={countries}
-        //             initialValues={billingAddress}
-        //             submit={handleSubmitPaymentsForm}
-        //             submitting={submitting}
-        //         />
-        //     );
-        // }
+            return (
+                <PaymentsForm
+                    cart={cart}
+                    cancel={handleCancel}
+                    countries={countries}
+                    initialValues={billingAddress}
+                    submit={handleSubmitPaymentsForm}
+                    submitting={submitting}
+                    paymentMethods={cart.available_payment_methods}
+                />
+            );
+        }
         // case 'shippingMethod': {
         //     const { availableShippingMethods, shippingMethod } = props;
         //     return (

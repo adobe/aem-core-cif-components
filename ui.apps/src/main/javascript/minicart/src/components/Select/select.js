@@ -37,7 +37,7 @@ const Select = props => {
                     className={classes.input}
                     defaultValue={initialValue}
                     onChange={ev => {
-                        handleOnChange(parseInt(ev.target.value));
+                        handleOnChange(ev.target.value);
                     }}>
                     {options}
                 </select>
@@ -62,8 +62,7 @@ Select.propTypes = {
         })
     ),
     message: node,
-    handleOnChange: func,
-    initialValue: number
+    handleOnChange: func
 };
 
 export default Select;
