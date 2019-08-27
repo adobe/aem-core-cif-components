@@ -314,7 +314,7 @@ public class ProductImpl implements Product {
         productVariant.setCurrency(product.getPrice().getRegularPrice().getAmount().getCurrency().toString());
         productVariant.setPrice(product.getPrice().getRegularPrice().getAmount().getValue());
         productVariant.setFormattedPrice(priceFormatter.format(productVariant.getPrice()));
-        productVariant.setInStock(product.getStockStatus().name().equals("IN_STOCK"));
+        productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
 
         // Map variant attributes
         for (ConfigurableAttributeOption option : variant.getAttributes()) {
