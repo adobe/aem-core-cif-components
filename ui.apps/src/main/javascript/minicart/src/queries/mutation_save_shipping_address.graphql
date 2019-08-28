@@ -32,13 +32,11 @@ mutation(
         }
     ) {
         cart {
-            items {
-                id
-                product {
-                    name
-                }
-            }
             shipping_addresses {
+                available_shipping_methods {
+                    carrier_code
+                    method_code
+                }
                 city
                 company
                 country {

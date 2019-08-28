@@ -20,6 +20,12 @@ query cartDetails($cartId: String!) {
             }
             street
             telephone
+            available_shipping_methods {
+                method_code
+                method_title
+                carrier_code
+                carrier_title
+            }
         }
         available_payment_methods {
             code

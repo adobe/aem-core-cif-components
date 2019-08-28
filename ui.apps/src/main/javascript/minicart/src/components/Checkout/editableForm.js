@@ -13,12 +13,14 @@
  ******************************************************************************/
 import React, { useCallback } from 'react';
 import { array, bool, func, object, oneOf, string } from 'prop-types';
+import { useMutation } from '@apollo/react-hooks';
+
 import { useCountries } from '../../utils/hooks';
+import isObjectEmpty from '../../utils/isObjectEmpty';
 
 import AddressForm from './addressForm';
 import PaymentsForm from './paymentsForm';
-
-import { useMutation } from '@apollo/react-hooks';
+import ShippingForm from './shippingForm';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
@@ -41,6 +43,9 @@ const EditableForm = props => {
         isAddressInvalid,
         invalidAddressMessage,
         initialPaymentMethod,
+        shippingAddress,
+        shippingMethod,
+        availableShippingMethods,
         cart
     } = props;
 
@@ -100,9 +105,7 @@ const EditableForm = props => {
 
     const handleSubmitShippingForm = useCallback(
         async formValues => {
-            await submitShippingMethod({
-                formValues
-            });
+            console.log(`Got form values`, formValues);
             setEditing(null);
         },
         [setEditing, submitShippingMethod]
@@ -158,18 +161,17 @@ const EditableForm = props => {
                 />
             );
         }
-        // case 'shippingMethod': {
-        //     const { availableShippingMethods, shippingMethod } = props;
-        //     return (
-        //         <ShippingForm
-        //             availableShippingMethods={availableShippingMethods}
-        //             cancel={handleCancel}
-        //             shippingMethod={shippingMethod}
-        //             submit={handleSubmitShippingForm}
-        //             submitting={submitting}
-        //         />
-        //     );
-        // }
+        case 'shippingMethod': {
+            return (
+                <ShippingForm
+                    availableShippingMethods={availableShippingMethods}
+                    cancel={handleCancel}
+                    shippingMethod={shippingMethod}
+                    submit={handleSubmitShippingForm}
+                    submitting={submitting}
+                />
+            );
+        }
         default: {
             return null;
         }

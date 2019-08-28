@@ -24,7 +24,7 @@ import Option from './option';
 const arrow = <Icon src={ChevronDownIcon} size={18} />;
 
 const Select = props => {
-    const { fieldState, items, message, handleOnChange, initialValue } = props;
+    const { fieldState = {}, items, message, handleOnChange, initialValue } = props;
 
     const options = items.map(item => {
         return <Option key={item.value} item={item} />;

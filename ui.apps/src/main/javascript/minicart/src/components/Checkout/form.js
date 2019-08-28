@@ -55,18 +55,33 @@ const Form = props => {
               }
             : {};
     const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
-
     console.log(`Billing address is `, cartBillingAddress);
+
+    let availableShippingMethods;
+    if (!isObjectEmpty(shippingAddress)) {
+        availableShippingMethods = shippingAddress.available_shipping_methods;
+        console.log(`Shipping methods found in cart`, availableShippingMethods);
+    } else {
+        availableShippingMethods = [];
+    }
+
+    const [shippingMethod, setShippingMethod] = useState(
+        availableShippingMethods.length > 0 ? availableShippingMethods[0].carrier_code : ''
+    );
+
     const child = editing ? (
         <EditableForm
             editing={editing}
             setEditing={setEditing}
-            setShippingAddress={setShippingAddress}
             shippingAddress={shippingAddress}
-            setPaymentData={setPaymentData}
-            setBillingAddress={setBillingAddress}
+            setShippingAddress={setShippingAddress}
             initialPaymentMethod={paymentData}
+            setPaymentData={setPaymentData}
             billingAddress={cartBillingAddress}
+            setBillingAddress={setBillingAddress}
+            availableShippingMethods={availableShippingMethods}
+            shippingMethod={shippingMethod}
+            setShippingMethod={setShippingMethod}
             {...props}
         />
     ) : (
