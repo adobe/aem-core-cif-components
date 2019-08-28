@@ -80,8 +80,6 @@ public class ProductListImplTest {
     private CategoryInterface category;
     private StoreConfig storeConfig;
 
-    SlingHttpServletRequest incomingRequest;
-
     @Before
     public void setUp() throws Exception {
         Page page = context.currentPage(PAGE);
@@ -179,7 +177,7 @@ public class ProductListImplTest {
         Assert.assertTrue(pageSize >= productListModel.getProducts().size());
         Assert.assertTrue(pageSize <= category.getProductCount());
 
-        incomingRequest = mock(SlingHttpServletRequest.class);
+        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
 
         when(incomingRequest.getParameter("page")).thenReturn("1");
         Whitebox.setInternalState(productListModel, "request", incomingRequest);
