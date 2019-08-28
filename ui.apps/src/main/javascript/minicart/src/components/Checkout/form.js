@@ -17,6 +17,7 @@ import { shape, string } from 'prop-types';
 import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
+import isObjectEmpty from '../../utils/isObjectEmpty';
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
@@ -29,7 +30,7 @@ const Form = props => {
     const [editing, setEditing] = useState(null);
 
     const hasShippingAddress =
-        shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].city !== null;
+        shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].firstname !== null;
     const actualAddress = hasShippingAddress
         ? {
               ...shipping_addresses[0],
@@ -40,17 +41,19 @@ const Form = props => {
 
     const [shippingAddress, setShippingAddress] = useState(actualAddress);
 
+    console.log(`Got shipping address? `, hasShippingAddress);
     const hasPaymentMethod = selected_payment_method && selected_payment_method.code.length > 0;
     const initialPaymentMethod = hasPaymentMethod ? selected_payment_method : {};
     const [paymentData, setPaymentData] = useState(initialPaymentMethod);
 
-    let flatBillingAddress = billing_address
-        ? {
-              ...billing_address,
-              region_code: billing_address.region.code,
-              country: billing_address.country.code
-          }
-        : {};
+    let flatBillingAddress =
+        billing_address && billing_address.city !== null
+            ? {
+                  ...billing_address,
+                  region_code: billing_address.region.code,
+                  country: billing_address.country.code
+              }
+            : {};
     const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
 
     console.log(`Billing address is `, cartBillingAddress);
@@ -69,12 +72,12 @@ const Form = props => {
     ) : (
         <Overview
             classes={classes}
-            {...props}
             setEditing={setEditing}
             shippingAddress={shippingAddress}
-            hasShippingAddress={hasShippingAddress}
+            hasShippingAddress={!isObjectEmpty(shippingAddress)}
             paymentData={{ details: paymentData.title }}
-            hasPaymentMethod={hasPaymentMethod}
+            hasPaymentMethod={!isObjectEmpty(paymentData)}
+            {...props}
         />
     );
     return <div className={classes.root}>{child}</div>;
