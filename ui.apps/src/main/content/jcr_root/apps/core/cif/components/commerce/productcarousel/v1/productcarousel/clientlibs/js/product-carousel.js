@@ -35,8 +35,6 @@
             this._currentPos = 0;
 
             this._minPos = this._product_carousel_parent.offsetWidth - this._cards.length * this._cards[0].offsetWidth;
-
-            this._cardsContainer.style.marginLeft = '0px';
             this._cardsContainer.style.width = this._cards[0].offsetWidth * this._cards.length + 'px';
             this._maxPosIndex =
                 (this._cardsContainer.offsetWidth - this._product_carousel_parent.offsetWidth) /
@@ -45,8 +43,8 @@
             this._btnNext.addEventListener('click', e => this._goToNextProductCard());
 
             if (this._minPos >= 0) {
-                this._btnNext.disabled = true;
-                this._btnPrev.disabled = true;
+                this._btnNext.style.display = "none"; 
+		this._btnPrev.style.display = "none";
             } else {
                 this._btnPrev.disabled = true;
             }
