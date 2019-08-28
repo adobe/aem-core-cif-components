@@ -25,6 +25,12 @@
           },
           "product": {
             "sling:resourceType": "venia/components/commerce/product"
+          },
+          "productlist": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "sling:resourceType": "venia/components/commerce/productlist"
           }
         }
       }
