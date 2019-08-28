@@ -18,19 +18,18 @@ import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
 
-import isObjectEmpty from '../../utils/isObjectEmpty';
-
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
  */
 const Form = props => {
     const {
-        cart: { shipping_addresses = [], selected_payment_method = {} }
+        cart: { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined }
     } = props;
     const [editing, setEditing] = useState(null);
 
-    const hasShippingAddress = shipping_addresses && shipping_addresses.length > 0;
+    const hasShippingAddress =
+        shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].city !== null;
     const actualAddress = hasShippingAddress
         ? {
               ...shipping_addresses[0],
@@ -41,9 +40,20 @@ const Form = props => {
 
     const [shippingAddress, setShippingAddress] = useState(actualAddress);
 
-    const hasPaymentMethod = !isObjectEmpty(selected_payment_method);
+    const hasPaymentMethod = selected_payment_method && selected_payment_method.code.length > 0;
+    const initialPaymentMethod = hasPaymentMethod ? selected_payment_method : {};
+    const [paymentData, setPaymentData] = useState(initialPaymentMethod);
 
-    const [paymentData, setPaymentData] = useState({ details: { cardType: selected_payment_method.title } });
+    let flatBillingAddress = billing_address
+        ? {
+              ...billing_address,
+              region_code: billing_address.region.code,
+              country: billing_address.country.code
+          }
+        : {};
+    const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
+
+    console.log(`Billing address is `, cartBillingAddress);
     const child = editing ? (
         <EditableForm
             editing={editing}
@@ -51,6 +61,9 @@ const Form = props => {
             setShippingAddress={setShippingAddress}
             shippingAddress={shippingAddress}
             setPaymentData={setPaymentData}
+            setBillingAddress={setBillingAddress}
+            initialPaymentMethod={paymentData}
+            billingAddress={cartBillingAddress}
             {...props}
         />
     ) : (
@@ -60,7 +73,7 @@ const Form = props => {
             setEditing={setEditing}
             shippingAddress={shippingAddress}
             hasShippingAddress={hasShippingAddress}
-            paymentData={paymentData}
+            paymentData={{ details: paymentData.title }}
             hasPaymentMethod={hasPaymentMethod}
         />
     );

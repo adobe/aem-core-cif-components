@@ -24,7 +24,7 @@ const PaymentMethodSummary = props => {
     let primaryDisplay = '';
     let secondaryDisplay = '';
     if (paymentData) {
-        primaryDisplay = paymentData.details.cardType;
+        primaryDisplay = paymentData.details;
         secondaryDisplay = paymentData.description;
     }
 
@@ -46,9 +46,7 @@ PaymentMethodSummary.propTypes = {
     hasPaymentMethod: bool,
     paymentData: shape({
         description: string,
-        details: shape({
-            cardType: string
-        })
+        details: string
     })
 };
 

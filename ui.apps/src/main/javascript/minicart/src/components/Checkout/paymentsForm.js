@@ -35,44 +35,23 @@ const DEFAULT_FORM_VALUES = {
  * the submission state as well as prepare/set initial values.
  */
 const PaymentsForm = props => {
-    const { initialValues, paymentMethods, cancel, countries, cart, submit } = props;
-
+    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, cart, submit } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const [differentAddress, setDifferentAddress] = useState(false);
 
     const anchorRef = useRef(null);
 
-    const handleSubmit = useCallback(
-        formValues => {
-            setIsSubmitting(true);
-            console.log(`Got form values`, formValues);
-            const sameAsShippingAddress = formValues['addresses_same'];
-            let billingAddress;
-            if (!sameAsShippingAddress) {
-                billingAddress = {
-                    city: formValues['city'],
-                    email: formValues['email'],
-                    firstname: formValues['firstname'],
-                    lastname: formValues['lastname'],
-                    postcode: formValues['postcode'],
-                    region_code: formValues['region_code'],
-                    street: formValues['street'],
-                    telephone: formValues['telephone']
-                };
-            } else {
-                billingAddress = {
-                    sameAsShippingAddress
-                };
-            }
+    const paymentMethodsItems = paymentMethods.map(item => {
+        return {
+            label: item.title,
+            value: item.code
+        };
+    });
 
-            submit({
-                paymentMethod,
-                billingAddress
-            });
-        },
-        [setIsSubmitting]
-    );
+    const initialPaymentMethodState = isObjectEmpty(initialPaymentMethod)
+        ? paymentMethodsItems[0].value
+        : initialPaymentMethod.code;
+
+    const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
     if (isObjectEmpty(initialValues)) {
@@ -93,6 +72,39 @@ const PaymentsForm = props => {
             delete initialFormValues.sameAsShippingAddress;
         }
     }
+
+    const [differentAddress, setDifferentAddress] = useState(!initialFormValues.addresses_same);
+
+    const handleSubmit = useCallback(
+        formValues => {
+            setIsSubmitting(true);
+            console.log(`Got form values`, formValues);
+            console.log(`Got payment method`, paymentMethod);
+            const sameAsShippingAddress = formValues['addresses_same'];
+            let billingAddress;
+            if (!sameAsShippingAddress) {
+                billingAddress = {
+                    city: formValues['city'],
+                    email: formValues['email'],
+                    firstname: formValues['firstname'],
+                    lastname: formValues['lastname'],
+                    postcode: formValues['postcode'],
+                    region_code: formValues['region_code'],
+                    street: formValues['street'],
+                    telephone: formValues['telephone']
+                };
+            } else {
+                billingAddress = {
+                    sameAsShippingAddress
+                };
+            }
+            submit({
+                paymentMethod: paymentMethods.find(v => v.code === paymentMethod),
+                billingAddress
+            });
+        },
+        [setIsSubmitting, paymentMethod]
+    );
 
     const billingAddressFields = differentAddress ? (
         <>
@@ -157,14 +169,6 @@ const PaymentsForm = props => {
         }
     }, [differentAddress]);
 
-    const paymentMethodsItems = paymentMethods.map(item => {
-        return {
-            label: item.title,
-            value: item.code
-        };
-    });
-    const [paymentMethod, setPaymentMethod] = useState(paymentMethodsItems[0].value);
-
     return (
         <Form className={classes.root} initialValues={initialFormValues} onSubmit={handleSubmit}>
             <div className={classes.body}>
@@ -173,10 +177,8 @@ const PaymentsForm = props => {
                     <Select
                         items={paymentMethodsItems}
                         field="payment_method"
-                        initialValue={paymentMethodsItems[0]}
-                        onChange={ev => {
-                            setPaymentMethod(ev.target.val);
-                        }}
+                        initialValue={paymentMethod}
+                        handleOnChange={setPaymentMethod}
                         fieldState={{}}
                     />
                 </div>

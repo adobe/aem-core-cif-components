@@ -7,7 +7,7 @@
 
 .body {
     composes: body from './flow.css';
-    height: 15rem;
+    height: 18rem;
 }
 
 .footer {

@@ -37,9 +37,10 @@ const EditableForm = props => {
         submitting,
         setShippingAddress,
         setBillingAddress,
-        setPaymentData: setPaymentMethodData,
+        setPaymentData,
         isAddressInvalid,
         invalidAddressMessage,
+        initialPaymentMethod,
         cart
     } = props;
 
@@ -47,11 +48,11 @@ const EditableForm = props => {
 
     const [setShippingAddressesOnCart, { data, error, loading }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
-    const [setPaymentMethodOnCart, { data: setPaymentData, loading: setPaymentMethodLoading }] = useMutation(
+    const [setPaymentMethodOnCart, { data: paymentResult, loading: setPaymentMethodLoading }] = useMutation(
         MUTATION_SET_PAYMENT_METHOD
     );
 
-    const [setBillingAddressOnCart, { data: setBillingAddressData, loading: setBillingAddressLoading }] = useMutation(
+    const [setBillingAddressOnCart, { data: billingAddressResult, loading: setBillingAddressLoading }] = useMutation(
         MUTATION_SET_BILLING_ADDRESS
     );
 
@@ -92,9 +93,7 @@ const EditableForm = props => {
                 });
             }
 
-            setPaymentMethodOnCart({ variables: { cartId: cart.cartId, paymentMethodCode: args.paymentMethod } });
-
-            setEditing(null);
+            setPaymentMethodOnCart({ variables: { cartId: cart.cartId, paymentMethodCode: args.paymentMethod.code } });
         },
         [setEditing]
     );
@@ -119,15 +118,12 @@ const EditableForm = props => {
         setEditing(null);
     }
 
-    if (setPaymentData) {
-        setPaymentMethodData({
-            details: { cardType: setPaymentData.setPaymentMethodOnCart.cart.selected_payment_method }
+    if (paymentResult && billingAddressResult) {
+        setPaymentData({
+            ...paymentResult.setPaymentMethodOnCart.cart.selected_payment_method
         });
+        setBillingAddress({ ...billingAddressResult.setBillingAddressOnCart.cart.billing_address });
         setEditing(null);
-    }
-
-    if (setBillingAddressData) {
-        setBillingAddress({ ...setBillingAddressData.setBillingAddressOnCart.cart.billing_address });
     }
 
     switch (editing) {
@@ -158,6 +154,7 @@ const EditableForm = props => {
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}
                     paymentMethods={cart.available_payment_methods}
+                    initialPaymentMethod={initialPaymentMethod}
                 />
             );
         }
