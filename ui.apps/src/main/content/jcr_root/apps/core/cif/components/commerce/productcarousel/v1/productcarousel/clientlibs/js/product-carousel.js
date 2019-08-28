@@ -43,8 +43,8 @@
             this._btnNext.addEventListener('click', e => this._goToNextProductCard());
 
             if (this._minPos >= 0) {
-                this._btnNext.style.display = "none"; 
-		this._btnPrev.style.display = "none";
+                this._btnNext.style.display = 'none';
+                this._btnPrev.style.display = 'none';
             } else {
                 this._btnPrev.disabled = true;
             }
