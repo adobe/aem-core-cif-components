@@ -16,6 +16,7 @@ import React, { useState } from 'react';
 import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
+import Receipt from './receipt';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
@@ -26,6 +27,7 @@ const Flow = props => {
     console.log(`This is our cart `, cart);
 
     const [flowState, setFlowState] = useState('cart');
+    const [order, setOrder] = useState({});
 
     const beginCheckout = () => {
         console.log(`Beginning checkout`);
@@ -44,7 +46,11 @@ const Flow = props => {
             break;
         }
         case 'form': {
-            child = <Form cancelCheckout={cancelCheckout} cart={cart} />;
+            child = <Form cancelCheckout={cancelCheckout} cart={{ ...cart, cartId }} receiveOrder={setOrder} />;
+            break;
+        }
+        case 'receipt': {
+            child = <Receipt order={order} />;
             break;
         }
         default: {
