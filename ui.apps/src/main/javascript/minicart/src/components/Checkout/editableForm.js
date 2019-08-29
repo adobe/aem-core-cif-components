@@ -26,7 +26,7 @@ import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
-
+import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
 /**
  * The EditableForm component renders the actual edit forms for the sections
  * within the form.
@@ -65,13 +65,17 @@ const EditableForm = props => {
 
     const [setShippingMethodsOnCart, { data: shippingMethodsResult }] = useMutation(MUTATION_SET_SHIPPING_METHOD);
 
+    const [setGuestEmailOnCart, { data: guestEmailResult }] = useMutation(MUTATION_SET_EMAIL);
+
     const handleCancel = useCallback(() => {
         setEditing(null);
     }, [setEditing]);
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
+            console.log(`Got form values from the address form`, formValues.email);
             setShippingAddressesOnCart({ variables: { cartId: cart.cartId, countryCode: 'US', ...formValues } });
+            setGuestEmailOnCart({ variables: { cartId: cart.cartId, email: formValues.email } });
         },
         [setEditing, setShippingAddressesOnCart]
     );
@@ -114,10 +118,11 @@ const EditableForm = props => {
         [setEditing, submitShippingMethod]
     );
 
-    if (data) {
+    if (data && guestEmailResult) {
         const shippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
         setShippingAddress({
             ...shippingAddress,
+            email: guestEmailResult.setGuestEmailOnCart.cart.email,
             country: shippingAddress.country.code,
             region_code: shippingAddress.region.code
         });
