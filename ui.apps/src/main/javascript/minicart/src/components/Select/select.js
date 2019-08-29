@@ -11,58 +11,55 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { arrayOf, node, number, oneOfType, shape, string, func } from 'prop-types';
+import React, { Component, Fragment } from 'react';
+import { arrayOf, node, number, oneOfType, shape, string } from 'prop-types';
+import { BasicSelect, Option, asField } from 'informed';
 
 import { FieldIcons, Message } from '../Field';
 import classes from './select.css';
 
 import Icon from '../Icon';
 import { ChevronDown as ChevronDownIcon } from 'react-feather';
-import Option from './option';
 
 const arrow = <Icon src={ChevronDownIcon} size={18} />;
 
-const Select = props => {
-    const { fieldState = {}, items, message, handleOnChange, initialValue } = props;
-
-    const options = items.map(item => {
-        return <Option key={item.value} item={item} />;
-    });
-
-    return (
-        <>
-            <FieldIcons after={arrow}>
-                <select
-                    className={classes.input}
-                    defaultValue={initialValue}
-                    onChange={ev => {
-                        handleOnChange(ev.target.value);
-                    }}>
-                    {options}
-                </select>
-            </FieldIcons>
-            <Message fieldState={fieldState}>{message}</Message>
-        </>
-    );
-};
-
-Select.propTypes = {
-    classes: shape({
-        input: string
-    }),
-    field: string.isRequired,
-    fieldState: shape({
-        value: oneOfType([number, string])
-    }),
-    items: arrayOf(
-        shape({
-            label: string,
+class Select extends Component {
+    static propTypes = {
+        classes: shape({
+            input: string
+        }),
+        field: string.isRequired,
+        fieldState: shape({
             value: oneOfType([number, string])
-        })
-    ),
-    message: node,
-    handleOnChange: func
-};
+        }),
+        items: arrayOf(
+            shape({
+                label: string,
+                value: oneOfType([number, string])
+            })
+        ),
+        message: node
+    };
 
-export default Select;
+    render() {
+        const { fieldState, items, message, ...rest } = this.props;
+        const options = items.map(({ label, value }) => (
+            <Option key={value} value={value}>
+                {label || (value != null ? value : '')}
+            </Option>
+        ));
+
+        return (
+            <Fragment>
+                <FieldIcons after={arrow}>
+                    <BasicSelect {...rest} fieldState={fieldState} className={classes.input}>
+                        {options}
+                    </BasicSelect>
+                </FieldIcons>
+                <Message fieldState={fieldState}>{message}</Message>
+            </Fragment>
+        );
+    }
+}
+
+export default asField(Select);
