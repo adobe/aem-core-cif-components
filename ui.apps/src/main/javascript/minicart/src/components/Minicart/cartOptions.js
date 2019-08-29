@@ -28,12 +28,12 @@ import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.g
 const CartOptions = props => {
     const { editItem, handleEndEditing, cartId } = props;
 
-    const { product, quantity } = editItem;
+    const { product, quantity: initialQuantity } = editItem;
     const { name, price: productPrice } = product;
 
     const { value, currency } = productPrice.regularPrice.amount;
 
-    const [newQty, setNewQty] = useState(quantity);
+    const [quantity, setQuantity] = useState(initialQuantity);
 
     const mockQtys = [
         {
@@ -57,8 +57,13 @@ const CartOptions = props => {
     const modalClass = loading ? classes.modal_active : classes.modal;
 
     const handleUpdateClick = () => {
-        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity: newQty } });
+        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } });
         handleEndEditing();
+    };
+
+    const handleOnChange = newVal => {
+        console.log(`Changed to ${newVal}`);
+        setQuantity(parseInt(newVal));
     };
 
     return (
@@ -74,13 +79,7 @@ const CartOptions = props => {
                     <h2 className={classes.quantityTitle}>
                         <span>Quantity</span>
                     </h2>
-                    <Select
-                        fieldState={{}}
-                        initialValue={newQty}
-                        field="quantity"
-                        items={mockQtys}
-                        handleOnChange={setNewQty}
-                    />
+                    <Select field="quantity" initialValue={quantity} onValueChange={handleOnChange} items={mockQtys} />
                 </section>
             </div>
             <div className={classes.save}>
