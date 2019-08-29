@@ -15,7 +15,7 @@ import React, { Fragment } from 'react';
 import { bool, shape, string } from 'prop-types';
 
 const ShippingMethodSummary = props => {
-    const { classes, hasShippingMethod, shippingTitle } = props;
+    const { classes, hasShippingMethod, shippingMethod } = props;
 
     if (!hasShippingMethod) {
         return <span className={classes.informationPrompt}>Specify Shipping Method</span>;
@@ -23,7 +23,7 @@ const ShippingMethodSummary = props => {
 
     return (
         <Fragment>
-            <strong>{shippingTitle}</strong>
+            <strong>{shippingMethod.carrier_title}</strong>
         </Fragment>
     );
 };
@@ -33,7 +33,9 @@ ShippingMethodSummary.propTypes = {
         informationPrompt: string
     }),
     hasShippingMethod: bool,
-    shippingTitle: string
+    shippingMethod: shape({
+        title: string
+    }).isRequired
 };
 
 export default ShippingMethodSummary;

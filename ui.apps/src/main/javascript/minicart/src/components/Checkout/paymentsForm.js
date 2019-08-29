@@ -78,8 +78,6 @@ const PaymentsForm = props => {
     const handleSubmit = useCallback(
         formValues => {
             setIsSubmitting(true);
-            console.log(`Got form values`, formValues);
-            console.log(`Got payment method`, paymentMethod);
             const sameAsShippingAddress = formValues['addresses_same'];
             let billingAddress;
             if (!sameAsShippingAddress) {
@@ -179,7 +177,6 @@ const PaymentsForm = props => {
                         field="payment_method"
                         initialValue={paymentMethod}
                         handleOnChange={setPaymentMethod}
-                        fieldState={{}}
                     />
                 </div>
                 <div className={classes.address_check}>

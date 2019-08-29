@@ -37,7 +37,7 @@ const Overview = props => {
         ready,
         setEditing,
         shippingAddress,
-        shippingTitle,
+        shippingMethod,
         submitOrder,
         submitting
     } = props;
@@ -74,7 +74,7 @@ const Overview = props => {
                     <ShippingMethodSummary
                         classes={classes}
                         hasShippingMethod={hasShippingMethod}
-                        shippingTitle={shippingTitle}
+                        shippingMethod={shippingMethod}
                     />
                 </Section>
                 <Section label="TOTAL">

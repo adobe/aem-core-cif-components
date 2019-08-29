@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React, { useCallback } from 'react';
 import { Form } from 'informed';
-import { array, bool, func, shape, string } from 'prop-types';
+import { array, bool, func, shape, string, object } from 'prop-types';
 
 import Button from '../Button';
 import Select from '../Select';
@@ -31,7 +31,7 @@ const ShippingForm = props => {
             label: carrier_title,
             value: carrier_code
         }));
-        initialValue = shippingMethod || availableShippingMethods[0].carrier_code;
+        initialValue = shippingMethod.carrier_code || availableShippingMethods[0].carrier_code;
     } else {
         selectableShippingMethods = [];
         initialValue = '';
@@ -41,7 +41,7 @@ const ShippingForm = props => {
         ({ shippingMethod }) => {
             console.log(`Got shipping method`, shippingMethod);
             const selectedShippingMethod = availableShippingMethods.find(
-                ({ carrier_code }) => carrier_code === shippingMethod
+                ({ carrier_code }) => carrier_code === shippingMethod.carrier_code
             );
 
             if (!selectedShippingMethod) {
@@ -88,7 +88,7 @@ ShippingForm.propTypes = {
         heading: string,
         shippingMethod: string
     }),
-    shippingMethod: string,
+    shippingMethod: object,
     submit: func.isRequired,
     submitting: bool
 };

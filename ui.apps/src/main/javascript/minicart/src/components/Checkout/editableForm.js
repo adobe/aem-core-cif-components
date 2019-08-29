@@ -25,6 +25,7 @@ import ShippingForm from './shippingForm';
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
+import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 
 /**
  * The EditableForm component renders the actual edit forms for the sections
@@ -44,6 +45,7 @@ const EditableForm = props => {
         invalidAddressMessage,
         initialPaymentMethod,
         shippingAddress,
+        setShippingMethod,
         shippingMethod,
         availableShippingMethods,
         cart
@@ -60,6 +62,8 @@ const EditableForm = props => {
     const [setBillingAddressOnCart, { data: billingAddressResult, loading: setBillingAddressLoading }] = useMutation(
         MUTATION_SET_BILLING_ADDRESS
     );
+
+    const [setShippingMethodsOnCart, { data: shippingMethodsResult }] = useMutation(MUTATION_SET_SHIPPING_METHOD);
 
     const handleCancel = useCallback(() => {
         setEditing(null);
@@ -104,9 +108,8 @@ const EditableForm = props => {
     );
 
     const handleSubmitShippingForm = useCallback(
-        async formValues => {
-            console.log(`Got form values`, formValues);
-            setEditing(null);
+        formValues => {
+            setShippingMethodsOnCart({ variables: { cartId: cart.cartId, ...formValues.shippingMethod } });
         },
         [setEditing, submitShippingMethod]
     );
@@ -126,6 +129,13 @@ const EditableForm = props => {
             ...paymentResult.setPaymentMethodOnCart.cart.selected_payment_method
         });
         setBillingAddress({ ...billingAddressResult.setBillingAddressOnCart.cart.billing_address });
+        setEditing(null);
+    }
+
+    if (shippingMethodsResult) {
+        setShippingMethod(
+            shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses.selected_shipping_methods
+        );
         setEditing(null);
     }
 
@@ -183,7 +193,7 @@ EditableForm.propTypes = {
     editing: oneOf(['address', 'paymentMethod', 'shippingMethod']),
     setEditing: func.isRequired,
     shippingAddress: object,
-    shippingMethod: string,
+    shippingMethod: object,
     submitting: bool,
     isAddressInvalid: bool,
     invalidAddressMessage: string

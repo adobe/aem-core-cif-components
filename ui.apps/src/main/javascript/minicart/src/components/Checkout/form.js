@@ -41,7 +41,6 @@ const Form = props => {
 
     const [shippingAddress, setShippingAddress] = useState(actualAddress);
 
-    console.log(`Got shipping address? `, hasShippingAddress);
     const hasPaymentMethod = selected_payment_method && selected_payment_method.code.length > 0;
     const initialPaymentMethod = hasPaymentMethod ? selected_payment_method : {};
     const [paymentData, setPaymentData] = useState(initialPaymentMethod);
@@ -58,16 +57,19 @@ const Form = props => {
     console.log(`Billing address is `, cartBillingAddress);
 
     let availableShippingMethods;
+    let selectedShippingMethod;
+
     if (!isObjectEmpty(shippingAddress)) {
         availableShippingMethods = shippingAddress.available_shipping_methods;
-        console.log(`Shipping methods found in cart`, availableShippingMethods);
+        selectedShippingMethod = shippingAddress.selected_shipping_method;
+        console.log(`Shipping methods available`, availableShippingMethods);
     } else {
         availableShippingMethods = [];
+        selectedShippingMethod = {};
     }
 
-    const [shippingMethod, setShippingMethod] = useState(
-        availableShippingMethods.length > 0 ? availableShippingMethods[0].carrier_code : ''
-    );
+    const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
+    console.log(`Selected shipping method`, shippingMethod);
 
     const child = editing ? (
         <EditableForm
@@ -92,6 +94,8 @@ const Form = props => {
             hasShippingAddress={!isObjectEmpty(shippingAddress)}
             paymentData={{ details: paymentData.title }}
             hasPaymentMethod={!isObjectEmpty(paymentData)}
+            hasShippingMethod={!isObjectEmpty(shippingMethod)}
+            shippingMethod={shippingMethod}
             {...props}
         />
     );

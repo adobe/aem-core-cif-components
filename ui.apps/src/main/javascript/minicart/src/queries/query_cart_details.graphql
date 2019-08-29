@@ -26,6 +26,12 @@ query cartDetails($cartId: String!) {
                 carrier_code
                 carrier_title
             }
+            selected_shipping_method {
+                carrier_code
+                carrier_title
+                method_code
+                method_title
+            }
         }
         available_payment_methods {
             code
