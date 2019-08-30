@@ -1,5 +1,17 @@
+/*******************************************************************************
+ *
+ *    Copyright 2019 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
 import React from 'react';
-import { act } from 'react-test-renderer';
 import { Form } from 'informed';
 import { createTestInstance } from '@magento/peregrine';
 
@@ -7,10 +19,7 @@ import Checkbox from '../checkbox';
 
 const field = 'a';
 const label = 'b';
-const classes = ['icon', 'input', 'label', 'message', 'root'].reduce(
-    (acc, key) => ({ ...acc, [key]: key }),
-    {}
-);
+const classes = ['icon', 'input', 'label', 'message', 'root'].reduce((acc, key) => ({ ...acc, [key]: key }), {});
 
 const props = { classes, field, label };
 
@@ -33,7 +42,7 @@ test('applies `props.id` to both label and input', () => {
         </Form>
     );
 
-    const labelInstance = root.findByProps({ className: 'root' });
+    const labelInstance = root.findByType('label');
     const checkboxInstance = root.findByProps({ className: 'input' });
 
     expect(checkboxInstance.props.id).toBe(id);
@@ -53,21 +62,4 @@ test('applies `checked` based on `initialValue`', () => {
 
     expect(x.props.checked).toBe(true);
     expect(y.props.checked).toBe(false);
-});
-
-test('renders an error message if it exists', () => {
-    const error = 'error';
-    const { root } = createTestInstance(
-        <Form>
-            <Checkbox {...props} />
-        </Form>
-    );
-
-    act(() => {
-        root.instance.formApi.setError(field, error);
-    });
-
-    const messageInstance = root.findByProps({ children: error });
-
-    expect(messageInstance.props.children).toBe(error);
 });
