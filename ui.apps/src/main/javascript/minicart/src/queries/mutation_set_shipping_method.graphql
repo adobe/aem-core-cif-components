@@ -7,6 +7,8 @@ mutation($cartId: String!, $carrier_code: String!, $method_code: String!) {
                 selected_shipping_method {
                     method_code
                     method_title
+                    carrier_code
+                    carrier_title
                 }
             }
         }

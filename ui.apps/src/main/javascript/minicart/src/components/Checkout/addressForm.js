@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Form } from 'informed';
 import { array, bool, func, object, shape, string } from 'prop-types';
 
@@ -25,7 +25,8 @@ import Field from '../Field';
 const fields = ['city', 'email', 'firstname', 'lastname', 'postcode', 'region_code', 'street', 'telephone'];
 
 const AddressForm = props => {
-    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit, submitting } = props;
+    const [submitting, setIsSubmitting] = useState(false);
+    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
 
     const values = useMemo(
@@ -39,6 +40,7 @@ const AddressForm = props => {
 
     const handleSubmit = useCallback(
         values => {
+            setIsSubmitting(true);
             submit(values);
         },
         [submit]

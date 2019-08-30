@@ -35,7 +35,9 @@ mutation(
             shipping_addresses {
                 available_shipping_methods {
                     carrier_code
+                    carrier_title
                     method_code
+                    method_title
                 }
                 city
                 company

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState, useCallback } from 'react';
-import { shape, string } from 'prop-types';
+import { shape, string, array, object } from 'prop-types';
 
 import Overview from './overview';
 import classes from './form.css';
@@ -24,10 +24,10 @@ import isObjectEmpty from '../../utils/isObjectEmpty';
  * or the editable form based on the 'editing' state value.
  */
 const Form = props => {
-    const {
-        cart: { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined },
-        receiveOrder
-    } = props;
+    const { cart } = props;
+
+    const { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined, email } = cart;
+
     const [editing, setEditing] = useState(null);
 
     const hasShippingAddress =
@@ -35,6 +35,7 @@ const Form = props => {
     const actualAddress = hasShippingAddress
         ? {
               ...shipping_addresses[0],
+              email: email,
               region_code: shipping_addresses[0].region.code,
               country: shipping_addresses[0].country.code
           }
@@ -55,7 +56,6 @@ const Form = props => {
               }
             : {};
     const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
-    console.log(`Billing address is `, cartBillingAddress);
 
     let availableShippingMethods;
     let selectedShippingMethod;
@@ -78,8 +78,6 @@ const Form = props => {
 
     const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
     console.log(`Selected shipping method`, shippingMethod);
-
-    const submitOrder = () => {};
 
     const child = editing ? (
         <EditableForm
@@ -106,7 +104,6 @@ const Form = props => {
             hasPaymentMethod={!isObjectEmpty(paymentData)}
             hasShippingMethod={!isObjectEmpty(shippingMethod)}
             shippingMethod={shippingMethod}
-            submitOrder={submitOrder}
             {...props}
         />
     );
@@ -114,8 +111,11 @@ const Form = props => {
 };
 
 Form.propTypes = {
-    classes: shape({
-        root: string
+    cart: shape({
+        shipping_addresses: array,
+        selected_payment_method: object,
+        billing_address: object,
+        email: string
     })
 };
 

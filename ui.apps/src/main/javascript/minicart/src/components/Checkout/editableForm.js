@@ -16,7 +16,6 @@ import { array, bool, func, object, oneOf, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
 import { useCountries } from '../../utils/hooks';
-import isObjectEmpty from '../../utils/isObjectEmpty';
 
 import AddressForm from './addressForm';
 import PaymentsForm from './paymentsForm';
@@ -53,15 +52,11 @@ const EditableForm = props => {
 
     let countries = useCountries();
 
-    const [setShippingAddressesOnCart, { data, error, loading }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+    const [setShippingAddressesOnCart, { data }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
-    const [setPaymentMethodOnCart, { data: paymentResult, loading: setPaymentMethodLoading }] = useMutation(
-        MUTATION_SET_PAYMENT_METHOD
-    );
+    const [setPaymentMethodOnCart, { data: paymentResult }] = useMutation(MUTATION_SET_PAYMENT_METHOD);
 
-    const [setBillingAddressOnCart, { data: billingAddressResult, loading: setBillingAddressLoading }] = useMutation(
-        MUTATION_SET_BILLING_ADDRESS
-    );
+    const [setBillingAddressOnCart, { data: billingAddressResult }] = useMutation(MUTATION_SET_BILLING_ADDRESS);
 
     const [setShippingMethodsOnCart, { data: shippingMethodsResult }] = useMutation(MUTATION_SET_SHIPPING_METHOD);
 
@@ -115,7 +110,6 @@ const EditableForm = props => {
         formValues => {
             console.log(`Submitting shipping method`, formValues);
             setShippingMethodsOnCart({ variables: { cartId: cart.cartId, ...formValues.shippingMethod } });
-            setEditing(null);
         },
         [setEditing, submitShippingMethod]
     );
@@ -141,14 +135,13 @@ const EditableForm = props => {
 
     if (shippingMethodsResult) {
         setShippingMethod(
-            shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses.selected_shipping_methods
+            shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses[0].selected_shipping_method
         );
+        setEditing(null);
     }
 
     switch (editing) {
         case 'address': {
-            const { shippingAddress } = props;
-
             return (
                 <AddressForm
                     cancel={handleCancel}
