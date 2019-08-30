@@ -113,7 +113,9 @@ const EditableForm = props => {
 
     const handleSubmitShippingForm = useCallback(
         formValues => {
+            console.log(`Submitting shipping method`, formValues);
             setShippingMethodsOnCart({ variables: { cartId: cart.cartId, ...formValues.shippingMethod } });
+            setEditing(null);
         },
         [setEditing, submitShippingMethod]
     );
@@ -141,7 +143,6 @@ const EditableForm = props => {
         setShippingMethod(
             shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses.selected_shipping_methods
         );
-        setEditing(null);
     }
 
     switch (editing) {

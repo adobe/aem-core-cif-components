@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { shape, string } from 'prop-types';
 
 import Overview from './overview';
@@ -25,7 +25,8 @@ import isObjectEmpty from '../../utils/isObjectEmpty';
  */
 const Form = props => {
     const {
-        cart: { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined }
+        cart: { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined },
+        receiveOrder
     } = props;
     const [editing, setEditing] = useState(null);
 
@@ -61,7 +62,14 @@ const Form = props => {
 
     if (!isObjectEmpty(shippingAddress)) {
         availableShippingMethods = shippingAddress.available_shipping_methods;
-        selectedShippingMethod = shippingAddress.selected_shipping_method;
+        if (
+            shippingAddress.selected_shipping_method &&
+            shippingAddress.selected_shipping_method.carrier_code !== null
+        ) {
+            selectedShippingMethod = shippingAddress.selected_shipping_method;
+        } else {
+            selectedShippingMethod = {};
+        }
         console.log(`Shipping methods available`, availableShippingMethods);
     } else {
         availableShippingMethods = [];
@@ -70,6 +78,8 @@ const Form = props => {
 
     const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
     console.log(`Selected shipping method`, shippingMethod);
+
+    const submitOrder = () => {};
 
     const child = editing ? (
         <EditableForm
@@ -96,6 +106,7 @@ const Form = props => {
             hasPaymentMethod={!isObjectEmpty(paymentData)}
             hasShippingMethod={!isObjectEmpty(shippingMethod)}
             shippingMethod={shippingMethod}
+            submitOrder={submitOrder}
             {...props}
         />
     );

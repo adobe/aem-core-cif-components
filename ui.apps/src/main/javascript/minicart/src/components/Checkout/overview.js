@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
 import { bool, func, number, object, shape, string, array } from 'prop-types';
+import { useMutation } from '@apollo/react-hooks';
 
 import PaymentMethodSummary from './paymentMethodSummary';
 import ShippingAddressSummary from './shippingAddressSummary';
@@ -20,6 +21,7 @@ import ShippingMethodSummary from './shippingMethodSummary';
 import Section from './section';
 import Button from '../Button';
 import { Price } from '@magento/peregrine';
+import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -34,13 +36,13 @@ const Overview = props => {
         hasShippingAddress,
         hasShippingMethod,
         paymentData,
-        ready,
         setEditing,
         shippingAddress,
         shippingMethod,
-        submitOrder,
-        submitting
+        receiveOrder
     } = props;
+
+    const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
     const handleAddressFormClick = useCallback(() => {
         setEditing('address');
@@ -53,6 +55,18 @@ const Overview = props => {
     const handleShippingFormClick = useCallback(() => {
         setEditing('shippingMethod');
     }, [setEditing]);
+
+    const ready = hasShippingAddress && hasPaymentMethod && hasShippingMethod;
+
+    const submitOrder = useCallback(() => {
+        placeOrder({ variables: { cartId: cart.cartId } });
+    }, [placeOrder]);
+
+    if (data) {
+        receiveOrder(data.placeOrder.order);
+        setEditing('receipt');
+    }
+
     return (
         <Fragment>
             <div className={classes.body}>
@@ -85,7 +99,7 @@ const Overview = props => {
             </div>
             <div className={classes.footer}>
                 <Button onClick={cancelCheckout}>Back to Cart</Button>
-                <Button priority="high" disabled={submitting || !ready} onClick={submitOrder}>
+                <Button priority="high" disabled={!ready} onClick={submitOrder}>
                     Confirm Order
                 </Button>
             </div>
@@ -113,12 +127,10 @@ Overview.propTypes = {
     hasShippingAddress: bool,
     hasShippingMethod: bool,
     paymentData: object,
-    ready: bool,
     setEditing: func,
     shippingAddress: object,
-    shippingTitle: string,
-    submitOrder: func,
-    submitting: bool
+    shippingMethod: object,
+    receiveOrder: func
 };
 
 export default Overview;

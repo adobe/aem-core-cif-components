@@ -20,7 +20,7 @@ const Container = () => {
     const cartId = useGuestCart();
 
     if (!cartId || cartId.length === 0) {
-        return <p>Loading...</p>;
+        return null;
     }
 
     return <MiniCart cartId={cartId} />;

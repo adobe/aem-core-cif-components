@@ -22,7 +22,6 @@ import classes from './shippingForm.css';
 
 const ShippingForm = props => {
     const { availableShippingMethods, cancel, shippingMethod, submit, submitting } = props;
-    console.log(`Got shipping methods`, availableShippingMethods);
     let initialValue;
     let selectableShippingMethods;
 
@@ -39,9 +38,9 @@ const ShippingForm = props => {
 
     const handleSubmit = useCallback(
         ({ shippingMethod }) => {
-            console.log(`Got shipping method`, shippingMethod);
+            console.log(`Submitted shipping method`, shippingMethod);
             const selectedShippingMethod = availableShippingMethods.find(
-                ({ carrier_code }) => carrier_code === shippingMethod.carrier_code
+                ({ carrier_code }) => carrier_code === shippingMethod
             );
 
             if (!selectedShippingMethod) {
@@ -51,7 +50,6 @@ const ShippingForm = props => {
                 cancel();
                 return;
             }
-
             submit({ shippingMethod: selectedShippingMethod });
         },
         [availableShippingMethods, cancel, submit]

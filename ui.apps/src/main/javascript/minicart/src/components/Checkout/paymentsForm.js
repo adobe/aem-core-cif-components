@@ -77,6 +77,7 @@ const PaymentsForm = props => {
 
     const handleSubmit = useCallback(
         formValues => {
+            console.log(`Payment form values`, formValues);
             setIsSubmitting(true);
             const sameAsShippingAddress = formValues['addresses_same'];
             let billingAddress;
@@ -97,7 +98,7 @@ const PaymentsForm = props => {
                 };
             }
             submit({
-                paymentMethod: paymentMethods.find(v => v.code === paymentMethod),
+                paymentMethod: paymentMethods.find(v => v.code === formValues['payment_method']),
                 billingAddress
             });
         },
@@ -172,12 +173,7 @@ const PaymentsForm = props => {
             <div className={classes.body}>
                 <h2 className={classes.heading}>Billing Information</h2>
                 <div className={classes.braintree}>
-                    <Select
-                        items={paymentMethodsItems}
-                        field="payment_method"
-                        initialValue={paymentMethod}
-                        handleOnChange={setPaymentMethod}
-                    />
+                    <Select items={paymentMethodsItems} field="payment_method" initialValue={paymentMethod} />
                 </div>
                 <div className={classes.address_check}>
                     <Checkbox
