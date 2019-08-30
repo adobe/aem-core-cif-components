@@ -13,13 +13,14 @@
  ******************************************************************************/
 import isObjectEmpty from '../isObjectEmpty';
 
-describe('isObjectEmpty');
-it('returns true for an empty object', () => {
-    const obj = {};
-    expect(isObjectEmpty(obj)).toEqual(true);
-});
+describe('isObjectEmpty', () => {
+    it('returns true for an empty object', () => {
+        const obj = {};
+        expect(isObjectEmpty(obj)).toEqual(true);
+    });
 
-it('returns false for a non-empty object', () => {
-    const obj = { unit: 'test' };
-    expect(isObjectEmpty(obj)).toEqual(false);
+    it('returns false for a non-empty object', () => {
+        const obj = { unit: 'test' };
+        expect(isObjectEmpty(obj)).toEqual(false);
+    });
 });
