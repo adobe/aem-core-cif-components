@@ -34,7 +34,8 @@ const Body = props => {
         beginEditItem,
         editItem,
         handleEndEditing,
-        cartId
+        cartId,
+        closeDrawer
     } = props;
 
     if (isLoading) {
@@ -42,7 +43,7 @@ const Body = props => {
     }
 
     if (isEmpty) {
-        return <EmptyMinicartBody />;
+        return <EmptyMinicartBody closeDrawer={closeDrawer} />;
     }
     if (isEditing) {
         return (

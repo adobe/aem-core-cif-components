@@ -12,19 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Trigger from '../Trigger';
-import classes from './emptyMiniCartBody.css';
+import { func, node } from 'prop-types';
 
-const EmptyMinicartBody = props => {
-    const { closeDrawer } = props;
+import classes from './trigger.css';
+
+const Trigger = props => {
+    const { action, children } = props;
+
     return (
-        <div className={classes.root}>
-            <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
-            <Trigger action={closeDrawer}>
-                <span className={classes.continue}>Continue Shopping</span>
-            </Trigger>
-        </div>
+        <button className={classes.root} type="button" onClick={action}>
+            {children}
+        </button>
     );
 };
 
-export default EmptyMinicartBody;
+Trigger.propTypes = {
+    action: func.isRequired,
+    children: node
+};
+
+export default Trigger;

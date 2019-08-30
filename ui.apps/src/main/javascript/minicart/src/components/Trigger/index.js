@@ -11,20 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import Trigger from '../Trigger';
-import classes from './emptyMiniCartBody.css';
-
-const EmptyMinicartBody = props => {
-    const { closeDrawer } = props;
-    return (
-        <div className={classes.root}>
-            <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
-            <Trigger action={closeDrawer}>
-                <span className={classes.continue}>Continue Shopping</span>
-            </Trigger>
-        </div>
-    );
-};
-
-export default EmptyMinicartBody;
+export { default } from './trigger';
