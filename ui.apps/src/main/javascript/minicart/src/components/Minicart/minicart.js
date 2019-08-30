@@ -108,6 +108,7 @@ const MiniCart = props => {
             <aside className={rootClass}>
                 <Header handleCloseCart={handleCloseCart} />
                 <Body
+                    closeDrawer={handleCloseCart}
                     editItem={editItem}
                     isEmpty={isEmpty}
                     isEditing={isEditing}

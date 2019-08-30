@@ -12,19 +12,29 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Trigger from '../Trigger';
-import classes from './emptyMiniCartBody.css';
+import ShallowRenderer from 'react-test-renderer/shallow';
 
-const EmptyMinicartBody = props => {
-    const { closeDrawer } = props;
-    return (
-        <div className={classes.root}>
-            <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
-            <Trigger action={closeDrawer}>
-                <span className={classes.continue}>Continue Shopping</span>
-            </Trigger>
-        </div>
-    );
+import Trigger from '../trigger';
+
+const renderer = new ShallowRenderer();
+
+const baseProps = {
+    action: jest.fn()
 };
 
-export default EmptyMinicartBody;
+test('renders the correct tree', () => {
+    const tree = renderer.render(<Trigger {...baseProps} />);
+
+    expect(tree).toMatchSnapshot();
+});
+
+test('renders children when supplied', () => {
+    const props = {
+        ...baseProps,
+        children: ['Unit test child element']
+    };
+
+    const tree = renderer.render(<Trigger {...props} />);
+
+    expect(tree).toMatchSnapshot();
+});
