@@ -21,7 +21,7 @@ import Cart from './components/Minicart';
 
 const App = () => {
     const client = new ApolloClient({
-        uri: process.env.MAGENTO_GRAPHQL_ENDPOINT
+        uri: '/magento/graphql'
     });
 
     return (
