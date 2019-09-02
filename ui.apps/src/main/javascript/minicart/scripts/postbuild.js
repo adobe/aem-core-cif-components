@@ -12,26 +12,9 @@
  *
  ******************************************************************************/
 
-const path = require('path');
-const fs = require('fs');
 const { exec } = require('child_process');
 
 const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib';
-const SRC_PATH = path.resolve('.', 'dist');
-const FILE_NAME = 'index';
-
-const copySource = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js`, `${CLIENTLIB_PATH}/dist/${FILE_NAME}.js`, err => {
-    if (err) {
-        throw err;
-    }
-    console.error(`Output copied to ${CLIENTLIB_PATH}`);
-});
-const copyMap = fs.copyFile(`${SRC_PATH}/${FILE_NAME}.js.map`, `${CLIENTLIB_PATH}/dist/${FILE_NAME}.js.map`, err => {
-    if (err) {
-        throw err;
-    }
-    console.error(`Output copied to ${CLIENTLIB_PATH}`);
-});
 
 exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
     if (err) {

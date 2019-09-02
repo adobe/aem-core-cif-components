@@ -1,3 +1,4 @@
 *.min.js
 *.min-latest.js
 **/dist/*.js
+**/node/*
