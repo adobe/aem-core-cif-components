@@ -11,13 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, {
-    Fragment,
-    useCallback,
-    useEffect,
-    useRef,
-    useState
-} from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useFormState } from 'informed';
 import { array, bool, func, shape, string } from 'prop-types';
 
@@ -26,12 +20,7 @@ import Button from '../Button';
 import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
-import {
-    isRequired,
-    hasLengthExactly,
-    validateRegionCode,
-    validateEmail
-} from '../../util/formValidators';
+import { isRequired, hasLengthExactly, validateRegionCode, validateEmail } from '../../util/formValidators';
 import combine from '../../util/combineValidators';
 
 /**
@@ -41,14 +30,7 @@ import combine from '../../util/combineValidators';
 const PaymentsFormItems = props => {
     const [isReady, setIsReady] = useState(false);
 
-    const {
-        cancel,
-        classes,
-        countries,
-        isSubmitting,
-        setIsSubmitting,
-        submit: submitPaymentData
-    } = props;
+    const { cancel, classes, countries, isSubmitting, setIsSubmitting, submit: submitPaymentData } = props;
 
     // Currently form state toggles dirty from false to true because of how
     // informed is implemented. This effectively causes this child components
@@ -64,47 +46,27 @@ const PaymentsFormItems = props => {
         <Fragment>
             <div className={classes.firstname}>
                 <Field label="First Name">
-                    <TextInput
-                        id={classes.firstname}
-                        field="firstname"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.firstname} field="firstname" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.lastname}>
                 <Field label="Last Name">
-                    <TextInput
-                        id={classes.lastname}
-                        field="lastname"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.email}>
                 <Field label="Email">
-                    <TextInput
-                        id={classes.email}
-                        field="email"
-                        validate={combine([isRequired, validateEmail])}
-                    />
+                    <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
                 </Field>
             </div>
             <div className={classes.street0}>
                 <Field label="Street">
-                    <TextInput
-                        id={classes.street0}
-                        field="street[0]"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.street0} field="street[0]" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.city}>
                 <Field label="City">
-                    <TextInput
-                        id={classes.city}
-                        field="city"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.city} field="city" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.region_code}>
@@ -112,30 +74,18 @@ const PaymentsFormItems = props => {
                     <TextInput
                         id={classes.region_code}
                         field="region_code"
-                        validate={combine([
-                            isRequired,
-                            [hasLengthExactly, 2],
-                            [validateRegionCode, countries]
-                        ])}
+                        validate={combine([isRequired, [hasLengthExactly, 2], [validateRegionCode, countries]])}
                     />
                 </Field>
             </div>
             <div className={classes.postcode}>
                 <Field label="ZIP">
-                    <TextInput
-                        id={classes.postcode}
-                        field="postcode"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.postcode} field="postcode" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.telephone}>
                 <Field label="Phone">
-                    <TextInput
-                        id={classes.telephone}
-                        field="telephone"
-                        validate={isRequired}
-                    />
+                    <TextInput id={classes.telephone} field="telephone" validate={isRequired} />
                 </Field>
             </div>
             <span ref={anchorRef} />
@@ -208,10 +158,7 @@ const PaymentsFormItems = props => {
                     />
                 </div>
                 <div className={classes.address_check}>
-                    <Checkbox
-                        field="addresses_same"
-                        label="Billing address same as shipping address"
-                    />
+                    <Checkbox field="addresses_same" label="Billing address same as shipping address" />
                 </div>
                 {billingAddressFields}
             </div>
@@ -219,12 +166,7 @@ const PaymentsFormItems = props => {
                 <Button className={classes.button} onClick={cancel}>
                     Cancel
                 </Button>
-                <Button
-                    className={classes.button}
-                    priority="high"
-                    type="submit"
-                    disabled={!isReady || isSubmitting}
-                >
+                <Button className={classes.button} priority="high" type="submit" disabled={!isReady || isSubmitting}>
                     Use Card
                 </Button>
             </div>
