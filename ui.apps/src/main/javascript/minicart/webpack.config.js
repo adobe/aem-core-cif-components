@@ -15,10 +15,12 @@ const path = require('path');
 const Dotenv = require('dotenv-webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
+const target = `${__dirname}/../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist`;
+
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: `${target}`,
         filename: 'index.js'
     },
 
