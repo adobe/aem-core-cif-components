@@ -13,9 +13,9 @@
  ******************************************************************************/
 // eslint-disable-next-line no-undef
 module.exports = {
-    collectCoverageFrom: ['lib/*.js', '!**/node_modules/**'],
+    collectCoverage: true,
     coverageDirectory: '<rootDir>/coverage',
-    coverageReporters: ['json'],
+    coverageReporters: ['json', 'lcov'],
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
     transform: {

@@ -2,3 +2,4 @@
 *.min-latest.js
 **/dist/*.js
 **/node/*
+**/coverage/*
