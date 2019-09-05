@@ -11,10 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
@@ -46,7 +51,7 @@ import static org.mockito.Mockito.when;
 public class FeaturedCateogoryListImplTest {
 
     private GraphqlClient graphqlClient;
-    private FeaturedCateogoryListImpl slingModel;
+    private FeaturedCategoryListImpl slingModel;
     private Query rootQuery;
     private List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
     private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
@@ -85,7 +90,7 @@ public class FeaturedCateogoryListImplTest {
         when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn((GraphqlResponse) response);
         when(response.getData()).thenReturn(rootQuery);
-        slingModel = request.adaptTo(FeaturedCateogoryListImpl.class);
+        slingModel = request.adaptTo(FeaturedCategoryListImpl.class);
     }
 
     @Test

@@ -32,11 +32,13 @@ public class ProductListItemImpl implements ProductListItem {
     private final String imageURL;
     private final Double price;
     private final String currency;
+    private final String activeVariantSku;
 
     private NumberFormat priceFormatter;
     private Page productPage;
 
-    public ProductListItemImpl(String sku, String slug, String name, Double price, String currency, String imageURL, Page productPage) {
+    public ProductListItemImpl(String sku, String slug, String name, Double price, String currency, String imageURL, Page productPage,
+                               String activeVariantSku) {
         this.sku = sku;
         this.slug = slug;
         this.name = name;
@@ -44,12 +46,13 @@ public class ProductListItemImpl implements ProductListItem {
         this.price = price;
         this.currency = currency;
         this.productPage = productPage;
+        this.activeVariantSku = activeVariantSku;
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
         // the storeConfig query introduced with Magento 2.3.1
-        final Locale locale = this.productPage.getLanguage(false);
-        this.priceFormatter = Utils.buildPriceFormatter(locale, this.getCurrency());
+        Locale locale = productPage.getLanguage(false);
+        this.priceFormatter = Utils.buildPriceFormatter(locale, currency);
     }
 
     @Override
@@ -71,7 +74,7 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return SiteNavigation.toProductUrl(productPage.getPath(), this.getSlug());
+        return SiteNavigation.toProductUrl(productPage.getPath(), this.getSlug(), activeVariantSku);
     }
 
     @Nullable

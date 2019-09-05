@@ -12,26 +12,19 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.productcarousel;
+package com.adobe.cq.commerce.core.components.internal.servlets;
 
-import java.util.List;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import javax.annotation.Nonnull;
+@ObjectClassDefinition(name = "CIF Page Filter Configuration Factory")
+public @interface SpecificPageFilterConfiguration {
 
-import org.osgi.annotation.versioning.ProviderType;
-
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
-
-@ProviderType
-public interface ProductCarousel {
-
-    /**
-     * returns the product list for Product Carousel
-     * 
-     * @return {@link List} of {@link ProductListItem}s
-     */
-    @Nonnull
-    default List<ProductListItem> getProducts() {
-        throw new UnsupportedOperationException();
-    }
+    @AttributeDefinition(
+        name = "Filter pattern",
+        description = "Regex pattern to filter incoming HTTP requests",
+        type = AttributeType.STRING,
+        required = true)
+    String sling_filter_pattern();
 }
