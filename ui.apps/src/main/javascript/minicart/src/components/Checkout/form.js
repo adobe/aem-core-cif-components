@@ -70,14 +70,12 @@ const Form = props => {
         } else {
             selectedShippingMethod = {};
         }
-        console.log(`Shipping methods available`, availableShippingMethods);
     } else {
         availableShippingMethods = [];
         selectedShippingMethod = {};
     }
 
     const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
-    console.log(`Selected shipping method`, shippingMethod);
 
     const child = editing ? (
         <EditableForm

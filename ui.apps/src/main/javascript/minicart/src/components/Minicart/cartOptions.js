@@ -62,7 +62,6 @@ const CartOptions = props => {
     };
 
     const handleOnChange = newVal => {
-        console.log(`Changed to ${newVal}`);
         setQuantity(parseInt(newVal));
     };
 

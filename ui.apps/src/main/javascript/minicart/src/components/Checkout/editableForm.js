@@ -77,10 +77,8 @@ const EditableForm = props => {
 
     const handleSubmitPaymentsForm = useCallback(
         args => {
-            console.log(`Got arguments`, args);
             if (args.billingAddress.sameAsShippingAddress) {
                 const { shippingAddress } = props;
-                console.log(`Already got shipping address`, shippingAddress);
                 if (shippingAddress) {
                     setBillingAddressOnCart({
                         variables: {
@@ -108,7 +106,6 @@ const EditableForm = props => {
 
     const handleSubmitShippingForm = useCallback(
         formValues => {
-            console.log(`Submitting shipping method`, formValues);
             setShippingMethodsOnCart({ variables: { cartId: cart.cartId, ...formValues.shippingMethod } });
         },
         [setEditing, submitShippingMethod]
