@@ -23,8 +23,8 @@ const Receipt = props => {
             <div className={classes.body}>
                 <h2 className={classes.header}>Thank you for your purchase!</h2>
                 <div className={classes.textBlock}>
-                    The order number is {order.id}. You will receive an order confirmation email with order status and
-                    other details.
+                    The order number is {order.order_id}. You will receive an order confirmation email with order status
+                    and other details.
                 </div>
             </div>
         </div>

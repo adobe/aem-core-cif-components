@@ -39,14 +39,21 @@ const Flow = props => {
         setFlowState('cart');
     };
 
+    const orderCreated = order => {
+        console.log('Order created');
+        setOrder(order);
+        setFlowState('receipt');
+    };
+
     let child;
+
     switch (flowState) {
         case 'cart': {
             child = <Cart beginCheckout={beginCheckout} ready={isCartReady(cart)} submitting={false} />;
             break;
         }
         case 'form': {
-            child = <Form cancelCheckout={cancelCheckout} cart={{ ...cart, cartId }} receiveOrder={setOrder} />;
+            child = <Form cancelCheckout={cancelCheckout} cart={{ ...cart, cartId }} receiveOrder={orderCreated} />;
             break;
         }
         case 'receipt': {
