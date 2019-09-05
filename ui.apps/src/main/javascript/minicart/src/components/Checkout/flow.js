@@ -23,7 +23,7 @@ const isCartReady = cart => {
 };
 
 const Flow = props => {
-    const { cart, cartId } = props;
+    const { cart, cartId, handleCloseCart } = props;
     console.log(`This is our cart `, cart);
 
     const [flowState, setFlowState] = useState('cart');
@@ -57,7 +57,7 @@ const Flow = props => {
             break;
         }
         case 'receipt': {
-            child = <Receipt order={order} />;
+            child = <Receipt order={order} handleCloseCart={handleCloseCart} />;
             break;
         }
         default: {

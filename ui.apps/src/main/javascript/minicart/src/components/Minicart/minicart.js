@@ -98,7 +98,9 @@ const MiniCart = props => {
     if (data && data.cart) {
         currencyCode = getCurrencyCode(data.cart);
         cartQuantity = data.cart.items.length;
-        footer = showFooter ? <Footer isOpen={isOpen} cart={data.cart} cartId={cartId} /> : null;
+        footer = showFooter ? (
+            <Footer isOpen={isOpen} cart={data.cart} cartId={cartId} handleCloseCart={handleCloseCart} />
+        ) : null;
     }
 
     return (

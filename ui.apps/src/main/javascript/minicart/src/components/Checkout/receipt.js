@@ -12,11 +12,12 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { shape, string } from 'prop-types';
+import { func, shape, string } from 'prop-types';
 import classes from './receipt.css';
+import Trigger from '../Trigger';
 
 const Receipt = props => {
-    const { order } = props;
+    const { order, handleCloseCart } = props;
 
     return (
         <div className={classes.root}>
@@ -26,6 +27,9 @@ const Receipt = props => {
                     The order number is {order.order_id}. You will receive an order confirmation email with order status
                     and other details.
                 </div>
+                <Trigger action={handleCloseCart}>
+                    <span className={classes.continue}>Continue Shopping</span>
+                </Trigger>
             </div>
         </div>
     );
@@ -35,6 +39,7 @@ Receipt.propTypes = {
     order: shape({
         order_id: string
     }).isRequired,
+    handleCloseCart: func.isRequired,
     createAccount: () => {}
 };
 
