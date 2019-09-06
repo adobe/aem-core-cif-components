@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
 
@@ -34,17 +34,20 @@ export const useCookieValue = cookieName => {
         return '';
     }
 
-    if (checkCookie(cookieName)) {
-        const cifCartCookie = cookieValue(cookieName);
-        return cifCartCookie;
-    } else {
-        return '';
-    }
+    let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
+
+    const setCookieValue = (value, age) => {
+        const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
+        document.cookie = `${cookieName}=${value};${cookieSettings}`;
+    };
+
+    return [value, setCookieValue];
 };
 
 export const useGuestCart = () => {
     const cookieName = 'cif.cart';
-    let cartId = useCookieValue(cookieName);
+    const [reset, doReset] = useState(false);
+    let [cartId, setCartCookie] = useCookieValue(cookieName);
     const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
 
     useEffect(() => {
@@ -53,11 +56,17 @@ export const useGuestCart = () => {
 
             if (data) {
                 cartId = data.createEmptyCart;
-                document.cookie = `${cookieName}=${data.createEmptyCart};path=/`;
+                setCartCookie(cartId);
             }
         }
     });
-    return cartId;
+
+    const resetGuestCart = useCallback(() => {
+        setCartCookie('', 0);
+        doReset(!reset);
+    });
+
+    return [cartId, resetGuestCart];
 };
 
 export const useCountries = () => {

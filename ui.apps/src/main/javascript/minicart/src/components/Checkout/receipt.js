@@ -17,7 +17,12 @@ import classes from './receipt.css';
 import Trigger from '../Trigger';
 
 const Receipt = props => {
-    const { order, handleCloseCart } = props;
+    const { order, handleCloseCart, handleResetCart } = props;
+
+    const continueShopping = () => {
+        handleResetCart();
+        handleCloseCart();
+    };
 
     return (
         <div className={classes.root}>
@@ -27,7 +32,7 @@ const Receipt = props => {
                     The order number is {order.order_id}. You will receive an order confirmation email with order status
                     and other details.
                 </div>
-                <Trigger action={handleCloseCart}>
+                <Trigger action={continueShopping}>
                     <span className={classes.continue}>Continue Shopping</span>
                 </Trigger>
             </div>

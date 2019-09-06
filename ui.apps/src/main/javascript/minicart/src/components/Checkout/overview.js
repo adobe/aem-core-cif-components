@@ -62,6 +62,10 @@ const Overview = props => {
         placeOrder({ variables: { cartId: cart.cartId } });
     }, [placeOrder]);
 
+    if (error) {
+        console.error(error);
+    }
+
     if (data) {
         receiveOrder(data.placeOrder.order);
         setEditing('receipt');

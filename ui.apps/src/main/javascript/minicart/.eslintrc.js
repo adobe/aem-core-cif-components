@@ -30,7 +30,6 @@ module.exports = {
     globals: {
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
-
         process: true
     },
     parserOptions: {
@@ -42,10 +41,9 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header', 'jest'],
     rules: {
-        'no-console': 'error',
+        'no-console': 'warn',
         'no-undef': 'error',
         'no-unused-vars': 'warn',
-        'no-console': 'off',
         'header/header': [2, 'block', headerBlock],
         'no-var': 'error',
         'one-var': ['error', 'never'],

@@ -31,7 +31,7 @@ import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import CartTrigger from '../CartTrigger';
 
 const MiniCart = props => {
-    const { cartId } = props;
+    const { cartId, resetCart } = props;
 
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -71,6 +71,11 @@ const MiniCart = props => {
         setIsOpen(false);
     });
 
+    const handleResetCart = useCallback(() => {
+        resetCart();
+        handleCloseCart();
+    });
+
     const handleBeginEditing = useCallback(item => {
         setIsEditing(true);
         setEditItem(item);
@@ -99,7 +104,13 @@ const MiniCart = props => {
         currencyCode = getCurrencyCode(data.cart);
         cartQuantity = data.cart.items.length;
         footer = showFooter ? (
-            <Footer isOpen={isOpen} cart={data.cart} cartId={cartId} handleCloseCart={handleCloseCart} />
+            <Footer
+                isOpen={isOpen}
+                cart={data.cart}
+                cartId={cartId}
+                handleCloseCart={handleCloseCart}
+                handleResetCart={handleResetCart}
+            />
         ) : null;
     }
 
