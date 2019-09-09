@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Cart /> renders a disabled checkout button 1`] = `
+<div
+  className="root"
+>
+  <CheckoutButton
+    disabled={true}
+    onClick={[MockFunction]}
+  />
+</div>
+`;
+
+exports[`<Cart /> renders the checkout button 1`] = `
+<div
+  className="root"
+>
+  <CheckoutButton
+    disabled={false}
+    onClick={[MockFunction]}
+  />
+</div>
+`;

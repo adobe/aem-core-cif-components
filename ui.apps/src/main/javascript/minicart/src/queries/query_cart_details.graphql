@@ -1,0 +1,79 @@
+query cartDetails($cartId: String!) {
+    cart(cart_id: $cartId) {
+        prices {
+            grand_total {
+                currency
+                value
+            }
+        }
+        email
+        shipping_addresses {
+            city
+            company
+            country {
+                code
+            }
+            firstname
+            lastname
+            postcode
+            region {
+                code
+            }
+            street
+            telephone
+            available_shipping_methods {
+                method_code
+                method_title
+                carrier_code
+                carrier_title
+            }
+            selected_shipping_method {
+                carrier_code
+                carrier_title
+                method_code
+                method_title
+            }
+        }
+        available_payment_methods {
+            code
+            title
+        }
+        selected_payment_method {
+            code
+            title
+        }
+        billing_address {
+            city
+            country {
+                code
+            }
+            lastname
+            firstname
+            region {
+                code
+            }
+            street
+            postcode
+            telephone
+        }
+
+        items {
+            id
+            quantity
+            product {
+                name
+                price {
+                    regularPrice {
+                        amount {
+                            currency
+                            value
+                        }
+                    }
+                }
+                thumbnail {
+                    url
+                }
+            }
+        }
+    }
+}

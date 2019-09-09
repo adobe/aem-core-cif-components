@@ -1,0 +1,9 @@
+query {
+    countries {
+        id
+        available_regions {
+            name
+            code
+        }
+    }
+}

@@ -41,9 +41,13 @@ hs_err_pid*
 *.ipr
 *.iws
 
+# Javascript things
 **/node_modules/**
 **/karma-junit/**
 **/coverage/**
 
-**/dist/index.js
-**/dist/index.js.map
+**/dist
+**/dist
+
+yarn-error.log
+.env

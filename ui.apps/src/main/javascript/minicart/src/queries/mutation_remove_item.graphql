@@ -1,0 +1,9 @@
+mutation($cartId: String!, $itemId: Int!) {
+    removeItemFromCart(input: { cart_id: $cartId, cart_item_id: $itemId }) {
+        cart {
+            items {
+                id
+            }
+        }
+    }
+}

@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Product /> renders the component 1`] = `
+<li
+  className="root"
+>
+  <img
+    alt="nodejs"
+    className="image"
+    placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="
+    src="/media/catalog/product/some/url?auto=webp&format=pjpg&width=80&height=100"
+  />
+  <div
+    className="name"
+  >
+    nodejs
+  </div>
+  <div
+    className="quantity"
+  >
+    <div
+      className="quantityRow"
+    >
+      <span>
+        2
+      </span>
+      <span
+        className="quantityOperator"
+      >
+        ×
+      </span>
+      <span
+        className="price"
+      >
+        <Price
+          classes={Object {}}
+          currencyCode="USD"
+          value={22}
+        />
+      </span>
+    </div>
+  </div>
+  <Kebab>
+    <Section
+      icon="Edit2"
+      onClick={[Function]}
+      text="Edit item"
+    />
+    <Section
+      icon="Trash"
+      onClick={[Function]}
+      text="Remove item"
+    />
+  </Kebab>
+</li>
+`;

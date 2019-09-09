@@ -111,16 +111,17 @@ describe('Product', () => {
             assert.isFalse(addToCartRoot.disabled);
         });
 
-        it('adds a product to the cart on click', () => {
+        it('dispatches an event on click', () => {
             let spy = sinon.spy();
-            window.CIF = {
-                MiniCart: {
-                    addItem: spy
-                }
-            };
+            let _originalDispatch = document.dispatchEvent;
+            document.dispatchEvent = spy;
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
+            assert.equal(spy.getCall(0).args[0].detail.sku, addToCart._state.sku);
+            assert.equal(spy.getCall(0).args[0].detail.quantity, 5);
+            document.dispatchEvent = _originalDispatch;
         });
     });
 });
