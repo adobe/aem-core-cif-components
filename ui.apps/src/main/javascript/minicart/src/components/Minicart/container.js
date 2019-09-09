@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import MiniCart from './minicart';
 
 import { useGuestCart } from '../../utils/hooks';

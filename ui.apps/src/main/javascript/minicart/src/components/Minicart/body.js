@@ -90,5 +90,6 @@ Body.propTypes = {
     removeItemFromCart: func.isRequired,
     beginEditItem: func.isRequired,
     handleEndEditing: func.isRequired,
-    cartId: string
+    cartId: string,
+    closeDrawer: func.isRequired
 };

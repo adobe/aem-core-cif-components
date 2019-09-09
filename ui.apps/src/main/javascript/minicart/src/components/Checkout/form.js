@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { shape, string, array, object } from 'prop-types';
 
 import Overview from './overview';

@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { func } from 'prop-types';
 import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
 
@@ -25,6 +26,10 @@ const EmptyMinicartBody = props => {
             </Trigger>
         </div>
     );
+};
+
+EmptyMinicartBody.propTypes = {
+    closeDrawer: func.isRequired
 };
 
 export default EmptyMinicartBody;

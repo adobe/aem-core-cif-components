@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form } from 'informed';
-import { array, bool, shape, string } from 'prop-types';
+import { array, bool, shape, string, func } from 'prop-types';
 
 import Button from '../Button';
 import Select from '../Select';
@@ -35,7 +35,7 @@ const DEFAULT_FORM_VALUES = {
  * the submission state as well as prepare/set initial values.
  */
 const PaymentsForm = props => {
-    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, cart, submit } = props;
+    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, submit } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const anchorRef = useRef(null);
@@ -51,7 +51,7 @@ const PaymentsForm = props => {
         ? paymentMethodsItems[0].value
         : initialPaymentMethod.code;
 
-    const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethodState);
+    const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
     if (isObjectEmpty(initialValues)) {
@@ -77,7 +77,6 @@ const PaymentsForm = props => {
 
     const handleSubmit = useCallback(
         formValues => {
-            console.log(`Payment form values`, formValues);
             setIsSubmitting(true);
             const sameAsShippingAddress = formValues['addresses_same'];
             let billingAddress;
@@ -211,7 +210,14 @@ PaymentsForm.propTypes = {
         region_code: string,
         sameAsShippingAddress: bool,
         street0: array
-    })
+    }),
+    cancel: func.isRequired,
+    submit: func.isRequired,
+    initialPaymentMethod: shape({
+        code: string
+    }),
+    paymentMethods: array.isRequired,
+    countries: array
 };
 
 PaymentsForm.defaultProps = {

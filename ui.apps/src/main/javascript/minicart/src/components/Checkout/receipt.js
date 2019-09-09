@@ -45,7 +45,7 @@ Receipt.propTypes = {
         order_id: string
     }).isRequired,
     handleCloseCart: func.isRequired,
-    createAccount: () => {}
+    handleResetCart: func.isRequired
 };
 
 export default Receipt;

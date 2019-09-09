@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { oneOf, shape, string, node } from 'prop-types';
+import { oneOf, node } from 'prop-types';
 
 import classes from './button.css';
 

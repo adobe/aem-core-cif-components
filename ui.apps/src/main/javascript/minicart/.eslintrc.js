@@ -41,14 +41,14 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header', 'jest'],
     rules: {
-        'no-console': 'warn',
+        'no-console': ['warn', { allow: ['error', 'warn'] }],
         'no-undef': 'error',
         'no-unused-vars': 'warn',
         'header/header': [2, 'block', headerBlock],
         'no-var': 'error',
         'one-var': ['error', 'never'],
         // override the default which is more restrictive
-        'react/prop-types': 'warn',
+        'react/prop-types': ['warn', { ignore: ['children'] }],
         strict: ['error', 'global']
     }
 };

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
-
+import { func, shape, string, array } from 'prop-types';
 import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
@@ -24,23 +24,19 @@ const isCartReady = cart => {
 
 const Flow = props => {
     const { cart, cartId, handleCloseCart, handleResetCart } = props;
-    console.log(`This is our cart `, cart);
 
     const [flowState, setFlowState] = useState('cart');
     const [order, setOrder] = useState({});
 
     const beginCheckout = () => {
-        console.log(`Beginning checkout`);
         setFlowState('form');
     };
 
     const cancelCheckout = () => {
-        console.log('Cancelling checkout');
         setFlowState('cart');
     };
 
     const orderCreated = order => {
-        console.log('Order created');
         setOrder(order);
         setFlowState('receipt');
     };
@@ -73,6 +69,16 @@ const Flow = props => {
     }
 
     return <div className={classes.root}>{child}</div>;
+};
+
+Flow.propTypes = {
+    handleCloseCart: func,
+    handleResetCart: func,
+    cart: shape({
+        shipping_addresses: array,
+        email: string
+    }),
+    cartId: string.isRequired
 };
 
 export default Flow;
