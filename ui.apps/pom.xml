@@ -138,7 +138,7 @@
                         <dependency>
                             <group>day/cq60/product</group>
                             <name>cif-connector-content</name>
-                            <version>0.1.1</version>
+                            <version>0.2.1</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -236,7 +236,7 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>cif-connector-content</artifactId>
-            <version>0.1.1</version>
+            <version>0.2.1</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
