@@ -38,7 +38,6 @@ const ShippingForm = props => {
 
     const handleSubmit = useCallback(
         ({ shippingMethod }) => {
-            console.log(`Submitted shipping method`, shippingMethod);
             const selectedShippingMethod = availableShippingMethods.find(
                 ({ carrier_code }) => carrier_code === shippingMethod
             );

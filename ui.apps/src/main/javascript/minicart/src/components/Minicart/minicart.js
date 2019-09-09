@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState, useCallback } from 'react';
-import { string } from 'prop-types';
+import { string, func } from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -47,7 +47,7 @@ const MiniCart = props => {
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
 
     if (error) {
-        console.log(`Error loading cart`, error);
+        console.error(`Error loading cart`, error);
     }
 
     const openCart = () => {
@@ -140,7 +140,8 @@ const MiniCart = props => {
 };
 
 MiniCart.propTypes = {
-    cartId: string.isRequired
+    cartId: string.isRequired,
+    resetCart: func.isRequired
 };
 
 export default MiniCart;

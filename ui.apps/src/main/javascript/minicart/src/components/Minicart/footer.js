@@ -12,9 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { Lock as LockIcon } from 'react-feather';
-import { object, func, bool } from 'prop-types';
-import Button from '../Button';
+import { object, func, bool, string } from 'prop-types';
 import Checkout from '../Checkout';
 import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
@@ -24,16 +22,6 @@ const Footer = props => {
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
     const { currency, value: totalPrice } = cart.prices.grand_total;
-
-    const placeholderButton = () => {
-        return (
-            <div className={classes.placeholderButton}>
-                <Button priority="high">
-                    Checkout <LockIcon />
-                </Button>
-            </div>
-        );
-    };
 
     return (
         <div className={footerClassName}>
@@ -50,7 +38,9 @@ const Footer = props => {
 
 Footer.propTypes = {
     cart: object.isRequired,
+    cartId: string.isRequired,
     handleCloseCart: func.isRequired,
+    handleResetCart: func.isRequired,
     isOpen: bool
 };
 export default Footer;

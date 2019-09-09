@@ -68,7 +68,6 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
-            console.log(`Got form values from the address form`, formValues.email);
             setShippingAddressesOnCart({ variables: { cartId: cart.cartId, countryCode: 'US', ...formValues } });
             setGuestEmailOnCart({ variables: { cartId: cart.cartId, email: formValues.email } });
         },

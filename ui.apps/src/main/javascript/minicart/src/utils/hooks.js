@@ -70,7 +70,7 @@ export const useGuestCart = () => {
 };
 
 export const useCountries = () => {
-    const { data, loading, error } = useQuery(QUERY_COUNTRIES);
+    const { data } = useQuery(QUERY_COUNTRIES);
     if (!data && !data.countries) {
         return [];
     }
