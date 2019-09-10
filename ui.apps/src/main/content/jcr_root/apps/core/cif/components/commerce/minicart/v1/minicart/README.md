@@ -16,6 +16,10 @@ This AEM component only renders a container `div` for the [React component](../.
 
 ## Using the MiniCart
 
+### URL routing
+
+This component requires the [AEM Dispatcher with GraphQL routing](../../../../../../../../../../../../../../../dispatcher) set up. By default Magento GraphQL endpoint will be accessed via relative URL `/magento/graphql`.
+
 ### Adding a product to cart
 
 You can add a new product to the cart by triggering the `aem.cif.add-to-cart` DOM event, like in the following example
