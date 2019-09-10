@@ -12,26 +12,21 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
 import CheckoutButton from '../checkoutButton';
-import Button from '../../Button';
-import { shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
 
-jest.mock('react-feather');
 describe('<CheckoutButton />', () => {
     it('renders the checkout button', () => {
         const mockOnClick = jest.fn(() => {});
-
-        const wrapper = shallow(<CheckoutButton disabled={false} onClick={mockOnClick} />);
-
-        expect(toJson(wrapper.find(Button))).toMatchSnapshot();
+        const { asFragment } = render(<CheckoutButton disabled={false} onClick={mockOnClick} />);
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('calls the onclick handler', () => {
         const mockOnClick = jest.fn(() => {});
-        const wrapper = shallow(<CheckoutButton disabled={false} onClick={mockOnClick} />);
+        const { getByRole } = render(<CheckoutButton disabled={false} onClick={mockOnClick} />);
 
-        wrapper.find(Button).simulate('click');
+        fireEvent.click(getByRole('button'));
         expect(mockOnClick.mock.calls.length).toBeGreaterThan(0);
     });
 });
