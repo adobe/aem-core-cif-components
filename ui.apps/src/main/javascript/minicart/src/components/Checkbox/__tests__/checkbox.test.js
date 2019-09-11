@@ -23,43 +23,45 @@ const classes = ['icon', 'input', 'label', 'message', 'root'].reduce((acc, key) 
 
 const props = { classes, field, label };
 
-test('renders the correct tree', () => {
-    const tree = createTestInstance(
-        <Form>
-            <Checkbox {...props} />
-        </Form>
-    ).toJSON();
+describe('<Checkbox>', () => {
+    it('renders the correct tree', () => {
+        const tree = createTestInstance(
+            <Form>
+                <Checkbox {...props} />
+            </Form>
+        ).toJSON();
 
-    expect(tree).toMatchSnapshot();
-});
+        expect(tree).toMatchSnapshot();
+    });
 
-test('applies `props.id` to both label and input', () => {
-    const id = 'c';
+    it('applies `props.id` to both label and input', () => {
+        const id = 'c';
 
-    const { root } = createTestInstance(
-        <Form>
-            <Checkbox {...props} id={id} />
-        </Form>
-    );
+        const { root } = createTestInstance(
+            <Form>
+                <Checkbox {...props} id={id} />
+            </Form>
+        );
 
-    const labelInstance = root.findByType('label');
-    const checkboxInstance = root.findByProps({ className: 'input' });
+        const labelInstance = root.findByType('label');
+        const checkboxInstance = root.findByProps({ className: 'input' });
 
-    expect(checkboxInstance.props.id).toBe(id);
-    expect(labelInstance.props.htmlFor).toBe(id);
-    expect(labelInstance.props.id).toBeUndefined();
-});
+        expect(checkboxInstance.props.id).toBe(id);
+        expect(labelInstance.props.htmlFor).toBe(id);
+        expect(labelInstance.props.id).toBeUndefined();
+    });
 
-test('applies `checked` based on `initialValue`', () => {
-    const { root } = createTestInstance(
-        <Form>
-            <Checkbox {...props} field={'a.x'} initialValue={true} />
-            <Checkbox {...props} field={'a.y'} initialValue={false} />
-        </Form>
-    );
+    it('applies `checked` based on `initialValue`', () => {
+        const { root } = createTestInstance(
+            <Form>
+                <Checkbox {...props} field={'a.x'} initialValue={true} />
+                <Checkbox {...props} field={'a.y'} initialValue={false} />
+            </Form>
+        );
 
-    const [x, y] = root.findAllByType('input');
+        const [x, y] = root.findAllByType('input');
 
-    expect(x.props.checked).toBe(true);
-    expect(y.props.checked).toBe(false);
+        expect(x.props.checked).toBe(true);
+        expect(y.props.checked).toBe(false);
+    });
 });
