@@ -49,7 +49,7 @@ jobs:
             npm run webpack:build
           working_directory: ./ui.apps
       - run:
-          name: Run Unit Tests
+          name: Run Unit Tests (Karma)
           command: npm test
           working_directory: ./ui.apps
       - store_test_results:
@@ -70,9 +70,9 @@ jobs:
             node -v
             npm -v
             npm install
-          working_directory: ./ui.apps
+          working_directory: ./ui-apps/src/main/javascript/minicart/coverage
       - run:
-          name: Run Unit Tests
+          name: Run Unit Tests (Jest)
           command: npm test
           working_directory: ./ui.apps/src/main/javascript/minicart
       - store_test_results:
@@ -109,6 +109,10 @@ workflows:
             tags:
               only: /.*/
       - karma:
+          filters:
+            tags:
+              only: /.*/
+      - jest:
           filters:
             tags:
               only: /.*/
