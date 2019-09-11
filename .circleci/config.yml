@@ -70,7 +70,7 @@ jobs:
             node -v
             npm -v
             npm install
-          working_directory: ./ui-apps/src/main/javascript/minicart
+          working_directory: ./ui.apps/src/main/javascript/minicart
       - run:
           name: Run Unit Tests (Jest)
           command: npm test
