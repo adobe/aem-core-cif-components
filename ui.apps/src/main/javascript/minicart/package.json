@@ -8,7 +8,7 @@
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
     "build:clientlib": "yarn run build && node scripts/postbuild.js",
-    "test": "yarn run lint && jest",
+    "test": "yarn run lint && jest --coverage",
     "test:watch": "yarn run lint && jest --watch"
   },
   "dependencies": {
