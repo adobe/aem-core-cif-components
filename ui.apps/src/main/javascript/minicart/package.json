@@ -7,9 +7,9 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
-    "build:clientlib": "yarn run build && node scripts/postbuild.js",
-    "test": "yarn run lint && jest --coverage",
-    "test:watch": "yarn run lint && jest --watch"
+    "build:clientlib": "npm run build && node scripts/postbuild.js",
+    "test": "npm run lint && jest --coverage",
+    "test:watch": "npm run lint && jest --watch"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.0.0",
