@@ -14,6 +14,7 @@
 // eslint-disable-next-line no-undef
 module.exports = {
     collectCoverage: true,
+    moduleDirectories: ['node_modules', 'src/utils'],
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
