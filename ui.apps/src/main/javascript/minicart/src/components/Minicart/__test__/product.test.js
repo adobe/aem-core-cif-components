@@ -13,9 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import Product from '../product';
-import ShallowRenderer from 'react-test-renderer/shallow';
-
-jest.mock('react-feather');
+import { render } from '@testing-library/react';
 
 const mockCartItem = {
     product: {
@@ -41,15 +39,13 @@ describe('<Product />', () => {
         const mockRemoveItemFromCart = jest.fn();
         const mockBeginEditItem = jest.fn();
 
-        const renderer = new ShallowRenderer();
-
-        renderer.render(
+        const { asFragment } = render(
             <Product
                 beginEditItem={mockBeginEditItem}
                 removeItemFromCart={mockRemoveItemFromCart}
                 item={mockCartItem}
             />
         );
-        expect(renderer.getRenderOutput()).toMatchSnapshot();
+        expect(asFragment()).toMatchSnapshot();
     });
 });
