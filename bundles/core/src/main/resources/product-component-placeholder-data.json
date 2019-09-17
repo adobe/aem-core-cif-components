@@ -1,0 +1,264 @@
+{
+  "products": {
+    "items": [
+      {
+        "__typename": "ConfigurableProduct",
+        "sku": "product-sku",
+        "name": "Product name",
+        "description": {
+          "html": "<p>Product description, can include <strong>html</strong> tags.</p>"
+        },
+        "image": {
+          "label": "Product image",
+          "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+        },
+        "thumbnail": {
+          "label": "Product thumbnail",
+          "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+        },
+        "url_key": "product-url-key",
+        "stock_status": "IN_STOCK",
+        "price": {
+          "regularPrice": {
+            "amount": {
+              "currency": "USD",
+              "value": 42
+            }
+          }
+        },
+        "media_gallery_entries": [
+          {
+            "disabled": false,
+            "file": "/thumbnail.png",
+            "label": "",
+            "position": 1,
+            "media_type": "image"
+          }
+        ],
+        "configurable_options": [
+          {
+            "label": "Color",
+            "attribute_code": "color",
+            "values": [
+              {
+                "value_index": 56,
+                "label": "Orange"
+              },
+              {
+                "value_index": 58,
+                "label": "Red"
+              }
+            ]
+          },
+          {
+            "label": "Size",
+            "attribute_code": "size",
+            "values": [
+              {
+                "value_index": 167,
+                "label": "XS"
+              },
+              {
+                "value_index": 168,
+                "label": "S"
+              }
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "attributes": [
+              {
+                "code": "color",
+                "value_index": 56
+              },
+              {
+                "code": "size",
+                "value_index": 167
+              }
+            ],
+            "product": {
+              "sku": "variant-sku-orange-xs",
+              "name": "Variant name orange-xs",
+              "description": {
+                "html": "<p>Variant orange-xs description, can include <strong>html</strong> tags.</p>"
+              },
+              "image": {
+                "label": "Variant image orange-xs",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "thumbnail": {
+                "label": "Variant thumbnail orange-xs",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "url_key": "variant-orange-xs-url-key",
+              "stock_status": "IN_STOCK",
+              "color": 56,
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              },
+              "media_gallery_entries": [
+                {
+                  "disabled": false,
+                  "file": "/thumbnail.png",
+                  "label": "",
+                  "position": 1,
+                  "media_type": "image"
+                }
+              ]
+            }
+          },
+          {
+            "attributes": [
+              {
+                "code": "color",
+                "value_index": 58
+              },
+              {
+                "code": "size",
+                "value_index": 167
+              }
+            ],
+            "product": {
+              "sku": "variant-sku-red-xs",
+              "name": "Variant name red-xs",
+              "description": {
+                "html": "<p>Variant red-xs description, can include <strong>html</strong> tags.</p>"
+              },
+              "image": {
+                "label": "Variant image red-xs",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "thumbnail": {
+                "label": "Variant thumbnail red-xs",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "url_key": "variant-red-xs-url-key",
+              "stock_status": "IN_STOCK",
+              "color": 56,
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              },
+              "media_gallery_entries": [
+                {
+                  "disabled": false,
+                  "file": "/thumbnail.png",
+                  "label": "",
+                  "position": 1,
+                  "media_type": "image"
+                }
+              ]
+            }
+          },
+          {
+            "attributes": [
+              {
+                "code": "color",
+                "value_index": 56
+              },
+              {
+                "code": "size",
+                "value_index": 168
+              }
+            ],
+            "product": {
+              "sku": "variant-sku-orange-s",
+              "name": "Variant name orange-s",
+              "description": {
+                "html": "<p>Variant orange-s description, can include <strong>html</strong> tags.</p>"
+              },
+              "image": {
+                "label": "Variant image orange-s",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "thumbnail": {
+                "label": "Variant thumbnail orange-s",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "url_key": "variant-orange-s-url-key",
+              "stock_status": "IN_STOCK",
+              "color": 56,
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              },
+              "media_gallery_entries": [
+                {
+                  "disabled": false,
+                  "file": "/thumbnail.png",
+                  "label": "",
+                  "position": 1,
+                  "media_type": "image"
+                }
+              ]
+            }
+          },
+          {
+            "attributes": [
+              {
+                "code": "color",
+                "value_index": 58
+              },
+              {
+                "code": "size",
+                "value_index": 168
+              }
+            ],
+            "product": {
+              "sku": "variant-sku-red-s",
+              "name": "Variant name red-s",
+              "description": {
+                "html": "<p>Variant red-s description, can include <strong>html</strong> tags.</p>"
+              },
+              "image": {
+                "label": "Variant image red-s",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "thumbnail": {
+                "label": "Variant thumbnail red-s",
+                "url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/catalog/product/thumbnail.png"
+              },
+              "url_key": "variant-red-s-url-key",
+              "stock_status": "IN_STOCK",
+              "color": 56,
+              "price": {
+                "regularPrice": {
+                  "amount": {
+                    "currency": "USD",
+                    "value": 42
+                  }
+                }
+              },
+              "media_gallery_entries": [
+                {
+                  "disabled": false,
+                  "file": "/thumbnail.png",
+                  "label": "",
+                  "position": 1,
+                  "media_type": "image"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "storeConfig": {
+    "secure_base_media_url": "/apps/core/cif/components/commerce/product/v1/product/clientlib/resources/images/"
+  }
+}

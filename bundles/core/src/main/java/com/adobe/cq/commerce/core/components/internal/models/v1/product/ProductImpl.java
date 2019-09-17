@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -64,6 +67,9 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.xfa.ut.StringUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -73,6 +79,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProductImpl implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
+    protected static final String PLACEHOLDER_DATA = "/product-component-placeholder-data.json";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
 
@@ -93,6 +101,9 @@ public class ProductImpl implements Product {
     @ScriptVariable
     private ValueMap properties;
 
+    @ScriptVariable(name = "wcmmode")
+    private SightlyWCMMode wcmMode;
+
     @Inject
     private XSSAPI xssApi;
 
@@ -108,15 +119,20 @@ public class ProductImpl implements Product {
         // Parse slug from URL
         String slug = parseProductSlug();
 
-        // Get MagentoGraphqlClient from the resource.
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        if (StringUtils.isEmpty(slug) && wcmMode.isEdit()) {
+            useEditModePlaceholderData();
+            loadClientPrice = false;
+        } else {
+            // Get MagentoGraphqlClient from the resource.
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
-        // Fetch product data
-        if (magentoGraphqlClient != null) {
-            product = fetchProduct(slug);
+            // Fetch product data
+            if (magentoGraphqlClient != null) {
+                product = fetchProduct(slug);
+            }
+
+            loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         }
-
-        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
@@ -422,5 +438,19 @@ public class ProductImpl implements Product {
 
         // Filter HTML
         return xssApi.filterHTML(description.getHtml());
+    }
+
+    /**
+     * In AEM Sites Editor, loads some dummy placeholder data for the component.
+     */
+    private void useEditModePlaceholderData() {
+        try {
+            String json = IOUtils.toString(getClass().getResourceAsStream(PLACEHOLDER_DATA), StandardCharsets.UTF_8);
+            Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+            product = rootQuery.getProducts().getItems().get(0);
+            mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        } catch (IOException e) {
+            LOGGER.warn("Cannot use placeholder data", e);
+        }
     }
 }
