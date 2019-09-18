@@ -48,18 +48,21 @@ export const useGuestCart = () => {
     const cookieName = 'cif.cart';
     const [reset, doReset] = useState(false);
     let [cartId, setCartCookie] = useCookieValue(cookieName);
-    const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
+    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
+
+    if (!cartId || cartId.length === 0) {
+        createCart();
+    }
 
     useEffect(() => {
-        if (!cartId || cartId.length === 0) {
-            createCart();
-
-            if (data) {
-                cartId = data.createEmptyCart;
-                setCartCookie(cartId);
-            }
+        if (data) {
+            cartId = data.createEmptyCart;
+            setCartCookie(cartId);
         }
-    });
+        if (error) {
+            console.error(error);
+        }
+    }, [data, error]);
 
     const resetGuestCart = useCallback(() => {
         setCartCookie('', 0);
