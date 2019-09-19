@@ -30,10 +30,13 @@ import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import CartTrigger from '../CartTrigger';
 
+import { useCartState } from '../../utils/state';
+
 const MiniCart = props => {
     const { cartId, resetCart } = props;
 
-    const [isOpen, setIsOpen] = useState(false);
+    const [{ isOpen }, dispatch] = useCartState();
+
     const [isEditing, setIsEditing] = useState(false);
     const [editItem, setEditItem] = useState({});
 
@@ -51,7 +54,7 @@ const MiniCart = props => {
     }
 
     const openCart = () => {
-        setIsOpen(true);
+        dispatch({ type: 'open' });
     };
 
     const addToCart = ev => {
@@ -61,14 +64,14 @@ const MiniCart = props => {
 
         const { sku, quantity } = ev.detail;
         addItem({ variables: { cartId, sku, quantity } });
-        setIsOpen(true);
+        dispatch({ type: 'open' });
     };
 
     useEventListener(document, 'aem.cif.open-cart', openCart);
     useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
     const handleCloseCart = useCallback(() => {
-        setIsOpen(false);
+        dispatch({ type: 'close' });
     });
 
     const handleResetCart = useCallback(() => {
@@ -116,8 +119,8 @@ const MiniCart = props => {
 
     return (
         <>
-            <CartTrigger cartQuantity={cartQuantity} handler={setIsOpen} />
-            <Mask isActive={isOpen} dismiss={handleCloseCart} />
+            <CartTrigger cartQuantity={cartQuantity} />
+            <Mask />
             <aside className={rootClass}>
                 <Header handleCloseCart={handleCloseCart} />
                 <Body

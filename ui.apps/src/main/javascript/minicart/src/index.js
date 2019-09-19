@@ -18,15 +18,41 @@ import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
 
 import Cart from './components/Minicart';
+import { CartProvider } from './utils/state';
+
 
 const App = () => {
     const client = new ApolloClient({
         uri: '/magento/graphql'
     });
 
+    const initialState = {
+        isOpen: false
+    };
+
+    const reducer = (state, action) => {
+        switch (action.type) {
+            case 'close':
+                return {
+                    ...state,
+                    isOpen: false
+                };
+            case 'open':
+                return {
+                    ...state,
+                    isOpen: true
+                };
+
+            default:
+                return state;
+        }
+    };
+
     return (
         <ApolloProvider client={client}>
-            <Cart />
+            <CartProvider initialState={initialState} reducer={reducer}>
+                <Cart />
+            </CartProvider>
         </ApolloProvider>
     );
 };

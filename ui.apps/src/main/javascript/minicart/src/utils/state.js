@@ -11,24 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import PropTypes from 'prop-types';
 
-import classes from './mask.css';
-import { useCartState } from '../../utils/state';
+import React, { createContext, useContext, useReducer } from 'react';
+import { object, func } from 'prop-types';
 
-const Mask = () => {
-    const [{ isOpen }, dispatch] = useCartState();
-    const className = isOpen ? classes.root_active : classes.root;
+export const CartContext = createContext();
 
-    return <button data-role="mask" className={className} onClick={() => { dispatch({ type: 'close' }); }} />;
-}
+export const CartProvider = ({ reducer, initialState, children }) => (
+    <CartContext.Provider value={useReducer(reducer, initialState)}>
+        {children}
+    </CartContext.Provider>
+);
 
-Mask.propTypes = {
-    classes: PropTypes.shape({
-        root: PropTypes.string,
-        root_active: PropTypes.string
-    })
+CartProvider.propTypes = {
+    reducer: func.isRequired,
+    initialState: object.isRequired
 };
 
-export default Mask;
+export const useCartState = () => useContext(CartContext);
