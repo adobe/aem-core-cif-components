@@ -12,13 +12,15 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { object, func, bool, string } from 'prop-types';
+import { object, func, string } from 'prop-types';
 import Checkout from '../Checkout';
 import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
+import { useCartState } from '../../utils/state';
 
 const Footer = props => {
-    const { isOpen, cart, cartId, handleCloseCart, handleResetCart } = props;
+    const { cart, cartId, handleResetCart } = props;
+    const [{ isOpen }] = useCartState();
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
     const { currency, value: totalPrice } = cart.prices.grand_total;
@@ -26,12 +28,7 @@ const Footer = props => {
     return (
         <div className={footerClassName}>
             <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
-            <Checkout
-                cart={{ cartId, ...cart }}
-                cartId={cartId}
-                handleCloseCart={handleCloseCart}
-                handleResetCart={handleResetCart}
-            />
+            <Checkout cart={{ cartId, ...cart }} cartId={cartId} handleResetCart={handleResetCart} />
         </div>
     );
 };
@@ -39,8 +36,6 @@ const Footer = props => {
 Footer.propTypes = {
     cart: object.isRequired,
     cartId: string.isRequired,
-    handleCloseCart: func.isRequired,
-    handleResetCart: func.isRequired,
-    isOpen: bool
+    handleResetCart: func.isRequired
 };
 export default Footer;

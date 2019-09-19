@@ -23,7 +23,7 @@ const isCartReady = cart => {
 };
 
 const Flow = props => {
-    const { cart, cartId, handleCloseCart, handleResetCart } = props;
+    const { cart, cartId, handleResetCart } = props;
 
     const [flowState, setFlowState] = useState('cart');
     const [order, setOrder] = useState({});
@@ -60,7 +60,7 @@ const Flow = props => {
             break;
         }
         case 'receipt': {
-            child = <Receipt order={order} handleCloseCart={handleCloseCart} handleResetCart={handleResetCart} />;
+            child = <Receipt order={order} handleResetCart={handleResetCart} />;
             break;
         }
         default: {
@@ -72,7 +72,6 @@ const Flow = props => {
 };
 
 Flow.propTypes = {
-    handleCloseCart: func,
     handleResetCart: func,
     cart: shape({
         shipping_addresses: array,

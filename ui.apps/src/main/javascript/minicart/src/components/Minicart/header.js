@@ -12,24 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { func } from 'prop-types';
 import { X as CloseIcon } from 'react-feather';
 
 import classes from './header.css';
+import { useCartState } from '../../utils/state';
 
-const Header = props => {
-    const { handleCloseCart } = props;
+const Header = () => {
+    const [, dispatch] = useCartState();
+
     const title = 'Shopping Cart';
     return (
         <div className={classes.root}>
             <h2 className={classes.title}>{title}</h2>
-            <button onClick={handleCloseCart}>
+            <button
+                onClick={() => {
+                    dispatch({ type: 'close' });
+                }}>
                 <CloseIcon />
             </button>
         </div>
     );
 };
-Header.propTypes = {
-    handleCloseCart: func.isRequired
-};
+
 export default Header;

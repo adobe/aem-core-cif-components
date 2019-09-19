@@ -53,10 +53,6 @@ const MiniCart = props => {
         console.error(`Error loading cart`, error);
     }
 
-    const openCart = () => {
-        dispatch({ type: 'open' });
-    };
-
     const addToCart = ev => {
         if (!ev.detail) {
             return;
@@ -67,16 +63,14 @@ const MiniCart = props => {
         dispatch({ type: 'open' });
     };
 
-    useEventListener(document, 'aem.cif.open-cart', openCart);
-    useEventListener(document, 'aem.cif.add-to-cart', addToCart);
-
-    const handleCloseCart = useCallback(() => {
-        dispatch({ type: 'close' });
+    useEventListener(document, 'aem.cif.open-cart', () => {
+        dispatch({ type: 'open' });
     });
+    useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
     const handleResetCart = useCallback(() => {
         resetCart();
-        handleCloseCart();
+        dispatch({ type: 'close' });
     });
 
     const handleBeginEditing = useCallback(item => {
@@ -106,15 +100,7 @@ const MiniCart = props => {
     if (data && data.cart) {
         currencyCode = getCurrencyCode(data.cart);
         cartQuantity = data.cart.items.length;
-        footer = showFooter ? (
-            <Footer
-                isOpen={isOpen}
-                cart={data.cart}
-                cartId={cartId}
-                handleCloseCart={handleCloseCart}
-                handleResetCart={handleResetCart}
-            />
-        ) : null;
+        footer = showFooter ? <Footer cart={data.cart} cartId={cartId} handleResetCart={handleResetCart} /> : null;
     }
 
     return (
@@ -122,9 +108,8 @@ const MiniCart = props => {
             <CartTrigger cartQuantity={cartQuantity} />
             <Mask />
             <aside className={rootClass}>
-                <Header handleCloseCart={handleCloseCart} />
+                <Header />
                 <Body
-                    closeDrawer={handleCloseCart}
                     editItem={editItem}
                     isEmpty={isEmpty}
                     isEditing={isEditing}
