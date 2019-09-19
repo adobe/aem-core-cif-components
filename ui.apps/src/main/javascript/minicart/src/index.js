@@ -20,7 +20,6 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import Cart from './components/Minicart';
 import { CartProvider } from './utils/state';
 
-
 const App = () => {
     const client = new ApolloClient({
         uri: '/magento/graphql'

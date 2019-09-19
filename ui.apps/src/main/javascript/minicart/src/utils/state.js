@@ -18,9 +18,7 @@ import { object, func } from 'prop-types';
 export const CartContext = createContext();
 
 export const CartProvider = ({ reducer, initialState, children }) => (
-    <CartContext.Provider value={useReducer(reducer, initialState)}>
-        {children}
-    </CartContext.Provider>
+    <CartContext.Provider value={useReducer(reducer, initialState)}>{children}</CartContext.Provider>
 );
 
 CartProvider.propTypes = {

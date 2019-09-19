@@ -21,8 +21,16 @@ const Mask = () => {
     const [{ isOpen }, dispatch] = useCartState();
     const className = isOpen ? classes.root_active : classes.root;
 
-    return <button data-role="mask" className={className} onClick={() => { dispatch({ type: 'close' }); }} />;
-}
+    return (
+        <button
+            data-role="mask"
+            className={className}
+            onClick={() => {
+                dispatch({ type: 'close' });
+            }}
+        />
+    );
+};
 
 Mask.propTypes = {
     classes: PropTypes.shape({
