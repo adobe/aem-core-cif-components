@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
 
@@ -47,24 +47,27 @@ export const useCookieValue = cookieName => {
 export const useGuestCart = () => {
     const cookieName = 'cif.cart';
     const [reset, doReset] = useState(false);
-    let [cartId, setCartCookie] = useCookieValue(cookieName);
+    let [cookieCartId, setCartCookie] = useCookieValue(cookieName);
+    const [cartId, setCartId] = useState(cookieCartId);
     const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
 
     useEffect(() => {
         if (!cartId || cartId.length === 0) {
             createCart();
-
-            if (data) {
-                cartId = data.createEmptyCart;
-                setCartCookie(cartId);
-            }
         }
-    });
+    }, [cartId]);
 
-    const resetGuestCart = useCallback(() => {
+    useEffect(() => {
+        if (data) {
+            setCartId(data.createEmptyCart);
+            setCartCookie(cartId);
+        }
+    }, [data]);
+
+    const resetGuestCart = () => {
         setCartCookie('', 0);
         doReset(!reset);
-    });
+    };
 
     return [cartId, resetGuestCart];
 };
