@@ -26,7 +26,9 @@ const App = () => {
     });
 
     const initialState = {
-        isOpen: false
+        isOpen: false,
+        isEditing: false,
+        editItem: {}
     };
 
     const reducer = (state, action) => {
@@ -40,6 +42,18 @@ const App = () => {
                 return {
                     ...state,
                     isOpen: true
+                };
+            case 'beginEditing':
+                return {
+                    ...state,
+                    isEditing: true,
+                    editItem: action.item
+                };
+            case 'endEditing':
+                return {
+                    ...state,
+                    isEditing: false,
+                    editItem: {}
                 };
 
             default:

@@ -21,11 +21,14 @@ import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
 
+import { useCartState } from '../../utils/state';
+
 const imageWidth = 80;
 const imageHeight = 100;
 
 const Product = props => {
-    const { beginEditItem, item, removeItemFromCart } = props;
+    const { item, removeItemFromCart } = props;
+    const [, dispatch] = useCartState();
 
     const { product = {}, quantity = 0, id = '' } = item;
     const { thumbnail, name, price } = product;
@@ -40,10 +43,6 @@ const Product = props => {
                 : transparentPlaceholder;
         return <img alt={name} className={classes.image} placeholder={transparentPlaceholder} src={src} />;
     });
-
-    const handleEditItem = useCallback(() => {
-        beginEditItem(item);
-    }, [beginEditItem, item]);
 
     const handleRemoveItem = useCallback(() => {
         setIsLoading(true);
@@ -66,7 +65,13 @@ const Product = props => {
             </div>
             {mask}
             <Kebab>
-                <Section text="Edit item" onClick={handleEditItem} icon="Edit2" />
+                <Section
+                    text="Edit item"
+                    onClick={() => {
+                        dispatch({ type: 'beginEditing', item: item });
+                    }}
+                    icon="Edit2"
+                />
                 <Section text="Remove item" onClick={handleRemoveItem} icon="Trash" />
             </Kebab>
         </li>
@@ -75,7 +80,6 @@ const Product = props => {
 
 Product.propTypes = {
     removeItemFromCart: func.isRequired,
-    beginEditItem: func.isRequired,
     item: shape({
         id: string.isRequired,
         quantity: number.isRequired,

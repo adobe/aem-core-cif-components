@@ -19,7 +19,7 @@ import Product from './product';
 import classes from './productList.css';
 
 const ProductList = props => {
-    const { cartItems, removeItemFromCart, beginEditItem } = props;
+    const { cartItems, removeItemFromCart } = props;
 
     return (
         <List
@@ -28,13 +28,7 @@ const ProductList = props => {
             items={cartItems}
             getItemKey={item => item.id}
             renderItem={itemProps => {
-                return (
-                    <Product
-                        item={itemProps.item}
-                        removeItemFromCart={removeItemFromCart}
-                        beginEditItem={beginEditItem}
-                    />
-                );
+                return <Product item={itemProps.item} removeItemFromCart={removeItemFromCart} />;
             }}></List>
     );
 };
@@ -45,7 +39,6 @@ ProductList.propTypes = {
         root: string
     }),
     currencyCode: string,
-    beginEditItem: func.isRequired,
     removeItemFromCart: func.isRequired
 };
 

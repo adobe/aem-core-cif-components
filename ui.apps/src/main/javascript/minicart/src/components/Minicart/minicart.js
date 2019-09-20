@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { string, func } from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
@@ -35,10 +35,7 @@ import { useCartState } from '../../utils/state';
 const MiniCart = props => {
     const { cartId, resetCart } = props;
 
-    const [{ isOpen }, dispatch] = useCartState();
-
-    const [isEditing, setIsEditing] = useState(false);
-    const [editItem, setEditItem] = useState({});
+    const [{ isOpen, isEditing }, dispatch] = useCartState();
 
     const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
@@ -73,15 +70,6 @@ const MiniCart = props => {
         dispatch({ type: 'close' });
     });
 
-    const handleBeginEditing = useCallback(item => {
-        setIsEditing(true);
-        setEditItem(item);
-    });
-
-    const handleEndEditing = useCallback(() => {
-        setIsEditing(false);
-    });
-
     const removeItemFromCart = useCallback(
         itemId => {
             removeItem({ variables: { cartId, itemId } });
@@ -110,15 +98,11 @@ const MiniCart = props => {
             <aside className={rootClass}>
                 <Header />
                 <Body
-                    editItem={editItem}
                     isEmpty={isEmpty}
-                    isEditing={isEditing}
                     isLoading={isLoading}
                     cart={data && data.cart}
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
-                    beginEditItem={handleBeginEditing}
-                    handleEndEditing={handleEndEditing}
                     cartId={cartId}
                 />
                 {footer}
