@@ -36,6 +36,9 @@ public class Utils {
      */
     public static NumberFormat buildPriceFormatter(Locale locale, String currencyCode) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance(locale);
+        if (currencyCode == null) {
+            return formatter;
+        }
 
         // Try to overwrite with the given currencyCode, otherwise keep using default for locale
         try {

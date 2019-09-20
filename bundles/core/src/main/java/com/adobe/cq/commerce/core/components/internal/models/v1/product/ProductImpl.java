@@ -119,10 +119,7 @@ public class ProductImpl implements Product {
         // Parse slug from URL
         String slug = parseProductSlug();
 
-        if (StringUtils.isEmpty(slug) && wcmMode.isEdit()) {
-            useEditModePlaceholderData();
-            loadClientPrice = false;
-        } else {
+        if (StringUtils.isNotBlank(slug)) {
             // Get MagentoGraphqlClient from the resource.
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
@@ -132,13 +129,17 @@ public class ProductImpl implements Product {
             }
 
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+
+        } else if (!wcmMode.isDisabled()) {
+            useEditModePlaceholderData();
+            loadClientPrice = false;
         }
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
         // the storeConfig query introduced with Magento 2.3.1
         Locale locale = currentPage.getLanguage(false);
-        priceFormatter = Utils.buildPriceFormatter(locale, getCurrency());
+        priceFormatter = Utils.buildPriceFormatter(locale, product != null ? getCurrency() : null);
     }
 
     @Override

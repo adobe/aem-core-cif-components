@@ -121,7 +121,7 @@ public class ProductImplTest {
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
-        when(wcmMode.isEdit()).thenReturn(true);
+        when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
 
         // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
