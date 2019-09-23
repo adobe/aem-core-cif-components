@@ -33,9 +33,7 @@ export const useCookieValue = cookieName => {
     if (!cookieName || cookieName.length === 0) {
         return '';
     }
-
     let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
-
     const setCookieValue = (value, age) => {
         const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
         document.cookie = `${cookieName}=${value};${cookieSettings}`;
@@ -49,6 +47,7 @@ export const useGuestCart = () => {
     const [reset, doReset] = useState(false);
     let [cookieCartId, setCartCookie] = useCookieValue(cookieName);
     const [cartId, setCartId] = useState(cookieCartId);
+
     const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
 
     useEffect(() => {
@@ -60,7 +59,7 @@ export const useGuestCart = () => {
     useEffect(() => {
         if (data) {
             setCartId(data.createEmptyCart);
-            setCartCookie(cartId);
+            setCartCookie(data.createEmptyCart);
         }
     }, [data]);
 

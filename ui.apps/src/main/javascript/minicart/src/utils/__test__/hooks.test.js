@@ -42,7 +42,18 @@ const mocks = [
     }
 ];
 
-let container = null;
+const GuestCartHookWrapper = () => {
+    let [cartId, resetCart] = useGuestCart();
+    if (!cartId || cartId.length === 0) {
+        return <div data-testid="cart-details">No cart</div>;
+    }
+    return (
+        <div>
+            <div data-testid="cart-details">{cartId}</div>
+            <button onClick={resetCart}>Reset</button>
+        </div>
+    );
+};
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
@@ -72,15 +83,26 @@ describe('Custom hooks', () => {
     });
 
     describe('useGuestCart', () => {
-        it('returs the id of a guest cart', async () => {
-            const HookWrapper = () => {
-                let [cartId, resetCart] = useGuestCart();
-                if (!cartId || cartId.length === 0) {
-                    return <div data-testid="cart-details">No cart</div>;
-                }
-                return <div data-testid="cart-details">{cartId}</div>;
-            };
+        it('retrieves the id of the cart from the cookie', async () => {
+            Object.defineProperty(window.document, 'cookie', {
+                writable: true,
+                value: 'cif.cart=cart-from-cookie;path=/;domain=http://localhost;Max-Age=3600'
+            });
 
+            const { getByTestId } = render(
+                <MockedProvider mocks={[]} addTypename={false}>
+                    <GuestCartHookWrapper />
+                </MockedProvider>
+            );
+            const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
+
+            expect(cartIdNode.textContent).toEqual('cart-from-cookie');
+            Object.defineProperty(window.document, 'cookie', {
+                writable: true,
+                value: ''
+            });
+        });
+        it('retrieves the id of the cart from the backend if the cookie is not set', async () => {
             const { getByTestId } = render(
                 <MockedProvider
                     mocks={[
@@ -96,13 +118,12 @@ describe('Custom hooks', () => {
                         }
                     ]}
                     addTypename={false}>
-                    <HookWrapper />
+                    <GuestCartHookWrapper />
                 </MockedProvider>
             );
-
             const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
 
-            expect(cartIdNode.textContent).toEqual('guest123');
+            expect(cartIdNode.children[0].textContent).toEqual('guest123');
         });
     });
 });
