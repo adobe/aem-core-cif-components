@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -119,16 +120,26 @@ public class ProductImplTest {
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
         slingBindings.put("currentStyle", style);
 
-        productModel = context.request().adaptTo(ProductImpl.class);
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(false);
+        slingBindings.put("wcmmode", wcmMode);
+
+        // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
+        // and we want to override the "slug" in testEditModePlaceholderData()
     }
 
     @Test
     public void testProduct() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        testProduct(product, true);
+    }
+
+    private void testProduct(ProductInterface product, boolean loadClientPrice) {
         Assert.assertTrue(productModel.getFound());
         Assert.assertEquals(product.getSku(), productModel.getSku());
         Assert.assertEquals(product.getName(), productModel.getName());
         Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
-        Assert.assertTrue(productModel.loadClientPrice());
+        Assert.assertEquals(loadClientPrice, productModel.loadClientPrice());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         priceFormatter.setCurrency(Currency.getInstance(product.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
@@ -152,6 +163,7 @@ public class ProductImplTest {
 
     @Test
     public void testVariants() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         List<Variant> variants = productModel.getVariants();
         Assert.assertNotNull(variants);
 
@@ -190,6 +202,7 @@ public class ProductImplTest {
 
     @Test
     public void testGetVariantAttributes() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         List<VariantAttribute> attributes = productModel.getVariantAttributes();
         Assert.assertNotNull(attributes);
 
@@ -214,6 +227,7 @@ public class ProductImplTest {
 
     @Test
     public void testSimpleProduct() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         Whitebox.setInternalState(productModel, "product", new SimpleProduct());
         Assert.assertTrue(productModel.getVariants().isEmpty());
         Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
@@ -221,6 +235,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionWithNull() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
         Whitebox.setInternalState(productModel, "product", product);
@@ -229,6 +244,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionHtmlNull() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
         when(value.getHtml()).thenReturn(null);
@@ -241,6 +257,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescription() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         String sampleString = "<strong>abc</strong>";
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
@@ -254,6 +271,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionConfigurableProduct() {
+        productModel = context.request().adaptTo(ProductImpl.class);
         String sampleString = "<strong>def</strong>";
         ConfigurableProduct product = mock(ConfigurableProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
@@ -263,6 +281,20 @@ public class ProductImplTest {
         Whitebox.setInternalState(productModel, "product", product);
 
         Assert.assertEquals(sampleString, productModel.getDescription());
+    }
+
+    @Test
+    public void testEditModePlaceholderData() throws IOException {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString(null);
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        String json = getResource(ProductImpl.PLACEHOLDER_DATA);
+        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        product = rootQuery.getProducts().getItems().get(0);
+        storeConfig = rootQuery.getStoreConfig();
+
+        testProduct(product, false);
     }
 
     private String getResource(String filename) throws IOException {
