@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -22,6 +24,7 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -49,6 +52,8 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -56,6 +61,7 @@ import com.day.cq.wcm.api.designer.Style;
 public class ProductListImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
+    protected static final String PLACEHOLDER_DATA = "/productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
@@ -73,6 +79,9 @@ public class ProductListImpl implements ProductList {
 
     @ScriptVariable
     private Style currentStyle;
+
+    @ScriptVariable(name = "wcmmode")
+    private SightlyWCMMode wcmMode;
 
     @Inject
     private Resource resource;
@@ -120,8 +129,14 @@ public class ProductListImpl implements ProductList {
             if (magentoGraphqlClient != null) {
                 category = fetchCategory(categoryId);
             }
+        } else if (!wcmMode.isDisabled()) {
+            useEditModePlaceholderData();
+            loadClientPrice = false;
         }
-        setupPagination();
+
+        if (category != null) {
+            setupPagination();
+        }
     }
 
     @Nullable
@@ -332,6 +347,20 @@ public class ProductListImpl implements ProductList {
             } catch (NumberFormatException nfe) {
                 LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
             }
+        }
+    }
+
+    /**
+     * In AEM Sites Editor, loads some dummy placeholder data for the component.
+     */
+    private void useEditModePlaceholderData() {
+        try {
+            String json = IOUtils.toString(getClass().getResourceAsStream(PLACEHOLDER_DATA), StandardCharsets.UTF_8);
+            Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+            category = rootQuery.getCategory();
+            mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        } catch (IOException e) {
+            LOGGER.warn("Cannot use placeholder data", e);
         }
     }
 }

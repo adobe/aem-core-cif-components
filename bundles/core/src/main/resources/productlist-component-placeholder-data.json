@@ -1,0 +1,123 @@
+{
+  "category": {
+    "id": 6,
+    "name": "Running",
+    "product_count": 12,
+    "products": {
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "id": 1,
+          "sku": "sku-1",
+          "name": "Product #1",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-1",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 101.00,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 2,
+          "sku": "sku-2",
+          "name": "Product #2",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-2",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 102.00,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 3,
+          "sku": "sku-3",
+          "name": "Product #3",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-3",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 103.00,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 4,
+          "sku": "sku-4",
+          "name": "Product #4",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-4",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 104.00,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 5,
+          "sku": "sku-5",
+          "name": "Product #5",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-5",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 105.00,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "id": 6,
+          "sku": "sku-6",
+          "name": "Product #6",
+          "small_image": {
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/thumbnail.png"
+          },
+          "url_key": "product-6",
+          "price": {
+            "regularPrice": {
+              "amount": {
+                "value": 106.00,
+                "currency": "USD"
+              }
+            }
+          }
+        }
+      ],
+      "total_count": 12
+    }
+  },
+  "storeConfig": {
+    "secure_base_media_url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/"
+  }
+}
