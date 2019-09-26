@@ -12,40 +12,35 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Product from '../product';
 import { render } from '@testing-library/react';
 
-const mockCartItem = {
-    product: {
-        thumbnail: {
-            url: '/some/url'
-        },
-        name,
-        price: {
-            regularPrice: {
-                amount: {
-                    value: 22,
-                    currency: 'USD'
+import CartOptions from '../cartOptions';
+
+describe('<CartOptions>', () => {
+    const handleEndEditing = jest.fn();
+
+    const mockProps = {
+        handleEndEditing,
+        cartId: '123ABC',
+        editItem: {
+            id: '123',
+            quantity: 2,
+            product: {
+                name: 'Dummy product',
+                price: {
+                    regularPrice: {
+                        amount: {
+                            value: 100,
+                            currency: 'USD'
+                        }
+                    }
                 }
             }
         }
-    },
-    quantity: 2,
-    id: '1'
-};
+    };
 
-describe('<Product />', () => {
-    it('renders the component', () => {
-        const mockRemoveItemFromCart = jest.fn();
-        const mockBeginEditItem = jest.fn();
-
-        const { asFragment } = render(
-            <Product
-                beginEditItem={mockBeginEditItem}
-                removeItemFromCart={mockRemoveItemFromCart}
-                item={mockCartItem}
-            />
-        );
+    it('renders the component properly', () => {
+        const { asFragment } = render(<CartOptions {...mockProps} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

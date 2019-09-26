@@ -18,7 +18,11 @@ import classes from './cartCounter.css';
 
 const CartCounter = props => {
     const { counter } = props;
-    return counter > 0 ? <span className={classes.root}>{counter}</span> : null;
+    return counter > 0 ? (
+        <span className={classes.root} data-testid="cart-counter">
+            {counter}
+        </span>
+    ) : null;
 };
 
 CartCounter.propTypes = {

@@ -14,9 +14,9 @@
 // eslint-disable-next-line no-undef
 module.exports = {
     collectCoverage: true,
+    moduleDirectories: ['node_modules', 'src/utils'],
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
     transform: {
         '\\.(gql|graphql)$': 'jest-transform-graphql',
