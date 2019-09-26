@@ -60,21 +60,20 @@
             // a flag that indicates that we're in the "navigation" view
             this.navigationPaneActive = true;
 
-            this.navigationPanel.addEventListener('aem.accmg.start', ()=>{
+            this.navigationPanel.addEventListener('aem.accmg.start', () => {
                 this.setVisible(this.backNavigationButton, true);
                 this.setVisible(this.backNavigationEmpty, false);
             });
 
-            this.navigationPanel.addEventListener('aem.accmg.step', (ev) => {
+            this.navigationPanel.addEventListener('aem.accmg.step', ev => {
                 if (ev.detail.title) {
                     this.setPanelTitle(ev.detail.title);
                 }
             });
 
-            this.navigationPanel.addEventListener('aem.accmg.exit', ()=>{
+            this.navigationPanel.addEventListener('aem.accmg.exit', () => {
                 this.setPanelTitle(this.defaultPanelTitle);
-            })
-
+            });
         }
 
         setPanelTitle(title) {
@@ -141,7 +140,6 @@
 
             const event = new CustomEvent('aem.navigation.back');
             document.dispatchEvent(event);
-            
         }
 
         downNavigation(event) {
