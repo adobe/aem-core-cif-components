@@ -11,23 +11,11 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback } from 'react';
+import React from 'react';
 import MiniCart from './minicart';
 
-import { useGuestCart } from '../../utils/hooks';
-
 const Container = () => {
-    const [cartId, resetCart] = useGuestCart();
-
-    const handleCartReset = useCallback(() => {
-        resetCart();
-    }, [cartId]);
-
-    if (!cartId || cartId.length === 0) {
-        return null;
-    }
-
-    return <MiniCart cartId={cartId} resetCart={handleCartReset} />;
+    return <MiniCart />;
 };
 
 export default Container;

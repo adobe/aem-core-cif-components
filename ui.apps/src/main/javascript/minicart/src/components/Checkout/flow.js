@@ -12,18 +12,20 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
-import { func, shape, string, array } from 'prop-types';
+import { shape, string, array } from 'prop-types';
 import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
 import Receipt from './receipt';
+import { useCartState } from '../../utils/state';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
 };
 
 const Flow = props => {
-    const { cart, cartId, handleResetCart } = props;
+    const { cart } = props;
+    const [{ cartId }] = useCartState();
 
     const [flowState, setFlowState] = useState('cart');
     const [order, setOrder] = useState({});
@@ -49,18 +51,11 @@ const Flow = props => {
             break;
         }
         case 'form': {
-            child = (
-                <Form
-                    cancelCheckout={cancelCheckout}
-                    cart={{ ...cart, cartId }}
-                    receiveOrder={orderCreated}
-                    resetCart={handleResetCart}
-                />
-            );
+            child = <Form cancelCheckout={cancelCheckout} cart={{ ...cart, cartId }} receiveOrder={orderCreated} />;
             break;
         }
         case 'receipt': {
-            child = <Receipt order={order} handleResetCart={handleResetCart} />;
+            child = <Receipt order={order} />;
             break;
         }
         default: {
@@ -72,12 +67,10 @@ const Flow = props => {
 };
 
 Flow.propTypes = {
-    handleResetCart: func,
     cart: shape({
         shipping_addresses: array,
         email: string
-    }),
-    cartId: string.isRequired
+    })
 };
 
 export default Flow;

@@ -14,7 +14,6 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { string } from 'prop-types';
 import { Price } from '@magento/peregrine';
 
 import Button from '../Button';
@@ -27,9 +26,8 @@ import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.g
 
 import { useCartState } from '../../utils/state';
 
-const CartOptions = props => {
-    const { cartId } = props;
-    const [{ editItem }, dispatch] = useCartState();
+const CartOptions = () => {
+    const [{ editItem, cartId }, dispatch] = useCartState();
 
     const { product, quantity: initialQuantity } = editItem;
     const { name, price: productPrice } = product;
@@ -100,10 +98,6 @@ const CartOptions = props => {
             </div>
         </form>
     );
-};
-
-CartOptions.propTypes = {
-    cartId: string
 };
 
 export default CartOptions;

@@ -19,16 +19,20 @@ import { ApolloProvider } from '@apollo/react-hooks';
 
 import Cart from './components/Minicart';
 import { CartProvider } from './utils/state';
+import { useCookieValue } from './utils/hooks';
 
 const App = () => {
     const client = new ApolloClient({
         uri: '/magento/graphql'
     });
 
+    const [, setCartCookie] = useCookieValue('cif.cart');
+
     const initialState = {
         isOpen: false,
         isEditing: false,
-        editItem: {}
+        editItem: {},
+        cartId: null
     };
 
     const reducer = (state, action) => {
@@ -54,6 +58,18 @@ const App = () => {
                     ...state,
                     isEditing: false,
                     editItem: {}
+                };
+            case 'cartId':
+                return {
+                    ...state,
+                    cartId: action.cartId
+                };
+            case 'reset':
+                setCartCookie('', 0);
+                return {
+                    ...state,
+                    cartId: null,
+                    isOpen: false
                 };
 
             default:

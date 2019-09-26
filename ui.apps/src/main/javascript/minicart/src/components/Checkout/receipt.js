@@ -12,18 +12,17 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { func, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
 import classes from './receipt.css';
 import Trigger from '../Trigger';
 import { useCartState } from '../../utils/state';
 
 const Receipt = props => {
-    const { order, handleResetCart } = props;
+    const { order } = props;
     const [, dispatch] = useCartState();
 
     const continueShopping = () => {
-        handleResetCart();
-        dispatch({ type: 'close' });
+        dispatch({ type: 'reset' });
     };
 
     return (
@@ -45,8 +44,7 @@ const Receipt = props => {
 Receipt.propTypes = {
     order: shape({
         order_id: string
-    }).isRequired,
-    handleResetCart: func.isRequired
+    }).isRequired
 };
 
 export default Receipt;

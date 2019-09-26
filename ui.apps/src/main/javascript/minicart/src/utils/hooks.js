@@ -11,11 +11,10 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect, useCallback, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/react-hooks';
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
 
-import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
 export const useEventListener = (target, type, listener, ...rest) => {
@@ -42,34 +41,6 @@ export const useCookieValue = cookieName => {
     };
 
     return [value, setCookieValue];
-};
-
-export const useGuestCart = () => {
-    const cookieName = 'cif.cart';
-    const [reset, doReset] = useState(false);
-    let [cartId, setCartCookie] = useCookieValue(cookieName);
-    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
-
-    if (!cartId || cartId.length === 0) {
-        createCart();
-    }
-
-    useEffect(() => {
-        if (data) {
-            cartId = data.createEmptyCart;
-            setCartCookie(cartId);
-        }
-        if (error) {
-            console.error(error);
-        }
-    }, [data, error]);
-
-    const resetGuestCart = useCallback(() => {
-        setCartCookie('', 0);
-        doReset(!reset);
-    });
-
-    return [cartId, resetGuestCart];
 };
 
 export const useCountries = () => {

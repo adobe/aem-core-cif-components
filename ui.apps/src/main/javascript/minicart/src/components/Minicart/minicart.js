@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React, { useCallback } from 'react';
-import { string, func } from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -32,10 +31,8 @@ import CartTrigger from '../CartTrigger';
 
 import { useCartState } from '../../utils/state';
 
-const MiniCart = props => {
-    const { cartId, resetCart } = props;
-
-    const [{ isOpen, isEditing }, dispatch] = useCartState();
+const MiniCart = () => {
+    const [{ cartId, isOpen, isEditing }, dispatch] = useCartState();
 
     const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
@@ -44,7 +41,10 @@ const MiniCart = props => {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
     });
 
-    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
+    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
+        variables: { cartId },
+        skip: !cartId
+    });
 
     if (error) {
         console.error(`Error loading cart`, error);
@@ -65,11 +65,6 @@ const MiniCart = props => {
     });
     useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
-    const handleResetCart = useCallback(() => {
-        resetCart();
-        dispatch({ type: 'close' });
-    });
-
     const removeItemFromCart = useCallback(
         itemId => {
             removeItem({ variables: { cartId, itemId } });
@@ -88,7 +83,11 @@ const MiniCart = props => {
     if (data && data.cart) {
         currencyCode = getCurrencyCode(data.cart);
         cartQuantity = data.cart.items.length;
-        footer = showFooter ? <Footer cart={data.cart} cartId={cartId} handleResetCart={handleResetCart} /> : null;
+        footer = showFooter ? <Footer cart={data.cart} /> : null;
+    }
+
+    if (!cartId || cartId.length === 0) {
+        return null;
     }
 
     return (
@@ -103,17 +102,11 @@ const MiniCart = props => {
                     cart={data && data.cart}
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
-                    cartId={cartId}
                 />
                 {footer}
             </aside>
         </>
     );
-};
-
-MiniCart.propTypes = {
-    cartId: string.isRequired,
-    resetCart: func.isRequired
 };
 
 export default MiniCart;
