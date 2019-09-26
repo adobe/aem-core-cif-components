@@ -41,6 +41,9 @@
             this.backNavigationEmpty = document.querySelector(selectors.backNavigationEmpty);
             this.categoryTreeRoot = document.querySelector(selectors.categoryTreeRoot);
             this.shadowTreeRoot = document.querySelector(selectors.shadowTreeRoot);
+            this.panelTitleElement = document.querySelector(selectors.navigationHeaderTitle);
+
+            this.defaultPanelTitle = this.panelTitleElement.textContent;
 
             const backNavigationBinding = this.backNavigation.bind(this);
             const downNavigationBinding = this.downNavigation.bind(this);
@@ -57,11 +60,25 @@
             // a flag that indicates that we're in the "navigation" view
             this.navigationPaneActive = true;
 
-            this.navigationPanel.addEventListener('aem.accmg.start', (ev)=>{
+            this.navigationPanel.addEventListener('aem.accmg.start', ()=>{
                 this.setVisible(this.backNavigationButton, true);
                 this.setVisible(this.backNavigationEmpty, false);
             });
 
+            this.navigationPanel.addEventListener('aem.accmg.step', (ev) => {
+                if (ev.detail.title) {
+                    this.setPanelTitle(ev.detail.title);
+                }
+            });
+
+            this.navigationPanel.addEventListener('aem.accmg.exit', ()=>{
+                this.setPanelTitle(this.defaultPanelTitle);
+            })
+
+        }
+
+        setPanelTitle(title) {
+            this.panelTitleElement.innerText = title;
         }
 
         showPanel() {

@@ -36,15 +36,24 @@ const ancestors = {
     MENU: null
 };
 
-// DOM events that are used to talk to the navigation panel
-const events = {
-    START_ACC_MANAGEMENT: 'aem.accmg.start'
+const stepTitles = {
+    CREATE_ACCOUNT: 'Create account',
+    FORGOT_PASSWORD: 'Password recovery',
+    MY_ACCOUNT: 'My account',
+    SIGN_IN: 'Sign in'
 };
 
+// DOM events that are used to talk to the navigation panel
+const events = {
+    START_ACC_MANAGEMENT: 'aem.accmg.start',
+    EXIT_ACC_MANAGEMENT: 'aem.accmg.exit'
+};
+
+const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
+const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 const Container = props => {
     const navigationPanel = document.querySelector('aside.navigation__root');
     const container = document.querySelector('.account_management_root');
-    useEventListener(document, 'aem.navigation.back', handleBack);
 
     const [view, setView] = useState('MENU');
 
@@ -57,15 +66,23 @@ const Container = props => {
         }
         const parent = ancestors[view];
         console.log(`Switching to view ${parent}`);
+        if (parent === 'MENU') {
+            // no parent view means we're out of the account management process and back to navigation
+            // so we're resetting the title
+            navigationPanel.dispatchEvent(exitAccMgEvent);
+        }
         setView(parent);
     }, [view]);
 
     const showSignIn = useCallback(() => {
+        const view = 'SIGN_IN';
         console.log(`Showing SIGN_IN view`);
-        const ev = new CustomEvent(events.START_ACC_MANAGEMENT);
-        navigationPanel.dispatchEvent(ev);
-        setView('SIGN_IN');
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
     }, [setView]);
+
+    useEventListener(document, 'aem.navigation.back', handleBack);
 
     return ReactDOM.createPortal(
         <>
