@@ -12,20 +12,15 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
-
+import { render } from '@testing-library/react';
 import Cart from '../cart';
 
 describe('<Cart />', () => {
     it('renders the checkout button', () => {
-        const wrapper = shallow(<Cart beginCheckout={jest.fn()} ready={true} submitting={false} />);
-        expect(toJson(wrapper.find('div'))).toMatchSnapshot();
-    });
+        const { getByRole, rerender } = render(<Cart beginCheckout={jest.fn()} ready={false} submitting={false} />);
+        expect(getByRole('button').disabled).toEqual(true);
 
-    it('renders a disabled checkout button', () => {
-        const wrapper = shallow(<Cart beginCheckout={jest.fn()} ready={false} submitting={false} />);
-
-        expect(toJson(wrapper.find('div'))).toMatchSnapshot();
+        rerender(<Cart beginCheckout={jest.fn()} ready={true} submitting={false} />);
+        expect(getByRole('button').disabled).toEqual(false);
     });
 });
