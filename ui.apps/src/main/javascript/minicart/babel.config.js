@@ -30,6 +30,7 @@ const plugins = [
     ['babel-plugin-graphql-tag']
 ];
 
+// eslint-disable-next-line no-undef
 module.exports = function(api) {
     const envConfigs = {
         development: {

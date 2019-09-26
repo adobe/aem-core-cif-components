@@ -12,21 +12,39 @@
  *
  ******************************************************************************/
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { render, fireEvent } from '@testing-library/react';
-import CheckoutButton from '../checkoutButton';
+import CartTrigger from '../cartTrigger';
 
-describe('<CheckoutButton />', () => {
-    it('renders the checkout button', () => {
-        const mockOnClick = jest.fn(() => {});
-        const { asFragment } = render(<CheckoutButton disabled={false} onClick={mockOnClick} />);
+describe('<CartTrigger>', () => {
+    beforeAll(() => {
+        ReactDOM.createPortal = jest.fn((element, node) => {
+            return element;
+        });
+    });
+
+    afterEach(() => {
+        ReactDOM.createPortal.mockClear();
+    });
+
+    it('renders the icon', () => {
+        const { asFragment } = render(<CartTrigger cartQuantity={2} handler={jest.fn()} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('calls the onclick handler', () => {
-        const mockOnClick = jest.fn(() => {});
-        const { getByRole } = render(<CheckoutButton disabled={false} onClick={mockOnClick} />);
+    it('renders the quantity', () => {
+        const expectedQuantity = '2';
+        const { getByTestId } = render(<CartTrigger cartQuantity={parseInt(expectedQuantity)} handler={jest.fn()} />);
 
+        expect(getByTestId('cart-counter').textContent).toEqual(expectedQuantity);
+    });
+
+    it('calls the handler function when clicked', () => {
+        const handler = jest.fn();
+
+        const { getByRole } = render(<CartTrigger cartQuantity={2} handler={handler} />);
         fireEvent.click(getByRole('button'));
-        expect(mockOnClick.mock.calls.length).toBeGreaterThan(0);
+
+        expect(handler.mock.calls.length).toEqual(1);
     });
 });

@@ -11,7 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
 
-configure({ adapter: new Adapter() });
+import Header from '../header';
+
+describe('<Header>', () => {
+    it('renders the component', () => {
+        const { asFragment } = render(<Header handleCloseCart={jest.fn()} />);
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('calls the handler method when the close button is clicked', () => {
+        const mockFn = jest.fn();
+
+        const { getByRole } = render(<Header handleCloseCart={mockFn} />);
+
+        fireEvent.click(getByRole('button'));
+
+        expect(mockFn.mock.calls.length).toEqual(1);
+    });
+});
