@@ -11,28 +11,30 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 import React from 'react';
-import { bool, node, shape, string } from 'prop-types';
+import { render, cleanup } from '@testing-library/react';
 
-import classes from './label.css';
-
-const Label = props => {
-    const { children, plain, ...restProps } = props;
-    const elementType = plain ? 'span' : 'label';
-    const labelProps = {
-        ...restProps,
-        className: classes.root
-    };
-
-    return React.createElement(elementType, labelProps, children);
+import Flow from '../flow';
+const dummyCart = {
+    items: []
 };
-
-Label.propTypes = {
-    children: node,
-    classes: shape({
-        root: string
-    }),
-    plain: bool
+const dummyItem = {
+    id: 3,
+    quantity: 3
 };
+afterEach(cleanup);
+describe('<Flow>', () => {
+    it('changes the checkout button according to the state of the cart', () => {
+        const { rerender, getByRole } = render(<Flow cartId={`123ABC`} cart={dummyCart} />);
 
-export default Label;
+        // there are no items in the initial cart, button should be disabled
+        expect(getByRole('button').disabled).toBe(true);
+
+        const newCart = { ...dummyCart, items: [dummyItem] };
+
+        // we rerender the component with the new cart, button should be enabled
+        rerender(<Flow cartId={`456DEF`} cart={newCart} />);
+        expect(getByRole('button').disabled).toBe(false);
+    });
+});

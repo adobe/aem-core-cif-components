@@ -19,7 +19,7 @@ import classes from './emptyMiniCartBody.css';
 const EmptyMinicartBody = props => {
     const { closeDrawer } = props;
     return (
-        <div className={classes.root}>
+        <div className={classes.root} data-testid="empty-minicart">
             <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
             <Trigger action={closeDrawer}>
                 <span className={classes.continue}>Continue Shopping</span>

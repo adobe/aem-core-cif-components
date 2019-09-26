@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
 
@@ -33,9 +33,7 @@ export const useCookieValue = cookieName => {
     if (!cookieName || cookieName.length === 0) {
         return '';
     }
-
     let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
-
     const setCookieValue = (value, age) => {
         const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
         document.cookie = `${cookieName}=${value};${cookieSettings}`;
@@ -47,27 +45,28 @@ export const useCookieValue = cookieName => {
 export const useGuestCart = () => {
     const cookieName = 'cif.cart';
     const [reset, doReset] = useState(false);
-    let [cartId, setCartCookie] = useCookieValue(cookieName);
-    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
+    let [cookieCartId, setCartCookie] = useCookieValue(cookieName);
+    const [cartId, setCartId] = useState(cookieCartId);
 
-    if (!cartId || cartId.length === 0) {
-        createCart();
-    }
+    const [createCart, { data }] = useMutation(MUTATION_CREATE_CART);
+
+    useEffect(() => {
+        if (!cartId || cartId.length === 0) {
+            createCart();
+        }
+    }, [cartId]);
 
     useEffect(() => {
         if (data) {
-            cartId = data.createEmptyCart;
-            setCartCookie(cartId);
+            setCartId(data.createEmptyCart);
+            setCartCookie(data.createEmptyCart);
         }
-        if (error) {
-            console.error(error);
-        }
-    }, [data, error]);
+    }, [data]);
 
-    const resetGuestCart = useCallback(() => {
+    const resetGuestCart = () => {
         setCartCookie('', 0);
         doReset(!reset);
-    });
+    };
 
     return [cartId, resetGuestCart];
 };
