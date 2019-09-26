@@ -12,28 +12,20 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
+import classes from './authModal.css';
+import SignIn from '../SignIn';
 
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
+const AuthModal = props => {
+    const { view } = props;
 
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
+    let child;
 
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
+    switch (view) {
+        case 'SIGN_IN':
+            child = <SignIn />;
+    }
 
-    return (
-        <ApolloProvider client={client}>
-            <Cart />
-            <AuthBar />
-        </ApolloProvider>
-    );
+    return <div className={classes.root}>{child}</div>;
 };
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
-};
+export default AuthModal;

@@ -12,28 +12,22 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
+import Button from '../Button';
+import classes from './authBar.css';
 
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
+const AuthBar = props => {
+    const { showSignIn } = props;
 
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
+    const disabled = false;
 
-    return (
-        <ApolloProvider client={client}>
-            <Cart />
-            <AuthBar />
-        </ApolloProvider>
+    const content = (
+        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
+            {'Sign In'}
+        </Button>
     );
+
+    return <div className={classes.root}>{content} </div>;
 };
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
-};
+export default AuthBar;

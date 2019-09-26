@@ -16,6 +16,7 @@
     'use strict';
 
     const selectors = {
+        navigationHeaderTitle: '.navigation__header .navHeader__title',
         navigationTrigger: '.header__primaryActions .navTrigger__root',
         navigationRoot: 'aside.navigation__root',
         shadowTreeRoot: '.categoryTree__root--shadow',
@@ -52,6 +53,15 @@
                 .forEach(a => a.addEventListener('click', downNavigationBinding));
 
             this.updateDynamicElements();
+
+            // a flag that indicates that we're in the "navigation" view
+            this.navigationPaneActive = true;
+
+            this.navigationPanel.addEventListener('aem.accmg.start', (ev)=>{
+                this.setVisible(this.backNavigationButton, true);
+                this.setVisible(this.backNavigationEmpty, false);
+            });
+
         }
 
         showPanel() {
@@ -111,6 +121,10 @@
         backNavigation() {
             let id = this.getActiveNavigation().dataset.parent;
             this.activateNavigation(id);
+
+            const event = new CustomEvent('aem.navigation.back');
+            document.dispatchEvent(event);
+            
         }
 
         downNavigation(event) {
