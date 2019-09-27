@@ -14,11 +14,11 @@
 
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, unmountComponentAtNode } from 'react-dom';
-import { act } from 'react-dom/test-utils';
-import { useCountries } from '../hooks';
+import { render, waitForElement } from '@testing-library/react';
+
+import { useCountries, useGuestCart } from '../hooks';
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
-import wait from 'waait';
+import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 
 const mocks = [
     {
@@ -42,49 +42,88 @@ const mocks = [
     }
 ];
 
-let container = null;
+const GuestCartHookWrapper = () => {
+    let [cartId, resetCart] = useGuestCart();
+    if (!cartId || cartId.length === 0) {
+        return <div data-testid="cart-details">No cart</div>;
+    }
+    return (
+        <div>
+            <div data-testid="cart-details">{cartId}</div>
+            <button onClick={resetCart}>Reset</button>
+        </div>
+    );
+};
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
-        beforeEach(() => {
-            // setup a DOM element as a render target
-            container = document.createElement('div');
-            document.body.appendChild(container);
-        });
-
-        afterEach(() => {
-            // cleanup on exiting
-            unmountComponentAtNode(container);
-            container.remove();
-            container = null;
-        });
-
         it('returns the correct country list', async () => {
-            let results;
             const HookWrapper = () => {
-                results = useCountries();
+                let results = useCountries();
                 if (!results || results.length === 0) {
                     return <div id="results"></div>;
                 }
                 return (
                     <div id="results">
-                        <div className="count">{results.length}</div>
-                        <div className="content">{results[1].id}</div>
+                        <div data-testid="count">{results.length}</div>
+                        <div data-testid="result">{results[1].id}</div>
                     </div>
                 );
             };
-            render(
+
+            const { getByTestId } = render(
                 <MockedProvider mocks={mocks} addTypename={false}>
                     <HookWrapper />
-                </MockedProvider>,
-                container
+                </MockedProvider>
             );
-            await act(async () => {
-                await wait(0);
+            const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
+            expect(count.textContent).toEqual('2');
+            expect(result.textContent).toEqual('US');
+        });
+    });
+
+    describe('useGuestCart', () => {
+        it('retrieves the id of the cart from the cookie', async () => {
+            Object.defineProperty(window.document, 'cookie', {
+                writable: true,
+                value: 'cif.cart=cart-from-cookie;path=/;domain=http://localhost;Max-Age=3600'
             });
-            expect(container.querySelector('#results *')).toEqual(expect.anything());
-            expect(container.querySelector('#results .count').textContent).toEqual('2');
-            expect(container.querySelector('#results .content').textContent).toEqual('US');
+
+            const { getByTestId } = render(
+                <MockedProvider mocks={[]} addTypename={false}>
+                    <GuestCartHookWrapper />
+                </MockedProvider>
+            );
+            const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
+
+            expect(cartIdNode.textContent).toEqual('cart-from-cookie');
+            Object.defineProperty(window.document, 'cookie', {
+                writable: true,
+                value: ''
+            });
+        });
+        it('retrieves the id of the cart from the backend if the cookie is not set', async () => {
+            const { getByTestId } = render(
+                <MockedProvider
+                    mocks={[
+                        {
+                            request: {
+                                query: MUTATION_CREATE_CART
+                            },
+                            result: {
+                                data: {
+                                    createEmptyCart: 'guest123'
+                                }
+                            }
+                        }
+                    ]}
+                    addTypename={false}>
+                    <GuestCartHookWrapper />
+                </MockedProvider>
+            );
+            const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
+
+            expect(cartIdNode.children[0].textContent).toEqual('guest123');
         });
     });
 });

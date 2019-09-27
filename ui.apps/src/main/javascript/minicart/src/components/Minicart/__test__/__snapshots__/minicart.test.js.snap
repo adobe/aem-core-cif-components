@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Minicart> renders the empty cart 1`] = `
+<div
+  class="root"
+  data-testid="empty-minicart"
+>
+  <h3
+    class="emptyTitle"
+  >
+    There are no items in your shopping cart
+  </h3>
+  <button
+    class="root"
+    type="button"
+  >
+    <span
+      class="continue"
+    >
+      Continue Shopping
+    </span>
+  </button>
+</div>
+`;

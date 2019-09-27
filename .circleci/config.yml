@@ -49,7 +49,7 @@ jobs:
             npm run webpack:build
           working_directory: ./ui.apps
       - run:
-          name: Run Unit Tests
+          name: Run Unit Tests (Karma)
           command: npm test
           working_directory: ./ui.apps
       - store_test_results:
@@ -59,7 +59,30 @@ jobs:
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: karma
-
+  jest:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision
+          command: |
+            node -v
+            npm -v
+            npm install
+          working_directory: ./ui.apps/src/main/javascript/minicart
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm test
+          working_directory: ./ui.apps/src/main/javascript/minicart
+      - store_test_results:
+          path: ./ui.apps/src/main/javascript/minicart/coverage
+      - store_artifacts:
+          path: ./ui.apps/src/main/javascript/minicart/coverage
+      - codecov/upload:
+          conf: .circleci/codecov.yml
+          flags: jest
+ 
   release:
     executor: cif_executor
     steps:
@@ -86,6 +109,10 @@ workflows:
             tags:
               only: /.*/
       - karma:
+          filters:
+            tags:
+              only: /.*/
+      - jest:
           filters:
             tags:
               only: /.*/

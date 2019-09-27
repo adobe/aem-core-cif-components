@@ -51,7 +51,7 @@ const Product = props => {
 
     const mask = isLoading ? <div className={classes.mask} /> : null;
     return (
-        <li className={classes.root}>
+        <li className={classes.root} data-testid="cart-item">
             {productImage}
             <div className={classes.name}>{name}</div>
             <div className={classes.quantity}>

@@ -19,7 +19,7 @@ import { useCartState } from '../../utils/state';
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();
     return (
-        <div className={classes.root}>
+        <div className={classes.root} data-testid="empty-minicart">
             <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
             <Trigger
                 action={() => {
