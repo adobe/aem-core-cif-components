@@ -48,6 +48,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -114,16 +115,23 @@ public class ProductListImplTest {
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
 
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(false);
+        slingBindings.put("wcmmode", wcmMode);
+
+        // context.request().adaptTo(ProductListImpl.class); is moved to each test because it uses an internal cache
+        // and we want to override the "slug" in testEditModePlaceholderData()
     }
 
     @Test
     public void getTitle() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
     }
 
     @Test
     public void getImage() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
         String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/category/";
         Assert.assertEquals(baseMediaPath + category.getImage(), productListModel.getImage());
     }
@@ -141,6 +149,7 @@ public class ProductListImplTest {
 
     @Test
     public void getProducts() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> products = productListModel.getProducts();
         Assert.assertNotNull(products);
         Assert.assertEquals(true, category.getProducts().getItems().size() <= products.size());
@@ -171,6 +180,8 @@ public class ProductListImplTest {
 
     @Test
     public void testPagination() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
         // Cannot be added to JCR JSON content because of long/int conversion
         int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
 
@@ -226,6 +237,21 @@ public class ProductListImplTest {
         productListModel.setNavPageCursor();
         productListModel.setupPagination();
         Assert.assertEquals(1, productListModel.getCurrentNavPage());
+    }
+
+    @Test
+    public void testEditModePlaceholderData() throws IOException {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString(null);
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        String json = getResource(ProductListImpl.PLACEHOLDER_DATA);
+        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        category = rootQuery.getCategory();
+        storeConfig = rootQuery.getStoreConfig();
+
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
     }
 
     private String getResource(String filename) throws IOException {
