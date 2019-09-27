@@ -20,6 +20,7 @@ import { useCountries } from '../../utils/hooks';
 import AddressForm from './addressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
+import { useCartState } from '../../utils/state';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
@@ -46,9 +47,9 @@ const EditableForm = props => {
         shippingAddress,
         setShippingMethod,
         shippingMethod,
-        availableShippingMethods,
-        cart
+        availableShippingMethods
     } = props;
+    const [{ cart, cartId }] = useCartState();
 
     let countries = useCountries();
 
@@ -68,8 +69,8 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
-            setShippingAddressesOnCart({ variables: { cartId: cart.cartId, countryCode: 'US', ...formValues } });
-            setGuestEmailOnCart({ variables: { cartId: cart.cartId, email: formValues.email } });
+            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } });
+            setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
         },
         [setEditing, setShippingAddressesOnCart]
     );
@@ -81,7 +82,7 @@ const EditableForm = props => {
                 if (shippingAddress) {
                     setBillingAddressOnCart({
                         variables: {
-                            cartId: cart.cartId,
+                            cartId: cartId,
                             ...shippingAddress,
                             countryCode: shippingAddress.country,
                             region: shippingAddress.region.code
@@ -91,21 +92,21 @@ const EditableForm = props => {
             } else {
                 setBillingAddressOnCart({
                     variables: {
-                        cartId: cart.cartId,
+                        cartId: cartId,
                         ...args.billingAddress,
                         countryCode: 'US'
                     }
                 });
             }
 
-            setPaymentMethodOnCart({ variables: { cartId: cart.cartId, paymentMethodCode: args.paymentMethod.code } });
+            setPaymentMethodOnCart({ variables: { cartId: cartId, paymentMethodCode: args.paymentMethod.code } });
         },
         [setEditing]
     );
 
     const handleSubmitShippingForm = useCallback(
         formValues => {
-            setShippingMethodsOnCart({ variables: { cartId: cart.cartId, ...formValues.shippingMethod } });
+            setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } });
         },
         [setEditing, submitShippingMethod]
     );

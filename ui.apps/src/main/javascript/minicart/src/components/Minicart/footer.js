@@ -12,15 +12,13 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { object } from 'prop-types';
 import Checkout from '../Checkout';
 import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
 import { useCartState } from '../../utils/state';
 
-const Footer = props => {
-    const { cart } = props;
-    const [{ isOpen, cartId }] = useCartState();
+const Footer = () => {
+    const [{ isOpen, cart }] = useCartState();
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
     const { currency, value: totalPrice } = cart.prices.grand_total;
@@ -28,12 +26,9 @@ const Footer = props => {
     return (
         <div className={footerClassName}>
             <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
-            <Checkout cart={{ cartId, ...cart }} />
+            <Checkout />
         </div>
     );
 };
 
-Footer.propTypes = {
-    cart: object.isRequired
-};
 export default Footer;

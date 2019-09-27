@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -32,7 +32,7 @@ import CartTrigger from '../CartTrigger';
 import { useCartState } from '../../utils/state';
 
 const MiniCart = () => {
-    const [{ cartId, isOpen, isEditing }, dispatch] = useCartState();
+    const [{ cartId, cart, isOpen, isEditing }, dispatch] = useCartState();
 
     const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
@@ -45,6 +45,12 @@ const MiniCart = () => {
         variables: { cartId },
         skip: !cartId
     });
+
+    useEffect(() => {
+        if (data && data.cart) {
+            dispatch({ type: 'cart', cart: data.cart });
+        }
+    }, [data]);
 
     if (error) {
         console.error(`Error loading cart`, error);
@@ -65,12 +71,9 @@ const MiniCart = () => {
     });
     useEventListener(document, 'aem.cif.add-to-cart', addToCart);
 
-    const removeItemFromCart = useCallback(
-        itemId => {
-            removeItem({ variables: { cartId, itemId } });
-        },
-        [removeItem]
-    );
+    const removeItemFromCart = itemId => {
+        removeItem({ variables: { cartId, itemId } });
+    };
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
@@ -80,10 +83,10 @@ const MiniCart = () => {
     let footer = null;
     const isLoading = !data || !data.cart || queryLoading || addItemLoading || removeItemLoading;
     const showFooter = !(isLoading || isEmpty || isEditing);
-    if (data && data.cart) {
-        currencyCode = getCurrencyCode(data.cart);
-        cartQuantity = data.cart.items.length;
-        footer = showFooter ? <Footer cart={data.cart} /> : null;
+    if (cart && Object.entries(cart).length > 0) {
+        currencyCode = getCurrencyCode(cart);
+        cartQuantity = cart.items.length;
+        footer = showFooter ? <Footer /> : null;
     }
 
     if (!cartId || cartId.length === 0) {
@@ -99,7 +102,6 @@ const MiniCart = () => {
                 <Body
                     isEmpty={isEmpty}
                     isLoading={isLoading}
-                    cart={data && data.cart}
                     currencyCode={currencyCode}
                     removeItemFromCart={removeItemFromCart}
                 />

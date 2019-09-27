@@ -32,7 +32,8 @@ const App = () => {
         isOpen: false,
         isEditing: false,
         editItem: {},
-        cartId: null
+        cartId: null,
+        cart: {}
     };
 
     const reducer = (state, action) => {
@@ -70,6 +71,11 @@ const App = () => {
                     ...state,
                     cartId: null,
                     isOpen: false
+                };
+            case 'cart':
+                return {
+                    ...state,
+                    cart: action.cart
                 };
 
             default:
