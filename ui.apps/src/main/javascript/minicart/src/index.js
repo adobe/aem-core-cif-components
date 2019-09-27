@@ -16,6 +16,7 @@ import ReactDOM from 'react-dom';
 
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
+import UserContextProvider from './context/UserContext';
 
 import Cart from './components/Minicart';
 import AuthBar from './components/AuthBar';
@@ -27,8 +28,10 @@ const App = () => {
 
     return (
         <ApolloProvider client={client}>
-            <Cart />
-            <AuthBar />
+            <UserContextProvider>
+                <Cart />
+                <AuthBar />
+            </UserContextProvider>
         </ApolloProvider>
     );
 };

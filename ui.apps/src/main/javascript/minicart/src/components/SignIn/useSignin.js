@@ -12,34 +12,22 @@
  *
  ******************************************************************************/
 
-import { useRef, useCallback } from 'react';
-import { useMutation } from '@apollo/react-hooks';
-
-import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
+import { useUserContext } from '../../context/UserContext';
 
 export const useSignin = () => {
-    const formRef = useRef(null);
     let errorMessage = '';
-    const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN);
 
-    if (data) {
-        //switch to details view
+    const [userState, { signIn }] = useUserContext();
+
+    if (userState.signInError && userState.signInError.length > 0) {
+        errorMessage = userState.signInError;
     }
 
-    if (error) {
-        //show error message
-        errorMessage = error;
-        console.error(error);
-    }
-    const handleSubmit = useCallback(
-        ({ email, password }) => {
-            generateCustomerToken({ variables: { email, password } });
-        },
-        [generateCustomerToken]
-    );
+    const handleSubmit = ({ email, password }) => {
+        signIn({ email, password });
+    };
 
     return {
-        formRef,
         handleSubmit,
         errorMessage
     };

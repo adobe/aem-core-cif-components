@@ -23,11 +23,11 @@ import classes from './signIn.css';
 import { useSignin } from './useSignin';
 
 const SignIn = props => {
-    const { errorMessage, handleSubmit, formRef } = useSignin();
+    const { errorMessage, handleSubmit } = useSignin();
 
     return (
         <div className={classes.root}>
-            <Form ref={formRef}>
+            <Form onSubmit={handleSubmit} className={classes.form}>
                 <Field label="Email" required="true">
                     <TextInput autoComplete="email" field="email" validate={isRequired} />
                 </Field>
