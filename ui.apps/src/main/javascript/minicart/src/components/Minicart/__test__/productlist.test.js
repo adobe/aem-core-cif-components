@@ -14,6 +14,7 @@
 import React from 'react';
 import ProductList from '../productList';
 import { render } from 'test-utils';
+import { CartProvider } from '../../../utils/state';
 
 describe('<ProductList>', () => {
     const mockCartItems = [
@@ -57,7 +58,9 @@ describe('<ProductList>', () => {
 
     it('renders a list of products', () => {
         const { getAllByTestId } = render(
-            <ProductList cartItems={mockCartItems} removeItemFromCart={jest.fn()} beginEditItem={jest.fn()} />
+            <CartProvider initialState={{}} reducer={state => state}>
+                <ProductList cartItems={mockCartItems} removeItemFromCart={jest.fn()} />
+            </CartProvider>
         );
 
         const productItems = getAllByTestId('cart-item');

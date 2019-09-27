@@ -20,6 +20,7 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import Cart from './components/Minicart';
 import { CartProvider } from './utils/state';
 import { useCookieValue } from './utils/hooks';
+import CartInitializer from './utils/cartInitializer';
 
 const App = () => {
     const client = new ApolloClient({
@@ -86,7 +87,9 @@ const App = () => {
     return (
         <ApolloProvider client={client}>
             <CartProvider initialState={initialState} reducer={reducer}>
-                <Cart />
+                <CartInitializer>
+                    <Cart />
+                </CartInitializer>
             </CartProvider>
         </ApolloProvider>
     );

@@ -12,12 +12,8 @@
  *
  ******************************************************************************/
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { object, func } from 'prop-types';
-import { useCookieValue } from '../utils/hooks';
-import { useMutation } from '@apollo/react-hooks';
-
-import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
 
 export const CartContext = createContext();
 
@@ -30,36 +26,4 @@ CartProvider.propTypes = {
     initialState: object.isRequired
 };
 
-export const useCartState = () => {
-    const ctx = useContext(CartContext);
-    const [{ cartId: stateCartId }, dispatch] = ctx;
-
-    const cookieName = 'cif.cart';
-    let [cartId, setCartCookie] = useCookieValue(cookieName);
-    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
-
-    useEffect(() => {
-        if (!cartId || cartId.length === 0) {
-            createCart();
-        }
-    }, [cartId]);
-
-    useEffect(() => {
-        if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId });
-        }
-    }, [cartId, stateCartId]);
-
-    useEffect(() => {
-        if (data) {
-            setCartCookie(data.createEmptyCart);
-            dispatch({ type: 'cartId', cartId: data.createEmptyCart });
-        }
-        // Could not create a new cart. TODO: What should be done in this case?
-        if (error) {
-            console.error(error);
-        }
-    }, [data, error]);
-
-    return ctx;
-};
+export const useCartState = () => useContext(CartContext);
