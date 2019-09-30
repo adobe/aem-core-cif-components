@@ -41,7 +41,7 @@ describe('<Product />', () => {
         const mockBeginEditItem = jest.fn();
 
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <Product
                     beginEditItem={mockBeginEditItem}
                     removeItemFromCart={mockRemoveItemFromCart}

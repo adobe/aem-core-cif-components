@@ -20,7 +20,7 @@ import Header from '../header';
 describe('<Header>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducer={state => state}>
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
                 <Header />
             </CartProvider>
         );
@@ -32,7 +32,7 @@ describe('<Header>', () => {
         const mockFn = jest.fn();
 
         const { getByRole } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducer={mockFn}>
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => mockFn}>
                 <Header />
             </CartProvider>
         );

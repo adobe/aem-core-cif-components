@@ -28,7 +28,7 @@ afterEach(cleanup);
 describe('<Flow>', () => {
     it('it disables checkout button for empty cart', () => {
         const { getByRole } = render(
-            <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducer={state => state}>
+            <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
                 <Flow />
             </CartProvider>
         );
@@ -42,7 +42,7 @@ describe('<Flow>', () => {
 
         // we rerender the component with the new cart, button should be enabled
         const { getByRole } = render(
-            <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducer={state => state}>
+            <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducerFactory={() => state => state}>
                 <Flow />
             </CartProvider>
         );

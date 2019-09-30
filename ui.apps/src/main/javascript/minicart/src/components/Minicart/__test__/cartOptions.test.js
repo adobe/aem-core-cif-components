@@ -39,7 +39,7 @@ describe('<CartOptions>', () => {
         };
 
         const { asFragment } = render(
-            <CartProvider initialState={initialState} reducer={state => state}>
+            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
                 <CartOptions />
             </CartProvider>
         );

@@ -29,7 +29,7 @@ describe('<Minicart>', () => {
 
     it('renders the empty cart', async () => {
         const { getByTestId } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducer={state => state}>
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
                 <Minicart />
             </CartProvider>
         );

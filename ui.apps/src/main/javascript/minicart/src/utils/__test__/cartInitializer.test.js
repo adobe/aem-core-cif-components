@@ -44,7 +44,7 @@ describe('<CartInitializer />', () => {
             <MockedProvider mocks={[]} addTypename={false}>
                 <CartProvider
                     initialState={{ cartId: null }}
-                    reducer={(state, action) => {
+                    reducerFactory={() => (state, action) => {
                         if (action.type == 'cartId') {
                             return { ...state, cartId: action.cartId };
                         }
@@ -83,7 +83,7 @@ describe('<CartInitializer />', () => {
                 addTypename={false}>
                 <CartProvider
                     initialState={{ cartId: null }}
-                    reducer={(state, action) => {
+                    reducerFactory={() => (state, action) => {
                         if (action.type == 'cartId') {
                             return { ...state, cartId: action.cartId };
                         }

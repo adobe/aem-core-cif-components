@@ -30,7 +30,7 @@ describe('<CartTrigger>', () => {
 
     it('renders the icon', () => {
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <CartTrigger cartQuantity={2} />
             </CartProvider>
         );
@@ -40,7 +40,7 @@ describe('<CartTrigger>', () => {
     it('renders the quantity', () => {
         const expectedQuantity = '2';
         const { getByTestId } = render(
-            <CartProvider initialState={{}} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <CartTrigger cartQuantity={parseInt(expectedQuantity)} />
             </CartProvider>
         );
@@ -52,7 +52,7 @@ describe('<CartTrigger>', () => {
         const handler = jest.fn();
 
         const { getByRole } = render(
-            <CartProvider initialState={{}} reducer={handler}>
+            <CartProvider initialState={{}} reducerFactory={() => handler}>
                 <CartTrigger cartQuantity={2} />
             </CartProvider>
         );

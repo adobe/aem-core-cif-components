@@ -58,7 +58,7 @@ describe('<ProductList>', () => {
 
     it('renders a list of products', () => {
         const { getAllByTestId } = render(
-            <CartProvider initialState={{}} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <ProductList cartItems={mockCartItems} removeItemFromCart={jest.fn()} />
             </CartProvider>
         );
