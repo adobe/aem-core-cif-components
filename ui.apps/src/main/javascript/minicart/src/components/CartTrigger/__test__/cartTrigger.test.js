@@ -53,7 +53,7 @@ describe('<CartTrigger>', () => {
 
         const { getByRole } = render(
             <CartProvider initialState={{}} reducer={handler}>
-                <CartTrigger cartQuantity={2} handler={handler} />
+                <CartTrigger cartQuantity={2} />
             </CartProvider>
         );
         fireEvent.click(getByRole('button'));

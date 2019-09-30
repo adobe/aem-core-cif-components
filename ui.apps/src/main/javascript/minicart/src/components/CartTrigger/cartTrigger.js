@@ -26,7 +26,6 @@ const parentEl = document.querySelector('.header__cartTrigger');
 
 const Trigger = props => {
     const { cartQuantity } = props;
-
     const [, dispatch] = useCartState();
 
     const iconColor = 'rgb(var(--venia-text))';

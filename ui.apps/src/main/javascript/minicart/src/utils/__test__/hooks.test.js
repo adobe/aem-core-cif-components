@@ -16,9 +16,8 @@ import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
 
-import { useCountries, useGuestCart } from '../hooks';
+import { useCountries } from '../hooks';
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
-import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 
 const mocks = [
     {
@@ -41,19 +40,6 @@ const mocks = [
         }
     }
 ];
-
-const GuestCartHookWrapper = () => {
-    let [cartId, resetCart] = useGuestCart();
-    if (!cartId || cartId.length === 0) {
-        return <div data-testid="cart-details">No cart</div>;
-    }
-    return (
-        <div>
-            <div data-testid="cart-details">{cartId}</div>
-            <button onClick={resetCart}>Reset</button>
-        </div>
-    );
-};
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
@@ -79,52 +65,6 @@ describe('Custom hooks', () => {
             const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
             expect(count.textContent).toEqual('2');
             expect(result.textContent).toEqual('US');
-        });
-    });
-
-    describe('useGuestCart', () => {
-        // TODO: Functionality moved to CartInitializer, create new test
-        it.skip('retrieves the id of the cart from the cookie', async () => {
-            Object.defineProperty(window.document, 'cookie', {
-                writable: true,
-                value: 'cif.cart=cart-from-cookie;path=/;domain=http://localhost;Max-Age=3600'
-            });
-
-            const { getByTestId } = render(
-                <MockedProvider mocks={[]} addTypename={false}>
-                    <GuestCartHookWrapper />
-                </MockedProvider>
-            );
-            const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
-
-            expect(cartIdNode.textContent).toEqual('cart-from-cookie');
-            Object.defineProperty(window.document, 'cookie', {
-                writable: true,
-                value: ''
-            });
-        });
-        it.skip('retrieves the id of the cart from the backend if the cookie is not set', async () => {
-            const { getByTestId } = render(
-                <MockedProvider
-                    mocks={[
-                        {
-                            request: {
-                                query: MUTATION_CREATE_CART
-                            },
-                            result: {
-                                data: {
-                                    createEmptyCart: 'guest123'
-                                }
-                            }
-                        }
-                    ]}
-                    addTypename={false}>
-                    <GuestCartHookWrapper />
-                </MockedProvider>
-            );
-            const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
-
-            expect(cartIdNode.children[0].textContent).toEqual('guest123');
         });
     });
 });
