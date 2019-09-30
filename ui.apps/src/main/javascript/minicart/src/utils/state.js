@@ -19,9 +19,12 @@ import { useCookieValue } from '../utils/hooks';
 export const initialState = {
     isOpen: false,
     isEditing: false,
+    isLoading: false,
     editItem: {},
     cartId: null,
-    cart: {}
+    cart: {},
+    addItem: () => {},
+    removeItem: () => {}
 };
 
 export const reducerFactory = setCartCookie => {
@@ -36,6 +39,16 @@ export const reducerFactory = setCartCookie => {
                 return {
                     ...state,
                     isOpen: true
+                };
+            case 'beginLoading':
+                return {
+                    ...state,
+                    isLoading: true
+                };
+            case 'endLoading':
+                return {
+                    ...state,
+                    isLoading: false
                 };
             case 'beginEditing':
                 return {
@@ -52,7 +65,8 @@ export const reducerFactory = setCartCookie => {
             case 'cartId':
                 return {
                     ...state,
-                    cartId: action.cartId
+                    cartId: action.cartId,
+                    ...action.methods
                 };
             case 'reset':
                 setCartCookie('', 0);
@@ -77,6 +91,7 @@ export const CartContext = createContext();
 
 export const CartProvider = ({ reducerFactory, initialState, children }) => {
     const [, setCartCookie] = useCookieValue('cif.cart');
+
     return (
         <CartContext.Provider value={useReducer(reducerFactory(setCartCookie), initialState)}>
             {children}

@@ -13,13 +13,13 @@
  ******************************************************************************/
 import React from 'react';
 import { List } from '@magento/peregrine';
-import { array, func, shape, string } from 'prop-types';
+import { array, shape, string } from 'prop-types';
 
 import Product from './product';
 import classes from './productList.css';
 
 const ProductList = props => {
-    const { cartItems, removeItemFromCart } = props;
+    const { cartItems } = props;
 
     return (
         <List
@@ -28,7 +28,7 @@ const ProductList = props => {
             items={cartItems}
             getItemKey={item => item.id}
             renderItem={itemProps => {
-                return <Product item={itemProps.item} removeItemFromCart={removeItemFromCart} />;
+                return <Product item={itemProps.item} />;
             }}></List>
     );
 };
@@ -38,8 +38,7 @@ ProductList.propTypes = {
     classes: shape({
         root: string
     }),
-    currencyCode: string,
-    removeItemFromCart: func.isRequired
+    currencyCode: string
 };
 
 export default ProductList;

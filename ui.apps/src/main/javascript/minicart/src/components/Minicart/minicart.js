@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useEffect } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
 import getCurrencyCode from '../../utils/getCurrencyCode';
@@ -25,21 +25,12 @@ import Footer from './footer';
 import classes from './minicart.css';
 
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
-import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
-import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import CartTrigger from '../CartTrigger';
 
 import { useCartState } from '../../utils/state';
 
 const MiniCart = () => {
-    const [{ cartId, cart, isOpen, isEditing }, dispatch] = useCartState();
-
-    const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
-    });
-    const [removeItem, { loading: removeItemLoading }] = useMutation(MUTATION_REMOVE_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
-    });
+    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem }, dispatch] = useCartState();
 
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
@@ -56,24 +47,10 @@ const MiniCart = () => {
         console.error(`Error loading cart`, error);
     }
 
-    const addToCart = ev => {
-        if (!ev.detail) {
-            return;
-        }
-
-        const { sku, quantity } = ev.detail;
-        addItem({ variables: { cartId, sku, quantity } });
-        dispatch({ type: 'open' });
-    };
-
     useEventListener(document, 'aem.cif.open-cart', () => {
         dispatch({ type: 'open' });
     });
-    useEventListener(document, 'aem.cif.add-to-cart', addToCart);
-
-    const removeItemFromCart = itemId => {
-        removeItem({ variables: { cartId, itemId } });
-    };
+    useEventListener(document, 'aem.cif.add-to-cart', addItem);
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
@@ -81,8 +58,9 @@ const MiniCart = () => {
     let cartQuantity;
     let currencyCode = '';
     let footer = null;
-    const isLoading = !data || !data.cart || queryLoading || addItemLoading || removeItemLoading;
-    const showFooter = !(isLoading || isEmpty || isEditing);
+    // TODO: Ideally this is stored in the cart state
+    let loading = !data || !data.cart || queryLoading || isLoading;
+    const showFooter = !(loading || isEmpty || isEditing);
     if (cart && Object.entries(cart).length > 0) {
         currencyCode = getCurrencyCode(cart);
         cartQuantity = cart.items.length;
@@ -99,12 +77,7 @@ const MiniCart = () => {
             <Mask />
             <aside className={rootClass}>
                 <Header />
-                <Body
-                    isEmpty={isEmpty}
-                    isLoading={isLoading}
-                    currencyCode={currencyCode}
-                    removeItemFromCart={removeItemFromCart}
-                />
+                <Body isEmpty={isEmpty} isLoading={loading} currencyCode={currencyCode} />
                 {footer}
             </aside>
         </>

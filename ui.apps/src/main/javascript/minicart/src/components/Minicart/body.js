@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool, string, func } from 'prop-types';
+import { bool, string } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -26,7 +26,7 @@ import { useCartState } from '../../utils/state';
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
 const Body = props => {
-    const { isEmpty, isLoading, currencyCode, removeItemFromCart } = props;
+    const { isEmpty, isLoading, currencyCode } = props;
     const [{ isEditing, cart }] = useCartState();
 
     if (isLoading) {
@@ -43,7 +43,7 @@ const Body = props => {
     const cartItems = cart.items;
     return (
         <div className={classes.root}>
-            <ProductList cartItems={cartItems} currencyCode={currencyCode} removeItemFromCart={removeItemFromCart} />
+            <ProductList cartItems={cartItems} currencyCode={currencyCode} />
         </div>
     );
 };
@@ -53,6 +53,5 @@ export default Body;
 Body.propTypes = {
     isEmpty: bool,
     isLoading: bool,
-    currencyCode: string.isRequired,
-    removeItemFromCart: func.isRequired
+    currencyCode: string.isRequired
 };

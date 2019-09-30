@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState, useMemo, useCallback } from 'react';
-import { func, number, shape, object, string } from 'prop-types';
+import { number, shape, object, string } from 'prop-types';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
 
@@ -27,8 +27,8 @@ const imageWidth = 80;
 const imageHeight = 100;
 
 const Product = props => {
-    const { item, removeItemFromCart } = props;
-    const [, dispatch] = useCartState();
+    const { item } = props;
+    const [{ removeItem }, dispatch] = useCartState();
 
     const { product = {}, quantity = 0, id = '' } = item;
     const { thumbnail, name, price } = product;
@@ -46,8 +46,8 @@ const Product = props => {
 
     const handleRemoveItem = useCallback(() => {
         setIsLoading(true);
-        removeItemFromCart(id);
-    }, [setIsLoading, id, removeItemFromCart]);
+        removeItem(id);
+    }, [setIsLoading, id, removeItem]);
 
     const mask = isLoading ? <div className={classes.mask} /> : null;
     return (
@@ -79,7 +79,6 @@ const Product = props => {
 };
 
 Product.propTypes = {
-    removeItemFromCart: func.isRequired,
     item: shape({
         id: string.isRequired,
         quantity: number.isRequired,

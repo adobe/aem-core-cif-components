@@ -17,6 +17,9 @@ import { useCookieValue } from './hooks';
 import { useMutation } from '@apollo/react-hooks';
 
 import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
+import CART_DETAILS_QUERY from '../queries/query_cart_details.graphql';
+import MUTATION_REMOVE_ITEM from '../queries/mutation_remove_item.graphql';
+import MUTATION_ADD_TO_CART from '../queries/mutation_add_to_cart.graphql';
 
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();
@@ -24,6 +27,35 @@ const CartInitializer = props => {
 
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
     const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
+    const [addItem] = useMutation(MUTATION_ADD_TO_CART);
+    const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
+
+    const _createFunctions = (cartId, dispatch) => {
+        return {
+            addItem: ev => {
+                if (!ev.detail) return;
+
+                const { sku, quantity } = ev.detail;
+                dispatch({ type: 'open' });
+                dispatch({ type: 'beginLoading' });
+                return addItem({
+                    variables: { cartId, sku, quantity },
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+                }).finally(() => {
+                    dispatch({ type: 'endLoading' });
+                });
+            },
+            removeItem: itemId => {
+                dispatch({ type: 'beginLoading' });
+                return removeItem({
+                    variables: { cartId, itemId },
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+                }).finally(() => {
+                    dispatch({ type: 'endLoading' });
+                });
+            }
+        };
+    };
 
     useEffect(() => {
         if (!cartId || cartId.length === 0) {
@@ -33,15 +65,16 @@ const CartInitializer = props => {
 
     useEffect(() => {
         if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId });
+            dispatch({ type: 'cartId', cartId: cartId, methods: _createFunctions(cartId, dispatch) });
         }
     }, [cartId, stateCartId]);
 
     useEffect(() => {
         if (data) {
             setCartCookie(data.createEmptyCart);
-            dispatch({ type: 'cartId', cartId: data.createEmptyCart });
+            dispatch({ type: 'cartId', cartId: data.createEmptyCart, methods: _createFunctions(cartId, dispatch) });
         }
+
         // Could not create a new cart. TODO: What should be done in this case?
         if (error) {
             console.error(error);
