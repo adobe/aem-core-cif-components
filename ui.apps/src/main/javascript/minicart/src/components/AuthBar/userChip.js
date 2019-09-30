@@ -12,7 +12,32 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { ChevronRight as ChevronRightIcon, User as UserIcon } from 'react-feather';
+import classes from './userChip.css';
+import Icon from '../Icon';
 
-const UserChip = props => {};
+const UserChip = props => {
+    const { currentUser } = props;
+    const { email, firstname, lastname } = currentUser;
+
+    const display = `${firstname} ${lastname}`;
+
+    return (
+        <button className={classes.root}>
+            <span className={classes.content}>
+                <span className={classes.avatar}>
+                    <Icon src={UserIcon} />
+                </span>
+                <span className={classes.user}>
+                    <span className={classes.fullName}>{display}</span>
+                    <span className={classes.email}>{email}</span>
+                </span>
+                <span className={classes.icon}>
+                    <Icon src={ChevronRightIcon} />
+                </span>
+            </span>
+        </button>
+    );
+};
 
 export default UserChip;

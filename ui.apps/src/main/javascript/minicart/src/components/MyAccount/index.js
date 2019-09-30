@@ -11,29 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-
-import Button from '../Button';
-import classes from './authBar.css';
-import { useUserContext } from '../../context/UserContext';
-import UserChip from './userChip';
-
-const AuthBar = props => {
-    const { showSignIn } = props;
-
-    const [{ currentUser, isSignedIn }] = useUserContext();
-    console.log(`User state in authBar `, currentUser);
-
-    const disabled = false;
-
-    const content = isSignedIn ? (
-        <UserChip currentUser={currentUser} />
-    ) : (
-        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
-            {'Sign In'}
-        </Button>
-    );
-    return <div className={classes.root}>{content} </div>;
-};
-
-export default AuthBar;
+export { default } from './myAccount';

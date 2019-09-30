@@ -13,9 +13,10 @@
  ******************************************************************************/
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useCookieValue } from '../utils/hooks';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
+import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
 const UserContext = React.createContext();
 
@@ -31,10 +32,14 @@ const UserContextProvider = props => {
         isSignedIn: !!userToken,
         signInError: ''
     };
-
+    console.log(`Do we have a token? ${userToken}`);
+    console.log(`We have initial state `, initialState);
     const [userState, setUserState] = useState(initialState);
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN);
+    const [getCustomerDetails, { data: customerData, error: customerDetailsError }] = useLazyQuery(
+        QUERY_CUSTOMER_DETAILS
+    );
 
     const signIn = useCallback(
         ({ email, password }) => {
@@ -43,10 +48,27 @@ const UserContextProvider = props => {
         [generateCustomerToken]
     );
 
+    const getUserDetails = useCallback(() => {}, [getCustomerDetails]);
+
+    useEffect(() => {
+        getCustomerDetails({
+            context: { headers: { authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}` } }
+        });
+    }, [userToken]);
+
+    useEffect(() => {
+        console.log(`Got customer data `, customerData);
+        if (customerData && customerData.customer && !customerDetailsError) {
+            const { firstname, lastname, email } = customerData.customer;
+            setUserState({ ...userState, currentUser: { firstname, lastname, email } });
+        }
+    }, [customerData, customerDetailsError]);
+
     useEffect(() => {
         if (data && !error) {
             setUserToken(data.generateCustomerToken.token);
             setUserState({ ...userState, isSignedIn: true });
+            getUserDetails();
         }
 
         if (error) {
@@ -59,7 +81,8 @@ const UserContextProvider = props => {
     const contextValue = [
         userState,
         {
-            signIn
+            signIn,
+            getUserDetails
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

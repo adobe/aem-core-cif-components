@@ -13,7 +13,9 @@
  ******************************************************************************/
 import React from 'react';
 import classes from './authModal.css';
+
 import SignIn from '../SignIn';
+import MyAccount from '../MyAccount';
 
 const AuthModal = props => {
     const { view } = props;
@@ -23,6 +25,10 @@ const AuthModal = props => {
     switch (view) {
         case 'SIGN_IN':
             child = <SignIn />;
+            break;
+        case 'MY_ACCOUNT':
+            child = <MyAccount />;
+            break;
     }
 
     return <div className={classes.root}>{child}</div>;
