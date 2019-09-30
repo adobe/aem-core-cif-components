@@ -14,15 +14,78 @@
 
 import React, { createContext, useContext, useReducer } from 'react';
 import { object, func } from 'prop-types';
+import { useCookieValue } from '../utils/hooks';
+
+export const initialState = {
+    isOpen: false,
+    isEditing: false,
+    editItem: {},
+    cartId: null,
+    cart: {}
+};
+
+export const reducerFactory = setCartCookie => {
+    return (state, action) => {
+        switch (action.type) {
+            case 'close':
+                return {
+                    ...state,
+                    isOpen: false
+                };
+            case 'open':
+                return {
+                    ...state,
+                    isOpen: true
+                };
+            case 'beginEditing':
+                return {
+                    ...state,
+                    isEditing: true,
+                    editItem: action.item
+                };
+            case 'endEditing':
+                return {
+                    ...state,
+                    isEditing: false,
+                    editItem: {}
+                };
+            case 'cartId':
+                return {
+                    ...state,
+                    cartId: action.cartId
+                };
+            case 'reset':
+                setCartCookie('', 0);
+                return {
+                    ...state,
+                    cartId: null,
+                    isOpen: false
+                };
+            case 'cart':
+                return {
+                    ...state,
+                    cart: action.cart
+                };
+
+            default:
+                return state;
+        }
+    };
+};
 
 export const CartContext = createContext();
 
-export const CartProvider = ({ reducer, initialState, children }) => (
-    <CartContext.Provider value={useReducer(reducer, initialState)}>{children}</CartContext.Provider>
-);
+export const CartProvider = ({ reducerFactory, initialState, children }) => {
+    const [, setCartCookie] = useCookieValue('cif.cart');
+    return (
+        <CartContext.Provider value={useReducer(reducerFactory(setCartCookie), initialState)}>
+            {children}
+        </CartContext.Provider>
+    );
+};
 
 CartProvider.propTypes = {
-    reducer: func.isRequired,
+    reducerFactory: func.isRequired,
     initialState: object.isRequired
 };
 

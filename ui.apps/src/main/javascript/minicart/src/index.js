@@ -18,8 +18,7 @@ import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
 
 import Cart from './components/Minicart';
-import { CartProvider } from './utils/state';
-import { useCookieValue } from './utils/hooks';
+import { CartProvider, initialState, reducerFactory } from './utils/state';
 import CartInitializer from './utils/cartInitializer';
 
 const App = () => {
@@ -27,66 +26,9 @@ const App = () => {
         uri: '/magento/graphql'
     });
 
-    const [, setCartCookie] = useCookieValue('cif.cart');
-
-    const initialState = {
-        isOpen: false,
-        isEditing: false,
-        editItem: {},
-        cartId: null,
-        cart: {}
-    };
-
-    const reducer = (state, action) => {
-        switch (action.type) {
-            case 'close':
-                return {
-                    ...state,
-                    isOpen: false
-                };
-            case 'open':
-                return {
-                    ...state,
-                    isOpen: true
-                };
-            case 'beginEditing':
-                return {
-                    ...state,
-                    isEditing: true,
-                    editItem: action.item
-                };
-            case 'endEditing':
-                return {
-                    ...state,
-                    isEditing: false,
-                    editItem: {}
-                };
-            case 'cartId':
-                return {
-                    ...state,
-                    cartId: action.cartId
-                };
-            case 'reset':
-                setCartCookie('', 0);
-                return {
-                    ...state,
-                    cartId: null,
-                    isOpen: false
-                };
-            case 'cart':
-                return {
-                    ...state,
-                    cart: action.cart
-                };
-
-            default:
-                return state;
-        }
-    };
-
     return (
         <ApolloProvider client={client}>
-            <CartProvider initialState={initialState} reducer={reducer}>
+            <CartProvider initialState={initialState} reducerFactory={reducerFactory}>
                 <CartInitializer>
                     <Cart />
                 </CartInitializer>
