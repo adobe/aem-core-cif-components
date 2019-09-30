@@ -40,7 +40,8 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return addItem({
                     variables: { cartId, sku, quantity },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
                 }).finally(() => {
                     dispatch({ type: 'endLoading' });
                 });
@@ -49,7 +50,8 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return removeItem({
                     variables: { cartId, itemId },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
                 }).finally(() => {
                     dispatch({ type: 'endLoading' });
                 });
