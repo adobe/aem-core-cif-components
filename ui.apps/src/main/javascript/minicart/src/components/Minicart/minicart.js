@@ -54,15 +54,10 @@ const MiniCart = () => {
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = data && data.cart && data.cart.items.length === 0;
 
-    let cartQuantity;
-    let footer = null;
     // TODO: Ideally this is stored in the cart state
     let loading = !data || !data.cart || queryLoading || isLoading;
     const showFooter = !(loading || isEmpty || isEditing);
-    if (cart && Object.entries(cart).length > 0) {
-        cartQuantity = cart.items.length;
-        footer = showFooter ? <Footer /> : null;
-    }
+    let footer = cart && Object.entries(cart).length > 0 && showFooter ? <Footer /> : null;
 
     if (!cartId || cartId.length === 0) {
         return null;
@@ -70,7 +65,7 @@ const MiniCart = () => {
 
     return (
         <>
-            <CartTrigger cartQuantity={cartQuantity} />
+            <CartTrigger />
             <Mask />
             <aside className={rootClass}>
                 <Header />

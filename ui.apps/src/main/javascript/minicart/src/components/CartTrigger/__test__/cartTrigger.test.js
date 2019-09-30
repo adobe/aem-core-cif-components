@@ -28,10 +28,12 @@ describe('<CartTrigger>', () => {
         ReactDOM.createPortal.mockClear();
     });
 
+    const stateWithTwoItems = { cart: { items: [{}, {}] } };
+
     it('renders the icon', () => {
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CartTrigger cartQuantity={2} />
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => state => state}>
+                <CartTrigger />
             </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -40,8 +42,8 @@ describe('<CartTrigger>', () => {
     it('renders the quantity', () => {
         const expectedQuantity = '2';
         const { getByTestId } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CartTrigger cartQuantity={parseInt(expectedQuantity)} />
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => state => state}>
+                <CartTrigger />
             </CartProvider>
         );
 
@@ -49,11 +51,11 @@ describe('<CartTrigger>', () => {
     });
 
     it('calls the handler function when clicked', () => {
-        const handler = jest.fn();
+        const handler = jest.fn(state => state);
 
         const { getByRole } = render(
-            <CartProvider initialState={{}} reducerFactory={() => handler}>
-                <CartTrigger cartQuantity={2} />
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => handler}>
+                <CartTrigger />
             </CartProvider>
         );
         fireEvent.click(getByRole('button'));
