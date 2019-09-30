@@ -15,7 +15,6 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
-import getCurrencyCode from '../../utils/getCurrencyCode';
 
 import Mask from '../Mask';
 
@@ -56,13 +55,11 @@ const MiniCart = () => {
     const isEmpty = data && data.cart && data.cart.items.length === 0;
 
     let cartQuantity;
-    let currencyCode = '';
     let footer = null;
     // TODO: Ideally this is stored in the cart state
     let loading = !data || !data.cart || queryLoading || isLoading;
     const showFooter = !(loading || isEmpty || isEditing);
     if (cart && Object.entries(cart).length > 0) {
-        currencyCode = getCurrencyCode(cart);
         cartQuantity = cart.items.length;
         footer = showFooter ? <Footer /> : null;
     }
@@ -77,7 +74,7 @@ const MiniCart = () => {
             <Mask />
             <aside className={rootClass}>
                 <Header />
-                <Body isEmpty={isEmpty} isLoading={loading} currencyCode={currencyCode} />
+                <Body isEmpty={isEmpty} isLoading={loading} />
                 {footer}
             </aside>
         </>
