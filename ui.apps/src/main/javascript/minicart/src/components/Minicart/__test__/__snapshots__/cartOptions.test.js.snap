@@ -135,26 +135,6 @@ exports[`<CartOptions> renders the component properly 1`] = `
         </span>
       </button>
     </div>
-    <div
-      class="modal"
-    >
-      <div
-        class="root"
-      >
-        <img
-          alt="Loading indicator"
-          class="indicator"
-          height="64"
-          src="/conf/venia/settings/wcm/templates/product-page/structure/_jcr_content/root/header/logo.svg"
-          width="64"
-        />
-        <span
-          class="message"
-        >
-          Updating Cart
-        </span>
-      </div>
-    </div>
   </form>
 </DocumentFragment>
 `;

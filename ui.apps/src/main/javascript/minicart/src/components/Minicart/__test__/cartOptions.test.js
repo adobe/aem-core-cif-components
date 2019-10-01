@@ -21,6 +21,7 @@ describe('<CartOptions>', () => {
     it('renders the component properly', () => {
         const initialState = {
             cartId: '123ABC',
+            isLoading: false,
             editItem: {
                 id: '123',
                 quantity: 2,
