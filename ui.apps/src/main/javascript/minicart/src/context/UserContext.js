@@ -20,11 +20,11 @@ import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
 const UserContext = React.createContext();
 
-const [userToken, setUserToken] = useCookieValue('cif.userToken');
-const isSignedIn = () => !!userToken;
-
 const UserContextProvider = props => {
+    const [userToken, setUserToken] = useCookieValue('cif.userToken');
     const [token, setToken] = useState(userToken);
+    const isSignedIn = () => !!userToken;
+
     const initialState = {
         currentUser: {
             firstname: '',
@@ -34,20 +34,13 @@ const UserContextProvider = props => {
         isSignedIn: isSignedIn(),
         signInError: ''
     };
+
     console.log(`Do we have a token? ${token}`);
-    console.log(`We have initial state `, initialState);
     const [userState, setUserState] = useState(initialState);
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN);
     const [getCustomerDetails, { data: customerData, error: customerDetailsError }] = useLazyQuery(
         QUERY_CUSTOMER_DETAILS
-    );
-
-    const signIn = useCallback(
-        ({ email, password }) => {
-            generateCustomerToken({ variables: { email, password } });
-        },
-        [generateCustomerToken]
     );
 
     useEffect(() => {
@@ -79,11 +72,25 @@ const UserContextProvider = props => {
         }
     }, [data, error]);
 
+    const signIn = useCallback(
+        ({ email, password }) => {
+            generateCustomerToken({ variables: { email, password } });
+        },
+        [generateCustomerToken]
+    );
+
+    const signOut = useCallback(() => {
+        setToken('');
+        setUserToken('');
+        setUserState({ ...userState, isSignedIn: false });
+    });
+
     const { children } = props;
     const contextValue = [
         userState,
         {
-            signIn
+            signIn,
+            signOut
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
