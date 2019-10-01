@@ -41,7 +41,7 @@ const Overview = props => {
         shippingMethod,
         receiveOrder
     } = props;
-    const [{ cart, cartId }] = useCartState();
+    const [{ cart, cartId }, dispatch] = useCartState();
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
@@ -64,7 +64,7 @@ const Overview = props => {
     }, [placeOrder]);
 
     if (error) {
-        console.error(error);
+        dispatch({ type: 'error', error: error });
     }
 
     if (data) {

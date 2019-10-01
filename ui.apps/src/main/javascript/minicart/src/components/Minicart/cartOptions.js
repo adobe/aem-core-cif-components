@@ -51,9 +51,13 @@ const CartOptions = () => {
         }
     ];
 
-    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM, {
+    const [updateCart, { loading, error }] = useMutation(MUTATION_UPDATE_CART_ITEM, {
         refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
     });
+
+    if (error) {
+        dispatch({ type: 'error', error: error });
+    }
 
     const modalClass = loading ? classes.modal_active : classes.modal;
 

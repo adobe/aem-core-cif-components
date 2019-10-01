@@ -43,7 +43,7 @@ const MiniCart = () => {
     }, [data]);
 
     if (error) {
-        console.error(`Error loading cart`, error);
+        dispatch({ type: 'error', error: error });
     }
 
     useEventListener(document, 'aem.cif.open-cart', () => {

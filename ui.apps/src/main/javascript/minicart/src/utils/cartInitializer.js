@@ -42,9 +42,13 @@ const CartInitializer = props => {
                     variables: { cartId, sku, quantity },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
                     awaitRefetchQueries: true
-                }).finally(() => {
-                    dispatch({ type: 'endLoading' });
-                });
+                })
+                    .catch(error => {
+                        dispatch({ type: 'error', error: error });
+                    })
+                    .finally(() => {
+                        dispatch({ type: 'endLoading' });
+                    });
             },
             removeItem: itemId => {
                 dispatch({ type: 'beginLoading' });
@@ -52,9 +56,13 @@ const CartInitializer = props => {
                     variables: { cartId, itemId },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
                     awaitRefetchQueries: true
-                }).finally(() => {
-                    dispatch({ type: 'endLoading' });
-                });
+                })
+                    .catch(error => {
+                        dispatch({ type: 'error', error: error });
+                    })
+                    .finally(() => {
+                        dispatch({ type: 'endLoading' });
+                    });
             }
         };
     };
@@ -77,9 +85,8 @@ const CartInitializer = props => {
             dispatch({ type: 'cartId', cartId: data.createEmptyCart, methods: _createFunctions(cartId, dispatch) });
         }
 
-        // Could not create a new cart. TODO: What should be done in this case?
         if (error) {
-            console.error(error);
+            dispatch({ type: 'error', error: error });
         }
     }, [data, error]);
 

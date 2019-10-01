@@ -1,0 +1,10 @@
+.root {
+    background-color: #ffcccc;
+    border: 1px solid #f00;
+    margin: 10px;
+    padding: 10px;
+}
+
+.root h2 {
+    padding-bottom: 0.83rem;
+}

@@ -23,6 +23,7 @@ export const initialState = {
     editItem: {},
     cartId: null,
     cart: {},
+    error: null,
     addItem: () => {},
     removeItem: () => {}
 };
@@ -79,6 +80,12 @@ export const reducerFactory = setCartCookie => {
                 return {
                     ...state,
                     cart: action.cart
+                };
+            case 'error':
+                console.error(action.error);
+                return {
+                    ...state,
+                    error: action.error
                 };
 
             default:

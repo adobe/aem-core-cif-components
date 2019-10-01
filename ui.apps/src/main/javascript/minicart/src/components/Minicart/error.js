@@ -12,50 +12,19 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool } from 'prop-types';
 
-import LoadingIndicator from '../LoadingIndicator';
-
-import EmptyMinicartBody from './emptyMinicartBody';
-import classes from './body.css';
-import ProductList from './productList';
-import CartOptions from './cartOptions';
-import Error from './error';
-
+import classes from './error.css';
 import { useCartState } from '../../utils/state';
 
-const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
+const Error = () => {
+    const [{ error }] = useCartState();
 
-const Body = props => {
-    const { isEmpty, isLoading } = props;
-    const [{ isEditing, cart, error }] = useCartState();
-
-    if (isLoading) {
-        return loadingIndicator;
-    }
-
-    if (error) {
-        return <Error />;
-    }
-
-    if (isEmpty) {
-        return <EmptyMinicartBody />;
-    }
-    if (isEditing) {
-        return <CartOptions />;
-    }
-
-    const cartItems = cart.items;
     return (
         <div className={classes.root}>
-            <ProductList cartItems={cartItems} />
+            <h2>Error</h2>
+            {error}
         </div>
     );
 };
 
-export default Body;
-
-Body.propTypes = {
-    isEmpty: bool,
-    isLoading: bool
-};
+export default Error;
