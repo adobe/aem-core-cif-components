@@ -87,12 +87,18 @@ const Container = props => {
         setView(view);
     }, [setView]);
 
+    const showMyAccount = useCallback(() => {
+        setView('MY_ACCOUNT');
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+    }, [setView]);
+
     useEventListener(document, 'aem.navigation.back', handleBack);
 
     return ReactDOM.createPortal(
         <>
             <div className="navigation__footer">
-                <AuthBar showSignIn={showSignIn} disabled={hasModal} />
+                <AuthBar showSignIn={showSignIn} disabled={hasModal} showMyAccount={showMyAccount} />
             </div>
             {view !== null && (
                 <div className={modalClassName}>

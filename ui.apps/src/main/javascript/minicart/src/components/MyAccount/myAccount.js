@@ -23,16 +23,13 @@ const PURCHASE_HISTORY = 'Purchase History';
 const SIGN_OUT = 'Sign Out';
 
 const MyAccount = props => {
-    const { userState } = useUserContext();
+    const [{ currentUser }] = useUserContext();
 
     return (
         <div className={classes.root}>
             <div className={classes.user}>
-                <h2
-                    className={
-                        classes.title
-                    }>{`${userState.currentUser.firstName} ${userState.currentUser.lastName}`}</h2>
-                <span className={classes.subtitle}>{userState.currentUser.email}</span>
+                <h2 className={classes.title}>{`${currentUser.firstname} ${currentUser.lastname}`}</h2>
+                <span className={classes.subtitle}>{currentUser.email}</span>
             </div>
             <div className={classes.actions}>
                 <AccountLink>
@@ -49,14 +46,3 @@ const MyAccount = props => {
 };
 
 export default MyAccount;
-
-MyAccount.propTypes = {
-    classes: shape({
-        actions: string,
-        root: string,
-        subtitle: string,
-        title: string,
-        user: string
-    }),
-    onSignOut: func.isRequired
-};

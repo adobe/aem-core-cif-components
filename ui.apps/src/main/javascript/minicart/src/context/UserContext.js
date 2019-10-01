@@ -20,19 +20,21 @@ import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
 const UserContext = React.createContext();
 
-const [userToken, setUserToken] = useCookieValue('userToken');
+const [userToken, setUserToken] = useCookieValue('cif.userToken');
+const isSignedIn = () => !!userToken;
 
 const UserContextProvider = props => {
+    const [token, setToken] = useState(userToken);
     const initialState = {
         currentUser: {
             firstname: '',
             lastname: '',
             email: ''
         },
-        isSignedIn: !!userToken,
+        isSignedIn: isSignedIn(),
         signInError: ''
     };
-    console.log(`Do we have a token? ${userToken}`);
+    console.log(`Do we have a token? ${token}`);
     console.log(`We have initial state `, initialState);
     const [userState, setUserState] = useState(initialState);
 
@@ -48,13 +50,12 @@ const UserContextProvider = props => {
         [generateCustomerToken]
     );
 
-    const getUserDetails = useCallback(() => {}, [getCustomerDetails]);
-
     useEffect(() => {
+        console.log(`Retrieve user details with token ${token}`);
         getCustomerDetails({
-            context: { headers: { authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}` } }
+            context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
         });
-    }, [userToken]);
+    }, [token]);
 
     useEffect(() => {
         console.log(`Got customer data `, customerData);
@@ -65,10 +66,11 @@ const UserContextProvider = props => {
     }, [customerData, customerDetailsError]);
 
     useEffect(() => {
-        if (data && !error) {
+        if (data && data.generateCustomerToken && !error) {
+            console.log(`Signed in successfully ${data.generateCustomerToken.token}`);
             setUserToken(data.generateCustomerToken.token);
+            setToken(data.generateCustomerToken.token);
             setUserState({ ...userState, isSignedIn: true });
-            getUserDetails();
         }
 
         if (error) {
@@ -81,8 +83,7 @@ const UserContextProvider = props => {
     const contextValue = [
         userState,
         {
-            signIn,
-            getUserDetails
+            signIn
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

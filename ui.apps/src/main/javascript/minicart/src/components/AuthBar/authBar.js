@@ -19,7 +19,7 @@ import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
 
 const AuthBar = props => {
-    const { showSignIn } = props;
+    const { showSignIn, showMyAccount } = props;
 
     const [{ currentUser, isSignedIn }] = useUserContext();
     console.log(`User state in authBar `, currentUser);
@@ -27,7 +27,7 @@ const AuthBar = props => {
     const disabled = false;
 
     const content = isSignedIn ? (
-        <UserChip currentUser={currentUser} />
+        <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
     ) : (
         <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
             {'Sign In'}

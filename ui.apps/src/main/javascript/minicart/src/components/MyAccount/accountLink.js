@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback } from 'react';
-import { arrayOf, func, node, shape, string } from 'prop-types';
+import { arrayOf, func, node } from 'prop-types';
 
 import Button from '../Button';
 
@@ -40,14 +40,5 @@ export default AccountLink;
 
 AccountLink.propTypes = {
     children: arrayOf(node).isRequired,
-    classes: shape({
-        content: string,
-        icon: string,
-        root: string,
-        root_highPriority: string,
-        root_lowPriority: string,
-        root_normalPriority: string,
-        text: string
-    }),
     onClick: func
 };

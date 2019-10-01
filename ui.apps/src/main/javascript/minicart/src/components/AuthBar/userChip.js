@@ -17,13 +17,13 @@ import classes from './userChip.css';
 import Icon from '../Icon';
 
 const UserChip = props => {
-    const { currentUser } = props;
+    const { currentUser, showMyAccount } = props;
     const { email, firstname, lastname } = currentUser;
 
     const display = `${firstname} ${lastname}`;
 
     return (
-        <button className={classes.root}>
+        <button className={classes.root} onClick={showMyAccount}>
             <span className={classes.content}>
                 <span className={classes.avatar}>
                     <Icon src={UserIcon} />
