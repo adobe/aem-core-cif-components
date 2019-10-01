@@ -22,7 +22,7 @@ const Error = () => {
     return (
         <div className={classes.root}>
             <h2>Error</h2>
-            {errorMessage}
+            <p>{errorMessage}</p>
         </div>
     );
 };
