@@ -30,7 +30,7 @@ const CartInitializer = props => {
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
 
-    const _createFunctions = (cartId, dispatch) => {
+    const createCartHandlers = (cartId, dispatch) => {
         return {
             addItem: ev => {
                 if (!ev.detail) return;
@@ -65,14 +65,18 @@ const CartInitializer = props => {
 
     useEffect(() => {
         if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId, methods: _createFunctions(cartId, dispatch) });
+            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId, stateCartId]);
 
     useEffect(() => {
         if (data) {
             setCartCookie(data.createEmptyCart);
-            dispatch({ type: 'cartId', cartId: data.createEmptyCart, methods: _createFunctions(cartId, dispatch) });
+            dispatch({
+                type: 'cartId',
+                cartId: data.createEmptyCart,
+                methods: createCartHandlers(data.createEmptyCart, dispatch)
+            });
         }
 
         // Could not create a new cart. TODO: What should be done in this case?
