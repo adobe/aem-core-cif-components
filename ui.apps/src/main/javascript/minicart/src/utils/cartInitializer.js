@@ -44,7 +44,7 @@ const CartInitializer = props => {
                     awaitRefetchQueries: true
                 })
                     .catch(error => {
-                        dispatch({ type: 'error', error: error });
+                        dispatch({ type: 'error', error: error.toString() });
                     })
                     .finally(() => {
                         dispatch({ type: 'endLoading' });
@@ -58,7 +58,7 @@ const CartInitializer = props => {
                     awaitRefetchQueries: true
                 })
                     .catch(error => {
-                        dispatch({ type: 'error', error: error });
+                        dispatch({ type: 'error', error: error.toString() });
                     })
                     .finally(() => {
                         dispatch({ type: 'endLoading' });
@@ -90,7 +90,7 @@ const CartInitializer = props => {
         }
 
         if (error) {
-            dispatch({ type: 'error', error: error });
+            dispatch({ type: 'error', error: error.toString() });
         }
     }, [data, error]);
 

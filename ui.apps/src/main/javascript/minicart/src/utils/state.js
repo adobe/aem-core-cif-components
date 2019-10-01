@@ -85,7 +85,7 @@ export const reducerFactory = setCartCookie => {
                 console.error(action.error);
                 return {
                     ...state,
-                    error: action.error
+                    errorMessage: action.error
                 };
 
             default:

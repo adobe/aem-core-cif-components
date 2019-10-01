@@ -64,7 +64,7 @@ const Overview = props => {
     }, [placeOrder]);
 
     if (error) {
-        dispatch({ type: 'error', error: error });
+        dispatch({ type: 'error', error: error.toString() });
     }
 
     if (data) {

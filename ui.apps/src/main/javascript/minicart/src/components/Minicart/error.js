@@ -17,12 +17,12 @@ import classes from './error.css';
 import { useCartState } from '../../utils/state';
 
 const Error = () => {
-    const [{ error }] = useCartState();
+    const [{ errorMessage }] = useCartState();
 
     return (
         <div className={classes.root}>
             <h2>Error</h2>
-            {error}
+            {errorMessage}
         </div>
     );
 };

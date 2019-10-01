@@ -28,13 +28,13 @@ const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingInd
 
 const Body = props => {
     const { isEmpty, isLoading } = props;
-    const [{ isEditing, cart, error }] = useCartState();
+    const [{ isEditing, cart, errorMessage }] = useCartState();
 
     if (isLoading) {
         return loadingIndicator;
     }
 
-    if (error) {
+    if (errorMessage) {
         return <Error />;
     }
 

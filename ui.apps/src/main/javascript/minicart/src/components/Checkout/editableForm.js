@@ -49,19 +49,30 @@ const EditableForm = props => {
         shippingMethod,
         availableShippingMethods
     } = props;
-    const [{ cart, cartId }] = useCartState();
+    const [{ cart, cartId }, dispatch] = useCartState();
 
     let countries = useCountries();
 
-    const [setShippingAddressesOnCart, { data }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
-    const [setPaymentMethodOnCart, { data: paymentResult }] = useMutation(MUTATION_SET_PAYMENT_METHOD);
+    const [setPaymentMethodOnCart, { data: paymentResult, error: paymentError }] = useMutation(
+        MUTATION_SET_PAYMENT_METHOD
+    );
 
-    const [setBillingAddressOnCart, { data: billingAddressResult }] = useMutation(MUTATION_SET_BILLING_ADDRESS);
+    const [setBillingAddressOnCart, { data: billingAddressResult, error: billingAddressError }] = useMutation(
+        MUTATION_SET_BILLING_ADDRESS
+    );
 
-    const [setShippingMethodsOnCart, { data: shippingMethodsResult }] = useMutation(MUTATION_SET_SHIPPING_METHOD);
+    const [setShippingMethodsOnCart, { data: shippingMethodsResult, error: shippingMethodsError }] = useMutation(
+        MUTATION_SET_SHIPPING_METHOD
+    );
 
-    const [setGuestEmailOnCart, { data: guestEmailResult }] = useMutation(MUTATION_SET_EMAIL);
+    const [setGuestEmailOnCart, { data: guestEmailResult, error: guestEmailError }] = useMutation(MUTATION_SET_EMAIL);
+
+    if (error || paymentError || billingAddressError || shippingMethodsError || guestEmailError) {
+        let errorObj = error || paymentError || billingAddressError || shippingMethodsError || guestEmailError;
+        dispatch({ type: 'error', error: errorObj.toString() });
+    }
 
     const handleCancel = useCallback(() => {
         setEditing(null);

@@ -29,7 +29,7 @@ import CartTrigger from '../CartTrigger';
 import { useCartState } from '../../utils/state';
 
 const MiniCart = () => {
-    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem }, dispatch] = useCartState();
+    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
 
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
@@ -43,7 +43,7 @@ const MiniCart = () => {
     }, [data]);
 
     if (error) {
-        dispatch({ type: 'error', error: error });
+        dispatch({ type: 'error', error: error.toString() });
     }
 
     useEventListener(document, 'aem.cif.open-cart', () => {
@@ -56,7 +56,7 @@ const MiniCart = () => {
 
     // TODO: Ideally this is stored in the cart state
     let loading = !data || !data.cart || queryLoading || isLoading;
-    const showFooter = !(loading || isEmpty || isEditing);
+    const showFooter = !(loading || isEmpty || isEditing || errorMessage);
     let footer = cart && Object.entries(cart).length > 0 && showFooter ? <Footer /> : null;
 
     if (!cartId || cartId.length === 0) {
