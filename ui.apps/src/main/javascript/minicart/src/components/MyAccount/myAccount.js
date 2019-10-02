@@ -17,6 +17,7 @@ import { Archive as HistoryIcon, LogOut as SignOutIcon } from 'react-feather';
 import AccountLink from './accountLink';
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
+import { func } from 'prop-types';
 
 const PURCHASE_HISTORY = 'Purchase History';
 const SIGN_OUT = 'Sign Out';
@@ -47,6 +48,10 @@ const MyAccount = props => {
             </div>
         </div>
     );
+};
+
+MyAccount.propTypes = {
+    showMenu: func.isRequired
 };
 
 export default MyAccount;

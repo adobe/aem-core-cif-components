@@ -16,6 +16,7 @@ import classes from './authModal.css';
 
 import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
+import { string, func } from 'prop-types';
 
 const AuthModal = props => {
     const { view, showMyAccount, showMenu } = props;
@@ -32,6 +33,12 @@ const AuthModal = props => {
     }
 
     return <div className={classes.root}>{child}</div>;
+};
+
+AuthModal.propTypes = {
+    view: string.isRequired,
+    showMyAccount: func.isRequired,
+    showMenu: func.isRequired
 };
 
 export default AuthModal;

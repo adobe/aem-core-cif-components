@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { Form } from 'informed';
+import { func } from 'prop-types';
 
 import { isRequired } from '../../utils/formValidators';
 import Button from '../Button';
@@ -33,7 +34,7 @@ const SignIn = props => {
     return (
         <div className={classes.root}>
             <Form onSubmit={handleSubmit} className={classes.form}>
-                <Field label="Email" required="true">
+                <Field label="Email" required={true}>
                     <TextInput autoComplete="email" field="email" validate={isRequired} />
                 </Field>
                 <Field label="Password" required={true}>
@@ -48,6 +49,10 @@ const SignIn = props => {
             </Form>
         </div>
     );
+};
+
+SignIn.propTypes = {
+    showMyAccount: func.isRequired
 };
 
 export default SignIn;

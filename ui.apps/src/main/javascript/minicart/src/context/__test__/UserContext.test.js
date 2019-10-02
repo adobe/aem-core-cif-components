@@ -83,7 +83,7 @@ describe('UserContext test', () => {
 
     it('performs a sign out', async () => {
         const ContextWrapper = () => {
-            const [{ currentUser, isSignedIn }, { signOut }] = useUserContext();
+            const [{ isSignedIn }, { signOut }] = useUserContext();
             let content;
             if (isSignedIn) {
                 content = (

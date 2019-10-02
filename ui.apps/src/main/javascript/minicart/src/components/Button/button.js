@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { oneOf, node } from 'prop-types';
+import { oneOf, node, shape, string } from 'prop-types';
 
 import defaultClasses from './button.css';
 
@@ -40,7 +40,10 @@ Button.defaultProps = {
 Button.propTypes = {
     priority: oneOf(['high', 'normal']).isRequired,
     type: oneOf(['button', 'reset', 'submit']).isRequired,
-    children: node
+    children: node,
+    classes: shape({
+        content: string.isRequired
+    })
 };
 
 export default Button;

@@ -17,7 +17,6 @@ import AuthBar from './authBar';
 import AuthModal from '../AuthModal';
 import classes from './container.css';
 import { useEventListener } from '../../utils/hooks';
-import { useUserContext } from '../../context/UserContext';
 
 /*
     Views:
@@ -53,12 +52,9 @@ const events = {
 const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
 const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
-const Container = props => {
+const Container = () => {
     const navigationPanel = document.querySelector('aside.navigation__root');
     const container = document.querySelector('.account_management_root');
-    const { userState } = useUserContext();
-
-    const isSignedIn = userState && userState.isSignedIn;
 
     const [view, setView] = useState('MENU');
 

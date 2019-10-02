@@ -17,6 +17,7 @@ import Button from '../Button';
 import classes from './authBar.css';
 import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
+import { func } from 'prop-types';
 
 const AuthBar = props => {
     const { showSignIn, showMyAccount } = props;
@@ -34,6 +35,11 @@ const AuthBar = props => {
         </Button>
     );
     return <div className={classes.root}>{content} </div>;
+};
+
+AuthBar.propTypes = {
+    showSignIn: func.isRequired,
+    showMyAccount: func.isRequired
 };
 
 export default AuthBar;

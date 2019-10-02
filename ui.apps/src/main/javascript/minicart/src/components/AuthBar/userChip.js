@@ -15,6 +15,7 @@ import React from 'react';
 import { ChevronRight as ChevronRightIcon, User as UserIcon } from 'react-feather';
 import classes from './userChip.css';
 import Icon from '../Icon';
+import { shape, string, func } from 'prop-types';
 
 const UserChip = props => {
     const { currentUser, showMyAccount } = props;
@@ -38,6 +39,15 @@ const UserChip = props => {
             </span>
         </button>
     );
+};
+
+UserChip.propTypes = {
+    currentUser: shape({
+        firstname: string,
+        lastname: string,
+        email: string
+    }).isRequired,
+    showMyAccount: func.isRequired
 };
 
 export default UserChip;
