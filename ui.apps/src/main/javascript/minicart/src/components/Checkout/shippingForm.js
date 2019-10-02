@@ -64,10 +64,8 @@ const ShippingForm = props => {
                 </div>
             </div>
             <div className={classes.footer}>
-                <Button className={classes.button} onClick={cancel}>
-                    Cancel
-                </Button>
-                <Button className={classes.button} priority="high" type="submit" disabled={submitting}>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button priority="high" type="submit" disabled={submitting}>
                     Use Method
                 </Button>
             </div>

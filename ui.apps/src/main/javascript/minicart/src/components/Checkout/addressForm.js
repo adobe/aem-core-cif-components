@@ -96,10 +96,8 @@ const AddressForm = props => {
                 <div className={classes.validation}>{validationMessage}</div>
             </div>
             <div className={classes.footer}>
-                <Button className={classes.button} onClick={cancel}>
-                    Cancel
-                </Button>
-                <Button className={classes.button} type="submit" priority="high" disabled={submitting}>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button type="submit" priority="high" disabled={submitting}>
                     Use Address
                 </Button>
             </div>

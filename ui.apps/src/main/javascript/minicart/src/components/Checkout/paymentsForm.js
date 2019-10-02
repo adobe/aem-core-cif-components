@@ -186,10 +186,8 @@ const PaymentsForm = props => {
                 {billingAddressFields}
             </div>
             <div className={classes.footer}>
-                <Button className={classes.button} onClick={cancel}>
-                    Cancel
-                </Button>
-                <Button className={classes.button} priority="high" type="submit" disabled={isSubmitting}>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button priority="high" type="submit" disabled={isSubmitting}>
                     Use Payment Method
                 </Button>
             </div>
