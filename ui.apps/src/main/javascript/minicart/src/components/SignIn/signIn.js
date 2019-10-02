@@ -23,7 +23,12 @@ import classes from './signIn.css';
 import { useSignin } from './useSignin';
 
 const SignIn = props => {
-    const { errorMessage, handleSubmit } = useSignin();
+    const { showMyAccount } = props;
+    const { errorMessage, isSignedIn, handleSubmit } = useSignin();
+
+    if (isSignedIn) {
+        showMyAccount();
+    }
 
     return (
         <div className={classes.root}>

@@ -102,7 +102,7 @@ const Container = props => {
             </div>
             {view !== null && (
                 <div className={modalClassName}>
-                    <AuthModal view={view} />
+                    <AuthModal view={view} showMyAccount={showMyAccount} />
                 </div>
             )}
         </>,

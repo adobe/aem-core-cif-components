@@ -39,25 +39,31 @@ const UserContextProvider = props => {
     const [userState, setUserState] = useState(initialState);
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN);
-    const [getCustomerDetails, { data: customerData, error: customerDetailsError }] = useLazyQuery(
-        QUERY_CUSTOMER_DETAILS
-    );
+    const [
+        getCustomerDetails,
+        { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
+    ] = useLazyQuery(QUERY_CUSTOMER_DETAILS);
 
+    // if the token changed, retrieve the user details for that token
     useEffect(() => {
-        console.log(`Retrieve user details with token ${token}`);
-        getCustomerDetails({
-            context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
-        });
+        if (token.length > 0) {
+            console.log(`Retrieve user details with token ${token}`);
+            getCustomerDetails({
+                context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
+            });
+        }
     }, [token]);
 
+    // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
     useEffect(() => {
         console.log(`Got customer data `, customerData);
         if (customerData && customerData.customer && !customerDetailsError) {
             const { firstname, lastname, email } = customerData.customer;
             setUserState({ ...userState, currentUser: { firstname, lastname, email } });
         }
-    }, [customerData, customerDetailsError]);
+    }, [customerData, customerDetailsError, customerDetailsLoading]);
 
+    // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
             console.log(`Signed in successfully ${data.generateCustomerToken.token}`);
@@ -83,7 +89,7 @@ const UserContextProvider = props => {
         setToken('');
         setUserToken('');
         setUserState({ ...userState, isSignedIn: false });
-    });
+    }, [setToken]);
 
     const { children } = props;
     const contextValue = [

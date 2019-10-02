@@ -18,13 +18,13 @@ import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 
 const AuthModal = props => {
-    const { view } = props;
+    const { view, showMyAccount } = props;
 
     let child;
 
     switch (view) {
         case 'SIGN_IN':
-            child = <SignIn />;
+            child = <SignIn showMyAccount={showMyAccount} />;
             break;
         case 'MY_ACCOUNT':
             child = <MyAccount />;

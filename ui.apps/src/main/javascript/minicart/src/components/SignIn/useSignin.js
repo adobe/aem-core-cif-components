@@ -29,6 +29,7 @@ export const useSignin = () => {
 
     return {
         handleSubmit,
-        errorMessage
+        errorMessage,
+        isSignedIn: userState.isSignedIn
     };
 };
