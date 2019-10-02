@@ -13,7 +13,6 @@
  ******************************************************************************/
 import React from 'react';
 import { Archive as HistoryIcon, LogOut as SignOutIcon } from 'react-feather';
-import { func, shape, string } from 'prop-types';
 
 import AccountLink from './accountLink';
 import classes from './myAccount.css';
@@ -23,7 +22,12 @@ const PURCHASE_HISTORY = 'Purchase History';
 const SIGN_OUT = 'Sign Out';
 
 const MyAccount = props => {
-    const [{ currentUser }] = useUserContext();
+    const { showMenu } = props;
+    const [{ currentUser, isSignedIn }, { signOut }] = useUserContext();
+
+    if (!isSignedIn) {
+        showMenu();
+    }
 
     return (
         <div className={classes.root}>
@@ -36,7 +40,7 @@ const MyAccount = props => {
                     <HistoryIcon size={18} />
                     {PURCHASE_HISTORY}
                 </AccountLink>
-                <AccountLink onClick={() => {}}>
+                <AccountLink onClick={signOut}>
                     <SignOutIcon size={18} />
                     {SIGN_OUT}
                 </AccountLink>

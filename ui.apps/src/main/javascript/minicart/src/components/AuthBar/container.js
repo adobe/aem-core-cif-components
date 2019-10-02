@@ -87,6 +87,11 @@ const Container = props => {
         setView(view);
     }, [setView]);
 
+    const showMenu = useCallback(() => {
+        setView('MENU');
+        navigationPanel.dispatchEvent(exitAccMgEvent);
+    }, [setView]);
+
     const showMyAccount = useCallback(() => {
         setView('MY_ACCOUNT');
         navigationPanel.dispatchEvent(startAccMgEvent);
@@ -102,7 +107,7 @@ const Container = props => {
             </div>
             {view !== null && (
                 <div className={modalClassName}>
-                    <AuthModal view={view} showMyAccount={showMyAccount} />
+                    <AuthModal view={view} showMyAccount={showMyAccount} showMenu={showMenu} />
                 </div>
             )}
         </>,

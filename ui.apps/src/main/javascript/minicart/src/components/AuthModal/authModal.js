@@ -18,7 +18,7 @@ import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 
 const AuthModal = props => {
-    const { view, showMyAccount } = props;
+    const { view, showMyAccount, showMenu } = props;
 
     let child;
 
@@ -27,7 +27,7 @@ const AuthModal = props => {
             child = <SignIn showMyAccount={showMyAccount} />;
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount />;
+            child = <MyAccount showMenu={showMenu} />;
             break;
     }
 
