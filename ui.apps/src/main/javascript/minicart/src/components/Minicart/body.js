@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -26,9 +25,9 @@ import { useCartState } from '../../utils/state';
 
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
-const Body = props => {
-    const { isEmpty, isLoading } = props;
-    const [{ isEditing, cart, errorMessage }] = useCartState();
+const Body = () => {
+    const [{ isEditing, cart, isLoading, errorMessage }] = useCartState();
+    const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
 
     if (isLoading) {
         return loadingIndicator;
@@ -41,6 +40,7 @@ const Body = props => {
     if (isEmpty) {
         return <EmptyMinicartBody />;
     }
+
     if (isEditing) {
         return <CartOptions />;
     }
@@ -54,8 +54,3 @@ const Body = props => {
 };
 
 export default Body;
-
-Body.propTypes = {
-    isEmpty: bool,
-    isLoading: bool
-};

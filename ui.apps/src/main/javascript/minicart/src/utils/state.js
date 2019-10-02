@@ -79,7 +79,8 @@ export const reducerFactory = setCartCookie => {
             case 'cart':
                 return {
                     ...state,
-                    cart: action.cart
+                    cart: action.cart,
+                    isLoading: false
                 };
             case 'error':
                 console.error(action.error);

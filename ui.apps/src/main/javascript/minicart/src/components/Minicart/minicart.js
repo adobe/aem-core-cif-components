@@ -37,6 +37,12 @@ const MiniCart = () => {
     });
 
     useEffect(() => {
+        if (queryLoading) {
+            dispatch({ type: 'beginLoading' });
+        }
+    }, [queryLoading]);
+
+    useEffect(() => {
         if (data && data.cart) {
             dispatch({ type: 'cart', cart: data.cart });
         }
@@ -51,17 +57,14 @@ const MiniCart = () => {
     });
     useEventListener(document, 'aem.cif.add-to-cart', addItem);
 
-    const rootClass = isOpen ? classes.root_open : classes.root;
-    const isEmpty = data && data.cart && data.cart.items.length === 0;
-
-    // TODO: Ideally this is stored in the cart state
-    let loading = !data || !data.cart || queryLoading || isLoading;
-    const showFooter = !(loading || isEmpty || isEditing || errorMessage);
-    let footer = cart && Object.entries(cart).length > 0 && showFooter ? <Footer /> : null;
-
     if (!cartId || cartId.length === 0) {
         return null;
     }
+
+    const rootClass = isOpen ? classes.root_open : classes.root;
+    const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
+    const showFooter = !(isLoading || isEmpty || isEditing || errorMessage);
+    const footer = showFooter ? <Footer /> : null;
 
     return (
         <>
@@ -69,7 +72,7 @@ const MiniCart = () => {
             <Mask />
             <aside className={rootClass}>
                 <Header />
-                <Body isEmpty={isEmpty} isLoading={loading} />
+                <Body />
                 {footer}
             </aside>
         </>
