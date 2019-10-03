@@ -18,7 +18,7 @@ import CartTrigger from '../cartTrigger';
 
 describe('<CartTrigger>', () => {
     beforeAll(() => {
-        ReactDOM.createPortal = jest.fn((element, node) => {
+        ReactDOM.createPortal = jest.fn(element => {
             return element;
         });
     });

@@ -23,7 +23,6 @@ const AuthBar = props => {
     const { showSignIn, showMyAccount } = props;
 
     const [{ currentUser, isSignedIn }] = useUserContext();
-    console.log(`User state in authBar `, currentUser);
 
     const disabled = false;
 

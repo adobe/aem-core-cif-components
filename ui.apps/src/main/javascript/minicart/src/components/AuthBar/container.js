@@ -66,7 +66,6 @@ const Container = () => {
             return;
         }
         const parent = ancestors[view];
-        console.log(`Switching to view ${parent}`);
         if (parent === 'MENU') {
             // no parent view means we're out of the account management process and back to navigation
             // so we're resetting the title
@@ -77,7 +76,6 @@ const Container = () => {
 
     const showSignIn = useCallback(() => {
         const view = 'SIGN_IN';
-        console.log(`Showing SIGN_IN view`);
         navigationPanel.dispatchEvent(startAccMgEvent);
         navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         setView(view);
