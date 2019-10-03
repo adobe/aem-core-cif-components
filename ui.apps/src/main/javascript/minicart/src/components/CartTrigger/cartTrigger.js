@@ -20,7 +20,8 @@ import CartCounter from './cartCounter';
 import Icon from '../Icon';
 import { ShoppingCart as ShoppingCartIcon } from 'react-feather';
 import classes from './cartTrigger.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
+
 
 const parentEl = document.querySelector('.header__cartTrigger');
 

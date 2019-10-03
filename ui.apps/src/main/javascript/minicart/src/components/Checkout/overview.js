@@ -22,7 +22,7 @@ import Section from './section';
 import Button from '../Button';
 import { Price } from '@magento/peregrine';
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 /**
  * The Overview component renders summaries for each section of the editable

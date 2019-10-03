@@ -16,7 +16,7 @@ import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
 import Receipt from './receipt';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
@@ -25,8 +25,8 @@ const isCartReady = cart => {
 const Flow = () => {
     const [{ cart }] = useCartState();
 
-    const [flowState, setFlowState] = useState('cart');
-    const [order, setOrder] = useState({});
+    const [flowState, setFlowState] = useState('cart'); // Could be moved into context
+    const [order, setOrder] = useState({}); // Could be context
 
     const beginCheckout = () => {
         setFlowState('form');

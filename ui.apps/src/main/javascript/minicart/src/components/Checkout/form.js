@@ -17,7 +17,7 @@ import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
 import isObjectEmpty from '../../utils/isObjectEmpty';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
@@ -78,7 +78,7 @@ const Form = props => {
     const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
 
     const child = editing ? (
-        <EditableForm
+        <EditableForm // All of this should be in a context
             editing={editing}
             setEditing={setEditing}
             shippingAddress={shippingAddress}

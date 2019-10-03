@@ -17,7 +17,7 @@ import { render } from 'test-utils';
 
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../cartContext';
 
 describe('<Minicart>', () => {
     beforeAll(() => {

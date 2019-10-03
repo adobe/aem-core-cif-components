@@ -15,7 +15,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import classes from './mask.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 const Mask = () => {
     const [{ isOpen }, dispatch] = useCartState();

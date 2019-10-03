@@ -15,7 +15,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { render, fireEvent } from '@testing-library/react';
 import CartTrigger from '../cartTrigger';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../../Minicart/cartContext';
 
 describe('<CartTrigger>', () => {
     beforeAll(() => {

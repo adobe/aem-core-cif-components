@@ -14,7 +14,7 @@
 import React from 'react';
 import Product from '../product';
 import { render } from '@testing-library/react';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../cartContext';
 
 const mockCartItem = {
     product: {

@@ -15,7 +15,7 @@ import React from 'react';
 import Checkout from '../Checkout';
 import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const Footer = () => {
     const [{ isOpen, cart }] = useCartState();

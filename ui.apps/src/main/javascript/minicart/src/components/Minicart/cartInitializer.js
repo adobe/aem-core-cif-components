@@ -12,14 +12,14 @@
  *
  ******************************************************************************/
 import { useEffect } from 'react';
-import { useCartState } from './state';
-import { useCookieValue } from './hooks';
+import { useCartState } from './cartContext';
+import { useCookieValue } from '../../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 
-import MUTATION_CREATE_CART from '../queries/mutation_create_guest_cart.graphql';
-import CART_DETAILS_QUERY from '../queries/query_cart_details.graphql';
-import MUTATION_REMOVE_ITEM from '../queries/mutation_remove_item.graphql';
-import MUTATION_ADD_TO_CART from '../queries/mutation_add_to_cart.graphql';
+import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
+import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
+import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();

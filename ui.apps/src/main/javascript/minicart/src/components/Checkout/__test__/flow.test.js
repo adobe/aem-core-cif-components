@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../../Minicart/cartContext';
 
 import Flow from '../flow';
 const dummyCart = {

@@ -16,8 +16,9 @@ import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
 
-import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
-import { useCartState, CartProvider } from '../state';
+import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.graphql';
+
+import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
 
 const DummyCart = () => {

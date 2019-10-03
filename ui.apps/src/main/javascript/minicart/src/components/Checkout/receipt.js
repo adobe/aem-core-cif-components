@@ -15,7 +15,7 @@ import React from 'react';
 import { shape, string } from 'prop-types';
 import classes from './receipt.css';
 import Trigger from '../Trigger';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 const Receipt = props => {
     const { order } = props;

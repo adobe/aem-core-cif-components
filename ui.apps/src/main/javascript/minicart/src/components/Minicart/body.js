@@ -21,7 +21,7 @@ import ProductList from './productList';
 import CartOptions from './cartOptions';
 import Error from './error';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 

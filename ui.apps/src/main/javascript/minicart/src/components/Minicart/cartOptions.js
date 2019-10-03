@@ -23,7 +23,7 @@ import classes from './cartOptions.css';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();

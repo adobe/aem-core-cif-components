@@ -14,7 +14,7 @@
 import React from 'react';
 
 import classes from './error.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const Error = () => {
     const [{ errorMessage }] = useCartState();

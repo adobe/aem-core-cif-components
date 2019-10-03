@@ -21,7 +21,7 @@ import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const imageWidth = 80;
 const imageHeight = 100;

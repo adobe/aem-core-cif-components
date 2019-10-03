@@ -14,7 +14,7 @@
 import React from 'react';
 import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();

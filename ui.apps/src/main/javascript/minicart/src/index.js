@@ -18,8 +18,8 @@ import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
 
 import Cart from './components/Minicart';
-import { CartProvider, initialState, reducerFactory } from './utils/state';
-import CartInitializer from './utils/cartInitializer';
+import { CartProvider, initialState, reducerFactory } from './components/Minicart/cartContext';
+import CartInitializer from './components/Minicart/cartInitializer';
 
 const App = () => {
     const client = new ApolloClient({
