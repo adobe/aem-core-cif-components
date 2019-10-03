@@ -87,9 +87,10 @@ const Container = () => {
     }, [setView]);
 
     const showMyAccount = useCallback(() => {
-        setView('MY_ACCOUNT');
+        const view = 'MY_ACCOUNT';
         navigationPanel.dispatchEvent(startAccMgEvent);
         navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
     }, [setView]);
 
     useEventListener(document, 'aem.navigation.back', handleBack);
