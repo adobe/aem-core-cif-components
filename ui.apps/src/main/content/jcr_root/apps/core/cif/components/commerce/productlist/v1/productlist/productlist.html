@@ -25,14 +25,17 @@
 
         <sly data-sly-test="${productList.showImage && productList.image}" data-sly-call="${imageTemplate.listImage @ productList = productList}"/>
 
-        <section data-sly-test="${productList.products}">
-            <div class="gallery__root">
-                <div class="gallery__items" data-sly-list.product="${productList.products}">
-                    <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
-                </div>
-            </div>
-        </section>
-
-        <sly data-sly-call="${paginationTemplate.pagination @ productList = productList}" />
+        <sly data-sly-test.hasProducts="${productList.products}">
+	        <section>
+	            <div class="gallery__root">
+	                <div class="gallery__items" data-sly-list.product="${productList.products}">
+	                    <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
+	                </div>
+	            </div>
+	        </section>
+	        <sly data-sly-call="${paginationTemplate.pagination @ productList = productList}" />
+        </sly>
+        <p data-sly-test="${!hasProducts}">No products to display.</p>
+  
     </article>
 </sly>

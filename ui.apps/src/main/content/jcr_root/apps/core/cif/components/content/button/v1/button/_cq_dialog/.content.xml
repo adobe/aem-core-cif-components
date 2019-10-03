@@ -4,7 +4,7 @@
     jcr:title="Button"
     sling:resourceType="cq/gui/components/authoring/dialog"
     helpPath="https://www.adobe.com/go/aem_cmp_button_v1"
-    trackingFeature="core-components:button:v1">
+    trackingFeature="cif-core-components:button:v1">
     <content
         granite:class="cmp-button__editor"
         jcr:primaryType="nt:unstructured"
