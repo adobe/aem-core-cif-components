@@ -20,6 +20,18 @@ import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
 const UserContext = React.createContext();
 
+const parseError = error => {
+    if (error.networkError) {
+        return error.networkError;
+    }
+
+    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        return error.graphQLErrors[0].message;
+    }
+
+    return JSON.stringify(error);
+};
+
 const UserContextProvider = props => {
     const [userToken, setUserToken] = useCookieValue('cif.userToken');
     const [token, setToken] = useState(userToken);
@@ -35,10 +47,14 @@ const UserContextProvider = props => {
         signInError: ''
     };
 
-    console.log(`Do we have a token? ${token}`);
     const [userState, setUserState] = useState(initialState);
 
-    const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN);
+    const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN, {
+        onError: error => {
+            let signInError = parseError(error);
+            setUserState({ ...userState, signInError });
+        }
+    });
     const [
         getCustomerDetails,
         { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
@@ -47,7 +63,6 @@ const UserContextProvider = props => {
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
         if (token.length > 0) {
-            console.log(`Retrieve user details with token ${token}`);
             getCustomerDetails({
                 context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
             });
@@ -56,7 +71,6 @@ const UserContextProvider = props => {
 
     // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
     useEffect(() => {
-        console.log(`Got customer data `, customerData);
         if (customerData && customerData.customer && !customerDetailsError) {
             const { firstname, lastname, email } = customerData.customer;
             setUserState({ ...userState, currentUser: { firstname, lastname, email } });
@@ -66,15 +80,9 @@ const UserContextProvider = props => {
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
-            console.log(`Signed in successfully ${data.generateCustomerToken.token}`);
             setUserToken(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
             setUserState({ ...userState, isSignedIn: true });
-        }
-
-        if (error) {
-            let signInError = error.message ? error.message : JSON.stringify(error);
-            setUserState({ ...userState, signInError });
         }
     }, [data, error]);
 

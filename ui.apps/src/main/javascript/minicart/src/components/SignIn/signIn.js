@@ -35,10 +35,16 @@ const SignIn = props => {
         <div className={classes.root}>
             <Form onSubmit={handleSubmit} className={classes.form}>
                 <Field label="Email" required={true}>
-                    <TextInput autoComplete="email" field="email" validate={isRequired} />
+                    <TextInput autoComplete="email" field="email" validate={isRequired} aria-label="email" />
                 </Field>
                 <Field label="Password" required={true}>
-                    <TextInput autoComplete="current-password" field="password" type="password" validate={isRequired} />
+                    <TextInput
+                        autoComplete="current-password"
+                        field="password"
+                        type="password"
+                        validate={isRequired}
+                        aria-label="password"
+                    />
                 </Field>
                 <div className={classes.signInError}>{errorMessage}</div>
                 <div className={classes.signInButton}>
