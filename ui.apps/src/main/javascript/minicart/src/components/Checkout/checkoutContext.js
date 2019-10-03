@@ -18,7 +18,11 @@ import { object, func } from 'prop-types';
 export const initialState = {
     flowState: 'cart',
     order: null,
-    editing: null
+    editing: null,
+    shippingAddress: null,
+    billingAddress: null,
+    shippingMethod: null,
+    paymentMethod: null
 };
 
 export const reducer = (state, action) => {
@@ -53,6 +57,26 @@ export const reducer = (state, action) => {
             return {
                 ...state,
                 editing: null
+            };
+        case 'setShippingAddress':
+            return {
+                ...state,
+                shippingAddress: action.shippingAddress
+            };
+        case 'setBillingAddress':
+            return {
+                ...state,
+                billingAddress: action.billingAddress
+            };
+        case 'setShippingMethod':
+            return {
+                ...state,
+                shippingMethod: action.shippingMethod
+            };
+        case 'setPaymentMethod':
+            return {
+                ...state,
+                paymentMethod: action.paymentMethod
             };
 
         default:

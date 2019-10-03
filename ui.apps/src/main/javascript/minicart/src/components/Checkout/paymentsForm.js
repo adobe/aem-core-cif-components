@@ -22,13 +22,8 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 
 import classes from './paymentsForm.css';
-import isObjectEmpty from '../../utils/isObjectEmpty';
 import { isRequired, hasLengthExactly, validateRegionCode, validateEmail } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
-
-const DEFAULT_FORM_VALUES = {
-    addresses_same: true
-};
 
 /**
  * A wrapper around the payment form. This component's purpose is to maintain
@@ -47,30 +42,24 @@ const PaymentsForm = props => {
         };
     });
 
-    const initialPaymentMethodState = isObjectEmpty(initialPaymentMethod)
-        ? paymentMethodsItems[0].value
-        : initialPaymentMethod.code;
+    const initialPaymentMethodState = !initialPaymentMethod ? paymentMethodsItems[0].value : initialPaymentMethod.code;
 
     const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
-    if (isObjectEmpty(initialValues)) {
-        initialFormValues = DEFAULT_FORM_VALUES;
+    if (!initialValues || initialValues.sameAsShippingAddress) {
+        // If the addresses are the same, don't populate any fields
+        // other than the checkbox with an initial value.
+        initialFormValues = {
+            addresses_same: true
+        };
     } else {
-        if (initialValues.sameAsShippingAddress) {
-            // If the addresses are the same, don't populate any fields
-            // other than the checkbox with an initial value.
-            initialFormValues = {
-                addresses_same: true
-            };
-        } else {
-            // The addresses are not the same, populate the other fields.
-            initialFormValues = {
-                addresses_same: false,
-                ...initialValues
-            };
-            delete initialFormValues.sameAsShippingAddress;
-        }
+        // The addresses are not the same, populate the other fields.
+        initialFormValues = {
+            addresses_same: false,
+            ...initialValues
+        };
+        delete initialFormValues.sameAsShippingAddress;
     }
 
     const [differentAddress, setDifferentAddress] = useState(!initialFormValues.addresses_same);

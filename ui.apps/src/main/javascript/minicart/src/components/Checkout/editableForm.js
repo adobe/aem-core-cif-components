@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback } from 'react';
-import { array, bool, object, string } from 'prop-types';
+import { bool, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
 import { useCountries } from '../../utils/hooks';
@@ -34,22 +34,9 @@ import { useCheckoutState } from './checkoutContext';
  */
 
 const EditableForm = props => {
-    const {
-        submitShippingMethod,
-        submitting,
-        setShippingAddress,
-        setBillingAddress,
-        setPaymentData,
-        isAddressInvalid,
-        invalidAddressMessage,
-        initialPaymentMethod,
-        shippingAddress,
-        setShippingMethod,
-        shippingMethod,
-        availableShippingMethods
-    } = props;
+    const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
-    const [{ editing }, dispatch] = useCheckoutState();
+    const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
 
     let countries = useCountries();
 
@@ -89,7 +76,6 @@ const EditableForm = props => {
     const handleSubmitPaymentsForm = useCallback(
         args => {
             if (args.billingAddress.sameAsShippingAddress) {
-                const { shippingAddress } = props;
                 if (shippingAddress) {
                     setBillingAddressOnCart({
                         variables: {
@@ -123,28 +109,41 @@ const EditableForm = props => {
     );
 
     if (data && guestEmailResult) {
-        const shippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
-        setShippingAddress({
-            ...shippingAddress,
-            email: guestEmailResult.setGuestEmailOnCart.cart.email,
-            country: shippingAddress.country.code,
-            region_code: shippingAddress.region.code
+        const newShippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
+        dispatch({
+            type: 'setShippingAddress',
+            shippingAddress: {
+                ...newShippingAddress,
+                email: guestEmailResult.setGuestEmailOnCart.cart.email,
+                country: newShippingAddress.country.code,
+                region_code: newShippingAddress.region.code
+            }
         });
         dispatch({ type: 'endEditing' });
     }
 
     if (paymentResult && billingAddressResult) {
-        setPaymentData({
-            ...paymentResult.setPaymentMethodOnCart.cart.selected_payment_method
+        dispatch({
+            type: 'setPaymentMethod',
+            paymentMethod: {
+                ...paymentResult.setPaymentMethodOnCart.cart.selected_payment_method
+            }
         });
-        setBillingAddress({ ...billingAddressResult.setBillingAddressOnCart.cart.billing_address });
+        dispatch({
+            type: 'setBillingAddress',
+            billingAddress: {
+                ...billingAddressResult.setBillingAddressOnCart.cart.billing_address
+            }
+        });
         dispatch({ type: 'endEditing' });
     }
 
     if (shippingMethodsResult) {
-        setShippingMethod(
-            shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses[0].selected_shipping_method
-        );
+        dispatch({
+            type: 'setShippingMethod',
+            shippingMethod:
+                shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses[0].selected_shipping_method
+        });
         dispatch({ type: 'endEditing' });
     }
 
@@ -163,8 +162,6 @@ const EditableForm = props => {
             );
         }
         case 'paymentMethod': {
-            const { billingAddress } = props;
-
             return (
                 <PaymentsForm
                     cart={cart}
@@ -174,11 +171,12 @@ const EditableForm = props => {
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}
                     paymentMethods={cart.available_payment_methods}
-                    initialPaymentMethod={initialPaymentMethod}
+                    initialPaymentMethod={paymentMethod}
                 />
             );
         }
         case 'shippingMethod': {
+            const availableShippingMethods = shippingAddress.available_shipping_methods || [];
             return (
                 <ShippingForm
                     availableShippingMethods={availableShippingMethods}
@@ -196,9 +194,6 @@ const EditableForm = props => {
 };
 
 EditableForm.propTypes = {
-    availableShippingMethods: array,
-    shippingAddress: object,
-    shippingMethod: object,
     submitting: bool,
     isAddressInvalid: bool,
     invalidAddressMessage: string

@@ -32,7 +32,9 @@ const AddressForm = props => {
     const values = useMemo(
         () =>
             fields.reduce((acc, key) => {
-                acc[key] = initialValues[key];
+                if (initialValues && key in initialValues) {
+                    acc[key] = initialValues[key];
+                }
                 return acc;
             }, {}),
         [initialValues]

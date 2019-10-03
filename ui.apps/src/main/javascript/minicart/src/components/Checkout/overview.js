@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
-import { bool, object, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
 import PaymentMethodSummary from './paymentMethodSummary';
@@ -30,17 +30,9 @@ import { useCheckoutState } from './checkoutContext';
  * form.
  */
 const Overview = props => {
-    const {
-        classes,
-        hasPaymentMethod,
-        hasShippingAddress,
-        hasShippingMethod,
-        paymentData,
-        shippingAddress,
-        shippingMethod
-    } = props;
+    const { classes } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
-    const [, dispatch] = useCheckoutState();
+    const [{ shippingAddress, shippingMethod, paymentMethod }, dispatch] = useCheckoutState();
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
@@ -56,7 +48,7 @@ const Overview = props => {
         dispatch({ type: 'setEditing', editing: 'shippingMethod' });
     }, [dispatch]);
 
-    const ready = hasShippingAddress && hasPaymentMethod && hasShippingMethod;
+    const ready = shippingAddress && paymentMethod && shippingMethod;
 
     const submitOrder = useCallback(() => {
         placeOrder({ variables: { cartId: cartId } });
@@ -74,26 +66,14 @@ const Overview = props => {
     return (
         <Fragment>
             <div className={classes.body}>
-                <Section label="Ship To" onClick={handleAddressFormClick} showEditIcon={hasShippingAddress}>
-                    <ShippingAddressSummary
-                        classes={classes}
-                        hasShippingAddress={hasShippingAddress}
-                        shippingAddress={shippingAddress}
-                    />
+                <Section label="Ship To" onClick={handleAddressFormClick} showEditIcon={!!shippingAddress}>
+                    <ShippingAddressSummary classes={classes} />
                 </Section>
-                <Section label="Pay With" onClick={handlePaymentFormClick} showEditIcon={hasPaymentMethod}>
-                    <PaymentMethodSummary
-                        classes={classes}
-                        hasPaymentMethod={hasPaymentMethod}
-                        paymentData={paymentData}
-                    />
+                <Section label="Pay With" onClick={handlePaymentFormClick} showEditIcon={!!paymentMethod}>
+                    <PaymentMethodSummary classes={classes} />
                 </Section>
-                <Section label="Use" onClick={handleShippingFormClick} showEditIcon={hasShippingMethod}>
-                    <ShippingMethodSummary
-                        classes={classes}
-                        hasShippingMethod={hasShippingMethod}
-                        shippingMethod={shippingMethod}
-                    />
+                <Section label="Use" onClick={handleShippingFormClick} showEditIcon={!!shippingMethod}>
+                    <ShippingMethodSummary classes={classes} />
                 </Section>
                 <Section label="TOTAL">
                     <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} />
@@ -115,13 +95,7 @@ Overview.propTypes = {
     classes: shape({
         body: string,
         footer: string
-    }),
-    hasPaymentMethod: bool,
-    hasShippingAddress: bool,
-    hasShippingMethod: bool,
-    paymentData: object,
-    shippingAddress: object,
-    shippingMethod: object
+    })
 };
 
 export default Overview;
