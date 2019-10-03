@@ -73,6 +73,8 @@
 
             this.navigationPanel.addEventListener('aem.accmg.exit', () => {
                 this.setPanelTitle(this.defaultPanelTitle);
+                this.setVisible(this.backNavigationButton, false);
+                this.setVisible(this.backNavigationEmpty, true);
             });
         }
 
