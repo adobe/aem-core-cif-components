@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
-import { bool, func, object, shape, string } from 'prop-types';
+import { bool, object, shape, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
 import PaymentMethodSummary from './paymentMethodSummary';
@@ -36,7 +36,6 @@ const Overview = props => {
         hasShippingAddress,
         hasShippingMethod,
         paymentData,
-        setEditing,
         shippingAddress,
         shippingMethod
     } = props;
@@ -46,16 +45,16 @@ const Overview = props => {
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
     const handleAddressFormClick = useCallback(() => {
-        setEditing('address');
-    }, [setEditing]);
+        dispatch({ type: 'setEditing', editing: 'address' });
+    }, [dispatch]);
 
     const handlePaymentFormClick = useCallback(() => {
-        setEditing('paymentMethod');
-    }, [setEditing]);
+        dispatch({ type: 'setEditing', editing: 'paymentMethod' });
+    }, [dispatch]);
 
     const handleShippingFormClick = useCallback(() => {
-        setEditing('shippingMethod');
-    }, [setEditing]);
+        dispatch({ type: 'setEditing', editing: 'shippingMethod' });
+    }, [dispatch]);
 
     const ready = hasShippingAddress && hasPaymentMethod && hasShippingMethod;
 
@@ -69,7 +68,7 @@ const Overview = props => {
 
     if (data) {
         dispatch({ type: 'placeOrder', order: data.placeOrder.order });
-        setEditing('receipt');
+        dispatch({ type: 'setEditing', editing: 'receipt' });
     }
 
     return (
@@ -121,7 +120,6 @@ Overview.propTypes = {
     hasShippingAddress: bool,
     hasShippingMethod: bool,
     paymentData: object,
-    setEditing: func,
     shippingAddress: object,
     shippingMethod: object
 };

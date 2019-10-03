@@ -18,6 +18,7 @@ import classes from './form.css';
 import EditableForm from './editableForm';
 import isObjectEmpty from '../../utils/isObjectEmpty';
 import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
@@ -25,10 +26,9 @@ import { useCartState } from '../Minicart/cartContext';
  */
 const Form = props => {
     const [{ cart }] = useCartState();
+    const [{ editing }] = useCheckoutState();
 
     const { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined, email } = cart;
-
-    const [editing, setEditing] = useState(null);
 
     const hasShippingAddress =
         shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].firstname !== null;
@@ -41,11 +41,11 @@ const Form = props => {
           }
         : {};
 
-    const [shippingAddress, setShippingAddress] = useState(actualAddress);
+    const [shippingAddress, setShippingAddress] = useState(actualAddress); // TODO: Move to context
 
     const hasPaymentMethod = selected_payment_method && selected_payment_method.code.length > 0;
     const initialPaymentMethod = hasPaymentMethod ? selected_payment_method : {};
-    const [paymentData, setPaymentData] = useState(initialPaymentMethod);
+    const [paymentData, setPaymentData] = useState(initialPaymentMethod); // TODO: Move to context
 
     let flatBillingAddress =
         billing_address && billing_address.city !== null
@@ -55,7 +55,7 @@ const Form = props => {
                   country: billing_address.country.code
               }
             : {};
-    const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
+    const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress); // Move to context
 
     let availableShippingMethods;
     let selectedShippingMethod;
@@ -75,12 +75,10 @@ const Form = props => {
         selectedShippingMethod = {};
     }
 
-    const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
+    const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod); // Move to context
 
     const child = editing ? (
         <EditableForm // All of this should be in a context
-            editing={editing}
-            setEditing={setEditing}
             shippingAddress={shippingAddress}
             setShippingAddress={setShippingAddress}
             initialPaymentMethod={paymentData}
@@ -95,7 +93,6 @@ const Form = props => {
     ) : (
         <Overview
             classes={classes}
-            setEditing={setEditing}
             shippingAddress={shippingAddress}
             hasShippingAddress={!isObjectEmpty(shippingAddress)}
             paymentData={{ details: paymentData.title }}

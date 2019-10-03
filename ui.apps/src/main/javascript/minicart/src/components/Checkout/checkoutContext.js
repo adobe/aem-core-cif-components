@@ -17,7 +17,8 @@ import { object, func } from 'prop-types';
 
 export const initialState = {
     flowState: 'cart',
-    order: null
+    order: null,
+    editing: null
 };
 
 export const reducer = (state, action) => {
@@ -42,6 +43,16 @@ export const reducer = (state, action) => {
         case 'reset':
             return {
                 ...initialState
+            };
+        case 'setEditing':
+            return {
+                ...state,
+                editing: action.editing
+            };
+        case 'endEditing':
+            return {
+                ...state,
+                editing: null
             };
 
         default:
