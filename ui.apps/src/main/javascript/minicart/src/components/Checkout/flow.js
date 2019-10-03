@@ -11,12 +11,13 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
+import React from 'react';
 import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
 import Receipt from './receipt';
 import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
@@ -24,36 +25,21 @@ const isCartReady = cart => {
 
 const Flow = () => {
     const [{ cart }] = useCartState();
-
-    const [flowState, setFlowState] = useState('cart'); // Could be moved into context
-    const [order, setOrder] = useState({}); // Could be context
-
-    const beginCheckout = () => {
-        setFlowState('form');
-    };
-
-    const cancelCheckout = () => {
-        setFlowState('cart');
-    };
-
-    const orderCreated = order => {
-        setOrder(order);
-        setFlowState('receipt');
-    };
+    const [{ flowState }] = useCheckoutState();
 
     let child;
 
     switch (flowState) {
         case 'cart': {
-            child = <Cart beginCheckout={beginCheckout} ready={isCartReady(cart)} submitting={false} />;
+            child = <Cart ready={isCartReady(cart)} submitting={false} />;
             break;
         }
         case 'form': {
-            child = <Form cancelCheckout={cancelCheckout} receiveOrder={orderCreated} />;
+            child = <Form />;
             break;
         }
         case 'receipt': {
-            child = <Receipt order={order} />;
+            child = <Receipt />;
             break;
         }
         default: {

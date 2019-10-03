@@ -12,16 +12,17 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { shape, string } from 'prop-types';
 import classes from './receipt.css';
 import Trigger from '../Trigger';
 import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
 
-const Receipt = props => {
-    const { order } = props;
-    const [, dispatch] = useCartState();
+const Receipt = () => {
+    const [, cartDispatch] = useCartState();
+    const [{ order }, dispatch] = useCheckoutState();
 
     const continueShopping = () => {
+        cartDispatch({ type: 'reset' });
         dispatch({ type: 'reset' });
     };
 
@@ -39,12 +40,6 @@ const Receipt = props => {
             </div>
         </div>
     );
-};
-
-Receipt.propTypes = {
-    order: shape({
-        order_id: string
-    }).isRequired
 };
 
 export default Receipt;

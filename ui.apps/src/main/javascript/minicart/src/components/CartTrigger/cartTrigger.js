@@ -22,7 +22,6 @@ import { ShoppingCart as ShoppingCartIcon } from 'react-feather';
 import classes from './cartTrigger.css';
 import { useCartState } from '../Minicart/cartContext';
 
-
 const parentEl = document.querySelector('.header__cartTrigger');
 
 const Trigger = () => {

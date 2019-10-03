@@ -23,6 +23,7 @@ import Button from '../Button';
 import { Price } from '@magento/peregrine';
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -30,7 +31,6 @@ import { useCartState } from '../Minicart/cartContext';
  */
 const Overview = props => {
     const {
-        cancelCheckout,
         classes,
         hasPaymentMethod,
         hasShippingAddress,
@@ -38,10 +38,10 @@ const Overview = props => {
         paymentData,
         setEditing,
         shippingAddress,
-        shippingMethod,
-        receiveOrder
+        shippingMethod
     } = props;
-    const [{ cart, cartId }, dispatch] = useCartState();
+    const [{ cart, cartId }, cartDispatch] = useCartState();
+    const [, dispatch] = useCheckoutState();
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
@@ -64,11 +64,11 @@ const Overview = props => {
     }, [placeOrder]);
 
     if (error) {
-        dispatch({ type: 'error', error: error.toString() });
+        cartDispatch({ type: 'error', error: error.toString() });
     }
 
     if (data) {
-        receiveOrder(data.placeOrder.order);
+        dispatch({ type: 'placeOrder', order: data.placeOrder.order });
         setEditing('receipt');
     }
 
@@ -103,7 +103,7 @@ const Overview = props => {
                 </Section>
             </div>
             <div className={classes.footer}>
-                <Button onClick={cancelCheckout}>Back to Cart</Button>
+                <Button onClick={() => dispatch({ type: 'cancelCheckout' })}>Back to Cart</Button>
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
                     Confirm Order
                 </Button>
@@ -113,7 +113,6 @@ const Overview = props => {
 };
 
 Overview.propTypes = {
-    cancelCheckout: func.isRequired,
     classes: shape({
         body: string,
         footer: string
@@ -124,8 +123,7 @@ Overview.propTypes = {
     paymentData: object,
     setEditing: func,
     shippingAddress: object,
-    shippingMethod: object,
-    receiveOrder: func
+    shippingMethod: object
 };
 
 export default Overview;

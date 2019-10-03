@@ -20,6 +20,7 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import Cart from './components/Minicart';
 import { CartProvider, initialState, reducerFactory } from './components/Minicart/cartContext';
 import CartInitializer from './components/Minicart/cartInitializer';
+import { CheckoutProvider, initialState as initialCheckoutState, reducer } from './components/Checkout/checkoutContext';
 
 const App = () => {
     const client = new ApolloClient({
@@ -30,7 +31,9 @@ const App = () => {
         <ApolloProvider client={client}>
             <CartProvider initialState={initialState} reducerFactory={reducerFactory}>
                 <CartInitializer>
-                    <Cart />
+                    <CheckoutProvider initialState={initialCheckoutState} reducer={reducer}>
+                        <Cart />
+                    </CheckoutProvider>
                 </CartInitializer>
             </CartProvider>
         </ApolloProvider>

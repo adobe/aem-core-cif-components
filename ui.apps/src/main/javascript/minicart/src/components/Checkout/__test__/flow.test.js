@@ -15,6 +15,7 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import { CartProvider } from '../../Minicart/cartContext';
+import { CheckoutProvider } from '../checkoutContext';
 
 import Flow from '../flow';
 const dummyCart = {
@@ -29,7 +30,9 @@ describe('<Flow>', () => {
     it('it disables checkout button for empty cart', () => {
         const { getByRole } = render(
             <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
-                <Flow />
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Flow />
+                </CheckoutProvider>
             </CartProvider>
         );
 
@@ -43,7 +46,9 @@ describe('<Flow>', () => {
         // we rerender the component with the new cart, button should be enabled
         const { getByRole } = render(
             <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducerFactory={() => state => state}>
-                <Flow />
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Flow />
+                </CheckoutProvider>
             </CartProvider>
         );
         expect(getByRole('button').disabled).toBe(false);
