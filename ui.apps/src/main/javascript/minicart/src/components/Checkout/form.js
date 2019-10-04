@@ -19,13 +19,16 @@ import EditableForm from './editableForm';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 
-const parseShippingAddress = (address, email) => {
-    return {
+const parseAddress = (address, email) => {
+    let result = {
         ...address,
-        email: email,
         region_code: address.region.code,
         country: address.country.code
     };
+    if (email) {
+        result.email = email;
+    }
+    return result;
 };
 
 /**
@@ -41,7 +44,7 @@ const Form = () => {
         if (shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].firstname !== null) {
             dispatch({
                 type: 'setShippingAddress',
-                shippingAddress: parseShippingAddress(shipping_addresses[0], email)
+                shippingAddress: parseAddress(shipping_addresses[0], email)
             });
         }
     }, [shipping_addresses]);
@@ -56,11 +59,7 @@ const Form = () => {
         if (billing_address && billing_address.city !== null) {
             dispatch({
                 type: 'setBillingAddress',
-                billingAddress: {
-                    ...billing_address,
-                    region_code: billing_address.region.code,
-                    country: billing_address.country.code
-                }
+                billingAddress: parseAddress(billing_address)
             });
         }
     }, [billing_address]);

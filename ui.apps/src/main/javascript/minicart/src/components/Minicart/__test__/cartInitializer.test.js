@@ -34,7 +34,6 @@ const DummyCart = () => {
 };
 
 describe('<CartInitializer />', () => {
-    // TODO: Functionality moved to CartInitializer, create new test
     it('retrieves the cartId from the cookie', async () => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,

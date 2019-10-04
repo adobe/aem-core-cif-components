@@ -37,12 +37,12 @@ export const reducer = (state, action) => {
                 ...state,
                 flowState: 'cart'
             };
-
         case 'placeOrder':
             return {
                 ...state,
                 order: action.order,
-                flowState: 'receipt'
+                flowState: 'receipt',
+                editing: 'receipt'
             };
         case 'reset':
             return {
@@ -61,22 +61,26 @@ export const reducer = (state, action) => {
         case 'setShippingAddress':
             return {
                 ...state,
-                shippingAddress: action.shippingAddress
+                shippingAddress: action.shippingAddress,
+                editing: null
             };
         case 'setBillingAddress':
             return {
                 ...state,
-                billingAddress: action.billingAddress
+                billingAddress: action.billingAddress,
+                editing: null
             };
         case 'setShippingMethod':
             return {
                 ...state,
-                shippingMethod: action.shippingMethod
+                shippingMethod: action.shippingMethod,
+                editing: null
             };
         case 'setPaymentMethod':
             return {
                 ...state,
-                paymentMethod: action.paymentMethod
+                paymentMethod: action.paymentMethod,
+                editing: null
             };
 
         default:

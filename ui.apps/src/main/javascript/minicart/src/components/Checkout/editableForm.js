@@ -37,8 +37,7 @@ const EditableForm = props => {
     const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
-
-    let countries = useCountries();
+    const countries = useCountries();
 
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
@@ -119,7 +118,6 @@ const EditableForm = props => {
                 region_code: newShippingAddress.region.code
             }
         });
-        dispatch({ type: 'endEditing' });
     }
 
     if (paymentResult && billingAddressResult) {
@@ -135,7 +133,6 @@ const EditableForm = props => {
                 ...billingAddressResult.setBillingAddressOnCart.cart.billing_address
             }
         });
-        dispatch({ type: 'endEditing' });
     }
 
     if (shippingMethodsResult) {
@@ -144,7 +141,6 @@ const EditableForm = props => {
             shippingMethod:
                 shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses[0].selected_shipping_method
         });
-        dispatch({ type: 'endEditing' });
     }
 
     switch (editing) {
@@ -176,7 +172,10 @@ const EditableForm = props => {
             );
         }
         case 'shippingMethod': {
-            const availableShippingMethods = shippingAddress.available_shipping_methods || [];
+            const availableShippingMethods =
+                shippingAddress && shippingAddress.available_shipping_methods
+                    ? shippingAddress.available_shipping_methods
+                    : [];
             return (
                 <ShippingForm
                     availableShippingMethods={availableShippingMethods}
