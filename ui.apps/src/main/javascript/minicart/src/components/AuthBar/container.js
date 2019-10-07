@@ -54,7 +54,7 @@ const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
 const Container = () => {
     const navigationPanel = document.querySelector('aside.navigation__root');
-    const container = document.querySelector('.account_management_root');
+    const container = document.querySelector('#miniaccount');
 
     const [view, setView] = useState('MENU');
 
