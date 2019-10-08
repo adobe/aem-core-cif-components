@@ -39,7 +39,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 | 0.2.0               | 6.4.4.0 | 6.5.0   | 2.3.1 / 2.3.2     | 1.8  |
 | 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1             | 1.8. |
 
-<sup>*</sup> With version 0.4.0 we drop support for Magento 2.3.1 and only support 2.3.2. For version 2.3.2 we currently requiere the following 4 Magento GraphQL patches ([#758](https://github.com/magento/graphql-ce/issues/758), [#665](https://github.com/magento/graphql-ce/pull/665), [#666](https://github.com/magento/graphql-ce/pull/666), [#906](https://github.com/magento/graphql-ce/pull/906)) installed on the Magento instance. Most of them will be included in upcomming Magento 2.3.3. release.
+<sup>*</sup> With version 0.4.0 we drop support for Magento 2.3.1 and only support 2.3.2. For version 2.3.2 we currently require the following 4 Magento GraphQL patches ([#758](https://github.com/magento/graphql-ce/issues/758), [#665](https://github.com/magento/graphql-ce/pull/665), [#666](https://github.com/magento/graphql-ce/pull/666), [#906](https://github.com/magento/graphql-ce/pull/906)) installed on the Magento instance. Most of them will be included in upcomming Magento 2.3.3. release.
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
@@ -64,7 +64,7 @@ Starting with 2.3.2, Magento supports cache-able GraphQL requests and starting w
 2. Run a `mvn clean install` in the root folder to install the artifacts to your local Maven repository.
 3. Switch to the `all` project and run a `mvn clean install content-package:install`.
 
-Here is a full [video walk trough of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
+Here is a full [video walk through of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
 
 ### UberJar
 
