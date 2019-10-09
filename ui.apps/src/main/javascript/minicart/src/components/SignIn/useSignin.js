@@ -11,32 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import ReactDOM from 'react-dom';
 
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
-import UserContextProvider from './context/UserContext';
+import { useUserContext } from '../../context/UserContext';
 
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
+export const useSignin = () => {
+    let errorMessage = '';
 
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
+    const [userState, { signIn }] = useUserContext();
 
-    return (
-        <ApolloProvider client={client}>
-            <UserContextProvider>
-                <Cart />
-                <AuthBar />
-            </UserContextProvider>
-        </ApolloProvider>
-    );
-};
+    if (userState.signInError && userState.signInError.length > 0) {
+        errorMessage = userState.signInError;
+    }
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
+    const handleSubmit = ({ email, password }) => {
+        signIn({ email, password });
+    };
+
+    return {
+        handleSubmit,
+        errorMessage,
+        isSignedIn: userState.isSignedIn
+    };
 };

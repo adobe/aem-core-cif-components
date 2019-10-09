@@ -11,32 +11,34 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useCallback } from 'react';
+import { arrayOf, func, node } from 'prop-types';
 
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
-import UserContextProvider from './context/UserContext';
+import Button from '../Button';
 
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
+import classes from './accountLink.css';
 
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
+const AccountLink = props => {
+    const { children, onClick } = props;
+    const [icon, text] = children;
+
+    const handleClick = useCallback(() => {
+        if (typeof onClick === 'function') {
+            onClick();
+        }
+    }, [onClick]);
 
     return (
-        <ApolloProvider client={client}>
-            <UserContextProvider>
-                <Cart />
-                <AuthBar />
-            </UserContextProvider>
-        </ApolloProvider>
+        <Button classes={classes} onClick={handleClick}>
+            <span className={classes.icon}>{icon}</span>
+            <span className={classes.text}>{text}</span>
+        </Button>
     );
 };
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
+export default AccountLink;
+
+AccountLink.propTypes = {
+    children: arrayOf(node).isRequired,
+    onClick: func
 };

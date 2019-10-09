@@ -12,31 +12,33 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
-import UserContextProvider from './context/UserContext';
+import Button from '../Button';
+import classes from './authBar.css';
+import { useUserContext } from '../../context/UserContext';
+import UserChip from './userChip';
+import { func } from 'prop-types';
 
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
+const AuthBar = props => {
+    const { showSignIn, showMyAccount } = props;
 
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
+    const [{ currentUser, isSignedIn }] = useUserContext();
 
-    return (
-        <ApolloProvider client={client}>
-            <UserContextProvider>
-                <Cart />
-                <AuthBar />
-            </UserContextProvider>
-        </ApolloProvider>
+    const disabled = false;
+
+    const content = isSignedIn ? (
+        <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
+    ) : (
+        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
+            {'Sign In'}
+        </Button>
     );
+    return <div className={classes.root}>{content} </div>;
 };
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
+AuthBar.propTypes = {
+    showSignIn: func.isRequired,
+    showMyAccount: func.isRequired
 };
+
+export default AuthBar;

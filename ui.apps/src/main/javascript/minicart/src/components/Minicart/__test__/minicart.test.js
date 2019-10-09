@@ -21,7 +21,7 @@ import { waitForElement } from '@testing-library/dom';
 describe('<Minicart>', () => {
     beforeAll(() => {
         // mock createPortal because we don't have the DOM element to render the CartTrigger
-        ReactDOM.createPortal = jest.fn((element, node) => {
+        ReactDOM.createPortal = jest.fn(element => {
             return element;
         });
     });

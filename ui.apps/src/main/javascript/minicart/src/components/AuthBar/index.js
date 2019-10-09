@@ -11,32 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
-import UserContextProvider from './context/UserContext';
-
-import Cart from './components/Minicart';
-import AuthBar from './components/AuthBar';
-
-const App = () => {
-    const client = new ApolloClient({
-        uri: '/magento/graphql'
-    });
-
-    return (
-        <ApolloProvider client={client}>
-            <UserContextProvider>
-                <Cart />
-                <AuthBar />
-            </UserContextProvider>
-        </ApolloProvider>
-    );
-};
-
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
-};
+export { default } from './container';
