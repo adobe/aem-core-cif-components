@@ -256,21 +256,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
 
 ### Use Case C
 
-## TODOs
-
-### Use Case A
-* Should work out of the box.
-
-### Use Case B
-* Decouple data retrieval from sling model.
-* Remove data retrieval from the sling model's `initModel` method. (e.g. provide a wrapper that executes query only when the first getter is called).
-* Keep using `MagentoGraphqlClient`
-* Allows using of CIF core components package with customizations in proxy components
-
-### Use Case C
-* Make data retrival layer compatible with different models. (e.g. allow result to be deserialized into multiple models)
-* Use generic `GraphqlClient`
-* Newly generated schema replaces existing schema, then CIF core components package needs to be rebuilt
+> TO BE DONE
 
 
 
