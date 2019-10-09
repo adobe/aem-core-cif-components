@@ -99,12 +99,18 @@ const UserContextProvider = props => {
         setUserState({ ...userState, isSignedIn: false });
     }, [setToken]);
 
+    const resetPassword = async email => {
+        console.log(`Resetting password`);
+        await Promise.resolve(email);
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
         {
             signIn,
-            signOut
+            signOut,
+            resetPassword
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

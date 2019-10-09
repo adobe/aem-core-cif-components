@@ -88,6 +88,7 @@ exports[`<SignIn> renders the component 1`] = `
         class="signInButton"
       >
         <button
+          aria-label="submit"
           class="root_highPriority"
           type="submit"
         >
@@ -95,6 +96,20 @@ exports[`<SignIn> renders the component 1`] = `
             class="content"
           >
             Sign In
+          </span>
+        </button>
+      </div>
+      <div
+        class="forgotPasswordButton"
+      >
+        <button
+          class="root_lowPriority"
+          type="button"
+        >
+          <span
+            class="content"
+          >
+            Forgot Password?
           </span>
         </button>
       </div>
