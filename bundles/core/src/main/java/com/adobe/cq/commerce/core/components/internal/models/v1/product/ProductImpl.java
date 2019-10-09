@@ -28,7 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -41,12 +41,16 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.ProductPlaceholderRetrieverImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.ProductRetrieverImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.product.ProductCustomization;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.core.components.models.retriever.ProductPlaceholderRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -67,7 +71,6 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinit
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -75,8 +78,11 @@ import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = Product.class, resourceType = ProductImpl.RESOURCE_TYPE)
-public class ProductImpl implements Product {
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { Product.class, ProductCustomization.class },
+    resourceType = ProductImpl.RESOURCE_TYPE)
+public class ProductImpl implements ProductCustomization {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     protected static final String PLACEHOLDER_DATA = "/product-component-placeholder-data.json";
@@ -107,12 +113,12 @@ public class ProductImpl implements Product {
     @Inject
     private XSSAPI xssApi;
 
-    private ProductInterface product;
-    private String mediaBaseUrl;
     private NumberFormat priceFormatter;
     private Boolean configurable;
     private MagentoGraphqlClient magentoGraphqlClient;
     private Boolean loadClientPrice;
+
+    public ProductRetriever productRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -122,65 +128,55 @@ public class ProductImpl implements Product {
         if (StringUtils.isNotBlank(slug)) {
             // Get MagentoGraphqlClient from the resource.
             magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-
-            // Fetch product data
-            if (magentoGraphqlClient != null) {
-                product = fetchProduct(slug);
-            }
+            productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
+            productRetriever.setQuery(generateQuery(slug));
 
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-
         } else if (!wcmMode.isDisabled()) {
             useEditModePlaceholderData();
             loadClientPrice = false;
         }
-
-        // Initialize NumberFormatter with locale from current page.
-        // Alternatively, the locale can potentially be retrieved via
-        // the storeConfig query introduced with Magento 2.3.1
-        Locale locale = currentPage.getLanguage(false);
-        priceFormatter = Utils.buildPriceFormatter(locale, product != null ? getCurrency() : null);
     }
 
     @Override
     public Boolean getFound() {
-        return product != null;
+        return productRetriever.getProduct() != null;
     }
 
     @Override
     public String getName() {
-        return product.getName();
+        return productRetriever.getProduct().getName();
     }
 
     @Override
     public String getDescription() {
-        return safeDescription(product);
+        return safeDescription(productRetriever.getProduct());
     }
 
     @Override
     public String getSku() {
-        return product.getSku();
+        return productRetriever.getProduct().getSku();
     }
 
     @Override
     public String getCurrency() {
-        return product.getPrice().getRegularPrice().getAmount().getCurrency().toString();
+        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
     }
 
     @Override
     public Double getPrice() {
-        return product.getPrice().getRegularPrice().getAmount().getValue();
+        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getValue();
     }
 
     @Override
     public Boolean getInStock() {
-        return ProductStockStatus.IN_STOCK.equals(product.getStockStatus());
+        return ProductStockStatus.IN_STOCK.equals(productRetriever.getProduct().getStockStatus());
     }
 
     @Override
     public Boolean isConfigurable() {
         if (configurable == null) {
-            configurable = product instanceof ConfigurableProduct;
+            configurable = productRetriever.getProduct() instanceof ConfigurableProduct;
         }
 
         return configurable;
@@ -204,16 +200,17 @@ public class ProductImpl implements Product {
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
-        ConfigurableProduct product = (ConfigurableProduct) this.product;
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
 
     @Override
     public List<Asset> getAssets() {
-        return filterAndSortAssets(product.getMediaGalleryEntries());
+        return filterAndSortAssets(productRetriever.getProduct().getMediaGalleryEntries());
     }
 
+    @Override
     public String getAssetsJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -232,7 +229,7 @@ public class ProductImpl implements Product {
             return Collections.emptyList();
         }
 
-        ConfigurableProduct product = (ConfigurableProduct) this.product;
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
 
         List<VariantAttribute> optionList = new ArrayList<>();
         for (ConfigurableProductOptions option : product.getConfigurableOptions()) {
@@ -249,11 +246,32 @@ public class ProductImpl implements Product {
 
     @Override
     public String getFormattedPrice() {
-        return priceFormatter.format(getPrice());
+        return getPriceFormatter().format(getPrice());
+    }
+
+    @Override
+    public ProductRetriever getProductRetriever() {
+        return productRetriever;
     }
 
     /* --- GraphQL queries --- */
 
+    @Override
+    public String generateQuery(String slug) {
+        // Create query and pass it to the product retriever
+        // Search parameters
+        FilterTypeInput input = new FilterTypeInput().setEq(slug);
+        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
+        ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+
+        // GraphQL query
+        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
+        return Operations.query(query -> query
+            .products(searchArgs, queryArgs)
+            .storeConfig(generateStoreConfigQuery())).toString();
+    }
+
+    @Override
     public ProductPricesQueryDefinition generatePriceQuery() {
         return q -> q
             .regularPrice(rp -> rp
@@ -262,6 +280,7 @@ public class ProductImpl implements Product {
                     .value()));
     }
 
+    @Override
     public SimpleProductQueryDefinition generateSimpleProductQuery() {
         return q -> q
             .sku()
@@ -281,6 +300,7 @@ public class ProductImpl implements Product {
                 .mediaType());
     }
 
+    @Override
     public ProductInterfaceQueryDefinition generateProductQuery() {
         // Custom attributes or attributes that are part of a non-standard
         // attribute set have to be added to the query manually. This also
@@ -314,13 +334,15 @@ public class ProductImpl implements Product {
                     .product(generateSimpleProductQuery())));
     }
 
-    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+    @Override
+    public StoreConfigQueryDefinition generateStoreConfigQuery() {
         return q -> q.secureBaseMediaUrl();
     }
 
     /* --- Mapping methods --- */
 
-    private Variant mapVariant(ConfigurableVariant variant) {
+    @Override
+    public Variant mapVariant(ConfigurableVariant variant) {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
@@ -330,7 +352,7 @@ public class ProductImpl implements Product {
         productVariant.setColor(product.getColor());
         productVariant.setCurrency(product.getPrice().getRegularPrice().getAmount().getCurrency().toString());
         productVariant.setPrice(product.getPrice().getRegularPrice().getAmount().getValue());
-        productVariant.setFormattedPrice(priceFormatter.format(productVariant.getPrice()));
+        productVariant.setFormattedPrice(getPriceFormatter().format(productVariant.getPrice()));
         productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
 
         // Map variant attributes
@@ -344,7 +366,8 @@ public class ProductImpl implements Product {
         return productVariant;
     }
 
-    private List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
+    @Override
+    public List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
         return assets.parallelStream()
             .filter(e -> !e.getDisabled() && e.getMediaType().equals("image"))
             .map(this::mapAsset)
@@ -352,7 +375,8 @@ public class ProductImpl implements Product {
             .collect(Collectors.toList());
     }
 
-    private Asset mapAsset(MediaGalleryEntry entry) {
+    @Override
+    public Asset mapAsset(MediaGalleryEntry entry) {
         AssetImpl asset = new AssetImpl();
         asset.setLabel(entry.getLabel());
         asset.setPosition(entry.getPosition());
@@ -361,12 +385,13 @@ public class ProductImpl implements Product {
         // TODO WORKAROUND
         // Magento media gallery only provides that file path but not a full image url yet, we need the mediaBaseUrl
         // from the storeConfig to construct the full image url
-        asset.setPath(mediaBaseUrl + PRODUCT_IMAGE_FOLDER + entry.getFile());
+        asset.setPath(productRetriever.getMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
 
         return asset;
     }
 
-    private VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
+    @Override
+    public VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
         VariantValueImpl variantValue = new VariantValueImpl();
         variantValue.setId(value.getValueIndex());
         variantValue.setLabel(value.getLabel());
@@ -374,7 +399,8 @@ public class ProductImpl implements Product {
         return variantValue;
     }
 
-    private VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
+    @Override
+    public VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
         // Get list of values
         List<VariantValue> values = option.getValues().parallelStream().map(this::mapVariantValue).collect(Collectors.toList());
 
@@ -395,43 +421,25 @@ public class ProductImpl implements Product {
      *
      * @return product slug
      */
-    private String parseProductSlug() {
+    @Override
+    public String parseProductSlug() {
         return request.getRequestPathInfo().getSelectorString();
     }
 
-    private ProductInterface fetchProduct(String slug) {
-        // Search parameters
-        FilterTypeInput input = new FilterTypeInput().setEq(slug);
-        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
-        ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-        // GraphQL query
-        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-        String queryString = Operations.query(query -> query
-            .products(searchArgs, queryArgs)
-            .storeConfig(generateStoreConfigQuery())).toString();
-
-        // Send GraphQL request
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-
-        // Get product list from response
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
-
-        // TODO WORKAROUND
-        // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images
-        // file names but no full URLs
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-
-        // Return first product in list
-        if (products.size() > 0) {
-            return products.get(0);
+    @Override
+    public NumberFormat getPriceFormatter() {
+        if (priceFormatter == null) {
+            // Initialize NumberFormatter with locale from current page.
+            // Alternatively, the locale can potentially be retrieved via
+            // the storeConfig query introduced with Magento 2.3.1
+            Locale locale = currentPage.getLanguage(false);
+            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.getProduct() != null ? getCurrency() : null);
         }
-
-        return null;
+        return priceFormatter;
     }
 
-    private String safeDescription(ProductInterface product) {
+    @Override
+    public String safeDescription(ProductInterface product) {
         ComplexTextValue description = product.getDescription();
         if (description == null) {
             return null;
@@ -448,8 +456,11 @@ public class ProductImpl implements Product {
         try {
             String json = IOUtils.toString(getClass().getResourceAsStream(PLACEHOLDER_DATA), StandardCharsets.UTF_8);
             Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-            product = rootQuery.getProducts().getItems().get(0);
-            mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+
+            ProductPlaceholderRetriever retriever = new ProductPlaceholderRetrieverImpl();
+            retriever.setProduct(rootQuery.getProducts().getItems().get(0));
+            retriever.setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
+            productRetriever = retriever;
         } catch (IOException e) {
             LOGGER.warn("Cannot use placeholder data", e);
         }

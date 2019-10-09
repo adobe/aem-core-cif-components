@@ -60,6 +60,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         // Extend the existing interface with the additional properties which you 
         // want to expose to the HTL template.
         public String getCreatedAt();
+        public String isReturnable() throws SchemaViolationError;
     }
     ```
 
@@ -67,8 +68,8 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     ```java
     package com.venia.cif.core.models;
 
-    import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
     import com.adobe.cq.commerce.core.components.models.product.Asset;
+    import com.adobe.cq.commerce.core.components.models.product.ProductCustomization;
     import com.adobe.cq.commerce.core.components.models.product.Variant;
     import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
     import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
@@ -78,6 +79,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
     import com.adobe.cq.commerce.magento.graphql.QueryQuery;
     import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+    import com.shopify.graphql.support.SchemaViolationError;
     import org.apache.sling.api.SlingHttpServletRequest;
     import org.apache.sling.models.annotations.Model;
     import org.apache.sling.models.annotations.Via;
@@ -93,7 +95,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         protected static final String RESOURCE_TYPE = "venia/components/commerce/notaproduct";
 
         @Self @Via(type = ResourceSuperType.class)
-        private ProductImpl product;
+        private ProductCustomization product;
 
         @PostConstruct
         private void initModel() {
@@ -102,7 +104,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
             // Pass your custom query to the ProductRetriever. This class will
             // automatically take care of executing your query as soon as you
             // try to access a product property.
-            product.productRetriever.setQuery(generateQuery(slug));
+            product.getProductRetriever().setQuery(generateQuery(slug));
         }
 
         // Create your own  GraphQL query and feel free to re-use as many of the
@@ -112,22 +114,20 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
             ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
             QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
-            // GraphQL query
             ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
             return Operations.query(query -> query
                     .products(searchArgs, queryArgs)
                     .storeConfig(product.generateStoreConfigQuery())).toString();
         }
 
-        @Override public Boolean getFound() {
-            return product.getFound();
+        /* ... */
+
+        @Override public String getCreatedAt() {
+            return product.getProductRetriever().getProduct().getCreatedAt();
         }
 
-        // ... provide getters to fully implement the interface
-
-        // Getter for newly exposed product attribute
-        @Override public String getCreatedAt() {
-            return product.productRetriever.getProduct().getCreatedAt();
+        @Override public String isReturnable() throws SchemaViolationError {
+            return product.getProductRetriever().getProduct().getAsString("is_returnable");
         }
 
         /* --- Custom GraphQL queries --- */
@@ -140,7 +140,8 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
                 .image(i -> i.label().url())
                 .thumbnail(t -> t.label().url())
                 .urlKey()
-                .createdAt() // New property
+                .createdAt() // Query additional property
+                .addCustomSimpleField("is_returnable") // Query custom property
                 .stockStatus()
                 .price(product.generatePriceQuery())
                 .mediaGalleryEntries(g -> g
@@ -171,7 +172,8 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
                 .image(i -> i.label().url())
                 .thumbnail(t -> t.label().url())
                 .urlKey()
-                .createdAt() // New property
+                .createdAt() // Query additional property
+                .addCustomSimpleField("is_returnable") // Query custom property
                 .stockStatus()
                 .color()
                 .price(product.generatePriceQuery())

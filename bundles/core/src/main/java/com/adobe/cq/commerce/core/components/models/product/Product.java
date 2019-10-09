@@ -58,5 +58,4 @@ public interface Product {
     List<VariantAttribute> getVariantAttributes();
 
     Boolean loadClientPrice();
-
 }
