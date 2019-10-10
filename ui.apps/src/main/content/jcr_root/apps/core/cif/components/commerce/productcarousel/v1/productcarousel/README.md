@@ -23,6 +23,7 @@ The products are retrieved from Magento via GraphQL. This component can be used 
 
 - Display a list of featured products
 - Carousel navigation via next/previous indicators
+- Style System support.
 
 ### Use Object
 

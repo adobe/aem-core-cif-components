@@ -23,6 +23,7 @@ term is read from request parameters of the page and the data is retrieved from 
 
 - Support for basic full-text search
 - Display products in gallery view, incl. name, thumbnail, and price
+- Style System support.
 
 ### Use Object
 
