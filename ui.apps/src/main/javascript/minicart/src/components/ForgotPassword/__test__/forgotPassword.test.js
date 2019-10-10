@@ -12,15 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 import ForgotPassword from '../forgotPassword';
-import { exportAllDeclaration } from '@babel/types';
 import UserContextProvider from '../../../context/UserContext';
 
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
-        const Wrapper = props => {
+        const Wrapper = () => {
             return <ForgotPassword onClose={jest.fn()} />;
         };
 
@@ -31,5 +30,22 @@ describe('ForgotPassword', () => {
         );
 
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the success message after the "forgot password" form is submitted', () => {
+        const Wrapper = () => {
+            return <ForgotPassword onClose={jest.fn()} />;
+        };
+
+        const { getByLabelText } = render(
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
+        );
+
+        fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });
+        fireEvent.click(getByLabelText('submit'));
+
+        expect(getByLabelText('continue-shopping')).not.toBeUndefined();
     });
 });

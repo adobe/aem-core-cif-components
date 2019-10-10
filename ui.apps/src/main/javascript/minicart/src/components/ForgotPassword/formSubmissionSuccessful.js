@@ -31,7 +31,9 @@ const FormSubmissionSuccessful = props => {
         <div className={classes.root}>
             <p className={classes.text}>{textMessage}</p>
             <div className={classes.buttonContainer}>
-                <Button onClick={onContinue}>{CONTINUE_SHOPPING}</Button>
+                <Button aria-label="continue-shopping" onClick={onContinue}>
+                    {CONTINUE_SHOPPING}
+                </Button>
             </div>
         </div>
     );

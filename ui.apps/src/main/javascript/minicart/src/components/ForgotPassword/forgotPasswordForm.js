@@ -30,10 +30,15 @@ const ForgotPasswordForm = props => {
     return (
         <Form className={classes.root} onSubmit={handleFormSubmit}>
             <Field label="Email address" required={true}>
-                <TextInput autoComplete="email" field="email" validate={isRequired} validateOnBlur></TextInput>
+                <TextInput
+                    autoComplete="email"
+                    field="email"
+                    validate={isRequired}
+                    validateOnBlur
+                    aria-label="email"></TextInput>
             </Field>
             <div className={classes.buttonContainer}>
-                <Button disabled={false} type="submit" priority="high">
+                <Button disabled={false} type="submit" priority="high" aria-label="submit">
                     Submit
                 </Button>
             </div>
