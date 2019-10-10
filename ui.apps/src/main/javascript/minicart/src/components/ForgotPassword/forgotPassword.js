@@ -17,6 +17,7 @@ import ForgotPasswordForm from './forgotPasswordForm';
 import classes from './forgotPassword.css';
 import FormSubmissionSuccessful from './formSubmissionSuccessful';
 import useForgotPassword from './useForgotPassword';
+import { func } from 'prop-types';
 
 const INSTRUCTIONS = 'Enter your email below to receive a password reset link.';
 
@@ -35,6 +36,10 @@ const ForgotPassword = props => {
     );
 
     return <div className={classes.root}>{content}</div>;
+};
+
+ForgotPassword.propTypes = {
+    onClose: func.isRequired
 };
 
 export default ForgotPassword;

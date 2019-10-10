@@ -63,7 +63,8 @@ const SignIn = props => {
 };
 
 SignIn.propTypes = {
-    showMyAccount: func.isRequired
+    showMyAccount: func.isRequired,
+    showForgotPassword: func.isRequired
 };
 
 export default SignIn;

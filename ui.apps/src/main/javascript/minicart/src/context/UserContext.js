@@ -100,7 +100,6 @@ const UserContextProvider = props => {
     }, [setToken]);
 
     const resetPassword = async email => {
-        console.log(`Resetting password`);
         await Promise.resolve(email);
     };
 

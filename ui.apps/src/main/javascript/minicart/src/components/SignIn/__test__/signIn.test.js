@@ -91,7 +91,7 @@ describe('<SignIn>', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId, getByLabelText } = render(
+        const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
                     <SignInWrapper />
@@ -130,7 +130,7 @@ describe('<SignIn>', () => {
             }
         };
 
-        const { getByRole, getByText, getByLabelText } = render(
+        const { getByText, getByLabelText } = render(
             <MockedProvider mocks={[mockErrorResponse]} addTypename={false}>
                 <UserContextProvider>
                     <SignIn showMyAccount={jest.fn()} />
