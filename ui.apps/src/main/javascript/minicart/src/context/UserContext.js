@@ -44,7 +44,8 @@ const UserContextProvider = props => {
             email: ''
         },
         isSignedIn: isSignedIn(),
-        signInError: ''
+        signInError: '',
+        inProgress: false
     };
 
     const [userState, setUserState] = useState(initialState);
@@ -66,6 +67,7 @@ const UserContextProvider = props => {
             getCustomerDetails({
                 context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
             });
+            setUserState({ ...userState, inProgress: true });
         }
     }, [token]);
 
@@ -73,7 +75,7 @@ const UserContextProvider = props => {
     useEffect(() => {
         if (customerData && customerData.customer && !customerDetailsError) {
             const { firstname, lastname, email } = customerData.customer;
-            setUserState({ ...userState, currentUser: { firstname, lastname, email } });
+            setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
         }
     }, [customerData, customerDetailsError, customerDetailsLoading]);
 

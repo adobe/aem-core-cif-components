@@ -13,5 +13,5 @@
  ******************************************************************************/
 export { default } from './forgotPassword';
 
-export { ForgotPasswordForm } from './forgotPasswordForm';
-export { FormSubmissionSuccessful } from './formSubmissionSuccessful';
+export { default as ForgotPasswordForm } from './forgotPasswordForm';
+export { default as FormSubmissionSuccessful } from './formSubmissionSuccessful';
