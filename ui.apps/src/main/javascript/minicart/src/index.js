@@ -16,10 +16,12 @@ import ReactDOM from 'react-dom';
 
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
+import UserContextProvider from './context/UserContext';
 
 import Cart from './components/Minicart';
 import { CartProvider, initialState, reducerFactory } from './utils/state';
 import CartInitializer from './utils/cartInitializer';
+import AuthBar from './components/AuthBar';
 
 const App = () => {
     const client = new ApolloClient({
@@ -29,9 +31,12 @@ const App = () => {
     return (
         <ApolloProvider client={client}>
             <CartProvider initialState={initialState} reducerFactory={reducerFactory}>
-                <CartInitializer>
-                    <Cart />
-                </CartInitializer>
+                <UserContextProvider>
+                    <CartInitializer>
+                        <Cart />
+                        <AuthBar />
+                    </CartInitializer>
+                </UserContextProvider>
             </CartProvider>
         </ApolloProvider>
     );

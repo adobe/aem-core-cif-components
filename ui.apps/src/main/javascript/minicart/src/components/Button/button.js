@@ -12,14 +12,16 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { oneOf, node } from 'prop-types';
+import { oneOf, node, shape, string } from 'prop-types';
 
-import classes from './button.css';
+import defaultClasses from './button.css';
 
 const getRootClassName = priority => `root_${priority}Priority`;
 
 const Button = props => {
     const { children, priority, type, ...restProps } = props;
+
+    let classes = props.classes ? Object.assign({}, defaultClasses, props.classes) : defaultClasses;
 
     const rootClassName = classes[getRootClassName(priority)];
 
@@ -38,7 +40,10 @@ Button.defaultProps = {
 Button.propTypes = {
     priority: oneOf(['high', 'normal']).isRequired,
     type: oneOf(['button', 'reset', 'submit']).isRequired,
-    children: node
+    children: node,
+    classes: shape({
+        content: string.isRequired
+    })
 };
 
 export default Button;

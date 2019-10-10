@@ -3,6 +3,6 @@
           xmlns:cq="http://www.day.com/jcr/cq/1.0"
           xmlns:jcr="http://www.jcp.org/jcr/1.0"
           jcr:primaryType="cq:Component"
-          componentGroup="CIF Core Components"
-          jcr:title="Product List">
+          jcr:title="Mini My Account"
+          jcr:description="Renders the mount-point for the React Account Management components">
 </jcr:root>

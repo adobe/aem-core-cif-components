@@ -19,7 +19,7 @@ import { CartProvider } from '../../../utils/state';
 
 describe('<CartTrigger>', () => {
     beforeAll(() => {
-        ReactDOM.createPortal = jest.fn((element, node) => {
+        ReactDOM.createPortal = jest.fn(element => {
             return element;
         });
     });
