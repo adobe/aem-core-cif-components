@@ -15,7 +15,7 @@ import React from 'react';
 import ForgotPasswordForm from './forgotPasswordForm';
 
 import classes from './forgotPassword.css';
-import FormSubmissionSubccessful from './formSubmissionSuccessful';
+import FormSubmissionSuccessful from './formSubmissionSuccessful';
 import useForgotPassword from './useForgotPassword';
 
 const INSTRUCTIONS = 'Enter your email below to receive a password reset link.';
@@ -25,10 +25,8 @@ const ForgotPassword = props => {
 
     const [{ submitting, email }, { handleContinue, handleFormSubmit }] = useForgotPassword({ onClose });
 
-    console.log(`Form submitting ${submitting}`);
-
     const content = submitting ? (
-        <FormSubmissionSubccessful email={email} onContinue={handleContinue}></FormSubmissionSubccessful>
+        <FormSubmissionSuccessful email={email} onContinue={handleContinue}></FormSubmissionSuccessful>
     ) : (
         <>
             <p className={classes.instructions}>{INSTRUCTIONS}</p>
