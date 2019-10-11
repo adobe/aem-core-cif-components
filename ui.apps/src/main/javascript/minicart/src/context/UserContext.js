@@ -17,6 +17,7 @@ import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
+import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 
 const UserContext = React.createContext();
 
@@ -60,6 +61,11 @@ const UserContextProvider = props => {
         { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
     ] = useLazyQuery(QUERY_CUSTOMER_DETAILS);
 
+    const [
+        revokeCustomerToken,
+        { data: revokeTokenData, error: revokeTokenError, loading: revokeTokenLoading }
+    ] = useMutation(MUTATION_REVOKE_TOKEN);
+
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
         if (token.length > 0) {
@@ -86,6 +92,17 @@ const UserContextProvider = props => {
         }
     }, [data, error]);
 
+    useEffect(() => {
+        if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
+            setToken('');
+            setUserToken('', 0);
+            setUserState({ ...userState, isSignedIn: false });
+        }
+        if (revokeTokenError) {
+            console.error(revokeTokenError.message);
+        }
+    }, [revokeTokenData, revokeTokenError, revokeTokenLoading]);
+
     const signIn = useCallback(
         ({ email, password }) => {
             generateCustomerToken({ variables: { email, password } });
@@ -94,10 +111,10 @@ const UserContextProvider = props => {
     );
 
     const signOut = useCallback(() => {
-        setToken('');
-        setUserToken('');
-        setUserState({ ...userState, isSignedIn: false });
-    }, [setToken]);
+        revokeCustomerToken({
+            context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
+        });
+    }, [revokeCustomerToken, token]);
 
     const { children } = props;
     const contextValue = [
