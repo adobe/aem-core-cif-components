@@ -17,6 +17,7 @@ import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
+import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 
 const UserContext = React.createContext();
 
@@ -33,9 +34,9 @@ const parseError = error => {
 };
 
 const UserContextProvider = props => {
-    const [userToken, setUserToken] = useCookieValue('cif.userToken');
-    const [token, setToken] = useState(userToken);
-    const isSignedIn = () => !!userToken;
+    const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
+    const [token, setToken] = useState(userCookie);
+    const isSignedIn = () => !!userCookie;
 
     const initialState = {
         currentUser: {
@@ -60,6 +61,11 @@ const UserContextProvider = props => {
         { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
     ] = useLazyQuery(QUERY_CUSTOMER_DETAILS);
 
+    const [
+        revokeCustomerToken,
+        { data: revokeTokenData, error: revokeTokenError, loading: revokeTokenLoading }
+    ] = useMutation(MUTATION_REVOKE_TOKEN);
+
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
         if (token.length > 0) {
@@ -71,20 +77,36 @@ const UserContextProvider = props => {
 
     // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
     useEffect(() => {
-        if (customerData && customerData.customer && !customerDetailsError) {
+        if (customerData && customerData.customer) {
             const { firstname, lastname, email } = customerData.customer;
             setUserState({ ...userState, currentUser: { firstname, lastname, email } });
+        }
+        if (customerDetailsError) {
+            setUserState({ ...userState, isSignedIn: false });
+            setToken('');
+            setUserCookie('', 0);
         }
     }, [customerData, customerDetailsError, customerDetailsLoading]);
 
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
-            setUserToken(data.generateCustomerToken.token);
+            setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
             setUserState({ ...userState, isSignedIn: true });
         }
     }, [data, error]);
+
+    useEffect(() => {
+        if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
+            setToken('');
+            setUserCookie('', 0);
+            setUserState({ ...userState, isSignedIn: false });
+        }
+        if (revokeTokenError) {
+            console.error(revokeTokenError.message);
+        }
+    }, [revokeTokenData, revokeTokenError, revokeTokenLoading]);
 
     const signIn = useCallback(
         ({ email, password }) => {
@@ -94,10 +116,10 @@ const UserContextProvider = props => {
     );
 
     const signOut = useCallback(() => {
-        setToken('');
-        setUserToken('');
-        setUserState({ ...userState, isSignedIn: false });
-    }, [setToken]);
+        revokeCustomerToken({
+            context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
+        });
+    }, [revokeCustomerToken, token]);
 
     const { children } = props;
     const contextValue = [
