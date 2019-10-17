@@ -14,17 +14,23 @@
 
 package com.adobe.cq.commerce.core.components.models.retriever;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import java.util.function.Consumer;
+
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.shopify.graphql.support.AbstractQuery;
 
 public interface ProductRetriever {
-    void setQuery(String query);
 
-    GraphqlResponse<Query, Error> getData();
+    void setQuery(String query);
 
     ProductInterface getProduct();
 
     String getMediaBaseUrl();
+
+    void setSlug(String slug);
+
+    <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> hook);
+
+    <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> hook);
+
 }

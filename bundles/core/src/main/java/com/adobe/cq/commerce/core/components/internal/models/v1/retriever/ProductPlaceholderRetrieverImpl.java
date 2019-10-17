@@ -14,34 +14,33 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.retriever;
 
-import com.adobe.cq.commerce.core.components.models.retriever.ProductPlaceholderRetriever;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+
+import org.apache.commons.io.IOUtils;
+
+import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.shopify.graphql.support.AbstractQuery;
 
-public class ProductPlaceholderRetrieverImpl implements ProductPlaceholderRetriever {
+public class ProductPlaceholderRetrieverImpl implements ProductRetriever {
 
     private ProductInterface product;
     private String mediaBaseUrl;
 
-    @Override
-    public void setProduct(ProductInterface product) {
-        this.product = product;
-    }
+    public ProductPlaceholderRetrieverImpl(String placeholderPath) throws IOException {
+        String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
+        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
-    @Override
-    public void setMediaBaseUrl(String mediaBaseUrl) {
-        this.mediaBaseUrl = mediaBaseUrl;
+        product = rootQuery.getProducts().getItems().get(0);
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
     }
 
     @Override
     public void setQuery(String query) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public GraphqlResponse<Query, Error> getData() {
         throw new UnsupportedOperationException();
     }
 
@@ -53,5 +52,20 @@ public class ProductPlaceholderRetrieverImpl implements ProductPlaceholderRetrie
     @Override
     public String getMediaBaseUrl() {
         return mediaBaseUrl;
+    }
+
+    @Override
+    public void setSlug(String slug) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> hook) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> hook) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -15,23 +15,42 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.retriever;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
+import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.shopify.graphql.support.AbstractQuery;
 
 public class ProductRetrieverImpl implements ProductRetriever {
 
     private String query;
+
+    private String slug;
 
     private MagentoGraphqlClient client;
 
     private ProductInterface product;
 
     private String mediaBaseUrl;
+
+    private Consumer<AbstractQuery<?>> productQueryHook;
+
+    private Consumer<AbstractQuery<?>> variantQueryHook;
 
     public ProductRetrieverImpl(MagentoGraphqlClient client) {
         if (client == null)
@@ -45,8 +64,20 @@ public class ProductRetrieverImpl implements ProductRetriever {
     }
 
     @Override
-    public GraphqlResponse<Query, Error> getData() {
-        return client.execute(query);
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> productQueryHook) {
+        this.productQueryHook = (Consumer<AbstractQuery<?>>) productQueryHook;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> variantQueryHook) {
+        this.variantQueryHook = (Consumer<AbstractQuery<?>>) variantQueryHook;
     }
 
     @Override
@@ -61,6 +92,14 @@ public class ProductRetrieverImpl implements ProductRetriever {
         if (mediaBaseUrl == null)
             populate();
         return mediaBaseUrl;
+    }
+
+    private GraphqlResponse<Query, Error> getData() {
+        if (query == null) {
+            query = generateQuery(slug);
+        }
+
+        return client.execute(query);
     }
 
     private void populate() {
@@ -78,6 +117,95 @@ public class ProductRetrieverImpl implements ProductRetriever {
         if (products.size() > 0) {
             product = products.get(0);
         }
+    }
+
+    /* --- GraphQL queries --- */
+
+    private String generateQuery(String slug) {
+        // Create query and pass it to the product retriever
+        // Search parameters
+        FilterTypeInput input = new FilterTypeInput().setEq(slug);
+        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+
+        // GraphQL query
+        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
+        return Operations.query(query -> query
+            .products(searchArgs, queryArgs)
+            .storeConfig(generateStoreConfigQuery())).toString();
+    }
+
+    private ProductPricesQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(rp -> rp
+                .amount(a -> a
+                    .currency()
+                    .value()));
+    }
+
+    private SimpleProductQueryDefinition generateSimpleProductQuery() {
+        return (SimpleProductQuery q) -> {
+            q.sku()
+                .name()
+                .description(d -> d.html())
+                .image(i -> i.label().url())
+                .thumbnail(t -> t.label().url())
+                .urlKey()
+                .stockStatus()
+                .color()
+                .price(generatePriceQuery())
+                .mediaGalleryEntries(g -> g
+                    .disabled()
+                    .file()
+                    .label()
+                    .position()
+                    .mediaType());
+
+            // Apply product variant query hook
+            if (variantQueryHook != null) {
+                variantQueryHook.accept(q);
+            }
+        };
+    }
+
+    private ProductInterfaceQueryDefinition generateProductQuery() {
+        return (ProductInterfaceQuery q) -> {
+            q.sku()
+                .name()
+                .description(d -> d.html())
+                .image(i -> i.label().url())
+                .thumbnail(t -> t.label().url())
+                .urlKey()
+                .stockStatus()
+                .price(generatePriceQuery())
+                .mediaGalleryEntries(g -> g
+                    .disabled()
+                    .file()
+                    .label()
+                    .position()
+                    .mediaType())
+                .onConfigurableProduct(cp -> cp
+                    .configurableOptions(o -> o
+                        .label()
+                        .attributeCode()
+                        .values(v -> v
+                            .valueIndex()
+                            .label()))
+                    .variants(v -> v
+                        .attributes(a -> a
+                            .code()
+                            .valueIndex())
+                        .product(generateSimpleProductQuery())));
+
+            // Apply product query hook
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
+            }
+        };
+    }
+
+    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+        return q -> q.secureBaseMediaUrl();
     }
 
 }

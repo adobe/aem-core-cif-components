@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -45,11 +43,9 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.Produc
 import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.ProductRetrieverImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.product.ProductCustomization;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductPlaceholderRetriever;
 import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
@@ -57,21 +53,10 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -80,9 +65,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
-    adapters = { Product.class, ProductCustomization.class },
+    adapters = Product.class,
     resourceType = ProductImpl.RESOURCE_TYPE)
-public class ProductImpl implements ProductCustomization {
+public class ProductImpl implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     protected static final String PLACEHOLDER_DATA = "/product-component-placeholder-data.json";
@@ -115,7 +100,6 @@ public class ProductImpl implements ProductCustomization {
 
     private NumberFormat priceFormatter;
     private Boolean configurable;
-    private MagentoGraphqlClient magentoGraphqlClient;
     private Boolean loadClientPrice;
 
     public ProductRetriever productRetriever;
@@ -127,13 +111,17 @@ public class ProductImpl implements ProductCustomization {
 
         if (StringUtils.isNotBlank(slug)) {
             // Get MagentoGraphqlClient from the resource.
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
-            productRetriever.setQuery(generateQuery(slug));
-
+            productRetriever.setSlug(slug);
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         } else if (!wcmMode.isDisabled()) {
-            useEditModePlaceholderData();
+            // In AEM Sites editor, load some dummy placeholder data for the component.
+            try {
+                productRetriever = new ProductPlaceholderRetrieverImpl(PLACEHOLDER_DATA);
+            } catch (IOException e) {
+                LOGGER.warn("Cannot use placeholder data", e);
+            }
             loadClientPrice = false;
         }
     }
@@ -254,95 +242,9 @@ public class ProductImpl implements ProductCustomization {
         return productRetriever;
     }
 
-    /* --- GraphQL queries --- */
-
-    @Override
-    public String generateQuery(String slug) {
-        // Create query and pass it to the product retriever
-        // Search parameters
-        FilterTypeInput input = new FilterTypeInput().setEq(slug);
-        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
-        ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-        // GraphQL query
-        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-        return Operations.query(query -> query
-            .products(searchArgs, queryArgs)
-            .storeConfig(generateStoreConfigQuery())).toString();
-    }
-
-    @Override
-    public ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
-    }
-
-    @Override
-    public SimpleProductQueryDefinition generateSimpleProductQuery() {
-        return q -> q
-            .sku()
-            .name()
-            .description(d -> d.html())
-            .image(i -> i.label().url())
-            .thumbnail(t -> t.label().url())
-            .urlKey()
-            .stockStatus()
-            .color()
-            .price(generatePriceQuery())
-            .mediaGalleryEntries(g -> g
-                .disabled()
-                .file()
-                .label()
-                .position()
-                .mediaType());
-    }
-
-    @Override
-    public ProductInterfaceQueryDefinition generateProductQuery() {
-        // Custom attributes or attributes that are part of a non-standard
-        // attribute set have to be added to the query manually. This also
-        // requires the customer to use newly generated GraphQL classes.
-        return q -> q
-            .sku()
-            .name()
-            .description(d -> d.html())
-            .image(i -> i.label().url())
-            .thumbnail(t -> t.label().url())
-            .urlKey()
-            .stockStatus()
-            .price(generatePriceQuery())
-            .mediaGalleryEntries(g -> g
-                .disabled()
-                .file()
-                .label()
-                .position()
-                .mediaType())
-            .onConfigurableProduct(cp -> cp
-                .configurableOptions(o -> o
-                    .label()
-                    .attributeCode()
-                    .values(v -> v
-                        .valueIndex()
-                        .label()))
-                .variants(v -> v
-                    .attributes(a -> a
-                        .code()
-                        .valueIndex())
-                    .product(generateSimpleProductQuery())));
-    }
-
-    @Override
-    public StoreConfigQueryDefinition generateStoreConfigQuery() {
-        return q -> q.secureBaseMediaUrl();
-    }
-
     /* --- Mapping methods --- */
 
-    @Override
-    public Variant mapVariant(ConfigurableVariant variant) {
+    private Variant mapVariant(ConfigurableVariant variant) {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
@@ -366,8 +268,7 @@ public class ProductImpl implements ProductCustomization {
         return productVariant;
     }
 
-    @Override
-    public List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
+    private List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
         return assets.parallelStream()
             .filter(e -> !e.getDisabled() && e.getMediaType().equals("image"))
             .map(this::mapAsset)
@@ -375,8 +276,7 @@ public class ProductImpl implements ProductCustomization {
             .collect(Collectors.toList());
     }
 
-    @Override
-    public Asset mapAsset(MediaGalleryEntry entry) {
+    private Asset mapAsset(MediaGalleryEntry entry) {
         AssetImpl asset = new AssetImpl();
         asset.setLabel(entry.getLabel());
         asset.setPosition(entry.getPosition());
@@ -390,8 +290,7 @@ public class ProductImpl implements ProductCustomization {
         return asset;
     }
 
-    @Override
-    public VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
+    private VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
         VariantValueImpl variantValue = new VariantValueImpl();
         variantValue.setId(value.getValueIndex());
         variantValue.setLabel(value.getLabel());
@@ -399,8 +298,7 @@ public class ProductImpl implements ProductCustomization {
         return variantValue;
     }
 
-    @Override
-    public VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
+    private VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
         // Get list of values
         List<VariantValue> values = option.getValues().parallelStream().map(this::mapVariantValue).collect(Collectors.toList());
 
@@ -421,13 +319,11 @@ public class ProductImpl implements ProductCustomization {
      *
      * @return product slug
      */
-    @Override
-    public String parseProductSlug() {
+    private String parseProductSlug() {
         return request.getRequestPathInfo().getSelectorString();
     }
 
-    @Override
-    public NumberFormat getPriceFormatter() {
+    private NumberFormat getPriceFormatter() {
         if (priceFormatter == null) {
             // Initialize NumberFormatter with locale from current page.
             // Alternatively, the locale can potentially be retrieved via
@@ -438,8 +334,7 @@ public class ProductImpl implements ProductCustomization {
         return priceFormatter;
     }
 
-    @Override
-    public String safeDescription(ProductInterface product) {
+    private String safeDescription(ProductInterface product) {
         ComplexTextValue description = product.getDescription();
         if (description == null) {
             return null;
@@ -449,20 +344,4 @@ public class ProductImpl implements ProductCustomization {
         return xssApi.filterHTML(description.getHtml());
     }
 
-    /**
-     * In AEM Sites Editor, loads some dummy placeholder data for the component.
-     */
-    private void useEditModePlaceholderData() {
-        try {
-            String json = IOUtils.toString(getClass().getResourceAsStream(PLACEHOLDER_DATA), StandardCharsets.UTF_8);
-            Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-
-            ProductPlaceholderRetriever retriever = new ProductPlaceholderRetrieverImpl();
-            retriever.setProduct(rootQuery.getProducts().getItems().get(0));
-            retriever.setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
-            productRetriever = retriever;
-        } catch (IOException e) {
-            LOGGER.warn("Cannot use placeholder data", e);
-        }
-    }
 }
