@@ -39,17 +39,11 @@ import com.shopify.graphql.support.AbstractQuery;
 public class ProductRetrieverImpl implements ProductRetriever {
 
     private String query;
-
     private String slug;
-
     private MagentoGraphqlClient client;
-
     private ProductInterface product;
-
     private String mediaBaseUrl;
-
     private Consumer<AbstractQuery<?>> productQueryHook;
-
     private Consumer<AbstractQuery<?>> variantQueryHook;
 
     public ProductRetrieverImpl(MagentoGraphqlClient client) {
@@ -72,13 +66,13 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> productQueryHook) {
+    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
         this.productQueryHook = (Consumer<AbstractQuery<?>>) productQueryHook;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> variantQueryHook) {
+    public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
         this.variantQueryHook = (Consumer<AbstractQuery<?>>) variantQueryHook;
     }
 

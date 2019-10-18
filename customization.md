@@ -101,7 +101,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
 
             // Pass your custom partial query to the ProductRetriever. This class will automatically take care of executing your query as soon
             // as you try to access any product property.
-            productRetriever.setProductQueryHook((ProductInterfaceQuery p) ->
+            productRetriever.extendProductQueryWith((ProductInterfaceQuery p) ->
                 p.createdAt()
                 .addCustomSimpleField("is_returnable"));
         }

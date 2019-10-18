@@ -53,13 +53,13 @@ public interface ProductRetriever {
     void setSlug(String slug);
 
     /**
-     * Set a hook which adds an optional partial query to the product GraphQL query.
+     * Extend the product GraphQL query with a partial query provided by a lambda hook that sets additional fields.
      *
      * Example:
      * 
      * <pre>
      * {@code
-     * productRetriever.setProductQueryHook((ProductInterfaceQuery p) -> p
+     * productRetriever.extendProductQueryWith((ProductInterfaceQuery p) -> p
      *     .createdAt()
      *     .addCustomSimpleField("is_returnable"));
      * }
@@ -68,16 +68,16 @@ public interface ProductRetriever {
      * @param productQueryHook Lambda that extends the product query
      * @param <U> Query class that implements AbstractQuery
      */
-    <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> productQueryHook);
+    <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook);
 
     /**
-     * Set a hook which adds an optional partial query to the product variant GraphQL query.
+     * Extend the product variant GraphQL query with a partial query provided by a lambda hook that sets additional fields.
      *
      * Example:
      * 
      * <pre>
      * {@code
-     * productRetriever.setVariantQueryHook((SimpleProductQuery s) -> s
+     * productRetriever.extendVariantQueryWith((SimpleProductQuery s) -> s
      *     .createdAt()
      *     .addCustomSimpleField("is_returnable"));
      * }
@@ -86,6 +86,6 @@ public interface ProductRetriever {
      * @param variantQueryHook Lambda that extends the product variant query
      * @param <U> Query class that implements AbstractQuery
      */
-    <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> variantQueryHook);
+    <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook);
 
 }

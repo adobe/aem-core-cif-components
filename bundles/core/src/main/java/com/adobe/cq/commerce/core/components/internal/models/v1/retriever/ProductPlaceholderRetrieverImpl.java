@@ -60,12 +60,12 @@ public class ProductPlaceholderRetrieverImpl implements ProductRetriever {
     }
 
     @Override
-    public <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> hook) {
+    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> hook) {
+    public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
         throw new UnsupportedOperationException();
     }
 }
