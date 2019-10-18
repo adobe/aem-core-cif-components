@@ -45,7 +45,8 @@ const UserContextProvider = props => {
             email: ''
         },
         isSignedIn: isSignedIn(),
-        signInError: ''
+        signInError: '',
+        inProgress: false
     };
 
     const [userState, setUserState] = useState(initialState);
@@ -72,6 +73,7 @@ const UserContextProvider = props => {
             getCustomerDetails({
                 context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
             });
+            setUserState({ ...userState, inProgress: true });
         }
     }, [token]);
 
@@ -79,7 +81,7 @@ const UserContextProvider = props => {
     useEffect(() => {
         if (customerData && customerData.customer) {
             const { firstname, lastname, email } = customerData.customer;
-            setUserState({ ...userState, currentUser: { firstname, lastname, email } });
+            setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
         }
         if (customerDetailsError) {
             setUserState({ ...userState, isSignedIn: false });
@@ -121,12 +123,17 @@ const UserContextProvider = props => {
         });
     }, [revokeCustomerToken, token]);
 
+    const resetPassword = async email => {
+        await Promise.resolve(email);
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
         {
             signIn,
-            signOut
+            signOut,
+            resetPassword
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
