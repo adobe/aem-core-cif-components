@@ -12,19 +12,19 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
-import { shape, string, array, object } from 'prop-types';
 
 import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
 import isObjectEmpty from '../../utils/isObjectEmpty';
+import { useCartState } from '../../utils/state';
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
  */
 const Form = props => {
-    const { cart } = props;
+    const [{ cart }] = useCartState();
 
     const { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined, email } = cart;
 
@@ -106,15 +106,6 @@ const Form = props => {
         />
     );
     return <div className={classes.root}>{child}</div>;
-};
-
-Form.propTypes = {
-    cart: shape({
-        shipping_addresses: array,
-        selected_payment_method: object,
-        billing_address: object,
-        email: string
-    })
 };
 
 export default Form;

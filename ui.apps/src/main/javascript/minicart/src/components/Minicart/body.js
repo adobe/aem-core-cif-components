@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool, shape, string, func, array, number, object } from 'prop-types';
+import { bool, string } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -21,50 +21,29 @@ import classes from './body.css';
 import ProductList from './productList';
 import CartOptions from './cartOptions';
 
+import { useCartState } from '../../utils/state';
+
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
 const Body = props => {
-    const {
-        isEmpty,
-        isEditing,
-        isLoading,
-        cart,
-        currencyCode,
-        removeItemFromCart,
-        beginEditItem,
-        editItem,
-        handleEndEditing,
-        cartId,
-        closeDrawer
-    } = props;
+    const { isEmpty, isLoading, currencyCode } = props;
+    const [{ isEditing, cart }] = useCartState();
 
     if (isLoading) {
         return loadingIndicator;
     }
 
     if (isEmpty) {
-        return <EmptyMinicartBody closeDrawer={closeDrawer} />;
+        return <EmptyMinicartBody />;
     }
     if (isEditing) {
-        return (
-            <CartOptions
-                currencyCode={currencyCode}
-                editItem={editItem}
-                handleEndEditing={handleEndEditing}
-                cartId={cartId}
-            />
-        );
+        return <CartOptions currencyCode={currencyCode} />;
     }
 
     const cartItems = cart.items;
     return (
         <div className={classes.root}>
-            <ProductList
-                cartItems={cartItems}
-                currencyCode={currencyCode}
-                removeItemFromCart={removeItemFromCart}
-                beginEditItem={beginEditItem}
-            />
+            <ProductList cartItems={cartItems} currencyCode={currencyCode} />
         </div>
     );
 };
@@ -72,24 +51,7 @@ const Body = props => {
 export default Body;
 
 Body.propTypes = {
-    editItem: shape({
-        id: string,
-        quantity: number,
-        product: shape({
-            name: string,
-            price: object
-        })
-    }),
     isEmpty: bool,
-    isEditing: bool,
     isLoading: bool,
-    cart: shape({
-        items: array.isRequired
-    }),
-    currencyCode: string.isRequired,
-    removeItemFromCart: func.isRequired,
-    beginEditItem: func.isRequired,
-    handleEndEditing: func.isRequired,
-    cartId: string,
-    closeDrawer: func.isRequired
+    currencyCode: string.isRequired
 };

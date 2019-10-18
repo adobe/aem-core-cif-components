@@ -13,12 +13,17 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+import { CartProvider } from '../../../utils/state';
 
 import Header from '../header';
 
 describe('<Header>', () => {
     it('renders the component', () => {
-        const { asFragment } = render(<Header handleCloseCart={jest.fn()} />);
+        const { asFragment } = render(
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
+                <Header />
+            </CartProvider>
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });
@@ -26,7 +31,11 @@ describe('<Header>', () => {
     it('calls the handler method when the close button is clicked', () => {
         const mockFn = jest.fn();
 
-        const { getByRole } = render(<Header handleCloseCart={mockFn} />);
+        const { getByRole } = render(
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => mockFn}>
+                <Header />
+            </CartProvider>
+        );
 
         fireEvent.click(getByRole('button'));
 

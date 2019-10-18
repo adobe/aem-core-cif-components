@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
-import { bool, func, number, object, shape, string, array } from 'prop-types';
+import { bool, func, object, shape, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
 import PaymentMethodSummary from './paymentMethodSummary';
@@ -22,6 +22,7 @@ import Section from './section';
 import Button from '../Button';
 import { Price } from '@magento/peregrine';
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
+import { useCartState } from '../../utils/state';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -30,7 +31,6 @@ import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 const Overview = props => {
     const {
         cancelCheckout,
-        cart,
         classes,
         hasPaymentMethod,
         hasShippingAddress,
@@ -41,6 +41,7 @@ const Overview = props => {
         shippingMethod,
         receiveOrder
     } = props;
+    const [{ cart, cartId }] = useCartState();
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
@@ -59,7 +60,7 @@ const Overview = props => {
     const ready = hasShippingAddress && hasPaymentMethod && hasShippingMethod;
 
     const submitOrder = useCallback(() => {
-        placeOrder({ variables: { cartId: cart.cartId } });
+        placeOrder({ variables: { cartId: cartId } });
     }, [placeOrder]);
 
     if (error) {
@@ -113,16 +114,6 @@ const Overview = props => {
 
 Overview.propTypes = {
     cancelCheckout: func.isRequired,
-    cart: shape({
-        items: array.isRequired,
-        cartId: string,
-        prices: shape({
-            grand_total: shape({
-                currency: string,
-                value: number
-            })
-        }).isRequired
-    }).isRequired,
     classes: shape({
         body: string,
         footer: string

@@ -14,6 +14,7 @@
 
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
+import { CartProvider } from '../../../utils/state';
 
 import Flow from '../flow';
 const dummyCart = {
@@ -25,16 +26,26 @@ const dummyItem = {
 };
 afterEach(cleanup);
 describe('<Flow>', () => {
-    it('changes the checkout button according to the state of the cart', () => {
-        const { rerender, getByRole } = render(<Flow cartId={`123ABC`} cart={dummyCart} />);
+    it('it disables checkout button for empty cart', () => {
+        const { getByRole } = render(
+            <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
+                <Flow />
+            </CartProvider>
+        );
 
         // there are no items in the initial cart, button should be disabled
         expect(getByRole('button').disabled).toBe(true);
+    });
 
+    it('enables checkout button for non empty cart', () => {
         const newCart = { ...dummyCart, items: [dummyItem] };
 
         // we rerender the component with the new cart, button should be enabled
-        rerender(<Flow cartId={`456DEF`} cart={newCart} />);
+        const { getByRole } = render(
+            <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducerFactory={() => state => state}>
+                <Flow />
+            </CartProvider>
+        );
         expect(getByRole('button').disabled).toBe(false);
     });
 });

@@ -12,24 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { func } from 'prop-types';
 import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
+import { useCartState } from '../../utils/state';
 
-const EmptyMinicartBody = props => {
-    const { closeDrawer } = props;
+const EmptyMinicartBody = () => {
+    const [, dispatch] = useCartState();
     return (
         <div className={classes.root} data-testid="empty-minicart">
             <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
-            <Trigger action={closeDrawer}>
+            <Trigger
+                action={() => {
+                    dispatch({ type: 'close' });
+                }}>
                 <span className={classes.continue}>Continue Shopping</span>
             </Trigger>
         </div>
     );
-};
-
-EmptyMinicartBody.propTypes = {
-    closeDrawer: func.isRequired
 };
 
 export default EmptyMinicartBody;

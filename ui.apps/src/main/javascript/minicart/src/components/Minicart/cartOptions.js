@@ -14,7 +14,6 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { object, string, number, shape, func } from 'prop-types';
 import { Price } from '@magento/peregrine';
 
 import Button from '../Button';
@@ -25,8 +24,10 @@ import LoadingIndicator from '../LoadingIndicator';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
-const CartOptions = props => {
-    const { editItem, handleEndEditing, cartId } = props;
+import { useCartState } from '../../utils/state';
+
+const CartOptions = () => {
+    const [{ editItem, cartId }, dispatch] = useCartState();
 
     const { product, quantity: initialQuantity } = editItem;
     const { name, price: productPrice } = product;
@@ -58,7 +59,7 @@ const CartOptions = props => {
 
     const handleUpdateClick = () => {
         updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } });
-        handleEndEditing();
+        dispatch({ type: 'endEditing' });
     };
 
     const handleOnChange = newVal => {
@@ -82,7 +83,10 @@ const CartOptions = props => {
                 </section>
             </div>
             <div className={classes.save}>
-                <Button onClick={handleEndEditing}>
+                <Button
+                    onClick={() => {
+                        dispatch({ type: 'endEditing' });
+                    }}>
                     <span>Cancel</span>
                 </Button>
                 <Button priority="high" onClick={handleUpdateClick}>
@@ -94,19 +98,6 @@ const CartOptions = props => {
             </div>
         </form>
     );
-};
-
-CartOptions.propTypes = {
-    editItem: shape({
-        id: string.isRequired,
-        quantity: number.isRequired,
-        product: shape({
-            name: string,
-            price: object
-        })
-    }),
-    handleEndEditing: func.isRequired,
-    cartId: string
 };
 
 export default CartOptions;

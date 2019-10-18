@@ -15,32 +15,34 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 import CartOptions from '../cartOptions';
+import { CartProvider } from '../../../utils/state';
 
 describe('<CartOptions>', () => {
-    const handleEndEditing = jest.fn();
-
-    const mockProps = {
-        handleEndEditing,
-        cartId: '123ABC',
-        editItem: {
-            id: '123',
-            quantity: 2,
-            product: {
-                name: 'Dummy product',
-                price: {
-                    regularPrice: {
-                        amount: {
-                            value: 100,
-                            currency: 'USD'
+    it('renders the component properly', () => {
+        const initialState = {
+            cartId: '123ABC',
+            editItem: {
+                id: '123',
+                quantity: 2,
+                product: {
+                    name: 'Dummy product',
+                    price: {
+                        regularPrice: {
+                            amount: {
+                                value: 100,
+                                currency: 'USD'
+                            }
                         }
                     }
                 }
             }
-        }
-    };
+        };
 
-    it('renders the component properly', () => {
-        const { asFragment } = render(<CartOptions {...mockProps} />);
+        const { asFragment } = render(
+            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                <CartOptions />
+            </CartProvider>
+        );
         expect(asFragment()).toMatchSnapshot();
     });
 });

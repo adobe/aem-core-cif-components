@@ -15,6 +15,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { render, fireEvent } from '@testing-library/react';
 import CartTrigger from '../cartTrigger';
+import { CartProvider } from '../../../utils/state';
 
 describe('<CartTrigger>', () => {
     beforeAll(() => {
@@ -28,13 +29,21 @@ describe('<CartTrigger>', () => {
     });
 
     it('renders the icon', () => {
-        const { asFragment } = render(<CartTrigger cartQuantity={2} handler={jest.fn()} />);
+        const { asFragment } = render(
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                <CartTrigger cartQuantity={2} />
+            </CartProvider>
+        );
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the quantity', () => {
         const expectedQuantity = '2';
-        const { getByTestId } = render(<CartTrigger cartQuantity={parseInt(expectedQuantity)} handler={jest.fn()} />);
+        const { getByTestId } = render(
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                <CartTrigger cartQuantity={parseInt(expectedQuantity)} />
+            </CartProvider>
+        );
 
         expect(getByTestId('cart-counter').textContent).toEqual(expectedQuantity);
     });
@@ -42,7 +51,11 @@ describe('<CartTrigger>', () => {
     it('calls the handler function when clicked', () => {
         const handler = jest.fn();
 
-        const { getByRole } = render(<CartTrigger cartQuantity={2} handler={handler} />);
+        const { getByRole } = render(
+            <CartProvider initialState={{}} reducerFactory={() => handler}>
+                <CartTrigger cartQuantity={2} />
+            </CartProvider>
+        );
         fireEvent.click(getByRole('button'));
 
         expect(handler.mock.calls.length).toEqual(1);
