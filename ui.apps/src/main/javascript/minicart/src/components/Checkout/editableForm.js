@@ -94,7 +94,8 @@ const EditableForm = props => {
                     variables: {
                         cartId: cartId,
                         ...args.billingAddress,
-                        countryCode: 'US'
+                        countryCode: 'US',
+                        region: args.billingAddress.region_code
                     }
                 });
             }
