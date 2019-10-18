@@ -53,8 +53,10 @@ public class ProductRetrieverImpl implements ProductRetriever {
     private Consumer<AbstractQuery<?>> variantQueryHook;
 
     public ProductRetrieverImpl(MagentoGraphqlClient client) {
-        if (client == null)
+        if (client == null) {
             throw new java.lang.Error("No GraphQL client provided");
+        }
+
         this.client = client;
     }
 
@@ -82,15 +84,19 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     @Override
     public ProductInterface getProduct() {
-        if (product == null)
+        if (product == null) {
             populate();
+        }
+
         return product;
     }
 
     @Override
     public String getMediaBaseUrl() {
-        if (mediaBaseUrl == null)
+        if (mediaBaseUrl == null) {
             populate();
+        }
+
         return mediaBaseUrl;
     }
 
@@ -145,7 +151,8 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
         return (SimpleProductQuery q) -> {
-            q.sku()
+            q
+                .sku()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
@@ -170,7 +177,8 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return (ProductInterfaceQuery q) -> {
-            q.sku()
+            q
+                .sku()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
