@@ -151,8 +151,7 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
         return (SimpleProductQuery q) -> {
-            q
-                .sku()
+            q.sku()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
@@ -177,8 +176,7 @@ public class ProductRetrieverImpl implements ProductRetriever {
 
     private ProductInterfaceQueryDefinition generateProductQuery() {
         return (ProductInterfaceQuery q) -> {
-            q
-                .sku()
+            q.sku()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())

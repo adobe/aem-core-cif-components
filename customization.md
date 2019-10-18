@@ -48,7 +48,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
 ### Use Case B
 
 #### Custom Sling Model
-* Interface (`com.{YOUR_PROJECT}.cif.core.models.NotAProduct`)
+* Interface (`com.{YOUR_PROJECT}.cif.core.models.MyProduct`)
     ```java
     package com.venia.cif.core.models;
 
@@ -57,7 +57,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     import org.osgi.annotation.versioning.ProviderType;
 
     @ProviderType
-    public interface NotAProduct extends Product {
+    public interface MyProduct extends Product {
         // Extend the existing interface with the additional properties which you
         // want to expose to the HTL template.
         public String getCreatedAt();
@@ -65,7 +65,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     }
     ```
 
-* Implementation (`com.{YOUR_PROJECT}.cif.core.models.NotAProductImpl`)
+* Implementation (`com.{YOUR_PROJECT}.cif.core.models.MyProductImpl`)
     ```java
     package com.venia.cif.core.models;
 
@@ -85,10 +85,10 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     import javax.annotation.PostConstruct;
     import java.util.List;
 
-    @Model(adaptables = SlingHttpServletRequest.class, adapters = NotAProduct.class, resourceType = NotAProductImpl.RESOURCE_TYPE)
-    public class NotAProductImpl implements NotAProduct {
+    @Model(adaptables = SlingHttpServletRequest.class, adapters = MyProduct.class, resourceType = MyProductImpl.RESOURCE_TYPE)
+    public class MyProductImpl implements MyProduct {
 
-        protected static final String RESOURCE_TYPE = "venia/components/commerce/notaproduct";
+        protected static final String RESOURCE_TYPE = "venia/components/commerce/myproduct";
 
         @Self @Via(type = ResourceSuperType.class)
         private Product product;
@@ -123,7 +123,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     ```
 
 #### Proxy Component
-* Proxy Component (`apps/{YOUR_PROJECT}/components/commerce/notaproduct/.content.xml`)
+* Proxy Component (`apps/{YOUR_PROJECT}/components/commerce/myproduct/.content.xml`)
     ```xml
     <?xml version="1.0" encoding="UTF-8"?>
     <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
@@ -134,7 +134,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         componentGroup="venia"/>
     ```
 
-* Template Overlay (`apps/{YOUR_PROJECT}/components/commerce/notaproduct/notaproduct.html`)
+* Template Overlay (`apps/{YOUR_PROJECT}/components/commerce/myproduct/myproduct.html`)
     ```html
     <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
         data-sly-use.variantsTpl="variantselector.html"
@@ -142,7 +142,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         data-sly-use.priceTpl="price.html"
         data-sly-use.actionsTpl="actions.html"
         data-sly-use.quantityTpl="quantity.html"
-        data-sly-use.product="com.venia.cif.core.models.NotAProduct"
+        data-sly-use.product="com.venia.cif.core.models.MyProduct"
         data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
         <sly data-sly-call="${clientlib.all @ categories='core.cif.components.product.v1'}"/>

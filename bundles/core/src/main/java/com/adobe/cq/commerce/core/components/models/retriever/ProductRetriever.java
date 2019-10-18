@@ -19,18 +19,73 @@ import java.util.function.Consumer;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.shopify.graphql.support.AbstractQuery;
 
+/**
+ * Interface for product retriever which loads product data using GraphQL.
+ */
 public interface ProductRetriever {
 
+    /**
+     * Replace the product query with your own fully customized query.
+     *
+     * @param query GraphQL query for retrieving a product
+     */
     void setQuery(String query);
 
+    /**
+     * Returns the product.
+     *
+     * @return Product
+     */
     ProductInterface getProduct();
 
+    /**
+     * Returns the media base url from the store info.
+     *
+     * @return Media base url
+     */
     String getMediaBaseUrl();
 
+    /**
+     * Set the slug of the product that should be fetched.
+     *
+     * @param slug Product slug
+     */
     void setSlug(String slug);
 
+    /**
+     * Set a hook which adds an optional partial query to the product GraphQL query.
+     *
+     * Example:
+     * 
+     * <pre>
+     * {@code
+     * productRetriever.setProductQueryHook((ProductInterfaceQuery p) -> p
+     *     .createdAt()
+     *     .addCustomSimpleField("is_returnable"));
+     * }
+     * </pre>
+     *
+     * @param productQueryHook Lambda that extends the product query
+     * @param <U> Query class that implements AbstractQuery
+     */
     <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> productQueryHook);
 
+    /**
+     * Set a hook which adds an optional partial query to the product variant GraphQL query.
+     *
+     * Example:
+     * 
+     * <pre>
+     * {@code
+     * productRetriever.setVariantQueryHook((SimpleProductQuery s) -> s
+     *     .createdAt()
+     *     .addCustomSimpleField("is_returnable"));
+     * }
+     * </pre>
+     *
+     * @param variantQueryHook Lambda that extends the product variant query
+     * @param <U> Query class that implements AbstractQuery
+     */
     <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> variantQueryHook);
 
 }
