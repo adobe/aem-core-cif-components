@@ -12,25 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool, func, shape, string } from 'prop-types';
+import { bool, shape, string } from 'prop-types';
 
 import CheckoutButton from './checkoutButton';
 import classes from './cart.css';
+import { useCheckoutState } from './checkoutContext';
 
 const Cart = props => {
-    const { beginCheckout, ready, submitting } = props;
+    const { ready, submitting } = props;
+    const [, dispatch] = useCheckoutState();
 
     const disabled = submitting || !ready;
 
     return (
         <div className={classes.root}>
-            <CheckoutButton disabled={disabled} onClick={beginCheckout} />
+            <CheckoutButton disabled={disabled} onClick={() => dispatch({ type: 'beginCheckout' })} />
         </div>
     );
 };
 
 Cart.propTypes = {
-    beginCheckout: func.isRequired,
     classes: shape({
         root: string
     }),

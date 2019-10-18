@@ -20,13 +20,13 @@ import CartCounter from './cartCounter';
 import Icon from '../Icon';
 import { ShoppingCart as ShoppingCartIcon } from 'react-feather';
 import classes from './cartTrigger.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 const parentEl = document.querySelector('.header__cartTrigger');
 
-const Trigger = props => {
-    const { cartQuantity } = props;
-    const [, dispatch] = useCartState();
+const Trigger = () => {
+    const [{ cart }, dispatch] = useCartState();
+    let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.items.length : 0;
 
     const iconColor = 'rgb(var(--venia-text))';
     const svgAttributes = {
@@ -40,7 +40,7 @@ const Trigger = props => {
     const button = (
         <button className={classes.root} aria-label="Toggle mini cart" onClick={() => dispatch({ type: 'open' })}>
             <Icon src={ShoppingCartIcon} attrs={svgAttributes} />
-            <CartCounter counter={cartQuantity ? cartQuantity : 0} />
+            <CartCounter counter={cartQuantity} />
         </button>
     );
 
@@ -51,8 +51,7 @@ Trigger.propTypes = {
     children: PropTypes.node,
     classes: PropTypes.shape({
         root: PropTypes.string
-    }),
-    cartQuantity: PropTypes.number
+    })
 };
 
 export default Trigger;

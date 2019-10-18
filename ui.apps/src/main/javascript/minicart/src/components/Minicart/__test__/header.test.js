@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../cartContext';
 
 import Header from '../header';
 

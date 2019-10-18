@@ -15,7 +15,7 @@ import React from 'react';
 import { X as CloseIcon } from 'react-feather';
 
 import classes from './header.css';
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const Header = () => {
     const [, dispatch] = useCartState();

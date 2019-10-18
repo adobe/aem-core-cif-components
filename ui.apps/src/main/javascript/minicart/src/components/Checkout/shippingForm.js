@@ -26,11 +26,13 @@ const ShippingForm = props => {
     let selectableShippingMethods;
 
     if (availableShippingMethods.length > 0) {
-        selectableShippingMethods = availableShippingMethods.map(({ carrier_code, carrier_title }) => ({
-            label: carrier_title,
-            value: carrier_code
-        }));
-        initialValue = shippingMethod.carrier_code || availableShippingMethods[0].carrier_code;
+        selectableShippingMethods = availableShippingMethods
+            .filter(method => method.carrier_code && method.carrier_title)
+            .map(({ carrier_code, carrier_title }) => ({
+                label: carrier_title,
+                value: carrier_code
+            }));
+        initialValue = shippingMethod ? shippingMethod.carrier_code : availableShippingMethods[0].carrier_code;
     } else {
         selectableShippingMethods = [];
         initialValue = '';
@@ -64,10 +66,8 @@ const ShippingForm = props => {
                 </div>
             </div>
             <div className={classes.footer}>
-                <Button className={classes.button} onClick={cancel}>
-                    Cancel
-                </Button>
-                <Button className={classes.button} priority="high" type="submit" disabled={submitting}>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button priority="high" type="submit" disabled={submitting}>
                     Use Method
                 </Button>
             </div>

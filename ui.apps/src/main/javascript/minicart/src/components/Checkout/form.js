@@ -11,100 +11,70 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 
 import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
-import isObjectEmpty from '../../utils/isObjectEmpty';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
+
+const parseAddress = (address, email) => {
+    let result = {
+        ...address,
+        region_code: address.region.code,
+        country: address.country.code
+    };
+    if (email) {
+        result.email = email;
+    }
+    return result;
+};
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
  */
-const Form = props => {
+const Form = () => {
     const [{ cart }] = useCartState();
-
+    const [{ editing, shippingAddress }, dispatch] = useCheckoutState();
     const { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined, email } = cart;
 
-    const [editing, setEditing] = useState(null);
+    useEffect(() => {
+        if (shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].firstname !== null) {
+            dispatch({
+                type: 'setShippingAddress',
+                shippingAddress: parseAddress(shipping_addresses[0], email)
+            });
+        }
+    }, [shipping_addresses]);
 
-    const hasShippingAddress =
-        shipping_addresses && shipping_addresses.length > 0 && shipping_addresses[0].firstname !== null;
-    const actualAddress = hasShippingAddress
-        ? {
-              ...shipping_addresses[0],
-              email: email,
-              region_code: shipping_addresses[0].region.code,
-              country: shipping_addresses[0].country.code
-          }
-        : {};
+    useEffect(() => {
+        if (selected_payment_method && selected_payment_method.code.length > 0) {
+            dispatch({ type: 'setPaymentMethod', paymentMethod: selected_payment_method });
+        }
+    }, [selected_payment_method]);
 
-    const [shippingAddress, setShippingAddress] = useState(actualAddress);
+    useEffect(() => {
+        if (billing_address && billing_address.city !== null) {
+            dispatch({
+                type: 'setBillingAddress',
+                billingAddress: parseAddress(billing_address)
+            });
+        }
+    }, [billing_address]);
 
-    const hasPaymentMethod = selected_payment_method && selected_payment_method.code.length > 0;
-    const initialPaymentMethod = hasPaymentMethod ? selected_payment_method : {};
-    const [paymentData, setPaymentData] = useState(initialPaymentMethod);
-
-    let flatBillingAddress =
-        billing_address && billing_address.city !== null
-            ? {
-                  ...billing_address,
-                  region_code: billing_address.region.code,
-                  country: billing_address.country.code
-              }
-            : {};
-    const [cartBillingAddress, setBillingAddress] = useState(flatBillingAddress);
-
-    let availableShippingMethods;
-    let selectedShippingMethod;
-
-    if (!isObjectEmpty(shippingAddress)) {
-        availableShippingMethods = shippingAddress.available_shipping_methods;
+    useEffect(() => {
         if (
+            shippingAddress &&
             shippingAddress.selected_shipping_method &&
             shippingAddress.selected_shipping_method.carrier_code !== null
         ) {
-            selectedShippingMethod = shippingAddress.selected_shipping_method;
-        } else {
-            selectedShippingMethod = {};
+            dispatch({ type: 'setShippingMethod', shippingMethod: shippingAddress.selected_shipping_method });
         }
-    } else {
-        availableShippingMethods = [];
-        selectedShippingMethod = {};
-    }
+    }, [shippingAddress]);
 
-    const [shippingMethod, setShippingMethod] = useState(selectedShippingMethod);
-
-    const child = editing ? (
-        <EditableForm
-            editing={editing}
-            setEditing={setEditing}
-            shippingAddress={shippingAddress}
-            setShippingAddress={setShippingAddress}
-            initialPaymentMethod={paymentData}
-            setPaymentData={setPaymentData}
-            billingAddress={cartBillingAddress}
-            setBillingAddress={setBillingAddress}
-            availableShippingMethods={availableShippingMethods}
-            shippingMethod={shippingMethod}
-            setShippingMethod={setShippingMethod}
-            {...props}
-        />
-    ) : (
-        <Overview
-            classes={classes}
-            setEditing={setEditing}
-            shippingAddress={shippingAddress}
-            hasShippingAddress={!isObjectEmpty(shippingAddress)}
-            paymentData={{ details: paymentData.title }}
-            hasPaymentMethod={!isObjectEmpty(paymentData)}
-            hasShippingMethod={!isObjectEmpty(shippingMethod)}
-            shippingMethod={shippingMethod}
-            {...props}
-        />
-    );
+    const child = editing ? <EditableForm /> : <Overview classes={classes} />;
     return <div className={classes.root}>{child}</div>;
 };
 

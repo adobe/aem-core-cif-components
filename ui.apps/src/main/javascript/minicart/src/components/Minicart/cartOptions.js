@@ -19,12 +19,11 @@ import { Price } from '@magento/peregrine';
 import Button from '../Button';
 import Select from '../Select';
 import classes from './cartOptions.css';
-import LoadingIndicator from '../LoadingIndicator';
 
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();
@@ -51,14 +50,20 @@ const CartOptions = () => {
         }
     ];
 
-    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    const [updateCart] = useMutation(MUTATION_UPDATE_CART_ITEM, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+        awaitRefetchQueries: true
     });
 
-    const modalClass = loading ? classes.modal_active : classes.modal;
-
     const handleUpdateClick = () => {
-        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } });
+        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } })
+            .catch(error => {
+                dispatch({ type: 'error', error: error.toString() });
+            })
+            .finally(() => {
+                dispatch({ type: 'endLoading' });
+            });
+        dispatch({ type: 'beginLoading' });
         dispatch({ type: 'endEditing' });
     };
 
@@ -92,9 +97,6 @@ const CartOptions = () => {
                 <Button priority="high" onClick={handleUpdateClick}>
                     <span>Update Cart</span>
                 </Button>
-            </div>
-            <div className={modalClass}>
-                <LoadingIndicator>Updating Cart</LoadingIndicator>
             </div>
         </form>
     );

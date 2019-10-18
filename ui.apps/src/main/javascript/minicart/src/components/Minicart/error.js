@@ -11,18 +11,20 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const DEFAULT_CURRENCY_CODE = 'USD';
+import React from 'react';
 
-const getCurrencyCode = cart => {
-    let result;
+import classes from './error.css';
+import { useCartState } from './cartContext';
 
-    try {
-        result = cart.prices.grand_total.currency;
-    } catch (error) {
-        result = DEFAULT_CURRENCY_CODE;
-    }
+const Error = () => {
+    const [{ errorMessage }] = useCartState();
 
-    return result;
+    return (
+        <div className={classes.root}>
+            <h2>Error</h2>
+            <p>{errorMessage}</p>
+        </div>
+    );
 };
 
-export default getCurrencyCode;
+export default Error;

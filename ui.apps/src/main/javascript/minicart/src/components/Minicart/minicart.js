@@ -15,7 +15,6 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
-import getCurrencyCode from '../../utils/getCurrencyCode';
 
 import Mask from '../Mask';
 
@@ -27,15 +26,21 @@ import classes from './minicart.css';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import CartTrigger from '../CartTrigger';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const MiniCart = () => {
-    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem }, dispatch] = useCartState();
+    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
 
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
         skip: !cartId
     });
+
+    useEffect(() => {
+        if (queryLoading) {
+            dispatch({ type: 'beginLoading' });
+        }
+    }, [queryLoading]);
 
     useEffect(() => {
         if (data && data.cart) {
@@ -44,7 +49,7 @@ const MiniCart = () => {
     }, [data]);
 
     if (error) {
-        console.error(`Error loading cart`, error);
+        dispatch({ type: 'error', error: error.toString() });
     }
 
     useEventListener(document, 'aem.cif.open-cart', () => {
@@ -52,32 +57,22 @@ const MiniCart = () => {
     });
     useEventListener(document, 'aem.cif.add-to-cart', addItem);
 
-    const rootClass = isOpen ? classes.root_open : classes.root;
-    const isEmpty = data && data.cart && data.cart.items.length === 0;
-
-    let cartQuantity;
-    let currencyCode = '';
-    let footer = null;
-    // TODO: Ideally this is stored in the cart state
-    let loading = !data || !data.cart || queryLoading || isLoading;
-    const showFooter = !(loading || isEmpty || isEditing);
-    if (cart && Object.entries(cart).length > 0) {
-        currencyCode = getCurrencyCode(cart);
-        cartQuantity = cart.items.length;
-        footer = showFooter ? <Footer /> : null;
-    }
-
     if (!cartId || cartId.length === 0) {
         return null;
     }
 
+    const rootClass = isOpen ? classes.root_open : classes.root;
+    const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
+    const showFooter = !(isLoading || isEmpty || isEditing || errorMessage);
+    const footer = showFooter ? <Footer /> : null;
+
     return (
         <>
-            <CartTrigger cartQuantity={cartQuantity} />
+            <CartTrigger />
             <Mask />
             <aside className={rootClass}>
                 <Header />
-                <Body isEmpty={isEmpty} isLoading={loading} currencyCode={currencyCode} />
+                <Body />
                 {footer}
             </aside>
         </>

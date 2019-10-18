@@ -19,8 +19,9 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import UserContextProvider from './context/UserContext';
 
 import Cart from './components/Minicart';
-import { CartProvider, initialState, reducerFactory } from './utils/state';
-import CartInitializer from './utils/cartInitializer';
+import { CartProvider, initialState, reducerFactory } from './components/Minicart/cartContext';
+import CartInitializer from './components/Minicart/cartInitializer';
+import { CheckoutProvider, initialState as initialCheckoutState, reducer } from './components/Checkout/checkoutContext';
 import AuthBar from './components/AuthBar';
 
 const App = () => {
@@ -33,8 +34,10 @@ const App = () => {
             <CartProvider initialState={initialState} reducerFactory={reducerFactory}>
                 <UserContextProvider>
                     <CartInitializer>
-                        <Cart />
-                        <AuthBar />
+                        <CheckoutProvider initialState={initialCheckoutState} reducer={reducer}>
+                            <Cart />
+                            <AuthBar />
+                        </CheckoutProvider>
                     </CartInitializer>
                 </UserContextProvider>
             </CartProvider>

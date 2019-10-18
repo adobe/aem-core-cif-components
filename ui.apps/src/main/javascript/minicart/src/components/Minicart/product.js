@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { number, shape, object, string } from 'prop-types';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
@@ -21,7 +21,7 @@ import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
 
-import { useCartState } from '../../utils/state';
+import { useCartState } from './cartContext';
 
 const imageWidth = 80;
 const imageHeight = 100;
@@ -34,8 +34,6 @@ const Product = props => {
     const { thumbnail, name, price } = product;
     const { value, currency } = price.regularPrice.amount;
 
-    const [isLoading, setIsLoading] = useState(false);
-
     const productImage = useMemo(() => {
         const src =
             thumbnail && thumbnail.url
@@ -45,11 +43,9 @@ const Product = props => {
     });
 
     const handleRemoveItem = useCallback(() => {
-        setIsLoading(true);
         removeItem(id);
-    }, [setIsLoading, id, removeItem]);
+    }, [id, removeItem]);
 
-    const mask = isLoading ? <div className={classes.mask} /> : null;
     return (
         <li className={classes.root} data-testid="cart-item">
             {productImage}
@@ -63,7 +59,6 @@ const Product = props => {
                     </span>
                 </div>
             </div>
-            {mask}
             <Kebab>
                 <Section
                     text="Edit item"

@@ -37,8 +37,7 @@ ProductList.propTypes = {
     cartItems: array,
     classes: shape({
         root: string
-    }),
-    currencyCode: string
+    })
 };
 
 export default ProductList;

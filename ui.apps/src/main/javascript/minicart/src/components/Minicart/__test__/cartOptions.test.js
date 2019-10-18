@@ -15,12 +15,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 import CartOptions from '../cartOptions';
-import { CartProvider } from '../../../utils/state';
+import { CartProvider } from '../cartContext';
 
 describe('<CartOptions>', () => {
     it('renders the component properly', () => {
         const initialState = {
             cartId: '123ABC',
+            isLoading: false,
             editItem: {
                 id: '123',
                 quantity: 2,
