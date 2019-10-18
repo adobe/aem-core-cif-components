@@ -53,11 +53,12 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     package com.venia.cif.core.models;
 
     import com.adobe.cq.commerce.core.components.models.product.Product;
+    import com.shopify.graphql.support.SchemaViolationError;
     import org.osgi.annotation.versioning.ProviderType;
 
     @ProviderType
     public interface NotAProduct extends Product {
-        // Extend the existing interface with the additional properties which you 
+        // Extend the existing interface with the additional properties which you
         // want to expose to the HTL template.
         public String getCreatedAt();
         public String isReturnable() throws SchemaViolationError;
@@ -69,16 +70,11 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     package com.venia.cif.core.models;
 
     import com.adobe.cq.commerce.core.components.models.product.Asset;
-    import com.adobe.cq.commerce.core.components.models.product.ProductCustomization;
+    import com.adobe.cq.commerce.core.components.models.product.Product;
     import com.adobe.cq.commerce.core.components.models.product.Variant;
     import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
-    import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
-    import com.adobe.cq.commerce.magento.graphql.Operations;
-    import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
-    import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-    import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-    import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-    import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+    import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+    import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
     import com.shopify.graphql.support.SchemaViolationError;
     import org.apache.sling.api.SlingHttpServletRequest;
     import org.apache.sling.models.annotations.Model;
@@ -95,95 +91,34 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         protected static final String RESOURCE_TYPE = "venia/components/commerce/notaproduct";
 
         @Self @Via(type = ResourceSuperType.class)
-        private ProductCustomization product;
+        private Product product;
+
+        private ProductRetriever productRetriever;
 
         @PostConstruct
-        private void initModel() {
-            String slug = product.parseProductSlug();
+        public void initModel() {
+            productRetriever = product.getProductRetriever();
 
-            // Pass your custom query to the ProductRetriever. This class will
-            // automatically take care of executing your query as soon as you
-            // try to access a product property.
-            product.getProductRetriever().setQuery(generateQuery(slug));
+            // Pass your custom partial query to the ProductRetriever. This class will automatically take care of executing your query as soon
+            // as you try to access any product property.
+            productRetriever.setProductQueryHook((ProductInterfaceQuery p) ->
+                p.createdAt()
+                .addCustomSimpleField("is_returnable"));
         }
-
-        // Create your own  GraphQL query and feel free to re-use as many of the
-        // partial queries exposed by the parent class as you wish.
-        public String generateQuery(String slug) {
-            FilterTypeInput input = new FilterTypeInput().setEq(slug);
-            ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
-            QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-            ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-            return Operations.query(query -> query
-                    .products(searchArgs, queryArgs)
-                    .storeConfig(product.generateStoreConfigQuery())).toString();
-        }
-
-        /* ... */
 
         @Override public String getCreatedAt() {
-            return product.getProductRetriever().getProduct().getCreatedAt();
+            return productRetriever.getProduct().getCreatedAt();
         }
 
         @Override public String isReturnable() throws SchemaViolationError {
-            return product.getProductRetriever().getProduct().getAsString("is_returnable");
+            return productRetriever.getProduct().getAsString("is_returnable");
         }
 
-        /* --- Custom GraphQL queries --- */
-
-        public ProductInterfaceQueryDefinition generateProductQuery() {
-            return q -> q
-                .sku()
-                .name()
-                .description(d -> d.html())
-                .image(i -> i.label().url())
-                .thumbnail(t -> t.label().url())
-                .urlKey()
-                .createdAt() // Query additional property
-                .addCustomSimpleField("is_returnable") // Query custom property
-                .stockStatus()
-                .price(product.generatePriceQuery())
-                .mediaGalleryEntries(g -> g
-                    .disabled()
-                    .file()
-                    .label()
-                    .position()
-                    .mediaType())
-                .onConfigurableProduct(cp -> cp
-                    .configurableOptions(o -> o
-                        .label()
-                        .attributeCode()
-                        .values(v -> v
-                            .valueIndex()
-                            .label()))
-                    .variants(v -> v
-                        .attributes(a -> a
-                            .code()
-                            .valueIndex())
-                        .product(generateSimpleProductQuery())));
+        @Override public Boolean getFound() {
+            return product.getFound();
         }
 
-        public SimpleProductQueryDefinition generateSimpleProductQuery() {
-            return q -> q
-                .sku()
-                .name()
-                .description(d -> d.html())
-                .image(i -> i.label().url())
-                .thumbnail(t -> t.label().url())
-                .urlKey()
-                .createdAt() // Query additional property
-                .addCustomSimpleField("is_returnable") // Query custom property
-                .stockStatus()
-                .color()
-                .price(product.generatePriceQuery())
-                .mediaGalleryEntries(g -> g
-                    .disabled()
-                    .file()
-                    .label()
-                    .position()
-                    .mediaType());
-        }
+        /* ... Additional getters from interface ... */
     }
     ```
 
