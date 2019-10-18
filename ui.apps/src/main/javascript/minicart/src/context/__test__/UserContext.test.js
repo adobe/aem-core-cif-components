@@ -17,6 +17,7 @@ import { MockedProvider } from '@apollo/react-testing';
 
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
+import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
 
@@ -44,6 +45,18 @@ describe('UserContext test', () => {
                         email: 'test@example.com',
                         firstname: 'John',
                         lastname: 'Doe'
+                    }
+                }
+            }
+        },
+        {
+            request: {
+                query: MUTATION_REVOKE_TOKEN
+            },
+            result: {
+                data: {
+                    revokeCustomerToken: {
+                        result: true
                     }
                 }
             }
@@ -118,5 +131,10 @@ describe('UserContext test', () => {
 
         const result = await waitForElement(() => getByTestId('success'));
         expect(result).not.toBeUndefined();
+
+        // normally the browser just removes a cookie with Max-Age=0
+        //...but we're not in a browser
+        const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
+        expect(document.cookie).toEqual(expectedCookieValue);
     });
 });

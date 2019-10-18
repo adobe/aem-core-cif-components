@@ -12,19 +12,28 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { Archive as HistoryIcon, LogOut as SignOutIcon } from 'react-feather';
+import { LogOut as SignOutIcon } from 'react-feather';
 
 import AccountLink from './accountLink';
+import LoadingIndicator from '../LoadingIndicator';
+
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
 import { func } from 'prop-types';
 
-const PURCHASE_HISTORY = 'Purchase History';
 const SIGN_OUT = 'Sign Out';
 
 const MyAccount = props => {
     const { showMenu } = props;
-    const [{ currentUser, isSignedIn }, { signOut }] = useUserContext();
+    const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
+
+    if (inProgress) {
+        return (
+            <div className={classes.modal_active}>
+                <LoadingIndicator>{'Signing In'}</LoadingIndicator>
+            </div>
+        );
+    }
 
     if (!isSignedIn) {
         showMenu();
@@ -37,10 +46,6 @@ const MyAccount = props => {
                 <span className={classes.subtitle}>{currentUser.email}</span>
             </div>
             <div className={classes.actions}>
-                <AccountLink>
-                    <HistoryIcon size={18} />
-                    {PURCHASE_HISTORY}
-                </AccountLink>
                 <AccountLink onClick={signOut}>
                     <SignOutIcon size={18} />
                     {SIGN_OUT}
