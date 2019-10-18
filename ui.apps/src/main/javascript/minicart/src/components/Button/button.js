@@ -38,7 +38,7 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
-    priority: oneOf(['high', 'normal']).isRequired,
+    priority: oneOf(['high', 'normal', 'low']).isRequired,
     type: oneOf(['button', 'reset', 'submit']).isRequired,
     children: node,
     classes: shape({
