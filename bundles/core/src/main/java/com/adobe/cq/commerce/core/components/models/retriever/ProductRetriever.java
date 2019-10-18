@@ -29,8 +29,8 @@ public interface ProductRetriever {
 
     void setSlug(String slug);
 
-    <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> hook);
+    <U extends AbstractQuery<?>> void setProductQueryHook(Consumer<U> productQueryHook);
 
-    <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> hook);
+    <U extends AbstractQuery<?>> void setVariantQueryHook(Consumer<U> variantQueryHook);
 
 }
