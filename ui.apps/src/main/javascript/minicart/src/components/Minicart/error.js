@@ -11,29 +11,20 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Fragment } from 'react';
-import { shape, string } from 'prop-types';
-import { useCheckoutState } from './checkoutContext';
+import React from 'react';
 
-const ShippingMethodSummary = props => {
-    const { classes } = props;
-    const [{ shippingMethod }] = useCheckoutState();
+import classes from './error.css';
+import { useCartState } from './cartContext';
 
-    if (!shippingMethod) {
-        return <span className={classes.informationPrompt}>Specify Shipping Method</span>;
-    }
+const Error = () => {
+    const [{ errorMessage }] = useCartState();
 
     return (
-        <Fragment>
-            <strong>{shippingMethod.carrier_title}</strong>
-        </Fragment>
+        <div className={classes.root}>
+            <h2>Error</h2>
+            <p>{errorMessage}</p>
+        </div>
     );
 };
 
-ShippingMethodSummary.propTypes = {
-    classes: shape({
-        informationPrompt: string
-    })
-};
-
-export default ShippingMethodSummary;
+export default Error;

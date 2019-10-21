@@ -13,32 +13,39 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import { CartProvider } from '../cartContext';
 
-import Header from '../header';
+import ForgotPassword from '../forgotPassword';
+import UserContextProvider from '../../../context/UserContext';
 
-describe('<Header>', () => {
-    it('renders the component', () => {
+describe('ForgotPassword', () => {
+    it('renders the "forgot password" form ', () => {
+        const Wrapper = () => {
+            return <ForgotPassword onClose={jest.fn()} />;
+        };
+
         const { asFragment } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                <Header />
-            </CartProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('calls the handler method when the close button is clicked', () => {
-        const mockFn = jest.fn();
+    it('renders the success message after the "forgot password" form is submitted', () => {
+        const Wrapper = () => {
+            return <ForgotPassword onClose={jest.fn()} />;
+        };
 
-        const { getByRole } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => mockFn}>
-                <Header />
-            </CartProvider>
+        const { getByLabelText } = render(
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
-        fireEvent.click(getByRole('button'));
+        fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });
+        fireEvent.click(getByLabelText('submit'));
 
-        expect(mockFn.mock.calls.length).toEqual(1);
+        expect(getByLabelText('continue-shopping')).not.toBeUndefined();
     });
 });
