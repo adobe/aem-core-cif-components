@@ -18,6 +18,7 @@ import { MockedProvider } from '@apollo/react-testing';
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
+import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
 
@@ -136,5 +137,94 @@ describe('UserContext test', () => {
         //...but we're not in a browser
         const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
         expect(document.cookie).toEqual(expectedCookieValue);
+    });
+
+    it('creates a customer and signs in', () => {
+        const mocks = [
+            {
+                request: {
+                    query: MUTATION_CREATE_CUSTOMER,
+                    variables: {
+                        firstname: 'Iris',
+                        lastname: 'McCoy',
+                        email: 'imccoy@weretail.net',
+                        password: 'imccoy123'
+                    }
+                },
+                result: {
+                    data: {
+                        createCustomer: {
+                            customer: {
+                                email: 'donnie@google.com',
+                                firstname: 'Donnie',
+                                lastname: 'Darko'
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                request: {
+                    query: MUTATION_GENERATE_TOKEN
+                },
+                result: {
+                    data: {
+                        generateCustomerToken: {
+                            token: 'token123'
+                        }
+                    }
+                }
+            }
+        ];
+
+        const ContextWrapper = () => {
+            const [{ isSignedIn }, { createAccount }] = useUserContext();
+            let content;
+
+            const handleCreateAccount = () => {
+                const data = {
+                    firstname: 'Iris',
+                    lastname: 'McCoy',
+                    email: 'imccoy@weretail.net',
+                    password: 'imccoy123'
+                };
+
+                createAccount(data);
+            };
+
+            if (isSignedIn) {
+                content = (
+                    <div data-testid="success">
+                        <span>Signed in</span>
+                    </div>
+                );
+            } else {
+                content = (
+                    <button data-testid="create-account" onClick={handleCreateAccount}>
+                        Create account
+                    </button>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('create-account')).not.toBeUndefined();
+
+        fireEvent.click(getByTestId('create-account'));
+
+        const successMessage = waitForElement(() => {
+            return getByTestId('success');
+        });
+
+        expect(successMessage).not.toBeUndefined();
     });
 });

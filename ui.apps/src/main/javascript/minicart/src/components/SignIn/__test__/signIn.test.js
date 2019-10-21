@@ -66,7 +66,7 @@ describe('<SignIn>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <UserContextProvider>
-                <SignIn showMyAccount={jest.fn()} />
+                <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
             </UserContextProvider>
         );
 
@@ -85,7 +85,13 @@ describe('<SignIn>', () => {
             if (signedIn) {
                 content = <div data-testid="success">Done</div>;
             } else {
-                content = <SignIn showMyAccount={showMyAccount} />;
+                content = (
+                    <SignIn
+                        showMyAccount={showMyAccount}
+                        showCreateAccount={jest.fn()}
+                        showForgotPassword={jest.fn()}
+                    />
+                );
             }
 
             return <div>{content}</div>;
@@ -133,7 +139,7 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={[mockErrorResponse]} addTypename={false}>
                 <UserContextProvider>
-                    <SignIn showMyAccount={jest.fn()} />
+                    <SignIn showMyAccount={jest.fn()} showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
                 </UserContextProvider>
             </MockedProvider>
         );

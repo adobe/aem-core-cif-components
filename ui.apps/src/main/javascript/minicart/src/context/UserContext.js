@@ -18,6 +18,8 @@ import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
+import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
+import QUERY_EMAIL_AVAILABLE from '../queries/query_email_available.graphql';
 
 const UserContext = React.createContext();
 
@@ -36,6 +38,7 @@ const parseError = error => {
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [token, setToken] = useState(userCookie);
+    const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
     const initialState = {
@@ -46,7 +49,9 @@ const UserContextProvider = props => {
         },
         isSignedIn: isSignedIn(),
         signInError: '',
-        inProgress: false
+        inProgress: false,
+        createAccountError: '',
+        emailAvailable: true
     };
 
     const [userState, setUserState] = useState(initialState);
@@ -66,6 +71,16 @@ const UserContextProvider = props => {
         revokeCustomerToken,
         { data: revokeTokenData, error: revokeTokenError, loading: revokeTokenLoading }
     ] = useMutation(MUTATION_REVOKE_TOKEN);
+
+    const [
+        createCustomer,
+        { data: createCustomerData, error: createCustomerError, loading: createCustomerLoading }
+    ] = useMutation(MUTATION_CREATE_CUSTOMER);
+
+    const [
+        isEmailAvailableQuery,
+        { data: emailAvailable, error: emailAvailableError, loading: emailAvailableLoading }
+    ] = useLazyQuery(QUERY_EMAIL_AVAILABLE);
 
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
@@ -110,6 +125,27 @@ const UserContextProvider = props => {
         }
     }, [revokeTokenData, revokeTokenError, revokeTokenLoading]);
 
+    // after creating the customer we have to log them in
+    useEffect(() => {
+        if (createCustomerData && createCustomerData.customer) {
+            signIn({ email: createCustomerData.createCustomer.email, password });
+            // clear the password from the state
+            setPassword(null);
+        }
+
+        if (createCustomerError) {
+            setUserState({ ...userState, createAccountError: parseError(createCustomerError) });
+        }
+
+        setUserState({ ...userState, inProgress: createCustomerLoading });
+    }, [createCustomerData, createCustomerError, createCustomerLoading]);
+
+    useEffect(() => {
+        if (emailAvailable && emailAvailable.isEmailAvailable) {
+            setUserState({ ...userState, emailAvailable: emailAvailable.isEmailAvailable.is_email_available });
+        }
+    }, [emailAvailable, emailAvailableError, emailAvailableLoading]);
+
     const signIn = useCallback(
         ({ email, password }) => {
             generateCustomerToken({ variables: { email, password } });
@@ -127,13 +163,24 @@ const UserContextProvider = props => {
         await Promise.resolve(email);
     };
 
+    const createAccount = ({ email, password, firstname, lastname }) => {
+        createCustomer({ variables: { email, password, firstname, lastname } });
+        setPassword(password);
+    };
+
+    const isEmailAvailable = ({ email }) => {
+        isEmailAvailableQuery({ variables: { email } });
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
         {
             signIn,
             signOut,
-            resetPassword
+            resetPassword,
+            createAccount,
+            isEmailAvailable
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
