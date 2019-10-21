@@ -21,7 +21,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -29,15 +28,13 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.models.page.Page;
 import com.adobe.cq.export.json.ComponentExporter;
-import com.adobe.cq.export.json.ContainerExporter;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
-import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
-    adapters = { Page.class, ContainerExporter.class },
+    adapters = { Page.class },
     resourceType = PageImpl.RESOURCE_TYPE)
 public class PageImpl implements Page {
 
@@ -47,9 +44,6 @@ public class PageImpl implements Page {
     @Inject
     private com.day.cq.wcm.api.Page currentPage;
 
-    @Inject
-    private Resource resource;
-
     @Self
     @Via(type = ResourceSuperType.class)
     private com.adobe.cq.wcm.core.components.models.Page page;
@@ -57,13 +51,8 @@ public class PageImpl implements Page {
     private String storeCode;
 
     @PostConstruct
-    private void initModel() {
-        InheritanceValueMap properties;
-        if (page != null) {
-            properties = new HierarchyNodeInheritanceValueMap(currentPage.getContentResource());
-        } else {
-            properties = new ComponentInheritanceValueMap(resource);
-        }
+    void initModel() {
+        InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(currentPage.getContentResource());
         storeCode = properties.getInherited(STORE_CODE_PROPERTY, String.class);
         if (storeCode == null) {
             storeCode = "default";
