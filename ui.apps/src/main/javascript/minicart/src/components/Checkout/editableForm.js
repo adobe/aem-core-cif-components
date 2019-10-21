@@ -20,7 +20,7 @@ import { useCountries } from '../../utils/hooks';
 import AddressForm from './addressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
-import { useCartState } from '../../utils/state';
+import { useCartState } from '../Minicart/cartContext';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
