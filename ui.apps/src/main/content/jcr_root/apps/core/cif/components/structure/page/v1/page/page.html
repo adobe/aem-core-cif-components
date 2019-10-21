@@ -13,14 +13,14 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <!DOCTYPE html>
 <html
-    data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page"
+    data-sly-use.page="com.adobe.cq.commerce.core.components.models.page.Page"
     lang="${page.language}"
     data-sly-use.head="head.html"
     data-sly-use.footer="footer.html"
     data-sly-use.redirect="redirect.html"
 >
     <head data-sly-call="${head.head @ page = page}"></head>
-    <body class="${page.cssClassNames}">
+    <body class="${page.cssClassNames}" data-store-code="${page.storeCode}">
         <sly
             data-sly-test.isRedirectPage="${page.redirectTarget && (wcmmode.edit || wcmmode.preview)}"
             data-sly-call="${redirect.redirect @ redirectTarget = page.redirectTarget}"
