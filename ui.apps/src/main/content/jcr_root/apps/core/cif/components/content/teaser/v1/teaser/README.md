@@ -23,6 +23,7 @@ Teaser variations can include some or all of these elements.
 * Combines image, title, rich text description and actions/links.
 * Allows disabling of teaser elements through policy configuration.
 * Allows control over whether title and description should be inherited from a linked page.
+* Style System support.
 
 ### Use Object
 This component uses (specifically for  `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser` Sling Model as it's use Object.
