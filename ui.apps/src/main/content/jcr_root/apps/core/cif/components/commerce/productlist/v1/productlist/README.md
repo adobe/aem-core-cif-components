@@ -25,6 +25,7 @@ for a category are retrieved from Magento via GraphQL. The main usage of this co
 * Configurable category title display
 * Displays category image, if set in Magento and enabled in design dialog
 * Client-side loaded prices using GraphQL. Can be disabled in the design dialog.
+* Style System support.
 
 ### Use Object
 The Product List component uses the `com.adobe.cq.commerce.core.components.models.productlist.ProductList` Sling model as its Use-object.

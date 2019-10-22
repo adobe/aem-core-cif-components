@@ -17,17 +17,22 @@ import { render } from 'test-utils';
 
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
+import { CartProvider } from '../cartContext';
 
 describe('<Minicart>', () => {
     beforeAll(() => {
         // mock createPortal because we don't have the DOM element to render the CartTrigger
-        ReactDOM.createPortal = jest.fn((element, node) => {
+        ReactDOM.createPortal = jest.fn(element => {
             return element;
         });
     });
 
     it('renders the empty cart', async () => {
-        const { getByTestId } = render(<Minicart cartId={'empty'} resetCart={jest.fn()} />);
+        const { getByTestId } = render(
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
+                <Minicart />
+            </CartProvider>
+        );
 
         // the component is rendered async (the "Fetching cart data is displayed on first render") so we await the element to be ready
         // getByTestId() throws an error if the element will not be available.

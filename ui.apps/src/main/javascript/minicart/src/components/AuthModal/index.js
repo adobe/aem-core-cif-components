@@ -11,18 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const DEFAULT_CURRENCY_CODE = 'USD';
-
-const getCurrencyCode = cart => {
-    let result;
-
-    try {
-        result = cart.prices.grand_total.currency;
-    } catch (error) {
-        result = DEFAULT_CURRENCY_CODE;
-    }
-
-    return result;
-};
-
-export default getCurrencyCode;
+export { default } from './authModal';

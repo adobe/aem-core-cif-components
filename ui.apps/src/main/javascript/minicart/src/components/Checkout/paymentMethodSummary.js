@@ -12,26 +12,22 @@
  *
  ******************************************************************************/
 import React, { Fragment } from 'react';
-import { bool, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
+import { useCheckoutState } from './checkoutContext';
 
 const PaymentMethodSummary = props => {
-    const { classes, hasPaymentMethod, paymentData } = props;
-    if (!hasPaymentMethod) {
-        return <span className={classes.informationPrompt}>Add Billing Information</span>;
-    }
+    const { classes } = props;
+    const [{ paymentMethod }] = useCheckoutState();
 
-    let primaryDisplay = '';
-    let secondaryDisplay = '';
-    if (paymentData) {
-        primaryDisplay = paymentData.details;
-        secondaryDisplay = paymentData.description;
+    if (!paymentMethod) {
+        return <span className={classes.informationPrompt}>Add Billing Information</span>;
     }
 
     return (
         <Fragment>
-            <strong className={classes.paymentDisplayPrimary}>{primaryDisplay}</strong>
+            <strong className={classes.paymentDisplayPrimary}>{paymentMethod.title}</strong>
             <br />
-            <span className={classes.paymentDisplaySecondary}>{secondaryDisplay}</span>
+            <span className={classes.paymentDisplaySecondary}>{paymentMethod.description}</span>
         </Fragment>
     );
 };
@@ -41,11 +37,6 @@ PaymentMethodSummary.propTypes = {
         informationPrompt: string,
         paymentDisplayPrimary: string,
         paymentDisplaySecondary: string
-    }),
-    hasPaymentMethod: bool,
-    paymentData: shape({
-        description: string,
-        details: string
     })
 };
 

@@ -15,10 +15,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { render, fireEvent } from '@testing-library/react';
 import CartTrigger from '../cartTrigger';
+import { CartProvider } from '../../Minicart/cartContext';
 
 describe('<CartTrigger>', () => {
     beforeAll(() => {
-        ReactDOM.createPortal = jest.fn((element, node) => {
+        ReactDOM.createPortal = jest.fn(element => {
             return element;
         });
     });
@@ -27,22 +28,36 @@ describe('<CartTrigger>', () => {
         ReactDOM.createPortal.mockClear();
     });
 
+    const stateWithTwoItems = { cart: { items: [{}, {}] } };
+
     it('renders the icon', () => {
-        const { asFragment } = render(<CartTrigger cartQuantity={2} handler={jest.fn()} />);
+        const { asFragment } = render(
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => state => state}>
+                <CartTrigger />
+            </CartProvider>
+        );
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the quantity', () => {
         const expectedQuantity = '2';
-        const { getByTestId } = render(<CartTrigger cartQuantity={parseInt(expectedQuantity)} handler={jest.fn()} />);
+        const { getByTestId } = render(
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => state => state}>
+                <CartTrigger />
+            </CartProvider>
+        );
 
         expect(getByTestId('cart-counter').textContent).toEqual(expectedQuantity);
     });
 
     it('calls the handler function when clicked', () => {
-        const handler = jest.fn();
+        const handler = jest.fn(state => state);
 
-        const { getByRole } = render(<CartTrigger cartQuantity={2} handler={handler} />);
+        const { getByRole } = render(
+            <CartProvider initialState={stateWithTwoItems} reducerFactory={() => handler}>
+                <CartTrigger />
+            </CartProvider>
+        );
         fireEvent.click(getByRole('button'));
 
         expect(handler.mock.calls.length).toEqual(1);
