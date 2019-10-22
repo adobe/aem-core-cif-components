@@ -56,7 +56,7 @@ const mocks = [
 ];
 
 describe('<SignIn>', () => {
-    beforeAll(() => {
+    beforeEach(() => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
             value: ''
@@ -115,29 +115,31 @@ describe('<SignIn>', () => {
     });
 
     it('shows an error when the sign in is not successful', async () => {
-        const mockErrorResponse = {
-            request: {
-                query: MUTATION_GENERATE_TOKEN,
-                variables: {
-                    email: 'chuck@example.com',
-                    password: 'wrongpassword'
-                }
-            },
-            result: {
-                data: {
-                    generateCustomerToken: null
-                },
-                errors: [
-                    {
-                        message: 'Error',
-                        category: 'graphql-authentication'
+        const mocks = [
+            {
+                request: {
+                    query: MUTATION_GENERATE_TOKEN,
+                    variables: {
+                        email: 'chuck@example.com',
+                        password: 'wrongpassword'
                     }
-                ]
+                },
+                result: {
+                    data: {
+                        generateCustomerToken: null
+                    },
+                    errors: [
+                        {
+                            message: 'Error',
+                            category: 'graphql-authentication'
+                        }
+                    ]
+                }
             }
-        };
+        ];
 
         const { getByText, getByLabelText } = render(
-            <MockedProvider mocks={[mockErrorResponse]} addTypename={false}>
+            <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
                     <SignIn showMyAccount={jest.fn()} showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
                 </UserContextProvider>

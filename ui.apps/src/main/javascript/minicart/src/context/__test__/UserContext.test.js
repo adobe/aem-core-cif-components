@@ -23,6 +23,13 @@ import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.gra
 import UserContextProvider, { useUserContext } from '../UserContext';
 
 describe('UserContext test', () => {
+    beforeEach(() => {
+        Object.defineProperty(window.document, 'cookie', {
+            writable: true,
+            value: ''
+        });
+    });
+
     const mocks = [
         {
             request: {
@@ -139,7 +146,7 @@ describe('UserContext test', () => {
         expect(document.cookie).toEqual(expectedCookieValue);
     });
 
-    it('creates a customer and signs in', () => {
+    it('creates a customer and signs in', async () => {
         const mocks = [
             {
                 request: {
@@ -155,9 +162,9 @@ describe('UserContext test', () => {
                     data: {
                         createCustomer: {
                             customer: {
-                                email: 'donnie@google.com',
-                                firstname: 'Donnie',
-                                lastname: 'Darko'
+                                firstname: 'Iris',
+                                lastname: 'McCoy',
+                                email: 'imccoy@weretail.net'
                             }
                         }
                     }
@@ -165,7 +172,8 @@ describe('UserContext test', () => {
             },
             {
                 request: {
-                    query: MUTATION_GENERATE_TOKEN
+                    query: MUTATION_GENERATE_TOKEN,
+                    variables: { email: 'imccoy@weretail.net', password: 'imccoy123' }
                 },
                 result: {
                     data: {
@@ -174,28 +182,41 @@ describe('UserContext test', () => {
                         }
                     }
                 }
+            },
+            {
+                request: {
+                    query: QUERY_CUSTOMER_DETAILS
+                },
+                result: {
+                    data: {
+                        customer: {
+                            firstname: 'Iris',
+                            lastname: 'McCoy',
+                            email: 'imccoy@weretail.net'
+                        }
+                    }
+                }
             }
         ];
 
+        const whyDidYouRender = require('@welldone-software/why-did-you-render');
+        whyDidYouRender(React);
         const ContextWrapper = () => {
-            const [{ isSignedIn }, { createAccount }] = useUserContext();
-            let content;
-
+            const [{ currentUser, isSignedIn }, { createAccount }] = useUserContext();
             const handleCreateAccount = () => {
-                const data = {
+                createAccount({
                     firstname: 'Iris',
                     lastname: 'McCoy',
                     email: 'imccoy@weretail.net',
                     password: 'imccoy123'
-                };
-
-                createAccount(data);
+                });
             };
 
+            let content;
             if (isSignedIn) {
                 content = (
                     <div data-testid="success">
-                        <span>Signed in</span>
+                        <span>{`${currentUser.firstname} ${currentUser.lastname}`}</span>
                     </div>
                 );
             } else {
@@ -221,10 +242,98 @@ describe('UserContext test', () => {
 
         fireEvent.click(getByTestId('create-account'));
 
-        const successMessage = waitForElement(() => {
+        const successMessage = await waitForElement(() => {
             return getByTestId('success');
         });
 
         expect(successMessage).not.toBeUndefined();
+        expect(successMessage.textContent).toEqual('Iris McCoy');
+    });
+
+    it('handles the account creation error', async () => {
+        const mocks = [
+            {
+                request: {
+                    query: MUTATION_CREATE_CUSTOMER,
+                    variables: {
+                        firstname: 'Iris',
+                        lastname: 'McCoy',
+                        email: 'imccoy@weretail.net',
+                        password: 'imccoy123'
+                    }
+                },
+                result: {
+                    errors: [
+                        {
+                            message: 'A customer with the same email address already exists in an associated website.',
+                            category: 'graphql-input',
+                            locations: [
+                                {
+                                    line: 2,
+                                    column: 5
+                                }
+                            ],
+                            path: ['createCustomer']
+                        }
+                    ],
+                    data: {
+                        createCustomer: null
+                    }
+                }
+            }
+        ];
+
+        const ContextWrapper = () => {
+            const [{ createAccountError }, { createAccount }] = useUserContext();
+            let content;
+
+            const handleCreateAccount = () => {
+                const data = {
+                    firstname: 'Iris',
+                    lastname: 'McCoy',
+                    email: 'imccoy@weretail.net',
+                    password: 'imccoy123'
+                };
+
+                createAccount(data);
+            };
+
+            if (createAccountError && createAccountError.length > 0) {
+                content = (
+                    <div data-testid="success">
+                        <span>{createAccountError}</span>
+                    </div>
+                );
+            } else {
+                content = (
+                    <button data-testid="create-account" onClick={handleCreateAccount}>
+                        Create account
+                    </button>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('create-account')).not.toBeUndefined();
+
+        fireEvent.click(getByTestId('create-account'));
+
+        const successMessage = await waitForElement(() => {
+            return getByTestId('success');
+        });
+
+        expect(successMessage).not.toBeUndefined();
+        expect(successMessage.textContent).toEqual(
+            'A customer with the same email address already exists in an associated website.'
+        );
     });
 });
