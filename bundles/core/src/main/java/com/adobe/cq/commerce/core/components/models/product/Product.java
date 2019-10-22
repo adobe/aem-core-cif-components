@@ -18,8 +18,6 @@ import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
-
 /**
  * Product is the sling model interface for the CIF core product component.
  */

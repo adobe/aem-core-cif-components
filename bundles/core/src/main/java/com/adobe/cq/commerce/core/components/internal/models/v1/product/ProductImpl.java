@@ -39,14 +39,12 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.ProductPlaceholderRetrieverImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.retriever.ProductRetrieverImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.product.ProductRetriever;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -102,7 +100,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean loadClientPrice;
 
-    public ProductRetriever productRetriever;
+    private ProductRetriever productRetriever;
 
     @PostConstruct
     private void initModel() {

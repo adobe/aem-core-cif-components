@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.retriever;
+package com.adobe.cq.commerce.core.components.models.product;
 
 import java.util.function.Consumer;
 
