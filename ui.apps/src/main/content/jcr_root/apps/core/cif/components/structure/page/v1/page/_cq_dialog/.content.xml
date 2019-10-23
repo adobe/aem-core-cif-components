@@ -21,6 +21,9 @@
                                             <storeview jcr:primaryType="nt:unstructured" sling:resourceType="granite/ui/components/coral/foundation/form/textfield" fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used." fieldLabel="Store View" name="./cq:magentoStore" renderReadOnly="{Boolean}false">
                                                 <granite:data jcr:primaryType="nt:unstructured" cq-msm-lockable="cq:magentoStore"/>
                                             </storeview>
+                                            <catalogPath jcr:primaryType="nt:unstructured" sling:resourceType="commerce/gui/components/common/cifcategoryfield" fieldDescription="Path to the product catalog used in this site. If empty, the default path will be used." fieldLabel="Catalog Path" name="./cq:catalogPath" renderReadOnly="{Boolean}false" selectionId="path" emptyText="Catalog path">
+                                                <granite:data jcr:primaryType="nt:unstructured" cq-msm-lockable="cq:catalogPath"/>
+                                            </catalogPath>
                                         </items>
                                     </graphqlsection>
                                 </items>
