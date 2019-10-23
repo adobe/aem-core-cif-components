@@ -12,12 +12,14 @@
  *
  ******************************************************************************/
 import React, { Fragment } from 'react';
-import { array, bool, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
+import { useCheckoutState } from './checkoutContext';
 
 const ShippingAddressSummary = props => {
-    const { classes, hasShippingAddress, shippingAddress } = props;
+    const { classes } = props;
+    const [{ shippingAddress }] = useCheckoutState();
 
-    if (!hasShippingAddress) {
+    if (!shippingAddress) {
         return <span className={classes.informationPrompt}>Add Shipping Information</span>;
     }
 
@@ -36,12 +38,6 @@ const ShippingAddressSummary = props => {
 ShippingAddressSummary.propTypes = {
     classes: shape({
         informationPrompt: string
-    }),
-    hasShippingAddress: bool,
-    shippingAddress: shape({
-        firstName: string,
-        lastName: string,
-        street: array
     })
 };
 

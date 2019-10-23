@@ -12,24 +12,28 @@
  *
  ******************************************************************************/
 import React from 'react';
-import classes from './authModal.css';
+import { string, func } from 'prop-types';
 
 import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
-import { string, func } from 'prop-types';
+import ForgotPassword from '../ForgotPassword';
+
+import classes from './authModal.css';
 
 const AuthModal = props => {
-    const { view, showMyAccount, showMenu } = props;
+    const { view, showMyAccount, showMenu, showForgotPassword } = props;
 
     let child;
 
     switch (view) {
         case 'SIGN_IN':
-            child = <SignIn showMyAccount={showMyAccount} />;
+            child = <SignIn showMyAccount={showMyAccount} showForgotPassword={showForgotPassword} />;
             break;
         case 'MY_ACCOUNT':
             child = <MyAccount showMenu={showMenu} />;
             break;
+        case 'FORGOT_PASSWORD':
+            child = <ForgotPassword onClose={showMenu} />;
     }
 
     return <div className={classes.root}>{child}</div>;
@@ -38,7 +42,8 @@ const AuthModal = props => {
 AuthModal.propTypes = {
     view: string.isRequired,
     showMyAccount: func.isRequired,
-    showMenu: func.isRequired
+    showMenu: func.isRequired,
+    showForgotPassword: func.isRequired
 };
 
 export default AuthModal;

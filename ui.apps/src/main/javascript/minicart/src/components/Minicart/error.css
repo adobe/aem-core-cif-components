@@ -1,0 +1,11 @@
+.root {
+    background-color: rgb(var(--venia-warning-light));
+    box-shadow: 0 1px rgb(var(--venia-border));
+    margin: 10px;
+    padding: 10px;
+}
+
+.root h2 {
+    color: rgb(var(--venia-warning-dark));
+    padding-bottom: 0.83rem;
+}

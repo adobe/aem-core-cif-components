@@ -14,6 +14,7 @@
 import React from 'react';
 import Product from '../product';
 import { render } from '@testing-library/react';
+import { CartProvider } from '../cartContext';
 
 const mockCartItem = {
     product: {
@@ -40,11 +41,13 @@ describe('<Product />', () => {
         const mockBeginEditItem = jest.fn();
 
         const { asFragment } = render(
-            <Product
-                beginEditItem={mockBeginEditItem}
-                removeItemFromCart={mockRemoveItemFromCart}
-                item={mockCartItem}
-            />
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                <Product
+                    beginEditItem={mockBeginEditItem}
+                    removeItemFromCart={mockRemoveItemFromCart}
+                    item={mockCartItem}
+                />
+            </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });

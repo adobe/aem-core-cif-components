@@ -11,12 +11,10 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useCallback } from 'react';
-import { string, func } from 'prop-types';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import React, { useEffect } from 'react';
+import { useQuery } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
-import getCurrencyCode from '../../utils/getCurrencyCode';
 
 import Mask from '../Mask';
 
@@ -26,122 +24,59 @@ import Footer from './footer';
 import classes from './minicart.css';
 
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
-import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
-import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import CartTrigger from '../CartTrigger';
 
-const MiniCart = props => {
-    const { cartId, resetCart } = props;
+import { useCartState } from './cartContext';
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editItem, setEditItem] = useState({});
+const MiniCart = () => {
+    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
 
-    const [addItem, { loading: addItemLoading }] = useMutation(MUTATION_ADD_TO_CART, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
-    });
-    const [removeItem, { loading: removeItemLoading }] = useMutation(MUTATION_REMOVE_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
+        variables: { cartId },
+        skip: !cartId
     });
 
-    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, { variables: { cartId } });
+    useEffect(() => {
+        if (queryLoading) {
+            dispatch({ type: 'beginLoading' });
+        }
+    }, [queryLoading]);
+
+    useEffect(() => {
+        if (data && data.cart) {
+            dispatch({ type: 'cart', cart: data.cart });
+        }
+    }, [data]);
 
     if (error) {
-        console.error(`Error loading cart`, error);
+        dispatch({ type: 'error', error: error.toString() });
     }
 
-    const openCart = () => {
-        setIsOpen(true);
-    };
-
-    const addToCart = ev => {
-        if (!ev.detail) {
-            return;
-        }
-
-        const { sku, quantity } = ev.detail;
-        addItem({ variables: { cartId, sku, quantity } });
-        setIsOpen(true);
-    };
-
-    useEventListener(document, 'aem.cif.open-cart', openCart);
-    useEventListener(document, 'aem.cif.add-to-cart', addToCart);
-
-    const handleCloseCart = useCallback(() => {
-        setIsOpen(false);
+    useEventListener(document, 'aem.cif.open-cart', () => {
+        dispatch({ type: 'open' });
     });
+    useEventListener(document, 'aem.cif.add-to-cart', addItem);
 
-    const handleResetCart = useCallback(() => {
-        resetCart();
-        handleCloseCart();
-    });
-
-    const handleBeginEditing = useCallback(item => {
-        setIsEditing(true);
-        setEditItem(item);
-    });
-
-    const handleEndEditing = useCallback(() => {
-        setIsEditing(false);
-    });
-
-    const removeItemFromCart = useCallback(
-        itemId => {
-            removeItem({ variables: { cartId, itemId } });
-        },
-        [removeItem]
-    );
+    if (!cartId || cartId.length === 0) {
+        return null;
+    }
 
     const rootClass = isOpen ? classes.root_open : classes.root;
-    const isEmpty = data && data.cart && data.cart.items.length === 0;
-
-    let cartQuantity;
-    let currencyCode = '';
-    let footer = null;
-    const isLoading = !data || !data.cart || queryLoading || addItemLoading || removeItemLoading;
-    const showFooter = !(isLoading || isEmpty || isEditing);
-    if (data && data.cart) {
-        currencyCode = getCurrencyCode(data.cart);
-        cartQuantity = data.cart.items.length;
-        footer = showFooter ? (
-            <Footer
-                isOpen={isOpen}
-                cart={data.cart}
-                cartId={cartId}
-                handleCloseCart={handleCloseCart}
-                handleResetCart={handleResetCart}
-            />
-        ) : null;
-    }
+    const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
+    const showFooter = !(isLoading || isEmpty || isEditing || errorMessage);
+    const footer = showFooter ? <Footer /> : null;
 
     return (
         <>
-            <CartTrigger cartQuantity={cartQuantity} handler={setIsOpen} />
-            <Mask isActive={isOpen} dismiss={handleCloseCart} />
+            <CartTrigger />
+            <Mask />
             <aside className={rootClass}>
-                <Header handleCloseCart={handleCloseCart} />
-                <Body
-                    closeDrawer={handleCloseCart}
-                    editItem={editItem}
-                    isEmpty={isEmpty}
-                    isEditing={isEditing}
-                    isLoading={isLoading}
-                    cart={data && data.cart}
-                    currencyCode={currencyCode}
-                    removeItemFromCart={removeItemFromCart}
-                    beginEditItem={handleBeginEditing}
-                    handleEndEditing={handleEndEditing}
-                    cartId={cartId}
-                />
+                <Header />
+                <Body />
                 {footer}
             </aside>
         </>
     );
-};
-
-MiniCart.propTypes = {
-    cartId: string.isRequired,
-    resetCart: func.isRequired
 };
 
 export default MiniCart;

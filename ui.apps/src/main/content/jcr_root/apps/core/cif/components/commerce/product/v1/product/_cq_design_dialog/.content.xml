@@ -29,6 +29,10 @@
                                 value="true"/>
                         </items>
                     </general>
+                    <styletab
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/include"
+                        path="/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab"/>
                 </items>
             </tabs>
         </items>

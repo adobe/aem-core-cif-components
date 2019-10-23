@@ -11,27 +11,32 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import classes from './mask.css';
+import { useCartState } from '../Minicart/cartContext';
 
-class Mask extends Component {
-    static propTypes = {
-        classes: PropTypes.shape({
-            root: PropTypes.string,
-            root_active: PropTypes.string
-        }),
-        dismiss: PropTypes.func,
-        isActive: PropTypes.bool
-    };
+const Mask = () => {
+    const [{ isOpen }, dispatch] = useCartState();
+    const className = isOpen ? classes.root_active : classes.root;
 
-    render() {
-        const { dismiss, isActive } = this.props;
-        const className = isActive ? classes.root_active : classes.root;
+    return (
+        <button
+            data-role="mask"
+            className={className}
+            onClick={() => {
+                dispatch({ type: 'close' });
+            }}
+        />
+    );
+};
 
-        return <button data-role="mask" className={className} onClick={dismiss} />;
-    }
-}
+Mask.propTypes = {
+    classes: PropTypes.shape({
+        root: PropTypes.string,
+        root_active: PropTypes.string
+    })
+};
 
 export default Mask;

@@ -11,56 +11,35 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
-import { func, shape, string, array } from 'prop-types';
+import React from 'react';
 import Cart from './cart';
 import Form from './form';
 import classes from './flow.css';
 import Receipt from './receipt';
+import { useCartState } from '../Minicart/cartContext';
+import { useCheckoutState } from './checkoutContext';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
 };
 
-const Flow = props => {
-    const { cart, cartId, handleCloseCart, handleResetCart } = props;
-
-    const [flowState, setFlowState] = useState('cart');
-    const [order, setOrder] = useState({});
-
-    const beginCheckout = () => {
-        setFlowState('form');
-    };
-
-    const cancelCheckout = () => {
-        setFlowState('cart');
-    };
-
-    const orderCreated = order => {
-        setOrder(order);
-        setFlowState('receipt');
-    };
+const Flow = () => {
+    const [{ cart }] = useCartState();
+    const [{ flowState }] = useCheckoutState();
 
     let child;
 
     switch (flowState) {
         case 'cart': {
-            child = <Cart beginCheckout={beginCheckout} ready={isCartReady(cart)} submitting={false} />;
+            child = <Cart ready={isCartReady(cart)} submitting={false} />;
             break;
         }
         case 'form': {
-            child = (
-                <Form
-                    cancelCheckout={cancelCheckout}
-                    cart={{ ...cart, cartId }}
-                    receiveOrder={orderCreated}
-                    resetCart={handleResetCart}
-                />
-            );
+            child = <Form />;
             break;
         }
         case 'receipt': {
-            child = <Receipt order={order} handleCloseCart={handleCloseCart} handleResetCart={handleResetCart} />;
+            child = <Receipt />;
             break;
         }
         default: {
@@ -69,16 +48,6 @@ const Flow = props => {
     }
 
     return <div className={classes.root}>{child}</div>;
-};
-
-Flow.propTypes = {
-    handleCloseCart: func,
-    handleResetCart: func,
-    cart: shape({
-        shipping_addresses: array,
-        email: string
-    }),
-    cartId: string.isRequired
 };
 
 export default Flow;

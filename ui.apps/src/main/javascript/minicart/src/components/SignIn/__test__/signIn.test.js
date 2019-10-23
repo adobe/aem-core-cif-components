@@ -91,7 +91,7 @@ describe('<SignIn>', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId, getByLabelText } = render(
+        const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
                     <SignInWrapper />
@@ -101,7 +101,7 @@ describe('<SignIn>', () => {
 
         fireEvent.change(getByLabelText(/email/i), { target: { value: 'chuck@example.com' } });
         fireEvent.change(getByLabelText(/password/i), { target: { value: 'norris' } });
-        fireEvent.click(getByRole('button'));
+        fireEvent.click(getByLabelText('submit'));
 
         const result = await waitForElement(() => getByTestId('success'));
 
@@ -130,7 +130,7 @@ describe('<SignIn>', () => {
             }
         };
 
-        const { getByRole, getByText, getByLabelText } = render(
+        const { getByText, getByLabelText } = render(
             <MockedProvider mocks={[mockErrorResponse]} addTypename={false}>
                 <UserContextProvider>
                     <SignIn showMyAccount={jest.fn()} />
@@ -140,7 +140,7 @@ describe('<SignIn>', () => {
 
         fireEvent.change(getByLabelText(/email/i), { target: { value: 'chuck@example.com' } });
         fireEvent.change(getByLabelText(/password/i), { target: { value: 'wrongpassword' } });
-        fireEvent.click(getByRole('button'));
+        fireEvent.click(getByLabelText('submit'));
 
         const result = await waitForElement(() => getByText('Error'));
 

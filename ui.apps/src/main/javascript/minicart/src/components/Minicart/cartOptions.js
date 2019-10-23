@@ -14,19 +14,19 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { object, string, number, shape, func } from 'prop-types';
 import { Price } from '@magento/peregrine';
 
 import Button from '../Button';
 import Select from '../Select';
 import classes from './cartOptions.css';
-import LoadingIndicator from '../LoadingIndicator';
 
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
-const CartOptions = props => {
-    const { editItem, handleEndEditing, cartId } = props;
+import { useCartState } from './cartContext';
+
+const CartOptions = () => {
+    const [{ editItem, cartId }, dispatch] = useCartState();
 
     const { product, quantity: initialQuantity } = editItem;
     const { name, price: productPrice } = product;
@@ -50,15 +50,21 @@ const CartOptions = props => {
         }
     ];
 
-    const [updateCart, { loading }] = useMutation(MUTATION_UPDATE_CART_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }]
+    const [updateCart] = useMutation(MUTATION_UPDATE_CART_ITEM, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+        awaitRefetchQueries: true
     });
 
-    const modalClass = loading ? classes.modal_active : classes.modal;
-
     const handleUpdateClick = () => {
-        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } });
-        handleEndEditing();
+        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } })
+            .catch(error => {
+                dispatch({ type: 'error', error: error.toString() });
+            })
+            .finally(() => {
+                dispatch({ type: 'endLoading' });
+            });
+        dispatch({ type: 'beginLoading' });
+        dispatch({ type: 'endEditing' });
     };
 
     const handleOnChange = newVal => {
@@ -82,31 +88,18 @@ const CartOptions = props => {
                 </section>
             </div>
             <div className={classes.save}>
-                <Button onClick={handleEndEditing}>
+                <Button
+                    onClick={() => {
+                        dispatch({ type: 'endEditing' });
+                    }}>
                     <span>Cancel</span>
                 </Button>
                 <Button priority="high" onClick={handleUpdateClick}>
                     <span>Update Cart</span>
                 </Button>
             </div>
-            <div className={modalClass}>
-                <LoadingIndicator>Updating Cart</LoadingIndicator>
-            </div>
         </form>
     );
-};
-
-CartOptions.propTypes = {
-    editItem: shape({
-        id: string.isRequired,
-        quantity: number.isRequired,
-        product: shape({
-            name: string,
-            price: object
-        })
-    }),
-    handleEndEditing: func.isRequired,
-    cartId: string
 };
 
 export default CartOptions;
