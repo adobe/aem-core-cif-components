@@ -47,9 +47,10 @@ const UserContextProvider = props => {
             email: ''
         },
         isSignedIn: isSignedIn(),
-        signInError: '',
+        signInError: null,
         inProgress: false,
-        createAccountError: null
+        createAccountError: null,
+        isCreatingCustomer: false
     };
 
     const [userState, setUserState] = useState(initialState);
@@ -80,9 +81,12 @@ const UserContextProvider = props => {
         }
     });
 
+    console.log(`Wtf is this`, customerData);
+
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
         if (token.length > 0) {
+            console.log(`We have a token, let's get the user's details`, customerData);
             getCustomerDetails({
                 context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
             });
@@ -93,6 +97,7 @@ const UserContextProvider = props => {
     // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
     useEffect(() => {
         if (customerData && customerData.customer) {
+            console.log(`Got customer data `, customerData);
             const { firstname, lastname, email } = customerData.customer;
             setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
         }
@@ -106,9 +111,10 @@ const UserContextProvider = props => {
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
+            console.log(`User is signed in.`);
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, isSignedIn: true });
+            setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });
         }
     }, [data, error]);
 
@@ -116,7 +122,15 @@ const UserContextProvider = props => {
         if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
             setToken('');
             setUserCookie('', 0);
-            setUserState({ ...userState, isSignedIn: false });
+            setUserState({
+                ...userState,
+                currentUser: {
+                    firstname: '',
+                    lastname: '',
+                    email: ''
+                },
+                isSignedIn: false
+            });
         }
         if (revokeTokenError) {
             console.error(revokeTokenError.message);
@@ -134,6 +148,8 @@ const UserContextProvider = props => {
         if (createCustomerError) {
             setUserState({ ...userState, createAccountError: parseError(createCustomerError) });
         }
+
+        setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
     }, [createCustomerData, createCustomerError, createCustomerLoading]);
 
     const signIn = useCallback(
