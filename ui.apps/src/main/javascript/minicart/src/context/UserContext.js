@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useCookieValue } from '../utils/hooks';
-import { useMutation, useLazyQuery } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery, useApolloClient } from '@apollo/react-hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
@@ -52,7 +52,7 @@ const UserContextProvider = props => {
         createAccountError: null,
         isCreatingCustomer: false
     };
-
+    const apolloClient = useApolloClient();
     const [userState, setUserState] = useState(initialState);
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN, {
@@ -61,10 +61,6 @@ const UserContextProvider = props => {
             setUserState({ ...userState, signInError });
         }
     });
-    const [
-        getCustomerDetails,
-        { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
-    ] = useLazyQuery(QUERY_CUSTOMER_DETAILS);
 
     const [
         revokeCustomerToken,
@@ -81,12 +77,32 @@ const UserContextProvider = props => {
         }
     });
 
-    console.log(`Wtf is this`, customerData);
+    /*
+     * We use the apollo client directly
+     */
+    const getCustomerDetails = opts => {
+        apolloClient
+            .query({
+                query: QUERY_CUSTOMER_DETAILS,
+                fetchPolicy: 'no-cache',
+                ...opts
+            })
+            .then(({ data, error }) => {
+                if (data) {
+                    const { firstname, lastname, email } = data.customer;
+                    setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
+                }
+                if (error) {
+                    setUserState({ ...userState, isSignedIn: false });
+                    setToken('');
+                    setUserCookie('', 0);
+                }
+            });
+    };
 
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
         if (token.length > 0) {
-            console.log(`We have a token, let's get the user's details`, customerData);
             getCustomerDetails({
                 context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
             });
@@ -94,24 +110,9 @@ const UserContextProvider = props => {
         }
     }, [token]);
 
-    // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
-    useEffect(() => {
-        if (customerData && customerData.customer) {
-            console.log(`Got customer data `, customerData);
-            const { firstname, lastname, email } = customerData.customer;
-            setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
-        }
-        if (customerDetailsError) {
-            setUserState({ ...userState, isSignedIn: false });
-            setToken('');
-            setUserCookie('', 0);
-        }
-    }, [customerData, customerDetailsError, customerDetailsLoading]);
-
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
-            console.log(`User is signed in.`);
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
             setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });

@@ -199,8 +199,6 @@ describe('UserContext test', () => {
             }
         ];
 
-        const whyDidYouRender = require('@welldone-software/why-did-you-render');
-        whyDidYouRender(React);
         const ContextWrapper = () => {
             const [{ currentUser, isSignedIn }, { createAccount }] = useUserContext();
             const handleCreateAccount = () => {
