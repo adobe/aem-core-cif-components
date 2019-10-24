@@ -44,8 +44,8 @@ const CreateAccount = props => {
 
     if (isSignedIn) {
         showMyAccount();
+        return null;
     }
-
     const classes = mergeClasses(defaultClasses, props.classes);
 
     return (

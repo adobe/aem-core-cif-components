@@ -81,7 +81,11 @@ const UserContextProvider = props => {
     });
 
     /*
-     * We use the apollo client directly
+     * We use the apollo client directly because of the way the responses are handled by the hooks.
+     * Case in point: if we sign-out and then sign-in with a different user the data from the previous
+     * query is still available.
+     *
+     * This will need refactoring the next iterations, maybe even split into higher-level hooks.
      */
     const getCustomerDetails = opts => {
         apolloClient
