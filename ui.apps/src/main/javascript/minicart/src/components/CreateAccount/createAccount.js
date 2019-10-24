@@ -52,10 +52,22 @@ const CreateAccount = props => {
         <Form className={classes.root} onSubmit={handleCreateAccount}>
             <p className={classes.lead}>{LEAD}</p>
             <Field label="First Name" required={true}>
-                <TextInput field="customer.firstname" autoComplete="given-name" validate={isRequired} validateOnBlur />
+                <TextInput
+                    field="customer.firstname"
+                    autoComplete="given-name"
+                    validate={isRequired}
+                    validateOnBlur
+                    aria-label="firstname"
+                />
             </Field>
             <Field label="Last Name" required={true}>
-                <TextInput field="customer.lastname" autoComplete="family-name" validate={isRequired} validateOnBlur />
+                <TextInput
+                    field="customer.lastname"
+                    autoComplete="family-name"
+                    validate={isRequired}
+                    validateOnBlur
+                    aria-label="lastname"
+                />
             </Field>
             <Field label="Email" required={true}>
                 <TextInput
@@ -63,6 +75,7 @@ const CreateAccount = props => {
                     autoComplete="email"
                     validate={combine([isRequired, validateEmail])}
                     validateOnBlur
+                    aria-label="email"
                 />
             </Field>
             <Field label="Password" required={true}>
@@ -72,6 +85,7 @@ const CreateAccount = props => {
                     autoComplete="new-password"
                     validate={combine([isRequired, [hasLengthAtLeast, 8], validatePassword])}
                     validateOnBlur
+                    aria-label="password"
                 />
             </Field>
             <Field label="Confirm Password" required={true}>
@@ -80,14 +94,15 @@ const CreateAccount = props => {
                     type="password"
                     validate={combine([isRequired, validateConfirmPassword])}
                     validateOnBlur
+                    aria-label="confirm"
                 />
             </Field>
             <div className={classes.subscribe}>
-                <Checkbox field="subscribe" label="Subscribe to news and updates" />
+                <Checkbox field="subscribe" label="Subscribe to news and updates" aria-label="subscribe" />
             </div>
             <div className={classes.error}>{errorMessage}</div>
             <div className={classes.actions}>
-                <Button disabled={isCreatingCustomer} type="submit" priority="high">
+                <Button disabled={isCreatingCustomer} type="submit" priority="high" aria-label="submit">
                     {'Submit'}
                 </Button>
             </div>
