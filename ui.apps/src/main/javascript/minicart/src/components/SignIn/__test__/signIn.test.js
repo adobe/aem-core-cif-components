@@ -65,9 +65,11 @@ describe('<SignIn>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <UserContextProvider>
-                <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
-            </UserContextProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
+                </UserContextProvider>
+            </MockedProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();

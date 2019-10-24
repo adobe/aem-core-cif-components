@@ -147,10 +147,12 @@ const UserContextProvider = props => {
         }
 
         if (createCustomerError) {
-            setUserState({ ...userState, createAccountError: parseError(createCustomerError) });
+            let errorMessage = parseError(createCustomerError);
+            setUserState({ ...userState, createAccountError: errorMessage });
         }
-
-        setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
+        if (createCustomerLoading) {
+            setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
+        }
     }, [createCustomerData, createCustomerError, createCustomerLoading]);
 
     const signIn = useCallback(
@@ -172,6 +174,7 @@ const UserContextProvider = props => {
 
     const createAccount = useCallback(
         ({ email, password, firstname, lastname }) => {
+            console.log(`Create the account...`);
             createCustomer({ variables: { email, password, firstname, lastname } });
             setPassword(password);
         },

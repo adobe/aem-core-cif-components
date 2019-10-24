@@ -284,7 +284,6 @@ describe('UserContext test', () => {
         const ContextWrapper = () => {
             const [{ createAccountError }, { createAccount }] = useUserContext();
             let content;
-
             const handleCreateAccount = () => {
                 const data = {
                     firstname: 'Iris',
