@@ -15,14 +15,14 @@
 
 class CommerceGraphqlApi {
     constructor(props) {
-        if (!props || !props.endpoint || !props.storeCode) {
+        if (!props || !props.endpoint || !props.storeView) {
             throw new Error(
                 'The commerce API is not properly initialized. A required property is missing from the initialization object'
             );
         }
 
         this.endpoint = props.endpoint;
-        this.storeCode = props.storeCode;
+        this.storeView = props.storeView;
     }
 
     async _fetch(url, params) {
@@ -46,7 +46,7 @@ class CommerceGraphqlApi {
             method: ignoreCache ? 'POST' : 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Store: this.storeCode
+                Store: this.storeView
             }
         };
 
@@ -190,8 +190,8 @@ class CommerceGraphqlApi {
 (function() {
     function onDocumentReady() {
         const endpoint = '/magento/graphql';
-        const storeCode = document.querySelector('body').dataset.storeCode;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint, storeCode });
+        const storeView = document.querySelector('body').dataset.storeView;
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint, storeView });
     }
 
     if (document.readyState !== 'loading') {

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.page;
+package com.adobe.cq.commerce.core.components.internal.models.v1.storeviewexporter;
 
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ import org.powermock.reflect.Whitebox;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-public class PageImplTest {
+public class StoreViewExporterTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -38,23 +38,33 @@ public class PageImplTest {
 
     private static final String PAGE_A = "/content/pageA";
     private static final String PAGE_C = "/content/pageB/pageC";
+    private static final String PAGE_D = "/content/pageD";
 
     @Test
-    public void testStoreCode() {
-        PageImpl pageModel = new PageImpl();
-        Whitebox.setInternalState(pageModel, "currentPage", context.currentPage(PAGE_A));
-        pageModel.initModel();
+    public void testStoreView() {
+        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
+        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_A));
+        storeViewExporter.initModel();
 
-        Assert.assertEquals("my-store", pageModel.getStoreCode());
+        Assert.assertEquals("my-store", storeViewExporter.getStoreView());
     }
 
     @Test
-    public void testStoreCodeInherited() {
-        PageImpl pageModel = new PageImpl();
-        Whitebox.setInternalState(pageModel, "currentPage", context.currentPage(PAGE_C));
-        pageModel.initModel();
+    public void testStoreViewInherited() {
+        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
+        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_C));
+        storeViewExporter.initModel();
 
-        Assert.assertEquals("my-store", pageModel.getStoreCode());
+        Assert.assertEquals("my-store", storeViewExporter.getStoreView());
+    }
+
+    @Test
+    public void testStoreViewDefault() {
+        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
+        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_D));
+        storeViewExporter.initModel();
+
+        Assert.assertEquals("default", storeViewExporter.getStoreView());
     }
 
 }

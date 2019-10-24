@@ -12,13 +12,13 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.page;
+package com.adobe.cq.commerce.core.components.models.storeviewexporter;
 
 import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
-public interface Page extends com.adobe.cq.wcm.core.components.models.Page {
+public interface StoreViewExporter {
 
-    String getStoreCode();
+    String getStoreView();
 
 }
