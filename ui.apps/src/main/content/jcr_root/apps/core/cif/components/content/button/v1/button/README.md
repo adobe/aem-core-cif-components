@@ -26,6 +26,7 @@ Button Component meant to be placed on AEM pages and have the option to link it 
   Display default text as Label
 * Default button color: black
 * Dialog can be used to configure Label and Link Type
+* Style System support.
 
 ### Implementing class
 com.adobe.cq.commerce.core.components.internal.models.v1.button.ButtonImpl

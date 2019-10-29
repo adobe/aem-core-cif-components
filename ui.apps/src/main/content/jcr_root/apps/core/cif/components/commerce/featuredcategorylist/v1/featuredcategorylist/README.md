@@ -22,6 +22,7 @@ Featured category list is a component for displaying list of categories. Authors
 - Selection of multiple categories via category picker. 
 - Listing of categories with images.
 - Clicking on a category directs user to specific category page.
+- Style System support.
 
 ## API
 

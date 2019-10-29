@@ -24,6 +24,7 @@ The product data is retrieved from Magento via GraphQL. The component is configu
 * Display product teaser including image, name & price
 * Configurable product
 * Support for product drag & drop
+* Style System support.
 
 ### Use Object
 
