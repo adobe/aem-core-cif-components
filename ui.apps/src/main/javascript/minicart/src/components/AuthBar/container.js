@@ -99,6 +99,12 @@ const Container = () => {
         setView(view);
     }, [setView]);
 
+    const showCreateAccount = useCallback(() => {
+        const view = 'CREATE_ACCOUNT';
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
+    }, [setView]);
+
     useEventListener(document, 'aem.navigation.back', handleBack);
 
     return ReactDOM.createPortal(
@@ -113,6 +119,7 @@ const Container = () => {
                         showMyAccount={showMyAccount}
                         showMenu={showMenu}
                         showForgotPassword={showForgotPassword}
+                        showCreateAccount={showCreateAccount}
                     />
                 </div>
             )}

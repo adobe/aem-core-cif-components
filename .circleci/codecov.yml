@@ -4,7 +4,7 @@ coverage:
       default: off
       unittests:
         enabled: true
-        target: 55%
+        target: 75%
         threshold: null
         base: auto
         flags: unittests
@@ -18,7 +18,7 @@ coverage:
       default: off
       unittests:
         enabled: true
-        target: 55%
+        target: 75%
         threshold: null
         base: auto
         flags: unittests

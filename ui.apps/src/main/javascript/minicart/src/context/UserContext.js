@@ -13,11 +13,12 @@
  ******************************************************************************/
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useCookieValue } from '../utils/hooks';
-import { useMutation, useLazyQuery } from '@apollo/react-hooks';
+import { useMutation, useApolloClient } from '@apollo/react-hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
+import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
 
 const UserContext = React.createContext();
 
@@ -29,6 +30,9 @@ const parseError = error => {
     if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         return error.graphQLErrors[0].message;
     }
+    if (error.message) {
+        return error.message;
+    }
 
     return JSON.stringify(error);
 };
@@ -36,6 +40,7 @@ const parseError = error => {
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [token, setToken] = useState(userCookie);
+    const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
     const initialState = {
@@ -45,10 +50,12 @@ const UserContextProvider = props => {
             email: ''
         },
         isSignedIn: isSignedIn(),
-        signInError: '',
-        inProgress: false
+        signInError: null,
+        inProgress: false,
+        createAccountError: null,
+        isCreatingCustomer: false
     };
-
+    const apolloClient = useApolloClient();
     const [userState, setUserState] = useState(initialState);
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN, {
@@ -57,15 +64,48 @@ const UserContextProvider = props => {
             setUserState({ ...userState, signInError });
         }
     });
-    const [
-        getCustomerDetails,
-        { data: customerData, error: customerDetailsError, loading: customerDetailsLoading }
-    ] = useLazyQuery(QUERY_CUSTOMER_DETAILS);
 
     const [
         revokeCustomerToken,
         { data: revokeTokenData, error: revokeTokenError, loading: revokeTokenLoading }
     ] = useMutation(MUTATION_REVOKE_TOKEN);
+
+    const [
+        createCustomer,
+        { data: createCustomerData, error: createCustomerError, loading: createCustomerLoading }
+    ] = useMutation(MUTATION_CREATE_CUSTOMER, {
+        onError: error => {
+            let createAccountError = parseError(error);
+            setUserState({ ...userState, createAccountError });
+        }
+    });
+
+    /*
+     * We use the apollo client directly because of the way the responses are handled by the hooks.
+     * Case in point: if we sign-out and then sign-in with a different user the data from the previous
+     * query is still available.
+     *
+     * This will need refactoring the next iterations, maybe even split into higher-level hooks.
+     */
+    const getCustomerDetails = opts => {
+        apolloClient
+            .query({
+                query: QUERY_CUSTOMER_DETAILS,
+                fetchPolicy: 'no-cache',
+                ...opts
+            })
+            .then(({ data, error }) => {
+                if (data) {
+                    const { firstname, lastname, email } = data.customer;
+                    setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
+                }
+                if (error) {
+                    setUserState({ ...userState, isSignedIn: false });
+                    setToken('');
+                    setUserCookie('', 0);
+                }
+            });
+    };
 
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
@@ -77,25 +117,12 @@ const UserContextProvider = props => {
         }
     }, [token]);
 
-    // if we have customer data (i.e. the getCustomerDetails query returned something) set it in the state
-    useEffect(() => {
-        if (customerData && customerData.customer) {
-            const { firstname, lastname, email } = customerData.customer;
-            setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
-        }
-        if (customerDetailsError) {
-            setUserState({ ...userState, isSignedIn: false });
-            setToken('');
-            setUserCookie('', 0);
-        }
-    }, [customerData, customerDetailsError, customerDetailsLoading]);
-
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, isSignedIn: true });
+            setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });
         }
     }, [data, error]);
 
@@ -103,12 +130,37 @@ const UserContextProvider = props => {
         if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
             setToken('');
             setUserCookie('', 0);
-            setUserState({ ...userState, isSignedIn: false });
+            setUserState({
+                ...userState,
+                currentUser: {
+                    firstname: '',
+                    lastname: '',
+                    email: ''
+                },
+                isSignedIn: false
+            });
         }
         if (revokeTokenError) {
             console.error(revokeTokenError.message);
         }
     }, [revokeTokenData, revokeTokenError, revokeTokenLoading]);
+
+    // after creating the customer we have to log them in
+    useEffect(() => {
+        if (createCustomerData && createCustomerData.createCustomer) {
+            signIn({ email: createCustomerData.createCustomer.customer.email, password });
+            // clear the password from the state
+            setPassword(null);
+        }
+
+        if (createCustomerError) {
+            let errorMessage = parseError(createCustomerError);
+            setUserState({ ...userState, createAccountError: errorMessage });
+        }
+        if (createCustomerLoading) {
+            setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
+        }
+    }, [createCustomerData, createCustomerError, createCustomerLoading]);
 
     const signIn = useCallback(
         ({ email, password }) => {
@@ -127,13 +179,22 @@ const UserContextProvider = props => {
         await Promise.resolve(email);
     };
 
+    const createAccount = useCallback(
+        ({ email, password, firstname, lastname }) => {
+            createCustomer({ variables: { email, password, firstname, lastname } });
+            setPassword(password);
+        },
+        [createCustomer]
+    );
+
     const { children } = props;
     const contextValue = [
         userState,
         {
             signIn,
             signOut,
-            resetPassword
+            resetPassword,
+            createAccount
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

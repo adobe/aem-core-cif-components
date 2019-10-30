@@ -16,6 +16,7 @@ import { render, fireEvent } from '@testing-library/react';
 
 import ForgotPassword from '../forgotPassword';
 import UserContextProvider from '../../../context/UserContext';
+import { MockedProvider } from '@apollo/react-testing';
 
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
@@ -24,9 +25,11 @@ describe('ForgotPassword', () => {
         };
 
         const { asFragment } = render(
-            <UserContextProvider>
-                <Wrapper />
-            </UserContextProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
+            </MockedProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -38,9 +41,11 @@ describe('ForgotPassword', () => {
         };
 
         const { getByLabelText } = render(
-            <UserContextProvider>
-                <Wrapper />
-            </UserContextProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
+            </MockedProvider>
         );
 
         fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });
