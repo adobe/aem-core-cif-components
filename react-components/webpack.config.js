@@ -13,9 +13,9 @@
  ******************************************************************************/
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-const target = `${__dirname}/../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist`;
+const target = `${__dirname}/../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/js`;
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -53,7 +53,8 @@ module.exports = {
                         loader: 'css-loader',
                         options: {
                             modules: {
-                                localIdentName: '[name]__[local]__[hash:base64:5]'
+                                localIdentName:
+                                    '[name]__[local]__[hash:base64:5]'
                             }
                         }
                     }
@@ -75,5 +76,5 @@ module.exports = {
     },
     plugins: [new Dotenv(), new CleanWebpackPlugin()],
     devtool: 'source-map',
-    mode: 'development'
+    mode: process.env.NODE_ENV || 'development'
 };

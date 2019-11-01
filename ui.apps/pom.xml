@@ -182,28 +182,28 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-install-minicart</id>
+                        <id>npm-install-react-components</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/src/main/javascript/minicart</workingDirectory>
+                            <workingDirectory>${basedir}/../react-components/</workingDirectory>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build-minicart</id>
+                        <id>npm-webpack-build-react-components</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/src/main/javascript/minicart</workingDirectory>
+                            <workingDirectory>${basedir}/../react-components/</workingDirectory>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
