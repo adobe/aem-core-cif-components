@@ -1,0 +1,10 @@
+.root {
+    display: grid;
+    grid-template-columns: auto 8rem;
+    grid-gap: 1rem;
+    margin: 0 1.5rem;
+}
+
+.root input {
+    max-height: 32px;
+}
