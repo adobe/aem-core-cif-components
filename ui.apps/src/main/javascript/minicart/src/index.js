@@ -25,8 +25,11 @@ import { CheckoutProvider, initialState as initialCheckoutState, reducer } from 
 import AuthBar from './components/AuthBar';
 
 const App = () => {
+    const storeView = document.querySelector('body').dataset.storeView || 'default';
+
     const client = new ApolloClient({
-        uri: '/magento/graphql'
+        uri: '/magento/graphql',
+        headers: { Store: storeView }
     });
 
     return (
