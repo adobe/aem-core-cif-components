@@ -12,9 +12,10 @@
  *
  ******************************************************************************/
 
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 
-const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib';
+const CLIENTLIB_PATH =
+    '../../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist';
 
 exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
     if (err) {

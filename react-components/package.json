@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
-    "build:clientlib": "npm run build && node scripts/postbuild.js",
+    "build:clientlib": "npm run build && node build-scripts/postbuild.js",
     "test": "npm run lint && jest --coverage",
     "test:watch": "npm run lint && jest --watch"
   },
