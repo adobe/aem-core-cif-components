@@ -12,10 +12,9 @@
  *
  ******************************************************************************/
 const path = require('path');
-const Dotenv = require('dotenv-webpack');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-const target = `${__dirname}/../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/js`;
+const target = `${__dirname}/../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist`;
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -74,7 +73,7 @@ module.exports = {
             }
         ]
     },
-    plugins: [new Dotenv(), new CleanWebpackPlugin()],
+    plugins: [new CleanWebpackPlugin()],
     devtool: 'source-map',
     mode: process.env.NODE_ENV || 'development'
 };
