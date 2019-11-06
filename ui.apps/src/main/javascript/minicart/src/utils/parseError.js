@@ -11,28 +11,18 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { useCartState } from './cartContext';
-import Kebab from './kebab';
-import Section from './section';
 
-import classes from './couponItem.css';
+export default error => {
+    if (error.networkError) {
+        return error.networkError;
+    }
 
-const CouponItem = () => {
-    const [{ cart, removeCoupon }] = useCartState();
+    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        return error.graphQLErrors[0].message;
+    }
+    if (error.message) {
+        return error.message;
+    }
 
-    const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
-
-    return (
-        <div className={classes.root}>
-            <div className={classes.couponName}>
-                Coupon <strong>{appliedCoupon}</strong> applied.
-            </div>
-            <Kebab>
-                <Section text="Remove coupon" onClick={removeCoupon} icon="Trash" />
-            </Kebab>
-        </div>
-    );
+    return JSON.stringify(error);
 };
-
-export default CouponItem;

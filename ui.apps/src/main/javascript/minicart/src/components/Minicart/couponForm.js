@@ -14,29 +14,18 @@
 import React, { useState } from 'react';
 import Button from '../Button';
 import { useCartState } from './cartContext';
-import { useMutation } from '@apollo/react-hooks';
 
 import classes from './couponForm.css';
 
-import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
-import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
-
 const CouponForm = () => {
-    const [{ cartId }, dispatch] = useCartState();
+    const [{ addCoupon, couponError }] = useCartState();
     const [couponCode, setCouponCode] = useState('');
 
-    const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
-
     const addCouponHandler = () => {
-        dispatch({ type: 'beginLoading' });
-        return addCoupon({
-            variables: { cartId, couponCode },
-            refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-            awaitRefetchQueries: true
-        }).finally(() => {
-            dispatch({ type: 'endLoading' });
-        });
+        return addCoupon(couponCode);
     };
+
+    const errorFragment = couponError ? <div className={classes.error}>{couponError}</div> : '';
 
     return (
         <form className={classes.root}>
@@ -47,9 +36,10 @@ const CouponForm = () => {
                 name="couponCode"
                 placeholder="Enter your code"
             />
-            <Button priority="high" onClick={addCouponHandler}>
+            <Button priority="high" onClick={addCouponHandler} disabled={couponCode.length < 3}>
                 <span>Apply Coupon</span>
             </Button>
+            {errorFragment}
         </form>
     );
 };
