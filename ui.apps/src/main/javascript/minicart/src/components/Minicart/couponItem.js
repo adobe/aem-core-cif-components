@@ -11,26 +11,26 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
-import Button from '../Button';
+import React from 'react';
 import { useCartState } from './cartContext';
 import { useMutation } from '@apollo/react-hooks';
+import Kebab from './kebab';
+import Section from './section';
 
-import classes from './couponForm.css';
+import classes from './couponItem.css';
 
-import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
+import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
-const CouponForm = () => {
-    const [{ cartId }, dispatch] = useCartState();
-    const [couponCode, setCouponCode] = useState('');
+const CouponItem = () => {
+    const [{ cartId, cart }, dispatch] = useCartState();
 
-    const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
+    const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
 
-    const addCouponHandler = () => {
+    const removeCouponHandler = () => {
         dispatch({ type: 'beginLoading' });
-        return addCoupon({
-            variables: { cartId, couponCode },
+        return removeCoupon({
+            variables: { cartId },
             refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
             awaitRefetchQueries: true
         }).finally(() => {
@@ -38,20 +38,18 @@ const CouponForm = () => {
         });
     };
 
+    const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
+
     return (
-        <form className={classes.root}>
-            <input
-                value={couponCode}
-                onChange={e => setCouponCode(e.target.value)}
-                type="text"
-                name="couponCode"
-                placeholder="Enter your code"
-            />
-            <Button priority="high" onClick={addCouponHandler}>
-                <span>Apply Coupon</span>
-            </Button>
-        </form>
+        <div className={classes.root}>
+            <div className={classes.couponName}>
+                Coupon <strong>{appliedCoupon}</strong> applied.
+            </div>
+            <Kebab>
+                <Section text="Remove coupon" onClick={removeCouponHandler} icon="Trash" />
+            </Kebab>
+        </div>
     );
 };
 
-export default CouponForm;
+export default CouponItem;

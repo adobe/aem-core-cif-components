@@ -21,6 +21,7 @@ import ProductList from './productList';
 import CartOptions from './cartOptions';
 import Error from './error';
 import CouponForm from './couponForm';
+import CouponItem from './couponItem';
 
 import { useCartState } from './cartContext';
 
@@ -47,9 +48,7 @@ const Body = () => {
     }
 
     const cartItems = cart.items;
-
-    const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
-    const couponFragment = !appliedCoupon ? <CouponForm /> : <p>Applied Coupon: {appliedCoupon}</p>;
+    const couponFragment = !cart.applied_coupon ? <CouponForm /> : <CouponItem />;
 
     return (
         <div className={classes.root}>
