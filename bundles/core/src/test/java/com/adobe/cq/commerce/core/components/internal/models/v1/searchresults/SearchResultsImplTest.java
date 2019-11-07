@@ -16,199 +16,115 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
+import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
-import com.adobe.cq.commerce.magento.graphql.Money;
-import com.adobe.cq.commerce.magento.graphql.Price;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductPrices;
-import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
 
 /**
  * JUnit test suite for {@link SearchResultsImpl}
  */
 public class SearchResultsImplTest {
 
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PAGE = "/content/pageA";
+    private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
+
     private static final String SEARCH_TERM = "glove";
+    private static final String QUERY_STRING = "{products(search:\"glove\"){items{__typename,id,url_key,name,small_image{label,url},price{regularPrice{amount{value,currency}}}}}}";
 
-    private static final String QUERY_STRING = "{products(filter:{name:{like:\"%glove%\"}}){items{__typename,id,url_key,name,small_image{label,url},price{regularPrice{amount{value,currency}}}}}}";
-
-    private SearchResultsImpl modelUnderTest;
-
-    private JsonElement resultRoot;
-
-    private GraphqlResponse<Query, Error> successfulResponse;
+    private SearchResultsImpl searchResultsModel;
+    private Resource searchResultsResource;
+    private GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
 
     @Before
     public void setUp() throws IOException {
-        modelUnderTest = new SearchResultsImpl();
+        Page page = context.currentPage(PAGE);
+        context.currentResource(SEARCHRESULTS);
+        searchResultsResource = Mockito.spy(context.resourceResolver().getResource(SEARCHRESULTS));
 
-        Whitebox.setInternalState(modelUnderTest, "searchTerm", SEARCH_TERM);
-
-        mockPage();
+        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(searchResultsResource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
 
         // Search results
-        String json = IOUtils.toString(this.getClass()
-            .getResourceAsStream("/graphql/magento-graphql-search-result.json"), StandardCharsets.UTF_8);
-        JsonParser parser = new JsonParser();
-        resultRoot = parser.parse(json);
-    }
+        String json = IOUtils.toString(this.getClass().getResourceAsStream("/graphql/magento-graphql-search-result.json"),
+            StandardCharsets.UTF_8);
 
-    @Test
-    public void testSearchTermProcessing() {
-        String expectedProcessedTerm = "%" + SEARCH_TERM + "%";
-        String actualProcessedTerm = modelUnderTest.processSearchTerm(SEARCH_TERM);
+        Query query = QueryDeserializer.getGson().fromJson(json, Query.class);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
+        response.setData(query);
 
-        Assert.assertEquals("Process the search term", expectedProcessedTerm, actualProcessedTerm);
-        String emptyProcessedTerm = modelUnderTest.processSearchTerm("%a3@$%@^@%^!@#$!@%^&*(*&^%$#@'aaaaaaa%");
-
-        Assert.assertEquals("Empty search term if bogus characters are entered", "", emptyProcessedTerm);
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
     }
 
     @Test
     public void testGenerateQueryString() {
-        String actualQueryString = modelUnderTest.generateQueryString("%" + SEARCH_TERM + "%");
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
+        String actualQueryString = searchResultsModel.generateQueryString(SEARCH_TERM);
         Assert.assertEquals("The query string is generated", QUERY_STRING, actualQueryString);
     }
 
     @Test
-    public void testCheckErrors() {
-        boolean checked = modelUnderTest.checkAndLogErrors(mockErrorResponse());
-        Assert.assertTrue("Returns <true> in case of errors", checked);
+    public void testProducts() {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
-        checked = modelUnderTest.checkAndLogErrors(mockSuccessfulResponse());
-        Assert.assertFalse("Returns <false> if there are no errors", checked);
-    }
-
-    @Test
-    public void testGenerateProductsFromResponse() {
-        List<ProductListItem> products = modelUnderTest.extractProductsFromResponse(mockSuccessfulResponse());
-
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
         Assert.assertEquals("Return the correct number of products", 2, products.size());
     }
 
-    private void mockPage() {
-        Page productPage = mock(Page.class);
-        when(productPage.getLanguage(false)).thenReturn(Locale.US);
-        when(productPage.getPath()).thenReturn("/content/test-product-page");
-        Whitebox.setInternalState(this.modelUnderTest, "productPage", productPage);
+    @Test
+    public void testMissingSearchTerm() {
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
+        Assert.assertTrue("Products list is empty", products.isEmpty());
     }
 
-    private GraphqlResponse<Query, Error> mockErrorResponse() {
-        List<Error> errors = new ArrayList<>();
-        for (int idx = 0; idx < 2; idx++) {
-            Error err = new Error();
-            err.setCategory("graphql");
-            err.setMessage("Error " + idx);
-            errors.add(err);
-        }
+    @Test
+    public void testNoMagentoGraphqlClient() {
+        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
-        GraphqlResponse<Query, Error> mockResponse = new GraphqlResponse<>();
-
-        mockResponse.setData(mock(Query.class).setProducts(mock(Products.class)));
-        mockResponse.setErrors(errors);
-        return mockResponse;
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
+        Assert.assertTrue("Products list is empty", products.isEmpty());
     }
-
-    private GraphqlResponse<Query, Error> mockSuccessfulResponse() {
-        if (successfulResponse != null) {
-            return successfulResponse;
-        }
-
-        List<ProductInterface> productElements = new ArrayList<>();
-        JsonArray items = resultRoot.getAsJsonObject()
-            .get("data")
-            .getAsJsonObject()
-            .get("products")
-            .getAsJsonObject()
-            .get("items")
-            .getAsJsonArray();
-        items.iterator()
-            .forEachRemaining(jsonElement -> {
-                JsonObject jsonObject = jsonElement.getAsJsonObject();
-                Integer id = jsonObject.get("id")
-                    .getAsInt();
-                String name = jsonObject.get("name")
-                    .getAsString();
-                String urlKey = jsonObject.get("url_key")
-                    .getAsString();
-                JsonObject priceAmount = jsonObject.get("price")
-                    .getAsJsonObject()
-                    .get("regularPrice")
-                    .getAsJsonObject()
-                    .get("amount")
-                    .getAsJsonObject();
-                double price = priceAmount.get("value")
-                    .getAsDouble();
-                String currency = priceAmount.get("currency")
-                    .getAsString();
-                String imageUrl = jsonObject.get("small_image")
-                    .getAsJsonObject()
-                    .get("url")
-                    .getAsString();
-                productElements.add(mockProduct(id, name, urlKey, price, currency, imageUrl));
-            });
-        Products products = new Products();
-        products.setItems(productElements);
-
-        Query rootQuery = new Query();
-        rootQuery.setProducts(products);
-
-        successfulResponse = new GraphqlResponse<>();
-        successfulResponse.setData(rootQuery);
-        successfulResponse.setErrors(Collections.emptyList());
-
-        return successfulResponse;
-
-    }
-
-    private ProductInterface mockProduct(Integer id, String name, String urlKey, double price, String currency, String url) {
-
-        Money amount = new Money();
-        amount.setCurrency(CurrencyEnum.valueOf(currency));
-        amount.setValue(price);
-
-        Price regularPrice = new Price();
-        regularPrice.setAmount(amount);
-
-        ProductPrices productPrices = new ProductPrices();
-        productPrices.setRegularPrice(regularPrice);
-
-        ProductImage productImage = new ProductImage();
-        productImage.setUrl(url);
-
-        ProductInterface product = mock(ProductInterface.class);
-        when(product.getId()).thenReturn(id);
-        when(product.getName()).thenReturn(name);
-        when(product.getUrlKey()).thenReturn(urlKey);
-        when(product.getPrice()).thenReturn(productPrices);
-        when(product.getSmallImage()).thenReturn(productImage);
-
-        return product;
-    }
-
 }
