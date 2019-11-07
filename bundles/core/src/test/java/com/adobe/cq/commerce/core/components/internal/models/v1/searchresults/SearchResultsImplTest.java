@@ -33,7 +33,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -67,7 +66,6 @@ public class SearchResultsImplTest {
 
     private SearchResultsImpl searchResultsModel;
     private Resource searchResultsResource;
-    private GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
 
     @Before
     public void setUp() throws IOException {
