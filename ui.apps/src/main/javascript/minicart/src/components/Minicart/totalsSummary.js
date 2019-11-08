@@ -22,8 +22,9 @@ const TotalsSummary = props => {
     // Props.
     const { currencyCode, numItems, subtotal } = props;
 
-    // Members.
-    const hasSubtotal = Boolean(subtotal);
+    // Do not display price, if cart is empty. But display price, if the cart has
+    // items and the price is 0 (e.g. when coupons are applied).
+    const hasSubtotal = Boolean(subtotal) || numItems > 0;
     const numItemsText = numItems === 1 ? 'item' : 'items';
 
     return (

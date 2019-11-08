@@ -56,6 +56,9 @@ query cartDetails($cartId: String!) {
             postcode
             telephone
         }
+        applied_coupon {
+            code
+        }
 
         items {
             id
