@@ -31,6 +31,9 @@
             "showImage": true,
             "showTitle": true,
             "sling:resourceType": "venia/components/commerce/productlist"
+          },
+          "searchresults": {
+            "sling:resourceType": "venia/components/commerce/searchresults"
           }
         }
       }
