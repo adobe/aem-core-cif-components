@@ -49,7 +49,7 @@ import com.day.cq.wcm.api.Page;
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
 public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
-    protected static final String RESOURCE_TYPE = "/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
     private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
