@@ -13,122 +13,90 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { render, fireEvent } from '@testing-library/react';
 
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-
+jest.mock('../useCreateAccount');
+import useCreateAccount from '../useCreateAccount';
 import CreateAccount from '../createAccount';
 
-import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
-import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
-import MUTATION_CREATE_CUSTOMER from '../../../queries/mutation_create_customer.graphql';
-
 describe('<CreateAccount>', () => {
+    const detailsFromValue = value => ({
+        target: {
+            value
+        }
+    });
+
     beforeEach(() => {
         jest.resetModules();
     });
+
     it('renders the component', () => {
-        const { asFragment } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CreateAccount showMyAccount={jest.fn()} />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        useCreateAccount.mockReturnValue([
+            {
+                createAccountError: null,
+                isSignedIn: false,
+                isCreatingCustomer: false
+            },
+            {
+                createAccount: jest.fn()
+            }
+        ]);
+
+        const { asFragment } = render(<CreateAccount showMyAccount={jest.fn()} />);
 
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it.skip('submits the form properly', async () => {
-        const mockPerson = {
-            email: 'imccoy@weretail.net',
-            firstname: 'Iris',
-            lastname: 'McCoy'
-        };
-        const mockPassword = 'Imccoy123';
-        const mocks = [
+    it('submits the form', () => {
+        let createAccountFn = jest.fn();
+        useCreateAccount.mockReturnValue([
             {
-                request: {
-                    query: MUTATION_CREATE_CUSTOMER,
-                    variables: {
-                        ...mockPerson,
-                        password: mockPassword
-                    }
-                },
-                result: {
-                    data: {
-                        createCustomer: {
-                            customer: { ...mockPerson }
-                        }
-                    }
-                }
+                createAccountError: null,
+                isSignedIn: false,
+                isCreatingCustomer: false
             },
             {
-                request: {
-                    query: MUTATION_GENERATE_TOKEN,
-                    variables: { email: mockPerson.email, password: mockPassword }
-                },
-                result: {
-                    data: {
-                        generateCustomerToken: {
-                            token: 'token123'
-                        }
-                    }
-                }
+                createAccount: createAccountFn
+            }
+        ]);
+
+        const { getByLabelText } = render(<CreateAccount showMyAccount={jest.fn()} />);
+
+        const expectedArg = {
+            customer: {
+                email: 'imccoy@weretail.net',
+                firstname: 'Iris',
+                lastname: 'McCoy'
             },
-            {
-                request: {
-                    query: QUERY_CUSTOMER_DETAILS
-                },
-                result: {
-                    data: {
-                        customer: mockPerson
-                    }
-                }
-            }
-        ];
-
-        const ContextWrapper = () => {
-            const [{ isSignedIn, currentUser }] = useUserContext();
-            let content;
-            if (isSignedIn) {
-                content = <div data-testid="success">{currentUser.firstname}</div>;
-            } else {
-                content = <CreateAccount showMyAccount={jest.fn()} />;
-            }
-
-            return content;
+            password: 'Imccoy123',
+            confirm: 'Imccoy123'
         };
 
-        const { getByLabelText, getByTestId, container } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
-        const detailsFromValue = value => {
-            return {
-                target: {
-                    value
-                }
-            };
-        };
-        fireEvent.change(getByLabelText('firstname'), detailsFromValue(mockPerson.firstname));
-        fireEvent.change(getByLabelText('lastname'), detailsFromValue(mockPerson.lastname));
-        fireEvent.change(getByLabelText('email'), detailsFromValue(mockPerson.email));
-        fireEvent.change(getByLabelText('password'), detailsFromValue(mockPassword));
-        fireEvent.change(getByLabelText('confirm'), detailsFromValue(mockPassword));
-
+        fireEvent.change(getByLabelText('firstname'), detailsFromValue(expectedArg.customer.firstname));
+        fireEvent.change(getByLabelText('lastname'), detailsFromValue(expectedArg.customer.lastname));
+        fireEvent.change(getByLabelText('email'), detailsFromValue(expectedArg.customer.email));
+        fireEvent.change(getByLabelText('password'), detailsFromValue(expectedArg.password));
+        fireEvent.change(getByLabelText('confirm'), detailsFromValue(expectedArg.confirm));
         fireEvent.click(getByLabelText('submit'));
 
-        const result = await waitForElement(() => {
-            return getByTestId('success');
-        });
+        expect(createAccountFn).toHaveBeenCalledWith(expectedArg);
+    });
 
-        expect(container.querySelector('.root_error')).toBe(null);
-        expect(result).not.toBeUndefined();
-        expect(result.textContent).toEqual(mockPerson.firstname);
+    it('shows my account when signed in', () => {
+        let showMyAccoungFn = jest.fn();
+        useCreateAccount.mockReturnValue([
+            {
+                createAccountError: null,
+                isSignedIn: true,
+                isCreatingCustomer: false
+            },
+            {
+                createAccount: jest.fn()
+            }
+        ]);
+
+        render(<CreateAccount showMyAccount={showMyAccoungFn} />);
+
+        expect(showMyAccoungFn).toHaveBeenCalled();
     });
 });
