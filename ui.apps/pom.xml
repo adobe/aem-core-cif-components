@@ -20,14 +20,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -137,7 +137,7 @@
                         <dependency>
                             <group>day/cq60/product</group>
                             <name>cif-connector-content</name>
-                            <version>0.2.1</version>
+                            <version>0.6.0</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -235,7 +235,7 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>cif-connector-content</artifactId>
-            <version>0.2.1</version>
+            <version>0.6.0</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>

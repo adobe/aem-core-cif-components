@@ -37,14 +37,12 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
@@ -58,9 +56,6 @@ import com.day.cq.wcm.api.Page;
 public class SearchResultsImpl implements SearchResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
-
-    private static final String WILDCARD = "%";
-
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
 
     @Self
@@ -85,6 +80,9 @@ public class SearchResultsImpl implements SearchResults {
         // Get MagentoGraphqlClient from the resource.
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
+        if (productPage == null) {
+            productPage = currentPage;
+        }
     }
 
     /**
@@ -97,29 +95,11 @@ public class SearchResultsImpl implements SearchResults {
             return Collections.emptyList();
         }
 
-        String processedSearchTerm = processSearchTerm(searchTerm);
-        String queryString = generateQueryString(processedSearchTerm);
+        String queryString = generateQueryString(searchTerm);
 
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-
-        return checkAndLogErrors(response) ? Collections.emptyList() : extractProductsFromResponse(response);
-
-    }
-
-    /**
-     * Processes the search term to prepare it for the actual query.
-     * This method just prepends/appends the default wildcard character % to the search term. Overriding methods can implement their own
-     * processing.
-     * 
-     * @return the processed search term, by default {@code "%searchTerm%"}
-     */
-    @Nonnull
-    protected String processSearchTerm(String searchTerm) {
-        if (!StringUtils.isAlphanumericSpace(searchTerm)) {
-            return "";
-        }
-        return WILDCARD + searchTerm + WILDCARD;
+        return extractProductsFromResponse(response);
     }
 
     /**
@@ -130,13 +110,9 @@ public class SearchResultsImpl implements SearchResults {
      */
     @Nonnull
     protected String generateQueryString(String searchTerm) {
-        ProductFilterInput productFilterInput = new ProductFilterInput().setName(new FilterTypeInput().setLike(searchTerm));
-        QueryQuery.ProductsArgumentsDefinition searchArgs = productsArguments -> productsArguments.filter(productFilterInput);
-
+        ProductsArgumentsDefinition searchArgs = s -> s.search(searchTerm);
         ProductsQueryDefinition queryArgs = productsQuery -> productsQuery.items(generateProductQuery());
-        return Operations.query(query -> query.products(searchArgs, queryArgs))
-            .toString();
-
+        return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }
 
     /**
@@ -158,23 +134,6 @@ public class SearchResultsImpl implements SearchResults {
     }
 
     /**
-     * Checks the graphql response for errors and logs out to the error console if any are found
-     * 
-     * @param response the {@link GraphqlResponse}
-     * @return {@link true} if any errors were found, {@link false} otherwise
-     */
-    protected boolean checkAndLogErrors(GraphqlResponse<Query, Error> response) {
-        List<Error> errors = response.getErrors();
-        if (errors != null && errors.size() > 0) {
-            errors.stream()
-                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Extracts a list of products from the graphql response. This method uses
      * {@link SearchResultsImpl#generateItemFromProductInterface(ProductInterface)} to tranform the objects from the Graphql response to
      * {@link ProductListItem} objects
@@ -185,8 +144,7 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     protected List<ProductListItem> extractProductsFromResponse(GraphqlResponse<Query, Error> response) {
         Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts()
-            .getItems();
+        List<ProductInterface> products = rootQuery.getProducts().getItems();
 
         LOGGER.debug("Found {} products for search term {}", products.size(), searchTerm);
 

@@ -23,7 +23,8 @@ export const initialState = {
     editItem: {},
     cartId: null,
     cart: {},
-    error: null,
+    errorMessage: null,
+    couponError: null,
     addItem: () => {},
     removeItem: () => {}
 };
@@ -74,19 +75,27 @@ export const reducerFactory = setCartCookie => {
                 return {
                     ...state,
                     cartId: null,
-                    isOpen: false
+                    isOpen: false,
+                    errorMessage: null,
+                    couponError: null
                 };
             case 'cart':
                 return {
                     ...state,
                     cart: action.cart,
-                    isLoading: false
+                    isLoading: false,
+                    couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
             case 'error':
                 console.error(action.error);
                 return {
                     ...state,
                     errorMessage: action.error
+                };
+            case 'couponError':
+                return {
+                    ...state,
+                    couponError: action.error
                 };
 
             default:

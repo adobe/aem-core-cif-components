@@ -1,0 +1,24 @@
+.root {
+    display: grid;
+    grid-template-columns: auto 8rem;
+    grid-gap: 1rem;
+    margin: 0 1.5rem;
+}
+
+.root input {
+    max-height: 32px;
+}
+
+.error {
+    grid-column: 1 / 3;
+    background-color: rgb(var(--venia-grey));
+    border-radius: 4px;
+    color: rgb(var(--venia-error));
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 1rem;
+}
+
+.error:empty {
+    display: none;
+}

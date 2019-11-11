@@ -15,11 +15,14 @@ import { useEffect } from 'react';
 import { useCartState } from './cartContext';
 import { useCookieValue } from '../../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
+import parseError from '../../utils/parseError';
 
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
+import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
+import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();
@@ -29,6 +32,8 @@ const CartInitializer = props => {
     const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
+    const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
+    const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
 
     const createCartHandlers = (cartId, dispatch) => {
         return {
@@ -54,6 +59,34 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return removeItem({
                     variables: { cartId, itemId },
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
+                })
+                    .catch(error => {
+                        dispatch({ type: 'error', error: error.toString() });
+                    })
+                    .finally(() => {
+                        dispatch({ type: 'endLoading' });
+                    });
+            },
+            addCoupon: couponCode => {
+                dispatch({ type: 'beginLoading' });
+                return addCoupon({
+                    variables: { cartId, couponCode },
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
+                })
+                    .catch(error => {
+                        dispatch({ type: 'couponError', error: parseError(error) });
+                    })
+                    .finally(() => {
+                        dispatch({ type: 'endLoading' });
+                    });
+            },
+            removeCoupon: () => {
+                dispatch({ type: 'beginLoading' });
+                return removeCoupon({
+                    variables: { cartId },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
                     awaitRefetchQueries: true
                 })

@@ -24,7 +24,7 @@ import classes from './signIn.css';
 import { useSignin } from './useSignin';
 
 const SignIn = props => {
-    const { showMyAccount, showForgotPassword } = props;
+    const { showMyAccount, showForgotPassword, showCreateAccount } = props;
     const { errorMessage, isSignedIn, handleSubmit } = useSignin();
 
     if (isSignedIn) {
@@ -57,6 +57,12 @@ const SignIn = props => {
                         {'Forgot Password?'}
                     </Button>
                 </div>
+                <div className={classes.signInDivider}></div>
+                <div className={classes.createAccountButton}>
+                    <Button priority="normal" type="button" onClick={showCreateAccount}>
+                        {'Create an Account'}
+                    </Button>
+                </div>
             </Form>
         </div>
     );
@@ -64,7 +70,8 @@ const SignIn = props => {
 
 SignIn.propTypes = {
     showMyAccount: func.isRequired,
-    showForgotPassword: func.isRequired
+    showForgotPassword: func.isRequired,
+    showCreateAccount: func.isRequired
 };
 
 export default SignIn;
