@@ -83,7 +83,7 @@ const UserContextProvider = props => {
             .then(({ data, error }) => {
                 if (data) {
                     const { firstname, lastname, email } = data.customer;
-                    setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
+                    setUserState({ ...userState, isSignedIn: true, currentUser: { firstname, lastname, email }, inProgress: false });
                 }
                 if (error) {
                     setUserState({ ...userState, isSignedIn: false });
@@ -108,7 +108,7 @@ const UserContextProvider = props => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });
+            setUserState({ ...userState, signInError: null, createAccountError: null });
         }
     }, [data, error]);
 
