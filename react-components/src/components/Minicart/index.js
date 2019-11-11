@@ -11,4 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './minicart';
+export {default} from './minicart';
+export {
+    CartProvider,
+    initialState,
+    reducerFactory
+} from './components/Minicart/cartContext';

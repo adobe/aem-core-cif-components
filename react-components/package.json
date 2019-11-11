@@ -1,5 +1,5 @@
 {
-  "name": "aem-core-cif-react-components",
+  "name": "@adobe/aem-core-cif-react-components",
   "version": "1.0.0",
   "description": "A collection of React components used in the AEM CIF Core Components project",
   "author": "Adobe Systems Inc.",
