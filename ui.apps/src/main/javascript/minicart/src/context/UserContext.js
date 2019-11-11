@@ -83,7 +83,12 @@ const UserContextProvider = props => {
             .then(({ data, error }) => {
                 if (data) {
                     const { firstname, lastname, email } = data.customer;
-                    setUserState({ ...userState, isSignedIn: true, currentUser: { firstname, lastname, email }, inProgress: false });
+                    setUserState({
+                        ...userState,
+                        isSignedIn: true,
+                        currentUser: { firstname, lastname, email },
+                        inProgress: false
+                    });
                 }
                 if (error) {
                     setUserState({ ...userState, isSignedIn: false });
