@@ -14,13 +14,12 @@
 const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-const target = `${__dirname}/../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist`;
-
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
     output: {
-        path: `${target}`,
-        filename: 'index.js'
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'index.js',
+        libraryTarget: 'commonjs2'
     },
 
     module: {

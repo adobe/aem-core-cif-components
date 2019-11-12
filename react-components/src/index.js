@@ -13,6 +13,12 @@
  ******************************************************************************/
 
 export {default as AuthBar} from './components/AuthBar';
+export {default as Cart} from './components/Minicart';
+
+export {
+    default as UserContextProvider,
+    useUserContext
+} from './context/UserContext';
 
 export {
     CartProvider,
@@ -26,6 +32,4 @@ export {
     reducer
 } from './components/Checkout/checkoutContext';
 
-export {
-    default as CartInitializer
-} from './components/Minicart/cartInitializer';
+export {default as CartInitializer} from './components/Minicart/cartInitializer';

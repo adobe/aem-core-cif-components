@@ -16,4 +16,4 @@ export {
     CheckoutProvider,
     initialState as initialCheckoutState,
     reducer
-} from './components/Checkout/checkoutContext';
+} from './checkoutContext';

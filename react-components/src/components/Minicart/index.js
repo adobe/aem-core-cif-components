@@ -12,8 +12,4 @@
  *
  ******************************************************************************/
 export {default} from './minicart';
-export {
-    CartProvider,
-    initialState,
-    reducerFactory
-} from './components/Minicart/cartContext';
+export {CartProvider, initialState, reducerFactory} from './cartContext';
