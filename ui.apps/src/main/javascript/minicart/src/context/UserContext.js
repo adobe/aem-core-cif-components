@@ -14,6 +14,7 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useCookieValue } from '../utils/hooks';
 import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import parseError from '../utils/parseError';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
@@ -21,21 +22,6 @@ import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.gra
 import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
 
 const UserContext = React.createContext();
-
-const parseError = error => {
-    if (error.networkError) {
-        return error.networkError;
-    }
-
-    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-        return error.graphQLErrors[0].message;
-    }
-    if (error.message) {
-        return error.message;
-    }
-
-    return JSON.stringify(error);
-};
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
