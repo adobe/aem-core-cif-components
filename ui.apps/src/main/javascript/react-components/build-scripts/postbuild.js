@@ -11,28 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const path = require('path');
-const target = `${__dirname}/../../content/jcr_root/apps/core/cif/clientlibs/react-components/dist`;
 
-module.exports = {
-    entry: path.resolve(__dirname, 'src') + '/index.js',
-    output: {
-        path: `${target}`,
-        filename: 'index.js'
-    },
-    module: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /(node_modules|dist)/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-react']
-                    }
-                }
-            }
-        ]
-    },
-    mode: process.NODE_ENV || 'development'
-};
+const { exec } = require('child_process');
+
+const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/clientlibs/react-components/dist';
+
+exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(`stdout: ${stdout}`);
+    }
+});

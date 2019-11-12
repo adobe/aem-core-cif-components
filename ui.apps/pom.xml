@@ -189,7 +189,7 @@
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/../react-components/</workingDirectory>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
@@ -203,7 +203,7 @@
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/../react-components/</workingDirectory>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
@@ -222,7 +222,7 @@
                             <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/common/dist</directory>
                         </fileset>
                         <fileset>
-                            <directory>src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist</directory>
+                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist</directory>
                         </fileset>
                     </filesets>
                 </configuration>
