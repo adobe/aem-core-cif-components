@@ -25,7 +25,11 @@ module.exports = {
         es6: true,
         'jest/globals': true
     },
-    extends: ['eslint:recommended', 'plugin:react/recommended', 'plugin:jest/recommended'],
+    extends: [
+        'eslint:recommended',
+        'plugin:react/recommended',
+        'plugin:jest/recommended'
+    ],
     parser: 'babel-eslint',
     globals: {
         Atomics: 'readonly',
@@ -41,14 +45,15 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header', 'jest'],
     rules: {
-        'no-console': ['warn', { allow: ['error', 'warn'] }],
+        'no-console': ['warn', {allow: ['error', 'warn']}],
         'no-undef': 'error',
         'no-unused-vars': 'warn',
         'header/header': [2, 'block', headerBlock],
         'no-var': 'error',
         'one-var': ['error', 'never'],
+        'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
         // override the default which is more restrictive
-        'react/prop-types': ['warn', { ignore: ['children'] }],
+        'react/prop-types': ['warn', {ignore: ['children']}],
         strict: ['error', 'global']
     }
 };

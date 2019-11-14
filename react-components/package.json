@@ -8,7 +8,8 @@
     "type": "git",
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
-  "main": "dist/index.js",
+  "publishConfig":{"registry":"https://artifactory.corp.adobe.com/artifactory/api/npm/npm-ccif-release-local/"},
+  "module": "dist/index.js",
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
@@ -27,9 +28,6 @@
     "graphql": "^14.4.2",
     "informed": "^2.11.8",
     "prop-types": "^15.7.2",
-    "react": "^16.11.0",
-    "react-apollo": "~2.5.3",
-    "react-dom": "^16.8.6",
     "react-feather": "^2.0.3",
     "react-router-dom": "^5.1.2"
   },
@@ -62,7 +60,8 @@
     "webpack-node-externals": "^1.7.2"
   },
   "peerDependencies": {
-    "react": "^16.9.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "@magento/peregrine": "^3.0.0"
   }
 }
