@@ -82,12 +82,12 @@
                                                         <link
                                                             granite:class="cmp-teaser__editor-actionField"
                                                             jcr:primaryType="nt:unstructured"
+                                                            sling:hideProperties="rootPath"
                                                             sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                             emptyText="Product"
                                                             fieldLabel="Product Page"
                                                             name="productSlug"
                                                             required="{Boolean}false"
-                                                            rootPath="/var/commerce/products"
                                                             selectionId="slug">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
@@ -100,8 +100,7 @@
                                                             emptyText="Category"
                                                             fieldLabel="Category Page"
                                                             name="categoryId"
-                                                            required="{Boolean}false"
-                                                            rootPath="/var/commerce/products">
+                                                            required="{Boolean}false">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
                                                                 cmp-teaser-v1-dialog-edit-hook="actionLink"/>
