@@ -18,7 +18,6 @@
   "dependencies": {
     "@apollo/react-hooks": "^3.1.3",
     "@magento/peregrine": "^3.0.0",
-    "aem-core-cif-react-components": "file:../../../../../react-components/aem-core-cif-react-components-1.0.0.tgz",
     "apollo-boost": "^0.4.4",
     "graphql": "^14.5.8",
     "react": "^16.11.0",

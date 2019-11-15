@@ -101,7 +101,7 @@ export const CheckoutProvider = props => {
 };
 
 CheckoutProvider.propTypes = {
-    reducer: func.isRequired,
+    reducer: func,
     initialState: shape({
         flowState: string.isRequired,
         order: object,
