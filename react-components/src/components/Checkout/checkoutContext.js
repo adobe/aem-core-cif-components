@@ -12,10 +12,10 @@
  *
  ******************************************************************************/
 
-import React, { createContext, useContext, useReducer } from 'react';
-import { object, func } from 'prop-types';
+import React, {createContext, useContext, useReducer} from 'react';
+import {string, func, shape, object} from 'prop-types';
 
-export const initialState = {
+export const initialCheckoutState = {
     flowState: 'cart',
     order: null,
     editing: null,
@@ -25,7 +25,7 @@ export const initialState = {
     paymentMethod: null
 };
 
-export const reducer = (state, action) => {
+export const checkoutReducer = (state, action) => {
     switch (action.type) {
         case 'beginCheckout':
             return {
@@ -46,7 +46,7 @@ export const reducer = (state, action) => {
             };
         case 'reset':
             return {
-                ...initialState
+                ...initialCheckoutState
             };
         case 'setEditing':
             return {
@@ -90,13 +90,27 @@ export const reducer = (state, action) => {
 
 export const CheckoutContext = createContext();
 
-export const CheckoutProvider = ({ reducer, initialState, children }) => {
-    return <CheckoutContext.Provider value={useReducer(reducer, initialState)}>{children}</CheckoutContext.Provider>;
+export const CheckoutProvider = props => {
+    const reducer = props.reducer || checkoutReducer;
+    const initialState = props.initialState || initialCheckoutState;
+    return (
+        <CheckoutContext.Provider value={useReducer(reducer, initialState)}>
+            {props.children}
+        </CheckoutContext.Provider>
+    );
 };
 
 CheckoutProvider.propTypes = {
     reducer: func.isRequired,
-    initialState: object.isRequired
+    initialState: shape({
+        flowState: string.isRequired,
+        order: object,
+        editing: object,
+        shippingAddress: object,
+        billingAddress: object,
+        shippingMethod: object,
+        paymentMethod: object
+    })
 };
 
 export const useCheckoutState = () => useContext(CheckoutContext);

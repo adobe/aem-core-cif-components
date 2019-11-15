@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 
+export {default as CommerceApp} from './components/App';
 export {default as AuthBar} from './components/AuthBar';
 export {default as Cart} from './components/Minicart';
 
@@ -20,16 +21,6 @@ export {
     useUserContext
 } from './context/UserContext';
 
-export {
-    CartProvider,
-    initialState,
-    reducerFactory
-} from './components/Minicart/cartContext';
+export {CheckoutProvider} from './components/Checkout/checkoutContext';
 
-export {
-    CheckoutProvider,
-    initialState as initialCheckoutState,
-    reducer
-} from './components/Checkout/checkoutContext';
-
-export {default as CartInitializer} from './components/Minicart/cartInitializer';
+export {CartProvider, CartInitializer} from './components/Minicart';

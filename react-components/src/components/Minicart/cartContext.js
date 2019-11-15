@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 
-import React, { createContext, useContext, useReducer } from 'react';
-import { object, func } from 'prop-types';
-import { useCookieValue } from '../../utils/hooks';
+import React, {createContext, useContext, useReducer} from 'react';
+import {object, func} from 'prop-types';
+import {useCookieValue} from '../../utils/hooks';
 
 export const initialState = {
     isOpen: false,
@@ -97,19 +97,24 @@ export const reducerFactory = setCartCookie => {
 
 export const CartContext = createContext();
 
-export const CartProvider = ({ reducerFactory, initialState, children }) => {
+export const CartProvider = props => {
+    const factory = props.reducerFactory || reducerFactory;
+    const state = props.initialState || initialState;
+
     const [, setCartCookie] = useCookieValue('cif.cart');
 
+    const contextValue = useReducer(factory(setCartCookie), state);
+
     return (
-        <CartContext.Provider value={useReducer(reducerFactory(setCartCookie), initialState)}>
-            {children}
+        <CartContext.Provider value={contextValue}>
+            {props.children}
         </CartContext.Provider>
     );
 };
 
 CartProvider.propTypes = {
-    reducerFactory: func.isRequired,
-    initialState: object.isRequired
+    reducerFactory: func,
+    initialState: object
 };
 
 export const useCartState = () => useContext(CartContext);

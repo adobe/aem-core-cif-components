@@ -11,6 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export {default} from './minicart';
-export {CartProvider} from './cartContext';
-export {default as CartInitializer} from './cartInitializer';
+export {default} from './app';

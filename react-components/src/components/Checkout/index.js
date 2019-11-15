@@ -12,8 +12,4 @@
  *
  ******************************************************************************/
 export {default} from './flow';
-export {
-    CheckoutProvider,
-    initialState as initialCheckoutState,
-    reducer
-} from './checkoutContext';
+export {CheckoutProvider} from './checkoutContext';
