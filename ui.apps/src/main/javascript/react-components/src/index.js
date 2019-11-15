@@ -13,48 +13,20 @@
  ******************************************************************************/
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from '@apollo/react-hooks';
-
-import {
-    CartProvider,
-    initialState,
-    reducerFactory,
-    CheckoutProvider,
-    initialCheckoutState,
-    reducer,
-    CartInitializer,
-    AuthBar,
-    Cart,
-    UserContextProvider
-} from '@adobe/aem-core-cif-react-components';
+import { CommerceApp, Cart, AuthBar } from 'aem-core-cif-react-components';
 
 const App = () => {
-    const storeView = document.querySelector('body').dataset.storeView || 'default';
-
-    const client = new ApolloClient({
-        uri: '/magento/graphql',
-        headers: { Store: storeView }
-    });
-
+    const storeView = document.querySelector('body').dataset.storeView;
+    console.log(`Commerce App?`, CommerceApp);
     return (
-        <ApolloProvider client={client}>
-            <CartProvider initialState={initialState} reducerFactory={reducerFactory}>
-                <UserContextProvider>
-                    <CartInitializer>
-                        <CheckoutProvider initialState={initialCheckoutState} reducer={reducer}>
-                            <Cart />
-                            <AuthBar />
-                        </CheckoutProvider>
-                    </CartInitializer>
-                </UserContextProvider>
-            </CartProvider>
-        </ApolloProvider>
+        <CommerceApp uri={'/magento/graphql'} storeView={storeView}>
+            <Cart />
+            <AuthBar />
+        </CommerceApp>
     );
 };
 
 window.onload = function() {
-    console.log(`Boardig complete...`);
     const element = document.getElementById('minicart');
     ReactDOM.render(<App />, element);
 };
