@@ -38,6 +38,10 @@ const Overview = props => {
 
     const ready = shippingAddress && paymentMethod && shippingMethod;
 
+    /* const submitOrder = useCallback(() => {
+        dispatch({ type: 'beginPayment' });
+    }, [dispatch]); */
+
     const submitOrder = useCallback(() => {
         placeOrder({ variables: { cartId: cartId } });
     }, [placeOrder]);

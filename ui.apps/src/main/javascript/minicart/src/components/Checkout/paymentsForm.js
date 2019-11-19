@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { Form } from 'informed';
+import { Form, Text, useFormState } from 'informed';
 import { array, bool, shape, string, func } from 'prop-types';
 
 import Button from '../Button';
@@ -20,10 +20,37 @@ import Select from '../Select';
 import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
+import Braintree from './paymentProviders/braintree';
 
 import classes from './paymentsForm.css';
 import { isRequired, hasLengthExactly, validateRegionCode, validateEmail } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
+
+// TODO: Move this to a separate PaymentProvider component
+const FormState = () => {
+    const formState = useFormState();
+    let child;
+
+    console.log(formState);
+
+    switch (formState.values.payment_method) {
+        case 'braintree': {
+            child = <Braintree accept="card" setIsReady={() => {}} />;
+            break;
+        }
+
+        case 'braintree_paypal': {
+            child = <Braintree accept="paypal" setIsReady={() => {}} />;
+            break;
+        }
+
+        default: {
+            return null;
+        }
+    }
+
+    return <div className={classes.braintree}>{child}</div>;
+};
 
 /**
  * A wrapper around the payment form. This component's purpose is to maintain
@@ -43,7 +70,6 @@ const PaymentsForm = props => {
     });
 
     const initialPaymentMethodState = !initialPaymentMethod ? paymentMethodsItems[0].value : initialPaymentMethod.code;
-
     const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
@@ -87,6 +113,7 @@ const PaymentsForm = props => {
             }
             submit({
                 paymentMethod: paymentMethods.find(v => v.code === formValues['payment_method']),
+                paymentNonce: formValues['payment_nonce'],
                 billingAddress
             });
         },
@@ -156,13 +183,30 @@ const PaymentsForm = props => {
         }
     }, [differentAddress]);
 
+    const nonceValidation = (value, values) => {
+        switch (values.payment_method) {
+            case 'braintree': {
+                return value.length < 1 ? 'Please enter your credit card details.' : undefined;
+            }
+            case 'braintree_paypal': {
+                return value.length < 1 ? 'Please enter your PayPal details.' : undefined;
+            }
+            default: {
+                // No nonce needed for any other payment methods
+                return undefined;
+            }
+        }
+    };
+
     return (
         <Form className={classes.root} initialValues={initialFormValues} onSubmit={handleSubmit}>
             <div className={classes.body}>
                 <h2 className={classes.heading}>Billing Information</h2>
                 <div className={classes.braintree}>
                     <Select items={paymentMethodsItems} field="payment_method" initialValue={paymentMethod} />
+                    <Text field="payment_nonce" type="hidden" id="payment_nonce" validate={nonceValidation} />
                 </div>
+                <FormState />
                 <div className={classes.address_check}>
                     <Checkbox
                         field="addresses_same"

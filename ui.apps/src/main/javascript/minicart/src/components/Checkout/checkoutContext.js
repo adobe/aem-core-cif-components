@@ -32,6 +32,11 @@ export const reducer = (state, action) => {
                 ...state,
                 flowState: 'form'
             };
+        case 'beginPayment':
+            return {
+                ...state,
+                flowState: 'payment'
+            };
         case 'cancelCheckout':
             return {
                 ...state,

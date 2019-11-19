@@ -49,11 +49,12 @@ const Form = () => {
         }
     }, [shipping_addresses]);
 
-    useEffect(() => {
+    // TODO: This should be set directly into the state, not retrieved from the cart
+    /* useEffect(() => {
         if (selected_payment_method && selected_payment_method.code.length > 0) {
             dispatch({ type: 'setPaymentMethod', paymentMethod: selected_payment_method });
         }
-    }, [selected_payment_method]);
+    }, [selected_payment_method]); */
 
     useEffect(() => {
         if (billing_address && billing_address.city !== null) {
