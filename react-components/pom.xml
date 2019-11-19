@@ -16,7 +16,7 @@
     <artifactId>core-cif-react-components</artifactId>
     <version>0.5.1-SNAPSHOT</version>
 
-    <name>AEM CIF Core Components - Content Package for apps</name>
+    <name>AEM CIF Core Components - Content Package for React Components</name>
     <description>Content Package with Components, Templates, Policies and Clientlibs for AEM CIF Core Components</description>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
@@ -36,7 +36,6 @@
     </properties>
 
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -68,6 +67,19 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-module-link</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>link</argument>
                             </arguments>
                         </configuration>
                     </execution>

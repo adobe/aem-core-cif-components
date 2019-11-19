@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { CommerceApp, Cart, AuthBar } from 'aem-core-cif-react-components';
+import { CommerceApp, Cart, AuthBar } from '@adobe/aem-core-cif-react-components';
 
 const App = () => {
     const storeView = document.querySelector('body').dataset.storeView;
