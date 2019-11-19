@@ -23,8 +23,6 @@ const PaymentMethodSummary = props => {
         return <span className={classes.informationPrompt}>Add Billing Information</span>;
     }
 
-    console.log(paymentMethod);
-
     return (
         <Fragment>
             <strong className={classes.paymentDisplayPrimary}>{paymentMethod.title}</strong>
