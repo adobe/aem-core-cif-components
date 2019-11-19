@@ -157,8 +157,6 @@ const PaymentsForm = props => {
         }
     }, [differentAddress]);
 
-    // <Text field="payment_nonce" type="hidden" id="payment_nonce" />
-
     return (
         <Form className={classes.root} initialValues={initialFormValues} onSubmit={handleSubmit}>
             <div className={classes.body}>

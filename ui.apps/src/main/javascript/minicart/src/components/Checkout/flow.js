@@ -18,7 +18,6 @@ import classes from './flow.css';
 import Receipt from './receipt';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
-//import PaymentStep from './paymentStep';
 
 const isCartReady = cart => {
     return cart && cart.items.length > 0;
@@ -39,10 +38,6 @@ const Flow = () => {
             child = <Form />;
             break;
         }
-        /* case 'payment': {
-            child = <PaymentStep />;
-            break;
-        } */
         case 'receipt': {
             child = <Receipt />;
             break;

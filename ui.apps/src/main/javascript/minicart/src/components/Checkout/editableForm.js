@@ -119,7 +119,6 @@ const EditableForm = props => {
 
             // Store payment method in state, so we can later use it in the
             // payment step of the checkout.
-            // TODO: Store payment method description as well via hidden field?
             dispatch({ type: 'setPaymentMethod', paymentMethod: args.paymentMethod });
 
             switch (args.paymentMethod.code) {

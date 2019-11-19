@@ -24,6 +24,7 @@ const CONTAINER_ID = 'braintree-dropin-container';
 
 const Braintree = props => {
     //const [{ paymentMethod }] = useCheckoutState();
+    // Store the dropin instance somewhere, so that if I open the payment button again, it is still displayed, needs to be reset after place order?
     const [braintreeToken, setBraintreeToken] = useState(false); // TODO: Move into checkout state, so it isn't retrieved all the time?
     const [dropinInstance, setDropinInstance] = useState();
     const [paymentMethodRequestable, setPaymentMethodRequestable] = useState(false);
