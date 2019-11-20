@@ -1,0 +1,6 @@
+.*
+target
+coverage
+*.iml
+pom.xml
+build-scripts
