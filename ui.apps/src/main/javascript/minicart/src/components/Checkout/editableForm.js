@@ -93,8 +93,6 @@ const EditableForm = props => {
 
     const handleSubmitPaymentsForm = useCallback(
         args => {
-            console.log('submit payment form', args);
-
             if (args.billingAddress.sameAsShippingAddress) {
                 if (shippingAddress) {
                     setBillingAddressOnCart({

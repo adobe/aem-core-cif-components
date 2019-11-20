@@ -22,8 +22,6 @@ const PaymentProvider = () => {
     const formState = useFormState();
     let child;
 
-    console.log(formState);
-
     const nonceValidation = (value, values) => {
         const nonce = value;
         const paymentMethod = values.payment_method;

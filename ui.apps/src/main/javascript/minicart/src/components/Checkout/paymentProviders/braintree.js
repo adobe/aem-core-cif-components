@@ -25,12 +25,8 @@ const CONTAINER_ID = 'braintree-dropin-container';
 
 const Braintree = props => {
     const [{ braintreeToken }, dispatch] = useCheckoutState();
-    const [{ cart }] = useCartState();
-    // TODO: Store the dropin instance somewhere, so that if I open the payment button again, it is still displayed, needs to be reset after place order?
+    const [{ cart }, cartDispatch] = useCartState();
 
-    // TODO: Store payment information in checkout context as well and display "Payment method, MasterCard ending in 44"
-
-    // TODO: How to restore dropin instance?
     const [dropinInstance, setDropinInstance] = useState(); // This state is gone after you leave the payment form
     const [paymentMethodRequestable, setPaymentMethodRequestable] = useState(false);
     const paymentNonceField = useFieldApi('payment_nonce');
@@ -43,7 +39,6 @@ const Braintree = props => {
         try {
             // Tear down instance if it already exists, e.g. when switching between the PayPal and credit card form.
             if (dropinInstance) {
-                console.log('Teardown dropinstance');
                 await dropinInstance.teardown();
                 setDropinInstance(false);
             }
@@ -86,39 +81,33 @@ const Braintree = props => {
                 card
             });
 
-            console.log('dropin initialized');
-
-            braintreeDropIn.on('paymentMethodRequestable', function(event) {
-                console.log('paymentMethodRequestable', event);
+            braintreeDropIn.on('paymentMethodRequestable', () => {
                 setPaymentMethodRequestable(true);
             });
 
-            braintreeDropIn.on('noPaymentMethodRequestable', function() {
-                console.log('noPaymentMethodRequestable', event);
+            braintreeDropIn.on('noPaymentMethodRequestable', () => {
                 setPaymentMethodRequestable(false);
             });
 
             setDropinInstance(braintreeDropIn);
-        } catch (err) {
-            console.error(`Unable to initialize Credit Card form (Braintree). \n${err}`);
+        } catch (error) {
+            cartDispatch({ type: 'error', error: error.toString() });
         }
     }
 
     // Request new braintree token and initialize payment form
     useEffect(() => {
         if (!braintreeToken) {
-            console.log('No braintree token available, requesting a new one.');
             createBraintreeClientToken();
             return;
         }
-        console.log('Got braintree token, initialize dropin');
         createDropinInstance();
     }, [braintreeToken, props.accept]);
 
     // Store braintree token
     useEffect(() => {
         if (braintreeTokenError) {
-            console.error(braintreeTokenError);
+            cartDispatch({ type: 'error', error: braintreeTokenError.toString() });
             return;
         }
         if (braintreeTokenData && braintreeTokenData.createBraintreeClientToken) {
@@ -131,11 +120,10 @@ const Braintree = props => {
             dropinInstance
                 .requestPaymentMethod()
                 .then(paymentNonce => {
-                    console.log('got payment nonce', paymentNonce);
                     paymentNonceField.setValue(paymentNonce.nonce);
                 })
-                .catch(e => {
-                    console.error(e);
+                .catch(error => {
+                    cartDispatch({ type: 'error', error: error.toString() });
                 });
         }
     }, [paymentMethodRequestable]);
