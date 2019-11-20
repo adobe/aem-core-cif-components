@@ -13,20 +13,25 @@
  ******************************************************************************/
 import React, { useEffect, useState } from 'react';
 
-//import { useCheckoutState } from '../checkoutContext';
+import { useCheckoutState } from '../checkoutContext';
 import { useMutation } from '@apollo/react-hooks';
 import dropIn from 'braintree-web-drop-in';
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 import { func, oneOf } from 'prop-types';
 import { useFieldApi } from 'informed';
+import { useCartState } from '../../Minicart/cartContext';
 
 const CONTAINER_ID = 'braintree-dropin-container';
 
 const Braintree = props => {
-    //const [{ paymentMethod }] = useCheckoutState();
-    // Store the dropin instance somewhere, so that if I open the payment button again, it is still displayed, needs to be reset after place order?
-    const [braintreeToken, setBraintreeToken] = useState(false); // TODO: Move into checkout state, so it isn't retrieved all the time?
-    const [dropinInstance, setDropinInstance] = useState();
+    const [{ braintreeToken }, dispatch] = useCheckoutState();
+    const [{ cart }] = useCartState();
+    // TODO: Store the dropin instance somewhere, so that if I open the payment button again, it is still displayed, needs to be reset after place order?
+
+    // TODO: Store payment information in checkout context as well and display "Payment method, MasterCard ending in 44"
+
+    // TODO: How to restore dropin instance?
+    const [dropinInstance, setDropinInstance] = useState(); // This state is gone after you leave the payment form
     const [paymentMethodRequestable, setPaymentMethodRequestable] = useState(false);
     const paymentNonceField = useFieldApi('payment_nonce');
 
@@ -43,12 +48,24 @@ const Braintree = props => {
                 setDropinInstance(false);
             }
 
-            const paypal = props.accept === 'paypal';
-            let card;
-            if (props.accept !== 'card') {
-                card = false;
-            } else {
+            const amount = {
+                amount: cart.prices.grand_total.value,
+                currency: cart.prices.grand_total.currency
+            };
+
+            let paypal = false;
+            if (props.accept === 'paypal') {
+                paypal = {
+                    flow: 'checkout',
+                    ...amount
+                };
+            }
+            let card = false;
+            if (props.accept === 'card') {
                 card = {
+                    cardholderName: {
+                        required: true
+                    },
                     overrides: {
                         fields: {
                             number: {
@@ -88,7 +105,6 @@ const Braintree = props => {
     }
 
     // Request new braintree token and initialize payment form
-    // TODO: Should this be stored in the checkout state? So it's not recreated all the time
     useEffect(() => {
         if (!braintreeToken) {
             console.log('No braintree token available, requesting a new one.');
@@ -106,7 +122,7 @@ const Braintree = props => {
             return;
         }
         if (braintreeTokenData && braintreeTokenData.createBraintreeClientToken) {
-            setBraintreeToken(braintreeTokenData.createBraintreeClientToken);
+            dispatch({ type: 'setBraintreeToken', token: braintreeTokenData.createBraintreeClientToken });
         }
     }, [braintreeTokenData, braintreeTokenError]);
 

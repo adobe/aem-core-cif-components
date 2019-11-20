@@ -22,7 +22,8 @@ export const initialState = {
     shippingAddress: null,
     billingAddress: null,
     shippingMethod: null,
-    paymentMethod: null
+    paymentMethod: null,
+    braintreeToken: false
 };
 
 export const reducer = (state, action) => {
@@ -81,6 +82,11 @@ export const reducer = (state, action) => {
                 ...state,
                 paymentMethod: action.paymentMethod,
                 editing: null
+            };
+        case 'setBraintreeToken':
+            return {
+                ...state,
+                braintreeToken: action.token
             };
 
         default:

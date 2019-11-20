@@ -29,10 +29,10 @@ const PaymentProvider = () => {
         const paymentMethod = values.payment_method;
         switch (paymentMethod) {
             case 'braintree': {
-                return !nonce || nonce.length < 11 ? 'Please enter your credit card details.' : undefined;
+                return !nonce || nonce.length < 11 ? 'Please provide your credit card details.' : undefined;
             }
             case 'braintree_paypal': {
-                return !nonce || nonce.length < 11 ? 'Please enter your PayPal details.' : undefined;
+                return !nonce || nonce.length < 11 ? 'Please provide your PayPal details.' : undefined;
             }
             default: {
                 // No nonce needed for any other payment methods
