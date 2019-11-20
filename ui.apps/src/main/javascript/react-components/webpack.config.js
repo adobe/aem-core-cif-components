@@ -34,6 +34,12 @@ module.exports = {
             }
         ]
     },
+    // we have to make sure our app uses *our* version of React and not one added by some dependency
+    resolve: {
+        alias: {
+            react: path.resolve('./node_modules/react')
+        }
+    },
     devtool: 'source-map',
     mode: process.NODE_ENV || 'development'
 };

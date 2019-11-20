@@ -17,7 +17,6 @@ import { CommerceApp, Cart, AuthBar } from '@adobe/aem-core-cif-react-components
 
 const App = () => {
     const storeView = document.querySelector('body').dataset.storeView;
-    console.log(`Commerce App?`, CommerceApp);
     return (
         <CommerceApp uri={'/magento/graphql'} storeView={storeView}>
             <Cart />
