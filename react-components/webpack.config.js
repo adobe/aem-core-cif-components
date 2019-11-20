@@ -13,13 +13,19 @@
  ******************************************************************************/
 const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const pkg = require('./package.json');
+
+const libraryName = pkg.name;
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'index.js',
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'umd',
+        library: libraryName,
+        umdNamedDefine: true,
+        publicPath: '/dist/'
     },
 
     module: {
@@ -75,6 +81,12 @@ module.exports = {
     plugins: [new CleanWebpackPlugin()],
     devtool: 'source-map',
     mode: process.env.NODE_ENV || 'development',
+    resolve: {
+        alias: {
+            react: path.resolve(__dirname, './node_modules/react'),
+            'react-dom': path.resolve(__dirname, './node_modules/react-dom')
+        }
+    },
     externals: {
         react: {
             root: 'React',

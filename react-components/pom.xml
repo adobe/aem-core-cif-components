@@ -83,6 +83,19 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>npm-module-publish</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>publish</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 

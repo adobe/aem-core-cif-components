@@ -13,14 +13,14 @@
   },
   "module": "dist/index.js",
   "scripts": {
+    "prepublish": "rm -rf ./dist && npm run build",
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
     "build:clientlib": "npm run build && node build-scripts/postbuild.js",
     "test": "npm run lint && jest --coverage",
     "test:watch": "npm run lint && jest --watch"
   },
-  "dependencies": {
-    "@apollo/react-hooks": "^3.0.0",
+  "devDependencies": {
     "@magento/peregrine": "^3.0.0",
     "apollo-boost": "^0.4.3",
     "apollo-client": "^2.6.3",
@@ -34,10 +34,9 @@
     "react-feather": "^2.0.3",
     "react-router-dom": "^5.1.2",
     "react": "^16.11.0",
-    "react-dom": "^16.11.0"
-  },
-  "devDependencies": {
+    "react-dom": "^16.11.0",
     "@apollo/react-testing": "^3.0.0",
+    "@apollo/react-hooks": "^3.0.0",
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
