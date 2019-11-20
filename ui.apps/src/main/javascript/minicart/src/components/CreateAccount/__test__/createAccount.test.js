@@ -40,7 +40,7 @@ describe('<CreateAccount>', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it.skip('submits the form properly', async () => {
+    it('submits the form properly', async () => {
         const mockPerson = {
             email: 'imccoy@weretail.net',
             firstname: 'Iris',

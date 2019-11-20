@@ -23,7 +23,6 @@
                             fieldLabel="Product"
                             filter="folderOrProductOrVariant"
                             name="./product"
-                            rootPath="/var/commerce/products"
                             selectionId="combinedSku"/>
                     </content>
                 </items>
