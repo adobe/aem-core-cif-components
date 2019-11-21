@@ -1,12 +1,38 @@
 # CIF Core Components - React Components
 
-The React Components project is the code base for all the CIF Core Components built using [React](https://reactjs.org/). The following components are part of this project:
+The React Components project is the code base for all the CIF Core Components built using [React](https://reactjs.org/). The following components are exposed by this library:
 
--   Minicart
--   Checkout
--   Sign In
--   My Account
--   Password recovery (Forgot Password)
+## Components related to the shopping cart
+
+### Cart
+
+An implementation of the "minicart" component, complete with checkout experience.
+
+### CartProvider
+
+A context provider for a cart component which provides state management for cart operations
+
+### CartInitializer
+
+A component which provides cart operations such as "Add to cart" and "Remove from cart"
+
+### CheckoutProvider
+
+A context provider for a cart component which provides state management for checkout operations
+
+## Components related to user authentication / account management
+
+### AuthBar
+
+The account management components - Sign In, Forgot Password and My Account, all wrapped into one component
+
+### UserContextProvider
+
+A context provider for user operations - sign in / sign-out, create user
+
+## CommerceApp
+
+A convenience wrapper for React components, encapsulating all the required contexts to run the app
 
 ## Building the project
 
@@ -26,19 +52,8 @@ The React components access the Magento backend directly, so the calls have to b
 
 ### Building
 
-To build the components and install them without having to install the whole content package every time you can use the following command
+To build the components you can use
 
 ```
-npm run build:clientlib
+npm run build
 ```
-
-This command calls the `build-scripts/postbuild.js` script which in turn calls the [repo](https://github.com/Adobe-Marketing-Cloud/tools/tree/master/repo) tool to install the client library in AEM, so make you sure you have this tool installed.
-
-On MacOs you can install it using Homebrew
-
-```
-brew tap adobe-marketing-cloud/brews
-brew install adobe-marketing-cloud/brews/repo
-```
-
-For other operating systems consult the tool's README on Github.

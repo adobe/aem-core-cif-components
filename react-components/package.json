@@ -13,10 +13,9 @@
   },
   "module": "dist/index.js",
   "scripts": {
-    "prepublish": "rm -rf ./dist && npm run build",
+    "prepare": "rm -rf ./dist && npm run build",
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
-    "build:clientlib": "npm run build && node build-scripts/postbuild.js",
     "test": "npm run lint && jest --coverage",
     "test:watch": "npm run lint && jest --watch"
   },
