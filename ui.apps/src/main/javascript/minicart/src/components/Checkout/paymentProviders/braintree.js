@@ -17,7 +17,7 @@ import { useCheckoutState } from '../checkoutContext';
 import { useMutation } from '@apollo/react-hooks';
 import dropIn from 'braintree-web-drop-in';
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
-import { func, oneOf } from 'prop-types';
+import { oneOf } from 'prop-types';
 import { useFieldApi } from 'informed';
 import { useCartState } from '../../Minicart/cartContext';
 
@@ -43,13 +43,13 @@ const Braintree = props => {
                 setDropinInstance(false);
             }
 
-            const amount = {
-                amount: cart.prices.grand_total.value,
-                currency: cart.prices.grand_total.currency
-            };
-
             let paypal = false;
             if (props.accept === 'paypal') {
+                const amount = {
+                    amount: cart.prices.grand_total.value,
+                    currency: cart.prices.grand_total.currency
+                };
+
                 paypal = {
                     flow: 'checkout',
                     ...amount
@@ -132,8 +132,7 @@ const Braintree = props => {
 };
 
 Braintree.propTypes = {
-    accept: oneOf(['card', 'paypal']).isRequired,
-    setIsReady: func.isRequired
+    accept: oneOf(['card', 'paypal']).isRequired
 };
 
 export default Braintree;

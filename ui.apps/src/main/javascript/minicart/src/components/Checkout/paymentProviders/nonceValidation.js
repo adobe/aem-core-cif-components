@@ -11,43 +11,20 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { Text, useFormState } from 'informed';
 
-import Braintree from './braintree';
-import nonceValidation from './nonceValidation';
-
-import classes from './paymentProvider.css';
-
-const PaymentProvider = () => {
-    const formState = useFormState();
-    let child;
-
-    switch (formState.values.payment_method) {
+export default (value, values) => {
+    const nonce = value;
+    const paymentMethod = values.payment_method;
+    switch (paymentMethod) {
         case 'braintree': {
-            child = <Braintree accept="card" />;
-            break;
+            return !nonce || nonce.length < 11 ? 'Please provide your credit card details.' : undefined;
         }
-
         case 'braintree_paypal': {
-            child = <Braintree accept="paypal" />;
-            break;
+            return !nonce || nonce.length < 11 ? 'Please provide your PayPal details.' : undefined;
         }
-
         default: {
-            return null;
+            // No nonce needed for any other payment methods
+            return undefined;
         }
     }
-
-    return (
-        <div className={classes.braintree}>
-            {child}
-            <Text type="hidden" field="payment_nonce" validate={nonceValidation} />
-            {formState.errors.payment_nonce && (
-                <p className={classes.error_message}>{formState.errors.payment_nonce}</p>
-            )}
-        </div>
-    );
 };
-
-export default PaymentProvider;
