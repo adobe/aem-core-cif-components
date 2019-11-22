@@ -83,7 +83,12 @@ const UserContextProvider = props => {
             .then(({ data, error }) => {
                 if (data) {
                     const { firstname, lastname, email } = data.customer;
-                    setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
+                    setUserState({
+                        ...userState,
+                        isSignedIn: true,
+                        currentUser: { firstname, lastname, email },
+                        inProgress: false
+                    });
                 }
                 if (error) {
                     setUserState({ ...userState, isSignedIn: false });
@@ -108,7 +113,7 @@ const UserContextProvider = props => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });
+            setUserState({ ...userState, signInError: null, createAccountError: null });
         }
     }, [data, error]);
 
@@ -134,6 +139,7 @@ const UserContextProvider = props => {
     // after creating the customer we have to log them in
     useEffect(() => {
         if (createCustomerData && createCustomerData.createCustomer) {
+            setUserState({ ...userState, isCreatingCustomer: false });
             signIn({ email: createCustomerData.createCustomer.customer.email, password });
             // clear the password from the state
             setPassword(null);
@@ -141,10 +147,10 @@ const UserContextProvider = props => {
 
         if (createCustomerError) {
             let errorMessage = parseError(createCustomerError);
-            setUserState({ ...userState, createAccountError: errorMessage });
+            setUserState({ ...userState, createAccountError: errorMessage, isCreatingCustomer: false });
         }
         if (createCustomerLoading) {
-            setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
+            setUserState({ ...userState, isCreatingCustomer: true });
         }
     }, [createCustomerData, createCustomerError, createCustomerLoading]);
 
