@@ -107,16 +107,17 @@ public class ProductImpl implements Product {
         // Parse slug from URL
         String slug = parseProductSlug();
 
+        // Get MagentoGraphqlClient from the resource.
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+
         if (StringUtils.isNotBlank(slug)) {
-            // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
+            productRetriever = new ProductRetriever(magentoGraphqlClient);
             productRetriever.setIdentifier(slug);
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         } else if (!wcmMode.isDisabled()) {
             // In AEM Sites editor, load some dummy placeholder data for the component.
             try {
-                productRetriever = new ProductPlaceholderRetrieverImpl(PLACEHOLDER_DATA);
+                productRetriever = new ProductPlaceholderRetrieverImpl(magentoGraphqlClient, PLACEHOLDER_DATA);
             } catch (IOException e) {
                 LOGGER.warn("Cannot use placeholder data", e);
             }

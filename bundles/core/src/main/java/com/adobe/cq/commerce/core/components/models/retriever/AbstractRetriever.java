@@ -14,12 +14,31 @@
 
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+
 /**
  * Abstract implementation of retriever that fetches data using GraphQL.
  */
 public abstract class AbstractRetriever {
 
     private String query;
+    private MagentoGraphqlClient client;
+
+    public AbstractRetriever(MagentoGraphqlClient client) {
+        if (client == null) {
+            throw new java.lang.Error("No GraphQL client provided");
+        }
+        this.client = client;
+    }
+
+    /**
+     * Returns an instance of Magento GraphQL client.
+     *
+     * @return MagentoGraphqlClient
+     */
+    protected MagentoGraphqlClient getClient() {
+        return this.client;
+    }
 
     /**
      * Returns a fully customized query if set.

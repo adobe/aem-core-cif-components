@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.function.Consumer;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.shopify.graphql.support.AbstractQuery;
 
@@ -29,6 +30,10 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     private ProductInterface product;
     private String mediaBaseUrl;
     private String identifier;
+
+    public AbstractProductRetriever(MagentoGraphqlClient client) {
+        super(client);
+    }
 
     /**
      * Returns the product.

@@ -34,15 +34,10 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-public class ProductRetrieverImpl extends AbstractProductRetriever {
+public class ProductRetriever extends AbstractProductRetriever {
 
-    private MagentoGraphqlClient client;
-
-    public ProductRetrieverImpl(MagentoGraphqlClient client) {
-        if (client == null) {
-            throw new java.lang.Error("No GraphQL client provided");
-        }
-        this.client = client;
+    public ProductRetriever(MagentoGraphqlClient client) {
+        super(client);
     }
 
     private GraphqlResponse<Query, Error> getData() {
@@ -50,7 +45,7 @@ public class ProductRetrieverImpl extends AbstractProductRetriever {
             // Expect a slug as identifier here
             setQuery(generateQuery(getIdentifier()));
         }
-        return client.execute(getQuery());
+        return getClient().execute(getQuery());
     }
 
     @Override
