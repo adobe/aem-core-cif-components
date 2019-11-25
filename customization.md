@@ -19,9 +19,15 @@ This document describes customization of CIF Core Components on the layers of Sl
 
 1. **Use Case C**
 
-    Use a custom GraphQL schema and create a custom query to implement and extend the component.
+    Use a custom GraphQL schema that is a superset of the Magento GraphQL schema to create a custom query to implement and extend the component.
 
     *Example: Include a custom inventory system in your schema to display additional inventory information that are not present in the Magento schema.*
+
+1. **Use Case D**
+
+    Use a custom GraphQL schema that is fully custom and not a superset of the Magento GraphQL schema to create a custom query to implement and extend the component.
+
+    *Example: Include a custom order management system in your schema that replaces the existing order management schema of Magento and both APIs are not compatible.*
 
 ## Customization Layers
 1. Sightly Templates
@@ -34,11 +40,12 @@ This document describes customization of CIF Core Components on the layers of Sl
 
 | Use Case | Template | Interface | Implementation | Data Layer | Schema |
 | -------- | -------- | --------- | -------------- | ---------- | ------ |
-| A        | ✔️       | ✔️        | ❌            | ✔️          | ✔️    |
-| B        | ❌       | ❌        | ❌            | ❌          | ✔️    |
-| C        | ❌       | ❌        | ❌            | ❌          | ❌    |
+| A        | ✔️       | ✔️        | 🔶            | ✔️          | ✔️    |
+| B        | 🔶       | ❌        | 🔶            | 🔶          | ✔️    |
+| C        | 🔶       | ❌        | 🔶            | ❌          | ❌    |
+| D        | ❌       | ❌        | ❌            | ❌          | ❌    |
 
-✔️ no adaption needed, ❌adaption needed
+✔️ no adaption needed, ❌ adaption needed, 🔶 partial re-use possible
 
 ## Examples
 
@@ -188,10 +195,6 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         </form>
     </sly>
     ```
-
-### Use Case C
-
-> TO BE DONE
 
 
 

@@ -16,56 +16,19 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
 import org.apache.commons.io.IOUtils;
 
-import com.adobe.cq.commerce.core.components.models.product.ProductRetriever;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.shopify.graphql.support.AbstractQuery;
 
-public class ProductPlaceholderRetrieverImpl implements ProductRetriever {
-
-    private ProductInterface product;
-    private String mediaBaseUrl;
-
+public class ProductPlaceholderRetrieverImpl extends AbstractProductRetriever {
     public ProductPlaceholderRetrieverImpl(String placeholderPath) throws IOException {
         String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
-        product = rootQuery.getProducts().getItems().get(0);
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-    }
-
-    @Override
-    public void setQuery(String query) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ProductInterface getProduct() {
-        return product;
-    }
-
-    @Override
-    public String getMediaBaseUrl() {
-        return mediaBaseUrl;
-    }
-
-    @Override
-    public void setSlug(String slug) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
-        throw new UnsupportedOperationException();
+        setProduct(rootQuery.getProducts().getItems().get(0));
+        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
     }
 }

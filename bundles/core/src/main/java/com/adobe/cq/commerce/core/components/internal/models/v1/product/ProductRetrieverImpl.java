@@ -15,10 +15,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.product.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -34,75 +33,28 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.shopify.graphql.support.AbstractQuery;
 
-public class ProductRetrieverImpl implements ProductRetriever {
+public class ProductRetrieverImpl extends AbstractProductRetriever {
 
-    private String query;
-    private String slug;
     private MagentoGraphqlClient client;
-    private ProductInterface product;
-    private String mediaBaseUrl;
-    private Consumer<AbstractQuery<?>> productQueryHook;
-    private Consumer<AbstractQuery<?>> variantQueryHook;
 
     public ProductRetrieverImpl(MagentoGraphqlClient client) {
         if (client == null) {
             throw new java.lang.Error("No GraphQL client provided");
         }
-
         this.client = client;
     }
 
-    @Override
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    @Override
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
-        this.productQueryHook = (Consumer<AbstractQuery<?>>) productQueryHook;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
-        this.variantQueryHook = (Consumer<AbstractQuery<?>>) variantQueryHook;
-    }
-
-    @Override
-    public ProductInterface getProduct() {
-        if (product == null) {
-            populate();
-        }
-
-        return product;
-    }
-
-    @Override
-    public String getMediaBaseUrl() {
-        if (mediaBaseUrl == null) {
-            populate();
-        }
-
-        return mediaBaseUrl;
-    }
-
     private GraphqlResponse<Query, Error> getData() {
-        if (query == null) {
-            query = generateQuery(slug);
+        if (getQuery() == null) {
+            // Expect a slug as identifier here
+            setQuery(generateQuery(getIdentifier()));
         }
-
-        return client.execute(query);
+        return client.execute(getQuery());
     }
 
-    private void populate() {
+    @Override
+    protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = getData();
         Query rootQuery = response.getData();
@@ -111,11 +63,11 @@ public class ProductRetrieverImpl implements ProductRetriever {
         // TODO WORKAROUND
         // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images
         // file names but no full URLs
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
 
         // Return first product in list
         if (products.size() > 0) {
-            product = products.get(0);
+            setProduct(products.get(0));
         }
     }
 
@@ -162,8 +114,8 @@ public class ProductRetrieverImpl implements ProductRetriever {
                     .mediaType());
 
             // Apply product variant query hook
-            if (variantQueryHook != null) {
-                variantQueryHook.accept(q);
+            if (getVariantQueryHook() != null) {
+                getVariantQueryHook().accept(q);
             }
         };
     }
@@ -198,8 +150,8 @@ public class ProductRetrieverImpl implements ProductRetriever {
                         .product(generateSimpleProductQuery())));
 
             // Apply product query hook
-            if (productQueryHook != null) {
-                productQueryHook.accept(q);
+            if (getProductQueryHook() != null) {
+                getProductQueryHook().accept(q);
             }
         };
     }

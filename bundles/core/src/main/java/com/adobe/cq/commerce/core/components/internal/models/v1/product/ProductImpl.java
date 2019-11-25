@@ -41,10 +41,10 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.product.ProductRetriever;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -100,7 +100,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean loadClientPrice;
 
-    private ProductRetriever productRetriever;
+    private AbstractProductRetriever productRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -111,7 +111,7 @@ public class ProductImpl implements Product {
             // Get MagentoGraphqlClient from the resource.
             MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
-            productRetriever.setSlug(slug);
+            productRetriever.setIdentifier(slug);
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         } else if (!wcmMode.isDisabled()) {
             // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -236,7 +236,7 @@ public class ProductImpl implements Product {
     }
 
     @Override
-    public ProductRetriever getProductRetriever() {
+    public AbstractProductRetriever getProductRetriever() {
         return productRetriever;
     }
 

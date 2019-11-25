@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.product.ProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.when;
 
 public class ProductRetrieverImplTest {
 
-    private ProductRetriever retriever;
+    private ProductRetrieverImpl retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
