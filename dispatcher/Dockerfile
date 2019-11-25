@@ -14,7 +14,7 @@
 
 FROM httpd:2.4
 
-ENV DISPATCHER_VERSION 4.3.2
+ENV DISPATCHER_VERSION 4.3.3
 
 # Download and unpack dispatcher
 RUN mkdir -p /tmp/dispatcher

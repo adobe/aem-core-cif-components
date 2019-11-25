@@ -16,6 +16,7 @@
     'use strict';
 
     const selectors = {
+        navigationHeaderTitle: '.navigation__header .navHeader__title',
         navigationTrigger: '.header__primaryActions .navTrigger__root',
         navigationRoot: 'aside.navigation__root',
         shadowTreeRoot: '.categoryTree__root--shadow',
@@ -40,6 +41,9 @@
             this.backNavigationEmpty = document.querySelector(selectors.backNavigationEmpty);
             this.categoryTreeRoot = document.querySelector(selectors.categoryTreeRoot);
             this.shadowTreeRoot = document.querySelector(selectors.shadowTreeRoot);
+            this.panelTitleElement = document.querySelector(selectors.navigationHeaderTitle);
+
+            this.defaultPanelTitle = this.panelTitleElement.textContent;
 
             const backNavigationBinding = this.backNavigation.bind(this);
             const downNavigationBinding = this.downNavigation.bind(this);
@@ -52,6 +56,30 @@
                 .forEach(a => a.addEventListener('click', downNavigationBinding));
 
             this.updateDynamicElements();
+
+            // a flag that indicates that we're in the "navigation" view
+            this.navigationPaneActive = true;
+
+            this.navigationPanel.addEventListener('aem.accmg.start', () => {
+                this.setVisible(this.backNavigationButton, true);
+                this.setVisible(this.backNavigationEmpty, false);
+            });
+
+            this.navigationPanel.addEventListener('aem.accmg.step', ev => {
+                if (ev.detail.title) {
+                    this.setPanelTitle(ev.detail.title);
+                }
+            });
+
+            this.navigationPanel.addEventListener('aem.accmg.exit', () => {
+                this.setPanelTitle(this.defaultPanelTitle);
+                this.setVisible(this.backNavigationButton, false);
+                this.setVisible(this.backNavigationEmpty, true);
+            });
+        }
+
+        setPanelTitle(title) {
+            this.panelTitleElement.innerText = title;
         }
 
         showPanel() {
@@ -111,6 +139,9 @@
         backNavigation() {
             let id = this.getActiveNavigation().dataset.parent;
             this.activateNavigation(id);
+
+            const event = new CustomEvent('aem.navigation.back');
+            document.dispatchEvent(event);
         }
 
         downNavigation(event) {

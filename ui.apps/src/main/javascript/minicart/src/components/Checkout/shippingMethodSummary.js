@@ -12,12 +12,14 @@
  *
  ******************************************************************************/
 import React, { Fragment } from 'react';
-import { bool, shape, string } from 'prop-types';
+import { shape, string } from 'prop-types';
+import { useCheckoutState } from './checkoutContext';
 
 const ShippingMethodSummary = props => {
-    const { classes, hasShippingMethod, shippingMethod } = props;
+    const { classes } = props;
+    const [{ shippingMethod }] = useCheckoutState();
 
-    if (!hasShippingMethod) {
+    if (!shippingMethod) {
         return <span className={classes.informationPrompt}>Specify Shipping Method</span>;
     }
 
@@ -31,11 +33,7 @@ const ShippingMethodSummary = props => {
 ShippingMethodSummary.propTypes = {
     classes: shape({
         informationPrompt: string
-    }),
-    hasShippingMethod: bool,
-    shippingMethod: shape({
-        title: string
-    }).isRequired
+    })
 };
 
 export default ShippingMethodSummary;

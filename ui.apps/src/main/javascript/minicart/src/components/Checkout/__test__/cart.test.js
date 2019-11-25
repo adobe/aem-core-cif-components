@@ -14,13 +14,24 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import Cart from '../cart';
+import { CheckoutProvider } from '../checkoutContext';
 
 describe('<Cart />', () => {
-    it('renders the checkout button', () => {
-        const { getByRole, rerender } = render(<Cart beginCheckout={jest.fn()} ready={false} submitting={false} />);
+    it('renders the disabled checkout button', () => {
+        const { getByRole } = render(
+            <CheckoutProvider initialState={{}} reducer={state => state}>
+                <Cart ready={false} submitting={false} />
+            </CheckoutProvider>
+        );
         expect(getByRole('button').disabled).toEqual(true);
+    });
 
-        rerender(<Cart beginCheckout={jest.fn()} ready={true} submitting={false} />);
+    it('renders the active checkout button', () => {
+        const { getByRole } = render(
+            <CheckoutProvider initialState={{}} reducer={state => state}>
+                <Cart ready={true} submitting={false} />
+            </CheckoutProvider>
+        );
         expect(getByRole('button').disabled).toEqual(false);
     });
 });

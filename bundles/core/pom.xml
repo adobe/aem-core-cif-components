@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-core</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>AEM CIF Core Components - Core Bundle</name>
@@ -482,7 +482,6 @@
             <artifactId>core.wcm.components.core</artifactId>
             <scope>provided</scope>
             <version>2.5.0</version>
-            
         </dependency>
 
         <!-- CIF Dependencies -->
@@ -495,7 +494,7 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>magento-graphql</artifactId>
-            <version>3.1.0-magento232</version>
+            <version>4.0.0-magento233</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

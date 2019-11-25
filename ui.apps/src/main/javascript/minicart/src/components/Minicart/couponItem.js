@@ -11,18 +11,28 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const DEFAULT_CURRENCY_CODE = 'USD';
+import React from 'react';
+import { useCartState } from './cartContext';
+import Kebab from './kebab';
+import Section from './section';
 
-const getCurrencyCode = cart => {
-    let result;
+import classes from './couponItem.css';
 
-    try {
-        result = cart.prices.grand_total.currency;
-    } catch (error) {
-        result = DEFAULT_CURRENCY_CODE;
-    }
+const CouponItem = () => {
+    const [{ cart, removeCoupon }] = useCartState();
 
-    return result;
+    const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
+
+    return (
+        <div className={classes.root}>
+            <div className={classes.couponName}>
+                Coupon <strong>{appliedCoupon}</strong> applied.
+            </div>
+            <Kebab>
+                <Section text="Remove coupon" onClick={removeCoupon} icon="Trash" />
+            </Kebab>
+        </div>
+    );
 };
 
-export default getCurrencyCode;
+export default CouponItem;
