@@ -40,18 +40,10 @@ public class ProductRetriever extends AbstractProductRetriever {
         super(client);
     }
 
-    private GraphqlResponse<Query, Error> getData() {
-        if (getQuery() == null) {
-            // Expect a slug as identifier here
-            setQuery(generateQuery(getIdentifier()));
-        }
-        return getClient().execute(getQuery());
-    }
-
     @Override
     protected void populate() {
         // Get product list from response
-        GraphqlResponse<Query, Error> response = getData();
+        GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
         List<ProductInterface> products = rootQuery.getProducts().getItems();
 
@@ -67,10 +59,9 @@ public class ProductRetriever extends AbstractProductRetriever {
     }
 
     /* --- GraphQL queries --- */
-
-    private String generateQuery(String slug) {
-        // Create query and pass it to the product retriever
-        // Search parameters
+    @Override
+    protected String generateQuery(String slug) {
+        // Override the method here to first use a slug instead of SKU and also add the store config query
         FilterTypeInput input = new FilterTypeInput().setEq(slug);
         ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
@@ -115,7 +106,8 @@ public class ProductRetriever extends AbstractProductRetriever {
         };
     }
 
-    private ProductInterfaceQueryDefinition generateProductQuery() {
+    @Override
+    protected ProductInterfaceQueryDefinition generateProductQuery() {
         return (ProductInterfaceQuery q) -> {
             q.sku()
                 .name()

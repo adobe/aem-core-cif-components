@@ -14,10 +14,20 @@
 
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.shopify.graphql.support.AbstractQuery;
 
 /**
@@ -151,6 +161,56 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      */
     public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
         this.variantQueryHook = (Consumer<AbstractQuery<?>>) variantQueryHook;
+    }
+
+    /**
+     * Generate a complete product GraphQL query with a filter for the given product identifer.
+     *
+     * @param identifier Product identifier, usually SKU or slug
+     * @return GraphQL query as string
+     */
+    protected String generateQuery(String identifier) {
+        FilterTypeInput input = new FilterTypeInput().setEq(identifier);
+        ProductFilterInput filter = new ProductFilterInput().setSku(input);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+
+        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
+        return Operations.query(query -> query
+            .products(searchArgs, queryArgs)).toString();
+    }
+
+    /**
+     * Execute the GraphQL query with the GraphQL client.
+     *
+     * @return GraphqlResponse object
+     */
+    protected GraphqlResponse<Query, Error> executeQuery() {
+        if (getQuery() == null) {
+            setQuery(generateQuery(getIdentifier()));
+        }
+        return getClient().execute(getQuery());
+    }
+
+    /**
+     * Generates the partial ProductInterface query part of the GraphQL product query.
+     *
+     * @return ProductInterface query definition
+     */
+    protected ProductInterfaceQueryDefinition generateProductQuery() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void populate() {
+        // Get product list from response
+        GraphqlResponse<Query, Error> response = executeQuery();
+        Query rootQuery = response.getData();
+        List<ProductInterface> products = rootQuery.getProducts().getItems();
+
+        // Return first product in list
+        if (products.size() > 0) {
+            setProduct(products.get(0));
+        }
     }
 
 }
