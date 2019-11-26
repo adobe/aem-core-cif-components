@@ -24,15 +24,16 @@ import { useCartState } from '../Minicart/cartContext';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
+import MUTATION_SET_BRAINTREE_PAYMENT_METHOD from '../../queries/mutation_set_braintree_payment_method.graphql';
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
 import { useCheckoutState } from './checkoutContext';
+
 /**
  * The EditableForm component renders the actual edit forms for the sections
  * within the form.
  */
-
 const EditableForm = props => {
     const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
@@ -40,6 +41,11 @@ const EditableForm = props => {
     const countries = useCountries();
 
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+
+    const [
+        setBraintreePaymentMethodOnCart,
+        { data: braintreePaymentResult, error: braintreePaymentError }
+    ] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
 
     const [setPaymentMethodOnCart, { data: paymentResult, error: paymentError }] = useMutation(
         MUTATION_SET_PAYMENT_METHOD
@@ -55,8 +61,21 @@ const EditableForm = props => {
 
     const [setGuestEmailOnCart, { data: guestEmailResult, error: guestEmailError }] = useMutation(MUTATION_SET_EMAIL);
 
-    if (error || paymentError || billingAddressError || shippingMethodsError || guestEmailError) {
-        let errorObj = error || paymentError || billingAddressError || shippingMethodsError || guestEmailError;
+    if (
+        error ||
+        billingAddressError ||
+        paymentError ||
+        braintreePaymentError ||
+        shippingMethodsError ||
+        guestEmailError
+    ) {
+        let errorObj =
+            error ||
+            billingAddressError ||
+            shippingMethodsError ||
+            guestEmailError ||
+            paymentError ||
+            braintreePaymentError;
         cartDispatch({ type: 'error', error: errorObj.toString() });
     }
 
@@ -96,7 +115,28 @@ const EditableForm = props => {
                 });
             }
 
-            setPaymentMethodOnCart({ variables: { cartId: cartId, paymentMethodCode: args.paymentMethod.code } });
+            // Store payment method in state, so we can later use it in the
+            // payment step of the checkout.
+            dispatch({ type: 'setPaymentMethod', paymentMethod: args.paymentMethod });
+
+            switch (args.paymentMethod.code) {
+                case 'braintree':
+                case 'braintree_paypal': {
+                    setBraintreePaymentMethodOnCart({
+                        variables: {
+                            cartId: cartId,
+                            paymentMethodCode: args.paymentMethod.code,
+                            nonce: args.paymentNonce
+                        }
+                    });
+                    break;
+                }
+                default: {
+                    setPaymentMethodOnCart({
+                        variables: { cartId: cartId, paymentMethodCode: args.paymentMethod.code }
+                    });
+                }
+            }
         },
         [dispatch]
     );
@@ -121,11 +161,12 @@ const EditableForm = props => {
         });
     }
 
-    if (paymentResult && billingAddressResult) {
+    if (billingAddressResult) {
+        const combinedPaymentResult = paymentResult || braintreePaymentResult;
         dispatch({
             type: 'setPaymentMethod',
             paymentMethod: {
-                ...paymentResult.setPaymentMethodOnCart.cart.selected_payment_method
+                ...combinedPaymentResult.setPaymentMethodOnCart.cart.selected_payment_method
             }
         });
         dispatch({

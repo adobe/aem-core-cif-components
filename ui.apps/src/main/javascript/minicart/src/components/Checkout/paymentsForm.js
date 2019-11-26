@@ -20,6 +20,7 @@ import Select from '../Select';
 import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
+import PaymentProvider from './paymentProviders/paymentProvider';
 
 import classes from './paymentsForm.css';
 import { isRequired, hasLengthExactly, validateRegionCode, validateEmail } from '../../utils/formValidators';
@@ -43,7 +44,6 @@ const PaymentsForm = props => {
     });
 
     const initialPaymentMethodState = !initialPaymentMethod ? paymentMethodsItems[0].value : initialPaymentMethod.code;
-
     const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
@@ -87,6 +87,7 @@ const PaymentsForm = props => {
             }
             submit({
                 paymentMethod: paymentMethods.find(v => v.code === formValues['payment_method']),
+                paymentNonce: formValues['payment_nonce'],
                 billingAddress
             });
         },
@@ -163,6 +164,7 @@ const PaymentsForm = props => {
                 <div className={classes.braintree}>
                     <Select items={paymentMethodsItems} field="payment_method" initialValue={paymentMethod} />
                 </div>
+                <PaymentProvider />
                 <div className={classes.address_check}>
                     <Checkbox
                         field="addresses_same"
