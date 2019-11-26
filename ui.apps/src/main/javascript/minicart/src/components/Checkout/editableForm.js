@@ -120,16 +120,7 @@ const EditableForm = props => {
             dispatch({ type: 'setPaymentMethod', paymentMethod: args.paymentMethod });
 
             switch (args.paymentMethod.code) {
-                case 'braintree': {
-                    setBraintreePaymentMethodOnCart({
-                        variables: {
-                            cartId: cartId,
-                            paymentMethodCode: args.paymentMethod.code,
-                            nonce: args.paymentNonce
-                        }
-                    });
-                    break;
-                }
+                case 'braintree':
                 case 'braintree_paypal': {
                     setBraintreePaymentMethodOnCart({
                         variables: {
