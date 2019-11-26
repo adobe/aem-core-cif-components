@@ -120,6 +120,11 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     @Override
+    public AbstractProductRetriever getProductRetriever() {
+        return productRetriever;
+    }
+
+    @Override
     public String getImage() {
         if (getProduct() != null) {
             return getProduct().getImage().getUrl();
