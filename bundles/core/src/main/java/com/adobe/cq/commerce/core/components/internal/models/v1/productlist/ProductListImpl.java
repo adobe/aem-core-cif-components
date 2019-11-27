@@ -117,7 +117,7 @@ public class ProductListImpl implements ProductList {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(categoryId);
                 categoryRetriever.setCurrentPage(navPageCursor);
-                categoryRetriever.setPageSize(this.navPageSize);
+                categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
                 try {
                     categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
