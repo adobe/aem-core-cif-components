@@ -25,8 +25,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 
-public class ProductPlaceholderRetriever extends AbstractProductRetriever {
-    public ProductPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
+class ProductPlaceholderRetriever extends AbstractProductRetriever {
+    ProductPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
         super(client);
 
         String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);

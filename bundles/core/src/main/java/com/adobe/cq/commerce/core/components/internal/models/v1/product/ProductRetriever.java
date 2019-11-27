@@ -34,9 +34,9 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-public class ProductRetriever extends AbstractProductRetriever {
+class ProductRetriever extends AbstractProductRetriever {
 
-    public ProductRetriever(MagentoGraphqlClient client) {
+    ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
