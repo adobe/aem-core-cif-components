@@ -15,16 +15,16 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
-public class ProductRetrieverImpl extends ProductRetriever {
+public class ProductRetriever extends AbstractProductRetriever {
 
-    public ProductRetrieverImpl(MagentoGraphqlClient client) {
+    public ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 

@@ -32,7 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -59,7 +59,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private Page productPage;
     private Pair<String, String> combinedSku;
 
-    private ProductRetriever productRetriever;
+    private AbstractProductRetriever productRetriever;
 
     @PostConstruct
     protected void initModel() {
@@ -79,7 +79,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
             // Fetch product data
             if (magentoGraphqlClient != null) {
-                productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
+                productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(combinedSku.getLeft());
             }
         }
@@ -121,7 +121,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     @Override
-    public ProductRetriever getProductRetriever() {
+    public AbstractProductRetriever getProductRetriever() {
         return productRetriever;
     }
 

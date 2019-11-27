@@ -44,7 +44,7 @@ import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -100,7 +100,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean loadClientPrice;
 
-    private ProductRetriever productRetriever;
+    private AbstractProductRetriever productRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -111,13 +111,13 @@ public class ProductImpl implements Product {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         if (StringUtils.isNotBlank(slug)) {
-            productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
+            productRetriever = new ProductRetriever(magentoGraphqlClient);
             productRetriever.setIdentifier(slug);
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         } else if (!wcmMode.isDisabled()) {
             // In AEM Sites editor, load some dummy placeholder data for the component.
             try {
-                productRetriever = new ProductPlaceholderRetrieverImpl(magentoGraphqlClient, PLACEHOLDER_DATA);
+                productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
             } catch (IOException e) {
                 LOGGER.warn("Cannot use placeholder data", e);
             }
@@ -237,7 +237,7 @@ public class ProductImpl implements Product {
     }
 
     @Override
-    public ProductRetriever getProductRetriever() {
+    public AbstractProductRetriever getProductRetriever() {
         return productRetriever;
     }
 

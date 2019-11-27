@@ -17,7 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -34,9 +34,9 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-public class ProductRetrieverImpl extends ProductRetriever {
+public class ProductRetriever extends AbstractProductRetriever {
 
-    public ProductRetrieverImpl(MagentoGraphqlClient client) {
+    public ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 

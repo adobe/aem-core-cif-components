@@ -80,7 +80,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     import com.adobe.cq.commerce.core.components.models.product.Product;
     import com.adobe.cq.commerce.core.components.models.product.Variant;
     import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
-    import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+    import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
     import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
     import com.shopify.graphql.support.SchemaViolationError;
     import org.apache.sling.api.SlingHttpServletRequest;

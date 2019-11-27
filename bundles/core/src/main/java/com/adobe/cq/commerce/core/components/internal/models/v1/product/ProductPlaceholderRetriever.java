@@ -20,13 +20,13 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 
-public class ProductPlaceholderRetrieverImpl extends ProductRetriever {
-    public ProductPlaceholderRetrieverImpl(MagentoGraphqlClient client, String placeholderPath) throws IOException {
+public class ProductPlaceholderRetriever extends AbstractProductRetriever {
+    public ProductPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
         super(client);
 
         String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);

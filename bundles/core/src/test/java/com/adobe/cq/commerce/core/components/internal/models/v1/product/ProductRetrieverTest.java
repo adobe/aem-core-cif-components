@@ -32,9 +32,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProductRetrieverImplImplTest {
+public class ProductRetrieverTest {
 
-    private ProductRetrieverImpl retriever;
+    private ProductRetriever retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
@@ -48,7 +48,7 @@ public class ProductRetrieverImplImplTest {
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
         when(mockQuery.getStoreConfig().getSecureBaseMediaUrl()).thenReturn("");
 
-        retriever = new ProductRetrieverImpl(mockClient);
+        retriever = new ProductRetriever(mockClient);
     }
 
     @Test

@@ -34,7 +34,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 /**
  * Abstract implementation of product retriever that loads product data using GraphQL.
  */
-public abstract class ProductRetriever extends Retriever {
+public abstract class AbstractProductRetriever extends AbstractRetriever {
 
     /**
      * Lambda that extends the product query.
@@ -62,7 +62,7 @@ public abstract class ProductRetriever extends Retriever {
      */
     protected String identifier;
 
-    public ProductRetriever(MagentoGraphqlClient client) {
+    public AbstractProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 

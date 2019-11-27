@@ -22,7 +22,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 /**
  * Abstract implementation of retriever that fetches data using GraphQL.
  */
-public abstract class Retriever {
+public abstract class AbstractRetriever {
 
     /**
      * Generated or fully customized query.
@@ -34,7 +34,7 @@ public abstract class Retriever {
      */
     protected MagentoGraphqlClient client;
 
-    public Retriever(MagentoGraphqlClient client) {
+    public AbstractRetriever(MagentoGraphqlClient client) {
         if (client == null) {
             throw new java.lang.Error("No GraphQL client provided");
         }
