@@ -101,7 +101,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     /**
      * Returns the category identifier. This is usually the category id.
      *
-     * @return Product identifer
+     * @return Product identifier
      */
     protected String getIdentifier() {
         return this.identifier;
@@ -113,11 +113,14 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @param identifier Product identifier
      */
     public void setIdentifier(String identifier) {
+        // Whenever the identifier is updated, clear the cache.
+        setCategory(null);
+        setQuery(null);
         this.identifier = identifier;
     }
 
     /**
-     * Returns the category query hook lamdba.
+     * Returns the category query hook lambda.
      *
      * @return Lambda that extends the category query
      */

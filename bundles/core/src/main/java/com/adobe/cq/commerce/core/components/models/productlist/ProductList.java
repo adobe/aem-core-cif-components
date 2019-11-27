@@ -108,6 +108,11 @@ public interface ProductList {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Returns in instance of the category retriever for fetching category data via GraphQL.
+     *
+     * @return category retriever instance
+     */
     default AbstractCategoryRetriever getCategoryRetriever() {
         throw new UnsupportedOperationException();
     }

@@ -31,16 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -63,10 +57,13 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @ScriptVariable
     private ValueMap properties;
 
-    public List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
+    private List<String> categoryIds;
+
+    private List<CategoryInterface> categories;
 
     private Page categoryPage;
-    private MagentoGraphqlClient magentoGraphqlClient;
+
+    private AbstractCategoryRetriever categoryRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -74,57 +71,44 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         if (categoryPage == null) {
             categoryPage = currentPage;
         }
-        String[] categoryIds = properties.get(CATEGORY_ID_PROP, String[].class);
-        if (categoryIds != null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            fetchCategoriesData(Arrays.asList(categoryIds));
+        String[] categoryIdArray = properties.get(CATEGORY_ID_PROP, String[].class);
+
+        if (categoryIdArray != null) {
+            categoryIds = Arrays.asList(categoryIdArray);
+            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
         } else {
             LOGGER.debug("There are no categories configured for CategoryList Component.");
         }
     }
 
     private void fetchCategoriesData(List<String> categoryIds) {
+        // CIF-930 raised to fix Alias support in category query ,
+        // this will be improved rather than using a loop.
+        categories = new ArrayList<>();
         categoryIds.forEach(categoryId -> {
-            // CIF-930 raised to fix Alias support in category query ,
-            // this will be improved rather than using a loop.
-            fetchCategoryData(categoryId);
-        });
-    }
+            categoryRetriever.setIdentifier(categoryId);
+            CategoryTree category = (CategoryTree) categoryRetriever.getCategory();
 
-    private CategoryTreeQueryDefinition generateCategoryQuery() {
-        return q -> q.id().name().urlPath().position().image();
-    }
-
-    private StoreConfigQueryDefinition generateStoreConfigQuery() {
-        return q -> q.secureBaseMediaUrl();
-    }
-
-    private void fetchCategoryData(String categoryId) {
-        // Construct GraphQL query
-        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(categoryId));
-        String queryString = Operations.query(
-            query -> query.category(searchArgs, generateCategoryQuery()).storeConfig(generateStoreConfigQuery()))
-            .toString();
-
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-        if (response != null) {
-            Query rootQuery = response.getData();
-
-            // GraphQL API provides only file name of the category image, but not the full url.
-            // We need the mediaBaseUrl to construct the full path.
-            String mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-
-            CategoryTree category = rootQuery.getCategory();
             category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
             if (category.getImage() != null) {
-                category.setImage(mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage());
+                category.setImage(categoryRetriever.getMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + category.getImage());
             }
+
             categories.add(category);
-        }
+        });
     }
 
     @Override
     public List<CategoryInterface> getCategories() {
+        if (categories == null) {
+            fetchCategoriesData(categoryIds);
+        }
         return categories;
+    }
+
+    @Override
+    public AbstractCategoryRetriever getCategoryRetriever() {
+        return this.categoryRetriever;
     }
 }
