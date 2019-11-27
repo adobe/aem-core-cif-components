@@ -44,7 +44,7 @@ import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -100,7 +100,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean loadClientPrice;
 
-    private AbstractProductRetriever productRetriever;
+    private ProductRetriever productRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -111,7 +111,7 @@ public class ProductImpl implements Product {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         if (StringUtils.isNotBlank(slug)) {
-            productRetriever = new ProductRetriever(magentoGraphqlClient);
+            productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
             productRetriever.setIdentifier(slug);
             loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         } else if (!wcmMode.isDisabled()) {
@@ -127,43 +127,43 @@ public class ProductImpl implements Product {
 
     @Override
     public Boolean getFound() {
-        return productRetriever.getProduct() != null;
+        return productRetriever.fetchProduct() != null;
     }
 
     @Override
     public String getName() {
-        return productRetriever.getProduct().getName();
+        return productRetriever.fetchProduct().getName();
     }
 
     @Override
     public String getDescription() {
-        return safeDescription(productRetriever.getProduct());
+        return safeDescription(productRetriever.fetchProduct());
     }
 
     @Override
     public String getSku() {
-        return productRetriever.getProduct().getSku();
+        return productRetriever.fetchProduct().getSku();
     }
 
     @Override
     public String getCurrency() {
-        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
+        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
     }
 
     @Override
     public Double getPrice() {
-        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getValue();
+        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getValue();
     }
 
     @Override
     public Boolean getInStock() {
-        return ProductStockStatus.IN_STOCK.equals(productRetriever.getProduct().getStockStatus());
+        return ProductStockStatus.IN_STOCK.equals(productRetriever.fetchProduct().getStockStatus());
     }
 
     @Override
     public Boolean isConfigurable() {
         if (configurable == null) {
-            configurable = productRetriever.getProduct() instanceof ConfigurableProduct;
+            configurable = productRetriever.fetchProduct() instanceof ConfigurableProduct;
         }
 
         return configurable;
@@ -187,14 +187,14 @@ public class ProductImpl implements Product {
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
 
     @Override
     public List<Asset> getAssets() {
-        return filterAndSortAssets(productRetriever.getProduct().getMediaGalleryEntries());
+        return filterAndSortAssets(productRetriever.fetchProduct().getMediaGalleryEntries());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class ProductImpl implements Product {
             return Collections.emptyList();
         }
 
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
 
         List<VariantAttribute> optionList = new ArrayList<>();
         for (ConfigurableProductOptions option : product.getConfigurableOptions()) {
@@ -237,7 +237,7 @@ public class ProductImpl implements Product {
     }
 
     @Override
-    public AbstractProductRetriever getProductRetriever() {
+    public ProductRetriever getProductRetriever() {
         return productRetriever;
     }
 
@@ -284,7 +284,7 @@ public class ProductImpl implements Product {
         // TODO WORKAROUND
         // Magento media gallery only provides that file path but not a full image url yet, we need the mediaBaseUrl
         // from the storeConfig to construct the full image url
-        asset.setPath(productRetriever.getMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
+        asset.setPath(productRetriever.fetchMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
 
         return asset;
     }
@@ -328,7 +328,7 @@ public class ProductImpl implements Product {
             // Alternatively, the locale can potentially be retrieved via
             // the storeConfig query introduced with Magento 2.3.1
             Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.getProduct() != null ? getCurrency() : null);
+            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.fetchProduct() != null ? getCurrency() : null);
         }
         return priceFormatter;
     }

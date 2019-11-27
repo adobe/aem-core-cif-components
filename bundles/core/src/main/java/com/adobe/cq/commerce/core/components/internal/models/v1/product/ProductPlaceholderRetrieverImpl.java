@@ -20,18 +20,24 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 
-public class ProductPlaceholderRetrieverImpl extends AbstractProductRetriever {
+public class ProductPlaceholderRetrieverImpl extends ProductRetriever {
     public ProductPlaceholderRetrieverImpl(MagentoGraphqlClient client, String placeholderPath) throws IOException {
         super(client);
 
         String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
-        setProduct(rootQuery.getProducts().getItems().get(0));
-        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
+        product = rootQuery.getProducts().getItems().get(0);
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+    }
+
+    @Override
+    protected ProductInterfaceQueryDefinition generateProductQuery() {
+        return null;
     }
 }

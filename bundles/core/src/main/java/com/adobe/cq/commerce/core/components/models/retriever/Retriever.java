@@ -15,38 +15,30 @@
 package com.adobe.cq.commerce.core.components.models.retriever;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 /**
  * Abstract implementation of retriever that fetches data using GraphQL.
  */
-public abstract class AbstractRetriever {
+public abstract class Retriever {
 
-    private String query;
-    private MagentoGraphqlClient client;
+    /**
+     * Generated or fully customized query.
+     */
+    protected String query;
 
-    public AbstractRetriever(MagentoGraphqlClient client) {
+    /**
+     * Instance of the Magento GraphQL client.
+     */
+    protected MagentoGraphqlClient client;
+
+    public Retriever(MagentoGraphqlClient client) {
         if (client == null) {
             throw new java.lang.Error("No GraphQL client provided");
         }
         this.client = client;
-    }
-
-    /**
-     * Returns an instance of Magento GraphQL client.
-     *
-     * @return MagentoGraphqlClient
-     */
-    protected MagentoGraphqlClient getClient() {
-        return this.client;
-    }
-
-    /**
-     * Returns a fully customized query if set.
-     *
-     * @return GraphQL query
-     */
-    protected String getQuery() {
-        return this.query;
     }
 
     /**
@@ -61,8 +53,13 @@ public abstract class AbstractRetriever {
     /**
      * Executes the query and parses the response.
      */
-    protected void populate() {
-        throw new UnsupportedOperationException();
-    }
+    abstract protected void populate();
+
+    /**
+     * Execute the GraphQL query with the GraphQL client.
+     *
+     * @return GraphqlResponse object
+     */
+    abstract protected GraphqlResponse<Query, Error> executeQuery();
 
 }

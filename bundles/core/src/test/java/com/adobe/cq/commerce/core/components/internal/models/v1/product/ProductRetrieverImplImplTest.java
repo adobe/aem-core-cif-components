@@ -23,9 +23,7 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -34,9 +32,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProductRetrieverTest {
+public class ProductRetrieverImplImplTest {
 
-    private ProductRetriever retriever;
+    private ProductRetrieverImpl retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
@@ -50,23 +48,23 @@ public class ProductRetrieverTest {
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
         when(mockQuery.getStoreConfig().getSecureBaseMediaUrl()).thenReturn("");
 
-        retriever = new ProductRetriever(mockClient);
+        retriever = new ProductRetrieverImpl(mockClient);
     }
 
     @Test
     public void testQueryOverride() {
         String sampleQuery = "{ my_sample_query }";
         retriever.setQuery(sampleQuery);
-        retriever.getProduct();
+        retriever.fetchProduct();
 
         verify(mockClient, times(1)).execute(sampleQuery);
     }
 
     @Test
     public void testExtendedProductQuery() {
-        retriever.extendProductQueryWith((ProductInterfaceQuery p) -> p.createdAt()
+        retriever.extendProductQueryWith(p -> p.createdAt()
             .addCustomSimpleField("is_returnable"));
-        retriever.getProduct();
+        retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
@@ -77,9 +75,9 @@ public class ProductRetrieverTest {
 
     @Test
     public void testExtendedVariantQuery() {
-        retriever.extendVariantQueryWith((SimpleProductQuery p) -> p.weight()
+        retriever.extendVariantQueryWith(p -> p.weight()
             .addCustomSimpleField("volume"));
-        retriever.getProduct();
+        retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());

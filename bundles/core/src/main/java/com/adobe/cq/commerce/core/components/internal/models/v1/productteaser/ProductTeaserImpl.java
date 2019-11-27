@@ -32,7 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -59,7 +59,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private Page productPage;
     private Pair<String, String> combinedSku;
 
-    private AbstractProductRetriever productRetriever;
+    private ProductRetriever productRetriever;
 
     @PostConstruct
     protected void initModel() {
@@ -79,14 +79,14 @@ public class ProductTeaserImpl implements ProductTeaser {
 
             // Fetch product data
             if (magentoGraphqlClient != null) {
-                productRetriever = new ProductRetriever(magentoGraphqlClient);
+                productRetriever = new ProductRetrieverImpl(magentoGraphqlClient);
                 productRetriever.setIdentifier(combinedSku.getLeft());
             }
         }
     }
 
     private ProductInterface getProduct() {
-        ProductInterface baseProduct = productRetriever.getProduct();
+        ProductInterface baseProduct = productRetriever.fetchProduct();
         if (combinedSku.getRight() != null && baseProduct instanceof ConfigurableProduct) {
             ConfigurableProduct configurableProduct = (ConfigurableProduct) baseProduct;
             SimpleProduct variant = findVariant(configurableProduct, combinedSku.getRight());
@@ -114,13 +114,14 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getUrl() {
         if (getProduct() != null) {
-            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.getProduct().getUrlKey(), combinedSku.getRight());
+            // Get slug from base product
+            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
         }
         return null;
     }
 
     @Override
-    public AbstractProductRetriever getProductRetriever() {
+    public ProductRetriever getProductRetriever() {
         return productRetriever;
     }
 
@@ -160,7 +161,7 @@ public class ProductTeaserImpl implements ProductTeaser {
             // Alternatively, the locale can potentially be retrieved via
             // the storeConfig query introduced with Magento 2.3.1
             Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.getProduct() != null ? getCurrency() : null);
+            priceFormatter = Utils.buildPriceFormatter(locale, getProduct() != null ? getCurrency() : null);
         }
         return priceFormatter;
     }

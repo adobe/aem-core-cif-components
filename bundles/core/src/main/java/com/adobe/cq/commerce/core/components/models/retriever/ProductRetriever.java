@@ -23,34 +23,55 @@ import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.shopify.graphql.support.AbstractQuery;
 
 /**
  * Abstract implementation of product retriever that loads product data using GraphQL.
  */
-public abstract class AbstractProductRetriever extends AbstractRetriever {
+public abstract class ProductRetriever extends Retriever {
 
-    private Consumer<AbstractQuery<?>> productQueryHook;
-    private Consumer<AbstractQuery<?>> variantQueryHook;
-    private ProductInterface product;
-    private String mediaBaseUrl;
-    private String identifier;
+    /**
+     * Lambda that extends the product query.
+     */
+    protected Consumer<ProductInterfaceQuery> productQueryHook;
 
-    public AbstractProductRetriever(MagentoGraphqlClient client) {
+    /**
+     * Lambda that extends the product variant query.
+     */
+    protected Consumer<SimpleProductQuery> variantQueryHook;
+
+    /**
+     * Product instance. Is only available after populate() was called.
+     */
+    protected ProductInterface product;
+
+    /**
+     * Media base url from the Magento store info. Is only available after populate() was called.
+     */
+    protected String mediaBaseUrl;
+
+    /**
+     * Identifier of the product that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String identifier;
+
+    public ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
     /**
-     * Returns the product.
+     * Executes the GraphQL query and returns a product. For subsequent calls of this method, a cached product is returned.
      *
      * @return Product
      */
-    public ProductInterface getProduct() {
+    public ProductInterface fetchProduct() {
         if (this.product == null) {
             populate();
         }
@@ -58,20 +79,12 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
-     * Stores a product.
-     *
-     * @param product Product
-     */
-    protected void setProduct(ProductInterface product) {
-        this.product = product;
-    }
-
-    /**
-     * Returns the media base url from the store info.
+     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
+     * returned.
      *
      * @return Media base url
      */
-    public String getMediaBaseUrl() {
+    public String fetchMediaBaseUrl() {
         if (this.mediaBaseUrl == null) {
             populate();
         }
@@ -79,39 +92,15 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
-     * Stores the media base url.
-     *
-     * @param mediaBaseUrl Media base url
-     */
-    protected void setMediaBaseUrl(String mediaBaseUrl) {
-        this.mediaBaseUrl = mediaBaseUrl;
-    }
-
-    /**
-     * Returns the product identifier. This is usually either the slug or SKU.
-     *
-     * @return Product identifer
-     */
-    protected String getIdentifier() {
-        return this.identifier;
-    }
-
-    /**
-     * Set the identifier of the product that should be fetched. This is usually either the slug or SKU.
+     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
+     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
      *
      * @param identifier Product identifier
      */
     public void setIdentifier(String identifier) {
+        product = null;
+        query = null;
         this.identifier = identifier;
-    }
-
-    /**
-     * Returns the product query hook lambda.
-     *
-     * @return Lambda that extends the product query
-     */
-    protected Consumer<AbstractQuery<?>> getProductQueryHook() {
-        return this.productQueryHook;
     }
 
     /**
@@ -128,19 +117,9 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * </pre>
      *
      * @param productQueryHook Lambda that extends the product query
-     * @param <U> Query class that implements AbstractQuery
      */
-    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
-        this.productQueryHook = (Consumer<AbstractQuery<?>>) productQueryHook;
-    }
-
-    /**
-     * Returns the product variant query hook lambda.
-     *
-     * @return Lambda that extends the product variant query
-     */
-    protected Consumer<AbstractQuery<?>> getVariantQueryHook() {
-        return this.variantQueryHook;
+    public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
+        this.productQueryHook = productQueryHook;
     }
 
     /**
@@ -157,14 +136,13 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * </pre>
      *
      * @param variantQueryHook Lambda that extends the product variant query
-     * @param <U> Query class that implements AbstractQuery
      */
-    public <U extends AbstractQuery<?>> void extendVariantQueryWith(Consumer<U> variantQueryHook) {
-        this.variantQueryHook = (Consumer<AbstractQuery<?>>) variantQueryHook;
+    public void extendVariantQueryWith(Consumer<SimpleProductQuery> variantQueryHook) {
+        this.variantQueryHook = variantQueryHook;
     }
 
     /**
-     * Generate a complete product GraphQL query with a filter for the given product identifer.
+     * Generate a complete product GraphQL query with a filter for the given product identifier.
      *
      * @param identifier Product identifier, usually SKU or slug
      * @return GraphQL query as string
@@ -185,19 +163,10 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * @return GraphqlResponse object
      */
     protected GraphqlResponse<Query, Error> executeQuery() {
-        if (getQuery() == null) {
-            setQuery(generateQuery(getIdentifier()));
+        if (query == null) {
+            query = generateQuery(identifier);
         }
-        return getClient().execute(getQuery());
-    }
-
-    /**
-     * Generates the partial ProductInterface query part of the GraphQL product query.
-     *
-     * @return ProductInterface query definition
-     */
-    protected ProductInterfaceQueryDefinition generateProductQuery() {
-        throw new UnsupportedOperationException();
+        return client.execute(query);
     }
 
     @Override
@@ -209,8 +178,15 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
 
         // Return first product in list
         if (products.size() > 0) {
-            setProduct(products.get(0));
+            product = products.get(0);
         }
     }
+
+    /**
+     * Generates the partial ProductInterface query part of the GraphQL product query.
+     *
+     * @return ProductInterface query definition
+     */
+    abstract protected ProductInterfaceQueryDefinition generateProductQuery();
 
 }

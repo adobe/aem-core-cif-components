@@ -80,7 +80,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
     import com.adobe.cq.commerce.core.components.models.product.Product;
     import com.adobe.cq.commerce.core.components.models.product.Variant;
     import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
-    import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+    import com.adobe.cq.commerce.core.components.models.retriever.ProductRetriever;
     import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
     import com.shopify.graphql.support.SchemaViolationError;
     import org.apache.sling.api.SlingHttpServletRequest;
@@ -100,7 +100,7 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
         @Self @Via(type = ResourceSuperType.class)
         private Product product;
 
-        private AbstractProductRetriever productRetriever;
+        private ProductRetriever productRetriever;
 
         @PostConstruct
         public void initModel() {
@@ -108,17 +108,17 @@ Please refer to [Delegation Pattern for Sling Models](https://github.com/adobe/a
 
             // Pass your custom partial query to the ProductRetriever. This class will automatically take care of executing your query as soon
             // as you try to access any product property.
-            productRetriever.extendProductQueryWith((ProductInterfaceQuery p) ->
+            productRetriever.extendProductQueryWith(p ->
                 p.createdAt()
                 .addCustomSimpleField("is_returnable"));
         }
 
         @Override public String getCreatedAt() {
-            return productRetriever.getProduct().getCreatedAt();
+            return productRetriever.fetchProduct().getCreatedAt();
         }
 
         @Override public String isReturnable() throws SchemaViolationError {
-            return productRetriever.getProduct().getAsString("is_returnable");
+            return productRetriever.fetchProduct().getAsString("is_returnable");
         }
 
         @Override public Boolean getFound() {
