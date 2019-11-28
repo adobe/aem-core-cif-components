@@ -1,0 +1,9 @@
+.root {
+    display: grid;
+    grid-gap: 0 1rem;
+    grid-template-columns: 1fr min-content;
+    margin: 0 1.5rem;
+}
+.couponName {
+    line-height: 1.5rem;
+}

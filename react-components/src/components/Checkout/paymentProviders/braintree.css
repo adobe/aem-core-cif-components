@@ -1,0 +1,10 @@
+.root {
+    display: block;
+    width: 100%;
+    min-height: 356px;
+    padding: 0 1.5rem;
+}
+
+.heading {
+    composes: heading from '../flow.css';
+}
