@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<CouponForm /> renders an error 1`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <input
+      name="couponCode"
+      placeholder="Enter your code"
+      type="text"
+      value=""
+    />
+    <button
+      class="root_highPriority"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Apply Coupon
+        </span>
+      </span>
+    </button>
+    <div
+      class="error"
+    >
+      Invalid coupon!
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`<CouponForm /> renders the component 1`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <input
+      name="couponCode"
+      placeholder="Enter your code"
+      type="text"
+      value=""
+    />
+    <button
+      class="root_highPriority"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Apply Coupon
+        </span>
+      </span>
+    </button>
+  </form>
+</DocumentFragment>
+`;

@@ -66,7 +66,8 @@ const Overview = props => {
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'paymentMethod' });
                     }}
-                    showEditIcon={!!paymentMethod}>
+                    showEditIcon={!!paymentMethod}
+                    disabled={!shippingAddress}>
                     <PaymentMethodSummary classes={classes} />
                 </Section>
                 <Section
@@ -74,7 +75,8 @@ const Overview = props => {
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'shippingMethod' });
                     }}
-                    showEditIcon={!!shippingMethod}>
+                    showEditIcon={!!shippingMethod}
+                    disabled={!shippingAddress}>
                     <ShippingMethodSummary classes={classes} />
                 </Section>
                 <Section label="TOTAL">

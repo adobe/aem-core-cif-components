@@ -20,6 +20,8 @@ import classes from './body.css';
 import ProductList from './productList';
 import CartOptions from './cartOptions';
 import Error from './error';
+import CouponForm from './couponForm';
+import CouponItem from './couponItem';
 
 import { useCartState } from './cartContext';
 
@@ -46,9 +48,12 @@ const Body = () => {
     }
 
     const cartItems = cart.items;
+    const couponFragment = !cart.applied_coupon ? <CouponForm /> : <CouponItem />;
+
     return (
         <div className={classes.root}>
             <ProductList cartItems={cartItems} />
+            {couponFragment}
         </div>
     );
 };

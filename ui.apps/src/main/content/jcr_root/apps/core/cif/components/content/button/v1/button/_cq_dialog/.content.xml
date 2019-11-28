@@ -103,7 +103,6 @@
                                                                 sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                                 fieldLabel="Product"
                                                                 name="./productSlug"
-                                                                rootPath="/var/commerce/products"
                                                                 selectionId="slug"/>
                                                         </items>
                                                     </well>
@@ -126,7 +125,6 @@
                                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                                 fieldLabel="Category"
                                                                 name="./categoryId"
-                                                                rootPath="/var/commerce/products"
                                                                 selectionId="id"/>
                                                         </items>
                                                     </well>

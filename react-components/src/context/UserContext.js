@@ -14,6 +14,7 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useCookieValue } from '../utils/hooks';
 import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import parseError from '../utils/parseError';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
@@ -21,21 +22,6 @@ import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.gra
 import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
 
 const UserContext = React.createContext();
-
-const parseError = error => {
-    if (error.networkError) {
-        return error.networkError;
-    }
-
-    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-        return error.graphQLErrors[0].message;
-    }
-    if (error.message) {
-        return error.message;
-    }
-
-    return JSON.stringify(error);
-};
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
@@ -97,7 +83,12 @@ const UserContextProvider = props => {
             .then(({ data, error }) => {
                 if (data) {
                     const { firstname, lastname, email } = data.customer;
-                    setUserState({ ...userState, currentUser: { firstname, lastname, email }, inProgress: false });
+                    setUserState({
+                        ...userState,
+                        isSignedIn: true,
+                        currentUser: { firstname, lastname, email },
+                        inProgress: false
+                    });
                 }
                 if (error) {
                     setUserState({ ...userState, isSignedIn: false });
@@ -122,7 +113,7 @@ const UserContextProvider = props => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
             setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, isSignedIn: true, signInError: null, createAccountError: null });
+            setUserState({ ...userState, signInError: null, createAccountError: null });
         }
     }, [data, error]);
 
@@ -148,6 +139,7 @@ const UserContextProvider = props => {
     // after creating the customer we have to log them in
     useEffect(() => {
         if (createCustomerData && createCustomerData.createCustomer) {
+            setUserState({ ...userState, isCreatingCustomer: false });
             signIn({ email: createCustomerData.createCustomer.customer.email, password });
             // clear the password from the state
             setPassword(null);
@@ -155,10 +147,10 @@ const UserContextProvider = props => {
 
         if (createCustomerError) {
             let errorMessage = parseError(createCustomerError);
-            setUserState({ ...userState, createAccountError: errorMessage });
+            setUserState({ ...userState, createAccountError: errorMessage, isCreatingCustomer: false });
         }
         if (createCustomerLoading) {
-            setUserState({ ...userState, isCreatingCustomer: createCustomerLoading });
+            setUserState({ ...userState, isCreatingCustomer: true });
         }
     }, [createCustomerData, createCustomerError, createCustomerLoading]);
 
