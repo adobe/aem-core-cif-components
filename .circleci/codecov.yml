@@ -14,6 +14,12 @@ coverage:
         threshold: null
         base: auto
         flags: karma
+      jest:
+        enabled: true
+        target: 50%
+        threshold: null
+        base: auto
+        flags: jest
     patch:
       default: off
       unittests:
@@ -28,7 +34,12 @@ coverage:
         threshold: null
         base: auto
         flags: karma
-
+      jest:
+        enabled: true
+        target: 50%
+        threshold: null
+        base: auto
+        flags: jest
 flags:
   unittests:
     paths:
@@ -36,3 +47,6 @@ flags:
   karma:
     paths:
       - ui.apps/
+  jest:
+    paths:
+      - react-components/

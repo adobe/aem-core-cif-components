@@ -182,28 +182,43 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-install-minicart</id>
+                        <id>npm-install-react-components</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/src/main/javascript/minicart</workingDirectory>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build-minicart</id>
+                        <id>npm-link-react-components</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>npm</executable>
-                            <workingDirectory>${basedir}/src/main/javascript/minicart</workingDirectory>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
+                            <arguments>
+                                <argument>link</argument>
+                                <argument>@adobe/aem-core-cif-react-components</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-build-react-components</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
@@ -222,7 +237,7 @@
                             <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/common/dist</directory>
                         </fileset>
                         <fileset>
-                            <directory>src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart/clientlib/dist</directory>
+                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist</directory>
                         </fileset>
                     </filesets>
                 </configuration>
