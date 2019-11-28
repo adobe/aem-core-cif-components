@@ -18,34 +18,63 @@ import java.util.function.Consumer;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.shopify.graphql.support.AbstractQuery;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
-    private Consumer<AbstractQuery<?>> categoryQueryHook;
-    private Consumer<AbstractQuery<?>> productQueryHook;
-    private CategoryInterface category;
-    private String mediaBaseUrl;
-    private String identifier;
-    private int currentPage = 0;
-    private int pageSize = 6;
+    /**
+     * Lambda that extends the category query.
+     */
+    protected Consumer<CategoryTreeQuery> categoryQueryHook;
+
+    /**
+     * Lambda that extends the product query.
+     */
+    protected Consumer<ProductInterfaceQuery> productQueryHook;
+
+    /**
+     * Category instance. Is only available after populate() was called.
+     */
+    protected CategoryInterface category;
+
+    /**
+     * Media base url from the Magento store info. Is only available after populate() was called.
+     */
+    protected String mediaBaseUrl;
+
+    /**
+     * Identifier of the category that should be fetched. Which kind of identifier is used (usually id) is implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String identifier;
+
+    /**
+     * Current page for pagination of products in a category.
+     */
+    protected int currentPage = 1;
+
+    /**
+     * Page size for pagination of products in a category.
+     */
+    protected int pageSize = 6;
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
     /**
-     * Returns the category.
+     * Executes the GraphQL query and returns a category. For subsequent calls of this method, a cached category is returned.
      *
      * @return Category
      */
-    public CategoryInterface getCategory() {
+    public CategoryInterface fetchCategory() {
         if (this.category == null) {
             populate();
         }
@@ -53,79 +82,46 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
-     * Stores a category.
-     *
-     * @param category Category
-     */
-    protected void setCategory(CategoryInterface category) {
-        this.category = category;
-    }
-
-    /**
-     * Returns the media base url from the store info.
+     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
+     * returned.
      *
      * @return Media base url
      */
-    public String getMediaBaseUrl() {
+    public String fetchMediaBaseUrl() {
         if (this.mediaBaseUrl == null) {
             populate();
         }
         return this.mediaBaseUrl;
     }
 
+    /**
+     * Sets the current page for product pagination.
+     *
+     * @param currentPage
+     */
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
     }
 
-    protected int getCurrentPage() {
-        return this.currentPage;
-    }
-
+    /**
+     * Sets the page size for product pagination.
+     *
+     * @param pageSize
+     */
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
 
-    protected int getPageSize() {
-        return this.pageSize;
-    }
-
     /**
-     * Stores the media base url.
+     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually id) is implementation
+     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
      *
-     * @param mediaBaseUrl Media base url
-     */
-    protected void setMediaBaseUrl(String mediaBaseUrl) {
-        this.mediaBaseUrl = mediaBaseUrl;
-    }
-
-    /**
-     * Returns the category identifier. This is usually the category id.
-     *
-     * @return Product identifier
-     */
-    protected String getIdentifier() {
-        return this.identifier;
-    }
-
-    /**
-     * Set the identifier of the category that should be fetched. This is usually the category id.
-     *
-     * @param identifier Product identifier
+     * @param identifier Category identifier
      */
     public void setIdentifier(String identifier) {
-        // Whenever the identifier is updated, clear the cache.
-        setCategory(null);
-        setQuery(null);
+        category = null;
+        query = null;
         this.identifier = identifier;
-    }
-
-    /**
-     * Returns the category query hook lambda.
-     *
-     * @return Lambda that extends the category query
-     */
-    protected Consumer<AbstractQuery<?>> getCategoryQueryHook() {
-        return this.categoryQueryHook;
     }
 
     /**
@@ -136,25 +132,15 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      *
      * <pre>
      * {@code
-     * categoryRetriever.extendCategoryQueryWith((CategoryInterfaceQuery p) -> p
+     * categoryRetriever.extendCategoryQueryWith(p -> p
      *     .level());
      * }
      * </pre>
      *
      * @param categoryQueryHook Lambda that extends the category query
-     * @param <U> Query class that implements AbstractQuery
      */
-    public <U extends AbstractQuery<?>> void extendCategoryQueryWith(Consumer<U> categoryQueryHook) {
-        this.categoryQueryHook = (Consumer<AbstractQuery<?>>) categoryQueryHook;
-    }
-
-    /**
-     * Returns the product query hook lambda.
-     *
-     * @return Lambda that extends the product query
-     */
-    protected Consumer<AbstractQuery<?>> getProductQueryHook() {
-        return this.productQueryHook;
+    public void extendCategoryQueryWith(Consumer<CategoryTreeQuery> categoryQueryHook) {
+        this.categoryQueryHook = categoryQueryHook;
     }
 
     /**
@@ -165,17 +151,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      *
      * <pre>
      * {@code
-     * categoryRetriever.extendProductQueryWith((ProductInterfaceQuery p) -> p
+     * categoryRetriever.extendProductQueryWith(p -> p
      *     .createdAt()
      *     .addCustomSimpleField("is_returnable"));
      * }
      * </pre>
      *
      * @param productQueryHook Lambda that extends the product query
-     * @param <U> Query class that implements AbstractQuery
      */
-    public <U extends AbstractQuery<?>> void extendProductQueryWith(Consumer<U> productQueryHook) {
-        this.productQueryHook = (Consumer<AbstractQuery<?>>) productQueryHook;
+    public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
+        this.productQueryHook = productQueryHook;
     }
 
     /**
@@ -192,9 +177,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      *
      * @return CategoryTree query definition
      */
-    protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        throw new UnsupportedOperationException();
-    }
+    abstract protected CategoryTreeQueryDefinition generateCategoryQuery();
 
     /**
      * Generates a complete category GraphQL query with a selection of the given category identifier.
@@ -217,10 +200,10 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphqlResponse object
      */
     protected GraphqlResponse<Query, Error> executeQuery() {
-        if (getQuery() == null) {
-            setQuery(generateQuery(getIdentifier()));
+        if (query == null) {
+            setQuery(generateQuery(identifier));
         }
-        return getClient().execute(getQuery());
+        return client.execute(query);
     }
 
     @Override
@@ -228,8 +211,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
 
-        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
-        setCategory(rootQuery.getCategory());
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+        category = rootQuery.getCategory();
     }
 
 }

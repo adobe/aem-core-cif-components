@@ -22,8 +22,6 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -57,34 +55,34 @@ public class CategoryRetrieverTest {
     public void testQueryOverride() {
         String sampleQuery = "{ my_sample_query }";
         retriever.setQuery(sampleQuery);
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         verify(mockClient, times(1)).execute(sampleQuery);
     }
 
     @Test
     public void testExtendCategoryQuery() {
-        retriever.extendCategoryQueryWith((CategoryTreeQuery c) -> c.childrenCount()
+        retriever.extendCategoryQueryWith(c -> c.childrenCount()
             .addCustomSimpleField("level"));
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:0,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}}},total_count},children_count,level_custom_:level},storeConfig{secure_base_media_url}}";
+        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}}},total_count},children_count,level_custom_:level},storeConfig{secure_base_media_url}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
     @Test
     public void testExtendProductQuery() {
-        retriever.extendProductQueryWith((ProductInterfaceQuery p) -> p.createdAt()
+        retriever.extendProductQueryWith(p -> p.createdAt()
             .addCustomSimpleField("is_returnable"));
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:0,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}},created_at,is_returnable_custom_:is_returnable},total_count}},storeConfig{secure_base_media_url}}";
+        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}},created_at,is_returnable_custom_:is_returnable},total_count}},storeConfig{secure_base_media_url}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 

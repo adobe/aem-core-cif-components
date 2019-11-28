@@ -132,7 +132,7 @@ public class ProductListImpl implements ProductList {
     @Nullable
     @Override
     public String getTitle() {
-        return categoryRetriever.getCategory().getName() != null ? categoryRetriever.getCategory().getName() : StringUtils.EMPTY;
+        return categoryRetriever.fetchCategory().getName() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
     }
 
     @Override
@@ -142,7 +142,7 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getTotalCount() {
-        return categoryRetriever.getCategory().getProducts().getTotalCount();
+        return categoryRetriever.fetchCategory().getProducts().getTotalCount();
     }
 
     @Override
@@ -167,10 +167,10 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public String getImage() {
-        if (StringUtils.isEmpty(categoryRetriever.getCategory().getImage())) {
+        if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
             return StringUtils.EMPTY;
         }
-        return categoryRetriever.getMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.getCategory().getImage();
+        return categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.fetchCategory().getImage();
     }
 
     @Override
@@ -204,8 +204,8 @@ public class ProductListImpl implements ProductList {
     public Collection<ProductListItem> getProducts() {
         Collection<ProductListItem> listItems = new ArrayList<>();
 
-        if (categoryRetriever.getCategory() != null) {
-            final CategoryProducts products = categoryRetriever.getCategory().getProducts();
+        if (categoryRetriever.fetchCategory() != null) {
+            final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
                     listItems.add(new ProductListItemImpl(

@@ -110,7 +110,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * 
      * <pre>
      * {@code
-     * productRetriever.extendProductQueryWith((ProductInterfaceQuery p) -> p
+     * productRetriever.extendProductQueryWith(p -> p
      *     .createdAt()
      *     .addCustomSimpleField("is_returnable"));
      * }
@@ -129,7 +129,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * 
      * <pre>
      * {@code
-     * productRetriever.extendVariantQueryWith((SimpleProductQuery s) -> s
+     * productRetriever.extendVariantQueryWith(s -> s
      *     .createdAt()
      *     .addCustomSimpleField("is_returnable"));
      * }

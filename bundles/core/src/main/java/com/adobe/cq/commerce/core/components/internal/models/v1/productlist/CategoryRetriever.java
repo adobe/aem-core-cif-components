@@ -21,9 +21,9 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 
-public class CategoryRetriever extends AbstractCategoryRetriever {
+class CategoryRetriever extends AbstractCategoryRetriever {
 
-    public CategoryRetriever(MagentoGraphqlClient client) {
+    CategoryRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
@@ -44,8 +44,8 @@ public class CategoryRetriever extends AbstractCategoryRetriever {
                 .urlKey()
                 .price(generatePriceQuery());
 
-            if (getProductQueryHook() != null) {
-                getProductQueryHook().accept(q);
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
             }
         };
     }
@@ -53,8 +53,8 @@ public class CategoryRetriever extends AbstractCategoryRetriever {
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
         CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-            .currentPage(getCurrentPage())
-            .pageSize(getPageSize());
+            .currentPage(currentPage)
+            .pageSize(pageSize);
 
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = (CategoryTreeQuery q) -> {
             q.id()
@@ -64,8 +64,8 @@ public class CategoryRetriever extends AbstractCategoryRetriever {
                 .productCount()
                 .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
 
-            if (getCategoryQueryHook() != null) {
-                getCategoryQueryHook().accept(q);
+            if (categoryQueryHook != null) {
+                categoryQueryHook.accept(q);
             }
         };
 

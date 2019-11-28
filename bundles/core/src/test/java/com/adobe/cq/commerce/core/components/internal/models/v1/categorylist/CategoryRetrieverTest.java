@@ -22,7 +22,6 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -56,16 +55,16 @@ public class CategoryRetrieverTest {
     public void testQueryOverride() {
         String sampleQuery = "{ my_sample_query }";
         retriever.setQuery(sampleQuery);
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         verify(mockClient, times(1)).execute(sampleQuery);
     }
 
     @Test
     public void testExtendCategoryQuery() {
-        retriever.extendCategoryQueryWith((CategoryTreeQuery c) -> c.childrenCount()
+        retriever.extendCategoryQueryWith(c -> c.childrenCount()
             .addCustomSimpleField("level"));
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
@@ -76,13 +75,13 @@ public class CategoryRetrieverTest {
 
     @Test
     public void testChangingIdentifier() {
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         final ArgumentCaptor<String> firstCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(firstCaptor.capture());
 
         retriever.setIdentifier("6");
-        retriever.getCategory();
+        retriever.fetchCategory();
 
         final ArgumentCaptor<String> secondCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(2)).execute(secondCaptor.capture());

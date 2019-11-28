@@ -88,11 +88,11 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         categories = new ArrayList<>();
         categoryIds.forEach(categoryId -> {
             categoryRetriever.setIdentifier(categoryId);
-            CategoryTree category = (CategoryTree) categoryRetriever.getCategory();
+            CategoryTree category = (CategoryTree) categoryRetriever.fetchCategory();
 
             category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
             if (category.getImage() != null) {
-                category.setImage(categoryRetriever.getMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + category.getImage());
+                category.setImage(categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + category.getImage());
             }
 
             categories.add(category);

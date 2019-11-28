@@ -20,17 +20,23 @@ import org.apache.commons.io.IOUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 
-public class CategoryPlaceholderRetriever extends AbstractCategoryRetriever {
-    public CategoryPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
+class CategoryPlaceholderRetriever extends AbstractCategoryRetriever {
+    CategoryPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
         super(client);
 
         String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
-        setCategory(rootQuery.getCategory());
-        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
+        category = rootQuery.getCategory();
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
+    }
+
+    @Override
+    protected CategoryTreeQueryDefinition generateCategoryQuery() {
+        return null;
     }
 }

@@ -15,25 +15,24 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-public class CategoryRetriever extends AbstractCategoryRetriever {
-    public CategoryRetriever(MagentoGraphqlClient client) {
+class CategoryRetriever extends AbstractCategoryRetriever {
+    CategoryRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        CategoryTreeQueryDefinition categoryTreeQueryDefinition = (CategoryTreeQuery q) -> {
+        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> {
             q.id()
                 .name()
                 .urlPath()
                 .position()
                 .image();
 
-            if (getCategoryQueryHook() != null) {
-                getCategoryQueryHook().accept(q);
+            if (categoryQueryHook != null) {
+                categoryQueryHook.accept(q);
             }
         };
 
