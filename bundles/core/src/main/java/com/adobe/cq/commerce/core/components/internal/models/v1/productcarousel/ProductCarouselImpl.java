@@ -120,6 +120,11 @@ public class ProductCarouselImpl implements ProductCarousel {
         return carouselProductList;
     }
 
+    @Override
+    public AbstractProductsRetriever getProductsRetriever() {
+        return productsRetriever;
+    }
+
     protected SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
         List<ConfigurableVariant> variants = configurableProduct.getVariants();
         if (variants == null || variants.isEmpty()) {
