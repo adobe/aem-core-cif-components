@@ -132,7 +132,7 @@ public class ProductListImpl implements ProductList {
     @Nullable
     @Override
     public String getTitle() {
-        return categoryRetriever.fetchCategory().getName() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
+        return categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
     }
 
     @Override
