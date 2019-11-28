@@ -34,9 +34,9 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-public class ProductRetriever extends AbstractProductRetriever {
+class ProductRetriever extends AbstractProductRetriever {
 
-    public ProductRetriever(MagentoGraphqlClient client) {
+    ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
@@ -50,11 +50,11 @@ public class ProductRetriever extends AbstractProductRetriever {
         // TODO WORKAROUND
         // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images
         // file names but no full URLs
-        setMediaBaseUrl(rootQuery.getStoreConfig().getSecureBaseMediaUrl());
+        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
 
         // Return first product in list
         if (products.size() > 0) {
-            setProduct(products.get(0));
+            product = products.get(0);
         }
     }
 
@@ -100,8 +100,8 @@ public class ProductRetriever extends AbstractProductRetriever {
                     .mediaType());
 
             // Apply product variant query hook
-            if (getVariantQueryHook() != null) {
-                getVariantQueryHook().accept(q);
+            if (variantQueryHook != null) {
+                variantQueryHook.accept(q);
             }
         };
     }
@@ -137,8 +137,8 @@ public class ProductRetriever extends AbstractProductRetriever {
                         .product(generateSimpleProductQuery())));
 
             // Apply product query hook
-            if (getProductQueryHook() != null) {
-                getProductQueryHook().accept(q);
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
             }
         };
     }

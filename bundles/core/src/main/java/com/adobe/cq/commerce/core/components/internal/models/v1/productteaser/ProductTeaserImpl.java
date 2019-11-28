@@ -86,7 +86,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     private ProductInterface getProduct() {
-        ProductInterface baseProduct = productRetriever.getProduct();
+        ProductInterface baseProduct = productRetriever.fetchProduct();
         if (combinedSku.getRight() != null && baseProduct instanceof ConfigurableProduct) {
             ConfigurableProduct configurableProduct = (ConfigurableProduct) baseProduct;
             SimpleProduct variant = findVariant(configurableProduct, combinedSku.getRight());
@@ -114,7 +114,8 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getUrl() {
         if (getProduct() != null) {
-            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.getProduct().getUrlKey(), combinedSku.getRight());
+            // Get slug from base product
+            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
         }
         return null;
     }
@@ -160,7 +161,7 @@ public class ProductTeaserImpl implements ProductTeaser {
             // Alternatively, the locale can potentially be retrieved via
             // the storeConfig query introduced with Magento 2.3.1
             Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.getProduct() != null ? getCurrency() : null);
+            priceFormatter = Utils.buildPriceFormatter(locale, getProduct() != null ? getCurrency() : null);
         }
         return priceFormatter;
     }

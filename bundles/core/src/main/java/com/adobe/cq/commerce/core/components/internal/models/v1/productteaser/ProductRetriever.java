@@ -22,9 +22,9 @@ import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
-public class ProductRetriever extends AbstractProductRetriever {
+class ProductRetriever extends AbstractProductRetriever {
 
-    public ProductRetriever(MagentoGraphqlClient client) {
+    ProductRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
@@ -45,8 +45,8 @@ public class ProductRetriever extends AbstractProductRetriever {
                 .price(generatePriceQuery());
 
             // Apply product variant query hook
-            if (getVariantQueryHook() != null) {
-                getVariantQueryHook().accept(q);
+            if (variantQueryHook != null) {
+                variantQueryHook.accept(q);
             }
         };
     }
@@ -63,8 +63,8 @@ public class ProductRetriever extends AbstractProductRetriever {
                         .product(generateSimpleProductQuery())));
 
             // Apply product query hook
-            if (getProductQueryHook() != null) {
-                getProductQueryHook().accept(q);
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
             }
         };
     }

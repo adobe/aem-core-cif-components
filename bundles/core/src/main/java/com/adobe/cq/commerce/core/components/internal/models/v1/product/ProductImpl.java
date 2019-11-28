@@ -117,7 +117,7 @@ public class ProductImpl implements Product {
         } else if (!wcmMode.isDisabled()) {
             // In AEM Sites editor, load some dummy placeholder data for the component.
             try {
-                productRetriever = new ProductPlaceholderRetrieverImpl(magentoGraphqlClient, PLACEHOLDER_DATA);
+                productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
             } catch (IOException e) {
                 LOGGER.warn("Cannot use placeholder data", e);
             }
@@ -127,43 +127,43 @@ public class ProductImpl implements Product {
 
     @Override
     public Boolean getFound() {
-        return productRetriever.getProduct() != null;
+        return productRetriever.fetchProduct() != null;
     }
 
     @Override
     public String getName() {
-        return productRetriever.getProduct().getName();
+        return productRetriever.fetchProduct().getName();
     }
 
     @Override
     public String getDescription() {
-        return safeDescription(productRetriever.getProduct());
+        return safeDescription(productRetriever.fetchProduct());
     }
 
     @Override
     public String getSku() {
-        return productRetriever.getProduct().getSku();
+        return productRetriever.fetchProduct().getSku();
     }
 
     @Override
     public String getCurrency() {
-        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
+        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
     }
 
     @Override
     public Double getPrice() {
-        return productRetriever.getProduct().getPrice().getRegularPrice().getAmount().getValue();
+        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getValue();
     }
 
     @Override
     public Boolean getInStock() {
-        return ProductStockStatus.IN_STOCK.equals(productRetriever.getProduct().getStockStatus());
+        return ProductStockStatus.IN_STOCK.equals(productRetriever.fetchProduct().getStockStatus());
     }
 
     @Override
     public Boolean isConfigurable() {
         if (configurable == null) {
-            configurable = productRetriever.getProduct() instanceof ConfigurableProduct;
+            configurable = productRetriever.fetchProduct() instanceof ConfigurableProduct;
         }
 
         return configurable;
@@ -187,14 +187,14 @@ public class ProductImpl implements Product {
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
 
     @Override
     public List<Asset> getAssets() {
-        return filterAndSortAssets(productRetriever.getProduct().getMediaGalleryEntries());
+        return filterAndSortAssets(productRetriever.fetchProduct().getMediaGalleryEntries());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class ProductImpl implements Product {
             return Collections.emptyList();
         }
 
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.getProduct();
+        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
 
         List<VariantAttribute> optionList = new ArrayList<>();
         for (ConfigurableProductOptions option : product.getConfigurableOptions()) {
@@ -284,7 +284,7 @@ public class ProductImpl implements Product {
         // TODO WORKAROUND
         // Magento media gallery only provides that file path but not a full image url yet, we need the mediaBaseUrl
         // from the storeConfig to construct the full image url
-        asset.setPath(productRetriever.getMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
+        asset.setPath(productRetriever.fetchMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
 
         return asset;
     }
@@ -328,7 +328,7 @@ public class ProductImpl implements Product {
             // Alternatively, the locale can potentially be retrieved via
             // the storeConfig query introduced with Magento 2.3.1
             Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.getProduct() != null ? getCurrency() : null);
+            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.fetchProduct() != null ? getCurrency() : null);
         }
         return priceFormatter;
     }
