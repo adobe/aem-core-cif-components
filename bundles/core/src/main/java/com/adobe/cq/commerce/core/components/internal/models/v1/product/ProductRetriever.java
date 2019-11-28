@@ -23,13 +23,11 @@ import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -82,7 +80,7 @@ class ProductRetriever extends AbstractProductRetriever {
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
-        return (SimpleProductQuery q) -> {
+        return q -> {
             q.sku()
                 .name()
                 .description(d -> d.html())
@@ -108,7 +106,7 @@ class ProductRetriever extends AbstractProductRetriever {
 
     @Override
     protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return (ProductInterfaceQuery q) -> {
+        return q -> {
             q.sku()
                 .name()
                 .description(d -> d.html())

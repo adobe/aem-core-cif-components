@@ -35,21 +35,12 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
@@ -67,10 +58,11 @@ public class ProductCarouselImpl implements ProductCarousel {
     @Inject
     private Page currentPage;
 
-    private List<ProductInterface> productList;
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private List<String> baseProductSkus;
+
+    private AbstractProductsRetriever productsRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -86,57 +78,16 @@ public class ProductCarouselImpl implements ProductCarousel {
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus.stream().map(s -> SiteNavigation.toProductSkus(s).getLeft()).collect(Collectors.toList());
-        productList = fetchProductFromGraphql(magentoGraphqlClient, baseProductSkus);
-        Collections.sort(productList, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
-    }
 
-    private ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
-    }
-
-    private ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q
-            .sku()
-            .name()
-            .thumbnail(t -> t.label().url())
-            .urlKey()
-            .price(generatePriceQuery())
-            .onConfigurableProduct(cp -> cp
-                .variants(v -> v
-                    .product(generateSimpleProductQuery())));
-    }
-
-    private SimpleProductQueryDefinition generateSimpleProductQuery() {
-        return q -> q
-            .sku()
-            .name()
-            .thumbnail(t -> t.label().url())
-            .price(generatePriceQuery());
-    }
-
-    private List<ProductInterface> fetchProductFromGraphql(MagentoGraphqlClient client, List<String> productSkus) {
-        FilterTypeInput input = new FilterTypeInput().setIn(productSkus);
-        ProductFilterInput filter = new ProductFilterInput().setSku(input);
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-        String queryString = Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
-
-        GraphqlResponse<Query, com.adobe.cq.commerce.magento.graphql.gson.Error> response = magentoGraphqlClient.execute(queryString);
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
-        if (products.size() > 0) {
-            return products;
-        }
-        return null;
+        productsRetriever = new ProductsRetriever(magentoGraphqlClient);
+        productsRetriever.setIdentifiers(baseProductSkus);
     }
 
     @Override
     public List<ProductListItem> getProducts() {
+        List<ProductInterface> productList = productsRetriever.fetchProducts();
+        Collections.sort(productList, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
+
         List<ProductListItem> carouselProductList = new ArrayList<>();
         if (!productList.isEmpty()) {
             for (ProductInterface product : productList) {
@@ -167,6 +118,11 @@ public class ProductCarouselImpl implements ProductCarousel {
             }
         }
         return carouselProductList;
+    }
+
+    @Override
+    public AbstractProductsRetriever getProductsRetriever() {
+        return productsRetriever;
     }
 
     protected SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
