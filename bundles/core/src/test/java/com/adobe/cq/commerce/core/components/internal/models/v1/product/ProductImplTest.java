@@ -228,7 +228,7 @@ public class ProductImplTest {
     @Test
     public void testSimpleProduct() {
         productModel = context.request().adaptTo(ProductImpl.class);
-        Whitebox.setInternalState(productModel, "product", new SimpleProduct());
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", new SimpleProduct());
         Assert.assertTrue(productModel.getVariants().isEmpty());
         Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
     }
@@ -238,7 +238,7 @@ public class ProductImplTest {
         productModel = context.request().adaptTo(ProductImpl.class);
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
-        Whitebox.setInternalState(productModel, "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
         Assert.assertNull(productModel.getDescription());
     }
 
@@ -250,7 +250,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(null);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel, "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
 
         Assert.assertNull(productModel.getDescription());
     }
@@ -264,7 +264,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel, "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }
@@ -278,7 +278,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel, "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }

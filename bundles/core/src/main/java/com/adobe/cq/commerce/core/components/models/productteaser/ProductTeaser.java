@@ -16,6 +16,8 @@ package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+
 /**
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
@@ -44,10 +46,17 @@ public interface ProductTeaser {
     String getImage();
 
     /**
-     * Return the url of the product page for this {@code ProductTeaser}
+     * Returns the url of the product page for this {@code ProductTeaser}
      *
      * @return the url of the product page of the configured product or {@code null}
      */
     String getUrl();
+
+    /**
+     * Returns in instance of the product retriever for fetching product data via GraphQL.
+     *
+     * @return product retriever instance
+     */
+    AbstractProductRetriever getProductRetriever();
 
 }
