@@ -15,16 +15,15 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -38,21 +37,10 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -90,19 +78,17 @@ public class ProductListImpl implements ProductList {
     private Page currentPage;
 
     private Page productPage;
-    private CategoryInterface category;
     private boolean showTitle;
     private boolean showImage;
     private boolean loadClientPrice;
-    private MagentoGraphqlClient magentoGraphqlClient;
-
-    private String mediaBaseUrl;
 
     private int navPageCursor = 1;
-    private int navPagePrev;
-    private int navPageNext;
     private int navPageSize = PAGE_SIZE_DEFAULT;
-    private int[] navPages;
+    private Integer navPagePrev;
+    private Integer navPageNext;
+    private List<Integer> navPages;
+
+    private AbstractCategoryRetriever categoryRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -120,29 +106,33 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+
         // Parse category id from URL
-        final Integer categoryId = parseCategoryId();
+        final String categoryId = parseCategoryId();
 
         // get GraphQL client and query data
-        if (categoryId != null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            if (magentoGraphqlClient != null) {
-                category = fetchCategory(categoryId);
+        if (magentoGraphqlClient != null) {
+            if (categoryId != null) {
+                categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
+                categoryRetriever.setIdentifier(categoryId);
+                categoryRetriever.setCurrentPage(navPageCursor);
+                categoryRetriever.setPageSize(navPageSize);
+            } else if (!wcmMode.isDisabled()) {
+                try {
+                    categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
+                } catch (IOException e) {
+                    LOGGER.warn("Cannot use placeholder data", e);
+                }
+                loadClientPrice = false;
             }
-        } else if (!wcmMode.isDisabled()) {
-            useEditModePlaceholderData();
-            loadClientPrice = false;
-        }
-
-        if (category != null) {
-            setupPagination();
         }
     }
 
     @Nullable
     @Override
     public String getTitle() {
-        return category != null ? category.getName() : StringUtils.EMPTY;
+        return categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
     }
 
     @Override
@@ -152,7 +142,7 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getTotalCount() {
-        return category.getProducts().getTotalCount();
+        return categoryRetriever.fetchCategory().getProducts().getTotalCount();
     }
 
     @Override
@@ -162,6 +152,10 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getNextNavPage() {
+        if (navPageNext == null) {
+            this.setupPagination();
+        }
+
         if ((getTotalCount() % navPageSize) == 0) {
             // if currentNavPage is already at last, set navPageNext to currentNavPage
             navPageNext = (navPageCursor < (getTotalCount() / navPageSize)) ? (navPageCursor + 1) : navPageCursor;
@@ -173,10 +167,10 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public String getImage() {
-        if (StringUtils.isEmpty(category.getImage())) {
+        if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
             return StringUtils.EMPTY;
         }
-        return mediaBaseUrl + CATEGORY_IMAGE_FOLDER + category.getImage();
+        return categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.fetchCategory().getImage();
     }
 
     @Override
@@ -191,11 +185,17 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getPreviousNavPage() {
+        if (navPagePrev == null) {
+            this.setupPagination();
+        }
         return navPagePrev;
     }
 
     @Override
-    public int[] getPageList() {
+    public List<Integer> getPageList() {
+        if (navPages == null) {
+            this.setupPagination();
+        }
         return navPages;
     }
 
@@ -204,8 +204,8 @@ public class ProductListImpl implements ProductList {
     public Collection<ProductListItem> getProducts() {
         Collection<ProductListItem> listItems = new ArrayList<>();
 
-        if (category != null) {
-            final CategoryProducts products = category.getProducts();
+        if (categoryRetriever.fetchCategory() != null) {
+            final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
                     listItems.add(new ProductListItemImpl(
@@ -223,92 +223,22 @@ public class ProductListImpl implements ProductList {
         return listItems;
     }
 
-    /* --- GraphQL queries --- */
-    private ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
-    }
-
-    private ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q
-            .id()
-            .sku()
-            .name()
-            .smallImage(i -> i.url())
-            .urlKey()
-            .price(generatePriceQuery());
-    }
-
-    private CategoryTreeQueryDefinition generateProductListQuery() {
-
-        CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-            .currentPage(navPageCursor)
-            .pageSize(navPageSize);
-        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
-            .id()
-            .description()
-            .name()
-            .image()
-            .productCount()
-            .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
-        return categoryTreeQueryDefinition;
-    }
-
-    private StoreConfigQueryDefinition generateStoreConfigQuery() {
-        return q -> q.secureBaseMediaUrl();
+    @Override
+    public AbstractCategoryRetriever getCategoryRetriever() {
+        return this.categoryRetriever;
     }
 
     /* --- Utility methods --- */
-
-    /**
-     * Retrieve and return the category data from backend.
-     *
-     * @param categoryId the category id of category we request
-     * @return {@link CategoryInterface}
-     */
-    private CategoryInterface fetchCategory(int categoryId) {
-        LOGGER.debug("Trying to load category data for {}", categoryId);
-
-        // Construct GraphQL query
-        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
-
-        CategoryTreeQueryDefinition queryArgs = generateProductListQuery();
-        String queryString = Operations.query(query -> query
-            .category(searchArgs, queryArgs)
-            .storeConfig(generateStoreConfigQuery())).toString();
-
-        // Send GraphQL request
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-
-        // Get category & product list from response
-        Query rootQuery = response.getData();
-
-        // GraphQL API provides only file name of the category image, but not the full url.
-        // We need the mediaBaseUrl to construct the full path.
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-
-        return rootQuery.getCategory();
-    }
 
     /**
      * Returns the selector of the current request which is expected to be the category id.
      *
      * @return category id
      */
-    private Integer parseCategoryId() {
+    private String parseCategoryId() {
         // TODO this should be change to slug/url_path if that is available to retrieve category data,
         // currently we only can use the category id for that.
-        Integer categoryId = null;
-
-        try {
-            categoryId = Integer.parseInt(request.getRequestPathInfo().getSelectorString());
-        } catch (NullPointerException | NumberFormatException nef) {
-            LOGGER.warn("Could not parse category id from current page selectors.");
-        }
-        return categoryId;
+        return request.getRequestPathInfo().getSelectorString();
     }
 
     /**
@@ -317,16 +247,20 @@ public class ProductListImpl implements ProductList {
      * @return void
      */
     void setupPagination() {
+        int navPagesSize = 0;
+
         navPagePrev = (navPageCursor <= 1) ? 1 : (navPageCursor - 1);
         if ((getTotalCount() % navPageSize) == 0) {
-            navPages = new int[(getTotalCount() / navPageSize)];
+            navPagesSize = getTotalCount() / navPageSize;
             navPageNext = (navPageCursor < (getTotalCount() / navPageSize)) ? (navPageCursor + 1) : navPageCursor;
         } else {
-            navPages = new int[(getTotalCount() / navPageSize) + 1];
+            navPagesSize = (getTotalCount() / navPageSize) + 1;
             navPageNext = (navPageCursor < ((getTotalCount() / navPageSize) + 1)) ? (navPageCursor + 1) : navPageCursor;
         }
-        for (int i = 0; i < navPages.length; i++) {
-            navPages[i] = (i + 1);
+        navPages = new ArrayList<>();
+
+        for (int i = 0; i < navPagesSize; i++) {
+            navPages.add(i + 1);
         }
     }
 
@@ -350,17 +284,4 @@ public class ProductListImpl implements ProductList {
         }
     }
 
-    /**
-     * In AEM Sites Editor, loads some dummy placeholder data for the component.
-     */
-    private void useEditModePlaceholderData() {
-        try {
-            String json = IOUtils.toString(getClass().getResourceAsStream(PLACEHOLDER_DATA), StandardCharsets.UTF_8);
-            Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-            category = rootQuery.getCategory();
-            mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-        } catch (IOException e) {
-            LOGGER.warn("Cannot use placeholder data", e);
-        }
-    }
 }

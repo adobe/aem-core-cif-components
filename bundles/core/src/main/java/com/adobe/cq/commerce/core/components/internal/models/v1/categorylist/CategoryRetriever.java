@@ -11,34 +11,31 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-package com.adobe.cq.commerce.core.components.models.categorylist;
-
-import java.util.List;
-
-import org.osgi.annotation.versioning.ProviderType;
-
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-/**
- * Provides the list of categories to CategoryList Componenet.
- */
-@ProviderType
-public interface FeaturedCategoryList {
+class CategoryRetriever extends AbstractCategoryRetriever {
+    CategoryRetriever(MagentoGraphqlClient client) {
+        super(client);
+    }
 
-    /**
-     * Returns the categories data in a list from Magento depending on configurations.
-     *
-     * @return {@code  List<CategoryInterface>}
-     */
-    List<CategoryInterface> getCategories();
+    @Override
+    protected CategoryTreeQueryDefinition generateCategoryQuery() {
+        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> {
+            q.id()
+                .name()
+                .urlPath()
+                .position()
+                .image();
 
-    /**
-     * Returns in instance of the category retriever for fetching category data via GraphQL.
-     *
-     * @return category retriever instance
-     */
-    AbstractCategoryRetriever getCategoryRetriever();
+            if (categoryQueryHook != null) {
+                categoryQueryHook.accept(q);
+            }
+        };
 
+        return categoryTreeQueryDefinition;
+    }
 }

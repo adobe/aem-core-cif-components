@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -138,12 +137,13 @@ public class ProductListImplTest {
 
     @Test
     public void getImageWhenMissingInResponse() {
-        ProductList list = new ProductListImpl();
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
         CategoryTree category = mock(CategoryTree.class);
         when(category.getImage()).thenReturn("");
-        Whitebox.setInternalState(list, "category", category);
+        Whitebox.setInternalState(productListModel.getCategoryRetriever(), "category", category);
 
-        String image = list.getImage();
+        String image = productListModel.getImage();
         Assert.assertEquals("", image);
     }
 
@@ -194,7 +194,7 @@ public class ProductListImplTest {
         Whitebox.setInternalState(productListModel, "request", incomingRequest);
         productListModel.setNavPageCursor();
         productListModel.setupPagination();
-        Assert.assertEquals(3, productListModel.getPageList().length);
+        Assert.assertEquals(3, productListModel.getPageList().size());
 
         Assert.assertEquals(1, productListModel.getCurrentNavPage());
         Assert.assertEquals(1, productListModel.getPreviousNavPage());

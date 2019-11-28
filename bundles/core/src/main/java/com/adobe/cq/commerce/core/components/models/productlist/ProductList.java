@@ -15,11 +15,14 @@
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.osgi.annotation.versioning.ProviderType;
+
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 
 @ProviderType
 public interface ProductList {
@@ -101,7 +104,16 @@ public interface ProductList {
         throw new UnsupportedOperationException();
     }
 
-    default int[] getPageList() {
+    default List<Integer> getPageList() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns in instance of the category retriever for fetching category data via GraphQL.
+     *
+     * @return category retriever instance
+     */
+    default AbstractCategoryRetriever getCategoryRetriever() {
         throw new UnsupportedOperationException();
     }
 }
