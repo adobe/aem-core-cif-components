@@ -107,6 +107,10 @@ You also need to add the [AEM Commerce connector for Magento](https://github.com
 
 To connect the AEM CIF Core Components with your Magento instance follow the [configuration steps](https://github.com/adobe/aem-core-cif-components/wiki/configuration). For a multi store / site setup one [additional step](https://github.com/adobe/aem-core-cif-components/wiki/configuration#multi-store--site-configuration) is needed to link an AEM site to a Magento store view.
 
+## Customization
+
+For customizing CIF Core Components, we provide use cases and examples in our documentation at [Customizing CIF Core Components](https://github.com/adobe/aem-core-cif-components/wiki/Customizing-CIF-Core-Components).
+
 ## Testing
 
 ### Karma Unit Tests
