@@ -8,9 +8,6 @@
     "type": "git",
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
-  "publishConfig": {
-    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-ccif-release-local/"
-  },
   "module": "dist/index.js",
   "scripts": {
     "prepare": "rm -rf ./dist && npm run build",
