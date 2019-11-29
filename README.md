@@ -1,6 +1,7 @@
 [![CircleCI](https://circleci.com/gh/adobe/aem-core-cif-components.svg?style=svg)](https://circleci.com/gh/adobe/aem-core-cif-components)
 [![codecov](https://codecov.io/gh/adobe/aem-core-cif-components/branch/master/graph/badge.svg)](https://codecov.io/gh/adobe/aem-core-cif-components)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all)
+[![npm](https://img.shields.io/npm/v/@adobe/aem-core-cif-react-components)](https://www.npmjs.com/package/@adobe/aem-core-cif-react-components)
 ![GitHub](https://img.shields.io/github/license/adobe/aem-core-cif-components.svg)
 
 # AEM CIF Core Components
@@ -36,6 +37,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento                    | Java |
 | ------------------- | ------- | ------- | -------------------------- | ---- |
+| 0.6.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.5.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.4.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup>         | 1.8  |
 | 0.3.0               | 6.4.4.0 | 6.5.0   | 2.3.1 / 2.3.2              | 1.8  |
