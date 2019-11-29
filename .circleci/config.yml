@@ -95,6 +95,9 @@ jobs:
             - maven-repo-v1-{{ checksum "pom.xml" }}
             - maven-repo-v1-
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Release
           # Only performs a 'mvn deploy' after the 'mvn release:prepare' because circleCI
           # already checks out the git tag like 'mvn release:perform' would do.
