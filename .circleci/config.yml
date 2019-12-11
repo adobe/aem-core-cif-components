@@ -73,15 +73,15 @@ jobs:
             node -v
             npm -v
             npm install
-          working_directory: ./ui.apps/src/main/javascript/minicart
+          working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
           command: npm test
-          working_directory: ./ui.apps/src/main/javascript/minicart
+          working_directory: ./react-components
       - store_test_results:
-          path: ./ui.apps/src/main/javascript/minicart/coverage
+          path: ./react-components/coverage
       - store_artifacts:
-          path: ./ui.apps/src/main/javascript/minicart/coverage
+          path: ./react-components/coverage
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: jest
