@@ -27,7 +27,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRe
 public interface ProductCarousel {
 
     /**
-     * returns the product list for Product Carousel
+     * Returns the list of products to be displayed in the carousel.
      * 
      * @return {@link List} of {@link ProductListItem}s
      */
@@ -42,6 +42,15 @@ public interface ProductCarousel {
      * @return products retriever instance
      */
     default AbstractProductsRetriever getProductsRetriever() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns true if the component is correctly configured, false otherwise.
+     *
+     * @return true or false
+     */
+    default boolean isConfigured() {
         throw new UnsupportedOperationException();
     }
 }
