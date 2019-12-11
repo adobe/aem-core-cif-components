@@ -76,12 +76,12 @@ jobs:
           working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
-          command: npm test
+          command: npm run ci
           working_directory: ./react-components
       - store_test_results:
-          path: ./react-components/coverage
+          path: ./react-components/test-results
       - store_artifacts:
-          path: ./react-components/coverage
+          path: ./react-components/test-results
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: jest
