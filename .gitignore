@@ -45,6 +45,7 @@ hs_err_pid*
 **/node_modules/**
 **/karma-junit/**
 **/coverage/**
+**/test-results/**
 
 **/dist
 **/dist

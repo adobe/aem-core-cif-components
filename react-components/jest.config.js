@@ -18,6 +18,7 @@ module.exports = {
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
+    reporters: ['default', ['jest-junit', { outputDirectory: './test-results'}]],
     transform: {
         '\\.(gql|graphql)$': 'jest-transform-graphql',
         '.*': 'babel-jest'

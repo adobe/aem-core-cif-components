@@ -1,6 +1,0 @@
-.braintree {
-    composes: braintree from '../paymentsForm.css';
-}
-.error_message {
-    composes: root_error from '../../Field/message.css';
-}
