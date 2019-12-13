@@ -103,6 +103,16 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     @Override
+    public String getSku() {
+        return getProduct().getSku();
+    }
+
+    @Override
+    public String getCallToAction() {
+        return properties.get("cta", null);
+    }
+
+    @Override
     public String getFormattedPrice() {
         Double price = getPrice();
         if (price != null) {
