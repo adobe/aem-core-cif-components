@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" jcr:primaryType="nt:unstructured">
+    <query jcr:primaryType="nt:unstructured">
+        <_variables_ jcr:primaryType="nt:unstructured">
+            <selection jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="String"/>
+        </_variables_>
+        <products jcr:primaryType="nt:unstructured">
+            <_arguments_ jcr:primaryType="nt:unstructured">
+                <filter jcr:primaryType="nt:unstructured" type="argument">
+                    <sku jcr:primaryType="nt:unstructured" type="objectfield">
+                        <eq jcr:primaryType="nt:unstructured" type="objectfield" value="$selection"/>
+                    </sku>
+                </filter>
+            </_arguments_>
+            <items jcr:primaryType="nt:unstructured">
+                <__typename jcr:primaryType="nt:unstructured"/>
+                <name jcr:primaryType="nt:unstructured"/>
+                <image jcr:primaryType="nt:unstructured">
+                    <url jcr:primaryType="nt:unstructured"/>
+                </image>
+                <url_key jcr:primaryType="nt:unstructured"/>
+                <price jcr:primaryType="nt:unstructured">
+                    <regularPriceFragment jcr:primaryType="nt:unstructured" type="fragment"/>
+                </price>
+                <ConfigurableProduct jcr:primaryType="nt:unstructured" type="inlinefragment">
+                    <variants jcr:primaryType="nt:unstructured">
+                        <product jcr:primaryType="nt:unstructured">
+                            <sku jcr:primaryType="nt:unstructured"/>
+                            <name jcr:primaryType="nt:unstructured"/>
+                            <image jcr:primaryType="nt:unstructured">
+                                <url jcr:primaryType="nt:unstructured"/>
+                            </image>
+                            <price jcr:primaryType="nt:unstructured">
+                                <regularPriceFragment jcr:primaryType="nt:unstructured" type="fragment"/>
+                            </price>
+                        </product>
+                    </variants>
+                </ConfigurableProduct>
+            </items>
+        </products>
+    </query>
+    <regularPriceFragment jcr:primaryType="nt:unstructured" on="ProductPrices" type="fragmentdefinition">
+        <regularPrice jcr:primaryType="nt:unstructured">
+            <amount jcr:primaryType="nt:unstructured">
+                <value jcr:primaryType="nt:unstructured"/>
+                <currency jcr:primaryType="nt:unstructured"/>
+            </amount>
+        </regularPrice>
+    </regularPriceFragment>
+</jcr:root>

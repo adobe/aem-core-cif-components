@@ -1,0 +1,13 @@
+query($id: Int){
+    category(id: $id) {
+        id
+        name
+        path
+        url_path
+        position
+        image
+    }
+    storeConfig {
+        secure_base_media_url
+    }
+}

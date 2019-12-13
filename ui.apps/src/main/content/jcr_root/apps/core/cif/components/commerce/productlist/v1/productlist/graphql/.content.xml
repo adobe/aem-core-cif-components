@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" jcr:primaryType="nt:unstructured">
+    <query jcr:primaryType="nt:unstructured">
+        <_variables_ jcr:primaryType="nt:unstructured">
+            <categoryId jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="Int"/>
+            <currentPage jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="Int"/>
+            <pageSize jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="Int"/>
+        </_variables_>
+        <category jcr:primaryType="nt:unstructured">
+            <_arguments_ jcr:primaryType="nt:unstructured">
+                <id jcr:primaryType="nt:unstructured" type="argument" value="$categoryId"/>
+            </_arguments_>
+            <id jcr:primaryType="nt:unstructured"/>
+            <description jcr:primaryType="nt:unstructured"/>
+            <name jcr:primaryType="nt:unstructured"/>
+            <image jcr:primaryType="nt:unstructured"/>
+            <product_count jcr:primaryType="nt:unstructured"/>
+            <products jcr:primaryType="nt:unstructured">
+                <_arguments_ jcr:primaryType="nt:unstructured">
+                    <currentPage jcr:primaryType="nt:unstructured" type="argument" value="$currentPage"/>
+                    <pageSize jcr:primaryType="nt:unstructured" type="argument" value="$pageSize"/>
+                </_arguments_>
+                <items jcr:primaryType="nt:unstructured">
+                    <__typename jcr:primaryType="nt:unstructured"/>
+                    <id jcr:primaryType="nt:unstructured"/>
+                    <sku jcr:primaryType="nt:unstructured"/>
+                    <name jcr:primaryType="nt:unstructured"/>
+                    <small_image jcr:primaryType="nt:unstructured">
+                        <url jcr:primaryType="nt:unstructured"/>
+                    </small_image>
+                    <url_key jcr:primaryType="nt:unstructured"/>
+                    <price jcr:primaryType="nt:unstructured">
+                        <regularPrice jcr:primaryType="nt:unstructured">
+                            <amount jcr:primaryType="nt:unstructured">
+                                <currency jcr:primaryType="nt:unstructured"/>
+                                <value jcr:primaryType="nt:unstructured"/>
+                            </amount>
+                        </regularPrice>
+                    </price>
+                </items>
+                <total_count jcr:primaryType="nt:unstructured"/>
+            </products>
+        </category>
+        <storeConfig jcr:primaryType="nt:unstructured">
+            <secure_base_media_url jcr:primaryType="nt:unstructured"/>
+        </storeConfig>
+    </query>
+</jcr:root>

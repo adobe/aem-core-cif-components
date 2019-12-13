@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" jcr:primaryType="nt:unstructured">
+    <query jcr:primaryType="nt:unstructured">
+        <_variables_ jcr:primaryType="nt:unstructured">
+            <id jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="Int"/>
+        </_variables_>
+        <category jcr:primaryType="nt:unstructured">
+            <_arguments_ jcr:primaryType="nt:unstructured">
+                <id jcr:primaryType="nt:unstructured" type="argument" value="$id"/>
+            </_arguments_>
+            <id jcr:primaryType="nt:unstructured"/>
+            <name jcr:primaryType="nt:unstructured"/>
+            <path jcr:primaryType="nt:unstructured"/>
+            <url_path jcr:primaryType="nt:unstructured"/>
+            <position jcr:primaryType="nt:unstructured"/>
+            <image jcr:primaryType="nt:unstructured"/>
+        </category>
+        <storeConfig jcr:primaryType="nt:unstructured">
+            <secure_base_media_url jcr:primaryType="nt:unstructured"/>
+        </storeConfig>
+    </query>
+</jcr:root>

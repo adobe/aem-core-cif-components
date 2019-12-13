@@ -18,6 +18,7 @@
      data-sly-use.actionsTpl="actions.html"
      data-sly-use.quantityTpl="quantity.html"
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product"
+     data-sly-use.model="com.adobe.cq.commerce.core.components.models.product.ProductModel"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.product.v1'}"/>
@@ -27,8 +28,8 @@
           data-locale="${page.language}"
           data-load-client-price="${product.loadClientPrice}">
         <sly data-sly-test.found="${product.found}">
-            <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${product.name}</span></h1>
-                <sly data-sly-call="${priceTpl.price @ product=product}"></sly>
+            <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${model.product.name}</span></h1>
+                <sly data-sly-call="${priceTpl.price @ product=model.product}"></sly>
             </section>
             <section class="productFullDetail__imageCarousel">
                 <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
@@ -52,7 +53,7 @@
             </section>
             <section class="productFullDetail__details productFullDetail__section">
                 <h2 class="productFullDetail__detailsTitle productFullDetail__sectionTitle">SKU</h2>
-                <strong role="sku">${product.sku}</strong>
+                <strong role="sku">${model.product.sku}</strong>
             </section>
         </sly>
         <p data-sly-test="${!found}">Product not found.</p>

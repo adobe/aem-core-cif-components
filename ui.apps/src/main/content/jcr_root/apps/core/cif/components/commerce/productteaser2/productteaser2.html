@@ -25,6 +25,7 @@
             <a class="item__name" href="${model.product.url_key:productUrl}"><span>${model.variant.name}</span></a>
             <div class="item__price">
                 <span>${model.variant.price:price}</span>
+                <div><a href="${model.product.canonical_url}">Provider info</a></div>
             </div>
         </div>
         <!-- Condition if the product is not available, or invalid sku provided -->

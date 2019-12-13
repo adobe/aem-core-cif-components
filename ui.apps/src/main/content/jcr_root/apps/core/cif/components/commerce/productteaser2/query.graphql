@@ -1,0 +1,14 @@
+{
+    products {
+        items{
+            canonical_url
+            ... on ConfigurableProduct{
+                variants{
+                    product{
+                        canonical_url
+                    }
+                }
+            }
+        }
+    }
+}

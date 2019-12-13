@@ -101,6 +101,12 @@ public class MagentoGraphqlClient {
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
     }
 
+    public GraphqlResponse<Query, Error> execute(String query, Object variables) {
+        final GraphqlRequest graphqlRequest = new GraphqlRequest(query);
+        graphqlRequest.setVariables(variables);
+        return graphqlClient.execute(graphqlRequest, Query.class, Error.class, requestOptions);
+    }
+
     /**
      * Executes the given Magento query and returns the response. This method
      * uses the given <code>httpMethod</code> to fetch the data.

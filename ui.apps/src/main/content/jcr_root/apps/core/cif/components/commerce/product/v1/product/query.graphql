@@ -1,0 +1,31 @@
+query ($slug: String){
+    products(filter: {url_key: {eq: $slug}}) {
+        items {
+            __typename
+            sku
+            name
+            description {html}
+            image {label url}
+            thumbnail {label url}
+            url_key
+            stock_status
+            price{regularPrice{amount{currency value}}}
+            media_gallery_entries{disabled file label position media_type}
+            ... on ConfigurableProduct {
+                configurable_options {
+                    label
+                    attribute_code
+                    values {value_index label}
+                }
+                variants {
+                    attributes{code value_index}
+                    product{sku name description{html}
+                        image{label url}
+                        thumbnail{label url}
+                        url_key
+                        stock_status
+                        color
+                        price{regularPrice{amount{currency value}}}
+                        media_gallery_entries{disabled file label position media_type}}}}}}
+    storeConfig {secure_base_media_url}
+}

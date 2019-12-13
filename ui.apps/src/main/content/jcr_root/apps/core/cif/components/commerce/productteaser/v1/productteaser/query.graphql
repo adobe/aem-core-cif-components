@@ -1,0 +1,34 @@
+query($selection: String){
+    products (filter:{sku:{eq: $selection }}) {
+        items{
+            __typename
+            name
+            image{url}
+            url_key
+            price{
+                ... regularPriceFragment
+            }
+            ... on ConfigurableProduct{
+                variants{
+                    product{
+                        sku
+                        name
+                        image{url}
+                        price{
+                            ... regularPriceFragment
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fragment regularPriceFragment on ProductPrices {
+    regularPrice {
+        amount {
+            value
+            currency
+        }
+    }
+}

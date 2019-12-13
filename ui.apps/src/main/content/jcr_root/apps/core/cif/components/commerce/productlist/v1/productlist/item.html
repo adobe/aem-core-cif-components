@@ -12,18 +12,18 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.item="${@ item}">
-    <a class="item__images" href="${item.URL}">
+    <a class="item__images" href="${item.url_key:productUrl}">
         <img
-            class="item__imagePlaceholder item__image"
-            alt=""
-            width="300"
-            height="372"
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="
+                class="item__imagePlaceholder item__image"
+                alt=""
+                width="300"
+                height="372"
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="
         />
-        <img class="item__image" src="${item.imageURL}" alt="${item.title}" width="300" height="372" />
+        <img class="item__image" src="${item.small_image.url}" alt="${item.name}" width="300" height="372" />
     </a>
-    <a class="item__name" href="${item.URL}"><span>${item.title}</span></a>
+    <a class="item__name" href="${item.url_key:productUrl}"><span>${item.name}</span></a>
     <div class="item__price">
-        <span role="price">${item.formattedPrice}</span>
+        <span role="price">${item.price:price}</span>
     </div>
 </template>

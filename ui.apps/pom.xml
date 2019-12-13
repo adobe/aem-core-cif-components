@@ -155,6 +155,30 @@
                 <version>1.6.0</version>
                 <executions>
                     <execution>
+                        <id>graphql-translate</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>find</executable>
+                            <arguments>
+                                <argument>src</argument>
+                                <argument>-type</argument>
+                                <argument>f</argument>
+                                <argument>-name</argument>
+                                <argument>query.graphql</argument>
+                                <argument>-exec</argument>
+                                <argument>java</argument>
+                                <argument>-cp</argument>
+                                <argument>${project.basedir}/../bundles/core/target/core-cif-components-core-0.6.1-SNAPSHOT.jar:${project.basedir}/../bundles/core/graphquul-1.0-SNAPSHOT.jar</argument>
+                                <argument>com.adobe.cq.commerce.core.components.models.graphql.GraphqlContentBuilder</argument>
+                                <argument>{}</argument>
+                                <argument>;</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm-install</id>
                         <phase>generate-resources</phase>
                         <goals>

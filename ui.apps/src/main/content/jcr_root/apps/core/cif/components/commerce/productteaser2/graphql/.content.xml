@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" jcr:primaryType="nt:unstructured">
+    <query jcr:primaryType="nt:unstructured">
+        <products jcr:primaryType="nt:unstructured">
+            <items jcr:primaryType="nt:unstructured">
+                <canonical_url jcr:primaryType="nt:unstructured"/>
+                <ConfigurableProduct jcr:primaryType="nt:unstructured" type="inlinefragment">
+                    <variants jcr:primaryType="nt:unstructured">
+                        <product jcr:primaryType="nt:unstructured">
+                            <canonical_url jcr:primaryType="nt:unstructured"/>
+                        </product>
+                    </variants>
+                </ConfigurableProduct>
+            </items>
+        </products>
+    </query>
+</jcr:root>

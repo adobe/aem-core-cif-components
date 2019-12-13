@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" jcr:primaryType="nt:unstructured">
+    <query jcr:primaryType="nt:unstructured">
+        <_variables_ jcr:primaryType="nt:unstructured">
+            <slug jcr:primaryType="nt:unstructured" type="variabledefinition" variableType="String"/>
+        </_variables_>
+        <products jcr:primaryType="nt:unstructured">
+            <_arguments_ jcr:primaryType="nt:unstructured">
+                <filter jcr:primaryType="nt:unstructured" type="argument">
+                    <url_key jcr:primaryType="nt:unstructured" type="objectfield">
+                        <eq jcr:primaryType="nt:unstructured" type="objectfield" value="$slug"/>
+                    </url_key>
+                </filter>
+            </_arguments_>
+            <items jcr:primaryType="nt:unstructured">
+                <__typename jcr:primaryType="nt:unstructured"/>
+                <sku jcr:primaryType="nt:unstructured"/>
+                <name jcr:primaryType="nt:unstructured"/>
+                <description jcr:primaryType="nt:unstructured">
+                    <html jcr:primaryType="nt:unstructured"/>
+                </description>
+                <image jcr:primaryType="nt:unstructured">
+                    <label jcr:primaryType="nt:unstructured"/>
+                    <url jcr:primaryType="nt:unstructured"/>
+                </image>
+                <thumbnail jcr:primaryType="nt:unstructured">
+                    <label jcr:primaryType="nt:unstructured"/>
+                    <url jcr:primaryType="nt:unstructured"/>
+                </thumbnail>
+                <url_key jcr:primaryType="nt:unstructured"/>
+                <stock_status jcr:primaryType="nt:unstructured"/>
+                <price jcr:primaryType="nt:unstructured">
+                    <regularPrice jcr:primaryType="nt:unstructured">
+                        <amount jcr:primaryType="nt:unstructured">
+                            <currency jcr:primaryType="nt:unstructured"/>
+                            <value jcr:primaryType="nt:unstructured"/>
+                        </amount>
+                    </regularPrice>
+                </price>
+                <media_gallery_entries jcr:primaryType="nt:unstructured">
+                    <disabled jcr:primaryType="nt:unstructured"/>
+                    <file jcr:primaryType="nt:unstructured"/>
+                    <label jcr:primaryType="nt:unstructured"/>
+                    <position jcr:primaryType="nt:unstructured"/>
+                    <media_type jcr:primaryType="nt:unstructured"/>
+                </media_gallery_entries>
+                <ConfigurableProduct jcr:primaryType="nt:unstructured" type="inlinefragment">
+                    <configurable_options jcr:primaryType="nt:unstructured">
+                        <label jcr:primaryType="nt:unstructured"/>
+                        <attribute_code jcr:primaryType="nt:unstructured"/>
+                        <values jcr:primaryType="nt:unstructured">
+                            <value_index jcr:primaryType="nt:unstructured"/>
+                            <label jcr:primaryType="nt:unstructured"/>
+                        </values>
+                    </configurable_options>
+                    <variants jcr:primaryType="nt:unstructured">
+                        <attributes jcr:primaryType="nt:unstructured">
+                            <code jcr:primaryType="nt:unstructured"/>
+                            <value_index jcr:primaryType="nt:unstructured"/>
+                        </attributes>
+                        <product jcr:primaryType="nt:unstructured">
+                            <sku jcr:primaryType="nt:unstructured"/>
+                            <name jcr:primaryType="nt:unstructured"/>
+                            <description jcr:primaryType="nt:unstructured">
+                                <html jcr:primaryType="nt:unstructured"/>
+                            </description>
+                            <image jcr:primaryType="nt:unstructured">
+                                <label jcr:primaryType="nt:unstructured"/>
+                                <url jcr:primaryType="nt:unstructured"/>
+                            </image>
+                            <thumbnail jcr:primaryType="nt:unstructured">
+                                <label jcr:primaryType="nt:unstructured"/>
+                                <url jcr:primaryType="nt:unstructured"/>
+                            </thumbnail>
+                            <url_key jcr:primaryType="nt:unstructured"/>
+                            <stock_status jcr:primaryType="nt:unstructured"/>
+                            <color jcr:primaryType="nt:unstructured"/>
+                            <price jcr:primaryType="nt:unstructured">
+                                <regularPrice jcr:primaryType="nt:unstructured">
+                                    <amount jcr:primaryType="nt:unstructured">
+                                        <currency jcr:primaryType="nt:unstructured"/>
+                                        <value jcr:primaryType="nt:unstructured"/>
+                                    </amount>
+                                </regularPrice>
+                            </price>
+                            <media_gallery_entries jcr:primaryType="nt:unstructured">
+                                <disabled jcr:primaryType="nt:unstructured"/>
+                                <file jcr:primaryType="nt:unstructured"/>
+                                <label jcr:primaryType="nt:unstructured"/>
+                                <position jcr:primaryType="nt:unstructured"/>
+                                <media_type jcr:primaryType="nt:unstructured"/>
+                            </media_gallery_entries>
+                        </product>
+                    </variants>
+                </ConfigurableProduct>
+            </items>
+        </products>
+        <storeConfig jcr:primaryType="nt:unstructured">
+            <secure_base_media_url jcr:primaryType="nt:unstructured"/>
+        </storeConfig>
+    </query>
+</jcr:root>

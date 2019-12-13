@@ -13,6 +13,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.price="${@ product}">
     <p class="productFullDetail__productPrice">
-        <span role="price">${product.formattedPrice}</span>
+        <span role="price">${product.price:price}</span>
     </p>
 </template>

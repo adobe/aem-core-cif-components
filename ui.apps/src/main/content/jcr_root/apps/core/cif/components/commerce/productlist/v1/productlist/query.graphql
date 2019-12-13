@@ -1,0 +1,33 @@
+query($categoryId: Int $currentPage: Int $pageSize: Int){
+    category(id: $categoryId) {
+        id
+        description
+        name
+        image
+        product_count
+        products(currentPage: $currentPage pageSize: $pageSize) {
+            items {
+                __typename
+                id
+                sku
+                name
+                small_image {
+                    url
+                }
+                url_key
+                price {
+                    regularPrice {
+                        amount {
+                            currency
+                            value
+                        }
+                    }
+                }
+            }
+            total_count
+        }
+    }
+    storeConfig {
+        secure_base_media_url
+    }
+}
