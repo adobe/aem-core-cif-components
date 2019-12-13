@@ -14,11 +14,12 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-class CategoryRetriever extends AbstractCategoryRetriever {
-    CategoryRetriever(MagentoGraphqlClient client) {
+public class CategoriesRetriever extends AbstractCategoriesRetriever {
+
+    CategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
