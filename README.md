@@ -4,6 +4,10 @@
 [![npm](https://img.shields.io/npm/v/@adobe/aem-core-cif-react-components)](https://www.npmjs.com/package/@adobe/aem-core-cif-react-components)
 ![GitHub](https://img.shields.io/github/license/adobe/aem-core-cif-components.svg)
 
+### WARNING
+#### This is an experimental branch for investigating lightweight GraphQL based serverside components.
+#### For details see [this](READMEGQL.md). 
+
 # AEM CIF Core Components
 
 The AEM CIF Core Components project serves as accelerator to get started with projects using AEM, CIF and Magento. The project contains re-useable Commerce core components which combine server-side rendered AEM components with client-side React commerce components (MPA) for dynamic experiences / data. The components use the [Venia](https://github.com/magento-research/pwa-studio/tree/develop/packages/venia-concept) theme<sup id="a1">[1](#f1)</sup>.
