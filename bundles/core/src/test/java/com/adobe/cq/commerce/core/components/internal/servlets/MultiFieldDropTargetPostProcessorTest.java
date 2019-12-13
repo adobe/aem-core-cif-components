@@ -67,7 +67,7 @@ public class MultiFieldDropTargetPostProcessorTest {
     public void testAppendToExistingMultiValue() throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/existingMultiValue"));
-        request.setParameterMap(Collections.singletonMap("./dropTarget->@items", "b"));
+        request.setParameterMap(Collections.singletonMap("./multiDropTarget->@items", "b"));
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -83,7 +83,7 @@ public class MultiFieldDropTargetPostProcessorTest {
         assertThat(resource.getValueMap())
             .isNotEmpty()
             .containsKeys("./items")
-            .doesNotContainKeys("./dropTarget->@items");
+            .doesNotContainKeys("./multiDropTarget->@items");
 
         assertThat(resource.getValueMap().get("./items", String[].class))
             .isNotEmpty()
@@ -94,7 +94,7 @@ public class MultiFieldDropTargetPostProcessorTest {
     public void testCreateSubnodeAndAppendValue() throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/noExistingMultiValue"));
-        request.setParameterMap(Collections.singletonMap("./dropTarget->/subNode/@items", "b"));
+        request.setParameterMap(Collections.singletonMap("./multiDropTarget->/subNode/@items", "b"));
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -106,12 +106,12 @@ public class MultiFieldDropTargetPostProcessorTest {
             .hasSize(1);
 
         assertThat(resource).isNotNull();
-        assertThat(resource.getChild("dropTarget->")).isNull();
+        assertThat(resource.getChild("multiDropTarget->")).isNull();
         assertThat(resource.getChild("subNode")).isNotNull();
 
         assertThat(resource.getValueMap())
             .isNotEmpty()
-            .doesNotContainKeys("./dropTarget->/subNode/@items");
+            .doesNotContainKeys("./multiDropTarget->/subNode/@items");
 
         assertThat(resource.getChild("subNode").getValueMap().get("./items", String[].class))
             .isNotEmpty()
@@ -122,7 +122,7 @@ public class MultiFieldDropTargetPostProcessorTest {
     public void testCreateNewMultiValue() throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/noExistingMultiValue"));
-        request.setParameterMap(Collections.singletonMap("./dropTarget->@items", "b"));
+        request.setParameterMap(Collections.singletonMap("./multiDropTarget->@items", "b"));
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -135,7 +135,7 @@ public class MultiFieldDropTargetPostProcessorTest {
         assertThat(resource.getValueMap())
             .isNotEmpty()
             .containsKeys("./items")
-            .doesNotContainKeys("./dropTarget->@items");
+            .doesNotContainKeys("./multiDropTarget->@items");
 
         assertThat(resource.getValueMap().get("./items", String[].class))
             .isNotEmpty()
@@ -146,7 +146,7 @@ public class MultiFieldDropTargetPostProcessorTest {
     public void testConvertExistingSingleValueToMultifield() throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/existingSingleValue"));
-        request.setParameterMap(Collections.singletonMap("./dropTarget->@items", "b"));
+        request.setParameterMap(Collections.singletonMap("./multiDropTarget->@items", "b"));
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -162,7 +162,7 @@ public class MultiFieldDropTargetPostProcessorTest {
         assertThat(resource.getValueMap())
             .isNotEmpty()
             .containsKeys("./items")
-            .doesNotContainKeys("./dropTarget->@items");
+            .doesNotContainKeys("./multiDropTarget->@items");
 
         assertThat(resource.getValueMap().get("./items", String[].class))
             .isNotEmpty()
@@ -173,7 +173,7 @@ public class MultiFieldDropTargetPostProcessorTest {
     public void testCreateSubnodeWithUniqueNameAndAppendValue() throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/existingComposite"));
-        request.setParameterMap(Collections.singletonMap("./dropTarget->/subNode/{{COMPOSITE}}/@link", "b"));
+        request.setParameterMap(Collections.singletonMap("./multiDropTarget->/subNode/{{COMPOSITE}}/@link", "b"));
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -189,9 +189,9 @@ public class MultiFieldDropTargetPostProcessorTest {
         assertThat(resource.getValueMap())
             .isNotEmpty()
             .doesNotContainKeys("./items")
-            .doesNotContainKeys("./dropTarget->/subNode/{{COMPOSITE}}/@link");
+            .doesNotContainKeys("./multiDropTarget->/subNode/{{COMPOSITE}}/@link");
 
-        assertThat(resource.getChild("dropTarget->")).isNull();
+        assertThat(resource.getChild("multiDropTarget->")).isNull();
         assertThat(resource.getChild("subNode")).isNotNull();
         assertThat(resource.getChild("subNode").getChildren()).hasSize(3);
         assertThat(resource.getChild("subNode/item0")).isNotNull();

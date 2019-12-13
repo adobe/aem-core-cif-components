@@ -58,10 +58,10 @@ import com.google.common.collect.Iterators;
 /**
  * This class is originally available at <code>https://github.com/ida-mediafoundry/jetpack-advanced-drop-targets</code><br>
  * <br>
- * This PostProcessor listens to all post servlet actions that contain a property that starts with <code>"./dropTarget->"</code>.
+ * This PostProcessor listens to all post servlet actions that contain a property that starts with <code>"./multiDropTarget->"</code>.
  * It will take the value from the property and add it to the property that follows the drop target prefix.<br>
  * <br>
- * In the following example, it will take the value from "./dropTarget->@books" and add it to the property "books"
+ * In the following example, it will take the value from "./multiDropTarget->@books" and add it to the property "books"
  * 
  * <pre>
  * {@literal
@@ -69,7 +69,7 @@ import com.google.common.collect.Iterators;
  *   <books
  *      jcr:primaryType="cq:DropTargetConfig"
  *      ...
- *      propertyName="./dropTarget->@books">
+ *      propertyName="./multiDropTarget->@books">
  *   </books>
  * </cq:dropTargets>
  * }
@@ -79,7 +79,7 @@ import com.google.common.collect.Iterators;
 @Component(service = { SlingPostProcessor.class })
 public class MultiFieldDropTargetPostProcessor implements SlingPostProcessor {
 
-    private static final String DROP_TARGET_PREFIX = "./dropTarget->";
+    private static final String DROP_TARGET_PREFIX = "./multiDropTarget->";
     private static final String COMPOSITE_VARIABLE = "{{COMPOSITE}}";
     private static final String PROPERTY_PREFIX = "@";
     private static final String SLASH = "/";
