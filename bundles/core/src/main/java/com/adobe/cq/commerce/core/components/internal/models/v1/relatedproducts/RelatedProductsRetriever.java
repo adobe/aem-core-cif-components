@@ -31,7 +31,19 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 class RelatedProductsRetriever extends AbstractProductsRetriever {
 
     static enum RelationType {
-        RELATED_PRODUCTS, UPSELL_PRODUCTS, CROSS_SELL_PRODUCTS
+        RELATED_PRODUCTS("Related products"),
+        UPSELL_PRODUCTS("Upsell products"),
+        CROSS_SELL_PRODUCTS("Cross-sell products");
+
+        private final String text;
+
+        private RelationType(String text) {
+            this.text = text;
+        }
+
+        String getText() {
+            return text;
+        }
     }
 
     static enum ProductIdType {

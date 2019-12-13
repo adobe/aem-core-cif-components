@@ -59,7 +59,7 @@ public class RelationTypesDataSourceServletTest {
             RelationType relationType = RelationType.valueOf(value);
             Assert.assertNotNull(relationType);
             Assert.assertEquals(relationType.toString(), value);
-            Assert.assertEquals(relationType.toString(), text);
+            Assert.assertEquals(relationType.getText(), text);
 
             size.incrementAndGet();
         });

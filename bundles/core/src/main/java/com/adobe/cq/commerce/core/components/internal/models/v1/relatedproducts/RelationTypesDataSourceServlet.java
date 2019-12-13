@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -49,16 +51,25 @@ public class RelationTypesDataSourceServlet extends SlingSafeMethodsServlet {
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
 
+        ResourceBundle resourceBundle = request.getResourceBundle(null);
         List<Resource> values = new ArrayList<>();
 
         for (RelationType relationType : RelationType.values()) {
             ValueMap vm = new ValueMapDecorator(new HashMap<String, Object>());
             vm.put("value", relationType);
-            vm.put("text", relationType);
+            vm.put("text", toText(resourceBundle, relationType.getText()));
             values.add(new ValueMapResource(request.getResourceResolver(), new ResourceMetadata(), JcrConstants.NT_UNSTRUCTURED, vm));
         }
 
         DataSource ds = new SimpleDataSource(values.iterator());
         request.setAttribute(DataSource.class.getName(), ds);
+    }
+
+    private String toText(ResourceBundle resourceBundle, String text) {
+        try {
+            return resourceBundle.getString(text);
+        } catch (MissingResourceException e) {
+            return text;
+        }
     }
 }
