@@ -28,23 +28,10 @@
                             <column jcr:primaryType="nt:unstructured" 
                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                 <items jcr:primaryType="nt:unstructured">
-                                    <graphqlsection jcr:primaryType="nt:unstructured" 
-                                        jcr:title="GraphQL Client Configuration" 
+                                    <magentoSection jcr:primaryType="nt:unstructured" 
+                                        jcr:title="Magento Store Configuration" 
                                         sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
                                         <items jcr:primaryType="nt:unstructured">
-                                            <graphqlclient emptyOption="{Boolean}false" 
-                                                granite:id="cq-commerce-graphql-client" 
-                                                jcr:primaryType="nt:unstructured" 
-                                                sling:resourceType="granite/ui/components/coral/foundation/form/select" 
-                                                fieldDescription="The GraphQL client instance. If this list is empty check the configurations of the CIF GraphQL Client Configuration service. " 
-                                                fieldLabel="GraphQL Client" 
-                                                name="./cq:graphqlClient" 
-                                                required="{Boolean}false">
-                                                <datasource jcr:primaryType="nt:unstructured" 
-                                                    sling:resourceType="core/cif/components/page/v1/datasource/graphqlclients" />
-                                                <granite:data jcr:primaryType="nt:unstructured" 
-                                                    cq-msm-lockable="cq:graphqlClient" />
-                                            </graphqlclient>
                                             <storeview jcr:primaryType="nt:unstructured" 
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/textfield" 
                                                 fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used." 
@@ -55,7 +42,7 @@
                                                     cq-msm-lockable="magentoStore" />
                                             </storeview>
                                         </items>
-                                    </graphqlsection>
+                                    </magentoSection>
                                 </items>
                             </column>
                         </items>
