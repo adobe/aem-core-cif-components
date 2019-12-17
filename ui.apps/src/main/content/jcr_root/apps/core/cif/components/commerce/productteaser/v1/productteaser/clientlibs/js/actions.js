@@ -15,9 +15,7 @@
 'use strict';
 
 class ProductTeaser {
-
     constructor(rootElement) {
-
         rootElement.forEach(node => {
             const actionButton = node.querySelector(`.productteaser__cta button`);
             const action = actionButton.dataset['action'];
@@ -32,7 +30,7 @@ class ProductTeaser {
                 };
             }
 
-            actionButton.addEventListener('click', (ev) => {
+            actionButton.addEventListener('click', ev => {
                 const element = ev.currentTarget;
                 actionHandler(element);
             });
@@ -42,23 +40,22 @@ class ProductTeaser {
     _addToCartHandler(button) {
         const sku = button.dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: {sku, quantity: 1}
+            detail: { sku, quantity: 1 }
         });
         document.dispatchEvent(customEvent);
-    };
+    }
 
     _seeDetailsHandler(button) {
         const url = button.dataset['url'];
         window.location = url;
-    };
-
+    }
 }
 
 ProductTeaser.selectors = {
-    rootElement: "[data-cmp-is=productteaser]"
+    rootElement: '[data-cmp-is=productteaser]'
 };
 
-(function (doc) {
+(function(doc) {
     function onDocumentReady() {
         const rootElement = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
         new ProductTeaser(rootElement);
