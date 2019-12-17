@@ -11,47 +11,62 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 'use strict';
-(function(channel) {
-    const addToCartHandler = ev => {
-        const button = ev.currentTarget;
-        const sku = button.dataset['itemSku'];
-        const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: { sku, quantity: 1 }
-        });
-        document.dispatchEvent(customEvent);
-    };
 
-    const seeDetailsHandler = ev => {
-        const button = ev.currentTarget;
-        const url = button.dataset['url'];
-        window.location = url;
-    };
+class ProductTeaser {
 
-    const initializeTeaserAction = function() {
-        console.log(`Let's initialize this!`);
-        const actionButtons = channel.querySelectorAll('.productteaser__cta button');
+    constructor(rootElement) {
 
-        actionButtons.forEach(node => {
-            const action = node.dataset['action'];
+        rootElement.forEach(node => {
+            const actionButton = node.querySelector(`.productteaser__cta button`);
+            const action = actionButton.dataset['action'];
             let actionHandler;
             if (action === 'addToCart') {
-                actionHandler = addToCartHandler;
+                actionHandler = this._addToCartHandler;
             } else if (action === 'details') {
-                actionHandler = seeDetailsHandler;
+                actionHandler = this._seeDetailsHandler;
             } else {
                 actionHandler = () => {
                     /* NOOP */
                 };
             }
 
-            node.addEventListener('click', actionHandler);
+            actionButton.addEventListener('click', (ev) => {
+                const element = ev.currentTarget;
+                actionHandler(element);
+            });
         });
+    }
+
+    _addToCartHandler(button) {
+        const sku = button.dataset['itemSku'];
+        const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            detail: {sku, quantity: 1}
+        });
+        document.dispatchEvent(customEvent);
     };
 
+    _seeDetailsHandler(button) {
+        const url = button.dataset['url'];
+        window.location = url;
+    };
+
+}
+
+ProductTeaser.selectors = {
+    rootElement: "[data-cmp-is=productteaser]"
+};
+
+(function (doc) {
+    function onDocumentReady() {
+        const rootElement = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
+        new ProductTeaser(rootElement);
+    }
+
     if (document.readyState !== 'loading') {
-        initializeTeaserAction();
+        onDocumentReady();
     } else {
-        document.addEventListener('DOMContentLoaded', initializeTeaserAction);
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
     }
 })(window.document);

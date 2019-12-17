@@ -18,7 +18,7 @@
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser">
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.productteaser.v1'}"></sly>
     <sly data-sly-test.ispropavailable="${properties.selection}">
-        <div data-sly-test.isvalid="${product.url}" class="item__root">
+        <div data-sly-test.isvalid="${product.url}" class="item__root" data-cmp-is="productteaser">
             <a class="item__images" href=${product.url}>
                 <img class="item__image" width="100%" height="100%"
                      src="${product.image}" alt="${product.image}"/>
