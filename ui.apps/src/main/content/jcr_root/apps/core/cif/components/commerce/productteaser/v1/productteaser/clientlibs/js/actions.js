@@ -12,12 +12,12 @@
  *
  ******************************************************************************/
 'use strict';
-(function (channel) {
+(function(channel) {
     const addToCartHandler = ev => {
         const button = ev.currentTarget;
         const sku = button.dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: {sku, quantity: 1}
+            detail: { sku, quantity: 1 }
         });
         document.dispatchEvent(customEvent);
     };
@@ -28,7 +28,7 @@
         window.location = url;
     };
 
-    const initializeTeaserAction = function () {
+    const initializeTeaserAction = function() {
         console.log(`Let's initialize this!`);
         const actionButtons = channel.querySelectorAll('.productteaser__cta button');
 
@@ -46,7 +46,7 @@
             }
 
             node.addEventListener('click', actionHandler);
-        })
+        });
     };
 
     if (document.readyState !== 'loading') {
@@ -54,5 +54,4 @@
     } else {
         document.addEventListener('DOMContentLoaded', initializeTeaserAction);
     }
-
 })(window.document);
