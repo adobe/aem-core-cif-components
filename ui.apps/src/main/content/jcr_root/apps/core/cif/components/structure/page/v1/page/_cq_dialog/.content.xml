@@ -37,7 +37,8 @@
                                                 fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used." 
                                                 fieldLabel="Store View" 
                                                 name="./magentoStore" 
-                                                renderReadOnly="{Boolean}false">
+                                                renderReadOnly="{Boolean}false" 
+                                                cq:showOnCreate="{Boolean}true">
                                                 <granite:data jcr:primaryType="nt:unstructured" 
                                                     cq-msm-lockable="magentoStore" />
                                             </storeview>
