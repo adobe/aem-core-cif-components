@@ -15,32 +15,30 @@
 'use strict';
 
 class ProductTeaser {
-    constructor(rootElement) {
-        rootElement.forEach(node => {
-            const actionButton = node.querySelector(`.productteaser__cta button`);
-            const action = actionButton.dataset['action'];
-            let actionHandler;
-            if (action === 'addToCart') {
-                actionHandler = this._addToCartHandler;
-            } else if (action === 'details') {
-                actionHandler = this._seeDetailsHandler;
-            } else {
-                actionHandler = () => {
-                    /* NOOP */
-                };
-            }
+    constructor(element) {
+        const actionButton = element.querySelector(`.productteaser__cta button`);
+        const action = actionButton.dataset['action'];
+        let actionHandler;
+        if (action === 'addToCart') {
+            actionHandler = this._addToCartHandler;
+        } else if (action === 'details') {
+            actionHandler = this._seeDetailsHandler;
+        } else {
+            actionHandler = () => {
+                /* NOOP */
+            };
+        }
 
-            actionButton.addEventListener('click', ev => {
-                const element = ev.currentTarget;
-                actionHandler(element);
-            });
+        actionButton.addEventListener('click', ev => {
+            const element = ev.currentTarget;
+            actionHandler(element);
         });
     }
 
     _addToCartHandler(button) {
         const sku = button.dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: { sku, quantity: 1 }
+            detail: {sku, quantity: 1}
         });
         document.dispatchEvent(customEvent);
     }
@@ -55,10 +53,10 @@ ProductTeaser.selectors = {
     rootElement: '[data-cmp-is=productteaser]'
 };
 
-(function(doc) {
+(function (doc) {
     function onDocumentReady() {
-        const rootElement = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
-        new ProductTeaser(rootElement);
+        const rootElements = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
+        rootElements.forEach(element => new ProductTeaser(element))
     }
 
     if (document.readyState !== 'loading') {

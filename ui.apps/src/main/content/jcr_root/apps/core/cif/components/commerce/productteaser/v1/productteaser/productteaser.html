@@ -15,28 +15,20 @@
 */-->
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser">
+     data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser"
+     data-sly-use.actionsTpl="actions.html">
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.productteaser.v1'}"></sly>
     <sly data-sly-test.ispropavailable="${properties.selection}">
         <div data-sly-test.isvalid="${product.url}" class="item__root" data-cmp-is="productteaser">
             <a class="item__images" href=${product.url}>
                 <img class="item__image" width="100%" height="100%"
                      src="${product.image}" alt="${product.image}"/>
-            </a>                                
+            </a>
             <a class="item__name" href=${product.url}><span>${product.name}</span></a>
             <div class="item__price">
                 <span> ${product.formattedPrice} </span>
             </div>
-            <div class="productteaser__cta" data-sly-test="${product.callToAction != null}">
-                <button data-sly-test="${product.callToAction == 'add-to-cart'}" data-action="addToCart" data-item-sku="${product.sku}"
-                        class="button__root_highPriority button__root clickable__root button__filled" type="button">
-                    <span class="button__content"><span>Add to Cart</span></span>
-                </button>
-                <button data-sly-test="${product.callToAction == 'details'}" data-action="details" data-url="${product.url}"
-                        class="button__root_highPriority button__root clickable__root button__filled" type="button">
-                    <span class="button__content"><span>See more details</span></span>
-                </button>
-            </div>
+            <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
         </div>
         <!-- Condition if the product is not available, or invalid sku provided -->
         <div class="blank-placeholder" data-sly-test=${!isvalid}>
