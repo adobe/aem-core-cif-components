@@ -314,6 +314,7 @@
                         <exclude>**/.babelrc</exclude>
                         <exclude>**/.npmrc</exclude>
                         <exclude>**/.npmignore</exclude>
+                        <exclude>**/test-results/**</exclude>
 
                     </excludes>
                 </configuration>
