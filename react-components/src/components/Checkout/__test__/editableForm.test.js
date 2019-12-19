@@ -30,26 +30,31 @@ describe('<EditableForm />', () => {
                 result: {
                     data: {
                         countries: [
-                        {
-                            id: 'US',
-                            available_regions: [{ code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }]
-                        }
-                    ]
+                            {
+                                id: 'US',
+                                available_regions: [
+                                    { code: 'AL', name: 'Alabama' },
+                                    { code: 'AK', name: 'Alaska' }
+                                ]
+                            }
+                        ]
                     }
                 }
             }
         ];
 
-        const { queryByText } = render(<MockedProvider mocks={mocks} addTypename={false}>
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
-                    <EditableForm />
-                </CheckoutProvider>
-            </CartProvider>
-        </MockedProvider>)
+        const { queryByText } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                    <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+                        <EditableForm />
+                    </CheckoutProvider>
+                </CartProvider>
+            </MockedProvider>
+        );
 
         const result = await waitForElement(() => {
-            return queryByText("Shipping Address");
+            return queryByText('Shipping Address');
         });
 
         expect(result).not.toBeNull();
@@ -69,13 +74,15 @@ describe('<EditableForm />', () => {
             }
         ];
 
-        const { asFragment } = render(<MockedProvider mocks={mocks} addTypename={false}>
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
-                    <EditableForm />
-                </CheckoutProvider>
-            </CartProvider>
-        </MockedProvider>)
+        const { asFragment } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                    <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+                        <EditableForm />
+                    </CheckoutProvider>
+                </CartProvider>
+            </MockedProvider>
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });

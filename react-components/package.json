@@ -13,10 +13,12 @@
     "prepare": "rm -rf ./dist && npm run build",
     "lint": "eslint 'src/**/*.js'",
     "build": "webpack",
-    "test": "npm run lint && jest --coverage",
-    "ci": "npm run lint && jest --ci --runInBand --coverage",
+    "test": "npm run lint && npm run prettier:check && jest --coverage",
+    "ci": "npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run lint && jest --watch",
-    "update-version": "node build-scripts/update-version.js"
+    "update-version": "node build-scripts/update-version.js",
+    "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc"
   },
   "devDependencies": {
     "@apollo/react-hooks": "^3.0.0",
@@ -51,6 +53,7 @@
     "jest-junit": "^10.0.0",
     "jest-transform-graphql": "^2.1.0",
     "mini-css-extract-plugin": "^0.8.0",
+    "prettier": "^1.19.1",
     "prop-types": "^15.7.2",
     "react": "^16.11.0",
     "react-apollo": "^2.5.8",

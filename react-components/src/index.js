@@ -12,15 +12,12 @@
  *
  ******************************************************************************/
 
-export {default as CommerceApp} from './components/App';
-export {default as AuthBar} from './components/AuthBar';
-export {default as Cart} from './components/Minicart';
+export { default as CommerceApp } from './components/App';
+export { default as AuthBar } from './components/AuthBar';
+export { default as Cart } from './components/Minicart';
 
-export {
-    default as UserContextProvider,
-    useUserContext
-} from './context/UserContext';
+export { default as UserContextProvider, useUserContext } from './context/UserContext';
 
-export {CheckoutProvider} from './components/Checkout/checkoutContext';
+export { CheckoutProvider } from './components/Checkout/checkoutContext';
 
-export {CartProvider, CartInitializer} from './components/Minicart';
+export { CartProvider, CartInitializer } from './components/Minicart';

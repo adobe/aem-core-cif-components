@@ -11,4 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export {default} from './app';
+export { default } from './app';

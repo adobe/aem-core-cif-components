@@ -29,11 +29,17 @@ const mocks = [
                 countries: [
                     {
                         id: 'RO',
-                        available_regions: [{ code: 'AB', name: 'Alba' }, { code: 'AR', name: 'Arad' }]
+                        available_regions: [
+                            { code: 'AB', name: 'Alba' },
+                            { code: 'AR', name: 'Arad' }
+                        ]
                     },
                     {
                         id: 'US',
-                        available_regions: [{ code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }]
+                        available_regions: [
+                            { code: 'AL', name: 'Alabama' },
+                            { code: 'AK', name: 'Alaska' }
+                        ]
                     }
                 ]
             }
