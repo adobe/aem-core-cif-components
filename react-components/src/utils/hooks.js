@@ -44,8 +44,8 @@ export const useCookieValue = cookieName => {
 export const useCountries = () => {
     const { data, error } = useQuery(QUERY_COUNTRIES);
     if (error || !data || !data.countries) {
-        return [];
+        return { error, countries: [] };
     }
 
-    return data.countries;
+    return { countries: data.countries };
 };
