@@ -1,3 +1,4 @@
+name-template: "CIF Core Components $NEXT_MINOR_VERSION"
 categories:
   - title: "Features & Enhancements"
     labels:
@@ -8,7 +9,12 @@ categories:
       - "fix"
       - "bugfix"
       - "bug"
+exclude-labels:
+  - "releng"
 template: |
   ## Changes
+  This release introduces the following new features and bug fixes:
 
   $CHANGES
+
+  For a list containing all the fixed issues see [all the change details](https://github.com/adobe/aem-core-cif-components/compare/$PREVIOUS_TAG...core-cif-components-reactor-$NEXT_PATCH_VERSION).
