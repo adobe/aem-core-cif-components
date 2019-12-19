@@ -13,7 +13,7 @@
  ******************************************************************************/
 'use strict';
 
-import ProductTeaser from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs/js/actions.js';
+import ProductTeaser, {LocationAdapter} from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs/js/actions';
 
 let addToCartAction = `<button data-action="addToCart" data-item-sku="1234"
                 class="button__root_highPriority button__root clickable__root button__filled" type="button">
@@ -39,11 +39,11 @@ let generateTeaserHtml = (button) => `<div class="item__root" data-cmp-is="produ
 describe('ProductTeaser', () => {
     let pageRoot;
     let teaserRoot;
-    let fakeAssign;
+    let mockLocation;
 
     before(() => {
+        mockLocation = sinon.mock(LocationAdapter);
 
-        sinon.stub(window.location, 'assign').callsFake(() => true);
         let body = document.querySelector('body');
         pageRoot = document.createElement('div');
         body.appendChild(pageRoot);
@@ -69,7 +69,6 @@ describe('ProductTeaser', () => {
             pageRoot.appendChild(response);
         });
 
-        console.log("Root o' the teaser", teaserRoot);
         const productTeaser = new ProductTeaser(teaserRoot);
         const button = teaserRoot.querySelector('button');
         button.click();
@@ -79,7 +78,7 @@ describe('ProductTeaser', () => {
     });
 
     it('navigates to another location for the See Details CTA', () => {
-
+        mockLocation.expects("setHref").atLeast(1).withArgs("/some/random/url");
         while (pageRoot.firstChild) {
             pageRoot.removeChild(pageRoot.firstChild);
         }
@@ -87,11 +86,9 @@ describe('ProductTeaser', () => {
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(seeMoreDetailsAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
-        console.log("Root o' the teaser", teaserRoot);
         const productTeaser = new ProductTeaser(teaserRoot);
         const button = teaserRoot.querySelector('button');
         button.click();
-        window.location.assign.should.be.true;
-        
+        mockLocation.verify()
     });
 });
