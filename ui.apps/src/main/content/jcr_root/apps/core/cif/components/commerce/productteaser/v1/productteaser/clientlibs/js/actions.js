@@ -40,7 +40,9 @@ class ProductTeaser {
             actionHandler(element.dataset);
         });
     }
-
+    setHref(url) {
+        window.location.assign(url);
+    }
     _addToCartHandler(dataset) {
         const sku = dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
@@ -51,7 +53,7 @@ class ProductTeaser {
 
     _seeDetailsHandler(dataset) {
         const url = dataset['url'];
-        LocationAdapter.setHref(url);
+        this.setHref(url);
     }
 }
 

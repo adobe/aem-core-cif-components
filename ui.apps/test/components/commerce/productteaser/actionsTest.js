@@ -51,14 +51,17 @@ describe('ProductTeaser', () => {
         body.appendChild(pageRoot);
     });
 
+    beforeEach(()=>{
+        while (pageRoot.firstChild) {
+            pageRoot.removeChild(pageRoot.firstChild);
+        }
+    });
+
     after(() => {
         pageRoot.parentNode.removeChild(pageRoot);
     });
 
     it('triggers the cart addition event for the Add To Cart CTA', () => {
-        while (pageRoot.firstChild) {
-            pageRoot.removeChild(pageRoot.firstChild);
-        }
 
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
@@ -83,9 +86,6 @@ describe('ProductTeaser', () => {
             .expects('setHref')
             .atLeast(1)
             .withArgs('/some/random/url');
-        while (pageRoot.firstChild) {
-            pageRoot.removeChild(pageRoot.firstChild);
-        }
 
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(seeMoreDetailsAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
