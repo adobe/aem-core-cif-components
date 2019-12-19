@@ -15,6 +15,8 @@ import React from 'react';
 
 import classes from './changePassword.css';
 import { useUserContext } from '../../context/UserContext';
+import { useMutation } from '@apollo/react-hooks';
+
 import { func } from 'prop-types';
 import { Form } from 'informed';
 
@@ -28,51 +30,85 @@ import {
     validateConfirmPassword,
     hasLengthAtLeast
 } from '../../utils/formValidators';
+import parseError from '../../utils/parseError';
+import LoadingIndicator from '../LoadingIndicator';
+
+import MUTATION_CHANGE_PASSWORD from '../../queries/mutation_change_password.graphql';
 
 const ChangePassword = props => {
     const { showMyAccount } = props;
-    const [{ currentUser }] = useUserContext();
+    const [{ token }] = useUserContext();
+    const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
 
-    const errorMessage = '';
+    const handleSubmit = (formValues) => {
+        doChangePassword({ 
+            variables: { 
+                currentPassword: formValues.oldPassword, 
+                newPassword: formValues.password 
+            },
+            context: {
+                headers: {
+                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                }
+            }
+        });
+    };
+    
+    if (loading) {
+        return (<div className={classes.root}>
+            <LoadingIndicator>Loading</LoadingIndicator>
+        </div>);
+    }
 
-    return (
-        <div className={classes.root}>
-            <Form onSubmit={() => {}}>
-                <Field label="Current Password" required={true}>
-                    <TextInput
-                        field="old-password"
-                        autoComplete="old-password"
-                        validate={combine([isRequired])}
-                        validateOnBlur
-                        aria-label="old-password"
-                    />
-                </Field>
-                <Field label="New Password" required={true}>
-                    <TextInput
-                        field="password"
-                        type="password"
-                        autoComplete="password"
-                        validate={combine([isRequired, [hasLengthAtLeast, 8], validatePassword])}
-                        validateOnBlur
-                        aria-label="password"
-                    />
-                </Field>
-                <Field label="Confirm New Password" required={true}>
-                    <TextInput
-                        field="confirm"
-                        type="password"
-                        validate={combine([isRequired, validateConfirmPassword])}
-                        validateOnBlur
-                        aria-label="confirm"
-                    />
-                </Field>
-                <div className={classes.error}>{errorMessage}</div>
-                <div className={classes.actions}>
-                    <Button type="submit" priority="high" aria-label="submit">{'Change Password'}</Button>
-                </div>
-            </Form>
-        </div>
-    );
+    if (data) {
+        return (<div className={classes.root}>
+            <p>Your password was changed.</p>
+            <div className={classes.actions}>
+                <Button priority="high" onClick={showMyAccount}>{'Back'}</Button>
+            </div>
+        </div>);
+    }
+
+    if (!data) {
+        return (
+            <div className={classes.root}>
+                <Form onSubmit={handleSubmit}>
+                    <Field label="Current Password" required={true}>
+                        <TextInput
+                            field="oldPassword"
+                            type="password"
+                            validate={combine([isRequired])}
+                            validateOnBlur
+                            aria-label="old-password"
+                        />
+                    </Field>
+                    <Field label="New Password" required={true}>
+                        <TextInput
+                            field="password"
+                            type="password"
+                            autoComplete="password"
+                            validate={combine([isRequired, [hasLengthAtLeast, 8], validatePassword])}
+                            validateOnBlur
+                            aria-label="password"
+                        />
+                    </Field>
+                    <Field label="Confirm New Password" required={true}>
+                        <TextInput
+                            field="confirm"
+                            type="password"
+                            validate={combine([isRequired, validateConfirmPassword])}
+                            validateOnBlur
+                            aria-label="confirm"
+                        />
+                    </Field>
+                    { error && (<div className={classes.error}>{parseError(error)}</div>) }
+                    <div className={classes.actions}>
+                        <Button type="submit" priority="high" aria-label="submit">{'Change Password'}</Button>
+                    </div>
+                </Form>
+            </div>
+        );
+    }
 };
 
 ChangePassword.propTypes = {

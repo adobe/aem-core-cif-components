@@ -25,7 +25,6 @@ const UserContext = React.createContext();
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
-    const [token, setToken] = useState(userCookie);
     const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
@@ -35,6 +34,7 @@ const UserContextProvider = props => {
             lastname: '',
             email: ''
         },
+        token: userCookie,
         isSignedIn: isSignedIn(),
         signInError: null,
         inProgress: false,
@@ -91,8 +91,7 @@ const UserContextProvider = props => {
                     });
                 }
                 if (error) {
-                    setUserState({ ...userState, isSignedIn: false });
-                    setToken('');
+                    setUserState({ ...userState, isSignedIn: false, token: '' });
                     setUserCookie('', 0);
                 }
             });
@@ -100,26 +99,24 @@ const UserContextProvider = props => {
 
     // if the token changed, retrieve the user details for that token
     useEffect(() => {
-        if (token.length > 0) {
+        if (userState.token.length > 0) {
             getCustomerDetails({
-                context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
+                context: { headers: { authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}` } }
             });
             setUserState({ ...userState, inProgress: true });
         }
-    }, [token]);
+    }, [userState.token]);
 
     // if the signin mutation returned something handle the response
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
-            setToken(data.generateCustomerToken.token);
-            setUserState({ ...userState, signInError: null, createAccountError: null });
+            setUserState({ ...userState, signInError: null, createAccountError: null, token: data.generateCustomerToken.token });
         }
     }, [data, error]);
 
     useEffect(() => {
         if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
-            setToken('');
             setUserCookie('', 0);
             setUserState({
                 ...userState,
@@ -128,7 +125,8 @@ const UserContextProvider = props => {
                     lastname: '',
                     email: ''
                 },
-                isSignedIn: false
+                isSignedIn: false,
+                token: ''
             });
         }
         if (revokeTokenError) {
@@ -163,9 +161,9 @@ const UserContextProvider = props => {
 
     const signOut = useCallback(() => {
         revokeCustomerToken({
-            context: { headers: { authorization: `Bearer ${token && token.length > 0 ? token : ''}` } }
+            context: { headers: { authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}` } }
         });
-    }, [revokeCustomerToken, token]);
+    }, [revokeCustomerToken, userState.token]);
 
     const resetPassword = async email => {
         await Promise.resolve(email);
