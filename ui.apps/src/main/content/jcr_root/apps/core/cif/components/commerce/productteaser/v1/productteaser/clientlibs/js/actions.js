@@ -16,12 +16,11 @@
 
 const LocationAdapter = {
     setHref(url) {
-        window.location.assign(url)
-    },
+        window.location.assign(url);
+    }
 };
 
 class ProductTeaser {
-
     constructor(element) {
         const actionButton = element.querySelector(`.productteaser__cta button`);
         const action = actionButton.dataset['action'];
@@ -45,7 +44,7 @@ class ProductTeaser {
     _addToCartHandler(dataset) {
         const sku = dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: {sku, quantity: 1}
+            detail: { sku, quantity: 1 }
         });
         document.dispatchEvent(customEvent);
     }
@@ -60,10 +59,10 @@ ProductTeaser.selectors = {
     rootElement: '[data-cmp-is=productteaser]'
 };
 
-export {LocationAdapter}
+export { LocationAdapter };
 export default ProductTeaser;
 
-(function (doc) {
+(function(doc) {
     function onDocumentReady() {
         const rootElements = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
         rootElements.forEach(element => new ProductTeaser(element));

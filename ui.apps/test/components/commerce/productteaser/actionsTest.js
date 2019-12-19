@@ -13,7 +13,9 @@
  ******************************************************************************/
 'use strict';
 
-import ProductTeaser, {LocationAdapter} from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs/js/actions';
+import ProductTeaser, {
+    LocationAdapter
+} from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs/js/actions';
 
 let addToCartAction = `<button data-action="addToCart" data-item-sku="1234"
                 class="button__root_highPriority button__root clickable__root button__filled" type="button">
@@ -25,7 +27,7 @@ let seeMoreDetailsAction = `<button data-action="details" data-url="/some/random
             <span class="button__content"><span>See more details</span></span>
         </button>`;
 
-let generateTeaserHtml = (button) => `<div class="item__root" data-cmp-is="productteaser">
+let generateTeaserHtml = button => `<div class="item__root" data-cmp-is="productteaser">
   <a class="item__images" href="#"></a>
   <a class="item__name" href="#"><span>Sample product</span></a>
     <div class="item__price">
@@ -54,7 +56,6 @@ describe('ProductTeaser', () => {
     });
 
     it('triggers the cart addition event for the Add To Cart CTA', () => {
-
         while (pageRoot.firstChild) {
             pageRoot.removeChild(pageRoot.firstChild);
         }
@@ -78,7 +79,10 @@ describe('ProductTeaser', () => {
     });
 
     it('navigates to another location for the See Details CTA', () => {
-        mockLocation.expects("setHref").atLeast(1).withArgs("/some/random/url");
+        mockLocation
+            .expects('setHref')
+            .atLeast(1)
+            .withArgs('/some/random/url');
         while (pageRoot.firstChild) {
             pageRoot.removeChild(pageRoot.firstChild);
         }
@@ -89,6 +93,6 @@ describe('ProductTeaser', () => {
         const productTeaser = new ProductTeaser(teaserRoot);
         const button = teaserRoot.querySelector('button');
         button.click();
-        mockLocation.verify()
+        mockLocation.verify();
     });
 });
