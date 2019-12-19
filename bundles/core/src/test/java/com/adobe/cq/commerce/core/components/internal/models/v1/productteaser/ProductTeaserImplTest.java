@@ -54,7 +54,7 @@ public class ProductTeaserImplTest {
         return new AemContext((AemContextCallback) context -> {
             // Load page structure
             context.load()
-                   .json(contentPath, "/content");
+                .json(contentPath, "/content");
         }, ResourceResolverType.JCR_MOCK);
     }
 
@@ -76,32 +76,32 @@ public class ProductTeaserImplTest {
         Page page = context.currentPage(PAGE);
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver()
-                                            .getResource(resourcePath));
+            .getResource(resourcePath));
 
         String json = getResource("/graphql/magento-graphql-productteaser-result.json");
         Query rootQuery = QueryDeserializer.getGson()
-                                           .fromJson(json, Query.class);
+            .fromJson(json, Query.class);
         product = rootQuery.getProducts()
-                           .getItems()
-                           .get(0);
+            .getItems()
+            .get(0);
 
         GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
         response.setData(rootQuery);
         GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
         Mockito.when(teaserResource.adaptTo(GraphqlClient.class))
-               .thenReturn(graphqlClient);
+            .thenReturn(graphqlClient);
         Mockito.when(graphqlClient.execute(any(), any(), any(), any()))
-               .thenReturn(response);
+            .thenReturn(response);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request()
-                                                             .getAttribute(SlingBindings.class.getName());
+            .getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
         productTeaser = context.request()
-                               .adaptTo(ProductTeaserImpl.class);
+            .adaptTo(ProductTeaserImpl.class);
     }
 
     @Test
@@ -129,14 +129,14 @@ public class ProductTeaserImplTest {
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPrice()
-                              .getRegularPrice()
-                              .getAmount();
+            .getRegularPrice()
+            .getAmount();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency()
-                                                              .toString()));
+            .toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
         Assert.assertEquals(product.getImage()
-                                   .getUrl(), productTeaser.getImage());
+            .getUrl(), productTeaser.getImage());
     }
 
     @Test
@@ -146,29 +146,29 @@ public class ProductTeaserImplTest {
         // Find the selected variant
         ConfigurableProduct cp = (ConfigurableProduct) product;
         String selection = teaserResource.getValueMap()
-                                         .get("selection", String.class);
+            .get("selection", String.class);
         String variantSku = SiteNavigation.toProductSkus(selection)
-                                          .getRight();
+            .getRight();
         SimpleProduct variant = cp.getVariants()
-                                  .stream()
-                                  .map(v -> v.getProduct())
-                                  .filter(sp -> variantSku.equals(sp.getSku()))
-                                  .findFirst()
-                                  .orElse(null);
+            .stream()
+            .map(v -> v.getProduct())
+            .filter(sp -> variantSku.equals(sp.getSku()))
+            .findFirst()
+            .orElse(null);
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
         Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey(), variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPrice()
-                              .getRegularPrice()
-                              .getAmount();
+            .getRegularPrice()
+            .getAmount();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency()
-                                                              .toString()));
+            .toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
         Assert.assertEquals(variant.getImage()
-                                   .getUrl(), productTeaser.getImage());
+            .getUrl(), productTeaser.getImage());
     }
 
     private String getResource(String filename) throws IOException {

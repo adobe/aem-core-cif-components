@@ -51,7 +51,7 @@ describe('ProductTeaser', () => {
         body.appendChild(pageRoot);
     });
 
-    beforeEach(()=>{
+    beforeEach(() => {
         while (pageRoot.firstChild) {
             pageRoot.removeChild(pageRoot.firstChild);
         }
@@ -62,7 +62,6 @@ describe('ProductTeaser', () => {
     });
 
     it('triggers the cart addition event for the Add To Cart CTA', () => {
-
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
