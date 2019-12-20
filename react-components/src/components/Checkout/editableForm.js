@@ -38,7 +38,7 @@ const EditableForm = props => {
     const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
-    const countries = useCountries();
+    const { error: countriesError, countries } = useCountries();
 
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
@@ -67,7 +67,8 @@ const EditableForm = props => {
         paymentError ||
         braintreePaymentError ||
         shippingMethodsError ||
-        guestEmailError
+        guestEmailError ||
+        countriesError
     ) {
         let errorObj =
             error ||
@@ -75,7 +76,8 @@ const EditableForm = props => {
             shippingMethodsError ||
             guestEmailError ||
             paymentError ||
-            braintreePaymentError;
+            braintreePaymentError ||
+            countriesError;
         cartDispatch({ type: 'error', error: errorObj.toString() });
     }
 
@@ -183,6 +185,11 @@ const EditableForm = props => {
             shippingMethod:
                 shippingMethodsResult.setShippingMethodsOnCart.cart.shipping_addresses[0].selected_shipping_method
         });
+    }
+
+    // We can display the forms only after the countries are loaded.
+    if (!countries || countries.length === 0) {
+        return null;
     }
 
     switch (editing) {

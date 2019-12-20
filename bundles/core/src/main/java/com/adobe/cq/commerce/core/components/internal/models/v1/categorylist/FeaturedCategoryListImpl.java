@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,9 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.wcm.api.Page;
 
@@ -46,7 +44,6 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
     private static final String CATEGORY_ID_PROP = "categoryIds";
-    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Inject
     private Resource resource;
@@ -59,11 +56,9 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     private List<String> categoryIds;
 
-    private List<CategoryInterface> categories;
-
     private Page categoryPage;
 
-    private AbstractCategoryRetriever categoryRetriever;
+    private AbstractCategoriesRetriever categoriesRetriever;
 
     @PostConstruct
     private void initModel() {
@@ -76,39 +71,24 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         if (categoryIdArray != null) {
             categoryIds = Arrays.asList(categoryIdArray);
             MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
+            categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+            categoriesRetriever.setIdentifiers(categoryIds);
         } else {
             LOGGER.debug("There are no categories configured for CategoryList Component.");
         }
     }
 
-    private void fetchCategoriesData(List<String> categoryIds) {
-        // CIF-930 raised to fix Alias support in category query ,
-        // this will be improved rather than using a loop.
-        categories = new ArrayList<>();
-        categoryIds.forEach(categoryId -> {
-            categoryRetriever.setIdentifier(categoryId);
-            CategoryTree category = (CategoryTree) categoryRetriever.fetchCategory();
-
-            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), categoryId));
-            if (category.getImage() != null) {
-                category.setImage(categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + category.getImage());
-            }
-
-            categories.add(category);
-        });
-    }
-
     @Override
-    public List<CategoryInterface> getCategories() {
-        if (categories == null) {
-            fetchCategoriesData(categoryIds);
+    public List<CategoryTree> getCategories() {
+        List<CategoryTree> categories = categoriesRetriever.fetchCategories();
+        for (CategoryTree category : categories) {
+            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
         }
         return categories;
     }
 
     @Override
-    public AbstractCategoryRetriever getCategoryRetriever() {
-        return this.categoryRetriever;
+    public AbstractCategoriesRetriever getCategoriesRetriever() {
+        return this.categoriesRetriever;
     }
 }
