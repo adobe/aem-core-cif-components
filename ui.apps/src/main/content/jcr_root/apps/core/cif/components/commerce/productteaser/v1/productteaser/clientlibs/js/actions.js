@@ -23,22 +23,29 @@ const LocationAdapter = {
 class ProductTeaser {
     constructor(element) {
         const actionButton = element.querySelector(`.productteaser__cta button`);
-        const action = actionButton.dataset['action'];
-        let actionHandler;
-        if (action === 'addToCart') {
-            actionHandler = this._addToCartHandler;
-        } else if (action === 'details') {
-            actionHandler = this._seeDetailsHandler;
-        } else {
-            actionHandler = () => {
-                /* NOOP */
-            };
-        }
+        if (actionButton != null) {
+            const action = actionButton.dataset['action'];
+            let actionHandler;
+            switch (action) {
+                case 'addToCart':
+                    actionHandler = this._addToCartHandler;
+                    break;
+                case 'details':
+                    actionHandler = this._seeDetailsHandler;
+                    break;
+                default:
+                    actionHandler = this._noOpHandler;
+            }
 
-        actionButton.addEventListener('click', ev => {
-            const element = ev.currentTarget;
-            actionHandler(element.dataset);
-        });
+            actionButton.addEventListener('click', ev => {
+                const element = ev.currentTarget;
+                actionHandler(element.dataset);
+            });
+        }
+    }
+
+    _noOpHandler() {
+        /* As the name says... NOOP */
     }
 
     _addToCartHandler(dataset) {

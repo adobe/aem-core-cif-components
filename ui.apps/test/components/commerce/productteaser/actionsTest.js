@@ -27,6 +27,11 @@ let seeMoreDetailsAction = `<button data-action="details" data-url="/some/random
             <span class="button__content"><span>See more details</span></span>
         </button>`;
 
+let misconfiguredAction = `<button data-action="" data-url="/some/random/url"
+                class="button__root_highPriority button__root clickable__root button__filled" type="button">
+            <span class="button__content"><span>See more details</span></span>
+        </button>`;
+
 let generateTeaserHtml = button => `<div class="item__root" data-cmp-is="productteaser">
   <a class="item__images" href="#"></a>
   <a class="item__name" href="#"><span>Sample product</span></a>
@@ -45,6 +50,7 @@ describe('ProductTeaser', () => {
 
     before(() => {
         mockLocation = sinon.mock(LocationAdapter);
+        sinon.spy(ProductTeaser.prototype, '_noOpHandler');
 
         let body = document.querySelector('body');
         pageRoot = document.createElement('div');
@@ -59,6 +65,7 @@ describe('ProductTeaser', () => {
 
     after(() => {
         pageRoot.parentNode.removeChild(pageRoot);
+        ProductTeaser.prototype._noOpHandler.restore();
     });
 
     it('triggers the cart addition event for the Add To Cart CTA', () => {
@@ -93,5 +100,14 @@ describe('ProductTeaser', () => {
         const button = teaserRoot.querySelector('button');
         button.click();
         mockLocation.verify();
+    });
+
+    it("doesn't do anything if the CTA is misconfigured", () => {
+        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(misconfiguredAction));
+        teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
+        const productTeaser = new ProductTeaser(teaserRoot);
+        const button = teaserRoot.querySelector('button');
+        button.click();
+        assert(productTeaser._noOpHandler.called);
     });
 });
