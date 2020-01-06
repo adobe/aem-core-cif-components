@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 
 /**
  * Provides the list of categories to CategoryList Componenet.
@@ -32,13 +32,13 @@ public interface FeaturedCategoryList {
      *
      * @return {@code  List<CategoryInterface>}
      */
-    List<CategoryInterface> getCategories();
+    List<CategoryTree> getCategories();
 
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.
      *
      * @return category retriever instance
      */
-    AbstractCategoryRetriever getCategoryRetriever();
+    AbstractCategoriesRetriever getCategoriesRetriever();
 
 }

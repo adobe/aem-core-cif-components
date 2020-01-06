@@ -35,7 +35,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -53,10 +53,11 @@ public class FeaturedCateogoryListImplTest {
     private GraphqlClient graphqlClient;
     private FeaturedCategoryListImpl slingModel;
     private Query rootQuery;
-    private List<CategoryInterface> categories = new ArrayList<CategoryInterface>();
+    private List<CategoryTree> categories = new ArrayList<>();
     private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
-    private static final int TEST_CATEGORY = 3;
+    private static final int TEST_CATEGORY = 5;
+    private static final int TEST_CATEGORY_B = 6;
     private static final String TEST_CATEGORY_NAME = "Equipment";
 
     @Rule
@@ -65,7 +66,7 @@ public class FeaturedCateogoryListImplTest {
     @Before
     public void setup() throws Exception {
         String json = IOUtils.toString(
-            this.getClass().getResourceAsStream("/graphql/magento-graphql-singlecategory-result.json"),
+            this.getClass().getResourceAsStream("/graphql/magento-graphql-category-alias-result.json"),
             StandardCharsets.UTF_8);
         rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         Page categoryPage = mock(Page.class);
@@ -79,7 +80,7 @@ public class FeaturedCateogoryListImplTest {
         slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(request));
         slingBindings.put("currentPage", page);
         slingBindings.put("resource", resource);
-        Integer categoryId[] = { TEST_CATEGORY };
+        Integer categoryId[] = { TEST_CATEGORY, TEST_CATEGORY_B };
         Map<String, Object> pageProperties = new HashMap<>();
         pageProperties.put("categoryIds", categoryId);
         ValueMapDecorator vMap = new ValueMapDecorator(pageProperties);
@@ -96,9 +97,9 @@ public class FeaturedCateogoryListImplTest {
     @Test
     public void verifyModel() {
         Assert.assertNotNull(slingModel);
-        List<CategoryInterface> list = slingModel.getCategories();
+        List<CategoryTree> list = slingModel.getCategories();
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 1);
+        Assert.assertEquals(list.size(), 2);
     }
 
     @Test
