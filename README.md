@@ -70,6 +70,18 @@ Starting with 2.3.2, Magento supports cache-able GraphQL requests and starting w
 
 Here is a full [video walk-through of the setup process](https://www.adobe.io/apis/experiencecloud/commerce-integration-framework/getting-started.html).
 
+### Easy install with the "all" package
+
+If you want to build all the modules yourself and get all the latest (yet) **unreleased** changes, just build and install all the modules with the following command at the root of the repository:
+
+```
+mvn clean install -PautoInstallAll
+```
+This installs everything by default to `localhost:4502` without any context path. You can also configure the install location with the following maven properties:
+* `aem.host`: the name of the AEM instance
+* `aem.port`: the port number of the AEM instance
+* `aem.contextPath`: the context path of your AEM instance (if not `/`)
+
 ### UberJar
 
 This project relies on the AEM 6.4.4 `cq-quickstart` UberJar. This is publicly available on https://repo.adobe.com
