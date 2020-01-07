@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public class ProductCarouselImpl implements ProductCarousel {
     private Resource resource;
 
     @Inject
+    @Optional
     private String[] productSkuList;
 
     @Inject
@@ -67,6 +69,10 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @PostConstruct
     private void initModel() {
+        if (!isConfigured()) {
+            return;
+        }
+
         List<String> productSkus = Arrays.asList(productSkuList);
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -86,6 +92,11 @@ public class ProductCarouselImpl implements ProductCarousel {
 
         productsRetriever = new ProductsRetriever(magentoGraphqlClient);
         productsRetriever.setIdentifiers(baseProductSkus);
+    }
+
+    @Override
+    public boolean isConfigured() {
+        return productSkuList != null;
     }
 
     @Override
