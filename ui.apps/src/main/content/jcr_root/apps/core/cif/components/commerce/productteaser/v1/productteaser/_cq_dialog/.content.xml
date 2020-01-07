@@ -40,7 +40,7 @@
                                             <call-to-action jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="granite/ui/components/coral/foundation/form/select"
                                                             fieldLabel="Call to action"
-                                                            fieldDescription="The call to action to include in the teaser, if any"
+                                                            fieldDescription="The call to action to include in the teaser, if any. Note the the 'Add to cart' option only works for simple/variant products"
                                                             name="./cta">
                                                 <items jcr:primaryType="nt:unstructured">
                                                     <none jcr:primaryType="nt:unstructured"
