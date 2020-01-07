@@ -13,7 +13,8 @@
           },
           "productteaser-variant": {
             "selection": "MJ01#MJ01-XS-Orange",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "addToCart"
           },
           "productteaser-path": {
             "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
