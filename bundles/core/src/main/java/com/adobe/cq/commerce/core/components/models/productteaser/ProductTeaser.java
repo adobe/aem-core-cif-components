@@ -53,6 +53,21 @@ public interface ProductTeaser {
     String getUrl();
 
     /**
+     * Returns the SKU of the product displayed by this {@code ProductTeaser}
+     * 
+     * @return a String value representing the SKU
+     */
+    String getSku();
+
+    /**
+     * Returns the "call to action" configured for this teaser.
+     * 
+     * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured then this methods
+     *         returns {@link null}
+     */
+    String getCallToAction();
+
+    /**
      * Returns in instance of the product retriever for fetching product data via GraphQL.
      *
      * @return product retriever instance
