@@ -32,16 +32,15 @@
         </div>
         <!-- Condition if the product is not available, or invalid sku provided -->
         <div class="blank-placeholder" data-sly-test=${!isvalid}>
-            <strong>Product Teaser <br> Incorrect Configuration. Select a Magento Product.</strong>
+            <strong>${'Product Teaser' @ i18n} <br> ${'Incorrect Configuration. Select a Magento Product.' @ i18n}</strong>
         </div>
     </sly>
     <!-- Condition for no product configured and no property value available-->
     <div data-sly-test=${!ispropavailable} class="blank-placeholder">
-        <strong>Product Teaser</strong><br>
-        <p>Configuration options: </p>
-        <p> 1.Use dialog to choose Magento Products </p>
-        <p> 2.Drag and drop a Magento product from assets sidebar at this area </p>
-        <p> 3.You can also drag and drop Magento product from sidebar direclty in parsys and it will render the
-            teaser </p>
+        <strong>${'Product Teaser' @ i18n}</strong><br>
+        <p>${'Configuration options' @ i18n}: </p>
+        <p> 1.${'Use dialog to choose Magento Products' @ i18n} </p>
+        <p> 2.${'Drag and drop a Magento product from assets sidebar at this area' @ i18n} </p>
+        <p> 3.${'You can also drag and drop Magento product from sidebar direclty in parsys and it will render the teaser' @ i18n} </p>
     </div>
 </sly>
