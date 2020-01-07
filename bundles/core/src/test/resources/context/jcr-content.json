@@ -4,7 +4,7 @@
     "jcr:content": {
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
-      "cq:magentoStore": "my-store",
+      "magentoStore": "my-store",
       "root": {
         "responsivegrid": {
           "productteaser-simple": {
@@ -56,7 +56,7 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "cq:magentoStore": "my-store"
+      "magentoStore": "my-store"
     },
     "pageC": {
       "jcr:primaryType": "cq:Page",
@@ -69,6 +69,21 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent"
+    }
+  },
+  "pageE": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:magentoStore": "my-store"
+    }
+  },
+  "pageF": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "cq:magentoStore": "old-store"
     }
   }
 }

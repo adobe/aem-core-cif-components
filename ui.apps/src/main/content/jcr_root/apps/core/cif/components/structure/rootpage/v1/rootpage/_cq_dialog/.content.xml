@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" 
-    xmlns:granite="http://www.adobe.com/jcr/granite/1.0" 
-    xmlns:cq="http://www.day.com/jcr/cq/1.0" 
     xmlns:jcr="http://www.jcp.org/jcr/1.0" 
     xmlns:nt="http://www.jcp.org/jcr/nt/1.0" 
+    xmlns:cq="http://www.day.com/jcr/cq/1.0" 
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0" 
     jcr:primaryType="nt:unstructured" 
     jcr:title="Page" 
     sling:resourceType="cq/gui/components/authoring/dialog" 
     extraClientlibs="[cq.common.wcm,core.wcm.components.page.v2.editor,cq.wcm.msm.properties,granite.contexthub.configuration,cq.siteadmin.admin.properties]" 
     mode="edit" 
-    trackingFeature="cif-core-components:page:v1">
+    trackingFeature="cif-core-components:rootpage:v1">
     <content granite:class="cq-dialog-content-page" 
         jcr:primaryType="nt:unstructured" 
         sling:resourceType="granite/ui/components/coral/foundation/container">
@@ -22,28 +22,33 @@
                     <commerce cq:showOnCreate="{Boolean}true" 
                         jcr:primaryType="nt:unstructured" 
                         jcr:title="Commerce" 
-                        sling:orderBefore="cloudservices" 
-                        sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns">
+                        sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns" 
+                        sling:orderBefore="cloudservices">
                         <items jcr:primaryType="nt:unstructured">
                             <column jcr:primaryType="nt:unstructured" 
                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                 <items jcr:primaryType="nt:unstructured">
-                                    <magentoSection jcr:primaryType="nt:unstructured" 
-                                        jcr:title="Magento Store Configuration" 
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
+                                    <graphqlsection jcr:primaryType="nt:unstructured" 
+                                        jcr:title="GraphQL Client Configuration" 
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset" 
+                                        sling:orderBefore="magentoSection">
                                         <items jcr:primaryType="nt:unstructured">
-                                            <storeview jcr:primaryType="nt:unstructured" 
-                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield" 
-                                                fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used." 
-                                                fieldLabel="Store View" 
-                                                name="./magentoStore" 
-                                                renderReadOnly="{Boolean}false" 
+                                            <graphqlclient emptyOption="{Boolean}false" 
+                                                granite:id="cq-commerce-graphql-client" 
+                                                jcr:primaryType="nt:unstructured" 
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/select" 
+                                                fieldDescription="The GraphQL client instance. If this list is empty check the configurations of the CIF GraphQL Client Configuration service. " 
+                                                fieldLabel="GraphQL Client" 
+                                                name="./cq:graphqlClient" 
+                                                required="{Boolean}false" 
                                                 cq:showOnCreate="{Boolean}true">
+                                                <datasource jcr:primaryType="nt:unstructured" 
+                                                    sling:resourceType="core/cif/components/page/v1/datasource/graphqlclients" />
                                                 <granite:data jcr:primaryType="nt:unstructured" 
-                                                    cq-msm-lockable="magentoStore" />
-                                            </storeview>
+                                                    cq-msm-lockable="cq:graphqlClient" />
+                                            </graphqlclient>
                                         </items>
-                                    </magentoSection>
+                                    </graphqlsection>
                                 </items>
                             </column>
                         </items>

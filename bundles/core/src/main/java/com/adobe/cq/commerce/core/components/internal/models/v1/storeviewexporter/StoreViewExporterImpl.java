@@ -32,7 +32,7 @@ import com.day.cq.wcm.api.Page;
 public class StoreViewExporterImpl implements StoreViewExporter {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
-    private static final String STORE_CODE_PROPERTY = "cq:magentoStore";
+    private static final String STORE_CODE_PROPERTY = "magentoStore";
 
     @Inject
     private Page currentPage;
