@@ -75,28 +75,43 @@ public class MagentoGraphqlClientTest {
 
     @Test
     public void testMagentoStoreProperty() {
-        // Get page which has the cq:magentoStore property in its jcr:content node
+        // Get page which has the magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
         testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testInheritedMagentoStoreProperty() {
-        // Get page whose parent has the cq:magentoStore property in its jcr:content node
+        // Get page whose parent has the magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageB/pageC"));
         testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testMissingMagentoStoreProperty() {
-        // Get page whose parent has the cq:magentoStore property in its jcr:content node
+        // Get page whose parent has the magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageD"));
         testMagentoStoreProperty(resource, false);
     }
 
     @Test
+    public void testOldMagentoStoreProperty() {
+        // Get page which has the old cq:magentoStore property in its jcr:content node
+        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageE"));
+        testMagentoStoreProperty(resource, true);
+    }
+
+    @Test
+    public void testNewMagentoStoreProperty() {
+        // Get page which has both the new magentoStore property and old cq:magentoStore property
+        // in its jcr:content node and make sure the new one is prefered
+        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageF"));
+        testMagentoStoreProperty(resource, true);
+    }
+
+    @Test
     public void testError() {
-        // Get page which has the cq:magentoStore property in its jcr:content node
+        // Get page which has the magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
 

@@ -4,7 +4,7 @@
     "jcr:content": {
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
-      "cq:magentoStore": "my-store",
+      "magentoStore": "my-store",
       "root": {
         "responsivegrid": {
           "productteaser-simple": {
@@ -13,7 +13,8 @@
           },
           "productteaser-variant": {
             "selection": "MJ01#MJ01-XS-Orange",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "addToCart"
           },
           "productteaser-path": {
             "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
@@ -34,6 +35,19 @@
           },
           "searchresults": {
             "sling:resourceType": "venia/components/commerce/searchresults"
+          },
+          "relatedproducts": {
+            "product": "24-MG01",
+            "relationType": "RELATED_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "upsellproducts": {
+            "relationType": "UPSELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "crosssellproducts": {
+            "relationType": "CROSS_SELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
           }
         }
       }
@@ -43,7 +57,7 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "cq:magentoStore": "my-store"
+      "magentoStore": "my-store"
     },
     "pageC": {
       "jcr:primaryType": "cq:Page",
@@ -56,6 +70,21 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent"
+    }
+  },
+  "pageE": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:magentoStore": "my-store"
+    }
+  },
+  "pageF": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "cq:magentoStore": "old-store"
     }
   }
 }

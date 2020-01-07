@@ -15,9 +15,11 @@
 */-->
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser">
+     data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser"
+     data-sly-use.actionsTpl="actions.html">
+    <sly data-sly-call="${clientlib.all @ categories='core.cif.components.productteaser.v1'}"></sly>
     <sly data-sly-test.ispropavailable="${properties.selection}">
-        <div data-sly-test.isvalid="${product.url}" class="item__root">
+        <div data-sly-test.isvalid="${product.url}" class="item__root" data-cmp-is="productteaser">
             <a class="item__images" href=${product.url}>
                 <img class="item__image" width="100%" height="100%"
                      src="${product.image}" alt="${product.image}"/>
@@ -26,6 +28,7 @@
             <div class="item__price">
                 <span> ${product.formattedPrice} </span>
             </div>
+            <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
         </div>
         <!-- Condition if the product is not available, or invalid sku provided -->
         <div class="blank-placeholder" data-sly-test=${!isvalid}>
