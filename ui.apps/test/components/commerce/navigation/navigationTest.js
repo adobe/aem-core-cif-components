@@ -36,10 +36,7 @@ describe('Navigation', () => {
                 <div class="header__primaryActions">
                     <button class="navTrigger__root clickable__root" aria-label="Toggle navigation panel">
                         <span class="icon__root">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">                                
                             </svg>
                         </span>
                     </button>
@@ -47,9 +44,7 @@ describe('Navigation', () => {
                         <div class="navigation__header">
                             <button class="trigger__root clickable__root trigger__root--back" type="button" style="display: none;">
                                 <span class="icon__root">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                                        <polyline points="12 19 5 12 12 5"></polyline>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     </svg>
                                 </span>
                             </button>
@@ -57,9 +52,7 @@ describe('Navigation', () => {
                             <h2 class="navHeader__title"><span>Main Menu</span></h2>
                             <button class="trigger__root clickable__root trigger__root--close" type="button">
                                 <span class="icon__root">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     </svg>
                                 </span>
                             </button>
@@ -75,9 +68,7 @@ describe('Navigation', () => {
                                                 </a>
                                                 <button class="trigger__root clickable__root" type="button" data-id="/content/atest/us/en/products/category-page.34.html">
                                                     <span class="icon__root">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                                                            <polyline points="12 19 19 12 12 5"></polyline>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30">
                                                         </svg>
                                                     </span>
                                                 </button>
@@ -92,9 +83,7 @@ describe('Navigation', () => {
                                                 </a>
                                                 <button class="trigger__root clickable__root" type="button" data-id="/content/atest/us/en/products/category-page.31.html">
                                                     <span class="icon__root">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                                                            <polyline points="12 19 19 12 12 5"></polyline>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30">
                                                         </svg>
                                                     </span>
                                                 </button>
@@ -113,9 +102,7 @@ describe('Navigation', () => {
                                                 </a>
                                                 <button class="trigger__root clickable__root" type="button" data-id="/content/atest/us/en/products/category-page.34.html">
                                                     <span class="icon__root">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                                                            <polyline points="12 19 19 12 12 5"></polyline>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30">
                                                         </svg>
                                                     </span>
                                                 </button>
@@ -130,9 +117,7 @@ describe('Navigation', () => {
                                                 </a>
                                                 <button class="trigger__root clickable__root" type="button" data-id="/content/atest/us/en/products/category-page.31.html">
                                                     <span class="icon__root">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                                                            <polyline points="12 19 19 12 12 5"></polyline>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30">
                                                         </svg>
                                                     </span>
                                                 </button>
@@ -147,9 +132,6 @@ describe('Navigation', () => {
                                                 <a class="categoryLeaf__root categoryLeaf__root--link" href="/content/atest/us/en/products/category-page.35.html" title="Pants &amp; Shorts">
                                                     <span class="categoryLeaf__text">Pants &amp; Shorts</span>
                                                 </a>
-                                                <span class="icon__root">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-                                                </span>
                                             </span>
                                         </span>
                                     </li>
@@ -159,9 +141,6 @@ describe('Navigation', () => {
                                                 <a class="categoryLeaf__root categoryLeaf__root--link" href="/content/atest/us/en/products/category-page.36.html" title="Skirts">
                                                     <span class="categoryLeaf__text">Skirts</span>
                                                 </a>
-                                                <span class="icon__root">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-                                                </span>
                                             </span>
                                         </span>
                                     </li>
@@ -173,9 +152,6 @@ describe('Navigation', () => {
                                                 <a class="categoryLeaf__root categoryLeaf__root--link" href="/content/atest/us/en/products/category-page.32.html" title="Blouses &amp; Shirts">
                                                     <span class="categoryLeaf__text">Blouses &amp; Shirts</span>
                                                 </a>
-                                                <span class="icon__root">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-                                                </span>
                                             </span>
                                         </span>
                                     </li>
@@ -185,9 +161,6 @@ describe('Navigation', () => {
                                                 <a class="categoryLeaf__root categoryLeaf__root--link" href="/content/atest/us/en/products/category-page.33.html" title="Sweaters">
                                                     <span class="categoryLeaf__text">Sweaters</span>
                                                 </a>
-                                                <span class="icon__root">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-                                                </span>
                                             </span>
                                         </span>
                                     </li>
@@ -241,23 +214,23 @@ describe('Navigation', () => {
     });
 
     it('navigates down by button click', () => {
-        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         document.querySelector(FIRST_ITEM_SELECTOR + ' button').click();
 
-        assert.equal('Pants & Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
     });
 
     it('navigates up one level', () => {
-        assert.equal('Pants & Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         document.querySelector(Navigation.selectors.backNavigationButton).click();
 
-        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
     });
 
     it('navigates down by child element click', () => {
-        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         var target = document.querySelector(FIRST_ITEM_SELECTOR + ' button svg');
 
@@ -265,14 +238,14 @@ describe('Navigation', () => {
         event.initCustomEvent('click', true, true);
         target.dispatchEvent(event);
 
-        assert.equal('Pants & Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         var targetLi = document.querySelector('.header__primaryActions aside div.categoryTree__root li:nth-child(1)');
         targetLi.classList.add('cmp-navigation__item--active');
 
         document.querySelector(Navigation.selectors.backNavigationButton).click();
 
-        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a').title);
+        assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
         assert.isTrue(document.querySelector(FIRST_ITEM_SELECTOR).classList.contains('cmp-navigation__item--active'));
     });
 
