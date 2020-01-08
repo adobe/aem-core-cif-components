@@ -45,14 +45,14 @@ describe('Custom hooks', () => {
     describe('useCountries', () => {
         it('returns the correct country list', async () => {
             const HookWrapper = () => {
-                let results = useCountries();
-                if (!results || results.length === 0) {
+                const { error, countries } = useCountries();
+                if (error || !countries || countries.length === 0) {
                     return <div id="results"></div>;
                 }
                 return (
                     <div id="results">
-                        <div data-testid="count">{results.length}</div>
-                        <div data-testid="result">{results[1].id}</div>
+                        <div data-testid="count">{countries.length}</div>
+                        <div data-testid="result">{countries[1].id}</div>
                     </div>
                 );
             };
