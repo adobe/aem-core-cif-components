@@ -18,11 +18,12 @@ import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
 import CreateAccount from '../CreateAccount';
+import ChangePassword from '../ChangePassword';
 
 import classes from './authModal.css';
 
 const AuthModal = props => {
-    const { view, showMyAccount, showMenu, showForgotPassword, showCreateAccount } = props;
+    const { view, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount } = props;
 
     let child;
 
@@ -37,7 +38,10 @@ const AuthModal = props => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} />;
+            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            break;
+        case 'CHANGE_PASSWORD':
+            child = <ChangePassword showMyAccount={showMyAccount} />;
             break;
         case 'FORGOT_PASSWORD':
             child = <ForgotPassword onClose={showMenu} />;
@@ -54,6 +58,7 @@ AuthModal.propTypes = {
     showMyAccount: func.isRequired,
     showMenu: func.isRequired,
     showForgotPassword: func.isRequired,
+    showChangePassword: func.isRequired,
     showCreateAccount: func.isRequired
 };
 

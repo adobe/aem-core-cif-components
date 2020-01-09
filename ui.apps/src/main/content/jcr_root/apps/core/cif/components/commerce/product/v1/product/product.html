@@ -44,7 +44,7 @@
             </section>
             <section class="productFullDetail__description productFullDetail__section">
                 <h2 class="productFullDetail__descriptionTitle productFullDetail__sectionTitle">
-                    Product Description
+                    ${'Product Description' @ i18n}
                 </h2>
                 <div class="richText__root" role="description">
                     ${product.description @ context='html'}
@@ -55,6 +55,6 @@
                 <strong role="sku">${product.sku}</strong>
             </section>
         </sly>
-        <p data-sly-test="${!found}">Product not found.</p>
+        <p data-sly-test="${!found}">${'Product not found.' @ i18n}</p>
     </form>
 </sly>

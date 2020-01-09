@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { LogOut as SignOutIcon } from 'react-feather';
+import { LogOut as SignOutIcon, Lock as PasswordIcon } from 'react-feather';
 
 import AccountLink from './accountLink';
 import LoadingIndicator from '../LoadingIndicator';
@@ -24,7 +24,7 @@ import { func } from 'prop-types';
 const SIGN_OUT = 'Sign Out';
 
 const MyAccount = props => {
-    const { showMenu } = props;
+    const { showMenu, showChangePassword } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
 
     if (inProgress) {
@@ -46,6 +46,10 @@ const MyAccount = props => {
                 <span className={classes.subtitle}>{currentUser.email}</span>
             </div>
             <div className={classes.actions}>
+                <AccountLink onClick={showChangePassword}>
+                    <PasswordIcon size={18} />
+                    Change Password
+                </AccountLink>
                 <AccountLink onClick={signOut}>
                     <SignOutIcon size={18} />
                     {SIGN_OUT}
@@ -56,7 +60,8 @@ const MyAccount = props => {
 };
 
 MyAccount.propTypes = {
-    showMenu: func.isRequired
+    showMenu: func.isRequired,
+    showChangePassword: func.isRequired
 };
 
 export default MyAccount;
