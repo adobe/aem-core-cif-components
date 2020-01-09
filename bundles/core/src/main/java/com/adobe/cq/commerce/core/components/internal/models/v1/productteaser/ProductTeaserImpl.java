@@ -58,7 +58,6 @@ public class ProductTeaserImpl implements ProductTeaser {
     private NumberFormat priceFormatter;
     private Page productPage;
     private Pair<String, String> combinedSku;
-
     private AbstractProductRetriever productRetriever;
 
     @PostConstruct
@@ -100,6 +99,17 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getName() {
         return getProduct().getName();
+    }
+
+    @Override
+    public String getSku() {
+        String sku = getProduct().getSku();
+        return sku != null ? sku : combinedSku.getLeft();
+    }
+
+    @Override
+    public String getCallToAction() {
+        return properties.get("cta", null);
     }
 
     @Override

@@ -13,7 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -31,9 +32,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CategoryRetrieverTest {
+public class CategoriesRetrieverTest {
 
-    private CategoryRetriever retriever;
+    private CategoriesRetriever retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
@@ -41,21 +42,22 @@ public class CategoryRetrieverTest {
         mockClient = mock(MagentoGraphqlClient.class);
         GraphqlResponse mockResponse = mock(GraphqlResponse.class);
         Query mockQuery = mock(Query.class, RETURNS_DEEP_STUBS);
+        CategoryTree mockCategory = mock(CategoryTree.class);
 
         when(mockClient.execute(any())).thenReturn(mockResponse);
         when(mockResponse.getData()).thenReturn(mockQuery);
-        when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
+        when(mockQuery.get(any())).thenReturn(mockCategory);
         when(mockQuery.getStoreConfig().getSecureBaseMediaUrl()).thenReturn("");
 
-        retriever = new CategoryRetriever(mockClient);
-        retriever.setIdentifier("5");
+        retriever = new CategoriesRetriever(mockClient);
+        retriever.setIdentifiers(Arrays.asList("5", "6"));
     }
 
     @Test
     public void testQueryOverride() {
         String sampleQuery = "{ my_sample_query }";
         retriever.setQuery(sampleQuery);
-        retriever.fetchCategory();
+        retriever.fetchCategories();
 
         verify(mockClient, times(1)).execute(sampleQuery);
     }
@@ -64,29 +66,31 @@ public class CategoryRetrieverTest {
     public void testExtendCategoryQuery() {
         retriever.extendCategoryQueryWith(c -> c.childrenCount()
             .addCustomSimpleField("level"));
-        retriever.fetchCategory();
+        retriever.fetchCategories();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,name,url_path,position,image,children_count,level_custom_:level},storeConfig{secure_base_media_url}}";
+        String expectedQuery = "{storeConfig{secure_base_media_url},category__category_5:category(id:5){id,name,url_path,position,image,children_count,level_custom_:level},category__category_6:category(id:6){id,name,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
     @Test
     public void testChangingIdentifier() {
-        retriever.fetchCategory();
+        retriever.fetchCategories();
 
         final ArgumentCaptor<String> firstCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(firstCaptor.capture());
 
-        retriever.setIdentifier("6");
-        retriever.fetchCategory();
+        retriever.setIdentifiers(Arrays.asList("6"));
+        retriever.fetchCategories();
 
         final ArgumentCaptor<String> secondCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(2)).execute(secondCaptor.capture());
 
         Assert.assertTrue(firstCaptor.getValue().contains("category(id:5)"));
+        Assert.assertTrue(firstCaptor.getValue().contains("category(id:6)"));
+        Assert.assertFalse(secondCaptor.getValue().contains("category(id:5)"));
         Assert.assertTrue(secondCaptor.getValue().contains("category(id:6)"));
     }
 

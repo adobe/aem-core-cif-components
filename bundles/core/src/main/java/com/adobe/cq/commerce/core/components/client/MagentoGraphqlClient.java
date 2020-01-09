@@ -38,7 +38,7 @@ import com.day.cq.wcm.api.PageManager;
 
 /**
  * This is a wrapper class for {@link GraphqlClient}. The constructor adapts a {@link Resource} to
- * the GraphqlClient class and also looks for the <code>cq:magentoStore</code> property on the resource
+ * the GraphqlClient class and also looks for the <code>magentoStore</code> property on the resource
  * path in order to set the Magento <code>Store</code> HTTP header. This wrapper also sets the custom
  * Magento Gson deserializer from {@link QueryDeserializer}.
  */
@@ -46,7 +46,7 @@ public class MagentoGraphqlClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
 
-    public static final String STORE_CODE_PROPERTY = "cq:magentoStore";
+    public static final String STORE_CODE_PROPERTY = "magentoStore";
 
     private GraphqlClient graphqlClient;
     private RequestOptions requestOptions;
@@ -82,7 +82,16 @@ public class MagentoGraphqlClient {
         } else {
             properties = new ComponentInheritanceValueMap(resource);
         }
+
+        // get Magento store code
         String storeCode = properties.getInherited(STORE_CODE_PROPERTY, String.class);
+        // for backward compatibility also check of the old cq:magentoStore property
+        if (storeCode == null) {
+            storeCode = properties.getInherited("cq:" + STORE_CODE_PROPERTY, String.class);
+            if (storeCode != null) {
+                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
+            }
+        }
         if (storeCode != null) {
             Header storeHeader = new BasicHeader("Store", storeCode);
             requestOptions.withHeaders(Collections.singletonList(storeHeader));
