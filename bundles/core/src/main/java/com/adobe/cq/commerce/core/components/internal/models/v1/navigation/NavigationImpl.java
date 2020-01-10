@@ -141,8 +141,8 @@ public class NavigationImpl implements Navigation {
             return false;
         }
 
-        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.class);
-        return Boolean.TRUE.equals(showMainCategories);
+        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE);
+        return showMainCategories;
     }
 
     private boolean isCatalogRoot(Page page) {
@@ -150,8 +150,8 @@ public class NavigationImpl implements Navigation {
             return false;
         }
 
-        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.FALSE);
-        return Boolean.FALSE.equals(showMainCategories);
+        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE);
+        return !showMainCategories;
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
