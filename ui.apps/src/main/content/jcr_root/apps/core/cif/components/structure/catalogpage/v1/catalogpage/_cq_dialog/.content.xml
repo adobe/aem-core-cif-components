@@ -48,7 +48,7 @@
                                                 name="./showMainCategories"
                                                 renderReadOnly="{Boolean}true"
                                                 text="Show main categories"
-                                                value="true">
+                                                value="{Boolean}true">
                                                 <granite:data jcr:primaryType="nt:unstructured"
                                                     cq-msm-lockable="showMainCategories" />
                                             </showMainCategories>
