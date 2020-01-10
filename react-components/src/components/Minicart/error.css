@@ -9,3 +9,8 @@
     color: rgb(var(--venia-warning-dark));
     padding-bottom: 0.83rem;
 }
+
+.root .action {
+    padding: 10px 0;
+    text-align: center;
+}
