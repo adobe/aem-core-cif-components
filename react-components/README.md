@@ -24,7 +24,7 @@ A context provider for a cart component which provides state management for chec
 
 ### AuthBar
 
-The account management components - Sign In, Forgot Password and My Account, all wrapped into one component
+The account management components - Sign In, Forgot Password, Change Password and My Account, all wrapped into one component
 
 ### UserContextProvider
 
