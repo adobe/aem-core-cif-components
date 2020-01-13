@@ -16,10 +16,10 @@ import React from 'react';
 import Button from '../Button';
 
 import classes from './error.css';
-import {useCartState} from './cartContext';
+import { useCartState } from './cartContext';
 
 const Error = () => {
-    const [{errorMessage}, dispatch] = useCartState();
+    const [{ errorMessage }, dispatch] = useCartState();
 
     return (
         <div className={classes.root}>
@@ -29,7 +29,7 @@ const Error = () => {
                 <Button
                     priority="high"
                     onClick={() => {
-                        dispatch({type: 'discardError'});
+                        dispatch({ type: 'discardError' });
                     }}>
                     <span>Close</span>
                 </Button>

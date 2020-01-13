@@ -24,12 +24,7 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 import Button from '../Button';
 import combine from '../../utils/combineValidators';
-import {
-    isRequired,
-    validatePassword,
-    validateConfirmPassword,
-    hasLengthAtLeast
-} from '../../utils/formValidators';
+import { isRequired, validatePassword, validateConfirmPassword, hasLengthAtLeast } from '../../utils/formValidators';
 import parseError from '../../utils/parseError';
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -40,11 +35,11 @@ const ChangePassword = props => {
     const [{ token }] = useUserContext();
     const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
 
-    const handleSubmit = (formValues) => {
-        doChangePassword({ 
-            variables: { 
-                currentPassword: formValues.oldPassword, 
-                newPassword: formValues.password 
+    const handleSubmit = formValues => {
+        doChangePassword({
+            variables: {
+                currentPassword: formValues.oldPassword,
+                newPassword: formValues.password
             },
             context: {
                 headers: {
@@ -53,20 +48,26 @@ const ChangePassword = props => {
             }
         });
     };
-    
+
     if (loading) {
-        return (<div className={classes.root}>
-            <LoadingIndicator>Loading</LoadingIndicator>
-        </div>);
+        return (
+            <div className={classes.root}>
+                <LoadingIndicator>Loading</LoadingIndicator>
+            </div>
+        );
     }
 
     if (data) {
-        return (<div className={classes.root}>
-            <p>Your password was changed.</p>
-            <div className={classes.actions}>
-                <Button priority="high" onClick={showMyAccount}>{'Back'}</Button>
+        return (
+            <div className={classes.root}>
+                <p>Your password was changed.</p>
+                <div className={classes.actions}>
+                    <Button priority="high" onClick={showMyAccount}>
+                        {'Back'}
+                    </Button>
+                </div>
             </div>
-        </div>);
+        );
     }
 
     if (!data) {
@@ -101,9 +102,11 @@ const ChangePassword = props => {
                             aria-label="confirm"
                         />
                     </Field>
-                    { error && (<div className={classes.error}>{parseError(error)}</div>) }
+                    {error && <div className={classes.error}>{parseError(error)}</div>}
                     <div className={classes.actions}>
-                        <Button type="submit" priority="high" aria-label="submit">{'Change Password'}</Button>
+                        <Button type="submit" priority="high" aria-label="submit">
+                            {'Change Password'}
+                        </Button>
                     </div>
                 </Form>
             </div>
@@ -112,7 +115,7 @@ const ChangePassword = props => {
 };
 
 ChangePassword.propTypes = {
-    showMyAccount: func.isRequired,
+    showMyAccount: func.isRequired
 };
 
 export default ChangePassword;
