@@ -13,21 +13,21 @@
  ******************************************************************************/
 
 import React from 'react';
-import {string} from 'prop-types';
+import { string } from 'prop-types';
 import ApolloClient from 'apollo-boost';
 
-import {ApolloProvider} from '@apollo/react-hooks';
+import { ApolloProvider } from '@apollo/react-hooks';
 
-import {CartProvider, CartInitializer} from '../Minicart';
-import {CheckoutProvider} from '../Checkout';
+import { CartProvider, CartInitializer } from '../Minicart';
+import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
 
 const App = props => {
-    const {uri, storeView = 'default'} = props;
+    const { uri, storeView = 'default' } = props;
 
     const client = new ApolloClient({
         uri,
-        headers: {Store: storeView}
+        headers: { Store: storeView }
     });
 
     return (

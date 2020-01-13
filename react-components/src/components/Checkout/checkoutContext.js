@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 
-import React, {createContext, useContext, useReducer} from 'react';
-import {string, func, shape, object} from 'prop-types';
+import React, { createContext, useContext, useReducer } from 'react';
+import { string, func, shape, object } from 'prop-types';
 
 export const initialCheckoutState = {
     flowState: 'cart',
@@ -100,9 +100,7 @@ export const CheckoutProvider = props => {
     const reducer = props.reducer || checkoutReducer;
     const initialState = props.initialState || initialCheckoutState;
     return (
-        <CheckoutContext.Provider value={useReducer(reducer, initialState)}>
-            {props.children}
-        </CheckoutContext.Provider>
+        <CheckoutContext.Provider value={useReducer(reducer, initialState)}>{props.children}</CheckoutContext.Provider>
     );
 };
 
