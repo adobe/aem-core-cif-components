@@ -21,7 +21,6 @@ import UserContextProvider, { useUserContext } from '../../../context/UserContex
 
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
 
-
 describe('<ChangePassword />', () => {
     it('renders the change password form', () => {
         const { asFragment } = render(
@@ -36,22 +35,24 @@ describe('<ChangePassword />', () => {
     });
 
     it('renders the success message', async () => {
-        const mocks = [{
-            request: {
-                query: MUTATION_CHANGE_PASSWORD,
-                variables: {
-                    currentPassword: 'old-password',
-                    newPassword: 'NewPassword123'
-                }
-            },
-            result: {
-                data: {
-                    changeCustomerPassword: {
-                        id: 4
+        const mocks = [
+            {
+                request: {
+                    query: MUTATION_CHANGE_PASSWORD,
+                    variables: {
+                        currentPassword: 'old-password',
+                        newPassword: 'NewPassword123'
+                    }
+                },
+                result: {
+                    data: {
+                        changeCustomerPassword: {
+                            id: 4
+                        }
                     }
                 }
             }
-        }];
+        ];
 
         const { getByLabelText, getByText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>

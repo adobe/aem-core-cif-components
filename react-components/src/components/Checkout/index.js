@@ -11,5 +11,5 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export {default} from './flow';
-export {CheckoutProvider} from './checkoutContext';
+export { default } from './flow';
+export { CheckoutProvider } from './checkoutContext';
