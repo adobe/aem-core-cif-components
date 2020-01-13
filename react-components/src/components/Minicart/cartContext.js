@@ -84,9 +84,7 @@ export const reducerFactory = setCartCookie => {
                     ...state,
                     cart: action.cart,
                     isLoading: false,
-                    couponError: !action.cart.applied_coupon
-                        ? state.couponError
-                        : null
+                    couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
             case 'error':
                 console.error(action.error);
