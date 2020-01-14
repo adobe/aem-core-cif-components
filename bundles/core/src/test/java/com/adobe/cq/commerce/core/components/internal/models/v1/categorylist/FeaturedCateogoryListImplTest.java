@@ -109,7 +109,7 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertNotNull(slingModel);
         List<CategoryTree> list = slingModel.getCategories();
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 2);
+        Assert.assertEquals(list.size(), 3);
     }
 
     @Test
@@ -127,6 +127,13 @@ public class FeaturedCateogoryListImplTest {
         categories = slingModel.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(1).getImage(), TEST_RENDITION_PATH);
+    }
+
+    @Test
+    public void verifyIgnoreInvalidAsset() {
+        categories = slingModel.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
     }
 
     private AemContext createContext(String contentPath) {

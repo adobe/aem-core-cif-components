@@ -58,7 +58,12 @@
               "item1": {
                 "categoryId": "6",
                 "asset": "/content/dam/venia/landing_page_image4.jpg"
-              }
+              },
+              "item2": {
+                "categoryId": "7",
+                "asset": "invalid-asset"
+              },
+              "item3": {}
             }
           }
         }
