@@ -103,7 +103,8 @@ public class RelatedProductsImpl implements ProductCarousel {
             productIdType = ProductIdType.SLUG;
         }
 
-        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, RelationType.valueOf(relationType), productIdType);
+        RelationType rel = relationType != null ? RelationType.valueOf(relationType) : RelationType.RELATED_PRODUCTS;
+        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, rel, productIdType);
         productsRetriever.setIdentifiers(Collections.singletonList(skuOrSlug));
     }
 

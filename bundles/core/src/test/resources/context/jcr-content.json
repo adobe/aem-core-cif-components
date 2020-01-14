@@ -48,6 +48,10 @@
           "crosssellproducts": {
             "relationType": "CROSS_SELL_PRODUCTS",
             "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "relatedproducts-without-relation-type": {
+            "product": "24-MG01",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
           }
         }
       }

@@ -108,7 +108,7 @@
 
             this._cardsContainer.style.transition =
                 'margin-left ' + this._speed + 'ms' + ' ' + this._effect + ' ' + this._delay + 'ms';
-            this._cardsContainer.style.marginLeft = newPos + 'px';
+            this._cardsContainer.style.marginLeft = (newPos == 0 && this._minPos >= 0) ? 'auto' : (newPos + 'px');
             this._currentPos = n;
 
             this._btnNext.disabled = false;
