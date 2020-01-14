@@ -44,11 +44,11 @@
                                             <showMainCategories cq:showOnCreate="{Boolean}true"
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                                fieldDescription="If checked the navigation includes the catalog landing page, otherwise the navigation includes the child categories of the category provided in the field 'Root category ID'."
+                                                fieldDescription="If checked the navigation includes the catalog page, otherwise the navigation includes the child categories of the category provided in the field 'Root category ID'."
                                                 name="./showMainCategories"
                                                 renderReadOnly="{Boolean}true"
                                                 deleteHint="{Boolean}false"
-                                                text="Show landing page"
+                                                text="Show catalog page"
                                                 value="{Boolean}false">
                                                 <granite:data jcr:primaryType="nt:unstructured"
                                                     cq-msm-lockable="showMainCategories" />
