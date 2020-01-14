@@ -29,7 +29,7 @@
                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                 <items jcr:primaryType="nt:unstructured">
                                     <catalogsection jcr:primaryType="nt:unstructured" 
-                                        jcr:title="Catalog Landing Page" 
+                                        jcr:title="Catalog Page" 
                                         sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
                                         <items jcr:primaryType="nt:unstructured">
                                             <showMainCategories cq:showOnCreate="{Boolean}true" 
