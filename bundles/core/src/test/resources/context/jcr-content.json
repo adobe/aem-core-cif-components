@@ -48,6 +48,18 @@
           "crosssellproducts": {
             "relationType": "CROSS_SELL_PRODUCTS",
             "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "featuredcategorylist": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              },
+              "item1": {
+                "categoryId": "6",
+                "asset": "/content/dam/venia/landing_page_image4.jpg"
+              }
+            }
           }
         }
       }
