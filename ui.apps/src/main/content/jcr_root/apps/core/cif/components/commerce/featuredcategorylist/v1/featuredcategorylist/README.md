@@ -15,12 +15,13 @@ limitations under the License.
 -->
 # Featured category list (v1)
 
-Featured category list is a component for displaying list of categories. Authors can confgure multiple categories via `Category Picker` and use them on pages for displaying featured categories.
+Featured category list is a component for displaying list of categories. Authors can confgure multiple categories via `Multifield` and `Category Picker` and use them on pages for displaying featured categories.
 
 ## Features
 
-- Selection of multiple categories via category picker. 
+- Selection of multiple categories via multifield and category picker. 
 - Listing of categories with images.
+- Override category images with AEM assets.
 - Clicking on a category directs user to specific category page.
 - Style System support.
 
