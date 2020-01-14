@@ -15,7 +15,7 @@ limitations under the License.
 -->
 # Featured category list (v1)
 
-Featured category list is a component for displaying list of categories. Authors can confgure multiple categories via `Multifield` and `Category Picker` and use them on pages for displaying featured categories.
+Featured category list is a component for displaying list of categories. Authors can configure multiple categories via `Multifield` and `Category Picker` and use them on pages for displaying featured categories.
 
 ## Features
 
@@ -34,7 +34,7 @@ Featured Category List component uses graphql query to fetch categories to displ
 This component has several dependencies on internal client-side modules.
 
 ### Usage prerequisites
-Make sure you have dispatcher running with magento url configured .See `dispatcher/README.md`. You should have the category images configured in your Magento instance.
+Make sure you have dispatcher running with Magento url configured. See `dispatcher/README.md`. You should have the category images configured in your Magento instance.
 
 
 ### Use Object
@@ -44,7 +44,7 @@ The Featured category list component uses the `com.adobe.cq.commerce.core.compon
 ### Edit Dialog Properties
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
- `./categoryIds` - Category ids in an Array of string saved by Category Picker  .
+ `./categoryIds` - Category ids in an Array of string saved by Category Picker.
 
 ### CSS API (BEM)
 
