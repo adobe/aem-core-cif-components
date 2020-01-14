@@ -101,7 +101,11 @@ const UserContextProvider = props => {
     useEffect(() => {
         if (userState.token.length > 0) {
             getCustomerDetails({
-                context: { headers: { authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}` } }
+                context: {
+                    headers: {
+                        authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}`
+                    }
+                }
             });
             setUserState({ ...userState, inProgress: true });
         }
@@ -111,7 +115,12 @@ const UserContextProvider = props => {
     useEffect(() => {
         if (data && data.generateCustomerToken && !error) {
             setUserCookie(data.generateCustomerToken.token);
-            setUserState({ ...userState, signInError: null, createAccountError: null, token: data.generateCustomerToken.token });
+            setUserState({
+                ...userState,
+                signInError: null,
+                createAccountError: null,
+                token: data.generateCustomerToken.token
+            });
         }
     }, [data, error]);
 
@@ -161,7 +170,11 @@ const UserContextProvider = props => {
 
     const signOut = useCallback(() => {
         revokeCustomerToken({
-            context: { headers: { authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}` } }
+            context: {
+                headers: {
+                    authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}`
+                }
+            }
         });
     }, [revokeCustomerToken, userState.token]);
 
