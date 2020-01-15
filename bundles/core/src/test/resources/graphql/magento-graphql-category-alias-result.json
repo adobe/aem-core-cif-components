@@ -15,5 +15,12 @@
     "url_path": "equipment/running",
     "position": 1,
     "image": null
+  },
+  "category__category_7": {
+    "id": 7,
+    "name": "Bike",
+    "url_path": "equipment/bike",
+    "position": 1,
+    "image": "500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
   }
 }

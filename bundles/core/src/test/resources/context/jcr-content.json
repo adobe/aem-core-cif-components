@@ -52,6 +52,23 @@
           "relatedproducts-without-relation-type": {
             "product": "24-MG01",
             "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "featuredcategorylist": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              },
+              "item1": {
+                "categoryId": "6",
+                "asset": "/content/dam/venia/landing_page_image4.jpg"
+              },
+              "item2": {
+                "categoryId": "7",
+                "asset": "invalid-asset"
+              },
+              "item3": {}
+            }
           }
         }
       }
