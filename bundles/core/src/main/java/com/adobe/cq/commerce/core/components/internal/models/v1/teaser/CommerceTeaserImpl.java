@@ -62,9 +62,6 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
         if (actionsEnabled) {
             populateActions();
-            if (actions.size() > 0) {
-                ListItem firstAction = actions.get(0);
-            }
         }
     }
 

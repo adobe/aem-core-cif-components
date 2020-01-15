@@ -74,7 +74,7 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return SiteNavigation.toProductUrl(productPage.getPath(), this.getSlug(), activeVariantSku);
+        return SiteNavigation.toProductUrl(productPage, this.getSlug(), activeVariantSku);
     }
 
     @Nullable

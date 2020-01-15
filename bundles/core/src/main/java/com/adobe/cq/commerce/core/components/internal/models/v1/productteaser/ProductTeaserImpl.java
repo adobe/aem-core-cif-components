@@ -125,7 +125,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     public String getUrl() {
         if (getProduct() != null) {
             // Get slug from base product
-            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
+            return SiteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
         }
         return null;
     }
