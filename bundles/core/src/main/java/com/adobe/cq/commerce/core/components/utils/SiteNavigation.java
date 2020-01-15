@@ -180,32 +180,34 @@ public class SiteNavigation {
 
     /**
      * Builds and returns a product page URL based on the given page and slug.
-     * If any, this method might return the URL of a specific subpage configured for
-     * that particular product.
+     * If <code>deepLink</code> is true, this method might return the URL of a
+     * specific subpage configured for that particular product.
      * 
      * @param page The page used to build the URL.
      * @param slug The slug of the product.
      * @return The product page URL.
      */
-    public static String toProductUrl(Page page, String slug) {
-        return toProductUrl(page, slug, null);
+    public static String toProductUrl(Page page, String slug, boolean deepLink) {
+        return toProductUrl(page, slug, null, deepLink);
     }
 
     /**
      * Builds and returns a product page URL based on the given page, slug, and variant sku.
-     * If any, this method might return the URL of a specific subpage configured for
-     * that particular product.
+     * If <code>deepLink</code> is true, this method might return the URL of a
+     * specific subpage configured for that particular product.
      * 
      * @param page The page used to build the URL.
      * @param slug The slug of the product.
      * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
      * @return The product page URL.
      */
-    public static String toProductUrl(Page page, String slug, String variantSku) {
+    public static String toProductUrl(Page page, String slug, String variantSku, boolean deepLink) {
         Resource pageResource = page.adaptTo(Resource.class);
-        Resource subPageResource = toSpecificPage(pageResource, slug);
-        if (subPageResource != null) {
-            pageResource = subPageResource;
+        if (deepLink) {
+            Resource subPageResource = toSpecificPage(pageResource, slug);
+            if (subPageResource != null) {
+                pageResource = subPageResource;
+            }
         }
 
         if (StringUtils.isNotBlank(variantSku)) {

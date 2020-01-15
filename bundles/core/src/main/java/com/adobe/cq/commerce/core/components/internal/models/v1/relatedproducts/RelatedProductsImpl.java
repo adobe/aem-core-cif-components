@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRe
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
 public class RelatedProductsImpl implements ProductCarousel {
@@ -65,6 +66,7 @@ public class RelatedProductsImpl implements ProductCarousel {
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private AbstractProductsRetriever productsRetriever;
+    private boolean deepLink;
 
     @PostConstruct
     private void initModel() {
@@ -72,6 +74,7 @@ public class RelatedProductsImpl implements ProductCarousel {
             return;
         }
 
+        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
@@ -128,7 +131,8 @@ public class RelatedProductsImpl implements ProductCarousel {
                 product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                 product.getThumbnail().getUrl(),
                 productPage,
-                null));
+                null,
+                deepLink));
         }
         return carouselProductList;
     }

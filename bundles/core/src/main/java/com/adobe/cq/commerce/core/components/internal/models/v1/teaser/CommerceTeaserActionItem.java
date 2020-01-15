@@ -25,11 +25,13 @@ public class CommerceTeaserActionItem implements ListItem {
     private String title;
     private String selector = "";
     private Page page = null;
+    private boolean deepLink;
 
-    public CommerceTeaserActionItem(String title, String selector, Page page) {
+    public CommerceTeaserActionItem(String title, String selector, Page page, boolean deepLink) {
         this.title = title;
         this.selector = selector;
         this.page = page;
+        this.deepLink = deepLink;
     }
 
     @Nonnull
@@ -42,6 +44,6 @@ public class CommerceTeaserActionItem implements ListItem {
     @Override
     public String getURL() {
         return (selector == null || selector.trim().equalsIgnoreCase("")) ? (page.getPath() + ".html")
-            : SiteNavigation.toProductUrl(page, selector);
+            : SiteNavigation.toProductUrl(page, selector, deepLink);
     }
 }

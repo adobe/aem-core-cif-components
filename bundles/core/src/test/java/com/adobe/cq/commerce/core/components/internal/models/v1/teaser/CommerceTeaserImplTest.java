@@ -26,6 +26,7 @@ import org.junit.Test;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -63,6 +64,9 @@ public class CommerceTeaserImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(commerceTeaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        // Configure the component to create deep links to specific pages
+        context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
     }

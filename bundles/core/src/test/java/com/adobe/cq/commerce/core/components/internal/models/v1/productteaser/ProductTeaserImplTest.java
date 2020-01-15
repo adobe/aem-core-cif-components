@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -72,7 +73,7 @@ public class ProductTeaserImplTest {
 
     private ProductInterface product;
 
-    public void setUp(String resourcePath) throws Exception {
+    public void setUp(String resourcePath, boolean deepLink) throws Exception {
         Page page = context.currentPage(PAGE);
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
@@ -93,6 +94,11 @@ public class ProductTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
+        if (deepLink) {
+            // Configure the component to create deep links to specific pages
+            context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+        }
+
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
     }
 
@@ -108,20 +114,20 @@ public class ProductTeaserImplTest {
 
     @Test
     public void verifyCtaDetails() throws Exception {
-        setUp(PRODUCTTEASER_VARIANT);
+        setUp(PRODUCTTEASER_VARIANT, false);
         Assert.assertEquals("addToCart", productTeaser.getCallToAction());
         Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
     }
 
     public void verifyProduct(String resourcePath) throws Exception {
-        setUp(resourcePath);
+        setUp(resourcePath, true);
 
         Assert.assertEquals(product.getName(), productTeaser.getName());
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
 
         // There is a dedicated specific subpage for that product
         Assert.assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
-        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
+        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), true), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPrice().getRegularPrice().getAmount();
@@ -133,7 +139,7 @@ public class ProductTeaserImplTest {
 
     @Test
     public void verifyProductVariant() throws Exception {
-        setUp(PRODUCTTEASER_VARIANT);
+        setUp(PRODUCTTEASER_VARIANT, false);
 
         // Find the selected variant
         ConfigurableProduct cp = (ConfigurableProduct) product;
@@ -148,7 +154,7 @@ public class ProductTeaserImplTest {
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
+        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku, false), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPrice().getRegularPrice().getAmount();

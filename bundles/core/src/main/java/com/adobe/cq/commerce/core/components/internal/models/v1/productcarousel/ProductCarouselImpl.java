@@ -30,6 +30,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Optional;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +45,16 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
 public class ProductCarouselImpl implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
+
+    @Self
+    private SlingHttpServletRequest request;
 
     @Inject
     private Resource resource;
@@ -64,6 +69,7 @@ public class ProductCarouselImpl implements ProductCarousel {
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private List<String> baseProductSkus;
+    private boolean deepLink;
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -73,6 +79,7 @@ public class ProductCarouselImpl implements ProductCarousel {
             return;
         }
 
+        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         List<String> productSkus = Arrays.asList(productSkuList);
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -130,7 +137,8 @@ public class ProductCarouselImpl implements ProductCarousel {
                     product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                     product.getThumbnail().getUrl(),
                     productPage,
-                    skus.getRight()));
+                    skus.getRight(),
+                    deepLink));
             }
         }
         return carouselProductList;

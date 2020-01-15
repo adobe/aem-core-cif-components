@@ -28,6 +28,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
@@ -39,12 +40,16 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
 public class ProductTeaserImpl implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
+
+    @Self
+    private SlingHttpServletRequest request;
 
     @Inject
     private Resource resource;
@@ -59,9 +64,11 @@ public class ProductTeaserImpl implements ProductTeaser {
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
+    private boolean deepLink;
 
     @PostConstruct
     protected void initModel() {
+        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
@@ -125,7 +132,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     public String getUrl() {
         if (getProduct() != null) {
             // Get slug from base product
-            return SiteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
+            return SiteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight(), deepLink);
         }
         return null;
     }

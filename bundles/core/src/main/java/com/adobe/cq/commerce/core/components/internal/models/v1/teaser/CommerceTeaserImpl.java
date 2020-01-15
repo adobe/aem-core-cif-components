@@ -32,6 +32,7 @@ import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = CommerceTeaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
 public class CommerceTeaserImpl implements CommerceTeaser {
@@ -44,6 +45,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     private Page categoryPage;
     private boolean actionsEnabled = false;
     private List<ListItem> actions = new ArrayList<>();
+    private boolean deepLink;
 
     @Inject
     private Resource resource;
@@ -59,6 +61,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
         setActionsEnabled();
         productPage = SiteNavigation.getProductPage(currentPage);
         categoryPage = SiteNavigation.getCategoryPage(currentPage);
+        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
 
         if (actionsEnabled) {
             populateActions();
@@ -92,7 +95,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     page = currentPage;
 
                 }
-                actions.add(new CommerceTeaserActionItem(title, selector, page));
+                actions.add(new CommerceTeaserActionItem(title, selector, page, deepLink));
             }
         }
     }
