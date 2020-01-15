@@ -31,6 +31,7 @@ module.exports = function(config) {
       'node_modules/@babel/polyfill/dist/polyfill.js',
       'src/main/content/jcr_root/apps/core/cif/components/commerce/product/**/js/*.js',
       'src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/**/js/*.js',
+      'src/main/content/jcr_root/apps/core/cif/components/structure/navigation/**/js/*.js',
 
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js',
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js',
