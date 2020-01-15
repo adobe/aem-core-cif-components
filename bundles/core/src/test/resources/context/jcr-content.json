@@ -71,6 +71,7 @@
               "item3": {
                 "text": "Some text"
               }
+            }
           },
           "featuredcategorylist": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
