@@ -1,0 +1,15 @@
+{
+    "commerce": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:mixinTypes": [
+            "rep:AccessControllable"
+        ],
+        "jcr:createdBy": "admin",
+        "jcr:created": "Thu Jan 16 2020 12:20:34 GMT+0200",
+        "default": {
+            "jcr:primaryType": "nt:unstructured",
+            "cq:graphqlClient": "default",
+            "magentoStore": "default"
+        }
+    }
+}

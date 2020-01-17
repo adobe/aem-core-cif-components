@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
@@ -56,6 +58,7 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -74,6 +77,8 @@ public class ProductImplTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
+                context.load().json("/context/jcr-conf.json", "/conf");
+
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -115,6 +120,12 @@ public class ProductImplTest {
         XSSAPI xssApi = mock(XSSAPI.class);
         when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
         slingBindings.put("xssApi", xssApi);
+
+        ConfigurationResourceResolver configurationResourceResolver = mock(ConfigurationResourceResolver.class);
+        Resource mockConfigurationResource = mock(Resource.class);
+        when(mockConfigurationResource.getValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.<String, Object>of("cq:graphqlClient", "my-catalog")));
+        when(configurationResourceResolver.getResource(any(Resource.class), any(String.class), any(String.class))).thenReturn(mockConfigurationResource);
+        slingBindings.put("configurationResourceResolver", configurationResourceResolver);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));

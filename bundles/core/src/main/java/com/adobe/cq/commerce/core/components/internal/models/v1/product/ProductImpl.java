@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -96,6 +97,9 @@ public class ProductImpl implements Product {
     @Inject
     private XSSAPI xssApi;
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
     private NumberFormat priceFormatter;
     private Boolean configurable;
     private Boolean loadClientPrice;
@@ -108,7 +112,7 @@ public class ProductImpl implements Product {
         String slug = parseProductSlug();
 
         // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, configurationResourceResolver);
 
         if (StringUtils.isNotBlank(slug)) {
             productRetriever = new ProductRetriever(magentoGraphqlClient);
