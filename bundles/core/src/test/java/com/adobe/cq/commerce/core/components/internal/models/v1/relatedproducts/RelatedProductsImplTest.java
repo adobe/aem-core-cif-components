@@ -180,7 +180,8 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
 
             Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-            Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), true), item.getURL());
+            SiteNavigation siteNavigation = new SiteNavigation(context.request());
+            Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
 
             Money amount = product.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);

@@ -43,7 +43,6 @@ import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
@@ -82,7 +81,6 @@ public class ProductListImpl implements ProductList {
     private boolean showTitle;
     private boolean showImage;
     private boolean loadClientPrice;
-    private boolean deepLink;
 
     private int navPageCursor = 1;
     private int navPageSize = PAGE_SIZE_DEFAULT;
@@ -94,8 +92,6 @@ public class ProductListImpl implements ProductList {
 
     @PostConstruct
     private void initModel() {
-        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
@@ -221,7 +217,7 @@ public class ProductListImpl implements ProductList {
                         product.getSmallImage().getUrl(),
                         productPage,
                         null,
-                        deepLink));
+                        request));
                 }
             }
         }

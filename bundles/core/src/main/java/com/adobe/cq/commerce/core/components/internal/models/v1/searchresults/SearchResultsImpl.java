@@ -45,7 +45,6 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
@@ -70,13 +69,11 @@ public class SearchResultsImpl implements SearchResults {
 
     private String searchTerm;
     private MagentoGraphqlClient magentoGraphqlClient;
-    private boolean deepLink;
 
     Page productPage;
 
     @PostConstruct
     protected void initModel() {
-        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         searchTerm = request.getParameter("search_query");
         LOGGER.debug("Detected search parameter {}", searchTerm);
 
@@ -181,7 +178,7 @@ public class SearchResultsImpl implements SearchResults {
                 .getUrl(),
             productPage,
             null,
-            deepLink);
+            request);
 
         return productListItem;
     }

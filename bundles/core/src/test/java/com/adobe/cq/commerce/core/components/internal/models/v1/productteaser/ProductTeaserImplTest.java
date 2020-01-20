@@ -127,7 +127,8 @@ public class ProductTeaserImplTest {
 
         // There is a dedicated specific subpage for that product
         Assert.assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
-        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), true), productTeaser.getUrl());
+        SiteNavigation siteNavigation = new SiteNavigation(context.request());
+        Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPrice().getRegularPrice().getAmount();
@@ -154,7 +155,8 @@ public class ProductTeaserImplTest {
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-        Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku, false), productTeaser.getUrl());
+        SiteNavigation siteNavigation = new SiteNavigation(context.request());
+        Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPrice().getRegularPrice().getAmount();

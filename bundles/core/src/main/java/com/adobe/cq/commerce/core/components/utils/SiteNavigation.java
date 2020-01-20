@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.WCMMode;
 
 public class SiteNavigation {
 
@@ -47,7 +49,17 @@ public class SiteNavigation {
      */
     static final String PN_NAV_ROOT = "navRoot";
 
-    private SiteNavigation() {}
+    private SlingHttpServletRequest request;
+
+    /**
+     * Based on the request, the SiteNavigation instance might look for specific pages when
+     * returning product and category URLs.
+     * 
+     * @param request The current Sling HTTP request.
+     */
+    public SiteNavigation(SlingHttpServletRequest request) {
+        this.request = request;
+    }
 
     /**
      * Retrieves the generic product page based on the current page or current page ancestors
@@ -136,7 +148,7 @@ public class SiteNavigation {
      * @param pagePath The base page path for the URL.
      * @param slug The slug of the product.
      * @return The product page URL.
-     * @deprecated Use {@link #toProductUrl(Page, String)} instead.
+     * @deprecated Use {@link #toPageUrl(Page, String)} instead.
      */
     @Deprecated
     public static String toProductUrl(String pagePath, String slug) {
@@ -179,30 +191,29 @@ public class SiteNavigation {
     }
 
     /**
-     * Builds and returns a product page URL based on the given page and slug.
-     * If <code>deepLink</code> is true, this method might return the URL of a
-     * specific subpage configured for that particular product.
+     * Builds and returns a category or product page URL based on the given page and slug.
+     * This method might return the URL of a specific subpage configured for that particular page.
      * 
      * @param page The page used to build the URL.
-     * @param slug The slug of the product.
-     * @return The product page URL.
+     * @param slug The slug of the product or the category.
+     * @return The page URL.
      */
-    public static String toProductUrl(Page page, String slug, boolean deepLink) {
-        return toProductUrl(page, slug, null, deepLink);
+    public String toPageUrl(Page page, String slug) {
+        return toProductUrl(page, slug, null);
     }
-
+    
     /**
      * Builds and returns a product page URL based on the given page, slug, and variant sku.
-     * If <code>deepLink</code> is true, this method might return the URL of a
-     * specific subpage configured for that particular product.
+     * This method might return the URL of a specific subpage configured for that particular page.
      * 
      * @param page The page used to build the URL.
      * @param slug The slug of the product.
      * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
      * @return The product page URL.
      */
-    public static String toProductUrl(Page page, String slug, String variantSku, boolean deepLink) {
+    public String toProductUrl(Page page, String slug, String variantSku) {
         Resource pageResource = page.adaptTo(Resource.class);
+        boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         if (deepLink) {
             Resource subPageResource = toSpecificPage(pageResource, slug);
             if (subPageResource != null) {

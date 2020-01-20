@@ -40,7 +40,6 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
 public class ProductTeaserImpl implements ProductTeaser {
@@ -64,11 +63,9 @@ public class ProductTeaserImpl implements ProductTeaser {
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
-    private boolean deepLink;
 
     @PostConstruct
     protected void initModel() {
-        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
@@ -132,7 +129,8 @@ public class ProductTeaserImpl implements ProductTeaser {
     public String getUrl() {
         if (getProduct() != null) {
             // Get slug from base product
-            return SiteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight(), deepLink);
+            SiteNavigation siteNavigation = new SiteNavigation(request);
+            return siteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
         }
         return null;
     }

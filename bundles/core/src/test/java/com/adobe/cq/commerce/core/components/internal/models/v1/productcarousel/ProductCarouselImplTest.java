@@ -123,7 +123,8 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
 
             Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-            Assert.assertEquals(SiteNavigation.toProductUrl(productPage, product.getUrlKey(), skus.getRight(), false), item.getURL());
+            SiteNavigation siteNavigation = new SiteNavigation(context.request());
+            Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), skus.getRight()), item.getURL());
 
             Money amount = productOrVariant.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);

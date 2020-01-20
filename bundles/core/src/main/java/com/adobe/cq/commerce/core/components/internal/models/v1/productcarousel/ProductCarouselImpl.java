@@ -45,7 +45,6 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
 public class ProductCarouselImpl implements ProductCarousel {
@@ -69,7 +68,6 @@ public class ProductCarouselImpl implements ProductCarousel {
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private List<String> baseProductSkus;
-    private boolean deepLink;
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -79,7 +77,6 @@ public class ProductCarouselImpl implements ProductCarousel {
             return;
         }
 
-        deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         List<String> productSkus = Arrays.asList(productSkuList);
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -138,7 +135,7 @@ public class ProductCarouselImpl implements ProductCarousel {
                     product.getThumbnail().getUrl(),
                     productPage,
                     skus.getRight(),
-                    deepLink));
+                    request));
             }
         }
         return carouselProductList;
