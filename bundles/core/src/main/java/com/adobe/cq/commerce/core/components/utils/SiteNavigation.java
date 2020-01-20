@@ -201,7 +201,7 @@ public class SiteNavigation {
     public String toPageUrl(Page page, String slug) {
         return toProductUrl(page, slug, null);
     }
-    
+
     /**
      * Builds and returns a product page URL based on the given page, slug, and variant sku.
      * This method might return the URL of a specific subpage configured for that particular page.
