@@ -7,6 +7,7 @@ executors:
   cif_executor:
     docker:
       - image: circleci/openjdk:8u212-jdk-stretch-node
+    resource_class: large
 
 jobs:
   build:
