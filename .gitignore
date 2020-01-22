@@ -46,6 +46,7 @@ hs_err_pid*
 **/karma-junit/**
 **/coverage/**
 **/test-results/**
+react-components/src/main/javascript/node
 
 **/dist
 **/dist
