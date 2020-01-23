@@ -13,118 +13,85 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.day.cq.wcm.api.WCMMode;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 public class CommerceTeaserImplTest {
 
-    private CommerceTeaser slingModel;
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
 
-    final private String productPath = "/content/test-product-page";
-    final private String categoryPath = "/content/test-category-page";
-    final private String currentPath = "/content/venia/teaserTest";
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PRODUCT_PAGE = "/content/product-page";
+    private static final String PRODUCT_SPECIFIC_PAGE = PRODUCT_PAGE + "/product-specific-page";
+    private static final String CATEGORY_PAGE = "/content/category-page";
+    private static final String PAGE = "/content/pageA";
+    private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
+
+    private Resource commerceTeaserResource;
+    private CommerceTeaser commerceTeaser;
 
     @Before
     public void setup() {
-        CommerceTeaserImpl cifTeaser = new CommerceTeaserImpl();
+        Page page = context.currentPage(PAGE);
+        context.currentResource(TEASER);
+        commerceTeaserResource = context.resourceResolver().getResource(TEASER);
 
-        Page productPage = mock(Page.class);
-        Page categoryPage = mock(Page.class);
-        Page currentPage = mock(Page.class);
+        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(commerceTeaserResource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
 
-        when(productPage.getPath()).thenReturn(productPath);
-        when(categoryPage.getPath()).thenReturn(categoryPath);
-        when(currentPage.getPath()).thenReturn(currentPath);
+        // Configure the component to create deep links to specific pages
+        context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        List<Resource> actionResources = new ArrayList<>();
-
-        // Action node 1 - productSlug configured, category left blank, text set to some value
-        actionResources.add(getActionNodeResource("278", null, "My Product"));
-
-        // Action node 2 - productSlug left blank, category configured, text set to some value
-        actionResources.add(getActionNodeResource(null, "30", "My Category"));
-
-        // Action node 3 - productSlug configured, category also configured, text set to some value
-        actionResources.add(getActionNodeResource("278", "30", "My Category"));
-
-        // Action node 4 - productSlug left blank, category also left blank, text set to some value
-        actionResources.add(getActionNodeResource(null, null, "This Page"));
-
-        Resource mockedResource = mock(Resource.class);
-        Map<String, Object> actionProperties = new HashMap<>();
-
-        actionProperties.put(CommerceTeaser.PN_ACTIONS_ENABLED, true);// Setting action enabled TRUE
-
-        when(mockedResource.getValueMap()).thenReturn(new ValueMapDecorator(actionProperties));
-
-        Resource mockedChildResource = mock(Resource.class);
-
-        when(mockedChildResource.getChildren()).thenReturn(actionResources);
-        when(mockedResource.getChild(CommerceTeaser.NN_ACTIONS)).thenReturn(mockedChildResource);
-
-        Whitebox.setInternalState(cifTeaser, "resource", mockedResource);
-        Whitebox.setInternalState(cifTeaser, "categoryPage", categoryPage);
-        Whitebox.setInternalState(cifTeaser, "productPage", productPage);
-        Whitebox.setInternalState(cifTeaser, "currentPage", currentPage);
-        // Whitebox.setInternalState(cifTeaser, "actionsEnabled", true);
-
-        cifTeaser.setActionsEnabled();
-        cifTeaser.populateActions();
-        this.slingModel = cifTeaser;
-
-    }
-
-    Resource getActionNodeResource(String productSlug, String categoryId, String text) {
-        Resource actionResource = mock(Resource.class);
-
-        Map<String, Object> actionProperties = new HashMap<>();
-
-        actionProperties.put(CommerceTeaser.PN_ACTION_PRODUCT_SLUG, productSlug);
-        actionProperties.put(CommerceTeaser.PN_ACTION_CATEGORY_ID, categoryId);
-        actionProperties.put(CommerceTeaser.PN_ACTION_TEXT, text);
-
-        ValueMapDecorator vMD = new ValueMapDecorator(actionProperties);
-
-        when(actionResource.getValueMap()).thenReturn(vMD);
-
-        return actionResource;
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
     }
 
     @Test
     public void verifyActions() {
+        List<ListItem> actionItems = commerceTeaser.getActions();
 
-        List<ListItem> actionItems = this.slingModel.getActions();
-
-        Assert.assertTrue(this.slingModel.isActionsEnabled());
+        Assert.assertTrue(commerceTeaser.isActionsEnabled());
         Assert.assertTrue(actionItems.size() == 4);
 
-        Assert.assertTrue(actionItems.get(0).getURL().equalsIgnoreCase(this.productPath + ".278.html"));
-        Assert.assertTrue(actionItems.get(0).getTitle().equalsIgnoreCase("My Product"));
+        // Product slug is configured and there is a dedicated specific subpage for that product
+        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
+        Assert.assertEquals("A product", actionItems.get(0).getTitle());
 
-        Assert.assertTrue(actionItems.get(1).getURL().equalsIgnoreCase(this.categoryPath + ".30.html"));
-        Assert.assertTrue(actionItems.get(1).getTitle().equalsIgnoreCase("My Category"));
+        // Category id is configured
+        Assert.assertEquals(CATEGORY_PAGE + ".30.html", actionItems.get(1).getURL());
+        Assert.assertEquals("A category", actionItems.get(1).getTitle());
 
-        Assert.assertTrue(actionItems.get(2).getURL().equalsIgnoreCase(this.categoryPath + ".30.html"));
-        Assert.assertTrue(actionItems.get(2).getTitle().equalsIgnoreCase("My Category"));
+        // Both are configured, category links "wins"
+        Assert.assertEquals(CATEGORY_PAGE + ".30.html", actionItems.get(2).getURL());
+        Assert.assertEquals("A category", actionItems.get(2).getTitle());
 
-        Assert.assertTrue(actionItems.get(3).getURL().equalsIgnoreCase(this.currentPath + ".html"));
-        Assert.assertTrue(actionItems.get(3).getTitle().equalsIgnoreCase("This Page"));
-
+        // Some text is entered, current page is used
+        Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
+        Assert.assertEquals("Some text", actionItems.get(3).getTitle());
     }
 }

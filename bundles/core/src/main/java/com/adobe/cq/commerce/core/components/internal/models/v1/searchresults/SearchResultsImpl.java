@@ -177,7 +177,8 @@ public class SearchResultsImpl implements SearchResults {
             product.getSmallImage()
                 .getUrl(),
             productPage,
-            null);
+            null,
+            request);
 
         return productListItem;
     }

@@ -48,11 +48,12 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FeaturedCateogoryListImplTest {
+public class FeaturedCategoryListImplTest {
 
     private FeaturedCategoryListImpl slingModel;
     private Query rootQuery;
     private List<CategoryTree> categories = new ArrayList<>();
+    private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String TEST_CATEGORY_PAGE_URL = "/content/pageA";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
     private static final int TEST_CATEGORY = 5;
@@ -118,8 +119,7 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
-        Assert.assertEquals(categories.get(0).getPath(),
-            String.format("%s.%s.html", TEST_CATEGORY_PAGE_URL, TEST_CATEGORY));
+        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", CATEGORY_PAGE, TEST_CATEGORY));
     }
 
     @Test

@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -25,7 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
@@ -33,8 +31,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.day.cq.commons.jcr.JcrConstants;
-import com.day.cq.wcm.api.NameConstants;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.day.cq.wcm.api.WCMMode;
 
 @Component(
     property = {
@@ -46,8 +44,6 @@ import com.day.cq.wcm.api.NameConstants;
 public class SpecificPageFilterFactory implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpecificPageFilterFactory.class);
-
-    private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
@@ -63,35 +59,21 @@ public class SpecificPageFilterFactory implements Filter {
             return;
         }
 
+        // Skip filter on AEM author
+        WCMMode wcmMode = WCMMode.fromRequest(request);
+        if (!WCMMode.DISABLED.equals(wcmMode)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         Resource page = slingRequest.getResource();
         LOGGER.debug("Checking sub-pages for {}", slingRequest.getRequestURI());
 
-        Iterator<Resource> children = page.listChildren();
-        while (children.hasNext()) {
-            Resource child = children.next();
-            if (!NameConstants.NT_PAGE.equals(child.getResourceType())) {
-                continue;
-            }
-
-            Resource jcrContent = child.getChild(JcrConstants.JCR_CONTENT);
-            if (jcrContent == null) {
-                continue;
-            }
-
-            Object filter = jcrContent.getValueMap().get(SELECTOR_FILTER_PROPERTY);
-            if (filter == null) {
-                continue;
-            }
-
-            // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
-            String[] selectors = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
-
-            if (ArrayUtils.contains(selectors, selector)) {
-                LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
-                RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(child);
-                dispatcher.forward(slingRequest, response);
-                return;
-            }
+        Resource subPage = SiteNavigation.toSpecificPage(page, selector);
+        if (subPage != null) {
+            RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(subPage);
+            dispatcher.forward(slingRequest, response);
+            return;
         }
 
         chain.doFilter(request, response);
