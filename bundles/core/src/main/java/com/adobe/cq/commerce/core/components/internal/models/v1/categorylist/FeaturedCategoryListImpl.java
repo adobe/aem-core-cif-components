@@ -14,17 +14,19 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,8 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.day.cq.dam.api.Asset;
+import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -43,7 +47,12 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
-    private static final String CATEGORY_ID_PROP = "categoryIds";
+
+    private static final String RENDITION_WEB = "web";
+    private static final String RENDITION_ORIGINAL = "original";
+    private static final String CATEGORY_ID_PROP = "categoryId";
+    private static final String ASSET_PROP = "asset";
+    private static final String ITEMS_PROP = "items";
 
     @Inject
     private Resource resource;
@@ -51,10 +60,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Inject
     private Page currentPage;
 
-    @ScriptVariable
-    private ValueMap properties;
-
-    private List<String> categoryIds;
+    private Map<String, Asset> assetOverride;
 
     private Page categoryPage;
 
@@ -66,10 +72,38 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         if (categoryPage == null) {
             categoryPage = currentPage;
         }
-        String[] categoryIdArray = properties.get(CATEGORY_ID_PROP, String[].class);
 
-        if (categoryIdArray != null) {
-            categoryIds = Arrays.asList(categoryIdArray);
+        List<String> categoryIds = new ArrayList<>();
+        assetOverride = new HashMap<>();
+
+        // Iterate entries of composite multifield
+        Resource items = resource.getChild(ITEMS_PROP);
+        if (items != null) {
+            for (Resource item : items.getChildren()) {
+                ValueMap props = item.getValueMap();
+                String categoryId = props.get(CATEGORY_ID_PROP, String.class);
+                if (StringUtils.isEmpty(categoryId)) {
+                    continue;
+                }
+                categoryIds.add(categoryId);
+
+                // Check if an override asset was set. If yes, store it in a map for later use.
+                String assetPath = props.get(ASSET_PROP, String.class);
+                if (StringUtils.isEmpty((assetPath))) {
+                    continue;
+                }
+
+                Resource assetResource = resource.getResourceResolver().getResource(assetPath);
+                if (assetResource == null) {
+                    continue;
+                }
+
+                Asset overrideAsset = assetResource.adaptTo(Asset.class);
+                assetOverride.put(categoryId, overrideAsset);
+            }
+        }
+
+        if (categoryIds.size() > 0) {
             MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
             categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
             categoriesRetriever.setIdentifiers(categoryIds);
@@ -83,6 +117,19 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
+
+            // Replace image if there is an asset override
+            String id = category.getId().toString();
+            if (assetOverride.containsKey(id)) {
+                Asset asset = assetOverride.get(id);
+                Rendition rendition = asset.getRendition(RENDITION_WEB);
+                if (rendition == null) {
+                    rendition = asset.getRendition(RENDITION_ORIGINAL);
+                }
+                if (rendition != null) {
+                    category.setImage(rendition.getPath());
+                }
+            }
         }
         return categories;
     }

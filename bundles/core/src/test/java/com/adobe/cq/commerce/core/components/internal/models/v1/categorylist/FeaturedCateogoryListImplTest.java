@@ -16,16 +16,12 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,57 +37,71 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.sightly.WCMBindings;
+import com.day.cq.dam.api.Asset;
+import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FeaturedCateogoryListImplTest {
 
-    private GraphqlClient graphqlClient;
     private FeaturedCategoryListImpl slingModel;
     private Query rootQuery;
     private List<CategoryTree> categories = new ArrayList<>();
-    private static final String TEST_CATEGORY_PAGE_URL = "/content/test-category-page";
+    private static final String TEST_CATEGORY_PAGE_URL = "/content/pageA";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
     private static final int TEST_CATEGORY = 5;
-    private static final int TEST_CATEGORY_B = 6;
     private static final String TEST_CATEGORY_NAME = "Equipment";
+    private static final String TEST_ASSET_PATH = "/content/dam/venia/landing_page_image4.jpg";
+    private static final String TEST_RENDITION_PATH = "/content/dam/venia/landing_page_image4.web.jpg";
+
+    private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     @Before
     public void setup() throws Exception {
+        // Mock GraphQL response
         String json = IOUtils.toString(
             this.getClass().getResourceAsStream("/graphql/magento-graphql-category-alias-result.json"),
             StandardCharsets.UTF_8);
         rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-        Page categoryPage = mock(Page.class);
-        when(categoryPage.getLanguage(false)).thenReturn(Locale.US);
-        when(categoryPage.getPath()).thenReturn(TEST_CATEGORY_PAGE_URL);
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
-        graphqlClient = Mockito.mock(GraphqlClient.class);
-        Page page = mock(Page.class);
-        MockSlingHttpServletRequest request = context.request();
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(request));
-        slingBindings.put("currentPage", page);
-        slingBindings.put("resource", resource);
-        Integer categoryId[] = { TEST_CATEGORY, TEST_CATEGORY_B };
-        Map<String, Object> pageProperties = new HashMap<>();
-        pageProperties.put("categoryIds", categoryId);
-        ValueMapDecorator vMap = new ValueMapDecorator(pageProperties);
-        slingBindings.put("currentPage", categoryPage);
-        slingBindings.put("properties", vMap);
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        GraphqlClient graphqlClient = mock(GraphqlClient.class);
+        when(graphqlClient.execute(any(), any(), any(), any()))
             .thenReturn((GraphqlResponse) response);
         when(response.getData()).thenReturn(rootQuery);
-        slingModel = request.adaptTo(FeaturedCategoryListImpl.class);
+
+        // Mock resource and resolver
+        Resource resource = Mockito.spy(context.resourceResolver().getResource(COMPONENT_PATH));
+        ResourceResolver resolver = Mockito.spy(resource.getResourceResolver());
+        when(resource.getResourceResolver()).thenReturn(resolver);
+        when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        // Mock asset
+        Resource assetResource = mock(Resource.class);
+        Asset mockAsset = mock(Asset.class);
+        Rendition mockRendition = mock(Rendition.class);
+        when(assetResource.adaptTo(Asset.class)).thenReturn(mockAsset);
+        when(mockAsset.getRendition(anyString())).thenReturn(mockRendition);
+        when(mockRendition.getPath()).thenReturn(TEST_RENDITION_PATH);
+        when(resolver.getResource(TEST_ASSET_PATH)).thenReturn(assetResource);
+
+        Page page = context.currentPage(TEST_CATEGORY_PAGE_URL);
+        context.currentResource(COMPONENT_PATH);
+
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(resource);
+        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(context.request()));
+        slingBindings.put("currentPage", page);
+
+        slingModel = context.request().adaptTo(FeaturedCategoryListImpl.class);
     }
 
     @Test
@@ -99,7 +109,7 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertNotNull(slingModel);
         List<CategoryTree> list = slingModel.getCategories();
         Assert.assertNotNull(list);
-        Assert.assertEquals(list.size(), 2);
+        Assert.assertEquals(list.size(), 3);
     }
 
     @Test
@@ -110,7 +120,20 @@ public class FeaturedCateogoryListImplTest {
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
         Assert.assertEquals(categories.get(0).getPath(),
             String.format("%s.%s.html", TEST_CATEGORY_PAGE_URL, TEST_CATEGORY));
+    }
 
+    @Test
+    public void verifyAssetOverride() {
+        categories = slingModel.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(categories.get(1).getImage(), TEST_RENDITION_PATH);
+    }
+
+    @Test
+    public void verifyIgnoreInvalidAsset() {
+        categories = slingModel.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
     }
 
     private AemContext createContext(String contentPath) {
