@@ -43,6 +43,7 @@
                 <version>1.9.1</version>
                 <configuration>
                     <nodeVersion>v12.14.1</nodeVersion>
+                    <installDirectory>../frontend-maven-plugin</installDirectory>
                     <workingDirectory>${basedir}/src/main/javascript</workingDirectory>
                 </configuration>
 
@@ -80,16 +81,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/main/javascript/node/*</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             
             <plugin>

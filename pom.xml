@@ -96,6 +96,16 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>frontend-maven-plugin/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
