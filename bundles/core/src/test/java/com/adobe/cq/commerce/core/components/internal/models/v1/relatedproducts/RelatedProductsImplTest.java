@@ -78,6 +78,7 @@ public class RelatedProductsImplTest {
         RESOURCES_PATHS.put(RelationType.RELATED_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/relatedproducts");
         RESOURCES_PATHS.put(RelationType.UPSELL_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/upsellproducts");
         RESOURCES_PATHS.put(RelationType.CROSS_SELL_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/crosssellproducts");
+        RESOURCES_PATHS.put(null, "/content/pageA/jcr:content/root/responsivegrid/relatedproducts-without-relation-type");
     }
 
     private static final Map<RelationType, Function<ProductInterface, List<ProductInterface>>> PRODUCTS_GETTER = new HashMap<>();
@@ -85,6 +86,7 @@ public class RelatedProductsImplTest {
         PRODUCTS_GETTER.put(RelationType.RELATED_PRODUCTS, ProductInterface::getRelatedProducts);
         PRODUCTS_GETTER.put(RelationType.UPSELL_PRODUCTS, ProductInterface::getUpsellProducts);
         PRODUCTS_GETTER.put(RelationType.CROSS_SELL_PRODUCTS, ProductInterface::getCrosssellProducts);
+        PRODUCTS_GETTER.put(null, ProductInterface::getRelatedProducts);
     }
 
     private Resource relatedProductsResource;
@@ -125,6 +127,12 @@ public class RelatedProductsImplTest {
     @Test
     public void testRelatedProducts() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "/graphql/magento-graphql-relatedproducts-result.json", false);
+        assertProducts();
+    }
+
+    @Test
+    public void testRelatedProductsWithoutRelationType() throws Exception {
+        setUp(null, "/graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
     }
 
