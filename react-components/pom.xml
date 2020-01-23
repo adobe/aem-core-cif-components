@@ -44,7 +44,6 @@
                 <configuration>
                     <nodeVersion>v12.14.1</nodeVersion>
                     <installDirectory>../frontend-maven-plugin</installDirectory>
-                    <workingDirectory>${basedir}/src/main/javascript</workingDirectory>
                 </configuration>
 
                 <!-- The default phase for all executions is "generate-resources" -->
