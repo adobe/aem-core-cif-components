@@ -103,7 +103,8 @@ public class RelatedProductsImpl implements ProductCarousel {
             productIdType = ProductIdType.SLUG;
         }
 
-        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, RelationType.valueOf(relationType), productIdType);
+        RelationType rel = relationType != null ? RelationType.valueOf(relationType) : RelationType.RELATED_PRODUCTS;
+        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, rel, productIdType);
         productsRetriever.setIdentifiers(Collections.singletonList(skuOrSlug));
     }
 
@@ -128,7 +129,8 @@ public class RelatedProductsImpl implements ProductCarousel {
                 product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                 product.getThumbnail().getUrl(),
                 productPage,
-                null));
+                null,
+                request));
         }
         return carouselProductList;
     }

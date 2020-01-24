@@ -70,6 +70,7 @@ public class RelatedProductsImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
+    private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
 
     private static final Map<RelationType, String> RESOURCES_PATHS = new HashMap<>();
@@ -77,6 +78,7 @@ public class RelatedProductsImplTest {
         RESOURCES_PATHS.put(RelationType.RELATED_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/relatedproducts");
         RESOURCES_PATHS.put(RelationType.UPSELL_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/upsellproducts");
         RESOURCES_PATHS.put(RelationType.CROSS_SELL_PRODUCTS, "/content/pageA/jcr:content/root/responsivegrid/crosssellproducts");
+        RESOURCES_PATHS.put(null, "/content/pageA/jcr:content/root/responsivegrid/relatedproducts-without-relation-type");
     }
 
     private static final Map<RelationType, Function<ProductInterface, List<ProductInterface>>> PRODUCTS_GETTER = new HashMap<>();
@@ -84,6 +86,7 @@ public class RelatedProductsImplTest {
         PRODUCTS_GETTER.put(RelationType.RELATED_PRODUCTS, ProductInterface::getRelatedProducts);
         PRODUCTS_GETTER.put(RelationType.UPSELL_PRODUCTS, ProductInterface::getUpsellProducts);
         PRODUCTS_GETTER.put(RelationType.CROSS_SELL_PRODUCTS, ProductInterface::getCrosssellProducts);
+        PRODUCTS_GETTER.put(null, ProductInterface::getRelatedProducts);
     }
 
     private Resource relatedProductsResource;
@@ -124,6 +127,12 @@ public class RelatedProductsImplTest {
     @Test
     public void testRelatedProducts() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "/graphql/magento-graphql-relatedproducts-result.json", false);
+        assertProducts();
+    }
+
+    @Test
+    public void testRelatedProductsWithoutRelationType() throws Exception {
+        setUp(null, "/graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
     }
 
@@ -178,7 +187,9 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
 
-            Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey()), item.getURL());
+            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+            SiteNavigation siteNavigation = new SiteNavigation(context.request());
+            Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
 
             Money amount = product.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
