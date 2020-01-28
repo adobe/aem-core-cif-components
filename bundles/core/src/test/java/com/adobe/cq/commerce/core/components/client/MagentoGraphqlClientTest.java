@@ -14,13 +14,18 @@
 
 package com.adobe.cq.commerce.core.components.client;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.caconfig.ConfigurationResolver;
+import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.resourceresolver.MockValueMap;
 import org.junit.Assert;
@@ -29,54 +34,75 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
-import sun.security.krb5.Config;
+import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
 public class MagentoGraphqlClientTest {
-
+        private static final Logger LOG = LoggerFactory.getLogger(MagentoGraphqlClientTest.class);
     private GraphqlClient graphqlClient;
 
     private ConfigurationBuilder mockConfigurationBuilder;
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext((AemContextCallback) context -> {
-            // Load page structure
-            context.load()
-                   .json(contentPath, "/content");
-        }, ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).plugin(ContextPlugins.CACONFIG)
+                                                                                          .build();
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+
+        context.load()
+               .json("/context/jcr-content.json", "/content");
+        context.load()
+               .json("/context/jcr-conf.json", "/conf/test-config");
         graphqlClient = Mockito.mock(GraphqlClient.class);
         Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenReturn(null);
 
-        mockConfigurationBuilder = Mockito.mock(ConfigurationBuilder.class);
-        Mockito.when(mockConfigurationBuilder.name(Mockito.any(String.class)))
-               .thenReturn(mockConfigurationBuilder);
+        ConfigurationAdmin configurationAdmin = context.getService(ConfigurationAdmin.class);
+        
+        Configuration serviceConfiguration = configurationAdmin.getConfiguration("org.apache.sling.caconfig.resource.impl.def.DefaultContextPathStrategy");
+        Dictionary<String, Object> props = new Hashtable<>();
+        props.put("configRefResourceNames", new String[] { ".", "jcr:content" });
+        props.put("configRefPropertyNames", "cq:conf");
+        serviceConfiguration.update(props);
+
+        serviceConfiguration = configurationAdmin.getConfiguration("org.apache.sling.caconfig.resource.impl.def.DefaultConfigurationResourceResolvingStrategy");
+        props = new Hashtable<>();
+        props.put("configPath", "/conf");
+        serviceConfiguration.update(props);
 
 
-        Mockito.when(mockConfigurationBuilder.asValueMap()).thenReturn(MockValueMap.EMPTY);
+        serviceConfiguration = configurationAdmin.getConfiguration("org.apache.sling.caconfig.impl.ConfigurationResolverImpl");
+        props = new Hashtable<>();
+        props.put("configBucketNames", new String[] { "settings" });
+        serviceConfiguration.update(props);
 
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
         Mockito.when(resource.adaptTo(GraphqlClient.class))
                .thenReturn(graphqlClient);
-        Mockito.when(resource.adaptTo(ConfigurationBuilder.class)).thenReturn(mockConfigurationBuilder);
+        Mockito.when(resource.adaptTo(ConfigurationBuilder.class))
+               .thenReturn(mockConfigurationBuilder);
+
+        Mockito.when(mockConfigurationBuilder.asValueMap())
+               .thenReturn(MockValueMap.EMPTY);
 
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        executeAndCheck(withStoreHeader, client);
 
+    }
+
+    private void executeAndCheck(boolean withStoreHeader, MagentoGraphqlClient client) {
         // Verify parameters with default execute() method and store property
         client.execute("{dummy}");
         List<Header> headers = withStoreHeader ? Collections.singletonList(new BasicHeader("Store", "my-store")) : Collections.emptyList();
@@ -89,6 +115,17 @@ public class MagentoGraphqlClientTest {
         matcher = new RequestOptionsMatcher(headers, HttpMethod.GET);
         Mockito.verify(graphqlClient)
                .execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testMagentoStorePropertyWithConfigBuilder() {
+
+        Resource pageWithConfig = Mockito.spy(context.resourceResolver()
+                                                     .getResource("/content/pageG"));
+        Mockito.when(pageWithConfig.adaptTo(GraphqlClient.class))
+               .thenReturn(graphqlClient);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig);
+        executeAndCheck(true, client);
     }
 
     @Test

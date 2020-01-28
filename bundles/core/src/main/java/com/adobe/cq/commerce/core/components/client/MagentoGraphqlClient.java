@@ -51,6 +51,9 @@ public class MagentoGraphqlClient {
 
     public static final String STORE_CODE_PROPERTY = "magentoStore";
 
+    public static final String CONFIGURATION_NAME = "commerce/default";
+
+
     private GraphqlClient graphqlClient;
 
     private RequestOptions requestOptions;
@@ -79,12 +82,11 @@ public class MagentoGraphqlClient {
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
-        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
         String storeCode;
+        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
 
         if (configBuilder != null) {
-            ValueMap properties = configBuilder.name("commerce/default")
-                                               .asValueMap();
+            ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
             storeCode = properties.get(STORE_CODE_PROPERTY, readFallBackConfiguration(resource, STORE_CODE_PROPERTY));
         } else {
             storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
