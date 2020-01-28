@@ -49,7 +49,7 @@ jobs:
             node -v
             npm -v
             npm install
-            npm run webpack:build
+            npm run webpack:dev
           working_directory: ./ui.apps
       - run:
           name: Run Unit Tests (Karma)
