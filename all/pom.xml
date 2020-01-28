@@ -132,7 +132,7 @@
                                     <goal>install</goal>
                                 </goals>
                                 <configuration>
-                                    <targetURL>http://${aem.host}:${aem.port}${aem.contextPath}/crx/packmgr/service.jsp</targetURL>
+                                    <targetURL>${quickstart.url}/crx/packmgr/service.jsp</targetURL>
                                     <failOnError>true</failOnError>
                                 </configuration>
                             </execution>
