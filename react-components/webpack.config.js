@@ -80,7 +80,7 @@ module.exports = {
     },
     plugins: [new CleanWebpackPlugin()],
     devtool: 'source-map',
-    mode: process.env.NODE_ENV || 'development',
+    mode: 'development',
     resolve: {
         alias: {
             react: path.resolve(__dirname, './node_modules/react'),
