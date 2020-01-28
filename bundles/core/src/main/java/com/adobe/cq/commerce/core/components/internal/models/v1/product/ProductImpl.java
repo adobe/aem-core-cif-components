@@ -97,9 +97,6 @@ public class ProductImpl implements Product {
     @Inject
     private XSSAPI xssApi;
 
-    @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
-
     private NumberFormat priceFormatter;
     private Boolean configurable;
     private Boolean loadClientPrice;
@@ -112,7 +109,7 @@ public class ProductImpl implements Product {
         String slug = parseProductSlug();
 
         // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, configurationResourceResolver);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         if (StringUtils.isNotBlank(slug)) {
             productRetriever = new ProductRetriever(magentoGraphqlClient);

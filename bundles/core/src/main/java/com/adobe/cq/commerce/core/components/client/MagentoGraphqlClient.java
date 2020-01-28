@@ -21,7 +21,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,42 +70,7 @@ public class MagentoGraphqlClient {
             return null;
         }
     }
-
-    public static MagentoGraphqlClient create(Resource resource, ConfigurationResourceResolver configurationResourceResolver) {
-        try {
-            return new MagentoGraphqlClient(resource, configurationResourceResolver);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            return null;
-        }
-    }
-
-    public MagentoGraphqlClient(Resource resource, ConfigurationResourceResolver configurationResourceResolver) {
-        graphqlClient = resource.adaptTo(GraphqlClient.class);
-        if (graphqlClient == null) {
-            throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
-        }
-
-        requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
-        Page page = resource.getResourceResolver()
-                            .adaptTo(PageManager.class)
-                            .getContainingPage(resource);
-        Resource configs = configurationResourceResolver.getResource(page.adaptTo(Resource.class), "settings", "commerce/default");
-
-        if (configs == null) {
-            throw new RuntimeException(String.format("Configuration not found at /conf/{0}/{1}", "settings", "commerce/default"));
-        }
-
-        ValueMap properties = configs.getValueMap();
-
-        String storeCode = properties.get(STORE_CODE_PROPERTY, "");
-        if (StringUtils.isNotEmpty(storeCode)) {
-            Header storeHeader = new BasicHeader("Store", storeCode);
-            requestOptions.withHeaders(Collections.singletonList(storeHeader));
-        }
-
-    }
-
+    
     private MagentoGraphqlClient(Resource resource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
@@ -114,26 +79,13 @@ public class MagentoGraphqlClient {
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
-        InheritanceValueMap properties;
-        Page page = resource.getResourceResolver()
-                            .adaptTo(PageManager.class)
-                            .getContainingPage(resource);
-        if (page != null) {
-            properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
-        } else {
-            properties = new ComponentInheritanceValueMap(resource);
-        }
+        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
+        ValueMap properties = configBuilder.name("commerce/default")
+                                           .asValueMap();
 
-        // get Magento store code
-        String storeCode = properties.getInherited(STORE_CODE_PROPERTY, String.class);
-        // for backward compatibility also check of the old cq:magentoStore property
-        if (storeCode == null) {
-            storeCode = properties.getInherited("cq:" + STORE_CODE_PROPERTY, String.class);
-            if (storeCode != null) {
-                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
-            }
-        }
-        if (storeCode != null) {
+        String storeCode = properties.get(STORE_CODE_PROPERTY, readFallBackConfiguration(resource, STORE_CODE_PROPERTY));
+
+        if (StringUtils.isNotEmpty(storeCode)) {
             Header storeHeader = new BasicHeader("Store", storeCode);
             requestOptions.withHeaders(Collections.singletonList(storeHeader));
         }
@@ -167,5 +119,28 @@ public class MagentoGraphqlClient {
                                                      .withHttpMethod(httpMethod);
 
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    }
+
+    private String readFallBackConfiguration(Resource resource, String propertyName) {
+
+        InheritanceValueMap properties;
+        String storeCode;
+
+        Page page = resource.getResourceResolver()
+                            .adaptTo(PageManager.class)
+                            .getContainingPage(resource);
+        if (page != null) {
+            properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
+        } else {
+            properties = new ComponentInheritanceValueMap(resource);
+        }
+        storeCode = properties.getInherited(propertyName, String.class);
+        if (storeCode == null) {
+            storeCode = properties.getInherited("cq:" + propertyName, String.class);
+            if (storeCode != null) {
+                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
+            }
+        }
+        return storeCode;
     }
 }
