@@ -62,9 +62,6 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
         if (actionsEnabled) {
             populateActions();
-            if (actions.size() > 0) {
-                ListItem firstAction = actions.get(0);
-            }
         }
     }
 
@@ -95,7 +92,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     page = currentPage;
 
                 }
-                actions.add(new CommerceTeaserActionItem(title, selector, page));
+                actions.add(new CommerceTeaserActionItem(title, selector, page, request));
             }
         }
     }

@@ -19,6 +19,8 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
+import org.apache.sling.api.SlingHttpServletRequest;
+
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -33,12 +35,13 @@ public class ProductListItemImpl implements ProductListItem {
     private final Double price;
     private final String currency;
     private final String activeVariantSku;
+    private final SiteNavigation siteNavigation;
 
     private NumberFormat priceFormatter;
     private Page productPage;
 
     public ProductListItemImpl(String sku, String slug, String name, Double price, String currency, String imageURL, Page productPage,
-                               String activeVariantSku) {
+                               String activeVariantSku, SlingHttpServletRequest request) {
         this.sku = sku;
         this.slug = slug;
         this.name = name;
@@ -47,6 +50,7 @@ public class ProductListItemImpl implements ProductListItem {
         this.currency = currency;
         this.productPage = productPage;
         this.activeVariantSku = activeVariantSku;
+        this.siteNavigation = new SiteNavigation(request);
 
         // Initialize NumberFormatter with locale from current page.
         // Alternatively, the locale can potentially be retrieved via
@@ -74,7 +78,7 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return SiteNavigation.toProductUrl(productPage.getPath(), this.getSlug(), activeVariantSku);
+        return siteNavigation.toProductUrl(productPage, this.getSlug(), activeVariantSku);
     }
 
     @Nullable

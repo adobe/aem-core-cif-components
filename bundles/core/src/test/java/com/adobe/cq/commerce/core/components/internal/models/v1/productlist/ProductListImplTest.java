@@ -72,6 +72,7 @@ public class ProductListImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
+    private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
 
@@ -165,7 +166,7 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getName(), item.getTitle());
             Assert.assertEquals(productInterface.getSku(), item.getSKU());
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
-            Assert.assertEquals(String.format(PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
+            Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
 
             Money amount = productInterface.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);

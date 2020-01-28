@@ -16,7 +16,7 @@
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList">
-    <sly data-sly-test.isConfigured="${properties.categoryIds}">
+    <sly data-sly-test.isConfigured="${category.categories.size}">
     <div class="cmp-categorylist">
         <div class="cmp-categorylist__header">
             <h2 class="cmp-categorylist__title">
@@ -25,18 +25,17 @@
         </div>
         <div data-sly-list="${category.categories}" class="cmp-categorylist__content">
             <a class="cmp-categorylist__anchor" href="${item.path}">
-            <span  class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});" >
-                <img data-sly-test=${item.image} class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
-            </span>
-                <span class="cmp-categorylist__name">${item.name}
-                </span>
+	            <span  class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});" >
+	                <img data-sly-test=${item.image} class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
+	            </span>
+	            <span class="cmp-categorylist__name">${item.name}</span>
             </a>
         </div>
     </div>
     </sly>
     <div data-sly-test=${!isConfigured} class="placeholder__empty">
-        <strong>Featured Category List</strong><br>
-        <p>Please configure categories</p>
+        <strong>${'Featured Category List' @ i18n}</strong><br>
+        <p>${'Please configure categories' @ i18n}</p>
     </div>
 </sly>
 </sly>

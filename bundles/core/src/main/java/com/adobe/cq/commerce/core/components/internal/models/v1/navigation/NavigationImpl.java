@@ -98,23 +98,32 @@ public class NavigationImpl implements Navigation {
             items = new ArrayList<>();
             PageManager pageManager = currentPage.getPageManager();
             for (com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem : wcmNavigation.getItems()) {
-                Page page = pageManager.getPage(wcmItem.getPath());
-                if (shouldExpandCatalogRoot(page)) {
-                    expandCatalogRoot(page, items);
-                } else {
-                    String title = wcmItem.getTitle();
-                    String url = wcmItem.getURL();
-                    boolean active = wcmItem.isActive();
-                    NavigationItem item = new PageNavigationItem(null, title, url, active, wcmItem);
-                    items.add(item);
-                }
-
+                addItems(pageManager, null, wcmItem, this.items);
             }
         }
         return items;
     }
 
-    private boolean shouldExpandCatalogRoot(Page page) {
+    private void addItems(PageManager pageManager, AbstractNavigationItem parent,
+        com.adobe.cq.wcm.core.components.models.NavigationItem currentWcmItem, List<NavigationItem> itemList) {
+        Page page = pageManager.getPage(currentWcmItem.getPath());
+        if (shouldExpandCatalogRoot(page)) {
+            expandCatalogRoot(page, itemList);
+        } else {
+            NavigationItem item;
+            if (isCatalogRoot(page)) {
+                item = new CatalogPageNavigationItem(null, page, currentWcmItem);
+            } else {
+                String title = currentWcmItem.getTitle();
+                String url = currentWcmItem.getURL();
+                boolean active = currentWcmItem.isActive();
+                item = new PageNavigationItem(parent, title, url, active, currentWcmItem);
+            }
+            itemList.add(item);
+        }
+    }
+
+    private boolean isCatalogPage(Page page) {
         if (page == null) {
             return false;
         }
@@ -124,12 +133,25 @@ public class NavigationImpl implements Navigation {
             return false;
         }
 
-        if (!contentResource.isResourceType(RT_CATALOG_PAGE)) {
+        return contentResource.isResourceType(RT_CATALOG_PAGE);
+    }
+
+    private boolean shouldExpandCatalogRoot(Page page) {
+        if (!isCatalogPage(page)) {
             return false;
         }
 
-        Boolean showMainCategories = contentResource.getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.class);
-        return Boolean.TRUE.equals(showMainCategories);
+        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE);
+        return showMainCategories;
+    }
+
+    private boolean isCatalogRoot(Page page) {
+        if (!isCatalogPage(page)) {
+            return false;
+        }
+
+        Boolean showMainCategories = page.getContentResource().getValueMap().get(PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE);
+        return !showMainCategories;
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
@@ -174,7 +196,7 @@ public class NavigationImpl implements Navigation {
         return null;
     }
 
-    static class PageNavigationItem extends AbstractNavigationItem {
+    class PageNavigationItem extends AbstractNavigationItem {
         private final com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem;
 
         PageNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active,
@@ -192,11 +214,26 @@ public class NavigationImpl implements Navigation {
 
             List<NavigationItem> items = new ArrayList<>();
             for (com.adobe.cq.wcm.core.components.models.NavigationItem item : children) {
-                String title = item.getTitle();
-                String url = item.getURL();
-                boolean active = item.isActive();
-                items.add(new PageNavigationItem(this, title, url, active, item));
+                PageManager pageManager = currentPage.getPageManager();
+                addItems(pageManager, this, item, items);
             }
+            return items;
+        }
+    }
+
+    class CatalogPageNavigationItem extends PageNavigationItem {
+        private final Page page;
+
+        CatalogPageNavigationItem(AbstractNavigationItem parent, Page page,
+                                  com.adobe.cq.wcm.core.components.models.NavigationItem wcmItem) {
+            super(parent, wcmItem.getTitle(), wcmItem.getURL(), wcmItem.isActive(), wcmItem);
+            this.page = page;
+        }
+
+        @Override
+        public List<NavigationItem> getItems() {
+            final ArrayList<NavigationItem> items = new ArrayList<>();
+            expandCatalogRoot(page, items);
             return items;
         }
     }
@@ -231,10 +268,10 @@ public class NavigationImpl implements Navigation {
 
             List<NavigationItem> pages = new ArrayList<>();
 
-            String categoryPagePath = categoryPage.getPath();
+            SiteNavigation siteNavigation = new SiteNavigation(request);
             for (CategoryTree child : children) {
                 String title = child.getName();
-                String url = categoryPagePath + "." + child.getId() + ".html";
+                String url = siteNavigation.toPageUrl(categoryPage, child.getId().toString());
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, title, url, active, child, request, categoryPage));
             }

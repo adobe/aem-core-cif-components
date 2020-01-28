@@ -25,6 +25,7 @@ import { useEventListener } from '../../utils/hooks';
         CREATE_ACCOUNT - the create account modal
         MY_ACCOUNT - the account props modal
         FORGOT_PASSWORD - the forgot password modal
+        CHANGE_PASSWORD - the change password modal
 
 */
 // a map of the UI states so we can properly handle the "BACK" button
@@ -32,6 +33,7 @@ const ancestors = {
     CREATE_ACCOUNT: 'SIGN_IN',
     FORGOT_PASSWORD: 'SIGN_IN',
     MY_ACCOUNT: 'MENU',
+    CHANGE_PASSWORD: 'MY_ACCOUNT',
     SIGN_IN: 'MENU',
     MENU: null
 };
@@ -39,6 +41,7 @@ const ancestors = {
 const stepTitles = {
     CREATE_ACCOUNT: 'Create account',
     FORGOT_PASSWORD: 'Password recovery',
+    CHANGE_PASSWORD: 'Change password',
     MY_ACCOUNT: 'My account',
     SIGN_IN: 'Sign in'
 };
@@ -69,7 +72,12 @@ const Container = () => {
         if (parent === 'MENU') {
             // no parent view means we're out of the account management process and back to navigation
             // so we're resetting the title
-            navigationPanel.dispatchEvent(exitAccMgEvent);
+            showMenu();
+            return;
+        }
+        if (parent === 'MY_ACCOUNT') {
+            showMyAccount();
+            return;
         }
         setView(parent);
     }, [view]);
@@ -88,6 +96,13 @@ const Container = () => {
 
     const showMyAccount = useCallback(() => {
         const view = 'MY_ACCOUNT';
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
+    }, [setView]);
+
+    const showChangePassword = useCallback(() => {
+        const view = 'CHANGE_PASSWORD';
         navigationPanel.dispatchEvent(startAccMgEvent);
         navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         setView(view);
@@ -119,6 +134,7 @@ const Container = () => {
                         showMyAccount={showMyAccount}
                         showMenu={showMenu}
                         showForgotPassword={showForgotPassword}
+                        showChangePassword={showChangePassword}
                         showCreateAccount={showCreateAccount}
                     />
                 </div>

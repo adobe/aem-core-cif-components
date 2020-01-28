@@ -29,6 +29,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Optional;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +52,14 @@ public class ProductCarouselImpl implements ProductCarousel {
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
 
+    @Self
+    private SlingHttpServletRequest request;
+
     @Inject
     private Resource resource;
 
     @Inject
+    @Optional
     private String[] productSkuList;
 
     @Inject
@@ -67,6 +73,10 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @PostConstruct
     private void initModel() {
+        if (!isConfigured()) {
+            return;
+        }
+
         List<String> productSkus = Arrays.asList(productSkuList);
         magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -86,6 +96,11 @@ public class ProductCarouselImpl implements ProductCarousel {
 
         productsRetriever = new ProductsRetriever(magentoGraphqlClient);
         productsRetriever.setIdentifiers(baseProductSkus);
+    }
+
+    @Override
+    public boolean isConfigured() {
+        return productSkuList != null;
     }
 
     @Override
@@ -119,7 +134,8 @@ public class ProductCarouselImpl implements ProductCarousel {
                     product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                     product.getThumbnail().getUrl(),
                     productPage,
-                    skus.getRight()));
+                    skus.getRight(),
+                    request));
             }
         }
         return carouselProductList;

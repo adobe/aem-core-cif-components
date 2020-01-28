@@ -28,6 +28,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
@@ -46,6 +47,9 @@ public class ProductTeaserImpl implements ProductTeaser {
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
 
+    @Self
+    private SlingHttpServletRequest request;
+
     @Inject
     private Resource resource;
 
@@ -58,7 +62,6 @@ public class ProductTeaserImpl implements ProductTeaser {
     private NumberFormat priceFormatter;
     private Page productPage;
     private Pair<String, String> combinedSku;
-
     private AbstractProductRetriever productRetriever;
 
     @PostConstruct
@@ -103,6 +106,17 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     @Override
+    public String getSku() {
+        String sku = getProduct().getSku();
+        return sku != null ? sku : combinedSku.getLeft();
+    }
+
+    @Override
+    public String getCallToAction() {
+        return properties.get("cta", null);
+    }
+
+    @Override
     public String getFormattedPrice() {
         Double price = getPrice();
         if (price != null) {
@@ -115,7 +129,8 @@ public class ProductTeaserImpl implements ProductTeaser {
     public String getUrl() {
         if (getProduct() != null) {
             // Get slug from base product
-            return SiteNavigation.toProductUrl(productPage.getPath(), productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
+            SiteNavigation siteNavigation = new SiteNavigation(request);
+            return siteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
         }
         return null;
     }

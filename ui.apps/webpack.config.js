@@ -22,7 +22,8 @@ const LIB = {
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
     PRODUCTLIST: 'apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs',
     SEARCHBAR: 'apps/core/cif/components/commerce/searchbar/v1/searchbar/clientlibs',
-    NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs'
+    NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs',
+    PRODUCTTEASER: 'apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs',
 };
 
 function generateBaseConfig() {
@@ -36,7 +37,8 @@ function generateBaseConfig() {
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTLIST]: glob.sync(JCR_ROOT + LIB.PRODUCTLIST + '/js/**/*.js'),
             [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
-            [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js')
+            [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
+            [LIB.PRODUCTTEASER]:glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`)
         },
         output: {
             path: path.resolve(__dirname, "src/main/content/jcr_root"),

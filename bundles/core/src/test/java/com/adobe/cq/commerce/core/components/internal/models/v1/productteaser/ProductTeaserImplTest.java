@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -51,24 +52,28 @@ public class ProductTeaserImplTest {
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
+        return new AemContext((AemContextCallback) context -> {
+            // Load page structure
+            context.load()
+                .json(contentPath, "/content");
+        }, ResourceResolverType.JCR_MOCK);
     }
 
+    private static final String PRODUCT_PAGE = "/content/product-page";
+    private static final String PRODUCT_SPECIFIC_PAGE = PRODUCT_PAGE + "/product-specific-page";
     private static final String PAGE = "/content/pageA";
+
     private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
 
     private Resource teaserResource;
+
     private ProductTeaserImpl productTeaser;
+
     private ProductInterface product;
 
-    public void setUp(String resourcePath) throws Exception {
+    public void setUp(String resourcePath, boolean deepLink) throws Exception {
         Page page = context.currentPage(PAGE);
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
@@ -89,6 +94,11 @@ public class ProductTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
+        if (deepLink) {
+            // Configure the component to create deep links to specific pages
+            context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+        }
+
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
     }
 
@@ -102,11 +112,23 @@ public class ProductTeaserImplTest {
         verifyProduct(PRODUCTTEASER_PATH);
     }
 
+    @Test
+    public void verifyCtaDetails() throws Exception {
+        setUp(PRODUCTTEASER_VARIANT, false);
+        Assert.assertEquals("addToCart", productTeaser.getCallToAction());
+        Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
+    }
+
     public void verifyProduct(String resourcePath) throws Exception {
-        setUp(resourcePath);
+        setUp(resourcePath, true);
 
         Assert.assertEquals(product.getName(), productTeaser.getName());
-        Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey()), productTeaser.getUrl());
+        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+
+        // There is a dedicated specific subpage for that product
+        Assert.assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
+        SiteNavigation siteNavigation = new SiteNavigation(context.request());
+        Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPrice().getRegularPrice().getAmount();
@@ -118,17 +140,23 @@ public class ProductTeaserImplTest {
 
     @Test
     public void verifyProductVariant() throws Exception {
-        setUp(PRODUCTTEASER_VARIANT);
+        setUp(PRODUCTTEASER_VARIANT, false);
 
         // Find the selected variant
         ConfigurableProduct cp = (ConfigurableProduct) product;
         String selection = teaserResource.getValueMap().get("selection", String.class);
         String variantSku = SiteNavigation.toProductSkus(selection).getRight();
-        SimpleProduct variant = cp.getVariants().stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku()))
-            .findFirst().orElse(null);
+        SimpleProduct variant = cp.getVariants()
+            .stream()
+            .map(v -> v.getProduct())
+            .filter(sp -> variantSku.equals(sp.getSku()))
+            .findFirst()
+            .orElse(null);
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
-        Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey(), variantSku), productTeaser.getUrl());
+        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+        SiteNavigation siteNavigation = new SiteNavigation(context.request());
+        Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPrice().getRegularPrice().getAmount();

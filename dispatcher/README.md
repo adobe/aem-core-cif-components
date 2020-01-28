@@ -44,11 +44,10 @@ To access the author via the dispatcher, the following configuration options mus
 
 ## Usage
 
-The dispatcher is configured to proxy Magento's GraphQL and REST endpoints.
+The dispatcher is configured to proxy Magento's GraphQL endpoint.
 
-In the dispatcher these endpoints are mapped as following:
+In the dispatcher the endpoint is mapped as following:
 
 | Request                    | Proxy to            |
 | -------------------------- | ------------------- |
 | `{APACHE}/magento/graphql` | `{MAGENTO}/graphql` |
-| `{APACHE}/magento/rest/*`  | `{MAGENTO}/rest/*`  |
