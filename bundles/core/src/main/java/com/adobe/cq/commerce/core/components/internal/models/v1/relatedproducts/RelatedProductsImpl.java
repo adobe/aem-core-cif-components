@@ -129,7 +129,8 @@ public class RelatedProductsImpl implements ProductCarousel {
                 product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                 product.getThumbnail().getUrl(),
                 productPage,
-                null));
+                null,
+                request));
         }
         return carouselProductList;
     }

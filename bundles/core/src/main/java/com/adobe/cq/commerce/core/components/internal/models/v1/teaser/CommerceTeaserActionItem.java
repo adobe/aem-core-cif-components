@@ -16,6 +16,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import javax.annotation.Nonnull;
 
+import org.apache.sling.api.SlingHttpServletRequest;
+
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
@@ -25,11 +27,13 @@ public class CommerceTeaserActionItem implements ListItem {
     private String title;
     private String selector = "";
     private Page page = null;
+    private final SiteNavigation siteNavigation;
 
-    public CommerceTeaserActionItem(String title, String selector, Page page) {
+    public CommerceTeaserActionItem(String title, String selector, Page page, SlingHttpServletRequest request) {
         this.title = title;
         this.selector = selector;
         this.page = page;
+        this.siteNavigation = new SiteNavigation(request);
     }
 
     @Nonnull
@@ -42,6 +46,6 @@ public class CommerceTeaserActionItem implements ListItem {
     @Override
     public String getURL() {
         return (selector == null || selector.trim().equalsIgnoreCase("")) ? (page.getPath() + ".html")
-            : SiteNavigation.toProductUrl(page.getPath(), selector);
+            : siteNavigation.toPageUrl(page, selector);
     }
 }

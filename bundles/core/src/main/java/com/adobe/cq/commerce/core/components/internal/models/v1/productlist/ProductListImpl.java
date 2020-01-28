@@ -216,7 +216,8 @@ public class ProductListImpl implements ProductList {
                         product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                         product.getSmallImage().getUrl(),
                         productPage,
-                        null));
+                        null,
+                        request));
                 }
             }
         }

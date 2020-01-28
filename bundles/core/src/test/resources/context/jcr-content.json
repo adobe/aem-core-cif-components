@@ -2,6 +2,8 @@
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "magentoStore": "my-store",
@@ -52,6 +54,28 @@
           "relatedproducts-without-relation-type": {
             "product": "24-MG01",
             "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "commerceteaser": {
+            "actionsEnabled": true,
+            "sling:resourceType": "venia/components/content/teaser",
+            "actions": {
+              "item0": {
+                "productSlug": "beaumont-summit-kit",
+                "text": "A product"
+              },
+              "item1": {
+                "categoryId": "30",
+                "text": "A category"
+              },
+              "item2": {
+                "categoryId": "30",
+                "productSlug": "beaumont-summit-kit",
+                "text": "A category"
+              },
+              "item3": {
+                "text": "Some text"
+              }
+            }
           },
           "featuredcategorylist": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
@@ -106,6 +130,25 @@
       "jcr:primaryType": "cq:PageContent",
       "magentoStore": "my-store",
       "cq:magentoStore": "old-store"
+    }
+  },
+  "product-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
+    },
+    "product-specific-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:language": "en_US",
+        "selectorFilter": "beaumont-summit-kit"
+      }
+    }
+  },
+  "category-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
     }
   }
 }

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,6 +75,8 @@ public class NavigationImplTest {
         when(pageManager.getPage(CATEGORY_PAGE_PATH)).thenReturn(categoryPage);
         when(currentPageContent.getValueMap()).thenReturn(new ValueMapDecorator(currentPageProperties));
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
+        Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
+        when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
 
         // WCM navigation model

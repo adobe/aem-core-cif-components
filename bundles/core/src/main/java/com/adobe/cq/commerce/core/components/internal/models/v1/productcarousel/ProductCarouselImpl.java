@@ -30,6 +30,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Optional;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,9 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
+
+    @Self
+    private SlingHttpServletRequest request;
 
     @Inject
     private Resource resource;
@@ -130,7 +134,8 @@ public class ProductCarouselImpl implements ProductCarousel {
                     product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
                     product.getThumbnail().getUrl(),
                     productPage,
-                    skus.getRight()));
+                    skus.getRight(),
+                    request));
             }
         }
         return carouselProductList;

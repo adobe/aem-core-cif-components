@@ -268,10 +268,10 @@ public class NavigationImpl implements Navigation {
 
             List<NavigationItem> pages = new ArrayList<>();
 
-            String categoryPagePath = categoryPage.getPath();
+            SiteNavigation siteNavigation = new SiteNavigation(request);
             for (CategoryTree child : children) {
                 String title = child.getName();
-                String url = categoryPagePath + "." + child.getId() + ".html";
+                String url = siteNavigation.toPageUrl(categoryPage, child.getId().toString());
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, title, url, active, child, request, categoryPage));
             }

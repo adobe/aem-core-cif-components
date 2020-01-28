@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
+import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -66,6 +67,9 @@ public class SpecificPageFilterFactoryTest {
         requestDispatcherFactory = Mockito.spy(new MockRequestDispatcherFactoryImpl());
         request.setRequestDispatcherFactory(requestDispatcherFactory);
 
+        // The filter only does something on publish, so only when WCMMode is DISABLED
+        request.setAttribute(WCMMode.class.getName(), WCMMode.DISABLED);
+
         chain = Mockito.mock(FilterChain.class);
     }
 
@@ -74,13 +78,28 @@ public class SpecificPageFilterFactoryTest {
         request.setResource(context.resourceResolver().resolve("/content/product-page"));
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         pathInfo.setSelectorString("productId1");
-
         filter.doFilter(request, null, chain);
 
         // Check that the request dispatcher is called for the matching sub-page
         ResourcePathMatcher matcher = new ResourcePathMatcher("/content/product-page/sub-page");
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), isNull(RequestDispatcherOptions.class));
         Mockito.verify(chain, Mockito.times(0)).doFilter(request, null);
+    }
+
+    @Test
+    public void testFilterNoopWcmmode() throws IOException, ServletException {
+        request.setResource(context.resourceResolver().resolve("/content/product-page"));
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
+        pathInfo.setSelectorString("productId1");
+
+        // Verify that the filter does nothing if WCMMode is something else than DISABLED
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        filter.doFilter(request, null, chain);
+
+        // Verify that the request is passed unchanged down the filter chain
+        Mockito.verify(requestDispatcherFactory, Mockito.times(0)).getRequestDispatcher(any(Resource.class), any());
+        Mockito.verify(chain).doFilter(request, null);
     }
 
     @Test

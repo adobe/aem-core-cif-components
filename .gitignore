@@ -46,6 +46,7 @@ hs_err_pid*
 **/karma-junit/**
 **/coverage/**
 **/test-results/**
+frontend-maven-plugin
 
 **/dist
 **/dist

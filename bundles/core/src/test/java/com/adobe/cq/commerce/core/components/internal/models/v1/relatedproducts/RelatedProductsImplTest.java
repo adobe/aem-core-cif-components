@@ -70,6 +70,7 @@ public class RelatedProductsImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
+    private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
 
     private static final Map<RelationType, String> RESOURCES_PATHS = new HashMap<>();
@@ -186,7 +187,9 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
 
-            Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey()), item.getURL());
+            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+            SiteNavigation siteNavigation = new SiteNavigation(context.request());
+            Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
 
             Money amount = product.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
