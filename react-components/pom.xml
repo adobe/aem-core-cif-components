@@ -14,6 +14,7 @@
     <!-- ====================================================================== -->
     <artifactId>core-cif-react-components</artifactId>
     <version>0.6.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>AEM CIF Core Components - Content Package for React Components</name>
     <description>Content Package with Components, Templates, Policies and Clientlibs for AEM CIF Core Components</description>
@@ -37,68 +38,70 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <configuration>
+                    <nodeVersion>v12.14.1</nodeVersion>
+                    <installDirectory>../frontend-maven-plugin</installDirectory>
+                </configuration>
+
+                <!-- The default phase for all executions is "generate-resources" -->
                 <executions>
                     <execution>
-                        <id>npm-install</id>
-                        <phase>generate-resources</phase>
+                        <id>Install node and npm</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
-                        <configuration>
-                            <executable>npm</executable>
-                            <workingDirectory>${basedir}/src/main/javascript</workingDirectory>
-                            <arguments>
-                                <argument>install</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build</id>
-                        <phase>generate-resources</phase>
+                        <id>npm-install</id> <!-- Will also execute the 'prepare' script from package.json -->
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                     <execution>
-                        <id>npm-module-link</id>
-                        <phase>generate-resources</phase>
+                        <id>npm-module-link</id> <!-- Ignore npm scripts to avoid again executing 'prepare' -->
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>link</argument>
-                            </arguments>
+                            <arguments>link --ignore-scripts</arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm-module-publish</id>
                         <phase>deploy</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
+                            <arguments>publish</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <!-- This is executed during release:prepare to bump the NPM release version -->
+                    <execution>
+                        <id>npm-version</id>
+                        <configuration>
+                            <skip>false</skip>
                             <executable>npm</executable>
                             <arguments>
-                                <argument>publish</argument>
+                                <argument>version</argument>
+                                <argument>${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
+            
         </plugins>
-
     </build>
+    
 </project>
