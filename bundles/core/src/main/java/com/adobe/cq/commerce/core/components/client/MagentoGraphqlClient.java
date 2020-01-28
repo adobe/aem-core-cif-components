@@ -70,7 +70,7 @@ public class MagentoGraphqlClient {
             return null;
         }
     }
-    
+
     private MagentoGraphqlClient(Resource resource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
@@ -80,11 +80,15 @@ public class MagentoGraphqlClient {
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
         ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
-        ValueMap properties = configBuilder.name("commerce/default")
-                                           .asValueMap();
+        String storeCode;
 
-        String storeCode = properties.get(STORE_CODE_PROPERTY, readFallBackConfiguration(resource, STORE_CODE_PROPERTY));
-
+        if (configBuilder != null) {
+            ValueMap properties = configBuilder.name("commerce/default")
+                                               .asValueMap();
+            storeCode = properties.get(STORE_CODE_PROPERTY, readFallBackConfiguration(resource, STORE_CODE_PROPERTY));
+        } else {
+            storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+        }
         if (StringUtils.isNotEmpty(storeCode)) {
             Header storeHeader = new BasicHeader("Store", storeCode);
             requestOptions.withHeaders(Collections.singletonList(storeHeader));

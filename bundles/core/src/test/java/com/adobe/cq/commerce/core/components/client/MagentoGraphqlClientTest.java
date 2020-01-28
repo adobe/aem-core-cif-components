@@ -20,7 +20,9 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.testing.resourceresolver.MockValueMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,70 +36,90 @@ import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+import sun.security.krb5.Config;
 
 public class MagentoGraphqlClientTest {
 
     private GraphqlClient graphqlClient;
 
+    private ConfigurationBuilder mockConfigurationBuilder;
+
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
+        return new AemContext((AemContextCallback) context -> {
+            // Load page structure
+            context.load()
+                   .json(contentPath, "/content");
+        }, ResourceResolverType.JCR_MOCK);
     }
 
     @Before
     public void setup() {
         graphqlClient = Mockito.mock(GraphqlClient.class);
-        Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(null);
+        Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(null);
+
+        mockConfigurationBuilder = Mockito.mock(ConfigurationBuilder.class);
+        Mockito.when(mockConfigurationBuilder.name(Mockito.any(String.class)))
+               .thenReturn(mockConfigurationBuilder);
+
+
+        Mockito.when(mockConfigurationBuilder.asValueMap()).thenReturn(MockValueMap.EMPTY);
+
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(resource.adaptTo(GraphqlClient.class))
+               .thenReturn(graphqlClient);
+        Mockito.when(resource.adaptTo(ConfigurationBuilder.class)).thenReturn(mockConfigurationBuilder);
+
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
 
         // Verify parameters with default execute() method and store property
         client.execute("{dummy}");
         List<Header> headers = withStoreHeader ? Collections.singletonList(new BasicHeader("Store", "my-store")) : Collections.emptyList();
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+        Mockito.verify(graphqlClient)
+               .execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
 
         // Verify setting a custom HTTP method
         client.execute("{dummy}", HttpMethod.GET);
         matcher = new RequestOptionsMatcher(headers, HttpMethod.GET);
-        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+        Mockito.verify(graphqlClient)
+               .execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
     @Test
     public void testMagentoStoreProperty() {
         // Get page which has the magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageA"));
         testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testInheritedMagentoStoreProperty() {
         // Get page whose parent has the magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageB/pageC"));
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageB/pageC"));
         testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testMissingMagentoStoreProperty() {
         // Get page whose parent has the magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageD"));
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageD"));
         testMagentoStoreProperty(resource, false);
     }
 
     @Test
     public void testOldMagentoStoreProperty() {
         // Get page which has the old cq:magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageE"));
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageE"));
         testMagentoStoreProperty(resource, true);
     }
 
@@ -105,15 +127,18 @@ public class MagentoGraphqlClientTest {
     public void testNewMagentoStoreProperty() {
         // Get page which has both the new magentoStore property and old cq:magentoStore property
         // in its jcr:content node and make sure the new one is prefered
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageF"));
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageF"));
         testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testError() {
         // Get page which has the magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageA"));
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        Resource resource = Mockito.spy(context.resourceResolver()
+                                               .getResource("/content/pageA"));
+        Mockito.when(resource.adaptTo(GraphqlClient.class))
+               .thenReturn(null);
 
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
         Assert.assertNull(client);
@@ -125,6 +150,7 @@ public class MagentoGraphqlClientTest {
     private static class RequestOptionsMatcher extends ArgumentMatcher<RequestOptions> {
 
         private List<Header> headers;
+
         private HttpMethod httpMethod;
 
         public RequestOptionsMatcher(List<Header> headers, HttpMethod httpMethod) {
@@ -147,8 +173,11 @@ public class MagentoGraphqlClientTest {
                 }
 
                 for (Header header : headers) {
-                    if (!requestOptions.getHeaders().stream().anyMatch(
-                        h -> h.getName().equals(header.getName()) && h.getValue().equals(header.getValue()))) {
+                    if (!requestOptions.getHeaders()
+                                       .stream()
+                                       .anyMatch(h -> h.getName()
+                                                       .equals(header.getName()) && h.getValue()
+                                                                                     .equals(header.getValue()))) {
                         return false;
                     }
                 }
