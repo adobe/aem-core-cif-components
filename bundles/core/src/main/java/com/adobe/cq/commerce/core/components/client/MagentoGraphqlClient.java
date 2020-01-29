@@ -86,7 +86,10 @@ public class MagentoGraphqlClient {
 
         if (configBuilder != null) {
             ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
-            storeCode = properties.get(STORE_CODE_PROPERTY, readFallBackConfiguration(resource, STORE_CODE_PROPERTY));
+            storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
+            if (storeCode == null) {
+                storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+            };
         } else {
             storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
         }
