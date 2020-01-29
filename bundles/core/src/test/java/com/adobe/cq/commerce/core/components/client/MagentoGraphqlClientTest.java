@@ -26,7 +26,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.apache.sling.testing.resourceresolver.MockValueMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,7 +55,7 @@ public class MagentoGraphqlClientTest {
         .beforeSetUp(context -> {
             ConfigurationAdmin configurationAdmin = context.getService(ConfigurationAdmin.class);
             Configuration serviceConfiguration = configurationAdmin.getConfiguration(
-                    "org.apache.sling.caconfig.resource.impl.def.DefaultContextPathStrategy");
+                "org.apache.sling.caconfig.resource.impl.def.DefaultContextPathStrategy");
 
             Dictionary<String, Object> props = new Hashtable<>();
             props.put("configRefResourceNames", new String[] { ".", "jcr:content" });
@@ -64,7 +63,7 @@ public class MagentoGraphqlClientTest {
             serviceConfiguration.update(props);
 
             serviceConfiguration = configurationAdmin.getConfiguration(
-                    "org.apache.sling.caconfig.resource.impl.def.DefaultConfigurationResourceResolvingStrategy");
+                "org.apache.sling.caconfig.resource.impl.def.DefaultConfigurationResourceResolvingStrategy");
             props = new Hashtable<>();
             props.put("configPath", "/conf");
             serviceConfiguration.update(props);
