@@ -64,6 +64,7 @@ public class ProductCarouselImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
+    private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTCAROUSEL = "/content/pageA/jcr:content/root/responsivegrid/productcarousel";
 
@@ -121,7 +122,9 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
 
-            Assert.assertEquals(SiteNavigation.toProductUrl(PAGE, product.getUrlKey(), skus.getRight()), item.getURL());
+            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+            SiteNavigation siteNavigation = new SiteNavigation(context.request());
+            Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), skus.getRight()), item.getURL());
 
             Money amount = productOrVariant.getPrice().getRegularPrice().getAmount();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);

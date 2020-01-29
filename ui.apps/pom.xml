@@ -150,79 +150,65 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <configuration>
+                    <nodeVersion>v12.14.1</nodeVersion>
+                    <installDirectory>../frontend-maven-plugin</installDirectory>
+                    <workingDirectory>${basedir}</workingDirectory>
+                </configuration>
+
+                <!-- The default phase for all executions is "generate-resources" -->
                 <executions>
                     <execution>
-                        <id>npm-install</id>
-                        <phase>generate-resources</phase>
+                        <id>Install node and npm</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>install</argument>
-                            </arguments>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>npm-webpack-build</id>
-                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>webpack:build</argument>
-                            </arguments>
+                            <arguments>run webpack:build</arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm-install-react-components</id>
-                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <executable>npm</executable>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>
-                                <argument>install</argument>
-                            </arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm-link-react-components</id>
-                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <executable>npm</executable>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>
-                                <argument>link</argument>
-                                <argument>@adobe/aem-core-cif-react-components</argument>
-                            </arguments>
+                            <arguments>link @adobe/aem-core-cif-react-components</arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm-webpack-build-react-components</id>
-                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <executable>npm</executable>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build</argument>
-                            </arguments>
+                            <arguments>run build</arguments>
                         </configuration>
                     </execution>
                 </executions>
