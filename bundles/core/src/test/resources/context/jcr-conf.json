@@ -11,7 +11,7 @@
             "default": {
                 "jcr:primaryType": "nt:unstructured",
                 "cq:graphqlClient": "default",
-                "magentoStore": "default"
+                "magentoStore": "my-store"
             }
         }
     }

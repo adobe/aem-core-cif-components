@@ -53,7 +53,6 @@ public class MagentoGraphqlClient {
 
     public static final String CONFIGURATION_NAME = "commerce/default";
 
-
     private GraphqlClient graphqlClient;
 
     private RequestOptions requestOptions;
@@ -113,7 +112,7 @@ public class MagentoGraphqlClient {
      * Executes the given Magento query and returns the response. This method
      * uses the given <code>httpMethod</code> to fetch the data.
      *
-     * @param query      The GraphQL query.
+     * @param query The GraphQL query.
      * @param httpMethod The HTTP method that will be used to fetch the data.
      * @return The GraphQL response.
      */
@@ -121,8 +120,8 @@ public class MagentoGraphqlClient {
 
         // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
         RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
-                                                     .withHeaders(requestOptions.getHeaders())
-                                                     .withHttpMethod(httpMethod);
+            .withHeaders(requestOptions.getHeaders())
+            .withHttpMethod(httpMethod);
 
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
     }
@@ -133,8 +132,8 @@ public class MagentoGraphqlClient {
         String storeCode;
 
         Page page = resource.getResourceResolver()
-                            .adaptTo(PageManager.class)
-                            .getContainingPage(resource);
+            .adaptTo(PageManager.class)
+            .getContainingPage(resource);
         if (page != null) {
             properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
         } else {

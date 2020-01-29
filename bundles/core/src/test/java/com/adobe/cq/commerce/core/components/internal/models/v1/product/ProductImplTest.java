@@ -123,8 +123,10 @@ public class ProductImplTest {
 
         ConfigurationResourceResolver configurationResourceResolver = mock(ConfigurationResourceResolver.class);
         Resource mockConfigurationResource = mock(Resource.class);
-        when(mockConfigurationResource.getValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.<String, Object>of("cq:graphqlClient", "my-catalog")));
-        when(configurationResourceResolver.getResource(any(Resource.class), any(String.class), any(String.class))).thenReturn(mockConfigurationResource);
+        when(mockConfigurationResource.getValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.<String, Object>of("cq:graphqlClient",
+            "my-catalog")));
+        when(configurationResourceResolver.getResource(any(Resource.class), any(String.class), any(String.class))).thenReturn(
+            mockConfigurationResource);
         slingBindings.put("configurationResourceResolver", configurationResourceResolver);
 
         Style style = mock(Style.class);
