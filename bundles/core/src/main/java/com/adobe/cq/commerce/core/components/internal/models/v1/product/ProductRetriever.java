@@ -24,7 +24,7 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
@@ -71,12 +71,17 @@ class ProductRetriever extends AbstractProductRetriever {
             .storeConfig(generateStoreConfigQuery())).toString();
     }
 
-    private ProductPricesQueryDefinition generatePriceQuery() {
+    private ProductPriceQueryDefinition generatePriceQuery() {
         return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
@@ -89,7 +94,8 @@ class ProductRetriever extends AbstractProductRetriever {
                 .urlKey()
                 .stockStatus()
                 .color()
-                .price(generatePriceQuery())
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .mediaGalleryEntries(g -> g
                     .disabled()
                     .file()
@@ -114,7 +120,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .thumbnail(t -> t.label().url())
                 .urlKey()
                 .stockStatus()
-                .price(generatePriceQuery())
                 .mediaGalleryEntries(g -> g
                     .disabled()
                     .file()
@@ -122,6 +127,9 @@ class ProductRetriever extends AbstractProductRetriever {
                     .position()
                     .mediaType())
                 .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery()))
                     .configurableOptions(o -> o
                         .label()
                         .attributeCode()
@@ -132,7 +140,10 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributes(a -> a
                             .code()
                             .valueIndex())
-                        .product(generateSimpleProductQuery())));
+                        .product(generateSimpleProductQuery())))
+                .onSimpleProduct(sp -> sp
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {
