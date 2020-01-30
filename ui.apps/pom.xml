@@ -174,12 +174,23 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build</id>
+                        <id>npm-webpack-development</id> <!-- webpack development mode -->
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run webpack:build</arguments>
+                            <skip>${webpack:prod}</skip>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production</id> <!-- webpack production mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack:dev}</skip>
+                            <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -202,13 +213,25 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build-react-components</id>
+                        <id>npm-webpack-development-react-components</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
+                            <skip>${webpack:prod}</skip>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>run build</arguments>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production-react-components</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack:dev}</skip>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
+                            <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
                 </executions>

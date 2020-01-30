@@ -41,5 +41,5 @@ module.exports = {
         }
     },
     devtool: 'source-map',
-    mode: process.NODE_ENV || 'development'
+    mode: 'development'
 };
