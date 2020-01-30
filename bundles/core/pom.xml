@@ -500,7 +500,7 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>magento-graphql</artifactId>
-            <version>4.0.0-magento233</version>
+            <version>5.0.0-magento234</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
