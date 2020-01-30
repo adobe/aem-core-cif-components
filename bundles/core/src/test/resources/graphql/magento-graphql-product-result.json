@@ -18,11 +18,33 @@
         },
         "url_key": "beaumont-summit-kit",
         "stock_status": "IN_STOCK",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 42
+        "price_range": {
+          "maximum_price": {
+            "regular_price": {
+              "value": 62,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 62,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
+            }
+          },
+          "minimum_price": {
+            "regular_price": {
+              "value": 58,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 58,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         },
@@ -124,11 +146,19 @@
               "url_key": "beaumont-summit-kit-xs-orange",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -171,11 +201,19 @@
               "url_key": "beaumont-summit-kit-xs-red",
               "stock_status": "IN_STOCK",
               "color": 58,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -218,11 +256,19 @@
               "url_key": "beaumont-summit-kit-xs-yellow",
               "stock_status": "IN_STOCK",
               "color": 60,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -279,11 +325,19 @@
               "url_key": "beaumont-summit-kit-s-orange",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -326,11 +380,19 @@
               "url_key": "beaumont-summit-kit-s-red",
               "stock_status": "IN_STOCK",
               "color": 58,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -373,11 +435,19 @@
               "url_key": "beaumont-summit-kit-s-yellow",
               "stock_status": "IN_STOCK",
               "color": 60,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 45,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               },
@@ -434,11 +504,19 @@
               "url_key": "beaumont-summit-kit-m-orange",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -481,11 +559,19 @@
               "url_key": "beaumont-summit-kit-m-red",
               "stock_status": "IN_STOCK",
               "color": 58,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -528,11 +614,19 @@
               "url_key": "beaumont-summit-kit-m-yellow",
               "stock_status": "IN_STOCK",
               "color": 60,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -589,11 +683,19 @@
               "url_key": "beaumont-summit-kit-l-orange",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -636,11 +738,19 @@
               "url_key": "beaumont-summit-kit-l-red",
               "stock_status": "IN_STOCK",
               "color": 58,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -683,11 +793,19 @@
               "url_key": "beaumont-summit-kit-l-yellow",
               "stock_status": "IN_STOCK",
               "color": 60,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -744,11 +862,19 @@
               "url_key": "beaumont-summit-kit-xl-orange",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -791,11 +917,19 @@
               "url_key": "beaumont-summit-kit-xl-red",
               "stock_status": "IN_STOCK",
               "color": 58,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },
@@ -838,11 +972,19 @@
               "url_key": "beaumont-summit-kit-xl-yellow",
               "stock_status": "IN_STOCK",
               "color": 60,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 58,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 46,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 12,
+                    "percent_off": 20.69
                   }
                 }
               },

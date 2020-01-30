@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.Price;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 
 public class VariantImpl implements Variant {
@@ -42,6 +43,8 @@ public class VariantImpl implements Variant {
     private String formattedPrice;
 
     private Map<String, Integer> variantAttributes = new HashMap<>();
+
+    private Price priceRange;
 
     @Override
     public String getName() {
@@ -72,30 +75,42 @@ public class VariantImpl implements Variant {
 
     @Override
     public String getCurrency() {
-        return currency;
+        return getPriceRange().getCurrency();
     }
 
+    @Deprecated
     public void setCurrency(String currency) {
         this.currency = currency;
     }
 
     @Override
     public Double getPrice() {
-        return price;
+        return getPriceRange().getFinalPrice();
     }
 
+    @Deprecated
     public void setPrice(Double price) {
         this.price = price;
     }
 
     @Override
     public String getFormattedPrice() {
-        return formattedPrice;
+        return getPriceRange().getFormattedFinalPrice();
     }
 
+    @Deprecated
     public void setFormattedPrice(String formattedPrice) {
         this.formattedPrice = formattedPrice;
     };
+
+    @Override
+    public Price getPriceRange() {
+        return priceRange;
+    }
+
+    public void setPriceRange(Price priceRange) {
+        this.priceRange = priceRange;
+    }
 
     @Override
     public Boolean getInStock() {
