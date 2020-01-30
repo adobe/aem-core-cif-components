@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 
     Copyright 2018 Adobe. All rights reserved.
@@ -137,7 +137,7 @@
                         <dependency>
                             <group>day/cq60/product</group>
                             <name>cif-connector-content</name>
-                            <version>0.7.0</version>
+                            <version>${cif.connector.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -259,9 +259,8 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>cif-connector-content</artifactId>
-            <version>0.7.0</version>
+            <version>${cif.connector.version}</version>
             <type>zip</type>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
