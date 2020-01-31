@@ -112,8 +112,8 @@
         <core.wcm.components.version>2.7.0</core.wcm.components.version>
 
         <!-- By default, webpack will build in development mode -->
-        <webpack:prod>false</webpack:prod>
-        <webpack:dev>true</webpack:dev>
+        <webpack.prod>false</webpack.prod>
+        <webpack.dev>true</webpack.dev>
     </properties>
 
     <!-- ====================================================================== -->
@@ -792,8 +792,8 @@
             </activation>
             <properties>
                 <!-- When releasing, webpack will build in production mode -->
-                <webpack:prod>true</webpack:prod>
-                <webpack:dev>false</webpack:dev>
+                <webpack.prod>true</webpack.prod>
+                <webpack.dev>false</webpack.dev>
             </properties>
             <build>
                 <plugins>

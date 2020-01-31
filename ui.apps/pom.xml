@@ -179,7 +179,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <skip>${webpack:prod}</skip>
+                            <skip>${webpack.prod}</skip>
                             <arguments>run webpack:dev</arguments>
                         </configuration>
                     </execution>
@@ -189,7 +189,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <skip>${webpack:dev}</skip>
+                            <skip>${webpack.dev}</skip>
                             <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
@@ -218,7 +218,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <skip>${webpack:prod}</skip>
+                            <skip>${webpack.prod}</skip>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>run webpack:dev</arguments>
                         </configuration>
@@ -229,7 +229,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <skip>${webpack:dev}</skip>
+                            <skip>${webpack.dev}</skip>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
                             <arguments>run webpack:prod</arguments>
                         </configuration>
