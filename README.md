@@ -29,8 +29,8 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
 -   [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
 -   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser)
--   [Sign In](ui.apps/src/main/javascript/minicart/src/components/SignIn)
--   [Create Account](ui.apps/src/main/javascript/minicart/src/components/CreateAccount)
+-   [Sign In](react-components/src/components/SignIn)
+-   [Create Account](react-components/src/components/CreateAccount)
 
 ## System Requirements
 
@@ -38,6 +38,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento                    | Java |
 | ------------------- | ------- | ------- | -------------------------- | ---- |
+| 0.7.0               | 6.4.4.0 | 6.5.0   | 2.3.3                      | 1.8  |
 | 0.6.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.5.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.4.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup>         | 1.8  |

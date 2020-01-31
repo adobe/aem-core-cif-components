@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 
     Copyright 2018 Adobe. All rights reserved.
@@ -20,14 +20,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.6.1-SNAPSHOT</version>
+        <version>0.7.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -137,7 +137,7 @@
                         <dependency>
                             <group>day/cq60/product</group>
                             <name>cif-connector-content</name>
-                            <version>0.7.0</version>
+                            <version>${cif.connector.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -174,12 +174,23 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build</id>
+                        <id>npm-webpack-development</id> <!-- webpack development mode -->
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run webpack:build</arguments>
+                            <skip>${webpack.prod}</skip>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production</id> <!-- webpack production mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.dev}</skip>
+                            <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -202,13 +213,25 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-webpack-build-react-components</id>
+                        <id>npm-webpack-development-react-components</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
+                            <skip>${webpack.prod}</skip>
                             <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>run build</arguments>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production-react-components</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.dev}</skip>
+                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
+                            <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -236,9 +259,8 @@
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>cif-connector-content</artifactId>
-            <version>0.7.0</version>
+            <version>${cif.connector.version}</version>
             <type>zip</type>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
