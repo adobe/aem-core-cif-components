@@ -34,6 +34,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.granite.ui.components.ExpressionResolver;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.day.cq.i18n.I18n;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -53,6 +54,9 @@ public class GraphqlClientDataSourceServletTest {
     @Before
     public void setUp() {
         servlet = new GraphqlClientDataSourceServlet();
+        ExpressionResolver expressionResolver = Mockito.mock(ExpressionResolver.class);
+        context.registerService(ExpressionResolver.class, expressionResolver);
+        context.registerInjectActivateService(servlet);
     }
 
     @Test
