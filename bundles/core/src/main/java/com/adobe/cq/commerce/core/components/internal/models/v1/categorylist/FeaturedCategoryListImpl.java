@@ -115,28 +115,27 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     @Override
     public List<CategoryTree> getCategories() {
-        if (categoriesRetriever != null) {
-            List<CategoryTree> categories = categoriesRetriever.fetchCategories();
-            for (CategoryTree category : categories) {
-                category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
-
-                // Replace image if there is an asset override
-                String id = category.getId().toString();
-                if (assetOverride.containsKey(id)) {
-                    Asset asset = assetOverride.get(id);
-                    Rendition rendition = asset.getRendition(RENDITION_WEB);
-                    if (rendition == null) {
-                        rendition = asset.getRendition(RENDITION_ORIGINAL);
-                    }
-                    if (rendition != null) {
-                        category.setImage(rendition.getPath());
-                    }
-                }
-            }
-            return categories;
-        } else {
+        if (categoriesRetriever == null) {
             return Collections.emptyList();
         }
+        List<CategoryTree> categories = categoriesRetriever.fetchCategories();
+        for (CategoryTree category : categories) {
+            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
+
+            // Replace image if there is an asset override
+            String id = category.getId().toString();
+            if (assetOverride.containsKey(id)) {
+                Asset asset = assetOverride.get(id);
+                Rendition rendition = asset.getRendition(RENDITION_WEB);
+                if (rendition == null) {
+                    rendition = asset.getRendition(RENDITION_ORIGINAL);
+                }
+                if (rendition != null) {
+                    category.setImage(rendition.getPath());
+                }
+            }
+        }
+        return categories;
     }
 
     @Override
