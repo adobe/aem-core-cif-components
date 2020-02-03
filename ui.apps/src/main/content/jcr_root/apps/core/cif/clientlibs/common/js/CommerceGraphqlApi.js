@@ -135,19 +135,25 @@ class CommerceGraphqlApi {
     async getProductPrices(skus, includeVariants) {
         let skuQuery = '"' + skus.join('", "') + '"';
 
+        const priceQuery = `regular_price {
+            value
+            currency
+        }
+        final_price {
+            value
+            currency
+        }
+        discount {
+            amount_off
+            percent_off
+        }`;
+
         // prettier-ignore
-        const variantQuery = `... on ConfigurableProduct {
-            variants {
-                product {
-                    sku
-                    price {
-                        regularPrice {
-                            amount {
-                                currency
-                                value
-                            }
-                        }
-                    }
+        const variantQuery = `variants {
+            product {
+                sku
+                price_range {
+                    minimum_price {${priceQuery}}
                 }
             }
         }`;
@@ -157,15 +163,19 @@ class CommerceGraphqlApi {
             products(filter: { sku: { in: [${skuQuery}] }} ) {
                 items {
                     sku
-                    price {
-                        regularPrice {
-                            amount {
-                                currency
-                                value
-                            }
+                    ... on SimpleProduct {
+                        price_range {
+                            minimum_price {${priceQuery}}
                         }
                     }
-                    ${includeVariants ? variantQuery : ''}
+                    ... on ConfigurableProduct {
+                        price_range {
+                            minimum_price {${priceQuery}}
+                            maximum_price {${priceQuery}}
+                        }
+                        ${includeVariants ? variantQuery : ''}
+                    }
+                    
                 }
             }
         }`;
@@ -175,12 +185,12 @@ class CommerceGraphqlApi {
         let items = response.data.products.items;
         let dict = {};
         for (let item of items) {
-            dict[item.sku] = item.price.regularPrice.amount;
+            dict[item.sku] = item.price_range;
 
             // Go through variants
             if (!item.variants) continue;
             for (let variant of item.variants) {
-                dict[variant.product.sku] = variant.product.price.regularPrice.amount;
+                dict[variant.product.sku] = variant.product.price_range;
             }
         }
         return dict;
