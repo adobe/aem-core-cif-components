@@ -38,7 +38,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM 6.4 | AEM 6.5 | Magento                    | Java |
 | ------------------- | ------- | ------- | -------------------------- | ---- |
-| 0.7.0               | 6.4.4.0 | 6.5.0   | 2.3.3                      | 1.8  |
+| 0.7.0<sup>**</sup> | 6.4.4.0 | 6.5.0   | 2.3.3                      | 1.8  |
 | 0.6.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.5.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup> / 2.3.3 | 1.8  |
 | 0.4.0               | 6.4.4.0 | 6.5.0   | 2.3.2<sup>\*</sup>         | 1.8  |
@@ -47,6 +47,8 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 | 0.1.0               | 6.4.4.0 | 6.5.0   | 2.3.1                      | 1.8. |
 
 <sup>\*</sup> With version 0.4.0 we drop support for Magento 2.3.1 and only support 2.3.2. For version 2.3.2 we currently require the following 4 Magento GraphQL patches ([#758](https://github.com/magento/graphql-ce/issues/758), [#665](https://github.com/magento/graphql-ce/pull/665), [#666](https://github.com/magento/graphql-ce/pull/666), [#906](https://github.com/magento/graphql-ce/pull/906)) installed on the Magento instance. Most of them will be included in upcomming Magento 2.3.3. release.
+
+<sup>\**</sup> **Attention:** Version 0.7.0 of CIF Core Components is the last release which supports Magento 2.3.3. Current snapshot and all future releases will only support Magento 2.3.4 or later.
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
