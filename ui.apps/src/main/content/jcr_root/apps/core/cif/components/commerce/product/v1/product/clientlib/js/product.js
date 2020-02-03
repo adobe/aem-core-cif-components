@@ -61,7 +61,11 @@ class Product {
         }
 
         price.discounted = !!(price.discountAmount && price.discountAmount > 0);
-        price.range = !!(price.finalPrice && price.finalPriceMax && Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100));
+        price.range = !!(
+            price.finalPrice &&
+            price.finalPriceMax &&
+            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
+        );
 
         return price;
     }
@@ -104,7 +108,7 @@ class Product {
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
-            this._updatePrice(this._state.prices[this._state.sku])
+            this._updatePrice(this._state.prices[this._state.sku]);
         } else {
             // or server-side price as a backup
             this._updatePrice(variant.priceRange);
@@ -118,25 +122,54 @@ class Product {
         let innerHTML = '';
         if (!price.range) {
             if (price.discounted) {
-                innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({ value: price.regularPrice, currency: price.currency })}</span>
-                    <span class="discountedPrice">${this._formatter.formatPrice({ value: price.finalPrice, currency: price.currency })}</span>
-                    <span class="you-save"><br />You save ${this._formatter.formatPrice({ value: price.discountAmount, currency: price.currency })} (${price.discountPercent}%)</span>`;
+                innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                    value: price.regularPrice,
+                    currency: price.currency
+                })}</span>
+                    <span class="discountedPrice">${this._formatter.formatPrice({
+                        value: price.finalPrice,
+                        currency: price.currency
+                    })}</span>
+                    <span class="you-save"><br />You save ${this._formatter.formatPrice({
+                        value: price.discountAmount,
+                        currency: price.currency
+                    })} (${price.discountPercent}%)</span>`;
             } else {
-                innerHTML += `<span>${this._formatter.formatPrice({ value: price.regularPrice, currency: price.currency })}</span>`;
+                innerHTML += `<span>${this._formatter.formatPrice({
+                    value: price.regularPrice,
+                    currency: price.currency
+                })}</span>`;
             }
         } else {
             if (price.discounted) {
-                innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({ value: price.regularPrice, currency: price.currency })} - ${this._formatter.formatPrice({ value: price.regularPriceMax, currency: price.currency })}</span>
-                    <span class="discountedPrice">${this._formatter.formatPrice({ value: price.finalPrice, currency: price.currency })} - ${this._formatter.formatPrice({ value: price.finalPriceMax, currency: price.currency })}</span>
-                    <span class="you-save"><br />You save ${this._formatter.formatPrice({ value: price.discountAmount, currency: price.currency })} (${price.discountPercent}%)</span>`;
+                innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                    value: price.regularPrice,
+                    currency: price.currency
+                })} - ${this._formatter.formatPrice({ value: price.regularPriceMax, currency: price.currency })}</span>
+                    <span class="discountedPrice">${this._formatter.formatPrice({
+                        value: price.finalPrice,
+                        currency: price.currency
+                    })} - ${this._formatter.formatPrice({
+                    value: price.finalPriceMax,
+                    currency: price.currency
+                })}</span>
+                    <span class="you-save"><br />You save ${this._formatter.formatPrice({
+                        value: price.discountAmount,
+                        currency: price.currency
+                    })} (${price.discountPercent}%)</span>`;
             } else {
-                innerHTML += `<span>${this._formatter.formatPrice({ value: price.regularPrice, currency: price.currency })} - ${this._formatter.formatPrice({ value: price.regularPriceMax, currency: price.currency })}</span>`;
+                innerHTML += `<span>${this._formatter.formatPrice({
+                    value: price.regularPrice,
+                    currency: price.currency
+                })} - ${this._formatter.formatPrice({
+                    value: price.regularPriceMax,
+                    currency: price.currency
+                })}</span>`;
             }
         }
 
         this._element.querySelector(Product.selectors.price).innerHTML = innerHTML;
     }
-
 }
 
 Product.selectors = {

@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Price;
+import com.adobe.cq.commerce.magento.graphql.PriceRange;
 
 public class PriceImpl implements Price {
 
@@ -43,6 +44,23 @@ public class PriceImpl implements Price {
 
     private Boolean isDiscounted;
     private Boolean isRange;
+
+    public PriceImpl(PriceRange range, Locale locale) {
+        this.locale = locale;
+        this.currency = range.getMinimumPrice().getFinalPrice().getCurrency().toString();
+
+        this.regularPriceMin = range.getMinimumPrice().getRegularPrice().getValue();
+        this.finalPriceMin = range.getMinimumPrice().getFinalPrice().getValue();
+        this.discountAmountMin = range.getMinimumPrice().getDiscount().getAmountOff();
+        this.discountPercentMin = range.getMinimumPrice().getDiscount().getPercentOff();
+
+        if (range.getMaximumPrice() != null) {
+            this.regularPriceMax = range.getMaximumPrice().getRegularPrice().getValue();
+            this.finalPriceMax = range.getMaximumPrice().getFinalPrice().getValue();
+            this.discountAmountMax = range.getMaximumPrice().getDiscount().getAmountOff();
+            this.discountPercentMax = range.getMaximumPrice().getDiscount().getPercentOff();
+        }
+    }
 
     private NumberFormat getPriceFormatter() {
         if (priceFormatter == null) {
@@ -143,46 +161,6 @@ public class PriceImpl implements Price {
     @Override
     public Double getDiscountPercentMax() {
         return isRange() ? discountPercentMax : Double.NaN;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public void setRegularPriceMin(Double regularPriceMin) {
-        this.regularPriceMin = regularPriceMin;
-    }
-
-    public void setRegularPriceMax(Double regularPriceMax) {
-        this.regularPriceMax = regularPriceMax;
-    }
-
-    public void setFinalPriceMin(Double finalPriceMin) {
-        this.finalPriceMin = finalPriceMin;
-    }
-
-    public void setFinalPriceMax(Double finalPriceMax) {
-        this.finalPriceMax = finalPriceMax;
-    }
-
-    public void setDiscountAmountMin(Double discountAmountMin) {
-        this.discountAmountMin = discountAmountMin;
-    }
-
-    public void setDiscountAmountMax(Double discountAmountMax) {
-        this.discountAmountMax = discountAmountMax;
-    }
-
-    public void setDiscountPercentMin(Double discountPercentMin) {
-        this.discountPercentMin = discountPercentMin;
-    }
-
-    public void setDiscountPercentMax(Double discountPercentMax) {
-        this.discountPercentMax = discountPercentMax;
     }
 
 }

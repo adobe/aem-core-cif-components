@@ -51,7 +51,6 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
-import com.adobe.cq.commerce.magento.graphql.PriceRange;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
@@ -160,7 +159,7 @@ public class ProductImpl implements Product {
 
     @Override
     public Price getPriceRange() {
-        return mapPrice(productRetriever.fetchProduct().getPriceRange());
+        return new PriceImpl(productRetriever.fetchProduct().getPriceRange(), locale);
     }
 
     @Override
@@ -250,27 +249,6 @@ public class ProductImpl implements Product {
     }
 
     /* --- Mapping methods --- */
-
-    private Price mapPrice(PriceRange range) {
-        PriceImpl price = new PriceImpl();
-        price.setLocale(locale);
-        price.setCurrency(range.getMinimumPrice().getFinalPrice().getCurrency().toString());
-
-        price.setRegularPriceMin(range.getMinimumPrice().getRegularPrice().getValue());
-        price.setFinalPriceMin(range.getMinimumPrice().getFinalPrice().getValue());
-        price.setDiscountAmountMin(range.getMinimumPrice().getDiscount().getAmountOff());
-        price.setDiscountPercentMin(range.getMinimumPrice().getDiscount().getPercentOff());
-
-        if (range.getMaximumPrice() != null) {
-            price.setRegularPriceMax(range.getMaximumPrice().getRegularPrice().getValue());
-            price.setFinalPriceMax(range.getMaximumPrice().getFinalPrice().getValue());
-            price.setDiscountAmountMax(range.getMaximumPrice().getDiscount().getAmountOff());
-            price.setDiscountPercentMax(range.getMaximumPrice().getDiscount().getPercentOff());
-        }
-
-        return price;
-    }
-
     private Variant mapVariant(ConfigurableVariant variant) {
         SimpleProduct product = variant.getProduct();
 
@@ -279,7 +257,7 @@ public class ProductImpl implements Product {
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
         productVariant.setColor(product.getColor());
-        productVariant.setPriceRange(mapPrice(product.getPriceRange()));
+        productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
 
         // Map variant attributes
