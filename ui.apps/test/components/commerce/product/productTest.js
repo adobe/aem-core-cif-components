@@ -259,5 +259,55 @@ describe('Product', () => {
                 assert.include(youSave, '12.6%');
             });
         });
+
+        it('displays a discounted price range', () => {
+            const priceRange = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 5,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 5,
+                            percent_off: 50
+                        }
+                    },
+                    maximum_price: {
+                        regular_price: {
+                            value: 20,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 10,
+                            percent_off: 50
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let regularPrice = productRoot.querySelector(Product.selectors.price + ' .regularPrice').innerText;
+                let finalPrice = productRoot.querySelector(Product.selectors.price + ' .discountedPrice').innerText;
+                let youSave = productRoot.querySelector(Product.selectors.price + ' .you-save').innerText;
+                assert.include(regularPrice, 'USD 10 - USD 20');
+                assert.include(finalPrice, 'USD 5 - USD 10');
+                assert.include(youSave, 'USD 5');
+                assert.include(youSave, '50%');
+            });
+        });
     });
 });
