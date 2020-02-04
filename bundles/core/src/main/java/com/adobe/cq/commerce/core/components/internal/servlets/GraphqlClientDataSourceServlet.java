@@ -96,7 +96,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
             showEmptyOption = expressionHelper.getBoolean(cfg.get("showEmptyOption"));
         }
         // Add empty option
-        if (!showEmptyOption) {
+        if (showEmptyOption) {
             graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
         }
         // Add other configurations
