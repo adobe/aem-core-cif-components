@@ -112,7 +112,8 @@ public class GraphqlClientDataSourceServletTest {
         Resource datasourceDefinition = new MockResource("/some/random/path", datasourceProps, context.resourceResolver());
         Mockito.when(mockResource.getChild(Config.DATASOURCE)).thenReturn(datasourceDefinition);
 
-        Mockito.when(mockExpressionResolver.resolve(Mockito.any(String.class), Mockito.any(Locale.class), Mockito.any(Class.class), Mockito.any(SlingHttpServletRequest.class))).thenReturn(true);
+        Mockito.when(mockExpressionResolver.resolve(Mockito.any(String.class), Mockito.any(Locale.class), Mockito.any(Class.class), Mockito
+            .any(SlingHttpServletRequest.class))).thenReturn(true);
 
         context.request().setResource(mockResource);
 
