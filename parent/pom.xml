@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 
     Copyright 2019 Adobe. All rights reserved.
@@ -21,7 +21,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
 
     <name>AEM CIF Core Components - Parent</name>
     <description>Parent POM for AEM CIF Core Components</description>
@@ -104,8 +104,16 @@
         <vault.password>admin</vault.password>
 
         <slf4j.version>1.7.6</slf4j.version>
-
         <jacoco.version>0.7.9</jacoco.version>
+        <graphql.client.version>1.2.0</graphql.client.version>
+        <magento.graphql.version>5.0.0-magento234</magento.graphql.version>
+        <cif.connector.version>0.8.0</cif.connector.version>
+
+        <core.wcm.components.version>2.7.0</core.wcm.components.version>
+
+        <!-- By default, webpack will build in development mode -->
+        <webpack.prod>false</webpack.prod>
+        <webpack.dev>true</webpack.dev>
     </properties>
 
     <!-- ====================================================================== -->
@@ -782,6 +790,11 @@
                     <value>true</value>
                 </property>
             </activation>
+            <properties>
+                <!-- When releasing, webpack will build in production mode -->
+                <webpack.prod>true</webpack.prod>
+                <webpack.dev>false</webpack.dev>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
