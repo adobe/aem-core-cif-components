@@ -19,9 +19,9 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
@@ -60,8 +60,8 @@ class ProductRetriever extends AbstractProductRetriever {
     @Override
     protected String generateQuery(String slug) {
         // Override the method here to first use a slug instead of SKU and also add the store config query
-        FilterTypeInput input = new FilterTypeInput().setEq(slug);
-        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
+        FilterEqualTypeInput slugFilter = new FilterEqualTypeInput().setEq(slug);
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setUrlKey(slugFilter);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         // GraphQL query

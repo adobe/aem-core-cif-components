@@ -19,9 +19,9 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
@@ -61,8 +61,8 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        FilterTypeInput input = new FilterTypeInput().setEq(identifiers.get(0));
-        ProductFilterInput filter = new ProductFilterInput();
+        FilterEqualTypeInput input = new FilterEqualTypeInput().setEq(identifiers.get(0));
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
         if (ProductIdType.SKU.equals(productIdType)) {
             filter.setSku(input);
         } else {
