@@ -51,7 +51,7 @@ public class MagentoGraphqlClient {
 
     public static final String STORE_CODE_PROPERTY = "magentoStore";
 
-    public static final String CONFIGURATION_NAME = "commerce/default";
+    public static final String CONFIGURATION_NAME = "cloudconfigs/commerce";
 
     private GraphqlClient graphqlClient;
 
