@@ -30,12 +30,12 @@
             </div>
             <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
         </div>
-        <!-- Condition if the product is not available, or invalid sku provided -->
+        <!--/* Condition if the product is not available, or invalid sku provided */-->
         <div class="blank-placeholder" data-sly-test=${!isvalid}>
             <strong>${'Product Teaser' @ i18n} <br> ${'Incorrect Configuration. Select a Magento Product.' @ i18n}</strong>
         </div>
     </sly>
-    <!-- Condition for no product configured and no property value available-->
+    <!--/* Condition for no product configured and no property value available */-->
     <div data-sly-test=${!ispropavailable} class="blank-placeholder">
         <strong>${'Product Teaser' @ i18n}</strong><br>
         <p>${'Configuration options' @ i18n}: </p>

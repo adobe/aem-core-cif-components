@@ -6,14 +6,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.6.1-SNAPSHOT</version>
+        <version>0.7.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-react-components</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>AEM CIF Core Components - Content Package for React Components</name>
@@ -59,6 +59,26 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-development</id> <!-- webpack development mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.prod}</skip>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production</id> <!-- webpack production mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.dev}</skip>
+                            <arguments>run webpack:prod</arguments>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>npm-module-link</id> <!-- Ignore npm scripts to avoid again executing 'prepare' -->
