@@ -113,7 +113,14 @@ public class MagentoGraphqlClientTest {
 
     @Test
     public void testMagentoStorePropertyWithConfigBuilder() {
-
+        /*
+         * The content for this test looks slightly different than it does in AEM:
+         * In AEM there the tree structure is /conf/<config>/settings/cloudconfigs/commerce/jcr:content
+         * In our test content it's /conf/<config>/settings/cloudconfigs/commerce
+         * The reason is that AEM has a specific CaConfig API implementation that reads the configuration
+         * data from the jcr:content node of the configuration page, something which we cannot reproduce in
+         * a unit test scenario.
+         */
         Resource pageWithConfig = Mockito.spy(context.resourceResolver()
             .getResource("/content/pageG"));
         Mockito.when(pageWithConfig.adaptTo(GraphqlClient.class))
