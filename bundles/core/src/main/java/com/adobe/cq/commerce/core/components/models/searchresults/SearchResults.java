@@ -11,15 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.components.models.searchresults;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.search.SearchAggregation;
+import com.adobe.cq.commerce.core.search.SearchResultsSet;
+
+/**
+ * Don't forget the comment
+ */
+@ProviderType
 public interface SearchResults {
 
     /**
@@ -28,5 +36,22 @@ public interface SearchResults {
      * @return {@link Collection} of {@link ProductListItem}s
      */
     @Nonnull
-    Collection<ProductListItem> getProducts();
+    default Collection<ProductListItem> getProducts() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the aggregations resulting from the search, as {@link SearchAggregation}s elements.
+     *
+     * @return {@link List} of {@link SearchAggregation}s
+     */
+    @Nonnull
+    List<SearchAggregation> getAggregations();
+
+    @Nonnull
+    SearchResultsSet getSearchResultsSet();
+
+    @Nonnull
+    String getSearchResultsPagePath();
+
 }

@@ -14,101 +14,103 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Map;
 
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.testing.Utils;
-import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.search.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.internal.SearchResultsSetImpl;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.scripting.WCMBindingsConstants;
-import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-/**
- * JUnit test suite for {@link SearchResultsImpl}
- */
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class SearchResultsImplTest {
 
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    Page productPage;
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    SlingHttpServletRequest incomingRequest;
 
-    private static final String PAGE = "/content/pageA";
-    private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
+    private SearchResultsImpl slingModel;
 
-    private static final String SEARCH_TERM = "glove";
-    private static final String QUERY_STRING = "{products(search:\"glove\"){items{__typename,id,url_key,name,small_image{label,url},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
-
-    private SearchResultsImpl searchResultsModel;
-    private Resource searchResultsResource;
+    private CategoryInterface categoryQueryResult;
 
     @Before
-    public void setUp() throws IOException {
-        Page page = context.currentPage(PAGE);
-        context.currentResource(SEARCHRESULTS);
-        searchResultsResource = Mockito.spy(context.resourceResolver().getResource(SEARCHRESULTS));
+    public void setUp() throws Exception {
+        this.slingModel = new SearchResultsImpl();
 
-        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.setResource(searchResultsResource);
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        incomingRequest = mock(SlingHttpServletRequest.class);
+        when(incomingRequest.getParameter("search_query")).thenReturn("test-query");
 
-        // Search results
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-search-result.json");
-        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Whitebox.setInternalState(this.slingModel, "request", incomingRequest);
+
+        // AEM page
+        productPage = mock(Page.class);
+        when(productPage.getLanguage(false)).thenReturn(Locale.US);
+        when(productPage.getPath()).thenReturn("/content/test-product-page");
+        Map<String, Object> pageProperties = new HashMap<>();
+
+        pageProperties.put(ProductList.PN_PAGE_SIZE, 6); // setting page size to 6
+
+        // Search Results Set
+        SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
+        searchResultsSet.setProductListItems(new LinkedList<>());
+        Whitebox.setInternalState(this.slingModel, "searchResultsSet", searchResultsSet);
+
+        ValueMapDecorator vMD = new ValueMapDecorator(pageProperties);
+
+        when(productPage.getProperties()).thenReturn(vMD);
+
+        Whitebox.setInternalState(this.slingModel, "productPage", productPage);
     }
 
     @Test
-    public void testGenerateQueryString() {
-        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-
-        String actualQueryString = searchResultsModel.generateQueryString(SEARCH_TERM);
-        Assert.assertEquals("The query string is generated", QUERY_STRING, actualQueryString);
+    public void testGetSearchResultsSet() {
+        final SearchResultsSet searchResultsSet = slingModel.getSearchResultsSet();
+        Assert.assertEquals("search result set comes back", 1, 1);
     }
 
     @Test
-    public void testProducts() {
-        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+    public void testCreateFilterMap() {
+        Map<String, String[]> queryParameters;
+        Map<String, String> filterMap;
 
-        Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertEquals("Return the correct number of products", 2, products.size());
+        queryParameters = new HashMap<>();
+        queryParameters.put("search_query", new String[] { "ok" });
+        filterMap = slingModel.createFilterMap(queryParameters);
+        Assert.assertEquals("filters query string parameter out correctly", 0, filterMap.size());
+
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] {});
+        filterMap = slingModel.createFilterMap(queryParameters);
+        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
+
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] { "123" });
+        filterMap = slingModel.createFilterMap(queryParameters);
+        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
     }
+
+    // @Test
+    // public void testInitModel() {
+    // slingModel.initModel();
+    //
+    // }
 
     @Test
-    public void testMissingSearchTerm() {
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-
-        Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertTrue("Products list is empty", products.isEmpty());
+    public void testCalculateCurrentPageCursor() {
+        Assert.assertEquals("negative page indexes are not allowed", 1, slingModel.calculateCurrentPageCursor("-1").intValue());
+        Assert.assertEquals("null value is dealt with", 1, slingModel.calculateCurrentPageCursor(null).intValue());
     }
 
-    @Test
-    public void testNoMagentoGraphqlClient() {
-        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(null);
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-
-        Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertTrue("Products list is empty", products.isEmpty());
-    }
 }

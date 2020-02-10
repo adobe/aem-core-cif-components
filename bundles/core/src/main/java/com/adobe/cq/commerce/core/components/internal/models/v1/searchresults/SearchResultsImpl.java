@@ -11,14 +11,12 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -32,22 +30,15 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.core.search.SearchAggregation;
+import com.adobe.cq.commerce.core.search.SearchOptions;
+import com.adobe.cq.commerce.core.search.SearchResultsService;
+import com.adobe.cq.commerce.core.search.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.internal.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.SearchResultsSetImpl;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -59,8 +50,13 @@ import com.day.cq.wcm.api.Page;
     resourceType = SearchResultsImpl.RESOURCE_TYPE)
 public class SearchResultsImpl implements SearchResults {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
+    private static final String SEARCH_FILTER_QUERY_STRING = "search_query";
+    private static final String CURRENT_PAGE_QUERY_STRING = "page";
+
+    Page productPage;
 
     @Self
     private SlingHttpServletRequest request;
@@ -71,25 +67,68 @@ public class SearchResultsImpl implements SearchResults {
     @Inject
     private Page currentPage;
 
-    private String searchTerm;
-    private MagentoGraphqlClient magentoGraphqlClient;
-    Locale locale;
+    private Page searchPage;
 
-    Page productPage;
+    private SearchResultsSet searchResultsSet = null;
+
+    @Inject
+    private SearchResultsService searchResultsService;
 
     @PostConstruct
     protected void initModel() {
-        searchTerm = request.getParameter("search_query");
+        String searchTerm = request.getParameter(SEARCH_FILTER_QUERY_STRING);
+
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(CURRENT_PAGE_QUERY_STRING));
+
+        productPage = SiteNavigation.getProductPage(currentPage);
+        searchPage = SiteNavigation.getSearchResultsPage(currentPage);
+        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
+
         LOGGER.debug("Detected search parameter {}", searchTerm);
 
-        // Get MagentoGraphqlClient from the resource.
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
+        SearchOptions searchOptions = new SearchOptionsImpl();
+        searchOptions.setCurrentPage(currentPageIndex);
+        searchOptions.setAttributeFilters(searchFilters);
+        searchOptions.setSearchQuery(searchTerm);
 
-        locale = productPage.getLanguage(false);
+        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage);
+    }
+
+    protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
+            ? Integer
+                .valueOf(currentPageIndexCandidate)
+            : 1;
+    }
+
+    @Nonnull
+    @Override
+    public String getSearchResultsPagePath() {
+        return searchPage.getPath();
+    }
+
+    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
+        Map<String, String> filters = new HashMap<>();
+        parameterMap.entrySet().forEach(filterCandidate -> {
+            String code = filterCandidate.getKey();
+            String[] value = filterCandidate.getValue();
+
+            // we'll remove the search filter
+            if (code.equalsIgnoreCase(SEARCH_FILTER_QUERY_STRING)) {
+                return;
+            }
+
+            // we'll make sure there is a value defined for the key
+            if (value.length != 1) {
+                return;
+            }
+
+            filters.put(code, value[0]);
+        });
+
+        return filters;
     }
 
     /**
@@ -98,107 +137,22 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        if (magentoGraphqlClient == null || StringUtils.isEmpty(searchTerm)) {
-            return Collections.emptyList();
+        return searchResultsSet.getProductListItems();
+    }
+
+    @Nonnull
+    @Override
+    public List<SearchAggregation> getAggregations() {
+        return searchResultsSet.getSearchAggregations();
+    }
+
+    @Nonnull
+    @Override
+    public SearchResultsSet getSearchResultsSet() {
+        if (searchResultsSet == null) {
+            return new SearchResultsSetImpl();
         }
-
-        String queryString = generateQueryString(searchTerm);
-
-        LOGGER.debug("Generated query string {}", queryString);
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
-        return extractProductsFromResponse(response);
+        return searchResultsSet;
     }
 
-    /**
-     * Generates a query string for the specified search term. This query string condition is 'like'.
-     * 
-     * @param searchTerm the search term used for filtering
-     * @return the query string
-     */
-    @Nonnull
-    protected String generateQueryString(String searchTerm) {
-        ProductsArgumentsDefinition searchArgs = s -> s.search(searchTerm);
-        ProductsQueryDefinition queryArgs = productsQuery -> productsQuery.items(generateProductQuery());
-        return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
-    }
-
-    /**
-     * Generates a query object for a product. The generated query contains the following fields: id, name, slug (url_key), image url,
-     * regular price, regular price currency
-     *
-     * @return a {@link ProductInterfaceQueryDefinition} object
-     */
-    @Nonnull
-    protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q.id()
-            .urlKey()
-            .name()
-            .smallImage(i -> i
-                .label()
-                .url())
-            .onConfigurableProduct(cp -> cp
-                .priceRange(r -> r
-                    .maximumPrice(generatePriceQuery())
-                    .minimumPrice(generatePriceQuery())))
-            .onSimpleProduct(sp -> sp
-                .priceRange(r -> r
-                    .minimumPrice(generatePriceQuery())));
-    }
-
-    private ProductPriceQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(r -> r
-                .value()
-                .currency())
-            .finalPrice(f -> f
-                .value()
-                .currency())
-            .discount(d -> d
-                .amountOff()
-                .percentOff());
-    }
-
-    /**
-     * Extracts a list of products from the graphql response. This method uses
-     * {@link SearchResultsImpl#generateItemFromProductInterface(ProductInterface)} to tranform the objects from the Graphql response to
-     * {@link ProductListItem} objects
-     * 
-     * @param response a {@link GraphqlResponse} object
-     * @return a list of {@link ProductListItem} objects
-     */
-    @Nonnull
-    protected List<ProductListItem> extractProductsFromResponse(GraphqlResponse<Query, Error> response) {
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
-
-        LOGGER.debug("Found {} products for search term {}", products.size(), searchTerm);
-
-        return products.stream()
-            .map(product -> generateItemFromProductInterface(product))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Transforms a {@link ProductInterface} object into a {@link ProductListItem}
-     *
-     * @param product the {@link ProductInterface} object to transform
-     * @return a new {@link ProductListItem} object
-     */
-    @Nonnull
-    protected ProductListItem generateItemFromProductInterface(ProductInterface product) {
-
-        Price price = new PriceImpl(product.getPriceRange(), locale);
-
-        ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-            product.getUrlKey(),
-            product.getName(),
-            price,
-            product.getSmallImage()
-                .getUrl(),
-            productPage,
-            null,
-            request);
-
-        return productListItem;
-    }
 }

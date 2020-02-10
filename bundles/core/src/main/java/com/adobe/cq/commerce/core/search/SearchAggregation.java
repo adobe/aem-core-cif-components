@@ -1,0 +1,73 @@
+/*
+ *   Copyright 2019 Adobe Systems Incorporated
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package com.adobe.cq.commerce.core.search;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+
+import org.osgi.annotation.versioning.ConsumerType;
+
+/**
+ * Represents an aggregation
+ */
+@ConsumerType
+public interface SearchAggregation {
+
+    @Nonnull
+    default Optional<String> getAppliedFilterValue() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default Optional<String> getAppliedFilterDisplayLabel() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default boolean getFilterable() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default String getIdentifier() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default String getDisplayLabel() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default Integer getOptionCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default List<SearchAggregationOption> getOptions() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    default Map<String, String> getRemoveFilterMap() {
+        throw new UnsupportedOperationException();
+    }
+
+}

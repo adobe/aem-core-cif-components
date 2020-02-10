@@ -32,7 +32,9 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.IntrospectionDeserializer;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.commerce.magento.graphql.introspection.IntrospectionQuery;
 import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
@@ -66,20 +68,40 @@ public class MagentoGraphqlClient {
      */
     public static MagentoGraphqlClient create(Resource resource) {
         try {
-            return new MagentoGraphqlClient(resource);
+            return new MagentoGraphqlClient(resource, false);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource) {
+    /**
+     * Instantiates and returns a new MagentoGraphqlClient.
+     * This method returns <code>null</code> if the client cannot be instantiated.
+     * 
+     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @return A new MagentoGraphqlClient instance.
+     */
+    public static MagentoGraphqlClient create(Resource resource, Boolean introspection) {
+        try {
+            return new MagentoGraphqlClient(resource, introspection);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private MagentoGraphqlClient(Resource resource, Boolean introspection) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
             throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
         }
 
-        requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
+        if (introspection) {
+            requestOptions = new RequestOptions().withGson(IntrospectionDeserializer.getGson());
+        } else {
+            requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
+        }
 
         String storeCode;
         ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
@@ -97,6 +119,19 @@ public class MagentoGraphqlClient {
             Header storeHeader = new BasicHeader("Store", storeCode);
             requestOptions.withHeaders(Collections.singletonList(storeHeader));
         }
+    }
+
+    //todo-kevin: do we still need this?
+    /**
+     * Executes the given Magento query and returns the response. This method will use
+     * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
+     * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.
+     *
+     * @param query The GraphQL query.
+     * @return The GraphQL response.
+     */
+    public GraphqlResponse<IntrospectionQuery, Error> executeIntrospection(String query) {
+        return graphqlClient.execute(new GraphqlRequest(query), IntrospectionDeserializer.class, Error.class, requestOptions);
     }
 
     /**

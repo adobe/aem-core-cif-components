@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -35,8 +38,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.search.internal.SearchResultsSetImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -113,6 +117,12 @@ public class ProductListImplTest {
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
 
+        // Product Result Set
+        SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
+        searchResultsSet.setProductListItems(new LinkedList<>());
+        Whitebox.setInternalState(this.productListModel, "searchResultsSet", searchResultsSet);
+
+
         // context.request().adaptTo(ProductListImpl.class); is moved to each test because it uses an internal cache
         // and we want to override the "slug" in testEditModePlaceholderData()
     }
@@ -185,64 +195,19 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void testPagination() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+    public void testParseCategoryId() {
 
-        // Cannot be added to JCR JSON content because of long/int conversion
-        int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
+        // null values should result in a null category id
+        Integer parsedCategoryId = productListModel.parseCategoryId(null, null);
+        Assert.assertNull("null values result in null category id", parsedCategoryId);
 
-        Assert.assertTrue(pageSize >= productListModel.getProducts().size());
-        Assert.assertTrue(pageSize <= category.getProductCount());
+        parsedCategoryId = productListModel.parseCategoryId(null, "13");
+        Assert.assertNotNull("fallback query string parameter works with valid category_id parameter", parsedCategoryId);
+        Assert.assertEquals("fallback query string parameter works with valid category_id parameter", 13, parsedCategoryId.intValue());
 
-        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
+        parsedCategoryId = productListModel.parseCategoryId("13", null);
+        Assert.assertEquals("main path parsing returns correct cateogry", 13, parsedCategoryId.intValue());
 
-        when(incomingRequest.getParameter("page")).thenReturn("1");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(3, productListModel.getPageList().size());
-
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(2, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        when(incomingRequest.getParameter("page")).thenReturn("2");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-
-        Assert.assertEquals(2, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(3, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        when(incomingRequest.getParameter("page")).thenReturn("3");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-
-        Assert.assertEquals(3, productListModel.getCurrentNavPage());
-        Assert.assertEquals(2, productListModel.getPreviousNavPage());
-        Assert.assertEquals(3, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        // Test when page size matches number of products
-        Whitebox.setInternalState(productListModel, "navPageSize", 13);
-        when(incomingRequest.getParameter("page")).thenReturn("1");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(1, productListModel.getNextNavPage());
-
-        // Test with invalid page size
-        when(incomingRequest.getParameter("page")).thenReturn("0");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
     }
 
     @Test
@@ -295,6 +260,27 @@ public class ProductListImplTest {
         productListModel.setNavPageCursor();
         productListModel.setupPagination();
         Assert.assertArrayEquals(new Object[] { 1, 0, 16, 17 }, productListModel.getPageList().toArray());
+    }
+
+    public void testCreateFilterMap() {
+        Map<String, String[]> queryParameters;
+        Map<String, String> filterMap;
+
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] {});
+        filterMap = productListModel.createFilterMap(queryParameters);
+        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
+
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] { "123" });
+        filterMap = productListModel.createFilterMap(queryParameters);
+        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
+    }
+
+    @Test
+    public void testCalculateCurrentPageCursor() {
+        Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
+        Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
     }
 
     @Test

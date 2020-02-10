@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
+
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,10 +46,21 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+
+//todo-kevin: check what CategoryProducts and GroupedProducts were doing.
+//import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
+//import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
+//import com.adobe.cq.commerce.magento.graphql.ProductImage;
+//import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+
+import com.adobe.cq.commerce.core.search.SearchOptions;
+import com.adobe.cq.commerce.core.search.SearchResultsService;
+import com.adobe.cq.commerce.core.search.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.internal.SearchOptionsImpl;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -58,6 +72,7 @@ public class ProductListImpl implements ProductList {
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
+    private static final String CURRENT_PAGE_QUERY_STRING = "page";
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
@@ -82,10 +97,16 @@ public class ProductListImpl implements ProductList {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private SearchResultsService searchResultsService;
+
     private Page productPage;
+    private CategoryInterface category;
     private boolean showTitle;
     private boolean showImage;
     private boolean loadClientPrice;
+    private MagentoGraphqlClient magentoGraphqlClient;
+
 
     private Locale locale;
     private int navPageCursor = 1;
@@ -93,6 +114,10 @@ public class ProductListImpl implements ProductList {
     private Integer navPagePrev;
     private Integer navPageNext;
     private List<Integer> navPages;
+
+    private SearchResultsSet searchResultsSet;
+
+    private Integer categoryId;
 
     private AbstractCategoryRetriever categoryRetriever;
 
@@ -104,7 +129,13 @@ public class ProductListImpl implements ProductList {
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
-        setNavPageCursor();
+        String currentPageIndexCandidate = request.getParameter(CURRENT_PAGE_QUERY_STRING);
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        Integer currentPageIndex = StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
+            ? Integer
+                .valueOf(currentPageIndexCandidate)
+            : 1;
+        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -135,13 +166,19 @@ public class ProductListImpl implements ProductList {
                 loadClientPrice = false;
             }
         }
+
+        SearchOptions searchOptions = new SearchOptionsImpl();
+        searchOptions.setCurrentPage(currentPageIndex);
+        searchOptions.setAttributeFilters(searchFilters);
+        searchOptions.setCategoryId(categoryId);
+
+        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage);
     }
 
     @Nullable
     @Override
     public String getTitle() {
-        return categoryRetriever != null && categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName()
-            : StringUtils.EMPTY;
+        return category != null ? category.getName() : StringUtils.EMPTY;
     }
 
     @Override
@@ -151,7 +188,7 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public int getTotalCount() {
-        return categoryRetriever.fetchCategory().getProducts().getTotalCount();
+        return searchResultsSet.getTotalResults();
     }
 
     @Override
@@ -215,32 +252,61 @@ public class ProductListImpl implements ProductList {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        Collection<ProductListItem> listItems = new ArrayList<>();
 
-        if (categoryRetriever != null && categoryRetriever.fetchCategory() != null) {
-            final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
-            if (products != null) {
-                for (ProductInterface product : products.getItems()) {
-                    try {
-                        boolean isStartPrice = product instanceof GroupedProduct;
-                        Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-                        ProductImage smallImage = product.getSmallImage();
-                        listItems.add(new ProductListItemImpl(
-                            product.getSku(),
-                            product.getUrlKey(),
-                            product.getName(),
-                            price,
-                            smallImage == null ? null : smallImage.getUrl(),
-                            productPage,
-                            null,
-                            request));
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to instantiate product " + product.getSku(), e);
-                    }
-                }
+        //todo-kevin: make sure converter accounts for any updated logic here
+//                for (ProductInterface product : products.getItems()) {
+//                    try {
+//                        boolean isStartPrice = product instanceof GroupedProduct;
+//                        Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+//                        ProductImage smallImage = product.getSmallImage();
+//                        listItems.add(new ProductListItemImpl(
+//                            product.getSku(),
+//                            product.getUrlKey(),
+//                            product.getName(),
+//                            price,
+//                            smallImage == null ? null : smallImage.getUrl(),
+//                            productPage,
+//                            null,
+//                            request));
+
+        return searchResultsSet.getProductListItems();
+    }
+
+    @Override
+    public SearchResultsSet getSearchResultsSet() {
+        return searchResultsSet;
+    }
+
+    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
+        Map<String, String> filters = new HashMap<>();
+        parameterMap.entrySet().forEach(filterCandidate -> {
+            String code = filterCandidate.getKey();
+            String[] value = filterCandidate.getValue();
+
+
+            // we'll make sure there is a value defined for the key
+            if (value.length != 1) {
+                return;
             }
-        }
-        return listItems;
+
+            filters.put(code, value[0]);
+        });
+
+        return filters;
+    }
+
+    private CategoryTreeQueryDefinition generateProductListQuery() {
+        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> q
+            .id()
+            .description()
+            .name()
+            .image();
+
+        return categoryTreeQueryDefinition;
+    }
+
+    private StoreConfigQueryDefinition generateStoreConfigQuery() {
+        return q -> q.secureBaseMediaUrl();
     }
 
     @Override
@@ -306,24 +372,12 @@ public class ProductListImpl implements ProductList {
         }
     }
 
-    /**
-     * Sets value of navPageCursor from URL param if provided, else keeps it to default 1
-     *
-     * @return void
-     */
-    void setNavPageCursor() {
-        // check if pageCursor available in queryString, already set to 1 if not.
-        if (request.getParameter("page") != null) {
-            try {
-                navPageCursor = Integer.parseInt(request.getParameter("page"));
-                if (navPageCursor <= 0) {
-                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
-                    navPageCursor = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
-            }
-        }
+    protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
+            ? Integer
+                .valueOf(currentPageIndexCandidate)
+            : 1;
     }
 
 }
