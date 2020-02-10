@@ -19,7 +19,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 
 class CategoryRetriever extends AbstractCategoryRetriever {
 
@@ -27,12 +27,17 @@ class CategoryRetriever extends AbstractCategoryRetriever {
         super(client);
     }
 
-    private ProductPricesQueryDefinition generatePriceQuery() {
+    private ProductPriceQueryDefinition generatePriceQuery() {
         return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     private ProductInterfaceQueryDefinition generateProductQuery() {
@@ -42,7 +47,13 @@ class CategoryRetriever extends AbstractCategoryRetriever {
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()
-                .price(generatePriceQuery());
+                .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery())))
+                .onSimpleProduct(sp -> sp
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery())));
 
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
