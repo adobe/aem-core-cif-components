@@ -18,11 +18,33 @@
         },
         "url_key": "product-url-key",
         "stock_status": "IN_STOCK",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 42
+        "price_range": {
+          "maximum_price": {
+            "regular_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
+            }
+          },
+          "minimum_price": {
+            "regular_price": {
+              "value": 9.99,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 9.99,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         },
@@ -94,11 +116,19 @@
               "url_key": "variant-orange-xs-url-key",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               },
@@ -141,11 +171,19 @@
               "url_key": "variant-red-xs-url-key",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               },
@@ -188,11 +226,19 @@
               "url_key": "variant-orange-s-url-key",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               },
@@ -235,11 +281,19 @@
               "url_key": "variant-red-s-url-key",
               "stock_status": "IN_STOCK",
               "color": 56,
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 9.99,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 9.99,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               },

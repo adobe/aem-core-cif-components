@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.Price;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
@@ -45,7 +46,6 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
-import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -141,11 +141,11 @@ public class ProductImplTest {
         Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
         Assert.assertEquals(loadClientPrice, productModel.loadClientPrice());
 
+        // Old pricing API should still work
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        priceFormatter.setCurrency(Currency.getInstance(product.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
-
-        Money amount = product.getPrice().getRegularPrice().getAmount();
-        Assert.assertEquals(priceFormatter.format(amount.getValue()), productModel.getFormattedPrice());
+        priceFormatter.setCurrency(Currency.getInstance(productModel.getCurrency()));
+        Assert.assertEquals(productModel.getPriceRange().getFinalPrice(), productModel.getPrice(), 0.001);
+        Assert.assertEquals(priceFormatter.format(productModel.getPrice()), productModel.getFormattedPrice());
 
         Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
 
@@ -170,8 +170,9 @@ public class ProductImplTest {
         ConfigurableProduct cp = (ConfigurableProduct) product;
         Assert.assertEquals(cp.getVariants().size(), variants.size());
 
+        // Old pricing should still work
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        priceFormatter.setCurrency(Currency.getInstance(product.getPrice().getRegularPrice().getAmount().getCurrency().toString()));
+        priceFormatter.setCurrency(Currency.getInstance(productModel.getCurrency()));
 
         for (int i = 0; i < variants.size(); i++) {
             Variant variant = variants.get(i);
@@ -181,8 +182,9 @@ public class ProductImplTest {
             Assert.assertEquals(sp.getName(), variant.getName());
             Assert.assertEquals(sp.getDescription().getHtml(), variant.getDescription());
 
-            Money amount = cp.getPrice().getRegularPrice().getAmount();
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), variant.getFormattedPrice());
+            // Old pricing API should still work
+            Assert.assertEquals(variant.getPriceRange().getFinalPrice(), variant.getPrice(), 0.001);
+            Assert.assertEquals(priceFormatter.format(variant.getPrice()), variant.getFormattedPrice());
 
             Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
             Assert.assertEquals(sp.getColor(), variant.getColor());
@@ -295,6 +297,32 @@ public class ProductImplTest {
         storeConfig = rootQuery.getStoreConfig();
 
         testProduct(product, false);
+    }
+
+    @Test
+    public void testPriceRange() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Price price = productModel.getPriceRange();
+
+        Assert.assertTrue(price.isRange());
+        Assert.assertFalse(price.isDiscounted());
+        Assert.assertEquals(58.0, price.getRegularPrice(), 0.001);
+        Assert.assertEquals(58.0, price.getFinalPrice(), 0.001);
+        Assert.assertEquals(62.0, price.getRegularPriceMax(), 0.001);
+        Assert.assertEquals(62.0, price.getFinalPriceMax(), 0.001);
+    }
+
+    @Test
+    public void testDiscountedPrice() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Price price = productModel.getVariants().get(0).getPriceRange();
+
+        Assert.assertFalse(price.isRange());
+        Assert.assertTrue(price.isDiscounted());
+        Assert.assertEquals(58.0, price.getRegularPrice(), 0.001);
+        Assert.assertEquals(46.0, price.getFinalPrice(), 0.001);
+        Assert.assertEquals(12.0, price.getDiscountAmount(), 0.001);
+        Assert.assertEquals(20.69, price.getDiscountPercent(), 0.001);
     }
 
     private String getResource(String filename) throws IOException {

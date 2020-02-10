@@ -126,22 +126,38 @@ describe('CommerceGraphqlApi', () => {
                     items: [
                         {
                             sku: 'sku-a',
-                            price: {
-                                regularPrice: {
-                                    amount: {
-                                        currency: 'USD',
-                                        value: 118
+                            price_range: {
+                                minimum_price: {
+                                    regular_price: {
+                                        value: 118,
+                                        currency: 'USD'
+                                    },
+                                    final_price: {
+                                        value: 118,
+                                        currency: 'USD'
+                                    },
+                                    discount: {
+                                        amount_off: 0,
+                                        percent_off: 0
                                     }
                                 }
                             }
                         },
                         {
                             sku: 'sku-b',
-                            price: {
-                                regularPrice: {
-                                    amount: {
-                                        currency: 'USD',
-                                        value: 78
+                            price_range: {
+                                minimum_price: {
+                                    regular_price: {
+                                        value: 78,
+                                        currency: 'USD'
+                                    },
+                                    final_price: {
+                                        value: 78,
+                                        currency: 'USD'
+                                    },
+                                    discount: {
+                                        amount_off: 0,
+                                        percent_off: 0
                                     }
                                 }
                             }
@@ -163,8 +179,8 @@ describe('CommerceGraphqlApi', () => {
 
             // Validate price dictionary
             assert.hasAllKeys(res, ['sku-a', 'sku-b']);
-            assert.equal(res['sku-a'].currency, 'USD');
-            assert.equal(res['sku-a'].value, 118);
+            assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
+            assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
         });
     });
 
@@ -175,11 +191,19 @@ describe('CommerceGraphqlApi', () => {
                     items: [
                         {
                             sku: 'sku-a',
-                            price: {
-                                regularPrice: {
-                                    amount: {
-                                        currency: 'USD',
-                                        value: 118
+                            price_range: {
+                                minimum_price: {
+                                    regular_price: {
+                                        value: 118,
+                                        currency: 'USD'
+                                    },
+                                    final_price: {
+                                        value: 118,
+                                        currency: 'USD'
+                                    },
+                                    discount: {
+                                        amount_off: 0,
+                                        percent_off: 0
                                     }
                                 }
                             },
@@ -187,11 +211,19 @@ describe('CommerceGraphqlApi', () => {
                                 {
                                     product: {
                                         sku: 'sku-a-xl',
-                                        price: {
-                                            regularPrice: {
-                                                amount: {
-                                                    currency: 'USD',
-                                                    value: 200
+                                        price_range: {
+                                            minimum_price: {
+                                                regular_price: {
+                                                    value: 200,
+                                                    currency: 'USD'
+                                                },
+                                                final_price: {
+                                                    value: 200,
+                                                    currency: 'USD'
+                                                },
+                                                discount: {
+                                                    amount_off: 0,
+                                                    percent_off: 0
                                                 }
                                             }
                                         }
@@ -216,10 +248,10 @@ describe('CommerceGraphqlApi', () => {
 
             // Validate price dictionary
             assert.hasAllKeys(res, ['sku-a', 'sku-a-xl']);
-            assert.equal(res['sku-a'].currency, 'USD');
-            assert.equal(res['sku-a'].value, 118);
-            assert.equal(res['sku-a-xl'].currency, 'USD');
-            assert.equal(res['sku-a-xl'].value, 200);
+            assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
+            assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
+            assert.equal(res['sku-a-xl'].minimum_price.final_price.currency, 'USD');
+            assert.equal(res['sku-a-xl'].minimum_price.final_price.value, 200);
         });
     });
 
