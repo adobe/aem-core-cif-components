@@ -11,21 +11,21 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.price="${@ item}">
+  <template data-sly-template.price="${@ item}">
     <div class="item__price">
         <span role="price" data-sly-test=${!item.priceRange.isRange}>
-            <sly data-sly-test=${item.priceRange.isDiscounted}>
+            <sly data-sly-test.isDiscounted=${item.priceRange.isDiscounted}>
                 <span class="regularPrice">${item.priceRange.formattedRegularPrice}</span>
                 <span class="discountedPrice">${item.priceRange.formattedFinalPrice}</span>
             </sly>
-            <span>${item.priceRange.formattedRegularPrice}</span>
+            <span data-sly-test=${!isDiscounted}>${item.priceRange.formattedRegularPrice}</span>
         </span>
         <span role="price" data-sly-test=${item.priceRange.isRange}>
-            <sly data-sly-test=${item.priceRange.isDiscounted}>
+            <sly data-sly-test.isDiscounted=${item.priceRange.isDiscounted}>
                 <span class="regularPrice">${item.priceRange.formattedRegularPrice} - ${item.priceRange.formattedRegularPriceMax}</span>
                 <span class="discountedPrice">${item.priceRange.formattedFinalPrice} - ${item.priceRange.formattedFinalPriceMax}</span>
             </sly>
-            <span>${item.priceRange.formattedRegularPrice} - ${item.priceRange.formattedRegularPriceMax}</span>
+            <span data-sly-test=${!isDiscounted}>${item.priceRange.formattedRegularPrice} - ${item.priceRange.formattedRegularPriceMax}</span>
         </span>
     </div>
 </template>
