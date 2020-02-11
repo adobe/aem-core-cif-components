@@ -83,9 +83,7 @@ describe('Product', () => {
                 <div class="productFullDetail__details">
                     <span role="sku">sample-sku</span>
                 </div>
-                <div class="productFullDetail__productPrice">
-                    <span role="price"></span>
-                </div>
+                <div class="price"></div>
                 <div class="productFullDetail__description">
                     <span role="description"></span>
                 </div>`
