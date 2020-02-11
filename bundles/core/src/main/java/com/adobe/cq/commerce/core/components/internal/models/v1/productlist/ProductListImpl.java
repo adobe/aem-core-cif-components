@@ -51,7 +51,6 @@ import com.adobe.cq.commerce.core.search.SearchOptions;
 import com.adobe.cq.commerce.core.search.SearchResultsService;
 import com.adobe.cq.commerce.core.search.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.internal.SearchOptionsImpl;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
@@ -97,7 +96,6 @@ public class ProductListImpl implements ProductList {
     private boolean showImage;
     private boolean loadClientPrice;
 
-
     @Inject
     private SearchResultsService searchResultsService;
 
@@ -133,7 +131,8 @@ public class ProductListImpl implements ProductList {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         // Parse category id from URL
-        Optional<String> categoryId = parseCategoryId(this.request.getRequestPathInfo().getSelectorString(), request.getParameter("category_id"));
+        Optional<String> categoryId = parseCategoryId(this.request.getRequestPathInfo().getSelectorString(), request.getParameter(
+            "category_id"));
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
@@ -166,7 +165,6 @@ public class ProductListImpl implements ProductList {
         return categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
     }
 
-
     @Override
     public boolean showTitle() {
         return showTitle;
@@ -176,7 +174,6 @@ public class ProductListImpl implements ProductList {
     public int getTotalCount() {
         return categoryRetriever.fetchCategory().getProducts().getTotalCount();
     }
-
 
     @Override
     public String getImage() {

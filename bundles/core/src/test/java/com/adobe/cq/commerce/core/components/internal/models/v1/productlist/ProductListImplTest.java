@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
@@ -222,10 +222,10 @@ public class ProductListImplTest {
         Optional<String> parsedCategoryId = productListModel.parseCategoryId(null, null);
         Assert.assertEquals("null values result in empty category id", parsedCategoryId, Optional.empty());
 
-
         parsedCategoryId = productListModel.parseCategoryId(null, "13");
         Assert.assertNotNull("fallback query string parameter works with valid category_id parameter", parsedCategoryId);
-        Assert.assertEquals("fallback query string parameter works with valid category_id parameter", TEST_CATEGORY_OPTIONAL, parsedCategoryId);
+        Assert.assertEquals("fallback query string parameter works with valid category_id parameter", TEST_CATEGORY_OPTIONAL,
+            parsedCategoryId);
 
         parsedCategoryId = productListModel.parseCategoryId("13", null);
         Assert.assertEquals("main path parsing returns correct cateogry", TEST_CATEGORY_OPTIONAL, parsedCategoryId);
@@ -257,7 +257,6 @@ public class ProductListImplTest {
         Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
         Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
     }
-
 
     @Test
     public void testEditModePlaceholderData() throws IOException {
