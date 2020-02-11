@@ -144,7 +144,7 @@ class ProductList {
 
 ProductList.selectors = {
     self: '[data-cmp-is=productlist]',
-    price: '.item__price',
+    price: '.price',
     item: '.item__root[role=product]'
 };
 

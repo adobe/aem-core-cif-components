@@ -11,15 +11,15 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.productcard="${@ product}"
-    data-sly-use.priceTpl="price.html">
+  <template data-sly-template.productcard="${@ product}">
     <div role="displaycard" class="card product__card">
         <a href="${product.URL}">
             <div class="product__card__image">
                 <img class="product__image" src="${product.imageURL}" data-gallery-role="currentimage" />
             </div>
             <div>${product.Title}</div>
-            <sly data-sly-call="${priceTpl.price @ product=product}"></sly>
+            <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
+                 data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"></sly>
         </a>
     </div>
 </template>
