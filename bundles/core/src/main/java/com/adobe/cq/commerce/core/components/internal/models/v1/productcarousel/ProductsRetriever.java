@@ -16,7 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
 class ProductsRetriever extends AbstractProductsRetriever {
@@ -32,8 +32,15 @@ class ProductsRetriever extends AbstractProductsRetriever {
                 .thumbnail(t -> t.label()
                     .url())
                 .urlKey()
-                .price(generatePriceQuery())
-                .onConfigurableProduct(cp -> cp.variants(v -> v.product(generateSimpleProductQuery())));
+                .onConfigurableProduct(cp -> cp
+                    .variants(v -> v
+                        .product(generateSimpleProductQuery()))
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery())))
+                .onSimpleProduct(sp -> sp
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {
@@ -42,17 +49,28 @@ class ProductsRetriever extends AbstractProductsRetriever {
         };
     }
 
-    private ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q.regularPrice(rp -> rp.amount(a -> a.currency().value()));
+    private ProductPriceQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
         return q -> {
             q.sku()
                 .name()
-                .thumbnail(t -> t.label()
+                .thumbnail(t -> t
+                    .label()
                     .url())
-                .price(generatePriceQuery());
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()));
 
             // Apply product variant query hook
             if (variantQueryHook != null) {

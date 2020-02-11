@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -62,7 +62,7 @@ public class SearchResultsImplTest {
     private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
 
     private static final String SEARCH_TERM = "glove";
-    private static final String QUERY_STRING = "{products(search:\"glove\"){items{__typename,id,url_key,name,small_image{label,url},price{regularPrice{amount{value,currency}}}}}}";
+    private static final String QUERY_STRING = "{products(search:\"glove\"){items{__typename,id,url_key,name,small_image{label,url},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
 
     private SearchResultsImpl searchResultsModel;
     private Resource searchResultsResource;
