@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
 class ProductsRetriever extends AbstractProductsRetriever {
@@ -47,19 +46,6 @@ class ProductsRetriever extends AbstractProductsRetriever {
                 productQueryHook.accept(q);
             }
         };
-    }
-
-    private ProductPriceQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(r -> r
-                .value()
-                .currency())
-            .finalPrice(f -> f
-                .value()
-                .currency())
-            .discount(d -> d
-                .amountOff()
-                .percentOff());
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {

@@ -24,7 +24,6 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 
@@ -127,18 +126,5 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 productQueryHook.accept(q);
             }
         };
-    }
-
-    private ProductPriceQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(r -> r
-                .value()
-                .currency())
-            .finalPrice(f -> f
-                .value()
-                .currency())
-            .discount(d -> d
-                .amountOff()
-                .percentOff());
     }
 }
