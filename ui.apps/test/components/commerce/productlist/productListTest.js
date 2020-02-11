@@ -20,9 +20,102 @@ describe('Productlist', () => {
     let windowCIF;
 
     const clientPrices = {
-        'sku-a': { currency: 'USD', value: '156.89' },
-        'sku-b': { currency: 'USD', value: '123.45' },
-        'sku-c': { currency: 'USD', value: '0.0' }
+        'sku-a': {
+            minimum_price: {
+                regular_price: {
+                    value: 156.89,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 156.89,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 0,
+                    percent_off: 0
+                }
+            }
+        },
+        'sku-b': {
+            minimum_price: {
+                regular_price: {
+                    value: 123.45,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 123.45,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 0,
+                    percent_off: 0
+                }
+            },
+            maximum_price: {
+                regular_price: {
+                    value: 150.45,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 150.45,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 0,
+                    percent_off: 0
+                }
+            }
+        },
+        'sku-c': {
+            minimum_price: {
+                regular_price: {
+                    value: 20,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 10,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 10,
+                    percent_off: 50
+                }
+            }
+        }
+    };
+
+    const convertedPrices = {
+        'sku-a': {
+            currency: 'USD',
+            regularPrice: 156.89,
+            finalPrice: 156.89,
+            discountAmount: 0,
+            discountPercent: 0,
+            discounted: false,
+            range: false
+        },
+        'sku-b': {
+            currency: 'USD',
+            regularPrice: 123.45,
+            finalPrice: 123.45,
+            discountAmount: 0,
+            discountPercent: 0,
+            regularPriceMax: 150.45,
+            finalPriceMax: 150.45,
+            discountAmountMax: 0,
+            discountPercentMax: 0,
+            discounted: false,
+            range: true
+        },
+        'sku-c': {
+            currency: 'USD',
+            regularPrice: 20,
+            finalPrice: 10,
+            discountAmount: 10,
+            discountPercent: 50,
+            discounted: true,
+            range: false
+        }
     };
 
     before(() => {
@@ -33,7 +126,9 @@ describe('Productlist', () => {
         window.CIF.PriceFormatter = class {
             formatPrice(price) {}
         };
-        sinon.stub(window.CIF.PriceFormatter.prototype, 'formatPrice').callsFake(p => p.value);
+        sinon
+            .stub(window.CIF.PriceFormatter.prototype, 'formatPrice')
+            .callsFake(price => price.currency + ' ' + price.value);
     });
 
     after(() => {
@@ -80,12 +175,13 @@ describe('Productlist', () => {
 
         return list._fetchPrices().then(() => {
             assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
-            assert.deepEqual(list._state.prices, clientPrices);
+            assert.deepEqual(list._state.prices, convertedPrices);
 
             // Verify price updates
-            assert.include(listRoot.querySelector('[data-sku=sku-a] [role=price]').innerText, '156.89');
-            assert.include(listRoot.querySelector('[data-sku=sku-b] [role=price]').innerText, '123.45');
-            assert.include(listRoot.querySelector('[data-sku=sku-c] [role=price]').innerText, '0.0');
+            assert.include(listRoot.querySelector('[data-sku=sku-a] .item__price').innerText, 'USD 156.89');
+            assert.include(listRoot.querySelector('[data-sku=sku-b] .item__price').innerText, 'USD 123.45 - USD 150.45');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .item__price').innerText, 'USD 20');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .item__price').innerText, 'USD 10');
         });
     });
 
