@@ -179,7 +179,10 @@ describe('Productlist', () => {
 
             // Verify price updates
             assert.include(listRoot.querySelector('[data-sku=sku-a] .item__price').innerText, 'USD 156.89');
-            assert.include(listRoot.querySelector('[data-sku=sku-b] .item__price').innerText, 'USD 123.45 - USD 150.45');
+            assert.include(
+                listRoot.querySelector('[data-sku=sku-b] .item__price').innerText,
+                'USD 123.45 - USD 150.45'
+            );
             assert.include(listRoot.querySelector('[data-sku=sku-c] .item__price').innerText, 'USD 20');
             assert.include(listRoot.querySelector('[data-sku=sku-c] .item__price').innerText, 'USD 10');
         });
