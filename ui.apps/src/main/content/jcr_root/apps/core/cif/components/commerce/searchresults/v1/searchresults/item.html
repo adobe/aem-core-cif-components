@@ -11,7 +11,8 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.item="${@ item}">
+<template data-sly-template.item="${@ item}"
+    data-sly-use.priceTpl="price.html">
     <a class="item__images" href="${item.URL}">
         <img
             class="item__imagePlaceholder item__image"
@@ -23,7 +24,5 @@
         <img class="item__image" src="${item.imageURL}" alt="${item.title}" width="300" height="372" />
     </a>
     <a class="item__name" href="${item.URL}"><span>${item.title}</span></a>
-    <div class="item__price">
-        <span>${item.formattedPrice}</span>
-    </div>
+    <sly data-sly-call="${priceTpl.price @ item=item}"></sly>
 </template>

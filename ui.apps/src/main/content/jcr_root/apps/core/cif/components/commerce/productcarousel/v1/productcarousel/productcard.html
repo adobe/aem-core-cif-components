@@ -11,16 +11,15 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.productcard="${@ product}">
+<template data-sly-template.productcard="${@ product}"
+    data-sly-use.priceTpl="price.html">
     <div role="displaycard" class="card product__card">
         <a href="${product.URL}">
             <div class="product__card__image">
                 <img class="product__image" src="${product.imageURL}" data-gallery-role="currentimage" />
             </div>
             <div>${product.Title}</div>
-            <div class="product__price">
-                <span role="price">${product.formattedPrice}</span>
-            </div>
+            <sly data-sly-call="${priceTpl.price @ product=product}"></sly>
         </a>
     </div>
 </template>
