@@ -16,22 +16,14 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Currency;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
@@ -54,10 +46,12 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+
 //todo-kevin: GroupedProduct and ProductImage may need to be looked at to see if I need to include them from converter
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -94,9 +88,6 @@ public class ProductListImplTest {
     private ProductListImpl productListModel;
     private CategoryInterface category;
     private StoreConfig storeConfig;
-
-    private static Logger log = Logger.getLogger(ProductListImplTest.class);
-
 
     @Before
     public void setUp() throws Exception {
@@ -275,9 +266,9 @@ public class ProductListImplTest {
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
         final AbstractCategoryRetriever categoryRetriever = productListModel.getCategoryRetriever();
-        log.error("\n\nCLASS: " + categoryRetriever.getClass() + "\n\n");
 
-//        Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
+        Assert.assertEquals(categoryRetriever.getClass(), CategoryPlaceholderRetriever.class);
+
     }
 
     private String getResource(String filename) throws IOException {
