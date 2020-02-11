@@ -57,7 +57,6 @@ public class ProductListImpl implements ProductList {
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final int PAGE_SIZE_DEFAULT = 6;
-    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Self
     private SlingHttpServletRequest request;
@@ -170,7 +169,7 @@ public class ProductListImpl implements ProductList {
         if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
             return StringUtils.EMPTY;
         }
-        return categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.fetchCategory().getImage();
+        return categoryRetriever.fetchCategory().getImage();
     }
 
     @Override
