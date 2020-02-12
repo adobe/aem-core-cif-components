@@ -38,7 +38,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -170,7 +170,7 @@ public class RelatedProductsImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(clientSpy, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price{regularPrice{amount{currency,value}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
+        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -191,7 +191,7 @@ public class RelatedProductsImplTest {
             SiteNavigation siteNavigation = new SiteNavigation(context.request());
             Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
 
-            Money amount = product.getPrice().getRegularPrice().getAmount();
+            Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
             Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));

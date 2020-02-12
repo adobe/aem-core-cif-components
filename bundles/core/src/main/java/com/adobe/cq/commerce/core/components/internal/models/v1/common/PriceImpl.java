@@ -12,14 +12,14 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.product;
+package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.product.Price;
+import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.magento.graphql.PriceRange;
 
 public class PriceImpl implements Price {

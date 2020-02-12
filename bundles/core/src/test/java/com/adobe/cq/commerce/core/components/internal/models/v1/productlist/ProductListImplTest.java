@@ -37,12 +37,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
@@ -168,12 +167,14 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
 
-            Money amount = productInterface.getPrice().getRegularPrice().getAmount();
-            Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
-            Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
-
-            priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
+            // Make sure deprecated methods still work
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPrice(), 0);
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(), item
+                .getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
+                .toString()));
+            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
+                .getFormattedPrice());
 
             Assert.assertEquals(productInterface.getSmallImage().getUrl(), item.getImageURL());
         }

@@ -130,7 +130,7 @@ class Product {
                         value: price.finalPrice,
                         currency: price.currency
                     })}</span>
-                    <span class="you-save"><br />You save ${this._formatter.formatPrice({
+                    <span class="you-save">You save ${this._formatter.formatPrice({
                         value: price.discountAmount,
                         currency: price.currency
                     })} (${price.discountPercent}%)</span>`;
@@ -153,7 +153,7 @@ class Product {
                     value: price.finalPriceMax,
                     currency: price.currency
                 })}</span>
-                    <span class="you-save"><br />You save ${this._formatter.formatPrice({
+                    <span class="you-save">You save ${this._formatter.formatPrice({
                         value: price.discountAmount,
                         currency: price.currency
                     })} (${price.discountPercent}%)</span>`;
@@ -176,7 +176,7 @@ Product.selectors = {
     self: '[data-cmp-is=product]',
     sku: '.productFullDetail__details [role=sku]',
     name: '.productFullDetail__title [role=name]',
-    price: '.productFullDetail__productPrice',
+    price: '.price',
     description: '.productFullDetail__description [role=description]',
     mainImage: '.carousel__currentImage'
 };

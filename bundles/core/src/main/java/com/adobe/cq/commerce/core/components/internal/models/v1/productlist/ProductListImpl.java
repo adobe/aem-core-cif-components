@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,8 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
+import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
@@ -82,6 +86,7 @@ public class ProductListImpl implements ProductList {
     private boolean showImage;
     private boolean loadClientPrice;
 
+    private Locale locale;
     private int navPageCursor = 1;
     private int navPageSize = PAGE_SIZE_DEFAULT;
     private Integer navPagePrev;
@@ -105,6 +110,8 @@ public class ProductListImpl implements ProductList {
         if (productPage == null) {
             productPage = currentPage;
         }
+
+        locale = productPage.getLanguage(false);
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
@@ -208,12 +215,13 @@ public class ProductListImpl implements ProductList {
             final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
+                    Price price = new PriceImpl(product.getPriceRange(), locale);
+
                     listItems.add(new ProductListItemImpl(
                         product.getSku(),
                         product.getUrlKey(),
                         product.getName(),
-                        product.getPrice().getRegularPrice().getAmount().getValue(),
-                        product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                        price,
                         product.getSmallImage().getUrl(),
                         productPage,
                         null,
