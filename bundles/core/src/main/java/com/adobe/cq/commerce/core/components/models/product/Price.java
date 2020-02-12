@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -14,45 +14,43 @@
 
 package com.adobe.cq.commerce.core.components.models.product;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * Variant is a view model interface representing a product variant that contains
- * properties specific to a variant in comparison to its base product.
+ * Asset is a view model interface representing a product asset.
  */
-public interface Variant {
-    String getName();
+public interface Price {
 
-    String getDescription();
+    Boolean isRange();
 
-    String getSku();
+    Boolean isDiscounted();
 
-    /**
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
     String getCurrency();
 
-    /**
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    Double getPrice();
+    Double getRegularPrice();
 
-    /**
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    String getFormattedPrice();
+    String getFormattedRegularPrice();
 
-    Price getPriceRange();
+    Double getFinalPrice();
 
-    Boolean getInStock();
+    String getFormattedFinalPrice();
 
-    Integer getColor();
+    Double getDiscountAmount();
 
-    Map<String, Integer> getVariantAttributes();
+    String getFormattedDiscountAmount();
 
-    List<Asset> getAssets();
+    Double getDiscountPercent();
+
+    Double getRegularPriceMax();
+
+    String getFormattedRegularPriceMax();
+
+    Double getFinalPriceMax();
+
+    String getFormattedFinalPriceMax();
+
+    Double getDiscountAmountMax();
+
+    String getFormattedDiscountAmountMax();
+
+    Double getDiscountPercentMax();
+
 }
