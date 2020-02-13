@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 
 /**
@@ -39,10 +40,24 @@ public interface Product {
 
     String getSku();
 
+    /**
+     * @deprecated Please use getPriceRange() instead.
+     */
+    @Deprecated
     String getCurrency();
 
+    /**
+     * @deprecated Please use getPriceRange() instead.
+     */
+    @Deprecated
     Double getPrice();
 
+    Price getPriceRange();
+
+    /**
+     * @deprecated Please use getPriceRange() instead.
+     */
+    @Deprecated
     String getFormattedPrice();
 
     Boolean getInStock();

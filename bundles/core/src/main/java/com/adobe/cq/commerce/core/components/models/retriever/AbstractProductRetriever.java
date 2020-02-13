@@ -19,12 +19,13 @@ import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
@@ -148,8 +149,8 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateQuery(String identifier) {
-        FilterTypeInput input = new FilterTypeInput().setEq(identifier);
-        ProductFilterInput filter = new ProductFilterInput().setSku(input);
+        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setEq(identifier);
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(skuFilter);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
@@ -167,6 +168,19 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
             query = generateQuery(identifier);
         }
         return client.execute(query);
+    }
+
+    protected ProductPriceQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     @Override

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.productlist;
+package com.adobe.cq.commerce.core.components.models.common;
 
 import javax.annotation.Nullable;
 
@@ -55,7 +55,9 @@ public interface ProductListItem extends ListItem {
      * Returns the price of this {@code ProductListItem}.
      *
      * @return the price of this list item or {@code null}
+     * @deprecated Please use getPriceRange() instead.
      */
+    @Deprecated
     @Nullable
     default Double getPrice() {
         throw new UnsupportedOperationException();
@@ -65,7 +67,9 @@ public interface ProductListItem extends ListItem {
      * Returns the price currency of this {@code ProductListItem}.
      *
      * @return the currency of this list item or {@code null}
+     * @deprecated Please use getPriceRange() instead.
      */
+    @Deprecated
     @Nullable
     String getCurrency();
 
@@ -73,9 +77,18 @@ public interface ProductListItem extends ListItem {
      * Returns the formatted price of this {@code ProductListItem}.
      *
      * @return the formatted price of this list item or {@code null}
+     * @deprecated Please use getPriceRange() instead.
      */
+    @Deprecated
     @Nullable
     default String getFormattedPrice() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Returns the price range of this {@code ProductListItem}.
+     *
+     * @return Price range instance.
+     */
+    Price getPriceRange();
 }

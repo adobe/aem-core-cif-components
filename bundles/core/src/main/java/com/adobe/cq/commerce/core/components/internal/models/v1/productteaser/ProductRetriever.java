@@ -29,7 +29,7 @@ class ProductRetriever extends AbstractProductRetriever {
     }
 
     /* --- GraphQL queries --- */
-    private ProductPricesQueryDefinition generatePriceQuery() {
+    private ProductPricesQueryDefinition generateOldPriceQuery() {
         return q -> q
             .regularPrice(rp -> rp
                 .amount(a -> a
@@ -42,7 +42,7 @@ class ProductRetriever extends AbstractProductRetriever {
             q.sku()
                 .name()
                 .image(i -> i.label().url())
-                .price(generatePriceQuery());
+                .price(generateOldPriceQuery());
 
             // Apply product variant query hook
             if (variantQueryHook != null) {
@@ -57,7 +57,7 @@ class ProductRetriever extends AbstractProductRetriever {
             q.name()
                 .image(i -> i.url())
                 .urlKey()
-                .price(generatePriceQuery())
+                .price(generateOldPriceQuery())
                 .onConfigurableProduct(cp -> cp
                     .variants(v -> v
                         .product(generateSimpleProductQuery())));

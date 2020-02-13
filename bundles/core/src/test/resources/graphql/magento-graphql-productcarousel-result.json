@@ -10,11 +10,19 @@
           "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
         },
         "url_key": "endurance-watch",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 49
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
+              "value": 49,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 49,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         }
@@ -28,11 +36,19 @@
           "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
         },
         "url_key": "beaumont-summit-kit",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 42
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         },
@@ -45,11 +61,19 @@
                 "label": "Beaumont Summit Kit-XS-Orange",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -63,11 +87,19 @@
                 "label": "Beaumont Summit Kit-XS-Red",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -81,11 +113,19 @@
                 "label": "Beaumont Summit Kit-XS-Yellow",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -117,11 +157,19 @@
                 "label": "Beaumont Summit Kit-S-Red",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -135,11 +183,19 @@
                 "label": "Beaumont Summit Kit-S-Yellow",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -153,11 +209,19 @@
                 "label": "Beaumont Summit Kit-M-Orange",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -171,11 +235,19 @@
                 "label": "Beaumont Summit Kit-M-Red",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -189,11 +261,19 @@
                 "label": "Beaumont Summit Kit-M-Yellow",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -207,11 +287,19 @@
                 "label": "Beaumont Summit Kit-L-Orange",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -225,11 +313,19 @@
                 "label": "Beaumont Summit Kit-L-Red",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -243,11 +339,19 @@
                 "label": "Beaumont Summit Kit-L-Yellow",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -261,11 +365,19 @@
                 "label": "Beaumont Summit Kit-XL-Orange",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -279,11 +391,19 @@
                 "label": "Beaumont Summit Kit-XL-Red",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -297,11 +417,19 @@
                 "label": "Beaumont Summit Kit-XL-Yellow",
                 "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -318,11 +446,19 @@
           "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
         },
         "url_key": "stellar-solar-jacket",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 75
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
+              "value": 75,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 75,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         },
@@ -335,11 +471,19 @@
                 "label": "Stellar Solar Jacket-S-Blue",
                 "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -353,11 +497,19 @@
                 "label": "Stellar Solar Jacket-S-Red",
                 "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -371,11 +523,19 @@
                 "label": "Stellar Solar Jacket-S-Yellow",
                 "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -389,11 +549,19 @@
                 "label": "Stellar Solar Jacket-M-Blue",
                 "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -407,11 +575,19 @@
                 "label": "Stellar Solar Jacket-M-Red",
                 "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -425,11 +601,19 @@
                 "label": "Stellar Solar Jacket-M-Yellow",
                 "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -443,11 +627,19 @@
                 "label": "Stellar Solar Jacket-L-Blue",
                 "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -461,11 +653,19 @@
                 "label": "Stellar Solar Jacket-L-Red",
                 "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -479,11 +679,19 @@
                 "label": "Stellar Solar Jacket-L-Yellow",
                 "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 75
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }

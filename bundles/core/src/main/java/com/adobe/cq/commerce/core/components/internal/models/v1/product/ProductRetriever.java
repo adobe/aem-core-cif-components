@@ -19,12 +19,11 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
@@ -60,8 +59,8 @@ class ProductRetriever extends AbstractProductRetriever {
     @Override
     protected String generateQuery(String slug) {
         // Override the method here to first use a slug instead of SKU and also add the store config query
-        FilterTypeInput input = new FilterTypeInput().setEq(slug);
-        ProductFilterInput filter = new ProductFilterInput().setUrlKey(input);
+        FilterEqualTypeInput slugFilter = new FilterEqualTypeInput().setEq(slug);
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setUrlKey(slugFilter);
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         // GraphQL query
@@ -69,14 +68,6 @@ class ProductRetriever extends AbstractProductRetriever {
         return Operations.query(query -> query
             .products(searchArgs, queryArgs)
             .storeConfig(generateStoreConfigQuery())).toString();
-    }
-
-    private ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
@@ -89,7 +80,8 @@ class ProductRetriever extends AbstractProductRetriever {
                 .urlKey()
                 .stockStatus()
                 .color()
-                .price(generatePriceQuery())
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .mediaGalleryEntries(g -> g
                     .disabled()
                     .file()
@@ -114,7 +106,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .thumbnail(t -> t.label().url())
                 .urlKey()
                 .stockStatus()
-                .price(generatePriceQuery())
                 .mediaGalleryEntries(g -> g
                     .disabled()
                     .file()
@@ -122,6 +113,9 @@ class ProductRetriever extends AbstractProductRetriever {
                     .position()
                     .mediaType())
                 .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery()))
                     .configurableOptions(o -> o
                         .label()
                         .attributeCode()
@@ -132,7 +126,10 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributes(a -> a
                             .code()
                             .valueIndex())
-                        .product(generateSimpleProductQuery())));
+                        .product(generateSimpleProductQuery())))
+                .onSimpleProduct(sp -> sp
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {

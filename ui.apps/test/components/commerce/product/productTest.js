@@ -20,7 +20,36 @@ describe('Product', () => {
         let productRoot;
         let windowCIF;
 
-        const clientPrices = { 'sample-sku': { currency: 'USD', value: '156.89' } };
+        const clientPrices = {
+            'sample-sku': {
+                minimum_price: {
+                    regular_price: {
+                        value: 98,
+                        currency: 'USD'
+                    },
+                    final_price: {
+                        value: 98,
+                        currency: 'USD'
+                    },
+                    discount: {
+                        amount_off: 0,
+                        percent_off: 0
+                    }
+                }
+            }
+        };
+
+        const convertedPrices = {
+            'sample-sku': {
+                currency: 'USD',
+                regularPrice: 98,
+                finalPrice: 98,
+                discountAmount: 0,
+                discountPercent: 0,
+                discounted: false,
+                range: false
+            }
+        };
 
         before(() => {
             // Create empty context
@@ -30,7 +59,9 @@ describe('Product', () => {
             window.CIF.PriceFormatter = class {
                 formatPrice(price) {}
             };
-            sinon.stub(window.CIF.PriceFormatter.prototype, 'formatPrice').returns('$123.45');
+            sinon
+                .stub(window.CIF.PriceFormatter.prototype, 'formatPrice')
+                .callsFake(price => price.currency + ' ' + price.value);
 
             window.CIF.CommerceGraphqlApi = {
                 getProductPrices: sinon.stub().resolves(clientPrices)
@@ -52,9 +83,7 @@ describe('Product', () => {
                 <div class="productFullDetail__details">
                     <span role="sku">sample-sku</span>
                 </div>
-                <div class="productFullDetail__productPrice">
-                    <span role="price"></span>
-                </div>
+                <div class="price"></div>
                 <div class="productFullDetail__description">
                     <span role="description"></span>
                 </div>`
@@ -82,10 +111,10 @@ describe('Product', () => {
 
             return product._initPrices().then(() => {
                 assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
-                assert.deepEqual(product._state.prices, clientPrices);
+                assert.deepEqual(product._state.prices, convertedPrices);
 
                 let price = productRoot.querySelector(Product.selectors.price).innerText;
-                assert.include(price, '123.45');
+                assert.include(price, 'USD 98');
             });
         });
 
@@ -101,7 +130,7 @@ describe('Product', () => {
             let variant = {
                 sku: 'variant-sku',
                 name: 'Variant Name',
-                formattedPrice: '129,41 USD',
+                priceRange: convertedPrices['sample-sku'],
                 description: '<p>abc</p>'
             };
             let changeEvent = new CustomEvent(Product.events.variantChanged, {
@@ -123,17 +152,14 @@ describe('Product', () => {
 
             assert.equal(sku, variant.sku);
             assert.equal(name, variant.name);
-            assert.equal(price, variant.formattedPrice);
+            assert.equal(price, 'USD 98');
             assert.equal(description, variant.description);
         });
 
         it('changes variant with client-side price when receiving variantchanged event', () => {
             let product = new Product({ element: productRoot });
             product._state.prices = {
-                'variant-sku': {
-                    currency: 'USD',
-                    value: 130.42
-                }
+                'variant-sku': convertedPrices['sample-sku']
             };
 
             // Send event
@@ -148,7 +174,138 @@ describe('Product', () => {
 
             // Check fields
             let price = productRoot.querySelector(Product.selectors.price).innerText;
-            assert.include(price, '123.45');
+            assert.include(price, 'USD 98');
+        });
+
+        it('displays a price range', () => {
+            const priceRange = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 0,
+                            percent_off: 0
+                        }
+                    },
+                    maximum_price: {
+                        regular_price: {
+                            value: 20,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 20,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 0,
+                            percent_off: 0
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let price = productRoot.querySelector(Product.selectors.price).innerText;
+                assert.include(price, 'USD 10 - USD 20');
+            });
+        });
+
+        it('displays a discounted price', () => {
+            const priceDiscount = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: 80.12,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 69.99,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 10.13,
+                            percent_off: 12.6
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceDiscount);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let regularPrice = productRoot.querySelector(Product.selectors.price + ' .regularPrice').innerText;
+                let finalPrice = productRoot.querySelector(Product.selectors.price + ' .discountedPrice').innerText;
+                let youSave = productRoot.querySelector(Product.selectors.price + ' .you-save').innerText;
+                assert.include(regularPrice, 'USD 80.12');
+                assert.include(finalPrice, 'USD 69.99');
+                assert.include(youSave, 'USD 10.13');
+                assert.include(youSave, '12.6%');
+            });
+        });
+
+        it('displays a discounted price range', () => {
+            const priceRange = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 5,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 5,
+                            percent_off: 50
+                        }
+                    },
+                    maximum_price: {
+                        regular_price: {
+                            value: 20,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: 10,
+                            currency: 'USD'
+                        },
+                        discount: {
+                            amount_off: 10,
+                            percent_off: 50
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let regularPrice = productRoot.querySelector(Product.selectors.price + ' .regularPrice').innerText;
+                let finalPrice = productRoot.querySelector(Product.selectors.price + ' .discountedPrice').innerText;
+                let youSave = productRoot.querySelector(Product.selectors.price + ' .you-save').innerText;
+                assert.include(regularPrice, 'USD 10 - USD 20');
+                assert.include(finalPrice, 'USD 5 - USD 10');
+                assert.include(youSave, 'USD 5');
+                assert.include(youSave, '50%');
+            });
         });
     });
 });

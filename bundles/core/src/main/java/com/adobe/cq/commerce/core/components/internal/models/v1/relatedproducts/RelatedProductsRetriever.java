@@ -19,12 +19,11 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.FilterTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 
@@ -61,8 +60,8 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        FilterTypeInput input = new FilterTypeInput().setEq(identifiers.get(0));
-        ProductFilterInput filter = new ProductFilterInput();
+        FilterEqualTypeInput input = new FilterEqualTypeInput().setEq(identifiers.get(0));
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
         if (ProductIdType.SKU.equals(productIdType)) {
             filter.setSku(input);
         } else {
@@ -108,7 +107,13 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 .name()
                 .thumbnail(t -> t.label().url())
                 .urlKey()
-                .price(generatePriceQuery());
+                .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery())))
+                .onSimpleProduct(sp -> sp
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery())));
 
             // By default, we don't fetch any variants data, except if this has been customised via the hook
             if (variantQueryHook != null) {
@@ -121,9 +126,5 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 productQueryHook.accept(q);
             }
         };
-    }
-
-    private ProductPricesQueryDefinition generatePriceQuery() {
-        return q -> q.regularPrice(rp -> rp.amount(a -> a.currency().value()));
     }
 }

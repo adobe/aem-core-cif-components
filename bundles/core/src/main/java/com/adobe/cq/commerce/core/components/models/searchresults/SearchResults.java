@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 
 /**
  * Don't forget the comment

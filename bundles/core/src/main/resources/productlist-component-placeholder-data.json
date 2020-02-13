@@ -15,11 +15,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-1",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 101.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 101,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 101,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -33,11 +41,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-2",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 102.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 102,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 102,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -51,11 +67,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-3",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 103.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 103,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 103,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -69,11 +93,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-4",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 104.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 104,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 104,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -87,11 +119,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-5",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 105.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 105,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 105,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -105,11 +145,19 @@
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-6",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 106.00,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 106,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 106,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }

@@ -10,11 +10,19 @@
           "label": "Marin Mountain Bike Shoes",
           "url": "https://some-hostname.magentosite.cloud/static/version1555483142/graphql/_view/en_US/Magento_Catalog/images/product/placeholder/small_image.jpg"
         },
-        "price": {
-          "regularPrice": {
-            "amount": {
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
               "value": 110,
               "currency": "USD"
+            },
+            "final_price": {
+              "value": 110,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         }
@@ -28,11 +36,19 @@
           "label": "Fleet Cross-Training Shoe",
           "url": "https://some-hostname.magentosite.cloud/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/f/l/fleet_shoe_2.jpg"
         },
-        "price": {
-          "regularPrice": {
-            "amount": {
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
               "value": 65,
               "currency": "USD"
+            },
+            "final_price": {
+              "value": 65,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         }

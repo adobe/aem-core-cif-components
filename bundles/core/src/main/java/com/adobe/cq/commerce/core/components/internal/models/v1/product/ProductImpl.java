@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
@@ -96,16 +96,19 @@ public class ProductImpl implements Product {
     @Inject
     private XSSAPI xssApi;
 
-    private NumberFormat priceFormatter;
     private Boolean configurable;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
 
+    private Locale locale;
+
     @PostConstruct
     private void initModel() {
         // Parse slug from URL
         String slug = parseProductSlug();
+
+        locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
@@ -147,12 +150,17 @@ public class ProductImpl implements Product {
 
     @Override
     public String getCurrency() {
-        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
+        return getPriceRange().getCurrency();
     }
 
     @Override
     public Double getPrice() {
-        return productRetriever.fetchProduct().getPrice().getRegularPrice().getAmount().getValue();
+        return getPriceRange().getFinalPrice();
+    }
+
+    @Override
+    public Price getPriceRange() {
+        return new PriceImpl(productRetriever.fetchProduct().getPriceRange(), locale);
     }
 
     @Override
@@ -233,7 +241,7 @@ public class ProductImpl implements Product {
 
     @Override
     public String getFormattedPrice() {
-        return getPriceFormatter().format(getPrice());
+        return getPriceRange().getFormattedFinalPrice();
     }
 
     @Override
@@ -242,7 +250,6 @@ public class ProductImpl implements Product {
     }
 
     /* --- Mapping methods --- */
-
     private Variant mapVariant(ConfigurableVariant variant) {
         SimpleProduct product = variant.getProduct();
 
@@ -251,9 +258,7 @@ public class ProductImpl implements Product {
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
         productVariant.setColor(product.getColor());
-        productVariant.setCurrency(product.getPrice().getRegularPrice().getAmount().getCurrency().toString());
-        productVariant.setPrice(product.getPrice().getRegularPrice().getAmount().getValue());
-        productVariant.setFormattedPrice(getPriceFormatter().format(productVariant.getPrice()));
+        productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
 
         // Map variant attributes
@@ -320,17 +325,6 @@ public class ProductImpl implements Product {
      */
     private String parseProductSlug() {
         return request.getRequestPathInfo().getSelectorString();
-    }
-
-    private NumberFormat getPriceFormatter() {
-        if (priceFormatter == null) {
-            // Initialize NumberFormatter with locale from current page.
-            // Alternatively, the locale can potentially be retrieved via
-            // the storeConfig query introduced with Magento 2.3.1
-            Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, productRetriever.fetchProduct() != null ? getCurrency() : null);
-        }
-        return priceFormatter;
     }
 
     private String safeDescription(ProductInterface product) {
