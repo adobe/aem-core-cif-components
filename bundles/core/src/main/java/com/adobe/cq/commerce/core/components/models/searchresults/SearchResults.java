@@ -20,9 +20,6 @@ import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 
-/**
- * Don't forget the comment
- */
 public interface SearchResults {
 
     /**
@@ -31,12 +28,5 @@ public interface SearchResults {
      * @return {@link Collection} of {@link ProductListItem}s
      */
     @Nonnull
-    default Collection<ProductListItem> getProducts() {
-        throw new UnsupportedOperationException();
-    }
-
-    default String getQuery() {
-        throw new UnsupportedOperationException();
-    }
-
+    Collection<ProductListItem> getProducts();
 }
