@@ -90,7 +90,6 @@ public class MagentoGraphqlClient {
             if (storeCode == null) {
                 storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
             }
-            ;
         } else {
             storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
         }
