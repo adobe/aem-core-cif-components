@@ -8,11 +8,19 @@
           "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
         },
         "url_key": "beaumont-summit-kit",
-        "price": {
-          "regularPrice": {
-            "amount": {
-              "currency": "USD",
-              "value": 42
+        "price_range": {
+          "minimum_price": {
+            "regular_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "final_price": {
+              "value": 42,
+              "currency": "USD"
+            },
+            "discount": {
+              "amount_off": 0,
+              "percent_off": 0
             }
           }
         },
@@ -24,11 +32,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -41,11 +57,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -58,11 +82,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -75,11 +107,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -92,11 +132,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -109,11 +157,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -126,11 +182,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -143,11 +207,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -160,11 +232,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -177,11 +257,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -194,11 +282,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -211,11 +307,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -228,11 +332,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -245,11 +357,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }
@@ -262,11 +382,19 @@
               "image": {
                 "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
               },
-              "price": {
-                "regularPrice": {
-                  "amount": {
-                    "currency": "USD",
-                    "value": 42
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
                   }
                 }
               }

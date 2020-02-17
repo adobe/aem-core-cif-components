@@ -31,7 +31,8 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -64,8 +65,12 @@ public class ProductTeaserImpl implements ProductTeaser {
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
 
+    private Locale locale;
+
     @PostConstruct
     protected void initModel() {
+        locale = currentPage.getLanguage(false);
+
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
@@ -117,12 +122,13 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     @Override
+    public Price getPriceRange() {
+        return new PriceImpl(getProduct().getPriceRange(), locale);
+    }
+
+    @Override
     public String getFormattedPrice() {
-        Double price = getPrice();
-        if (price != null) {
-            return getPriceFormatter().format(price);
-        }
-        return null;
+        return getPriceRange().getFormattedFinalPrice();
     }
 
     @Override
@@ -148,37 +154,12 @@ public class ProductTeaserImpl implements ProductTeaser {
         return null;
     }
 
-    private String getCurrency() {
-        if (getProduct() != null) {
-            return getProduct().getPrice().getRegularPrice().getAmount().getCurrency().toString();
-        }
-        return null;
-    }
-
-    private Double getPrice() {
-        if (getProduct() != null) {
-            return getProduct().getPrice().getRegularPrice().getAmount().getValue();
-        }
-        return null;
-    }
-
     private SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
         List<ConfigurableVariant> variants = configurableProduct.getVariants();
         if (variants == null || variants.isEmpty()) {
             return null;
         }
         return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
-    }
-
-    private NumberFormat getPriceFormatter() {
-        if (priceFormatter == null) {
-            // Initialize NumberFormatter with locale from current page.
-            // Alternatively, the locale can potentially be retrieved via
-            // the storeConfig query introduced with Magento 2.3.1
-            Locale locale = currentPage.getLanguage(false);
-            priceFormatter = Utils.buildPriceFormatter(locale, getProduct() != null ? getCurrency() : null);
-        }
-        return priceFormatter;
     }
 
 }

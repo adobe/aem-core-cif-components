@@ -18,7 +18,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPricesQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
@@ -29,20 +28,13 @@ class ProductRetriever extends AbstractProductRetriever {
     }
 
     /* --- GraphQL queries --- */
-    private ProductPricesQueryDefinition generateOldPriceQuery() {
-        return q -> q
-            .regularPrice(rp -> rp
-                .amount(a -> a
-                    .currency()
-                    .value()));
-    }
-
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
         return (SimpleProductQuery q) -> {
             q.sku()
                 .name()
                 .image(i -> i.label().url())
-                .price(generateOldPriceQuery());
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()));
 
             // Apply product variant query hook
             if (variantQueryHook != null) {
@@ -57,10 +49,12 @@ class ProductRetriever extends AbstractProductRetriever {
             q.name()
                 .image(i -> i.url())
                 .urlKey()
-                .price(generateOldPriceQuery())
                 .onConfigurableProduct(cp -> cp
                     .variants(v -> v
-                        .product(generateSimpleProductQuery())));
+                        .product(generateSimpleProductQuery()))
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())
+                        .minimumPrice(generatePriceQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {
