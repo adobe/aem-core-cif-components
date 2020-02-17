@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import static org.mockito.Matchers.any;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
@@ -45,10 +47,9 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
-
-import static org.mockito.Matchers.any;
 
 public class ProductCarouselImplTest {
 
@@ -104,19 +105,21 @@ public class ProductCarouselImplTest {
     public void getProducts() {
 
         List<ProductListItem> items = productCarousel.getProducts();
-        Assert.assertFalse(items.isEmpty());
+        Assert.assertEquals(4, items.size()); // one product is not found
 
         List<String> productSkuList = Arrays.asList(productSkuArray);
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
-        for (int i = 0; i < items.size(); i++) {
-            ProductListItem item = items.get(i);
-            ProductInterface product = products.get(i);
-
-            // Find the combinedSku that was used to fetch that product
-            String combinedSku = productSkuList.stream().filter(s -> s.contains(item.getSKU())).findFirst().orElse(null);
+        int idx = 0;
+        for (String combinedSku : productSkuList) {
             Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
+            ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
+            if (product == null) {
+                continue; // Can happen that a product is not found
+            }
+
             ProductInterface productOrVariant = toProductOrVariant(product, skus);
+            ProductListItem item = items.get(idx);
 
             Assert.assertEquals(productOrVariant.getName(), item.getTitle());
             Assert.assertEquals(product.getSku(), item.getSKU());
@@ -133,6 +136,7 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
 
             Assert.assertEquals(productOrVariant.getThumbnail().getUrl(), item.getImageURL());
+            idx++;
         }
     }
 
