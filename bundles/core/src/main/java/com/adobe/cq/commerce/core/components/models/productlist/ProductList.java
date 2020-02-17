@@ -54,18 +54,14 @@ public interface ProductList {
      * @return {@link Collection} of {@link ProductListItem}s
      */
     @Nonnull
-    default Collection<ProductListItem> getProducts() {
-        throw new UnsupportedOperationException();
-    }
+    Collection<ProductListItem> getProducts();
 
     /**
      * Returns {@code true} if the category / product list title should be rendered.
      *
      * @return {@code true} if category / product list title should be shown, {@code false} otherwise
      */
-    default boolean showTitle() {
-        throw new UnsupportedOperationException();
-    }
+    boolean showTitle();
 
     /**
      * Returns the title of this {@code ProductList}.
@@ -73,48 +69,28 @@ public interface ProductList {
      * @return the title of this list item or {@code null}
      */
     @Nullable
-    default String getTitle() {
-        throw new UnsupportedOperationException();
-    }
+    String getTitle();
 
-    default int getTotalCount() {
-        throw new UnsupportedOperationException();
-    }
+    int getTotalCount();
 
-    default int getCurrentNavPage() {
-        throw new UnsupportedOperationException();
-    }
+    int getCurrentNavPage();
 
-    default int getNextNavPage() {
-        throw new UnsupportedOperationException();
-    }
+    int getNextNavPage();
 
-    default String getImage() {
-        throw new UnsupportedOperationException();
-    }
+    String getImage();
 
-    default boolean showImage() {
-        throw new UnsupportedOperationException();
-    }
+    boolean showImage();
 
-    default boolean loadClientPrice() {
-        throw new UnsupportedOperationException();
-    }
+    boolean loadClientPrice();
 
-    default int getPreviousNavPage() {
-        throw new UnsupportedOperationException();
-    }
+    int getPreviousNavPage();
 
-    default List<Integer> getPageList() {
-        throw new UnsupportedOperationException();
-    }
+    List<Integer> getPageList();
 
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.
      *
      * @return category retriever instance
      */
-    default AbstractCategoryRetriever getCategoryRetriever() {
-        throw new UnsupportedOperationException();
-    }
+    AbstractCategoryRetriever getCategoryRetriever();
 }
