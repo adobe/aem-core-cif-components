@@ -15,11 +15,19 @@
             "url": "https://some-hostname.magentosite.cloud/media/catalog/product/3/0/30941863_2.jpg"
           },
           "url_key": "basa-mp3-player",
-          "price": {
-            "regularPrice": {
-              "amount": {
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
                 "value": 149.99,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 149.99,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -33,11 +41,19 @@
             "url": "https://some-hostname.magentosite.cloud/media/catalog/product/8/4/84391210_2.jpg"
           },
           "url_key": "spixa-runners",
-          "price": {
-            "regularPrice": {
-              "amount": {
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
                 "value": 119.99,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 119.99,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -51,11 +67,19 @@
             "url": "https://some-hostname.magentosite.cloud/media/catalog/product/w/a/water_bottle_2.jpg"
           },
           "url_key": "bpa-free-water-bottle",
-          "price": {
-            "regularPrice": {
-              "amount": {
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
                 "value": 18,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 18,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -69,11 +93,33 @@
             "url": "https://some-hostname.magentosite.cloud/media/catalog/product/f/l/fleet_shoe_2.jpg"
           },
           "url_key": "fleet-cross-training-shoe",
-          "price": {
-            "regularPrice": {
-              "amount": {
-                "value": 65,
+          "price_range": {
+            "maximum_price": {
+              "regular_price": {
+                "value": 62,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 62,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "minimum_price": {
+              "regular_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }
@@ -87,11 +133,19 @@
             "url": "https://some-hostname.magentosite.cloud/media/catalog/product/g/o/gomobile_wrist_2.jpg"
           },
           "url_key": "gomobile-fitness-monitor-smart-music-player",
-          "price": {
-            "regularPrice": {
-              "amount": {
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
                 "value": 150,
                 "currency": "USD"
+              },
+              "final_price": {
+                "value": 150,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
               }
             }
           }

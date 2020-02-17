@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -31,11 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.ProductIdType;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
+import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -65,6 +68,7 @@ public class RelatedProductsImpl implements ProductCarousel {
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private AbstractProductsRetriever productsRetriever;
+    private Locale locale;
 
     @PostConstruct
     private void initModel() {
@@ -77,6 +81,9 @@ public class RelatedProductsImpl implements ProductCarousel {
         if (productPage == null) {
             productPage = currentPage;
         }
+
+        locale = productPage.getLanguage(false);
+
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         }
@@ -121,12 +128,14 @@ public class RelatedProductsImpl implements ProductCarousel {
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
+
+            Price price = new PriceImpl(product.getPriceRange(), locale);
+
             carouselProductList.add(new ProductListItemImpl(
                 product.getSku(),
                 product.getUrlKey(),
                 product.getName(),
-                product.getPrice().getRegularPrice().getAmount().getValue(),
-                product.getPrice().getRegularPrice().getAmount().getCurrency().toString(),
+                price,
                 product.getThumbnail().getUrl(),
                 productPage,
                 null,

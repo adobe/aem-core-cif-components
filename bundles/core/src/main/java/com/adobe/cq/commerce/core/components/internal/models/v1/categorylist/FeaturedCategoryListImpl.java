@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,9 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     @Override
     public List<CategoryTree> getCategories() {
+        if (categoriesRetriever == null) {
+            return Collections.emptyList();
+        }
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));

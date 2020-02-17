@@ -13,11 +13,19 @@
               "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb01-blue-0.jpg"
             },
             "url_key": "joust-duffle-bag",
-            "price": {
-              "regularPrice": {
-                "amount": {
-                  "currency": "USD",
-                  "value": 34
+            "price_range": {
+              "minimum_price": {
+                "regular_price": {
+                  "value": 34,
+                  "currency": "USD"
+                },
+                "final_price": {
+                  "value": 34,
+                  "currency": "USD"
+                },
+                "discount": {
+                  "amount_off": 0,
+                  "percent_off": 0
                 }
               }
             }
@@ -31,11 +39,19 @@
               "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb04-black-0.jpg"
             },
             "url_key": "strive-shoulder-pack",
-            "price": {
-              "regularPrice": {
-                "amount": {
-                  "currency": "USD",
-                  "value": 32
+            "price_range": {
+              "minimum_price": {
+                "regular_price": {
+                  "value": 32,
+                  "currency": "USD"
+                },
+                "final_price": {
+                  "value": 32,
+                  "currency": "USD"
+                },
+                "discount": {
+                  "amount_off": 0,
+                  "percent_off": 0
                 }
               }
             }
@@ -49,11 +65,19 @@
               "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb03-black-0.jpg"
             },
             "url_key": "crown-summit-backpack",
-            "price": {
-              "regularPrice": {
-                "amount": {
-                  "currency": "USD",
-                  "value": 38
+            "price_range": {
+              "minimum_price": {
+                "regular_price": {
+                  "value": 38,
+                  "currency": "USD"
+                },
+                "final_price": {
+                  "value": 38,
+                  "currency": "USD"
+                },
+                "discount": {
+                  "amount_off": 0,
+                  "percent_off": 0
                 }
               }
             }

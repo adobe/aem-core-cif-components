@@ -1,160 +1,157 @@
 {
-    "pageA": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "cq:cifProductPage": "/content/product-page",
-            "cq:cifCategoryPage": "/content/category-page",
-            "jcr:language": "en_US",
-            "jcr:primaryType": "cq:PageContent",
-            "magentoStore": "my-store",
-            "root": {
-                "responsivegrid": {
-                    "productteaser-simple": {
-                        "selection": "MJ01",
-                        "sling:resourceType": "venia/components/commerce/productteaser"
-                    },
-                    "productteaser-variant": {
-                        "selection": "MJ01#MJ01-XS-Orange",
-                        "sling:resourceType": "venia/components/commerce/productteaser",
-                        "cta": "addToCart"
-                    },
-                    "productteaser-path": {
-                        "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
-                        "sling:resourceType": "venia/components/commerce/productteaser"
-                    },
-                    "productcarousel": {
-                        "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "WJ01"],
-                        "sling:resourceType": "venia/components/commerce/productcarousel"
-                    },
-                    "product": {
-                        "sling:resourceType": "venia/components/commerce/product"
-                    },
-                    "productlist": {
-                        "loadClientPrice": true,
-                        "showImage": true,
-                        "showTitle": true,
-                        "sling:resourceType": "venia/components/commerce/productlist"
-                    },
-                    "searchresults": {
-                        "sling:resourceType": "venia/components/commerce/searchresults"
-                    },
-                    "relatedproducts": {
-                        "product": "24-MG01",
-                        "relationType": "RELATED_PRODUCTS",
-                        "sling:resourceType": "venia/components/commerce/relatedproducts"
-                    },
-                    "upsellproducts": {
-                        "relationType": "UPSELL_PRODUCTS",
-                        "sling:resourceType": "venia/components/commerce/relatedproducts"
-                    },
-                    "crosssellproducts": {
-                        "relationType": "CROSS_SELL_PRODUCTS",
-                        "sling:resourceType": "venia/components/commerce/relatedproducts"
-                    },
-                    "relatedproducts-without-relation-type": {
-                        "product": "24-MG01",
-                        "sling:resourceType": "venia/components/commerce/relatedproducts"
-                    },
-                    "commerceteaser": {
-                        "actionsEnabled": true,
-                        "sling:resourceType": "venia/components/content/teaser",
-                        "actions": {
-                            "item0": {
-                                "productSlug": "beaumont-summit-kit",
-                                "text": "A product"
-                            },
-                            "item1": {
-                                "categoryId": "30",
-                                "text": "A category"
-                            },
-                            "item2": {
-                                "categoryId": "30",
-                                "productSlug": "beaumont-summit-kit",
-                                "text": "A category"
-                            },
-                            "item3": {
-                                "text": "Some text"
-                            }
-                        }
-                    },
-                    "featuredcategorylist": {
-                        "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-                        "items": {
-                            "item0": {
-                                "categoryId": "5"
-                            },
-                            "item1": {
-                                "categoryId": "6",
-                                "asset": "/content/dam/venia/landing_page_image4.jpg"
-                            },
-                            "item2": {
-                                "categoryId": "7",
-                                "asset": "invalid-asset"
-                            },
-                            "item3": {}
-                        }
-                    }
-                }
+  "pageA": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "productteaser-simple": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-variant": {
+            "selection": "MJ01#MJ01-XS-Orange",
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "addToCart"
+          },
+          "productteaser-path": {
+            "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productcarousel": {
+            "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "WJ01"],
+            "sling:resourceType": "venia/components/commerce/productcarousel"
+          },
+          "product": {
+            "sling:resourceType": "venia/components/commerce/product"
+          },
+          "productlist": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "sling:resourceType": "venia/components/commerce/productlist"
+          },
+          "searchresults": {
+            "sling:resourceType": "venia/components/commerce/searchresults"
+          },
+          "relatedproducts": {
+            "product": "24-MG01",
+            "relationType": "RELATED_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "upsellproducts": {
+            "relationType": "UPSELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "crosssellproducts": {
+            "relationType": "CROSS_SELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "relatedproducts-without-relation-type": {
+            "product": "24-MG01",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "commerceteaser": {
+            "actionsEnabled": true,
+            "sling:resourceType": "venia/components/content/teaser",
+            "actions": {
+              "item0": {
+                "productSlug": "beaumont-summit-kit",
+                "text": "A product"
+              },
+              "item1": {
+                "categoryId": "30",
+                "text": "A category"
+              },
+              "item2": {
+                "categoryId": "30",
+                "productSlug": "beaumont-summit-kit",
+                "text": "A category"
+              },
+              "item3": {
+                "text": "Some text"
+              }
             }
-        }
-    },
-    "pageB": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:primaryType": "cq:PageContent",
-            "magentoStore": "my-store"
-        },
-        "pageC": {
-            "jcr:primaryType": "cq:Page",
-            "jcr:content": {
-                "jcr:primaryType": "cq:PageContent"
+          },
+          "featuredcategorylist": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              },
+              "item1": {
+                "categoryId": "6",
+                "asset": "/content/dam/venia/landing_page_image4.jpg"
+              },
+              "item2": {
+                "categoryId": "7",
+                "asset": "invalid-asset"
+              },
+              "item3": {}
             }
+          },
+          "featuredcategorylist2": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist"
+          }
         }
-    },
-    "pageD": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:primaryType": "cq:PageContent"
-        }
-    },
-    "pageE": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:primaryType": "cq:PageContent",
-            "cq:magentoStore": "my-store"
-        }
-    },
-    "pageF": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:primaryType": "cq:PageContent",
-            "magentoStore": "my-store",
-            "cq:magentoStore": "old-store"
-        }
-    }, "pageG": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:primaryType": "cq:PageContent",
-            "cq:conf": "/conf/test-config"
-        }
-    },
-    "product-page": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:language": "en_US"
-        },
-        "product-specific-page": {
-            "jcr:primaryType": "cq:Page",
-            "jcr:content": {
-                "jcr:language": "en_US",
-                "selectorFilter": "beaumont-summit-kit"
-            }
-        }
-    },
-    "category-page": {
-        "jcr:primaryType": "cq:Page",
-        "jcr:content": {
-            "jcr:language": "en_US"
-        }
+      }
     }
+  },
+  "pageB": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store"
+    },
+    "pageC": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent"
+      }
+    }
+  },
+  "pageD": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent"
+    }
+  },
+  "pageE": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:magentoStore": "my-store"
+    }
+  },
+  "pageF": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "cq:magentoStore": "old-store"
+    }
+  },
+  "product-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
+    },
+    "product-specific-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:language": "en_US",
+        "selectorFilter": "beaumont-summit-kit"
+      }
+    }
+  },
+  "category-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
+    }
+  }
 }

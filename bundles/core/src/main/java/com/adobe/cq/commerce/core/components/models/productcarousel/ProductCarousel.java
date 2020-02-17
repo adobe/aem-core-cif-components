@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 
 @ProviderType
@@ -32,25 +32,19 @@ public interface ProductCarousel {
      * @return {@link List} of {@link ProductListItem}s
      */
     @Nonnull
-    default List<ProductListItem> getProducts() {
-        throw new UnsupportedOperationException();
-    }
+    List<ProductListItem> getProducts();
 
     /**
      * Returns in instance of the products retriever for fetching product data via GraphQL.
      *
      * @return products retriever instance
      */
-    default AbstractProductsRetriever getProductsRetriever() {
-        throw new UnsupportedOperationException();
-    }
+    AbstractProductsRetriever getProductsRetriever();
 
     /**
      * Returns true if the component is correctly configured, false otherwise.
      *
      * @return true or false
      */
-    default boolean isConfigured() {
-        throw new UnsupportedOperationException();
-    }
+    boolean isConfigured();
 }
