@@ -14,8 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import static org.mockito.Matchers.any;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
@@ -47,9 +45,10 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
-
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static org.mockito.Matchers.any;
 
 public class ProductCarouselImplTest {
 
