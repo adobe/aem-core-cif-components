@@ -121,6 +121,7 @@ public class FeaturedCategoryListImplTest {
     @Test
     public void verifyModel() {
         Assert.assertNotNull(slingModelConfigured);
+        Assert.assertTrue(slingModelConfigured.isConfigured());
         List<CategoryTree> list = slingModelConfigured.getCategories();
         Assert.assertNotNull(list);
         Assert.assertEquals(list.size(), 3);
@@ -128,6 +129,8 @@ public class FeaturedCategoryListImplTest {
 
     @Test
     public void verifyCategory() {
+        Assert.assertNotNull(slingModelConfigured);
+        Assert.assertTrue(slingModelConfigured.isConfigured());
         categories = slingModelConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
@@ -146,6 +149,7 @@ public class FeaturedCategoryListImplTest {
     public void verifyNotConfigired() {
         Assert.assertNotNull(slingModelNotConfigured);
         Assert.assertNull(slingModelNotConfigured.getCategoriesRetriever());
+        Assert.assertFalse(slingModelNotConfigured.isConfigured());
         categories = slingModelNotConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.size(), 0);
