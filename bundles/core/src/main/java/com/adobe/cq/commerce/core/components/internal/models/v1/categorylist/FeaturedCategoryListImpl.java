@@ -102,14 +102,12 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
                 Asset overrideAsset = assetResource.adaptTo(Asset.class);
                 assetOverride.put(categoryId, overrideAsset);
             }
-        }
 
-        if (categoryIds.size() > 0) {
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-            categoriesRetriever.setIdentifiers(categoryIds);
-        } else {
-            LOGGER.debug("There are no categories configured for CategoryList Component.");
+            if (categoryIds.size() > 0) {
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                categoriesRetriever.setIdentifiers(categoryIds);
+            }
         }
     }
 
@@ -136,6 +134,11 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
             }
         }
         return categories;
+    }
+
+    @Override
+    public boolean isConfigured() {
+        return resource.getChild(ITEMS_PROP) != null;
     }
 
     @Override
