@@ -345,6 +345,7 @@
 
                         <!-- Log files -->
                         <exclude>**/*.log</exclude>
+                        <exclude>**/logback*.xml</exclude>
                         <!-- file that should not be committed anywhere -->
                         <exclude>**/.env</exclude>
                         <exclude>**/.env.sample</exclude>

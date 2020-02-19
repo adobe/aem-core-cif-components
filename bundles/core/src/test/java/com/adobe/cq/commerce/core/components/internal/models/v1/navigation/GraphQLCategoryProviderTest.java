@@ -57,7 +57,7 @@ public class GraphQLCategoryProviderTest {
             },
             ResourceResolverType.JCR_MOCK);
     }
-    
+
     @Test
     public void testMissingMagentoGraphqlClient() throws IOException {
         Page page = Mockito.spy(context.currentPage("/content/pageA"));
@@ -96,10 +96,10 @@ public class GraphQLCategoryProviderTest {
         Page page = spy(context.currentPage("/content/pageA"));
         Resource pageContent = spy(page.getContentResource());
         when(page.getContentResource()).thenReturn(pageContent);
-        
+
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        
+
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
 
         // Test null categoryId
