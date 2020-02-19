@@ -199,6 +199,8 @@ describe('Navigation', () => {
         document.querySelector(Navigation.selectors.navigationTrigger).click();
 
         assert.isTrue(navigation.navigationPanel.classList.contains(Navigation.CSS_CLASS_NAVIGATION_OPEN));
+        assert.equal('none', navigation.backNavigationButton.style.display);
+        assert.equal('block', navigation.backNavigationEmpty.style.display);
     });
 
     it('closes the navigation pane', () => {
@@ -214,22 +216,29 @@ describe('Navigation', () => {
     });
 
     it('navigates down by button click', () => {
+        var navigation = new Navigation();
         assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         document.querySelector(FIRST_ITEM_SELECTOR + ' button').click();
 
         assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
+        assert.equal('block', navigation.backNavigationButton.style.display);
+        assert.equal('none', navigation.backNavigationEmpty.style.display);
     });
 
     it('navigates up one level', () => {
+        var navigation = new Navigation();
         assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         document.querySelector(Navigation.selectors.backNavigationButton).click();
 
         assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
+        assert.equal('none', navigation.backNavigationButton.style.display);
+        assert.equal('block', navigation.backNavigationEmpty.style.display);
     });
 
     it('navigates down by child element click', () => {
+        var navigation = new Navigation();
         assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
 
         var target = document.querySelector(FIRST_ITEM_SELECTOR + ' button svg');
@@ -239,6 +248,8 @@ describe('Navigation', () => {
         target.dispatchEvent(event);
 
         assert.equal('Pants &amp; Shorts', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
+        assert.equal('block', navigation.backNavigationButton.style.display);
+        assert.equal('none', navigation.backNavigationEmpty.style.display);
 
         var targetLi = document.querySelector('.header__primaryActions aside div.categoryTree__root li:nth-child(1)');
         targetLi.classList.add('cmp-navigation__item--active');
@@ -247,6 +258,8 @@ describe('Navigation', () => {
 
         assert.equal('Bottoms', document.querySelector(FIRST_ITEM_SELECTOR + ' a span').innerHTML);
         assert.isTrue(document.querySelector(FIRST_ITEM_SELECTOR).classList.contains('cmp-navigation__item--active'));
+        assert.equal('none', navigation.backNavigationButton.style.display);
+        assert.equal('block', navigation.backNavigationEmpty.style.display);
     });
 
     it('honors aem.accmg.start event', () => {
@@ -277,6 +290,21 @@ describe('Navigation', () => {
         var navigationPanel = document.querySelector(Navigation.selectors.navigationRoot);
 
         navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.exit'));
+
+        assert.equal('none', navigation.backNavigationButton.style.display);
+        assert.equal('block', navigation.backNavigationEmpty.style.display);
+        assert.equal(navigation.panelTitleElement.textContent, navigation.defaultPanelTitle);
+    });
+
+    it('honors empty navigation', () => {
+        var categoryTree = window.document.querySelector('.categoryTree__root');
+        var categoryTreeShadow = window.document.querySelector('.categoryTree__root--shadow');
+
+        // empty navigation
+        categoryTree.innerHTML = '';
+        categoryTreeShadow.innerHTML = '';
+
+        var navigation = new Navigation();
 
         assert.equal('none', navigation.backNavigationButton.style.display);
         assert.equal('block', navigation.backNavigationEmpty.style.display);
