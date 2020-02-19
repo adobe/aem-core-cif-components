@@ -370,10 +370,12 @@
 
         <!-- Testing -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.25</version><!--$NO-MVN-MAN-VER$-->
-            <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
         </dependency>
         <dependency>
             <groupId>com.adobe.cq</groupId>
@@ -417,6 +419,10 @@
                 <exclusion>
                     <groupId>org.apache.sling</groupId>
                     <artifactId>org.apache.sling.models.impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
                 </exclusion>
             </exclusions>
             <scope>test</scope>
@@ -487,7 +493,6 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.core</artifactId>
             <scope>provided</scope>
-            <version>${core.wcm.components.version}</version>
         </dependency>
 
         <!-- CIF Dependencies -->

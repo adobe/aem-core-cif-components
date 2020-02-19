@@ -1,0 +1,112 @@
+/*******************************************************************************
+ *
+ *    Copyright 2019 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
+
+package com.adobe.cq.commerce.core.components.testing;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
+
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.google.gson.reflect.TypeToken;
+
+public class Utils {
+
+    /**
+     * This method prepares the mock http response with either the content of the <code>filename</code>
+     * or the provided <code>content</code> String.<br>
+     * <br>
+     * <b>Important</b>: because of the way the content of an HTTP response is consumed, this method MUST be called each time
+     * the client is called.
+     *
+     * @param filename The file to use for the json response.
+     * @param httpClient The HTTP client for which we want to mock responses.
+     * @param httpCode The http code that the mocked response will return.
+     * 
+     * @return The JSON content of that file.
+     * 
+     * @throws IOException
+     */
+    public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
+        String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+
+        HttpEntity mockedHttpEntity = Mockito.mock(HttpEntity.class);
+        HttpResponse mockedHttpResponse = Mockito.mock(HttpResponse.class);
+        StatusLine mockedStatusLine = Mockito.mock(StatusLine.class);
+
+        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        Mockito.when(mockedHttpEntity.getContent()).thenReturn(new ByteArrayInputStream(bytes));
+        Mockito.when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
+
+        Mockito.when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
+        Mockito.when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+
+        Mockito.when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
+        Mockito.when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
+
+        return json;
+    }
+
+    /**
+     * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
+     *
+     * @param filename The filename of the resource containing the JSON response.
+     * @return The GraphqlClient instance.
+     * @throws IOException
+     */
+    public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename) throws IOException {
+        HttpClient httpClient = Mockito.mock(HttpClient.class);
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        setupHttpResponse(filename, httpClient, HttpStatus.SC_OK);
+        return graphqlClient;
+    }
+
+    /**
+     * Returns a Magento Query response based on the given filename resource containing a JSON GraphQL response.
+     * 
+     * @param filename The filename of the resource.
+     * @return The parsed Magento Query object.
+     * @throws IOException
+     */
+    public static Query getQueryFromResource(String filename) throws IOException {
+        String json = getResource(filename);
+        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
+        GraphqlResponse<Query, Error> response = QueryDeserializer.getGson().fromJson(json, type);
+        return response.getData();
+    }
+
+    public static String getResource(String filename) throws IOException {
+        return IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+    }
+}

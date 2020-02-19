@@ -28,7 +28,7 @@ class CategoryPlaceholderRetriever extends AbstractCategoryRetriever {
     CategoryPlaceholderRetriever(MagentoGraphqlClient client, String placeholderPath) throws IOException {
         super(client);
 
-        String json = IOUtils.toString(getClass().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
+        String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
         category = rootQuery.getCategory();

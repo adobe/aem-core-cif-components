@@ -14,16 +14,21 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -31,32 +36,44 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class GraphQLCategoryProviderTest {
 
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+    
     @Test
-    public void testGetChildCategories() {
-        // set up
+    public void testMissingMagentoGraphqlClient() throws IOException {
+        Page page = Mockito.spy(context.currentPage("/content/pageA"));
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
+        Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
+        Assert.assertTrue(categoryProvider.getChildCategories(10, 10).isEmpty());
+    }
+
+    @Test
+    public void testCategoryNotOrNoChildren() throws IOException {
         Page page = mock(Page.class);
         Resource pageContent = mock(Resource.class);
         when(page.getContentResource()).thenReturn(pageContent);
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
-
-        // test without GraphQL client
-        Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
-        Assert.assertTrue(categoryProvider.getChildCategories(10, 10).isEmpty());
-
-        // tests with GraphQL client
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
         Whitebox.setInternalState(categoryProvider, "magentoGraphqlClient", graphqlClient);
-        Assert.assertNotNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
-
-        // test null categoryId
-        Assert.assertTrue(categoryProvider.getChildCategories(null, 10).isEmpty());
 
         // test category not found
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
@@ -64,7 +81,6 @@ public class GraphQLCategoryProviderTest {
         Query rootQuery = mock(Query.class);
         when(response.getData()).thenReturn(rootQuery);
         Assert.assertNull(rootQuery.getCategory());
-
         Assert.assertTrue(categoryProvider.getChildCategories(-10, 10).isEmpty());
 
         // test category children not found
@@ -72,14 +88,26 @@ public class GraphQLCategoryProviderTest {
         when(rootQuery.getCategory()).thenReturn(category);
         when(category.getChildren()).thenReturn(null);
         Assert.assertNull(category.getChildren());
-
         Assert.assertTrue(categoryProvider.getChildCategories(13, 10).isEmpty());
+    }
 
-        // test category children found
-        List<CategoryTree> children = new ArrayList<>();
-        when(category.getChildren()).thenReturn(children);
+    @Test
+    public void testGetChildCategories() throws IOException {
+        Page page = spy(context.currentPage("/content/pageA"));
+        Resource pageContent = spy(page.getContentResource());
+        when(page.getContentResource()).thenReturn(pageContent);
+        
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
+        when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
 
-        Assert.assertSame(children, categoryProvider.getChildCategories(10, 10));
+        // Test null categoryId
+        Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());
+
+        // Test category children found
+        List<CategoryTree> categories = categoryProvider.getChildCategories(2, 5);
+        Assert.assertEquals(6, categories.size());
     }
 
     @Test
