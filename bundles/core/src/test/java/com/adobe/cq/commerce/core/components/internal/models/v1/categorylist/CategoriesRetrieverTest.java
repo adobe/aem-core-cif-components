@@ -47,7 +47,6 @@ public class CategoriesRetrieverTest {
         when(mockClient.execute(any())).thenReturn(mockResponse);
         when(mockResponse.getData()).thenReturn(mockQuery);
         when(mockQuery.get(any())).thenReturn(mockCategory);
-        when(mockQuery.getStoreConfig().getSecureBaseMediaUrl()).thenReturn("");
 
         retriever = new CategoriesRetriever(mockClient);
         retriever.setIdentifiers(Arrays.asList("5", "6"));
@@ -71,7 +70,7 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{storeConfig{secure_base_media_url},category__category_5:category(id:5){id,name,url_path,position,image,children_count,level_custom_:level},category__category_6:category(id:6){id,name,url_path,position,image,children_count,level_custom_:level}}";
+        String expectedQuery = "{category__category_5:category(id:5){id,name,url_path,position,image,children_count,level_custom_:level},category__category_6:category(id:6){id,name,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
