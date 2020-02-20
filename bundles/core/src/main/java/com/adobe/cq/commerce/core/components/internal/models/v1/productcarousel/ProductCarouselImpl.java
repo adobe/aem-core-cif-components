@@ -112,18 +112,17 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @Override
     public List<ProductListItem> getProducts() {
-        List<ProductInterface> productList = productsRetriever.fetchProducts();
-        Collections.sort(productList, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
+        List<ProductInterface> products = productsRetriever.fetchProducts();
+        Collections.sort(products, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
-        if (!productList.isEmpty()) {
-            for (ProductInterface product : productList) {
-                // Find the baseProductSku that was used to fetch that product
-                int idx = baseProductSkus.indexOf(product.getSku());
-
-                // We know the list of skus is in the same order as the list of products
-                // but we searched the index because a product might not have been found (see unit test)
-                Pair<String, String> skus = SiteNavigation.toProductSkus(productSkuList[idx]);
+        if (!products.isEmpty()) {
+            for (String combinedSku : productSkuList) {
+                Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
+                ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
+                if (product == null) {
+                    continue; // Can happen that a product is not found
+                }
 
                 String slug = product.getUrlKey();
                 if (skus.getRight() != null && product instanceof ConfigurableProduct) {
