@@ -24,7 +24,6 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
@@ -79,19 +78,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
             populate();
         }
         return this.category;
-    }
-
-    /**
-     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
-     * returned.
-     *
-     * @return Media base url
-     */
-    public String fetchMediaBaseUrl() {
-        if (this.mediaBaseUrl == null) {
-            populate();
-        }
-        return this.mediaBaseUrl;
     }
 
     /**
@@ -164,15 +150,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
-     * Generates the partial StoreConfig query part of the GraphQL category query.
-     *
-     * @return StoreConfig query definition
-     */
-    protected StoreConfigQueryDefinition generateStoreConfigQuery() {
-        return q -> q.secureBaseMediaUrl();
-    }
-
-    /**
      * Generates the partial CategoryTree query part of the GraphQL category query.
      *
      * @return CategoryTree query definition
@@ -190,8 +167,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> query
-            .category(searchArgs, queryArgs)
-            .storeConfig(generateStoreConfigQuery())).toString();
+            .category(searchArgs, queryArgs)).toString();
     }
 
     /**
@@ -210,9 +186,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
-
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
         category = rootQuery.getCategory();
     }
-
 }
