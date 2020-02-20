@@ -50,7 +50,8 @@ import static org.mockito.Mockito.when;
 
 public class FeaturedCategoryListImplTest {
 
-    private FeaturedCategoryListImpl slingModel;
+    private FeaturedCategoryListImpl slingModelConfigured;
+    private FeaturedCategoryListImpl slingModelNotConfigured;
     private Query rootQuery;
     private List<CategoryTree> categories = new ArrayList<>();
     private static final String CATEGORY_PAGE = "/content/category-page";
@@ -62,9 +63,13 @@ public class FeaturedCategoryListImplTest {
     private static final String TEST_RENDITION_PATH = "/content/dam/venia/landing_page_image4.web.jpg";
 
     private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
+    private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    public final AemContext contextConfigured = createContext("/context/jcr-content.json");
+
+    @Rule
+    public final AemContext contextNotConfigured = createContext("/context/jcr-content.json");
 
     @Before
     public void setup() throws Exception {
@@ -80,7 +85,7 @@ public class FeaturedCategoryListImplTest {
         when(response.getData()).thenReturn(rootQuery);
 
         // Mock resource and resolver
-        Resource resource = Mockito.spy(context.resourceResolver().getResource(COMPONENT_PATH));
+        Resource resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH));
         ResourceResolver resolver = Mockito.spy(resource.getResourceResolver());
         when(resource.getResourceResolver()).thenReturn(resolver);
         when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
@@ -94,28 +99,39 @@ public class FeaturedCategoryListImplTest {
         when(mockRendition.getPath()).thenReturn(TEST_RENDITION_PATH);
         when(resolver.getResource(TEST_ASSET_PATH)).thenReturn(assetResource);
 
-        Page page = context.currentPage(TEST_CATEGORY_PAGE_URL);
-        context.currentResource(COMPONENT_PATH);
+        // init sling model
+        Page page = contextConfigured.currentPage(TEST_CATEGORY_PAGE_URL);
+        contextConfigured.currentResource(resource);
 
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        SlingBindings slingBindings = (SlingBindings) contextConfigured.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
-        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(context.request()));
+        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(contextConfigured.request()));
         slingBindings.put("currentPage", page);
+        slingModelConfigured = contextConfigured.request().adaptTo(FeaturedCategoryListImpl.class);
 
-        slingModel = context.request().adaptTo(FeaturedCategoryListImpl.class);
+        // init not configured sling model
+        resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCONFIG));
+        contextNotConfigured.currentResource(resource);
+        slingBindings = (SlingBindings) contextNotConfigured.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(resource);
+        slingBindings.put("currentPage", page);
+        slingModelNotConfigured = contextNotConfigured.request().adaptTo(FeaturedCategoryListImpl.class);
     }
 
     @Test
     public void verifyModel() {
-        Assert.assertNotNull(slingModel);
-        List<CategoryTree> list = slingModel.getCategories();
+        Assert.assertNotNull(slingModelConfigured);
+        Assert.assertTrue(slingModelConfigured.isConfigured());
+        List<CategoryTree> list = slingModelConfigured.getCategories();
         Assert.assertNotNull(list);
         Assert.assertEquals(list.size(), 3);
     }
 
     @Test
     public void verifyCategory() {
-        categories = slingModel.getCategories();
+        Assert.assertNotNull(slingModelConfigured);
+        Assert.assertTrue(slingModelConfigured.isConfigured());
+        categories = slingModelConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
@@ -124,14 +140,24 @@ public class FeaturedCategoryListImplTest {
 
     @Test
     public void verifyAssetOverride() {
-        categories = slingModel.getCategories();
+        categories = slingModelConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(1).getImage(), TEST_RENDITION_PATH);
     }
 
     @Test
+    public void verifyNotConfigired() {
+        Assert.assertNotNull(slingModelNotConfigured);
+        Assert.assertNull(slingModelNotConfigured.getCategoriesRetriever());
+        Assert.assertFalse(slingModelNotConfigured.isConfigured());
+        categories = slingModelNotConfigured.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(categories.size(), 0);
+    }
+
+    @Test
     public void verifyIgnoreInvalidAsset() {
-        categories = slingModel.getCategories();
+        categories = slingModelConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
     }

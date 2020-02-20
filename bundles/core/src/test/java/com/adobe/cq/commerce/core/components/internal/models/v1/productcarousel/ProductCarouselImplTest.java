@@ -33,7 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -126,7 +126,7 @@ public class ProductCarouselImplTest {
             SiteNavigation siteNavigation = new SiteNavigation(context.request());
             Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), skus.getRight()), item.getURL());
 
-            Money amount = productOrVariant.getPrice().getRegularPrice().getAmount();
+            Money amount = productOrVariant.getPriceRange().getMinimumPrice().getFinalPrice();
             Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
             Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));

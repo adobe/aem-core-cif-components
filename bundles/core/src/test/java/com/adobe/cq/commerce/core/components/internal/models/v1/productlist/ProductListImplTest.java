@@ -37,12 +37,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
@@ -167,12 +166,14 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
 
-            Money amount = productInterface.getPrice().getRegularPrice().getAmount();
-            Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
-            Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
-
-            priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
+            // Make sure deprecated methods still work
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPrice(), 0);
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(), item
+                .getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
+                .toString()));
+            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
+                .getFormattedPrice());
 
             Assert.assertEquals(productInterface.getSmallImage().getUrl(), item.getImageURL());
         }
@@ -237,6 +238,58 @@ public class ProductListImplTest {
         productListModel.setNavPageCursor();
         productListModel.setupPagination();
         Assert.assertEquals(1, productListModel.getCurrentNavPage());
+    }
+
+    @Test
+    public void testPaginationLarge() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        // Cannot be added to JCR JSON content because of long/int conversion
+        int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
+
+        Assert.assertTrue(pageSize >= productListModel.getProducts().size());
+        Assert.assertTrue(pageSize <= category.getProductCount());
+
+        productListModel.getCategoryRetriever().fetchCategory();
+        productListModel.getCategoryRetriever().fetchCategory().getProducts().setTotalCount(100);
+
+        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
+        Whitebox.setInternalState(productListModel, "request", incomingRequest);
+
+        when(incomingRequest.getParameter("page")).thenReturn("1");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("2");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("3");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 4, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("10");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 9, 10, 11, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("15");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 14, 15, 16, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("16");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 15, 16, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("17");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 16, 17 }, productListModel.getPageList().toArray());
     }
 
     @Test

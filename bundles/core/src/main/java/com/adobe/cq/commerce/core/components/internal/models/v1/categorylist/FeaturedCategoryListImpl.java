@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,19 +102,20 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
                 Asset overrideAsset = assetResource.adaptTo(Asset.class);
                 assetOverride.put(categoryId, overrideAsset);
             }
-        }
 
-        if (categoryIds.size() > 0) {
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-            categoriesRetriever.setIdentifiers(categoryIds);
-        } else {
-            LOGGER.debug("There are no categories configured for CategoryList Component.");
+            if (categoryIds.size() > 0) {
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                categoriesRetriever.setIdentifiers(categoryIds);
+            }
         }
     }
 
     @Override
     public List<CategoryTree> getCategories() {
+        if (categoriesRetriever == null) {
+            return Collections.emptyList();
+        }
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
@@ -132,6 +134,11 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
             }
         }
         return categories;
+    }
+
+    @Override
+    public boolean isConfigured() {
+        return resource.getChild(ITEMS_PROP) != null;
     }
 
     @Override

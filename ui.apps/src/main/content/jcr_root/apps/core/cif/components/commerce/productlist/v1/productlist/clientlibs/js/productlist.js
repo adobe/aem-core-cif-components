@@ -40,12 +40,44 @@ class ProductList {
         this._state.loadPrices && this._fetchPrices();
     }
 
+    /**
+     * Convert given GraphQL PriceRange object into data structure as defined by the sling model.
+     */
+    _convertPriceToRange(range) {
+        let price = {};
+        price.currency = range.minimum_price.final_price.currency;
+        price.regularPrice = range.minimum_price.regular_price.value;
+        price.finalPrice = range.minimum_price.final_price.value;
+        price.discountAmount = range.minimum_price.discount.amount_off;
+        price.discountPercent = range.minimum_price.discount.percent_off;
+
+        if (range.maximum_price) {
+            price.regularPriceMax = range.maximum_price.regular_price.value;
+            price.finalPriceMax = range.maximum_price.final_price.value;
+            price.discountAmountMax = range.maximum_price.discount.amount_off;
+            price.discountPercentMax = range.maximum_price.discount.percent_off;
+        }
+
+        price.discounted = !!(price.discountAmount && price.discountAmount > 0);
+        price.range = !!(
+            price.finalPrice &&
+            price.finalPriceMax &&
+            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
+        );
+
+        return price;
+    }
+
     _fetchPrices() {
         // Retrieve current prices
         if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
         return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false)
             .then(prices => {
-                this._state.prices = prices;
+                let convertedPrices = {};
+                for (let key in prices) {
+                    convertedPrices[key] = this._convertPriceToRange(prices[key]);
+                }
+                this._state.prices = convertedPrices;
 
                 // Update prices
                 this._updatePrices();
@@ -58,16 +90,61 @@ class ProductList {
     _updatePrices() {
         this._element.querySelectorAll(ProductList.selectors.item).forEach(item => {
             if (!(item.dataset.sku in this._state.prices)) return;
-            item.querySelector('.item__price [role=price]').innerText = this._formatter.formatPrice(
-                this._state.prices[item.dataset.sku]
-            );
+
+            const price = this._state.prices[item.dataset.sku];
+
+            let innerHTML = '';
+            if (!price.range) {
+                if (price.discounted) {
+                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                        value: price.regularPrice,
+                        currency: price.currency
+                    })}</span>
+                        <span class="discountedPrice">${this._formatter.formatPrice({
+                            value: price.finalPrice,
+                            currency: price.currency
+                        })}</span>`;
+                } else {
+                    innerHTML += `<span>${this._formatter.formatPrice({
+                        value: price.regularPrice,
+                        currency: price.currency
+                    })}</span>`;
+                }
+            } else {
+                if (price.discounted) {
+                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                        value: price.regularPrice,
+                        currency: price.currency
+                    })} - ${this._formatter.formatPrice({
+                        value: price.regularPriceMax,
+                        currency: price.currency
+                    })}</span>
+                        <span class="discountedPrice">${this._formatter.formatPrice({
+                            value: price.finalPrice,
+                            currency: price.currency
+                        })} - ${this._formatter.formatPrice({
+                        value: price.finalPriceMax,
+                        currency: price.currency
+                    })}</span>`;
+                } else {
+                    innerHTML += `<span>${this._formatter.formatPrice({
+                        value: price.regularPrice,
+                        currency: price.currency
+                    })} - ${this._formatter.formatPrice({
+                        value: price.regularPriceMax,
+                        currency: price.currency
+                    })}</span>`;
+                }
+            }
+
+            item.querySelector(ProductList.selectors.price).innerHTML = innerHTML;
         });
     }
 }
 
 ProductList.selectors = {
     self: '[data-cmp-is=productlist]',
-    price: '.item__price [role=price]',
+    price: '.price',
     item: '.item__root[role=product]'
 };
 

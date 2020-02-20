@@ -12,17 +12,14 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
-
-import java.text.NumberFormat;
-import java.util.Locale;
+package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
@@ -32,31 +29,22 @@ public class ProductListItemImpl implements ProductListItem {
     private final String slug;
     private final String name;
     private final String imageURL;
-    private final Double price;
-    private final String currency;
+    private final Price price;
     private final String activeVariantSku;
     private final SiteNavigation siteNavigation;
 
-    private NumberFormat priceFormatter;
     private Page productPage;
 
-    public ProductListItemImpl(String sku, String slug, String name, Double price, String currency, String imageURL, Page productPage,
+    public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
                                String activeVariantSku, SlingHttpServletRequest request) {
         this.sku = sku;
         this.slug = slug;
         this.name = name;
         this.imageURL = imageURL;
         this.price = price;
-        this.currency = currency;
         this.productPage = productPage;
         this.activeVariantSku = activeVariantSku;
         this.siteNavigation = new SiteNavigation(request);
-
-        // Initialize NumberFormatter with locale from current page.
-        // Alternatively, the locale can potentially be retrieved via
-        // the storeConfig query introduced with Magento 2.3.1
-        Locale locale = productPage.getLanguage(false);
-        this.priceFormatter = Utils.buildPriceFormatter(locale, currency);
     }
 
     @Override
@@ -90,18 +78,23 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public Double getPrice() {
-        return price;
+        return price.getFinalPrice();
     }
 
     @Nullable
     @Override
     public String getCurrency() {
-        return currency;
+        return price.getCurrency();
     }
 
     @Nullable
     @Override
     public String getFormattedPrice() {
-        return priceFormatter.format(price.doubleValue());
+        return price.getFormattedFinalPrice();
+    }
+
+    @Override
+    public Price getPriceRange() {
+        return price;
     }
 }

@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -32,14 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductListItem;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
+import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
@@ -69,6 +73,7 @@ public class SearchResultsImpl implements SearchResults {
 
     private String searchTerm;
     private MagentoGraphqlClient magentoGraphqlClient;
+    Locale locale;
 
     Page productPage;
 
@@ -83,6 +88,8 @@ public class SearchResultsImpl implements SearchResults {
         if (productPage == null) {
             productPage = currentPage;
         }
+
+        locale = productPage.getLanguage(false);
     }
 
     /**
@@ -126,11 +133,29 @@ public class SearchResultsImpl implements SearchResults {
         return q -> q.id()
             .urlKey()
             .name()
-            .smallImage(i -> i.label()
+            .smallImage(i -> i
+                .label()
                 .url())
-            .price(price -> price.regularPrice(
-                regularPrice -> regularPrice.amount(
-                    moneyQuery -> moneyQuery.value().currency())));
+            .onConfigurableProduct(cp -> cp
+                .priceRange(r -> r
+                    .maximumPrice(generatePriceQuery())
+                    .minimumPrice(generatePriceQuery())))
+            .onSimpleProduct(sp -> sp
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery())));
+    }
+
+    private ProductPriceQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     /**
@@ -162,18 +187,12 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     protected ProductListItem generateItemFromProductInterface(ProductInterface product) {
 
+        Price price = new PriceImpl(product.getPriceRange(), locale);
+
         ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
             product.getUrlKey(),
             product.getName(),
-            product.getPrice()
-                .getRegularPrice()
-                .getAmount()
-                .getValue(),
-            product.getPrice()
-                .getRegularPrice()
-                .getAmount()
-                .getCurrency()
-                .toString(),
+            price,
             product.getSmallImage()
                 .getUrl(),
             productPage,

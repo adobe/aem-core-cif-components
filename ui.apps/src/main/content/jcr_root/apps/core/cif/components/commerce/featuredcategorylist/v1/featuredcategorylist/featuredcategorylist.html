@@ -15,8 +15,9 @@
 */-->
 
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList">
-    <sly data-sly-test.isConfigured="${category.categories.size}">
+     data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList"
+     data-sly-use.templates="core/wcm/components/commons/v1/templates.html">
+    <sly data-sly-test.hasCategories="${category.categories.size}">
     <div class="cmp-categorylist">
         <div class="cmp-categorylist__header">
             <h2 class="cmp-categorylist__title">
@@ -33,10 +34,7 @@
         </div>
     </div>
     </sly>
-    <div data-sly-test=${!isConfigured} class="placeholder__empty">
-        <strong>${'Featured Category List' @ i18n}</strong><br>
-        <p>${'Please configure categories' @ i18n}</p>
-    </div>
+    <sly data-sly-call="${templates.placeholder @ isEmpty = !category.isConfigured, emptyTextAppend = 'Please configure categories'}" />
+    <sly data-sly-call="${templates.placeholder @ isEmpty = category.isConfigured && !hasCategories, emptyTextAppend = 'Configured, no categories were loaded'}" />
 </sly>
 </sly>
-
