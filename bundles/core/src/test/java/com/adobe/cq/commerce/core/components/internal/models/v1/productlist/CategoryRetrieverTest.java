@@ -45,7 +45,6 @@ public class CategoryRetrieverTest {
         when(mockClient.execute(any())).thenReturn(mockResponse);
         when(mockResponse.getData()).thenReturn(mockQuery);
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
-        when(mockQuery.getStoreConfig().getSecureBaseMediaUrl()).thenReturn("");
 
         retriever = new CategoryRetriever(mockClient);
         retriever.setIdentifier("5");
@@ -69,7 +68,9 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},total_count},children_count,level_custom_:level},storeConfig{secure_base_media_url}}";
+        // String expectedQuery =
+        // "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}}},total_count},children_count,level_custom_:level}}";
+        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},total_count},children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -82,7 +83,9 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable},total_count}},storeConfig{secure_base_media_url}}";
+        // String expectedQuery =
+        // "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price{regularPrice{amount{currency,value}}},created_at,is_returnable_custom_:is_returnable},total_count}}}";
+        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}},minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on SimpleProduct{price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable},total_count}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 

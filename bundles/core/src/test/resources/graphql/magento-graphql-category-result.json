@@ -3,7 +3,7 @@
     "id": 6,
     "name": "Running",
     "product_count": 8,
-    "image": "timeless.jpg",
+    "image": "https://some-hostname.magentosite.cloud/media/catalog/timeless.jpg",
     "products": {
       "items": [
         {
@@ -153,8 +153,5 @@
       ],
       "total_count": 13
     }
-  },
-  "storeConfig": {
-    "secure_base_media_url": "https://my-magento.hostname/media/"
   }
 }

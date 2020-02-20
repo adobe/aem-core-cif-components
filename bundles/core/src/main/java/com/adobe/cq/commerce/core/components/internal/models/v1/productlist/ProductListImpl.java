@@ -61,7 +61,6 @@ public class ProductListImpl implements ProductList {
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final int PAGE_SIZE_DEFAULT = 6;
-    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Self
     private SlingHttpServletRequest request;
@@ -177,7 +176,7 @@ public class ProductListImpl implements ProductList {
         if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
             return StringUtils.EMPTY;
         }
-        return categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.fetchCategory().getImage();
+        return categoryRetriever.fetchCategory().getImage();
     }
 
     @Override
@@ -268,8 +267,30 @@ public class ProductListImpl implements ProductList {
         }
         navPages = new ArrayList<>();
 
-        for (int i = 0; i < navPagesSize; i++) {
-            navPages.add(i + 1);
+        if (navPagesSize < 8) {
+            for (int i = 0; i < navPagesSize; i++) {
+                navPages.add(i + 1);
+            }
+        } else {
+            if (navPagePrev > 1) {
+                navPages.add(1);
+            }
+            if (navPagePrev > 2) {
+                navPages.add(0);
+            }
+            if (navPagePrev < navPageCursor) {
+                navPages.add(navPagePrev);
+            }
+            navPages.add(navPageCursor);
+            if (navPageNext > navPageCursor) {
+                navPages.add(navPageNext);
+            }
+            if (navPageNext < navPagesSize - 1) {
+                navPages.add(0);
+            }
+            if (navPageNext < navPagesSize) {
+                navPages.add(navPagesSize);
+            }
         }
     }
 
