@@ -124,8 +124,7 @@ public class ProductListImplTest {
     @Test
     public void getImage() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
-        String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/category/";
-        Assert.assertEquals(baseMediaPath + category.getImage(), productListModel.getImage());
+        Assert.assertEquals(category.getImage(), productListModel.getImage());
     }
 
     @Test
