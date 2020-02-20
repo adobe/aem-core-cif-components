@@ -242,6 +242,58 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testPaginationLarge() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        // Cannot be added to JCR JSON content because of long/int conversion
+        int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
+
+        Assert.assertTrue(pageSize >= productListModel.getProducts().size());
+        Assert.assertTrue(pageSize <= category.getProductCount());
+
+        productListModel.getCategoryRetriever().fetchCategory();
+        productListModel.getCategoryRetriever().fetchCategory().getProducts().setTotalCount(100);
+
+        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
+        Whitebox.setInternalState(productListModel, "request", incomingRequest);
+
+        when(incomingRequest.getParameter("page")).thenReturn("1");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("2");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("3");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 4, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("10");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 9, 10, 11, 0, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("15");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 14, 15, 16, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("16");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 15, 16, 17 }, productListModel.getPageList().toArray());
+
+        when(incomingRequest.getParameter("page")).thenReturn("17");
+        productListModel.setNavPageCursor();
+        productListModel.setupPagination();
+        Assert.assertArrayEquals(new Object[] { 1, 0, 16, 17 }, productListModel.getPageList().toArray());
+    }
+
+    @Test
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);

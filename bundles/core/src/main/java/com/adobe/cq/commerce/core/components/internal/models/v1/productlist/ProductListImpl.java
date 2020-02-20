@@ -268,8 +268,30 @@ public class ProductListImpl implements ProductList {
         }
         navPages = new ArrayList<>();
 
-        for (int i = 0; i < navPagesSize; i++) {
-            navPages.add(i + 1);
+        if (navPagesSize < 8) {
+            for (int i = 0; i < navPagesSize; i++) {
+                navPages.add(i + 1);
+            }
+        } else {
+            if (navPagePrev > 1) {
+                navPages.add(1);
+            }
+            if (navPagePrev > 2) {
+                navPages.add(0);
+            }
+            if (navPagePrev < navPageCursor) {
+                navPages.add(navPagePrev);
+            }
+            navPages.add(navPageCursor);
+            if (navPageNext > navPageCursor) {
+                navPages.add(navPageNext);
+            }
+            if (navPageNext < navPagesSize - 1) {
+                navPages.add(0);
+            }
+            if (navPageNext < navPagesSize) {
+                navPages.add(navPagesSize);
+            }
         }
     }
 

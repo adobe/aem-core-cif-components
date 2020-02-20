@@ -41,4 +41,10 @@ public interface FeaturedCategoryList {
      */
     AbstractCategoriesRetriever getCategoriesRetriever();
 
+    /**
+     * Returns true if the component is correctly configured, false otherwise.
+     *
+     * @return true or false
+     */
+    boolean isConfigured();
 }
