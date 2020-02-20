@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { number, string } from 'prop-types';
+import { number, string, shape } from 'prop-types';
 
 import { Price } from '@magento/peregrine';
 
@@ -20,12 +20,23 @@ import classes from './totalsSummary.css';
 
 const TotalsSummary = props => {
     // Props.
-    const { currencyCode, numItems, subtotal } = props;
+    const { numItems, subtotal, subtotalDiscount } = props;
 
     // Do not display price, if cart is empty. But display price, if the cart has
     // items and the price is 0 (e.g. when coupons are applied).
-    const hasSubtotal = Boolean(subtotal) || numItems > 0;
+    const hasSubtotal = Boolean(subtotal.value) || numItems > 0;
+    const hasDiscount = subtotal.value !== subtotalDiscount.value;
     const numItemsText = numItems === 1 ? 'item' : 'items';
+
+    let priceClasses = {};
+    if (hasDiscount) {
+        priceClasses = {
+            currency: classes.discounted,
+            integer: classes.discounted,
+            decimal: classes.discounted,
+            fraction: classes.discounted
+        };
+    }
 
     return (
         <div className={classes.root}>
@@ -33,8 +44,21 @@ const TotalsSummary = props => {
                 <dl className={classes.totals}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {'Cart Total : '}
-                            <Price currencyCode={currencyCode} value={subtotal} />
+                            {'Cart Total: '}
+                            <Price classes={priceClasses} currencyCode={subtotal.currency} value={subtotal.value} />
+                        </span>
+                    </dt>
+                    <dd className={classes.subtotalValue}>
+                        ({numItems} {numItemsText})
+                    </dd>
+                </dl>
+            )}
+            {hasSubtotal && hasDiscount && (
+                <dl className={classes.totalsDiscount}>
+                    <dt className={classes.subtotalLabel}>
+                        <span>
+                            {'New Cart Total: '}
+                            <Price currencyCode={subtotalDiscount.currency} value={subtotalDiscount.value} />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
@@ -49,7 +73,14 @@ const TotalsSummary = props => {
 TotalsSummary.propTypes = {
     currencyCode: string,
     numItems: number,
-    subtotal: number
+    subtotal: shape({
+        currency: string,
+        value: number
+    }),
+    subtotalDiscount: shape({
+        currency: string,
+        value: number
+    })
 };
 
 export default TotalsSummary;
