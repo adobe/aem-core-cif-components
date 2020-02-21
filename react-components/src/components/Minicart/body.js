@@ -24,6 +24,7 @@ import CouponForm from './couponForm';
 import CouponItem from './couponItem';
 
 import { useCartState } from './cartContext';
+import DiscountList from './discountList';
 
 const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
 
@@ -49,10 +50,17 @@ const Body = () => {
 
     const cartItems = cart.items;
     const couponFragment = !cart.applied_coupon ? <CouponForm /> : <CouponItem />;
+    const discountFragment =
+        cart.prices.discounts && cart.prices.discounts.length > 0 ? (
+            <DiscountList discounts={cart.prices.discounts} />
+        ) : (
+            <div />
+        );
 
     return (
         <div className={classes.root}>
             <ProductList cartItems={cartItems} />
+            {discountFragment}
             {couponFragment}
         </div>
     );

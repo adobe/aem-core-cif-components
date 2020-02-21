@@ -12,45 +12,30 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Product from '../product';
+import DiscountList from '../discountList';
 import { render } from '@testing-library/react';
-import { CartProvider } from '../cartContext';
 
-const mockCartItem = {
-    product: {
-        thumbnail: {
-            url: '/some/url'
-        },
-        name
-    },
-    prices: {
-        price: {
+const discounts = [
+    {
+        amount: {
             currency: 'USD',
-            value: 22
+            value: 36.4
         },
-        row_total: {
-            currency: 'USD',
-            value: 22
-        }
+        label: '20% off for 3 or more'
     },
-    quantity: 2,
-    id: '1'
-};
+    {
+        amount: {
+            currency: 'USD',
+            value: 14.56
+        },
+        label: '10% off coupon'
+    }
+];
 
-describe('<Product />', () => {
+describe('<DiscountList />', () => {
     it('renders the component', () => {
-        const mockRemoveItemFromCart = jest.fn();
-        const mockBeginEditItem = jest.fn();
+        const { asFragment } = render(<DiscountList discounts={discounts} />);
 
-        const { asFragment } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <Product
-                    beginEditItem={mockBeginEditItem}
-                    removeItemFromCart={mockRemoveItemFromCart}
-                    item={mockCartItem}
-                />
-            </CartProvider>
-        );
         expect(asFragment()).toMatchSnapshot();
     });
 });

@@ -25,16 +25,18 @@ describe('<CartOptions>', () => {
             editItem: {
                 id: '123',
                 quantity: 2,
-                product: {
-                    name: 'Dummy product',
+                prices: {
                     price: {
-                        regularPrice: {
-                            amount: {
-                                value: 100,
-                                currency: 'USD'
-                            }
-                        }
+                        currency: 'USD',
+                        value: 100
+                    },
+                    row_total: {
+                        currency: 'USD',
+                        value: 100
                     }
+                },
+                product: {
+                    name: 'Dummy product'
                 }
             }
         };

@@ -23,14 +23,16 @@ describe('<ProductList>', () => {
                 thumbnail: {
                     url: '/some/url'
                 },
-                name: 'Some t-shirt',
+                name: 'Some t-shirt'
+            },
+            prices: {
                 price: {
-                    regularPrice: {
-                        amount: {
-                            value: 1,
-                            currency: 'USD'
-                        }
-                    }
+                    currency: 'USD',
+                    value: 1
+                },
+                row_total: {
+                    currency: 'USD',
+                    value: 1
                 }
             },
             quantity: 2,
@@ -41,14 +43,16 @@ describe('<ProductList>', () => {
                 thumbnail: {
                     url: '/some/url'
                 },
-                name: 'Some shorts',
+                name: 'Some shorts'
+            },
+            prices: {
                 price: {
-                    regularPrice: {
-                        amount: {
-                            value: 30,
-                            currency: 'USD'
-                        }
-                    }
+                    currency: 'USD',
+                    value: 30
+                },
+                row_total: {
+                    currency: 'USD',
+                    value: 30
                 }
             },
             quantity: 2,

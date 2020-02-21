@@ -1,6 +1,21 @@
 query cartDetails($cartId: String!) {
     cart(cart_id: $cartId) {
         prices {
+            discounts {
+                amount {
+                    currency
+                    value
+                }
+                label
+            }
+            subtotal_with_discount_excluding_tax {
+                currency
+                value
+            }
+            subtotal_excluding_tax {
+                currency
+                value
+            }
             grand_total {
                 currency
                 value
@@ -63,16 +78,18 @@ query cartDetails($cartId: String!) {
         items {
             id
             quantity
+            prices {
+                price {
+                    currency
+                    value
+                }
+                row_total {
+                    currency
+                    value
+                }
+            }
             product {
                 name
-                price {
-                    regularPrice {
-                        amount {
-                            currency
-                            value
-                        }
-                    }
-                }
                 thumbnail {
                     url
                 }
