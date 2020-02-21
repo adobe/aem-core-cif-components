@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 
 /**
@@ -32,10 +33,9 @@ public interface ProductTeaser {
     String getName();
 
     /**
-     * Returns formatted price string with currency for this {@code ProductTeaser}
-     *
-     * @return formatted price string with currency or {@code null}
+     * @deprecated Please use getPriceRange() instead.
      */
+    @Deprecated
     String getFormattedPrice();
 
     /**
@@ -66,6 +66,13 @@ public interface ProductTeaser {
      *         returns {@link null}
      */
     String getCallToAction();
+
+    /**
+     * Returns the price range.
+     *
+     * @return Price range instance.
+     */
+    Price getPriceRange();
 
     /**
      * Returns in instance of the product retriever for fetching product data via GraphQL.
