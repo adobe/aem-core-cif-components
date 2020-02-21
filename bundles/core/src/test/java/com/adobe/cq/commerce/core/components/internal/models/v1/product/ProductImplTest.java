@@ -15,13 +15,11 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
@@ -39,8 +37,8 @@ import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
@@ -59,7 +57,6 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,16 +89,12 @@ public class ProductImplTest {
         context.currentResource(PRODUCT);
         productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
 
-        String json = getResource("/graphql/magento-graphql-product-result.json");
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-product-result.json");
         product = rootQuery.getProducts().getItems().get(0);
         storeConfig = rootQuery.getStoreConfig();
 
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
-        response.setData(rootQuery);
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json");
         Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
@@ -291,7 +284,7 @@ public class ProductImplTest {
         requestPathInfo.setSelectorString(null);
         productModel = context.request().adaptTo(ProductImpl.class);
 
-        String json = getResource(ProductImpl.PLACEHOLDER_DATA);
+        String json = Utils.getResource(ProductImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         product = rootQuery.getProducts().getItems().get(0);
         storeConfig = rootQuery.getStoreConfig();
@@ -323,9 +316,5 @@ public class ProductImplTest {
         Assert.assertEquals(46.0, price.getFinalPrice(), 0.001);
         Assert.assertEquals(12.0, price.getDiscountAmount(), 0.001);
         Assert.assertEquals(20.69, price.getDiscountPercent(), 0.001);
-    }
-
-    private String getResource(String filename) throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }

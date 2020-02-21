@@ -1,23 +1,25 @@
 {
-  "category__category_5": {
-    "id": 5,
-    "name": "Equipment",
-    "url_path": "equipment",
-    "position": 1,
-    "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
-  },
-  "category__category_6": {
-    "id": 6,
-    "name": "Running",
-    "url_path": "equipment/running",
-    "position": 1,
-    "image": null
-  },
-  "category__category_7": {
-    "id": 7,
-    "name": "Bike",
-    "url_path": "equipment/bike",
-    "position": 1,
-    "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
+  "data": {
+    "category__category_5": {
+      "id": 5,
+      "name": "Equipment",
+      "url_path": "equipment",
+      "position": 1,
+      "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
+    },
+    "category__category_6": {
+      "id": 6,
+      "name": "Running",
+      "url_path": "equipment/running",
+      "position": 1,
+      "image": null
+    },
+    "category__category_7": {
+      "id": 7,
+      "name": "Bike",
+      "url_path": "equipment/bike",
+      "position": 1,
+      "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
+    }
   }
 }
