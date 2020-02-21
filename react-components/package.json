@@ -10,7 +10,6 @@
   },
   "module": "dist/index.js",
   "scripts": {
-    "prepare": "rm -rf ./dist",
     "lint": "eslint 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
     "webpack:prod": "webpack --mode=production",

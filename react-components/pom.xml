@@ -55,7 +55,7 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>npm-install</id> <!-- Will also execute the 'prepare' script from package.json -->
+                        <id>npm-install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -81,12 +81,12 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-module-link</id> <!-- Ignore npm scripts to avoid again executing 'prepare' -->
+                        <id>npm-module-link</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>link --ignore-scripts</arguments>
+                            <arguments>link</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -119,6 +119,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>dist</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
             
         </plugins>
