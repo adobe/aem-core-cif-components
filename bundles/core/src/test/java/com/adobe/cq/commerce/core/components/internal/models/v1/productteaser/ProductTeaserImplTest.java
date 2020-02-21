@@ -131,7 +131,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        Money amount = product.getPrice().getRegularPrice().getAmount();
+        Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
@@ -159,7 +159,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        Money amount = variant.getPrice().getRegularPrice().getAmount();
+        Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
