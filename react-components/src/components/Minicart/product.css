@@ -29,10 +29,11 @@
 
 .quantityRow {
     align-items: center;
+    width: 100%;
 }
 
 .quantity {
-    align-items: flex-end;
+    align-items: flex-start;
     display: flex;
     grid-column: 2 / span 1;
     font-size: 13px;
@@ -49,6 +50,18 @@
 .price {
     align-items: center;
     display: inline-flex;
+}
+
+.rowTotalRow {
+    align-items: center;
+    width: 100%;
+    text-align: right;
+}
+
+.rowTotal {
+    align-items: center;
+    display: inline-flex;
+    float: right;
 }
 
 .mask {

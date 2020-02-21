@@ -81,7 +81,8 @@ class Navigation {
 
     updateDynamicElements() {
         // the back-navigation button is hidden for the root navigation and visible for all other navigations
-        let hasParent = this.getActiveNavigation().dataset.parent;
+        let activeNavigation = this.getActiveNavigation();
+        let hasParent = activeNavigation && activeNavigation.dataset.parent;
         if (hasParent) {
             this.setVisible(this.backNavigationButton, true);
             this.setVisible(this.backNavigationEmpty, false);
