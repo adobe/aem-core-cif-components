@@ -33,9 +33,9 @@ const AddressForm = props => {
         () =>
             fields.reduce((acc, key) => {
                 if (initialValues && key in initialValues) {
-                    // Convert street from array to flat string
+                    // Convert street from array to flat strings
                     if (key === 'street') {
-                        acc[key] = initialValues[key].length > 0 ? initialValues[key][0] : '';
+                        initialValues[key].forEach((v, i) => (acc[`street${i}`] = v));
                         return acc;
                     }
                     acc[key] = initialValues[key];
@@ -49,7 +49,7 @@ const AddressForm = props => {
         values => {
             setIsSubmitting(true);
             // Convert street back to array
-            submit({ ...values, street: [values.street] });
+            submit({ ...values, street: [values.street0] });
         },
         [submit]
     );
@@ -80,7 +80,7 @@ const AddressForm = props => {
                 </div>
                 <div className={classes.street0}>
                     <Field label="Street">
-                        <TextInput id={classes.street0} field="street" validateOnBlur validate={isRequired} />
+                        <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.city}>
