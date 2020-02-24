@@ -1,0 +1,7 @@
+{
+  "shopping-cart": "Shopping Cart",
+  "total": "Cart Total:",
+  "itemsWithCount": "{{count}} items",
+  "itemsWithCount_plural": "{{count}} items",
+  "new-total": "New Cart Total:"
+}
