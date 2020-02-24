@@ -33,6 +33,11 @@ const AddressForm = props => {
         () =>
             fields.reduce((acc, key) => {
                 if (initialValues && key in initialValues) {
+                    // Convert street from array to flat string
+                    if (key === 'street') {
+                        acc[key] = initialValues[key].length > 0 ? initialValues[key][0] : '';
+                        return acc;
+                    }
                     acc[key] = initialValues[key];
                 }
                 return acc;
@@ -43,37 +48,44 @@ const AddressForm = props => {
     const handleSubmit = useCallback(
         values => {
             setIsSubmitting(true);
-            submit(values);
+            // Convert street back to array
+            submit({ ...values, street: [values.street] });
         },
         [submit]
     );
+
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
                 <h2 className={classes.heading}>Shipping Address</h2>
                 <div className={classes.firstname}>
                     <Field label="First Name">
-                        <TextInput id={classes.firstname} field="firstname" validate={isRequired} />
+                        <TextInput id={classes.firstname} field="firstname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.lastname}>
                     <Field label="Last Name">
-                        <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
+                        <TextInput id={classes.lastname} field="lastname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.email}>
                     <Field label="Email">
-                        <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
+                        <TextInput
+                            id={classes.email}
+                            field="email"
+                            validateOnBlur
+                            validate={combine([isRequired, validateEmail])}
+                        />
                     </Field>
                 </div>
                 <div className={classes.street0}>
                     <Field label="Street">
-                        <TextInput id={classes.street0} field="street[0]" validate={isRequired} />
+                        <TextInput id={classes.street0} field="street" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.city}>
                     <Field label="City">
-                        <TextInput id={classes.city} field="city" validate={isRequired} />
+                        <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.region_code}>
@@ -81,18 +93,19 @@ const AddressForm = props => {
                         <TextInput
                             id={classes.region_code}
                             field="region_code"
+                            validateOnBlur
                             validate={combine([isRequired, [hasLengthExactly, 2], [validateRegionCode, countries]])}
                         />
                     </Field>
                 </div>
                 <div className={classes.postcode}>
                     <Field label="ZIP">
-                        <TextInput id={classes.postcode} field="postcode" validate={isRequired} />
+                        <TextInput id={classes.postcode} field="postcode" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.telephone}>
                     <Field label="Phone">
-                        <TextInput id={classes.telephone} field="telephone" validate={isRequired} />
+                        <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.validation}>{validationMessage}</div>
