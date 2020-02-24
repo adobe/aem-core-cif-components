@@ -133,17 +133,20 @@ public class ProductCarouselImpl implements ProductCarousel {
                     }
                 }
 
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-
-                carouselProductList.add(new ProductListItemImpl(
-                    skus.getLeft(),
-                    slug,
-                    product.getName(),
-                    price,
-                    product.getThumbnail().getUrl(),
-                    productPage,
-                    skus.getRight(),
-                    request));
+                try {
+                    Price price = new PriceImpl(product.getPriceRange(), locale);
+                    carouselProductList.add(new ProductListItemImpl(
+                        skus.getLeft(),
+                        slug,
+                        product.getName(),
+                        price,
+                        product.getThumbnail().getUrl(),
+                        productPage,
+                        skus.getRight(),
+                        request));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to instantiate product " + combinedSku, e);
+                }
             }
         }
         return carouselProductList;

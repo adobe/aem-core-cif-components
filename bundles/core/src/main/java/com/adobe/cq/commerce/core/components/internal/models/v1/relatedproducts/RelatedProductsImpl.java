@@ -128,18 +128,20 @@ public class RelatedProductsImpl implements ProductCarousel {
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
-
-            Price price = new PriceImpl(product.getPriceRange(), locale);
-
-            carouselProductList.add(new ProductListItemImpl(
-                product.getSku(),
-                product.getUrlKey(),
-                product.getName(),
-                price,
-                product.getThumbnail().getUrl(),
-                productPage,
-                null,
-                request));
+            try {
+                Price price = new PriceImpl(product.getPriceRange(), locale);
+                carouselProductList.add(new ProductListItemImpl(
+                    product.getSku(),
+                    product.getUrlKey(),
+                    product.getName(),
+                    price,
+                    product.getThumbnail().getUrl(),
+                    productPage,
+                    null,
+                    request));
+            } catch (Exception e) {
+                LOGGER.error("Failed to instantiate product " + product.getSku(), e);
+            }
         }
         return carouselProductList;
     }
