@@ -21,11 +21,15 @@ const Footer = () => {
     const [{ isOpen, cart }] = useCartState();
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
-    const { currency, value: totalPrice } = cart.prices.grand_total;
+    const { subtotal_excluding_tax, subtotal_with_discount_excluding_tax } = cart.prices;
 
     return (
         <div className={footerClassName}>
-            <TotalsSummary currencyCode={currency} numItems={cart.items.length} subtotal={totalPrice} />
+            <TotalsSummary
+                subtotal={subtotal_excluding_tax}
+                subtotalDiscount={subtotal_with_discount_excluding_tax}
+                numItems={cart.items.length}
+            />
             <Checkout />
         </div>
     );

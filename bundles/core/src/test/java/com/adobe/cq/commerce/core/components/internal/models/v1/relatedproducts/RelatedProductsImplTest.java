@@ -14,8 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
@@ -40,19 +37,17 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -104,16 +99,12 @@ public class RelatedProductsImplTest {
             requestPathInfo.setSelectorString("endurance-watch");
         }
 
-        String json = getResource(jsonResponsePath);
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
         ProductInterface product = rootQuery.getProducts().getItems().get(0);
         products = PRODUCTS_GETTER.get(relationType).apply(product);
 
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
-        response.setData(rootQuery);
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
         Mockito.when(relatedProductsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -126,37 +117,37 @@ public class RelatedProductsImplTest {
 
     @Test
     public void testRelatedProducts() throws Exception {
-        setUp(RelationType.RELATED_PRODUCTS, "/graphql/magento-graphql-relatedproducts-result.json", false);
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
     }
 
     @Test
     public void testRelatedProductsWithoutRelationType() throws Exception {
-        setUp(null, "/graphql/magento-graphql-relatedproducts-result.json", false);
+        setUp(null, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
     }
 
     @Test
     public void testUpsellProducts() throws Exception {
-        setUp(RelationType.UPSELL_PRODUCTS, "/graphql/magento-graphql-upsellproducts-result.json", true);
+        setUp(RelationType.UPSELL_PRODUCTS, "graphql/magento-graphql-upsellproducts-result.json", true);
         assertProducts();
     }
 
     @Test
     public void testCrossSellProducts() throws Exception {
-        setUp(RelationType.CROSS_SELL_PRODUCTS, "/graphql/magento-graphql-crosssellproducts-result.json", true);
+        setUp(RelationType.CROSS_SELL_PRODUCTS, "graphql/magento-graphql-crosssellproducts-result.json", true);
         assertProducts();
     }
 
     @Test
     public void testIsNotConfigured() throws Exception {
-        setUp(RelationType.CROSS_SELL_PRODUCTS, "/graphql/magento-graphql-crosssellproducts-result.json", false);
+        setUp(RelationType.CROSS_SELL_PRODUCTS, "graphql/magento-graphql-crosssellproducts-result.json", false);
         Assert.assertTrue(relatedProducts.getProducts().isEmpty());
     }
 
     @Test
     public void testQueryExtensions() throws Exception {
-        setUp(RelationType.RELATED_PRODUCTS, "/graphql/magento-graphql-relatedproducts-result.json", false);
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
         AbstractProductsRetriever retriever = relatedProducts.getProductsRetriever();
         retriever.extendProductQueryWith(p -> p.description(d -> d.html()));
         retriever.extendVariantQueryWith(v -> v.sku());
@@ -199,9 +190,5 @@ public class RelatedProductsImplTest {
 
             Assert.assertEquals(product.getThumbnail().getUrl(), item.getImageURL());
         }
-    }
-
-    private String getResource(String filename) throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }

@@ -1,0 +1,16 @@
+.root {
+    display: grid;
+    grid-gap: 1rem;
+    margin: 0 1.5rem;
+    font-size: 14px;
+    padding-bottom: 1.5rem;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 75% auto;
+}
+
+.price {
+    text-align: right;
+}

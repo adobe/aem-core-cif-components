@@ -30,9 +30,10 @@ const Product = props => {
     const { item } = props;
     const [{ removeItem }, dispatch] = useCartState();
 
-    const { product = {}, quantity = 0, id = '' } = item;
-    const { thumbnail, name, price } = product;
-    const { value, currency } = price.regularPrice.amount;
+    const { product = {}, quantity = 0, id = '', prices } = item;
+    const { thumbnail, name } = product;
+
+    let { price, row_total } = prices;
 
     const productImage = useMemo(() => {
         const src =
@@ -55,7 +56,12 @@ const Product = props => {
                     <span>{quantity}</span>
                     <span className={classes.quantityOperator}>{'×'}</span>
                     <span className={classes.price}>
-                        <Price currencyCode={currency} value={value} />
+                        <Price currencyCode={price.currency} value={price.value} />
+                    </span>
+                </div>
+                <div className={classes.rowTotalRow}>
+                    <span className={classes.rowTotal}>
+                        <Price currencyCode={row_total.currency} value={row_total.value} />
                     </span>
                 </div>
             </div>
@@ -77,16 +83,18 @@ Product.propTypes = {
     item: shape({
         id: string.isRequired,
         quantity: number.isRequired,
+        prices: shape({
+            price: shape({
+                value: number.isRequired,
+                currency: string.isRequired
+            }).isRequired,
+            row_total: shape({
+                value: number.isRequired,
+                currency: string.isRequired
+            }).isRequired
+        }).isRequired,
         product: shape({
             name: string.isRequired,
-            price: shape({
-                regularPrice: shape({
-                    amount: shape({
-                        value: number.isRequired,
-                        currency: string.isRequired
-                    }).isRequired
-                }).isRequired
-            }).isRequired,
             image: object
         })
     })

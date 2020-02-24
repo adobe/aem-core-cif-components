@@ -176,10 +176,10 @@ public class NavigationImpl implements Navigation {
         children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
         children.sort(Comparator.comparing(CategoryTree::getPosition));
 
-        String categoryPagePath = categoryPage.getPath();
+        SiteNavigation siteNavigation = new SiteNavigation(request);
         for (CategoryTree child : children) {
             String title = child.getName();
-            String url = categoryPagePath + "." + child.getId() + ".html";
+            String url = siteNavigation.toPageUrl(categoryPage, child.getId().toString());
             boolean active = request.getRequestURI().equals(url);
             CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, title, url, active, child, request, categoryPage);
             pages.add(navigationItem);

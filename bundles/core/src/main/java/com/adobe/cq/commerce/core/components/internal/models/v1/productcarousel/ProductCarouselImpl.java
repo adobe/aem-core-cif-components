@@ -99,6 +99,7 @@ public class ProductCarouselImpl implements ProductCarousel {
             .stream()
             .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
             .map(s -> SiteNavigation.toProductSkus(s).getLeft())
+            .distinct()
             .collect(Collectors.toList());
 
         productsRetriever = new ProductsRetriever(magentoGraphqlClient);

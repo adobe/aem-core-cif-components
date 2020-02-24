@@ -53,7 +53,7 @@ import com.day.cq.wcm.api.designer.Style;
 public class ProductListImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
-    protected static final String PLACEHOLDER_DATA = "/productlist-component-placeholder-data.json";
+    protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
