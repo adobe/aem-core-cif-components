@@ -20,3 +20,14 @@
     flex-wrap: wrap;
     justify-content: center;
 }
+
+.discounted {
+    text-decoration: line-through;
+}
+
+.totalsDiscount {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}

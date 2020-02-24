@@ -28,10 +28,9 @@ import { useCartState } from './cartContext';
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();
 
-    const { product, quantity: initialQuantity } = editItem;
-    const { name, price: productPrice } = product;
-
-    const { value, currency } = productPrice.regularPrice.amount;
+    const { product, quantity: initialQuantity, prices } = editItem;
+    const { name } = product;
+    const { value, currency } = prices.price;
 
     const [quantity, setQuantity] = useState(initialQuantity);
 
