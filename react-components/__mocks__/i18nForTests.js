@@ -11,23 +11,29 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-// eslint-disable-next-line no-undef
-module.exports = {
-    collectCoverage: true,
-    moduleDirectories: ['node_modules', 'src/utils'],
-    coverageDirectory: '<rootDir>/coverage',
-    coverageReporters: ['json', 'lcov'],
-    testPathIgnorePatterns: ['<rootDir>/node_modules/'],
-    reporters: ['default', ['jest-junit', { outputDirectory: './test-results'}]],
-    transform: {
-        '\\.(gql|graphql)$': 'jest-transform-graphql',
-        ".+\\.json": "./__mocks__/jsonTransform.js",
-        '.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+import cart from '../i18n/en/cart.json';
+import checkout from '../i18n/en/checkout.json';
+import common from '../i18n/en/common.json';
+
+i18n.use(initReactI18next).init({
+    fallbackLng: 'en',
+    debug: false,
+
+    interpolation: {
+        escapeValue: false
     },
-    moduleNameMapper: {
-        '\\.css$': 'identity-obj-proxy',
-        '.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-            '<rootDir>/__mocks__/fileMock.js'
-    },
-    transformIgnorePatterns: ['node_modules/(?!@magento/)']
-};
+
+    resources: {
+        en: {
+            cart,
+            checkout,
+            common
+        }
+    }
+});
+
+export default i18n;
