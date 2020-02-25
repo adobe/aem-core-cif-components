@@ -21,7 +21,7 @@ import { useCartState } from './cartContext';
 
 const Error = () => {
     const [{ errorMessage }, dispatch] = useCartState();
-    const [t] = useTranslation('common', { useSuspense: false });
+    const [t] = useTranslation('common');
 
     return (
         <div className={classes.root}>

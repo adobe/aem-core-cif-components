@@ -20,7 +20,7 @@ import Icon from '../Icon';
 import { Lock as LockIcon } from 'react-feather';
 
 const CheckoutButton = ({ disabled, onClick }) => {
-    const [t] = useTranslation('checkout', { useSuspense: false });
+    const [t] = useTranslation('checkout');
 
     return (
         <Button priority="high" disabled={disabled} onClick={onClick}>

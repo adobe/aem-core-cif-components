@@ -22,7 +22,7 @@ import classes from './couponItem.css';
 
 const CouponItem = () => {
     const [{ cart, removeCoupon }] = useCartState();
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
 

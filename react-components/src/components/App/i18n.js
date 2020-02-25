@@ -26,6 +26,10 @@ i18n.use(Backend)
         fallbackLng: 'en-US',
         debug: true,
 
+        load: 'currentOnly',
+        defaultNS: 'common',
+        ns: [],
+
         interpolation: {
             escapeValue: false,
             format: (value, format, lng) => {

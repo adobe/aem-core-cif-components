@@ -20,7 +20,7 @@ import { useCartState } from './cartContext';
 
 const Header = () => {
     const [, dispatch] = useCartState();
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     return (
         <div className={classes.root}>

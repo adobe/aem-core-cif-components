@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 const Price = props => {
     const { value, currencyCode, className } = props;
-    const [t] = useTranslation(['common'], { useSuspense: false });
+    const [t] = useTranslation(['common']);
 
     return (
         <span className={className}>

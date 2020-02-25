@@ -19,7 +19,7 @@ import { useCartState } from './cartContext';
 
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     return (
         <div className={classes.root} data-testid="empty-minicart">

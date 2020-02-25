@@ -20,7 +20,7 @@ import Price from '../Price';
 import classes from './totalsSummary.css';
 
 const TotalsSummary = props => {
-    const [t] = useTranslation(['cart', 'common'], { useSuspense: false });
+    const [t] = useTranslation(['cart', 'common']);
 
     // Props.
     const { numItems, subtotal, subtotalDiscount } = props;

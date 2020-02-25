@@ -28,7 +28,7 @@ import { useCartState } from './cartContext';
 import DiscountList from './discountList';
 
 const CartLoadingIndicator = () => {
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     return <LoadingIndicator>{t('cart:fetching-data', 'Fetching cart data...')}</LoadingIndicator>;
 };

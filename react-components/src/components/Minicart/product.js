@@ -31,7 +31,7 @@ const imageHeight = 100;
 const Product = props => {
     const { item } = props;
     const [{ removeItem }, dispatch] = useCartState();
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     const { product = {}, quantity = 0, id = '', prices } = item;
     const { thumbnail, name } = product;

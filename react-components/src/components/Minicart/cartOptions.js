@@ -28,7 +28,7 @@ import { useCartState } from './cartContext';
 
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();
-    const [t] = useTranslation(['cart', 'common'], { useSuspense: false });
+    const [t] = useTranslation(['cart', 'common']);
 
     const { product, quantity: initialQuantity, prices } = editItem;
     const { name } = product;

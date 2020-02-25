@@ -21,7 +21,7 @@ import classes from './couponForm.css';
 const CouponForm = () => {
     const [{ addCoupon, couponError }] = useCartState();
     const [couponCode, setCouponCode] = useState('');
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation('cart');
 
     const addCouponHandler = () => {
         return addCoupon(couponCode);
