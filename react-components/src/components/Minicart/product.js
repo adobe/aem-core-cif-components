@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React, { useMemo, useCallback } from 'react';
 import { number, shape, object, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { Price } from '@magento/peregrine';
 import classes from './product.css';
 
@@ -29,6 +30,7 @@ const imageHeight = 100;
 const Product = props => {
     const { item } = props;
     const [{ removeItem }, dispatch] = useCartState();
+    const [t] = useTranslation('cart', { useSuspense: false });
 
     const { product = {}, quantity = 0, id = '', prices } = item;
     const { thumbnail, name } = product;
@@ -67,13 +69,13 @@ const Product = props => {
             </div>
             <Kebab>
                 <Section
-                    text="Edit item"
+                    text={t('cart:edit-item', 'Edit item')}
                     onClick={() => {
                         dispatch({ type: 'beginEditing', item: item });
                     }}
                     icon="Edit2"
                 />
-                <Section text="Remove item" onClick={handleRemoveItem} icon="Trash" />
+                <Section text={t('cart:remove-item', 'Remove item')} onClick={handleRemoveItem} icon="Trash" />
             </Kebab>
         </li>
     );

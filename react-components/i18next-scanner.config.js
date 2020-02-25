@@ -34,7 +34,7 @@ module.exports = {
             fallbackKey: false
         },
         lngs: ['en'],
-        ns: ['cart', 'common'],
+        ns: ['cart', 'checkout', 'common'],
         defaultLng: 'en',
         defaultNs: 'common',
         defaultValue: '__STRING_NOT_TRANSLATED__',
