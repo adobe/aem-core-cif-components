@@ -15,12 +15,12 @@ import React from 'react';
 import { number, string, shape } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import { Price } from '@magento/peregrine';
+import Price from '../Price';
 
 import classes from './totalsSummary.css';
 
 const TotalsSummary = props => {
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation(['cart', 'common'], { useSuspense: false });
 
     // Props.
     const { numItems, subtotal, subtotalDiscount } = props;
@@ -30,24 +30,18 @@ const TotalsSummary = props => {
     const hasSubtotal = Boolean(subtotal.value) || numItems > 0;
     const hasDiscount = subtotal.value !== subtotalDiscount.value;
 
-    let priceClasses = {};
-    if (hasDiscount) {
-        priceClasses = {
-            currency: classes.discounted,
-            integer: classes.discounted,
-            decimal: classes.discounted,
-            fraction: classes.discounted
-        };
-    }
-
     return (
         <div className={classes.root}>
             {hasSubtotal && (
                 <dl className={classes.totals}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {t('cart:total', 'Cart Total:')}
-                            <Price classes={priceClasses} currencyCode={subtotal.currency} value={subtotal.value} />
+                            {`${t('cart:total', 'Cart Total:')} `}
+                            <Price
+                                className={hasDiscount ? classes.discounted : ''}
+                                currencyCode={subtotal.currency}
+                                value={subtotal.value}
+                            />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
@@ -59,7 +53,7 @@ const TotalsSummary = props => {
                 <dl className={classes.totalsDiscount}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {t('cart:new-total', 'New Cart Total:')}
+                            {`${t('cart:new-total', 'New Cart Total:')} `}
                             <Price currencyCode={subtotalDiscount.currency} value={subtotalDiscount.value} />
                         </span>
                     </dt>

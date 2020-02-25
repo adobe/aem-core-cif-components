@@ -14,9 +14,10 @@
 import React, { useMemo, useCallback } from 'react';
 import { number, shape, object, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { Price } from '@magento/peregrine';
+
 import classes from './product.css';
 
+import Price from '../Price';
 import { transparentPlaceholder } from '../../utils/transparentPlaceholder';
 import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';

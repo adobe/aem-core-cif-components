@@ -19,7 +19,8 @@
     "update-version": "node build-scripts/update-version.js",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "translation:scan": "i18next-scanner"
+    "translation:scan": "i18next-scanner",
+    "snapshot:update": "jest --updateSnapshot"
   },
   "devDependencies": {
     "@apollo/react-hooks": "^3.0.0",

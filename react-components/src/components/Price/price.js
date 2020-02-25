@@ -11,38 +11,39 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 import React from 'react';
-import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
+import { number, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
-import DiscountList from '../discountList';
-import i18n from '../../../../__mocks__/i18nForTests';
+const Price = props => {
+    const { value, currencyCode, className } = props;
+    const [t] = useTranslation(['common'], { useSuspense: false });
 
-const discounts = [
-    {
-        amount: {
-            currency: 'USD',
-            value: 36.4
-        },
-        label: '20% off for 3 or more'
-    },
-    {
-        amount: {
-            currency: 'USD',
-            value: 14.56
-        },
-        label: '10% off coupon'
-    }
-];
+    return (
+        <span className={className}>
+            {t('common:formattedPrice', { price: { currency: currencyCode, value: value } })}
+        </span>
+    );
+};
 
-describe('<DiscountList />', () => {
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <DiscountList discounts={discounts} />
-            </I18nextProvider>
-        );
+Price.propTypes = {
+    /**
+     * The numeric price
+     */
+    value: number.isRequired,
+    /**
+     * A string with any of the currency code supported by Intl.NumberFormat
+     */
+    currencyCode: string.isRequired,
+    /**
+     * Class name to use when styling this component
+     */
+    className: string
+};
 
-        expect(asFragment()).toMatchSnapshot();
-    });
-});
+Price.defaultProps = {
+    className: ''
+};
+
+export default Price;

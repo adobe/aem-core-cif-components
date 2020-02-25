@@ -23,11 +23,19 @@ i18n.use(Backend)
     .use(initReactI18next)
 
     .init({
-        fallbackLng: 'us-EN',
+        fallbackLng: 'en-US',
         debug: true,
 
         interpolation: {
-            escapeValue: false
+            escapeValue: false,
+            format: (value, format, lng) => {
+                if (format === 'price') {
+                    return new Intl.NumberFormat(lng, { style: 'currency', currency: value.currency }).format(
+                        value.value
+                    );
+                }
+                return value;
+            }
         },
 
         detection: {

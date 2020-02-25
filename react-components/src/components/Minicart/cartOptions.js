@@ -14,9 +14,9 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { Price } from '@magento/peregrine';
 import { useTranslation } from 'react-i18next';
 
+import Price from '../Price';
 import Button from '../Button';
 import Select from '../Select';
 import classes from './cartOptions.css';
@@ -28,7 +28,7 @@ import { useCartState } from './cartContext';
 
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();
-    const [t] = useTranslation('cart', { useSuspense: false });
+    const [t] = useTranslation(['cart', 'common'], { useSuspense: false });
 
     const { product, quantity: initialQuantity, prices } = editItem;
     const { name } = product;

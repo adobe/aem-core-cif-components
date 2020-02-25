@@ -12,36 +12,4 @@
  *
  ******************************************************************************/
 
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-import cart from '../i18n/en/cart.json';
-import checkout from '../i18n/en/checkout.json';
-import common from '../i18n/en/common.json';
-
-i18n.use(initReactI18next).init({
-    fallbackLng: 'en',
-    debug: false,
-
-    interpolation: {
-        escapeValue: false,
-        format: (value, format, lng) => {
-            if (format === 'price') {
-                return new Intl.NumberFormat(lng, { style: 'currency', currency: value.currency }).format(
-                    value.value
-                );
-            }
-            return value;
-        }
-    },
-
-    resources: {
-        en: {
-            cart,
-            checkout,
-            common
-        }
-    }
-});
-
-export default i18n;
+export { default } from './price';
