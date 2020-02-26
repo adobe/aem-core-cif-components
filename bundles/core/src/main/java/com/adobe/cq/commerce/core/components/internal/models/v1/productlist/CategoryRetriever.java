@@ -47,13 +47,11 @@ class CategoryRetriever extends AbstractCategoryRetriever {
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())
-                        .minimumPrice(generatePriceQuery())))
-                .onSimpleProduct(sp -> sp
-                    .priceRange(r -> r
-                        .minimumPrice(generatePriceQuery())));
+                        .maximumPrice(generatePriceQuery())));
 
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
