@@ -37,6 +37,8 @@ import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
+import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
@@ -159,8 +161,19 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        ValueMap configurationProperties = catalogPage.adaptTo(ConfigurationBuilder.class).name("cloudconfigs/commerce").asValueMap();
-        Integer rootCategoryId = configurationProperties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+        Integer rootCategoryId;
+        ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
+
+        if (configBuilder != null) {
+            ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
+            rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+            if (rootCategoryId == null) {
+                rootCategoryId = readFallBackConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+            }
+        } else {
+            rootCategoryId = readFallBackConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        }
+
         if (rootCategoryId == null) {
             LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
             return;
@@ -193,6 +206,11 @@ public class NavigationImpl implements Navigation {
     @Override
     public String getParentId() {
         return null;
+    }
+
+    private Integer readFallBackConfiguration(Page page, String propertyName) {
+        InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
+        return properties.getInherited(propertyName, Integer.class);
     }
 
     class PageNavigationItem extends AbstractNavigationItem {
