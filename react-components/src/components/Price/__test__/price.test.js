@@ -16,14 +16,14 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 
-import Price from '../Price';
+import Price from '../price';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Price />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <Price value="123.45" currencyCode="EUR" />
+                <Price value={123.45} currencyCode="EUR" />
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();

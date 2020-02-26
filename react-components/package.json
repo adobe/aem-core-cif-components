@@ -75,6 +75,5 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "@magento/peregrine": "^3.0.0"
-  },
-  "dependencies": {}
+  }
 }
