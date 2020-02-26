@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -36,8 +37,6 @@ import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
-import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
@@ -160,8 +159,8 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final InheritanceValueMap catalogPageProperties = new HierarchyNodeInheritanceValueMap(catalogPage.getContentResource());
-        Integer rootCategoryId = catalogPageProperties.getInherited(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+        ValueMap configurationProperties = catalogPage.adaptTo(ConfigurationBuilder.class).name("cloudconfigs/commerce").asValueMap();
+        Integer rootCategoryId = configurationProperties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
         if (rootCategoryId == null) {
             LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
             return;

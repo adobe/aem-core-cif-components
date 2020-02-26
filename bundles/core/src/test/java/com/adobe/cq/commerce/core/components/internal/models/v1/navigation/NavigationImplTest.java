@@ -22,7 +22,9 @@ import java.util.Map;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +37,7 @@ import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
+import com.google.common.collect.ImmutableMap;
 
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
@@ -531,9 +534,15 @@ public class NavigationImplTest {
         when(catalogPageContent.isResourceType(RT_CATALOG_PAGE)).thenReturn(catalogRoot);
         Map<String, Object> catalogPageProperties = new HashMap<>();
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
-        catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
+
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4));
+        ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
+        when(mockConfigBuilder.name(any(String.class))).thenReturn(mockConfigBuilder);
+        when(mockConfigBuilder.asValueMap()).thenReturn(configProperties);
+
+        when(catalogPage.adaptTo(ConfigurationBuilder.class)).thenReturn(mockConfigBuilder);
     }
 }
