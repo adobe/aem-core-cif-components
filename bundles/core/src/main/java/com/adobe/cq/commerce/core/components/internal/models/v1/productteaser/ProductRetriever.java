@@ -49,12 +49,13 @@ class ProductRetriever extends AbstractProductRetriever {
             q.name()
                 .image(i -> i.url())
                 .urlKey()
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
                     .variants(v -> v
                         .product(generateSimpleProductQuery()))
                     .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())
-                        .minimumPrice(generatePriceQuery())));
+                        .maximumPrice(generatePriceQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {
