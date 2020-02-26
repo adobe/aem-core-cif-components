@@ -8,7 +8,7 @@
     "webpack:dev": "webpack --mode=development",
     "webpack:prod": "webpack --mode=production",
     "lint": "eslint './src/**/*.js'",
-    "build:clientlib": "npm run build && node build-scripts/postbuild.js"
+    "build:clientlib": "npm run webpack:dev && node build-scripts/postbuild.js"
   },
   "repository": {
     "type": "git",

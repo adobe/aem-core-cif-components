@@ -32,13 +32,13 @@ const App = props => {
 
     return (
         <ApolloProvider client={client}>
-            <CartProvider>
-                <UserContextProvider>
+            <UserContextProvider>
+                <CartProvider>
                     <CartInitializer>
                         <CheckoutProvider>{props.children}</CheckoutProvider>
                     </CartInitializer>
-                </UserContextProvider>
-            </CartProvider>
+                </CartProvider>
+            </UserContextProvider>
         </ApolloProvider>
     );
 };

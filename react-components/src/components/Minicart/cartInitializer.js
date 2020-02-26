@@ -14,7 +14,9 @@
 import { useEffect } from 'react';
 import { useCartState } from './cartContext';
 import { useCookieValue } from '../../utils/hooks';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery, useApolloClient } from '@apollo/react-hooks';
+import { useUserContext } from '../../context/UserContext';
+
 import parseError from '../../utils/parseError';
 
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
@@ -23,13 +25,19 @@ import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
+import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
+import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
 
 const CartInitializer = props => {
+    const apolloClient = useApolloClient();
+
     const [{ cartId: stateCartId }, dispatch] = useCartState();
+    const [{ isSignedIn, token: userToken }] = useUserContext();
     const CART_COOKIE = 'cif.cart';
 
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
-    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
+
+    const [createCart, { data: createAnonCartData, error: createAnonCartError }] = useMutation(MUTATION_CREATE_CART);
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
@@ -101,10 +109,44 @@ const CartInitializer = props => {
     };
 
     useEffect(() => {
-        if (!cartId || cartId.length === 0) {
+        // create the guest cart if the user is not signed in
+        if (!isSignedIn && (!cartId || cartId.length === 0)) {
             createCart();
         }
     }, [cartId]);
+
+    useEffect(async () => {
+        if (isSignedIn) {
+            const { data, error } = await apolloClient.query(QUERY_CUSTOMER_CART, {
+                context: {
+                    headers: {
+                        authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
+                    }
+                }
+            });
+            if (error) {
+                dispatch({ type: error, error: error.toString() });
+            }
+            if (data) {
+                const customerCartId = data.customerCart.id;
+
+                const { data: mergeCartsData, error: mergeCartsError } = await apolloClient.mutate(
+                    MUTATION_MERGE_CARTS,
+                    {
+                        context: {
+                            headers: {
+                                authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
+                            }
+                        }
+                    }
+                );
+
+                if (mergeCartsData) {
+                    setCartCookie(mergeCartsData.mergeCarts.id);
+                }
+            }
+        }
+    }, [isSignedIn]);
 
     useEffect(() => {
         if (cartId && (!stateCartId || stateCartId.length === 0)) {
@@ -113,19 +155,19 @@ const CartInitializer = props => {
     }, [cartId, stateCartId]);
 
     useEffect(() => {
-        if (data) {
-            setCartCookie(data.createEmptyCart);
+        if (createAnonCartData) {
+            setCartCookie(createAnonCartData.createEmptyCart);
             dispatch({
                 type: 'cartId',
-                cartId: data.createEmptyCart,
-                methods: createCartHandlers(data.createEmptyCart, dispatch)
+                cartId: createAnonCartData.createEmptyCart,
+                methods: createCartHandlers(createAnonCartData.createEmptyCart, dispatch)
             });
         }
 
-        if (error) {
-            dispatch({ type: 'error', error: error.toString() });
+        if (createAnonCartError) {
+            dispatch({ type: 'error', error: createAnonCartError.toString() });
         }
-    }, [data, error]);
+    }, [createAnonCartData, createAnonCartError]);
 
     return props.children;
 };
