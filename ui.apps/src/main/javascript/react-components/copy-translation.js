@@ -12,14 +12,15 @@
  *
  ******************************************************************************/
 
-const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/clientlibs/react-components/dist';
+const languageFolder = './node_modules/@adobe/aem-core-cif-react-components/i18n/en';
+const clientlibFolder = '../../content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang/en-US';
 
-exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(`stdout: ${stdout}`);
-    }
+fs.readdirSync(languageFolder).forEach(file => {
+    const src = path.join(languageFolder, file);
+    const target = path.join(clientlibFolder, file);
+    fs.copyFileSync(src, target);
+    console.log('Copied', src, 'to', target);
 });

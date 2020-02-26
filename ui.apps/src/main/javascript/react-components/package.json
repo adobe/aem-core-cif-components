@@ -5,17 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack:dev": "webpack --mode=development",
-    "webpack:prod": "webpack --mode=production",
+    "webpack:dev": "webpack --mode=development && npm run translation:copy",
+    "webpack:prod": "webpack --mode=production && npm run translation:copy",
     "lint": "eslint './src/**/*.js'",
-    "build:clientlib": "npm run build && node build-scripts/postbuild.js"
+    "translation:copy": "node copy-translation.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@apollo/react-hooks": "^3.1.3",
     "@magento/peregrine": "^3.0.0",

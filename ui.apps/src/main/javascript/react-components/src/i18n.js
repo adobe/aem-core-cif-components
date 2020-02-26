@@ -52,7 +52,7 @@ i18n.use(Backend)
         },
 
         backend: {
-            loadPath: '/content/venia/lang/{{lng}}/{{ns}}.json',
+            loadPath: '/etc.clientlibs/core/cif/clientlibs/react-components/resources/lang/{{lng}}/{{ns}}.json',
             allowMultiLoading: false,
             withCredentials: true
         }
