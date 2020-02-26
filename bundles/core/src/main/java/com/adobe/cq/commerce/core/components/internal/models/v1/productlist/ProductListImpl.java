@@ -53,7 +53,7 @@ import com.day.cq.wcm.api.designer.Style;
 public class ProductListImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
-    protected static final String PLACEHOLDER_DATA = "/productlist-component-placeholder-data.json";
+    protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
@@ -61,7 +61,6 @@ public class ProductListImpl implements ProductList {
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final int PAGE_SIZE_DEFAULT = 6;
-    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     @Self
     private SlingHttpServletRequest request;
@@ -177,7 +176,7 @@ public class ProductListImpl implements ProductList {
         if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
             return StringUtils.EMPTY;
         }
-        return categoryRetriever.fetchMediaBaseUrl() + CATEGORY_IMAGE_FOLDER + categoryRetriever.fetchCategory().getImage();
+        return categoryRetriever.fetchCategory().getImage();
     }
 
     @Override

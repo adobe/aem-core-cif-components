@@ -68,7 +68,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProductImpl implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
-    protected static final String PLACEHOLDER_DATA = "/product-component-placeholder-data.json";
+    protected static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";

@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<DiscountList /> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="item"
+    >
+      <span>
+        20% off for 3 or more
+      </span>
+      <span
+        class="price"
+      >
+        <span>
+          -
+        </span>
+        <span>
+          $
+        </span>
+        <span>
+          36
+        </span>
+        <span>
+          .
+        </span>
+        <span>
+          40
+        </span>
+      </span>
+    </div>
+    <div
+      class="item"
+    >
+      <span>
+        10% off coupon
+      </span>
+      <span
+        class="price"
+      >
+        <span>
+          -
+        </span>
+        <span>
+          $
+        </span>
+        <span>
+          14
+        </span>
+        <span>
+          .
+        </span>
+        <span>
+          56
+        </span>
+      </span>
+    </div>
+  </div>
+</DocumentFragment>
+`;

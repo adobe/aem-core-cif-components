@@ -15,11 +15,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -30,16 +28,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
-
-import static org.mockito.Matchers.any;
 
 /**
  * JUnit test suite for {@link SearchResultsImpl}
@@ -79,16 +73,8 @@ public class SearchResultsImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
 
         // Search results
-        String json = IOUtils.toString(this.getClass().getResourceAsStream("/graphql/magento-graphql-search-result.json"),
-            StandardCharsets.UTF_8);
-
-        Query query = QueryDeserializer.getGson().fromJson(json, Query.class);
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
-        response.setData(query);
-
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-search-result.json");
         Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
     }
 
     @Test

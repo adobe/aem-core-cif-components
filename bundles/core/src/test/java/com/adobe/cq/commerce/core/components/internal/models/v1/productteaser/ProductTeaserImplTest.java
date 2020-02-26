@@ -14,13 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -29,22 +26,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
-
-import static org.mockito.Matchers.any;
 
 public class ProductTeaserImplTest {
 
@@ -78,15 +72,11 @@ public class ProductTeaserImplTest {
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
-        String json = getResource("/graphql/magento-graphql-productteaser-result.json");
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productteaser-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
-        response.setData(rootQuery);
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
         Mockito.when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -131,7 +121,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        Money amount = product.getPrice().getRegularPrice().getAmount();
+        Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
@@ -159,14 +149,10 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        Money amount = variant.getPrice().getRegularPrice().getAmount();
+        Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
         Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
-    }
-
-    private String getResource(String filename) throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }

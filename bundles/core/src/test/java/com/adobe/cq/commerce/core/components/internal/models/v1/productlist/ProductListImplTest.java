@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -38,8 +36,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -53,7 +51,6 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -86,16 +83,12 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        String json = getResource("/graphql/magento-graphql-category-result.json");
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json");
         category = rootQuery.getCategory();
         storeConfig = rootQuery.getStoreConfig();
 
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
-        response.setData(rootQuery);
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-result.json");
         Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
@@ -131,8 +124,7 @@ public class ProductListImplTest {
     @Test
     public void getImage() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
-        String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/category/";
-        Assert.assertEquals(baseMediaPath + category.getImage(), productListModel.getImage());
+        Assert.assertEquals(category.getImage(), productListModel.getImage());
     }
 
     @Test
@@ -299,16 +291,12 @@ public class ProductListImplTest {
         requestPathInfo.setSelectorString(null);
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
-        String json = getResource(ProductListImpl.PLACEHOLDER_DATA);
+        String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         category = rootQuery.getCategory();
         storeConfig = rootQuery.getStoreConfig();
 
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
-    }
-
-    private String getResource(String filename) throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }

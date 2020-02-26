@@ -14,11 +14,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -29,12 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.dam.api.Asset;
@@ -43,7 +38,6 @@ import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,8 +46,8 @@ public class FeaturedCategoryListImplTest {
 
     private FeaturedCategoryListImpl slingModelConfigured;
     private FeaturedCategoryListImpl slingModelNotConfigured;
-    private Query rootQuery;
     private List<CategoryTree> categories = new ArrayList<>();
+
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String TEST_CATEGORY_PAGE_URL = "/content/pageA";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
@@ -73,16 +67,8 @@ public class FeaturedCategoryListImplTest {
 
     @Before
     public void setup() throws Exception {
-        // Mock GraphQL response
-        String json = IOUtils.toString(
-            this.getClass().getResourceAsStream("/graphql/magento-graphql-category-alias-result.json"),
-            StandardCharsets.UTF_8);
-        rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-        GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
-        GraphqlClient graphqlClient = mock(GraphqlClient.class);
-        when(graphqlClient.execute(any(), any(), any(), any()))
-            .thenReturn((GraphqlResponse) response);
-        when(response.getData()).thenReturn(rootQuery);
+
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
 
         // Mock resource and resolver
         Resource resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH));
@@ -146,7 +132,7 @@ public class FeaturedCategoryListImplTest {
     }
 
     @Test
-    public void verifyNotConfigired() {
+    public void verifyNotConfigured() {
         Assert.assertNotNull(slingModelNotConfigured);
         Assert.assertNull(slingModelNotConfigured.getCategoriesRetriever());
         Assert.assertFalse(slingModelNotConfigured.isConfigured());
