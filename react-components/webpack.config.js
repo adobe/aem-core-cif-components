@@ -84,7 +84,8 @@ module.exports = {
     resolve: {
         alias: {
             react: path.resolve(__dirname, './node_modules/react'),
-            'react-dom': path.resolve(__dirname, './node_modules/react-dom')
+            'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+            'react-i18next': path.resolve(__dirname, './node_modules/react-i18next')
         }
     },
     externals: {
@@ -99,6 +100,12 @@ module.exports = {
             commonjs2: 'react-dom',
             commonjs: 'react-dom',
             amd: 'react-dom'
+        },
+        'react-i18next': {
+            root: 'reactI18next',
+            commonjs2: 'react-i18next',
+            commonjs: 'react-i18next',
+            amd: 'react-i18next'
         }
     }
 };

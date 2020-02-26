@@ -16,12 +16,10 @@ import React from 'react';
 import { string } from 'prop-types';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
-import { I18nextProvider } from 'react-i18next';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
-import i18n from './i18n';
 
 const App = props => {
     const { uri, storeView = 'default' } = props;
@@ -32,17 +30,15 @@ const App = props => {
     });
 
     return (
-        <I18nextProvider i18n={i18n}>
-            <ApolloProvider client={client}>
-                <CartProvider>
-                    <UserContextProvider>
-                        <CartInitializer>
-                            <CheckoutProvider>{props.children}</CheckoutProvider>
-                        </CartInitializer>
-                    </UserContextProvider>
-                </CartProvider>
-            </ApolloProvider>
-        </I18nextProvider>
+        <ApolloProvider client={client}>
+            <CartProvider>
+                <UserContextProvider>
+                    <CartInitializer>
+                        <CheckoutProvider>{props.children}</CheckoutProvider>
+                    </CartInitializer>
+                </UserContextProvider>
+            </CartProvider>
+        </ApolloProvider>
     );
 };
 

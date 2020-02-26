@@ -49,6 +49,7 @@
     "eslint-plugin-react-hooks": "^1.6.1",
     "file-loader": "^4.1.0",
     "graphql": "^14.4.2",
+    "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
     "informed": "^2.11.8",
@@ -62,6 +63,7 @@
     "react-apollo": "^2.5.8",
     "react-dom": "^16.11.0",
     "react-feather": "^2.0.3",
+    "react-i18next": "^11.3.3",
     "react-router-dom": "^5.1.2",
     "react-test-renderer": "^16.11.0",
     "style-loader": "^0.23.1",
@@ -74,10 +76,5 @@
     "react-dom": "^16.11.0",
     "@magento/peregrine": "^3.0.0"
   },
-  "dependencies": {
-    "i18next": "^19.3.1",
-    "i18next-browser-languagedetector": "^4.0.2",
-    "i18next-xhr-backend": "^3.2.2",
-    "react-i18next": "^11.3.3"
-  }
+  "dependencies": {}
 }
