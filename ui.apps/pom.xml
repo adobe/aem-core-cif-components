@@ -238,6 +238,28 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-react-translations</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang/en-US</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/javascript/react-components/node_modules/@adobe/aem-core-cif-react-components/i18n/en</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
@@ -246,6 +268,9 @@
                         </fileset>
                         <fileset>
                             <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang</directory>
                         </fileset>
                     </filesets>
                 </configuration>
