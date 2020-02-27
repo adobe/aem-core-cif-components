@@ -14,13 +14,19 @@
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
 import { useCheckoutState } from './checkoutContext';
+import { useTranslation } from 'react-i18next';
 
 const ShippingMethodSummary = props => {
     const { classes } = props;
     const [{ shippingMethod }] = useCheckoutState();
+    const [t] = useTranslation('checkout');
 
     if (!shippingMethod) {
-        return <span className={classes.informationPrompt}>Specify Shipping Method</span>;
+        return (
+            <span className={classes.informationPrompt}>
+                {t('checkout:specify-shipping-method', 'Specify Shipping Method')}
+            </span>
+        );
     }
 
     return (

@@ -31,7 +31,11 @@ module.exports = {
             i18nKey: 'i18nKey',
             defaultsKey: 'defaults',
             extensions: ['.js', '.jsx'],
-            fallbackKey: false
+            fallbackKey: false,
+            acorn: {
+                ecmaVersion: 10,
+                sourceType: 'module'
+            }
         },
         lngs: ['en'],
         ns: ['cart', 'checkout', 'common'],
