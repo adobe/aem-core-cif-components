@@ -161,17 +161,14 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        Integer rootCategoryId;
-        ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
+        Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        if (rootCategoryId == null) {
+            ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
 
-        if (configBuilder != null) {
-            ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
-            rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
-            if (rootCategoryId == null) {
-                rootCategoryId = readFallBackConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+            if (configBuilder != null) {
+                ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
+                rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
             }
-        } else {
-            rootCategoryId = readFallBackConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
         }
 
         if (rootCategoryId == null) {
@@ -208,7 +205,7 @@ public class NavigationImpl implements Navigation {
         return null;
     }
 
-    private Integer readFallBackConfiguration(Page page, String propertyName) {
+    private Integer readPageConfiguration(Page page, String propertyName) {
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
         return properties.getInherited(propertyName, Integer.class);
     }

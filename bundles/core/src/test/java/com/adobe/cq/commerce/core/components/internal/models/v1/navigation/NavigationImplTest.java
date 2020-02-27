@@ -534,6 +534,7 @@ public class NavigationImplTest {
         when(catalogPageContent.isResourceType(RT_CATALOG_PAGE)).thenReturn(catalogRoot);
         Map<String, Object> catalogPageProperties = new HashMap<>();
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
+        catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
