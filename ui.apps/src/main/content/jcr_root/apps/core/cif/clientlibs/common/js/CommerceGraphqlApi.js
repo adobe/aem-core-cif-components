@@ -163,14 +163,11 @@ class CommerceGraphqlApi {
             products(filter: { sku: { in: [${skuQuery}] }} ) {
                 items {
                     sku
-                    ... on SimpleProduct {
-                        price_range {
-                            minimum_price {${priceQuery}}
-                        }
+                    price_range {
+                        minimum_price {${priceQuery}}
                     }
                     ... on ConfigurableProduct {
                         price_range {
-                            minimum_price {${priceQuery}}
                             maximum_price {${priceQuery}}
                         }
                         ${includeVariants ? variantQuery : ''}
