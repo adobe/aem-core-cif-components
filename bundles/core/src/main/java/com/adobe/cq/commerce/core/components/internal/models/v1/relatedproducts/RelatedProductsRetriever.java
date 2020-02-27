@@ -107,13 +107,11 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 .name()
                 .thumbnail(t -> t.label().url())
                 .urlKey()
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())
-                        .minimumPrice(generatePriceQuery())))
-                .onSimpleProduct(sp -> sp
-                    .priceRange(r -> r
-                        .minimumPrice(generatePriceQuery())));
+                        .maximumPrice(generatePriceQuery())));
 
             // By default, we don't fetch any variants data, except if this has been customised via the hook
             if (variantQueryHook != null) {

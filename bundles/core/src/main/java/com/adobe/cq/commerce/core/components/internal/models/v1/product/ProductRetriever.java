@@ -106,6 +106,8 @@ class ProductRetriever extends AbstractProductRetriever {
                 .thumbnail(t -> t.label().url())
                 .urlKey()
                 .stockStatus()
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery()))
                 .mediaGalleryEntries(g -> g
                     .disabled()
                     .file()
@@ -114,8 +116,7 @@ class ProductRetriever extends AbstractProductRetriever {
                     .mediaType())
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())
-                        .minimumPrice(generatePriceQuery()))
+                        .maximumPrice(generatePriceQuery()))
                     .configurableOptions(o -> o
                         .label()
                         .attributeCode()
@@ -126,10 +127,7 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributes(a -> a
                             .code()
                             .valueIndex())
-                        .product(generateSimpleProductQuery())))
-                .onSimpleProduct(sp -> sp
-                    .priceRange(r -> r
-                        .minimumPrice(generatePriceQuery())));
+                        .product(generateSimpleProductQuery())));
 
             // Apply product query hook
             if (productQueryHook != null) {
