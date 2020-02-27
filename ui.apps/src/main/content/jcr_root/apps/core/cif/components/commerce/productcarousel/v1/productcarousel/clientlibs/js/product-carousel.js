@@ -24,6 +24,11 @@
      */
     class ProductCarousel {
         constructor(rootElement) {
+            this._cardsContainer = rootElement.querySelector('.productcarousel__cardscontainer');
+            if (!this._cardsContainer) {
+                // the carousel is empty
+                return;
+            }
             // Re-calculate carousel state when the window size changes
             this._calculate = this._calculate.bind(this);
             window.addEventListener('resize', this._calculate);
@@ -34,7 +39,6 @@
             this._productcarousel_root = rootElement.querySelector('.productcarousel__root');
             this._currentRootWidth = 0;
             this._product_carousel_parent = rootElement.querySelector('.productcarousel__parent');
-            this._cardsContainer = rootElement.querySelector('.productcarousel__cardscontainer');
             this._cards = this._cardsContainer.querySelectorAll('.product__card');
             this._btnPrev = rootElement.querySelector(selectors.btnPrev);
             this._btnNext = rootElement.querySelector(selectors.btnNext);
