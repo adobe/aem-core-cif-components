@@ -23,7 +23,11 @@ const ShippingAddressSummary = props => {
     const [t] = useTranslation('checkout');
 
     if (!shippingAddress) {
-        return <span className={classes.informationPrompt}>{t('checkout:add-shipping-information', 'Add Shipping Information')}</span>;
+        return (
+            <span className={classes.informationPrompt}>
+                {t('checkout:add-shipping-information', 'Add Shipping Information')}
+            </span>
+        );
     }
 
     const name = `${shippingAddress.firstname} ${shippingAddress.lastname}`;
