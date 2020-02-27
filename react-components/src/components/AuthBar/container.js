@@ -13,6 +13,8 @@
  ******************************************************************************/
 import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
+import { useTranslation } from 'react-i18next';
+
 import AuthBar from './authBar';
 import AuthModal from '../AuthModal';
 import classes from './container.css';
@@ -38,14 +40,6 @@ const ancestors = {
     MENU: null
 };
 
-const stepTitles = {
-    CREATE_ACCOUNT: 'Create account',
-    FORGOT_PASSWORD: 'Password recovery',
-    CHANGE_PASSWORD: 'Change password',
-    MY_ACCOUNT: 'My account',
-    SIGN_IN: 'Sign in'
-};
-
 // DOM events that are used to talk to the navigation panel
 const events = {
     START_ACC_MANAGEMENT: 'aem.accmg.start',
@@ -63,6 +57,16 @@ const Container = () => {
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;
+
+    const [t] = useTranslation('account');
+
+    const stepTitles = {
+        CREATE_ACCOUNT: t('account:create-account', 'Create account'),
+        FORGOT_PASSWORD: t('account:password-recovery', 'Password recovery'),
+        CHANGE_PASSWORD: t('account:change-password', 'Change Password'),
+        MY_ACCOUNT: t('account:my-account', 'My account'),
+        SIGN_IN: t('account:sign-in', 'Sign In')
+    };
 
     const handleBack = useCallback(() => {
         if (view === null) {
