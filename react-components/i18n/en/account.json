@@ -20,5 +20,7 @@
   "signing-in": "Signing In",
   "sign-out": "Sign Out",
   "forgot-password": "Forgot Password?",
-  "create-an-account": "Create an Account"
+  "create-an-account": "Create an Account",
+  "create-account-lead": "Check out faster, use multiple addresses, track orders and more by creating an account!",
+  "password-was-changed": "Your password was changed."
 }

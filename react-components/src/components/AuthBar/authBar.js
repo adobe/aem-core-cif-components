@@ -35,7 +35,7 @@ const AuthBar = props => {
             {t('account:sign-in', 'Sign In')}
         </Button>
     );
-    return <div className={classes.root}>{content} </div>;
+    return <div className={classes.root}>{content}</div>;
 };
 
 AuthBar.propTypes = {

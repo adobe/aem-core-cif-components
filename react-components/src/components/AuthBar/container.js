@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +19,7 @@ import AuthBar from './authBar';
 import AuthModal from '../AuthModal';
 import classes from './container.css';
 import { useEventListener } from '../../utils/hooks';
+import LoadingIndicator from '../LoadingIndicator';
 
 /*
     Views:
@@ -148,4 +149,16 @@ const Container = () => {
     );
 };
 
-export default Container;
+const withSuspense = Container => {
+    let WithSuspense = props => {
+        return (
+            <Suspense fallback={<LoadingIndicator />}>
+                <Container {...props} />
+            </Suspense>
+        );
+    };
+    WithSuspense.displayName = `withSuspense(${Container.displayName || Container.name})`;
+    return WithSuspense;
+};
+
+export default withSuspense(Container);

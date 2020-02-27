@@ -60,7 +60,7 @@ const ChangePassword = props => {
     if (data) {
         return (
             <div className={classes.root}>
-                <p>Your password was changed.</p>
+                <p>{t('account:password-was-changed', 'Your password was changed.')}</p>
                 <div className={classes.actions}>
                     <Button priority="high" onClick={showMyAccount}>
                         {t('common:back', 'Back')}

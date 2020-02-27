@@ -32,8 +32,6 @@ import mergeClasses from '../../utils/mergeClasses';
 import defaultClasses from './createAccount.css';
 import useCreateAccount from './useCreateAccount';
 
-const LEAD = 'Check out faster, use multiple addresses, track orders and more by creating an account!';
-
 const CreateAccount = props => {
     const { showMyAccount } = props;
     const [{ createAccountError, isSignedIn, isCreatingCustomer }, { createAccount }] = useCreateAccount();
@@ -53,7 +51,12 @@ const CreateAccount = props => {
 
     return (
         <Form className={classes.root} onSubmit={handleCreateAccount}>
-            <p className={classes.lead}>{LEAD}</p>
+            <p className={classes.lead}>
+                {t(
+                    'account:create-account-lead',
+                    'Check out faster, use multiple addresses, track orders and more by creating an account!'
+                )}
+            </p>
             <Field label={t('account:firstname', 'First Name')} required={true}>
                 <TextInput
                     field="customer.firstname"
