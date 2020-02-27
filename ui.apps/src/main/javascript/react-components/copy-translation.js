@@ -18,6 +18,7 @@ const path = require('path');
 const languageFolder = './node_modules/@adobe/aem-core-cif-react-components/i18n/en';
 const clientlibFolder = '../../content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang/en-US';
 
+fs.mkdirSync(clientlibFolder, { recursive: true });
 fs.readdirSync(languageFolder).forEach(file => {
     const src = path.join(languageFolder, file);
     const target = path.join(clientlibFolder, file);
