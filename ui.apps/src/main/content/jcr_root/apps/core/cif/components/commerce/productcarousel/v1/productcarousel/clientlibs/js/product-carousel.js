@@ -29,6 +29,7 @@
                 // the carousel is empty
                 return;
             }
+            
             // Re-calculate carousel state when the window size changes
             this._calculate = this._calculate.bind(this);
             window.addEventListener('resize', this._calculate);
