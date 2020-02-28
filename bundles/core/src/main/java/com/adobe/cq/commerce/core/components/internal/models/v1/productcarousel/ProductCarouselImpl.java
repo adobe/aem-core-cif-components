@@ -82,17 +82,12 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
 
         List<String> productSkus = Arrays.asList(productSkuList);
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
 
         locale = productPage.getLanguage(false);
-
-        if (magentoGraphqlClient == null) {
-            LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
-        }
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus
@@ -102,8 +97,13 @@ public class ProductCarouselImpl implements ProductCarousel {
             .distinct()
             .collect(Collectors.toList());
 
-        productsRetriever = new ProductsRetriever(magentoGraphqlClient);
-        productsRetriever.setIdentifiers(baseProductSkus);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        if (magentoGraphqlClient == null) {
+            LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
+        } else {
+            productsRetriever = new ProductsRetriever(magentoGraphqlClient);
+            productsRetriever.setIdentifiers(baseProductSkus);
+        }
     }
 
     @Override
@@ -113,6 +113,10 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @Override
     public List<ProductListItem> getProducts() {
+        if (productsRetriever == null) {
+            return Collections.emptyList();
+        }
+
         List<ProductInterface> products = productsRetriever.fetchProducts();
         Collections.sort(products, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
 
@@ -133,17 +137,20 @@ public class ProductCarouselImpl implements ProductCarousel {
                     }
                 }
 
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-
-                carouselProductList.add(new ProductListItemImpl(
-                    skus.getLeft(),
-                    slug,
-                    product.getName(),
-                    price,
-                    product.getThumbnail().getUrl(),
-                    productPage,
-                    skus.getRight(),
-                    request));
+                try {
+                    Price price = new PriceImpl(product.getPriceRange(), locale);
+                    carouselProductList.add(new ProductListItemImpl(
+                        skus.getLeft(),
+                        slug,
+                        product.getName(),
+                        price,
+                        product.getThumbnail().getUrl(),
+                        productPage,
+                        skus.getRight(),
+                        request));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to instantiate product " + combinedSku, e);
+                }
             }
         }
         return carouselProductList;
