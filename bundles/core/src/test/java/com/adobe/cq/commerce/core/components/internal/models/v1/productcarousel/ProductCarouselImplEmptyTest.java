@@ -20,6 +20,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -50,21 +51,37 @@ public class ProductCarouselImplEmptyTest {
 
     private Resource carouselResource;
     private ProductCarouselImpl productCarousel;
+    private SlingBindings slingBindings;
 
-    @Test
-    public void getProductsEmpty() {
+    @Before
+    public void setUp() {
         carouselResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTCAROUSEL));
         // GraphQL client is not available
         Mockito.when(carouselResource.adaptTo(GraphqlClient.class)).thenReturn(null);
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(carouselResource);
         Page page = context.currentPage(PAGE);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+    }
 
+    @Test
+    public void getProductsEmptyNoConfig() {
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
 
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(0, items.size());
+        Assert.assertNull(productCarousel.getProductsRetriever());
+    }
+
+    @Test
+    public void getProductsEmpty() {
+        String[] productSkuArray = (String[]) carouselResource.getValueMap().get("product"); // The HTL script uses an alias here
+        slingBindings.put("productSkuList", productSkuArray);
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        List<ProductListItem> items = productCarousel.getProducts();
+        Assert.assertEquals(0, items.size());
+        Assert.assertNull(productCarousel.getProductsRetriever());
     }
 }
