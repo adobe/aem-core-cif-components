@@ -94,7 +94,7 @@ public class ProductCarouselImplTest {
     public void getProducts() {
 
         List<ProductListItem> items = productCarousel.getProducts();
-        Assert.assertEquals(4, items.size()); // one product is not found
+        Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
 
         List<String> productSkuList = Arrays.asList(productSkuArray);
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
@@ -104,7 +104,11 @@ public class ProductCarouselImplTest {
             Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
             ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
             if (product == null) {
-                continue; // Can happen that a product is not found
+                continue; // Can happen that a product is not found in the Magento JSON response
+            }
+
+            if (!items.stream().filter(i -> i.getSKU().equals(skus.getLeft())).findFirst().isPresent()) {
+                continue; // A "faulty" product does not appear in the parsed product instances
             }
 
             ProductInterface productOrVariant = toProductOrVariant(product, skus);
