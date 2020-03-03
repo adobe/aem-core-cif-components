@@ -27,13 +27,22 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import CartTrigger from '../CartTrigger';
 
 import { useCartState } from './cartContext';
+import { useUserContext } from '../../context/UserContext';
 
 const MiniCart = () => {
     const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
 
+    const [{ isSignedIn, token }] = useUserContext();
+
+    console.log(`[MiniCart] User is signed in? ${isSignedIn} ${token}`);
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
-        skip: !cartId
+        skip: !cartId,
+        context: {
+            headers: {
+                authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+            }
+        }
     });
 
     useEffect(() => {

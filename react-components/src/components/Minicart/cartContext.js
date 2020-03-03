@@ -15,13 +15,10 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { object, func } from 'prop-types';
 import { useCookieValue } from '../../utils/hooks';
-import { useUserContext } from '../../context/UserContext';
-import { useLazyQuery } from '@apollo/react-hooks';
-
-import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 export const initialState = {
     isOpen: false,
+    isRegistered: false,
     isEditing: false,
     isLoading: false,
     editItem: {},
@@ -90,6 +87,13 @@ export const reducerFactory = setCartCookie => {
                     isLoading: false,
                     couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
+            case 'register': {
+                console.log(`Registering in cart state...`);
+                return {
+                    ...state,
+                    isRegistered: true
+                };
+            }
             case 'error':
                 console.error(action.error);
                 return {
@@ -118,23 +122,6 @@ export const CartContext = createContext();
 export const CartProvider = props => {
     const factory = props.reducerFactory || reducerFactory;
     const state = props.initialState || initialState;
-
-    // if (isSignedIn) {
-    //     console.log(`The user is signed in, need to fetch the cart`);
-    //      //1. Retrieve the user shopping cart
-    //     const { data: cartData, error: cartError } = await apolloClient.query({ query: QUERY_CUSTOMER_CART, ...opts });
-    //     if (cartError) {
-    //         setUserCookie('', 0);
-    //         //TODO show an error in the UI
-    //         console.log(`Error retrieving cart details`, cartError);
-    //         return;
-    //     }
-    //     console.log(`Customer cart data`, cartData);
-    //     const customerCartId = cartData.customerCart.id;
-
-    // } else {
-    //     console.log(`Not signed in, going with the guest cart`);
-    // }
 
     const [, setCartCookie] = useCookieValue('cif.cart');
     const contextValue = useReducer(factory(setCartCookie), state);

@@ -14,7 +14,7 @@
 import { useEffect } from 'react';
 import { useCartState } from './cartContext';
 import { useCookieValue } from '../../utils/hooks';
-import { useMutation, useLazyQuery, useApolloClient } from '@apollo/react-hooks';
+import { useMutation, useApolloClient } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
 import parseError from '../../utils/parseError';
@@ -31,7 +31,7 @@ import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
 const CartInitializer = props => {
     const apolloClient = useApolloClient();
 
-    const [{ cartId: stateCartId }, dispatch] = useCartState();
+    const [{ cartId: stateCartId, isRegistered }, dispatch] = useCartState();
     const [{ isSignedIn, token: userToken }] = useUserContext();
     const CART_COOKIE = 'cif.cart';
 
@@ -43,18 +43,33 @@ const CartInitializer = props => {
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
     const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
 
-    const createCartHandlers = (cartId, dispatch) => {
+    const createCartHandlers = (cartId, dispatch, token) => {
         return {
             addItem: ev => {
                 if (!ev.detail) return;
-
+                console.log(`Adding item to the current cart, ${cartId}`);
                 const { sku, quantity } = ev.detail;
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
                 return addItem({
                     variables: { cartId, sku, quantity },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
+                    refetchQueries: [
+                        {
+                            query: CART_DETAILS_QUERY,
+                            variables: { cartId },
+                            context: {
+                                headers: {
+                                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                                }
+                            }
+                        }
+                    ],
+                    awaitRefetchQueries: true,
+                    context: {
+                        headers: {
+                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                        }
+                    }
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -67,8 +82,23 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return removeItem({
                     variables: { cartId, itemId },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
+                    refetchQueries: [
+                        {
+                            query: CART_DETAILS_QUERY,
+                            variables: { cartId },
+                            context: {
+                                headers: {
+                                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                                }
+                            }
+                        }
+                    ],
+                    awaitRefetchQueries: true,
+                    context: {
+                        headers: {
+                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                        }
+                    }
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -82,7 +112,12 @@ const CartInitializer = props => {
                 return addCoupon({
                     variables: { cartId, couponCode },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
+                    awaitRefetchQueries: true,
+                    context: {
+                        headers: {
+                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                        }
+                    }
                 })
                     .catch(error => {
                         dispatch({ type: 'couponError', error: parseError(error) });
@@ -96,7 +131,12 @@ const CartInitializer = props => {
                 return removeCoupon({
                     variables: { cartId },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
+                    awaitRefetchQueries: true,
+                    context: {
+                        headers: {
+                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                        }
+                    }
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -111,13 +151,16 @@ const CartInitializer = props => {
     useEffect(() => {
         // create the guest cart if the user is not signed in
         if (!isSignedIn && (!cartId || cartId.length === 0)) {
+            console.log(`Creating anonymous cart...`);
             createCart();
         }
     }, [cartId]);
 
-    useEffect(async () => {
-        if (isSignedIn) {
-            const { data, error } = await apolloClient.query(QUERY_CUSTOMER_CART, {
+    useEffect(() => {
+        async function fetchData() {
+            console.log(`The user is signed in, we need to merge the carts, token ${userToken}`);
+            const { data, error } = await apolloClient.query({
+                query: QUERY_CUSTOMER_CART,
                 context: {
                     headers: {
                         authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
@@ -125,37 +168,53 @@ const CartInitializer = props => {
                 }
             });
             if (error) {
-                dispatch({ type: error, error: error.toString() });
+                console.log(`Error fetching the cart`, error);
+                dispatch({ type: 'error', error: error.toString() });
             }
             if (data) {
                 const customerCartId = data.customerCart.id;
-
-                const { data: mergeCartsData, error: mergeCartsError } = await apolloClient.mutate(
-                    MUTATION_MERGE_CARTS,
-                    {
-                        context: {
-                            headers: {
-                                authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
-                            }
+                if (customerCartId === cartId) return;
+                const { data: mergeCartsData, error: mergeCartsError } = await apolloClient.mutate({
+                    mutation: MUTATION_MERGE_CARTS,
+                    variables: {
+                        sourceCartId: cartId,
+                        destinationCartId: customerCartId
+                    },
+                    context: {
+                        headers: {
+                            authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
                         }
                     }
-                );
+                });
 
                 if (mergeCartsData) {
+                    console.log(`Carts are merged, id is ${mergeCartsData.mergeCarts.id}`);
                     setCartCookie(mergeCartsData.mergeCarts.id);
+                    dispatch({ type: 'register' });
+                }
+
+                if (mergeCartsError) {
+                    dispatch({ type: 'error', error: mergeCartsError.toString() });
                 }
             }
         }
-    }, [isSignedIn]);
+
+        console.log(`Cart already merged? ${isRegistered}`);
+        if (isSignedIn && !isRegistered) {
+            fetchData();
+        }
+    }, [cartId, isSignedIn, isRegistered]);
 
     useEffect(() => {
+        console.log(`The cart id is now ${cartId} (merged ${isRegistered})`);
         if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
+            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch, userToken) });
         }
     }, [cartId, stateCartId]);
 
     useEffect(() => {
         if (createAnonCartData) {
+            console.log(`We have anonymous cart data, let's dispatch stuff`);
             setCartCookie(createAnonCartData.createEmptyCart);
             dispatch({
                 type: 'cartId',
