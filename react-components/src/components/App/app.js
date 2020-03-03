@@ -21,13 +21,22 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
+import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 
 const App = props => {
     const { uri, storeView = 'default' } = props;
 
     const client = new ApolloClient({
         uri,
-        headers: { Store: storeView }
+        headers: { Store: storeView },
+        request: operation => {
+            let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+            operation.setContext({
+                headers: {
+                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                }
+            });
+        }
     });
 
     return (

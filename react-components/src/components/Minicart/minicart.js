@@ -37,12 +37,7 @@ const MiniCart = () => {
     console.log(`[MiniCart] User is signed in? ${isSignedIn} ${token}`);
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
-        skip: !cartId,
-        context: {
-            headers: {
-                authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-            }
-        }
+        skip: !cartId
     });
 
     useEffect(() => {

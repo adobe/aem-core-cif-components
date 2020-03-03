@@ -53,23 +53,8 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return addItem({
                     variables: { cartId, sku, quantity },
-                    refetchQueries: [
-                        {
-                            query: CART_DETAILS_QUERY,
-                            variables: { cartId },
-                            context: {
-                                headers: {
-                                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                                }
-                            }
-                        }
-                    ],
-                    awaitRefetchQueries: true,
-                    context: {
-                        headers: {
-                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                        }
-                    }
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -82,23 +67,8 @@ const CartInitializer = props => {
                 dispatch({ type: 'beginLoading' });
                 return removeItem({
                     variables: { cartId, itemId },
-                    refetchQueries: [
-                        {
-                            query: CART_DETAILS_QUERY,
-                            variables: { cartId },
-                            context: {
-                                headers: {
-                                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                                }
-                            }
-                        }
-                    ],
-                    awaitRefetchQueries: true,
-                    context: {
-                        headers: {
-                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                        }
-                    }
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -112,12 +82,7 @@ const CartInitializer = props => {
                 return addCoupon({
                     variables: { cartId, couponCode },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true,
-                    context: {
-                        headers: {
-                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                        }
-                    }
+                    awaitRefetchQueries: true
                 })
                     .catch(error => {
                         dispatch({ type: 'couponError', error: parseError(error) });
@@ -131,12 +96,7 @@ const CartInitializer = props => {
                 return removeCoupon({
                     variables: { cartId },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true,
-                    context: {
-                        headers: {
-                            authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                        }
-                    }
+                    awaitRefetchQueries: true
                 })
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
@@ -160,12 +120,7 @@ const CartInitializer = props => {
         async function fetchData() {
             console.log(`The user is signed in, we need to merge the carts, token ${userToken}`);
             const { data, error } = await apolloClient.query({
-                query: QUERY_CUSTOMER_CART,
-                context: {
-                    headers: {
-                        authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
-                    }
-                }
+                query: QUERY_CUSTOMER_CART
             });
             if (error) {
                 console.log(`Error fetching the cart`, error);
