@@ -25,6 +25,7 @@ const UserContext = React.createContext();
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
+    const [cartId, setCartCookie] = useCookieValue('cif.cart');
     const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
@@ -127,6 +128,7 @@ const UserContextProvider = props => {
     useEffect(() => {
         if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
             setUserCookie('', 0);
+            setCartCookie('', 0);
             setUserState({
                 ...userState,
                 currentUser: {

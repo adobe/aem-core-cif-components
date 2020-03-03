@@ -43,7 +43,7 @@ const CartInitializer = props => {
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
     const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
 
-    const createCartHandlers = (cartId, dispatch, token) => {
+    const createCartHandlers = (cartId, dispatch) => {
         return {
             addItem: ev => {
                 if (!ev.detail) return;
@@ -111,12 +111,12 @@ const CartInitializer = props => {
     useEffect(() => {
         // create the guest cart if the user is not signed in
         if (!isSignedIn && (!cartId || cartId.length === 0)) {
-            console.log(`Creating anonymous cart...`);
             createCart();
         }
     }, [cartId]);
 
     useEffect(() => {
+        // merge the shopping carts if necessary
         async function fetchData() {
             console.log(`The user is signed in, we need to merge the carts, token ${userToken}`);
             const { data, error } = await apolloClient.query({
@@ -162,8 +162,8 @@ const CartInitializer = props => {
 
     useEffect(() => {
         console.log(`The cart id is now ${cartId} (merged ${isRegistered})`);
-        if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch, userToken) });
+        if (cartId && stateCartId !== cartId) {
+            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId, stateCartId]);
 
