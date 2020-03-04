@@ -127,8 +127,8 @@ const UserContextProvider = props => {
 
     useEffect(() => {
         if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
-            setUserCookie('', 0);
             setCartCookie('', 0);
+            setUserCookie('', 0);
             setUserState({
                 ...userState,
                 currentUser: {

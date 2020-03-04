@@ -122,7 +122,7 @@ describe('UserContext test', () => {
 
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
-            value: 'cif.userToken=token123'
+            value: 'cif.userToken=token123;'
         });
 
         const { getByRole, getByTestId, getByText } = render(

@@ -20,6 +20,7 @@ import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.gr
 
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
+import UserContextProvider from '../../../context/UserContext';
 
 const DummyCart = () => {
     const [{ cartId }] = useCartState();
@@ -42,18 +43,20 @@ describe('<CartInitializer />', () => {
 
         const { getByTestId } = render(
             <MockedProvider mocks={[]} addTypename={false}>
-                <CartProvider
-                    initialState={{ cartId: null }}
-                    reducerFactory={() => (state, action) => {
-                        if (action.type == 'cartId') {
-                            return { ...state, cartId: action.cartId };
-                        }
-                        return state;
-                    }}>
-                    <CartInitializer>
-                        <DummyCart />
-                    </CartInitializer>
-                </CartProvider>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cartId: null }}
+                        reducerFactory={() => (state, action) => {
+                            if (action.type == 'cartId') {
+                                return { ...state, cartId: action.cartId };
+                            }
+                            return state;
+                        }}>
+                        <CartInitializer>
+                            <DummyCart />
+                        </CartInitializer>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
@@ -81,18 +84,20 @@ describe('<CartInitializer />', () => {
                     }
                 ]}
                 addTypename={false}>
-                <CartProvider
-                    initialState={{ cartId: null }}
-                    reducerFactory={() => (state, action) => {
-                        if (action.type == 'cartId') {
-                            return { ...state, cartId: action.cartId };
-                        }
-                        return state;
-                    }}>
-                    <CartInitializer>
-                        <DummyCart />
-                    </CartInitializer>
-                </CartProvider>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cartId: null }}
+                        reducerFactory={() => (state, action) => {
+                            if (action.type == 'cartId') {
+                                return { ...state, cartId: action.cartId };
+                            }
+                            return state;
+                        }}>
+                        <CartInitializer>
+                            <DummyCart />
+                        </CartInitializer>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
