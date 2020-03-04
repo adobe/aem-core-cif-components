@@ -32,9 +32,6 @@ import { useUserContext } from '../../context/UserContext';
 const MiniCart = () => {
     const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
 
-    const [{ isSignedIn, token }] = useUserContext();
-
-    console.log(`[MiniCart] User is signed in? ${isSignedIn} ${token}`);
     const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
         variables: { cartId },
         skip: !cartId
