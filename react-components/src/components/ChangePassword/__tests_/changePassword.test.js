@@ -17,7 +17,7 @@ import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 
 import ChangePassword from '../changePassword';
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import UserContextProvider from '../../../context/UserContext';
 
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
 

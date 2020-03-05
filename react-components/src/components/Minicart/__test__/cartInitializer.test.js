@@ -14,22 +14,108 @@
 
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitForElement, fireEvent } from '@testing-library/react';
 
 import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.graphql';
+import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
+import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
+import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
+import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
 
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
-import UserContextProvider from '../../../context/UserContext';
+import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+
+const queryMocks = [
+    {
+        request: {
+            query: MUTATION_GENERATE_TOKEN
+        },
+        result: {
+            data: {
+                generateCustomerToken: {
+                    token: 'token123'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: QUERY_CUSTOMER_CART
+        },
+        result: {
+            data: {
+                customerCart: {
+                    id: 'customercart'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: MUTATION_MERGE_CARTS,
+            variables: {
+                sourceCartId: 'guest123',
+                destinationCartId: 'customercart'
+            }
+        },
+        result: {
+            data: {
+                mergeCarts: {
+                    id: 'customercart'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: QUERY_CUSTOMER_DETAILS
+        },
+        result: {
+            data: {
+                customer: {
+                    firstname: 'Iris',
+                    lastname: 'McCoy',
+                    email: 'imccoy@weretail.net'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: MUTATION_CREATE_CART
+        },
+        result: {
+            data: {
+                createEmptyCart: 'guest123'
+            }
+        }
+    }
+];
 
 const DummyCart = () => {
     const [{ cartId }] = useCartState();
+    const [{ isSignedIn }, { signIn }] = useUserContext();
     if (!cartId || cartId.length === 0) {
         return <div data-testid="cart-details">No cart</div>;
     }
+
+    // we add this element to detect if the cart id has been updated.
+    // This basically moves the assertion to the component
+    let successElement = cartId === 'customercart' ? <div data-testid="success"></div> : '';
+
     return (
         <div>
             <div data-testid="cart-details">{cartId}</div>
+            {successElement}
+            {isSignedIn && <div data-testid="signed-in"></div>}
+            <button
+                data-testid="sign-in"
+                onClick={() => {
+                    signIn('', '');
+                }}>
+                Sign in
+            </button>
         </div>
     );
 };
@@ -103,5 +189,32 @@ describe('<CartInitializer />', () => {
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
 
         expect(cartIdNode.children[0].textContent).toEqual('guest123');
+    });
+
+    it('merges the cart when the user signs in', async () => {
+        const { getByTestId, getByRole } = render(
+            <MockedProvider mocks={queryMocks} addTypename={false}>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cartId: null }}
+                        reducerFactory={() => (state, action) => {
+                            if (action.type === 'cartId') {
+                                return { ...state, cartId: action.cartId };
+                            }
+                            return state;
+                        }}>
+                        <CartInitializer>
+                            <DummyCart />
+                        </CartInitializer>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const button = await waitForElement(() => getByRole('button'));
+        fireEvent.click(button);
+        await waitForElement(() => getByTestId('success'));
+
+        expect(getByTestId('cart-details').textContent).toEqual('customercart');
     });
 });

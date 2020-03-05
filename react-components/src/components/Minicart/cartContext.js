@@ -88,7 +88,6 @@ export const reducerFactory = setCartCookie => {
                     couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
             case 'register': {
-                console.log(`Registering in cart state...`);
                 return {
                     ...state,
                     isRegistered: true

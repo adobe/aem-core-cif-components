@@ -32,7 +32,7 @@ const CartInitializer = props => {
     const apolloClient = useApolloClient();
 
     const [{ cartId: stateCartId, isRegistered }, dispatch] = useCartState();
-    const [{ isSignedIn, token: userToken }] = useUserContext();
+    const [{ isSignedIn }] = useUserContext();
     const CART_COOKIE = 'cif.cart';
 
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
@@ -47,7 +47,6 @@ const CartInitializer = props => {
         return {
             addItem: ev => {
                 if (!ev.detail) return;
-                console.log(`Adding item to the current cart, ${cartId}`);
                 const { sku, quantity } = ev.detail;
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
@@ -118,12 +117,11 @@ const CartInitializer = props => {
     useEffect(() => {
         // merge the shopping carts if necessary
         async function fetchData() {
-            console.log(`The user is signed in, we need to merge the carts, token ${userToken}`);
             const { data, error } = await apolloClient.query({
                 query: QUERY_CUSTOMER_CART
             });
             if (error) {
-                console.log(`Error fetching the cart`, error);
+                console.error(`Error fetching the customer cart`, error);
                 dispatch({ type: 'error', error: error.toString() });
             }
             if (data) {
@@ -132,19 +130,14 @@ const CartInitializer = props => {
                 const { data: mergeCartsData, error: mergeCartsError } = await apolloClient.mutate({
                     mutation: MUTATION_MERGE_CARTS,
                     variables: {
-                        sourceCartId: cartId,
+                        sourceCartId: stateCartId,
                         destinationCartId: customerCartId
-                    },
-                    context: {
-                        headers: {
-                            authorization: `Bearer ${userToken && userToken.length > 0 ? userToken : ''}`
-                        }
                     }
                 });
 
                 if (mergeCartsData) {
-                    console.log(`Carts are merged, id is ${mergeCartsData.mergeCarts.id}`);
                     setCartCookie(mergeCartsData.mergeCarts.id);
+                    dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
                     dispatch({ type: 'register' });
                 }
 
@@ -154,14 +147,12 @@ const CartInitializer = props => {
             }
         }
 
-        console.log(`Cart already merged? ${isRegistered}`);
         if (isSignedIn && !isRegistered) {
             fetchData();
         }
-    }, [cartId, isSignedIn, isRegistered]);
+    }, [isSignedIn]);
 
     useEffect(() => {
-        console.log(`The cart id is now ${cartId} (merged ${isRegistered})`);
         if (cartId && stateCartId !== cartId) {
             dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
         }
@@ -169,7 +160,6 @@ const CartInitializer = props => {
 
     useEffect(() => {
         if (createAnonCartData) {
-            console.log(`We have anonymous cart data, let's dispatch stuff`);
             setCartCookie(createAnonCartData.createEmptyCart);
             dispatch({
                 type: 'cartId',

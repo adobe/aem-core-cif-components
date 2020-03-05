@@ -25,7 +25,7 @@ const UserContext = React.createContext();
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
-    const [cartId, setCartCookie] = useCookieValue('cif.cart');
+    const [, setCartCookie] = useCookieValue('cif.cart');
     const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
@@ -47,6 +47,7 @@ const UserContextProvider = props => {
 
     const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN, {
         onError: error => {
+            console.error('Error retrieving customer token', error);
             let signInError = parseError(error);
             setUserState({ ...userState, signInError });
         }

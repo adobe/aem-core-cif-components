@@ -19,6 +19,7 @@ import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graph
 import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
+import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
 
@@ -65,6 +66,18 @@ describe('UserContext test', () => {
                 data: {
                     revokeCustomerToken: {
                         result: true
+                    }
+                }
+            }
+        },
+        {
+            request: {
+                query: MUTATION_CREATE_CART
+            },
+            result: {
+                data: {
+                    createEmptyCart: {
+                        id: 'guest123'
                     }
                 }
             }
