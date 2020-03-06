@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -96,6 +98,13 @@ public class ProductListImpl implements ProductList {
     private boolean showImage;
     private boolean loadClientPrice;
 
+    private Locale locale;
+    private int navPageCursor = 1;
+    private int navPageSize = PAGE_SIZE_DEFAULT;
+    private Integer navPagePrev;
+    private Integer navPageNext;
+    private List<Integer> navPages;
+
     @Inject
     private SearchResultsService searchResultsService;
 
@@ -105,8 +114,6 @@ public class ProductListImpl implements ProductList {
 
     private SearchResultsSet searchResultsSet;
 
-    private String mediaBaseUrl;
-    private int navPageSize = PAGE_SIZE_DEFAULT;
 
     @PostConstruct
     private void initModel() {
@@ -168,11 +175,6 @@ public class ProductListImpl implements ProductList {
     @Override
     public boolean showTitle() {
         return showTitle;
-    }
-
-    @Override
-    public int getTotalCount() {
-        return categoryRetriever.fetchCategory().getProducts().getTotalCount();
     }
 
     @Override
@@ -264,6 +266,8 @@ public class ProductListImpl implements ProductList {
     public SearchResultsSet getSearchResultsSet() {
         return searchResultsSet;
     }
+
+
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
         // make sure the current page from the query string is reasonable i.e. numeric and over 0

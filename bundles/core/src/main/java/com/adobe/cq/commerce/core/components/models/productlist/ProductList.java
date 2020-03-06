@@ -72,21 +72,11 @@ public interface ProductList {
     @Nullable
     String getTitle();
 
-    int getTotalCount();
-
-    int getCurrentNavPage();
-
-    int getNextNavPage();
-
     String getImage();
 
     boolean showImage();
 
     boolean loadClientPrice();
-
-    int getPreviousNavPage();
-
-    List<Integer> getPageList();
 
     SearchResultsSet getSearchResultsSet();
 
