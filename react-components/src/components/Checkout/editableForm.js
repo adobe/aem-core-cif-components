@@ -153,13 +153,14 @@ const EditableForm = props => {
         [dispatch, submitShippingMethod]
     );
 
-    if (data && guestEmailResult) {
+    if (data && (isSignedIn || guestEmailResult)) {
+        const guestEmail = guestEmailResult ? { email: guestEmailResult.setGuestEmailOnCart.cart.email } : {};
         const newShippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
         dispatch({
             type: 'setShippingAddress',
             shippingAddress: {
                 ...newShippingAddress,
-                email: guestEmailResult.setGuestEmailOnCart.cart.email,
+                ...guestEmail,
                 country: newShippingAddress.country.code,
                 region_code: newShippingAddress.region.code
             }
