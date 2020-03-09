@@ -119,6 +119,7 @@ public class FeaturedCategoryListImplTest {
         Assert.assertTrue(slingModelConfigured.isConfigured());
         categories = slingModelConfigured.getCategories();
         Assert.assertNotNull(categories);
+        categories.stream().forEach(c -> Assert.assertNotNull(c));
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
         Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", CATEGORY_PAGE, TEST_CATEGORY));
