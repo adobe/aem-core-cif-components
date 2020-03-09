@@ -15,8 +15,8 @@
      data-sly-use.paginationTemplate="paginationbar.html"
      data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults">
     <sly data-sly-call="${clientlib.all @ categories='core.cif.components.productlist.v1,core.cif.components.searchresults.v1'}"/>
-    <article class="category__root">
-        <section data-sly-test.results="${searchResults.products}" class="search__root">
+    <article class="category__root category__style_grid">
+        <section data-sly-test.results="${searchResults.products}" class="search__root" >
             <div data-sly-use.layeredNavigationTemplate="layerednavigation.html" data-sly-unwrap>
                 <div class="search__filters"
                      data-sly-call="${layeredNavigationTemplate.searchResults @ searchResults = searchResults}"></div>

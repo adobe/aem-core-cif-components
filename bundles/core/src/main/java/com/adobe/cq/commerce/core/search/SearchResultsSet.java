@@ -20,10 +20,9 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 
 /**
  * Represents a set of search results from a backend service. This would generally contain the actual {@link ProductListItem}s

@@ -114,7 +114,6 @@ public class ProductListImpl implements ProductList {
 
     private SearchResultsSet searchResultsSet;
 
-
     @PostConstruct
     private void initModel() {
         // read properties
@@ -266,8 +265,6 @@ public class ProductListImpl implements ProductList {
     public SearchResultsSet getSearchResultsSet() {
         return searchResultsSet;
     }
-
-
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
         // make sure the current page from the query string is reasonable i.e. numeric and over 0

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -255,31 +254,31 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     @Nonnull
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q.id()
-                .urlKey()
-                .name()
-                .smallImage(i -> i
-                        .label()
-                        .url())
-                .onConfigurableProduct(cp -> cp
-                        .priceRange(r -> r
-                                .maximumPrice(generatePriceQuery())
-                                .minimumPrice(generatePriceQuery())))
-                .onSimpleProduct(sp -> sp
-                        .priceRange(r -> r
-                                .minimumPrice(generatePriceQuery())));
+            .urlKey()
+            .name()
+            .smallImage(i -> i
+                .label()
+                .url())
+            .onConfigurableProduct(cp -> cp
+                .priceRange(r -> r
+                    .maximumPrice(generatePriceQuery())
+                    .minimumPrice(generatePriceQuery())))
+            .onSimpleProduct(sp -> sp
+                .priceRange(r -> r
+                    .minimumPrice(generatePriceQuery())));
     }
 
     private ProductPriceQueryDefinition generatePriceQuery() {
         return q -> q
-                .regularPrice(r -> r
-                        .value()
-                        .currency())
-                .finalPrice(f -> f
-                        .value()
-                        .currency())
-                .discount(d -> d
-                        .amountOff()
-                        .percentOff());
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 
     /**
@@ -339,14 +338,14 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         Price price = new PriceImpl(product.getPriceRange(), locale);
 
         ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-                product.getUrlKey(),
-                product.getName(),
-                price,
-                product.getSmallImage()
-                        .getUrl(),
-                productPage,
-                null,
-                null); //todo: should pass in request object
+            product.getUrlKey(),
+            product.getName(),
+            price,
+            product.getSmallImage()
+                .getUrl(),
+            productPage,
+            null,
+            null); // todo: should pass in request object
 
         return productListItem;
     }

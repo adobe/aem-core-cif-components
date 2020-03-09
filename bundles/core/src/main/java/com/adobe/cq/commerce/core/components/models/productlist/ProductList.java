@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.SearchResultsService;
 import com.adobe.cq.commerce.core.search.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.internal.SearchResultsServiceImpl;
@@ -54,7 +53,6 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -93,23 +91,23 @@ public class ProductListImplTest {
     public void setUp() throws Exception {
         Page page = context.currentPage(PAGE);
         context.currentResource(PRODUCTLIST);
-
         SearchResultsService searchResultsService = Mockito.mock(SearchResultsServiceImpl.class);
         SearchResultsSet searchResultSet = Mockito.mock(SearchResultsSetImpl.class);
 
         Mockito.when(searchResultSet.getProductListItems()).thenReturn(new ArrayList<>());
         Mockito.when(searchResultsService.performSearch(any(), any(), any())).thenReturn(searchResultSet);
         context.registerService(searchResultsService);
+
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        String json = getResource("/graphql/magento-graphql-category-result.json");
-        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json");
         category = rootQuery.getCategory();
         storeConfig = rootQuery.getStoreConfig();
 
         GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
         response.setData(rootQuery);
         GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+
         Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         Mockito.when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
@@ -134,10 +132,6 @@ public class ProductListImplTest {
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
 
-        // Product Result Set
-        SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
-        searchResultsSet.setProductListItems(new LinkedList<>());
-
         // context.request().adaptTo(ProductListImpl.class); is moved to each test because it uses an internal cache
         // and we want to override the "slug" in testEditModePlaceholderData()
     }
@@ -151,8 +145,7 @@ public class ProductListImplTest {
     @Test
     public void getImage() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
-        String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/category/";
-        Assert.assertEquals(baseMediaPath + category.getImage(), productListModel.getImage());
+        Assert.assertEquals(category.getImage(), productListModel.getImage());
     }
 
     @Test
@@ -257,18 +250,21 @@ public class ProductListImplTest {
         Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
         Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
     }
-
-    @Test
-    public void testEditModePlaceholderData() throws IOException {
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-
-        final AbstractCategoryRetriever categoryRetriever = productListModel.getCategoryRetriever();
-
-        Assert.assertEquals(categoryRetriever.getClass(), CategoryPlaceholderRetriever.class);
-
-    }
+    //
+    // @Test
+    // public void testEditModePlaceholderData() throws IOException {
+    // MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+    // requestPathInfo.setSelectorString(null);
+    // productListModel = context.request().adaptTo(ProductListImpl.class);
+    //
+    // String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
+    // Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+    // category = rootQuery.getCategory();
+    // storeConfig = rootQuery.getStoreConfig();
+    //
+    // Assert.assertEquals(category.getName(), productListModel.getTitle());
+    // Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
+    // }
 
     private String getResource(String filename) throws IOException {
         return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
