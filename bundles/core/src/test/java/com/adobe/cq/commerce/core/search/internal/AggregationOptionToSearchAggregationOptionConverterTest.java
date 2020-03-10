@@ -59,7 +59,13 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
 
     @Test
     public void testShouldSetCount() {
-        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, existingFilters);
+
+        FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
+        filterAttributeMetadata.setAttributeInputType(FilterAttributeMetadataImpl.INPUT_TYPE_SELECT);
+        filterAttributeMetadata.setAttributeCode(BLACK_ATTRIBUTE);
+
+        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, filterAttributeMetadata,
+            existingFilters);
         final SearchAggregationOption resultOption = converterUnderTest.apply(aggregationOption);
 
         assertThat(resultOption.getCount()).isEqualTo(BLACK_COUNT);
@@ -67,7 +73,13 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
 
     @Test
     public void testShouldSetDisplayLabel() {
-        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, existingFilters);
+
+        FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
+        filterAttributeMetadata.setAttributeInputType(FilterAttributeMetadataImpl.INPUT_TYPE_SELECT);
+        filterAttributeMetadata.setAttributeCode(BLACK_ATTRIBUTE);
+
+        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, filterAttributeMetadata,
+            existingFilters);
         final SearchAggregationOption resultOption = converterUnderTest.apply(aggregationOption);
 
         assertThat(resultOption.getDisplayLabel()).isEqualTo(BLACK_LABEL);
@@ -75,8 +87,13 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
 
     @Test
     public void testShouldSetDisplayLabelForBooleanValues() {
-        final String booleanOptionCode = "something_bucket";
-        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(booleanOptionCode, existingFilters);
+
+        FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
+        filterAttributeMetadata.setAttributeInputType(FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN);
+        filterAttributeMetadata.setAttributeCode("blah");
+
+        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, filterAttributeMetadata,
+            existingFilters);
         when(aggregationOption.getLabel()).thenReturn("0");
         final SearchAggregationOption resultOption = converterUnderTest.apply(aggregationOption);
         assertThat(resultOption.getDisplayLabel()).isEqualTo("No");
@@ -84,7 +101,12 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
 
     @Test
     public void testShouldSetFilterValue() {
-        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, existingFilters);
+        FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
+        filterAttributeMetadata.setAttributeInputType(FilterAttributeMetadataImpl.INPUT_TYPE_SELECT);
+        filterAttributeMetadata.setAttributeCode(BLACK_ATTRIBUTE);
+
+        converterUnderTest = new AggregationOptionToSearchAggregationOptionConverter(BLACK_ATTRIBUTE, filterAttributeMetadata,
+            existingFilters);
         final SearchAggregationOption resultOption = converterUnderTest.apply(aggregationOption);
 
         assertThat(resultOption.getFilterValue()).isEqualTo(BLACK_VALUE);

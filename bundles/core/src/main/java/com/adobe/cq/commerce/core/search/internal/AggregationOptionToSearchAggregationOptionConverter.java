@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 
@@ -29,27 +30,18 @@ import com.adobe.cq.commerce.magento.graphql.AggregationOption;
  */
 public class AggregationOptionToSearchAggregationOptionConverter implements Function<AggregationOption, SearchAggregationOption> {
 
+    private final FilterAttributeMetadata filterAttributeMetadata;
+
     private final String attributeCode;
 
     private final Map<String, String> filters;
 
-    private boolean isBooleanAttribute;
-
-    public AggregationOptionToSearchAggregationOptionConverter(final String attributeCode, final Map<String, String> filters) {
-
-        // This is a "special case" for the time, which is that some attributes end in "_bucket" even though
-        // _bucket is not actually part of the attribute code in Magento. We'll fix that for the time being with a
-        // replacement, and we'll note that this is a boolean attribute so we can return more "friendly" yes/no
-        // option labels
-        if (attributeCode.endsWith("_bucket")) {
-            this.attributeCode = attributeCode.replace("_bucket", "");
-            this.isBooleanAttribute = true;
-        } else {
-            this.attributeCode = attributeCode;
-            this.isBooleanAttribute = false;
-        }
-
+    public AggregationOptionToSearchAggregationOptionConverter(final String attributeCode,
+                                                               final FilterAttributeMetadata filterAttributeMetadata,
+                                                               final Map<String, String> filters) {
+        this.attributeCode = attributeCode;
         this.filters = filters;
+        this.filterAttributeMetadata = filterAttributeMetadata;
     }
 
     @Override
@@ -57,7 +49,8 @@ public class AggregationOptionToSearchAggregationOptionConverter implements Func
         SearchAggregationOptionImpl searchAggregationOption = new SearchAggregationOptionImpl();
 
         // Special case handling for boolean values to return a friendlier "yes/no" response
-        if (isBooleanAttribute) {
+        if (filterAttributeMetadata != null && FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN.equals(filterAttributeMetadata
+            .getAttributeInputType())) {
             searchAggregationOption.setDisplayLabel(("0".equalsIgnoreCase(aggregationOption.getLabel()) ? "No" : "Yes"));
         } else {
             searchAggregationOption.setDisplayLabel(aggregationOption.getLabel());

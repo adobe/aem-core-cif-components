@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.search.internal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.WordUtils;
-
+import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.SearchAggregation;
 import com.adobe.cq.commerce.core.search.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
@@ -32,13 +32,14 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
 
     private final Map<String, String> appliedFilters;
 
-    private final Map<String, String> availableFilters;
+    private final List<FilterAttributeMetadata> availableFilters;
 
     private static final String PRICE_IDENTIFIER = "price";
 
-    public AggregationToSearchAggregationConverter(final Map<String, String> appliedFilters, final Map<String, String> availableFilters) {
+    public AggregationToSearchAggregationConverter(final Map<String, String> appliedFilters,
+                                                   final List<FilterAttributeMetadata> availableFilters) {
         this.appliedFilters = appliedFilters == null ? new HashMap<>() : appliedFilters;
-        this.availableFilters = availableFilters == null ? new HashMap<>() : availableFilters;
+        this.availableFilters = availableFilters == null ? new ArrayList<>() : availableFilters;
     }
 
     @Override
@@ -50,42 +51,37 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
         }
         // filterable will be true or false depending on whether or not the attribute appears in the list of available filters
         // provided by the introspection query
-        final String identifier = aggregation.getAttributeCode().replace("_bucket", "");
-        final boolean filterable = availableFilters.entrySet().stream()
-            .anyMatch(filterCandidate -> filterCandidate.getKey().equals(identifier));
+        final String identifier = aggregation.getAttributeCode();
+
+        final Optional<FilterAttributeMetadata> attributeMetadata = availableFilters.stream()
+            .filter(filterCandidate -> filterCandidate.getAttributeCode().equals(identifier)).findFirst();
+        final boolean filterable = attributeMetadata.isPresent();
 
         SearchAggregationImpl searchAggregation = new SearchAggregationImpl();
         searchAggregation.setFilterable(filterable);
         searchAggregation.setCount(aggregation == null ? 0 : aggregation.getCount());
         searchAggregation.setOptions(getOptions(aggregation, appliedFilters));
-        searchAggregation.setDisplayLabel(getFriendlyDisplayLabel(aggregation));
+        searchAggregation.setDisplayLabel(aggregation.getLabel());
         searchAggregation.setIdentifier(identifier);
         searchAggregation.setRemoveFilters(getRemoveFilters(aggregation, appliedFilters));
 
         setFilterValue.ifPresent(appliedValue -> {
             searchAggregation.setAppliedFilterValue(appliedValue);
-            searchAggregation.setAppliedFilterDisplayLabel(getAppliedFilterDisplayLabel(aggregation, appliedValue, identifier));
+            searchAggregation.setAppliedFilterDisplayLabel(getAppliedFilterDisplayLabel(aggregation, appliedValue, identifier,
+                attributeMetadata.get()));
         });
 
         return searchAggregation;
     }
 
-    private String getFriendlyDisplayLabel(final Aggregation aggregation) {
-        // this is an unfortunate special case, boolean values in Magento do not come across with
-        // the proper display label, so for the time being we're going to do a simple string manipulation
-        // until this is resolved with the Magento GraphQL API.
-        if (aggregation.getLabel().endsWith("_bucket")) {
-            return WordUtils.capitalize(aggregation.getLabel().replace("_bucket", "").replace("_", " "));
-        }
-
-        return aggregation.getLabel();
-    }
-
     private List<SearchAggregationOption> getOptions(final Aggregation aggregation,
         final Map<String, String> appliedFilters) {
 
-        AggregationOptionToSearchAggregationOptionConverter converter = new AggregationOptionToSearchAggregationOptionConverter(aggregation
-            .getAttributeCode(), appliedFilters);
+        final FilterAttributeMetadata filterAttributeMetadata = availableFilters.stream()
+            .filter(item -> item.getAttributeCode().equals(aggregation.getAttributeCode())).findFirst().orElse(null);
+
+        AggregationOptionToSearchAggregationOptionConverter converter = new AggregationOptionToSearchAggregationOptionConverter(
+            aggregation.getAttributeCode(), filterAttributeMetadata, appliedFilters);
 
         return aggregation.getOptions()
             .stream()
@@ -93,7 +89,8 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
             .collect(Collectors.toList());
     }
 
-    private String getAppliedFilterDisplayLabel(Aggregation aggregation, String setFilterValue, String identifier) {
+    private String getAppliedFilterDisplayLabel(Aggregation aggregation, String setFilterValue, String identifier,
+        FilterAttributeMetadata attributeMetadata) {
         if (setFilterValue == null) {
             return null;
         }
@@ -104,7 +101,8 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
 
         if (candidate != null) {
             // Special case to handle boolean / "bucket" values in Magento's GraphQL API
-            if (aggregation.getAttributeCode().endsWith("_bucket")) {
+            if (attributeMetadata != null && attributeMetadata.getAttributeInputType().equals(
+                FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN)) {
                 return "0".equalsIgnoreCase(setFilterValue) ? "No" : "Yes";
             }
             return candidate;

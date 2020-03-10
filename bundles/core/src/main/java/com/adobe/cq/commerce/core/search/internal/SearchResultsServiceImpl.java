@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.SearchAggregation;
 import com.adobe.cq.commerce.core.search.SearchFilterService;
 import com.adobe.cq.commerce.core.search.SearchOptions;
@@ -79,7 +80,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
-        Map<String, String> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
+        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
 
         String queryString = generateQueryString(searchOptions, availableFilters);
 
@@ -113,28 +114,29 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     @Nonnull
     private String generateQueryString(
         final SearchOptions searchOptions,
-        final Map<String, String> availableFilters) {
+        final List<FilterAttributeMetadata> availableFilters) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
             .stream()
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().replace("_bucket", "")))
-            .entrySet().stream()
-            .filter(field -> availableFilters.containsKey(field.getKey()))
+            .filter(field -> availableFilters.stream()
+                .filter(item -> item.getAttributeCode().equals(field.getKey())).findFirst().isPresent())
             .forEach(filterCandidate -> {
                 String code = filterCandidate.getKey();
                 String value = filterCandidate.getValue();
-                String filterType = availableFilters.get(code);
+                // this should be safe as we've filtered out search options already for those only with filter attributes
+                final FilterAttributeMetadata filterAttributeMetadata = availableFilters.stream()
+                    .filter(item -> item.getAttributeCode().equals(code)).findFirst().get();
 
-                if ("FilterEqualTypeInput".equals(filterType)) {
+                if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
                     FilterEqualTypeInput filter = new FilterEqualTypeInput();
                     filter.setEq(value);
                     filterInputs.addEqualTypeInput(code, filter);
-                } else if ("FilterMatchTypeInput".equals(filterType)) {
+                } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
                     FilterMatchTypeInput filter = new FilterMatchTypeInput();
                     filter.setMatch(value);
                     filterInputs.addMatchTypeInput(code, filter);
-                } else if ("FilterRangeTypeInput".equals(filterType)) {
+                } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
                     filter.setFrom(rangeValues[0]);
@@ -265,7 +267,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private List<SearchAggregation> extractSearchAggregationsFromResponse(
         final List<Aggregation> aggregations,
         final Map<String, String> appliedFilters,
-        final Map<String, String> availableFilters) {
+        final List<FilterAttributeMetadata> availableFilters) {
 
         AggregationToSearchAggregationConverter converter = new AggregationToSearchAggregationConverter(appliedFilters, availableFilters);
 

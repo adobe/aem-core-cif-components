@@ -14,20 +14,34 @@
 
 package com.adobe.cq.commerce.core.search;
 
-import java.util.List;
-
-import org.apache.sling.api.resource.Resource;
-
-/**
- * This class is responsible for retrieving search filter and attribute metadata from the commerce backend.
- */
-public interface SearchFilterService {
+public interface FilterAttributeMetadata {
 
     /**
-     * Service to retrieve available search filters from the backing commerce system.
+     * Get the type of the filter.
      *
-     * @return a {@link List<FilterAttributeMetadata>} of available search filters
+     * @return string representing the type of filter
      */
-    List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(Resource resource);
+    String getFilterInputType();
+
+    /**
+     * Get the attribute code for this filterable attribute.
+     *
+     * @return the attribute code or name of the attribute
+     */
+    String getAttributeCode();
+
+    /**
+     * The input type for the attribute input in the commerce system admin / adminhtml.
+     *
+     * @return the input type of the input in the commerce system admin.
+     */
+    String getAttributeInputType();
+
+    /**
+     * The type of the attribute in the commerce system.
+     *
+     * @return the attribute type
+     */
+    String getAttributeType();
 
 }
