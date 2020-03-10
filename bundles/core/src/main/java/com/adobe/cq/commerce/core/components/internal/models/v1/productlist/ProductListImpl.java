@@ -214,17 +214,20 @@ public class ProductListImpl implements ProductList {
             final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
             if (products != null) {
                 for (ProductInterface product : products.getItems()) {
-                    Price price = new PriceImpl(product.getPriceRange(), locale);
-
-                    listItems.add(new ProductListItemImpl(
-                        product.getSku(),
-                        product.getUrlKey(),
-                        product.getName(),
-                        price,
-                        product.getSmallImage().getUrl(),
-                        productPage,
-                        null,
-                        request));
+                    try {
+                        Price price = new PriceImpl(product.getPriceRange(), locale);
+                        listItems.add(new ProductListItemImpl(
+                            product.getSku(),
+                            product.getUrlKey(),
+                            product.getName(),
+                            price,
+                            product.getSmallImage().getUrl(),
+                            productPage,
+                            null,
+                            request));
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to instantiate product " + product.getSku(), e);
+                    }
                 }
             }
         }

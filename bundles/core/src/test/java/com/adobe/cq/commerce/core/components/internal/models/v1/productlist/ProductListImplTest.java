@@ -144,7 +144,9 @@ public class ProductListImplTest {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> products = productListModel.getProducts();
         Assert.assertNotNull(products);
-        Assert.assertEquals(true, category.getProducts().getItems().size() <= products.size());
+
+        // We introduce one "faulty" product data in the response, it should be skipped
+        Assert.assertEquals(5, products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
