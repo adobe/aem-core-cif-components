@@ -46,6 +46,7 @@
         <module>ui.apps</module>
         <module>bundles/core</module>
         <module>all</module>
+        <module>examples/bundle</module>
     </modules>
 
     <!-- ====================================================================== -->
