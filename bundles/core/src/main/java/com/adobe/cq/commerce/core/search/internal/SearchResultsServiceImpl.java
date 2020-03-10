@@ -14,8 +14,6 @@
 
 package com.adobe.cq.commerce.core.search.internal;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,6 +24,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductLi
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.search.SearchAggregation;
+import com.adobe.cq.commerce.core.search.SearchFilterService;
 import com.adobe.cq.commerce.core.search.SearchOptions;
 import com.adobe.cq.commerce.core.search.SearchResultsService;
 import com.adobe.cq.commerce.core.search.SearchResultsSet;
@@ -51,22 +51,16 @@ import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.introspection.FilterIntrospectionQuery;
 import com.adobe.cq.commerce.magento.graphql.introspection.GenericProductAttributeFilterInput;
-import com.adobe.cq.commerce.magento.graphql.introspection.IntrospectionQuery;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = SearchResultsService.class, immediate = true)
+@Component(service = SearchResultsService.class)
 public class SearchResultsServiceImpl implements SearchResultsService {
 
+    @Reference
+    SearchFilterService searchFilterService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsServiceImpl.class);
-
-    // The "cache" life of the custom attributes for filter queries
-    private static final long ATTRIBUTE_CACHE_LIFE_MS = 600000;
-    private Map<String, String> availableFilters = null;
-    private Long lastFetched = null;
-
-    Locale locale;
 
     @Nonnull
     @Override
@@ -77,12 +71,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
-        locale = productPage.getLanguage(false);
+        Locale locale = productPage.getLanguage(false);
 
-        if (shouldRefreshData()) {
-            MagentoGraphqlClient magentoIntrospectionGraphqlClient = MagentoGraphqlClient.create(resource, true);
-            availableFilters = fetchAvailableSearchFilters(magentoIntrospectionGraphqlClient);
-        }
+        Map<String, String> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
@@ -97,8 +88,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         if (!checkAndLogErrors(response.getErrors())) {
-            final List<ProductListItem> productListItems = extractProductsFromResponse(response.getData().getProducts().getItems(),
-                productPage);
+            final List<ProductListItem> productListItems = extractProductsFromResponse(
+                response.getData().getProducts().getItems(),
+                productPage,
+                locale);
             final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
                 .getAggregations(),
                 searchOptions.getAllFilters(), availableFilters);
@@ -112,52 +105,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Fetches a list of available search filters from the commerce backend.
-     *
-     * @param magentoGraphqlClient client for making Magento GraphQL requests
-     * @return key value pair of the attribute code or identifier and filter type for that attribute
-     */
-    protected Map<String, String> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
-
-        if (magentoGraphqlClient == null) {
-            LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
-            return new HashMap<>();
-        }
-
-        final GraphqlResponse<IntrospectionQuery, Error> response = magentoGraphqlClient.executeIntrospection(
-            FilterIntrospectionQuery.QUERY);
-
-        if (!checkAndLogErrors(response.getErrors())) {
-
-            Map<String, String> inputFieldCandidates = new HashMap<>();
-            response.getData().getType().getInputFields().stream().forEach(inputField -> {
-                inputFieldCandidates.put(inputField.getName(), inputField.getType().getName());
-            });
-            return inputFieldCandidates;
-        }
-
-        return availableFilters;
-    }
-
-    /**
-     * Determines whether or not a refresh of data is required.
-     * TODO: should be refactored to separate decision making class or subsystem
-     *
-     * @return true if data should be refreshed.
-     */
-    private boolean shouldRefreshData() {
-
-        Long now = Instant.now().toEpochMilli();
-        if (availableFilters == null || lastFetched == null || (now - lastFetched) > ATTRIBUTE_CACHE_LIFE_MS) {
-            lastFetched = now;
-            return true;
-        }
-
-        return false;
-
-    }
-
-    /**
      * Generates a query string for the specified search term. This query string condition is 'like'.
      *
      * @param searchOptions options for searching
@@ -165,7 +112,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * @return the query string
      */
     @Nonnull
-    protected String generateQueryString(
+    private String generateQueryString(
         final SearchOptions searchOptions,
         final Map<String, String> availableFilters) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
@@ -235,7 +182,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * @param errors the {@link List<Error>} if any
      * @return {@link true} if any errors were found, {@link false} otherwise
      */
-    protected boolean checkAndLogErrors(List<Error> errors) {
+    private boolean checkAndLogErrors(List<Error> errors) {
         if (errors != null && errors.size() > 0) {
             errors.stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
@@ -252,7 +199,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * @return a {@link ProductInterfaceQueryDefinition} object
      */
     @Nonnull
-    protected ProductInterfaceQueryDefinition generateProductQuery() {
+    private ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> q.id()
             .urlKey()
             .name()
@@ -268,6 +215,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     .minimumPrice(generatePriceQuery())));
     }
 
+    /**
+     * todo: this is used in a number of classes, should likely be moved to a shared class
+     * 
+     * @return
+     */
     private ProductPriceQueryDefinition generatePriceQuery() {
         return q -> q
             .regularPrice(r -> r
@@ -283,34 +235,36 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     /**
      * Extracts a list of products from the graphql response. This method uses
-     * {@link SearchResultsServiceImpl#generateItemFromProductInterface(ProductInterface, Page)} to tranform the objects from the Graphql
-     * response to {@link ProductListItem} objects
+     * {@link SearchResultsServiceImpl#generateItemFromProductInterface(ProductInterface, Page, Locale)} to tranform the objects from the
+     * Graphql response to {@link ProductListItem} objects
      *
      * @param products a {@link List<ProductInterface>} object
      * @return a list of {@link ProductListItem} objects
      */
     @Nonnull
-    protected List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage) {
+    private List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage, Locale locale) {
 
-        LOGGER.debug("Found {} products for search term {}", products.size());
+        LOGGER.debug("Found {} products for search term", products.size());
 
         return products.stream()
-            .map(product -> generateItemFromProductInterface(product, productPage))
+            .map(product -> generateItemFromProductInterface(product, productPage, locale))
             .collect(Collectors.toList());
     }
 
     /**
      * Extracts {@link List<SearchAggregation>} from the response object returned from the GraphQL query. This method enriches the response
-     * data
-     * from the search query with the information about which filters are actually available as well as which filters are actually applied.
+     * data from the search query with the information about which filters are actually available as well as which filters are actually
+     * applied.
      *
      * @param aggregations the response aggregation data
      * @param appliedFilters the currently applied filters
      * @param availableFilters the filters that are available
      * @return enriched {@link SearchAggregation} objects
      */
-    protected List<SearchAggregation> extractSearchAggregationsFromResponse(final List<Aggregation> aggregations,
-        final Map<String, String> appliedFilters, final Map<String, String> availableFilters) {
+    private List<SearchAggregation> extractSearchAggregationsFromResponse(
+        final List<Aggregation> aggregations,
+        final Map<String, String> appliedFilters,
+        final Map<String, String> availableFilters) {
         return aggregations.stream()
             .map(aggregation -> {
                 String filter = null;
@@ -333,7 +287,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * @return a new {@link ProductListItem} object
      */
     @Nonnull
-    protected ProductListItem generateItemFromProductInterface(ProductInterface product, Page productPage) {
+    private ProductListItem generateItemFromProductInterface(ProductInterface product, Page productPage, Locale locale) {
 
         Price price = new PriceImpl(product.getPriceRange(), locale);
 

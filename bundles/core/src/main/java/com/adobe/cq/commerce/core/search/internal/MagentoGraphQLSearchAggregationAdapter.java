@@ -32,7 +32,7 @@ import com.adobe.cq.commerce.magento.graphql.AggregationOption;
  * This adapter class allows us to use MagentoGraphQL search aggregations as the data source for a component friendly SearchAggregation.
  * This
  * class "adapts" the data from the MagentoGraphQL response into something that hides the details of GraphQL and Magento from the frontend
- * components.
+ * components / Sling model.
  */
 public class MagentoGraphQLSearchAggregationAdapter implements SearchAggregation {
 

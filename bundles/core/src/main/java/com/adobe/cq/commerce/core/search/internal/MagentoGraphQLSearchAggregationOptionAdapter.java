@@ -16,12 +16,16 @@ package com.adobe.cq.commerce.core.search.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.search.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 
+/**
+ *
+ */
 public class MagentoGraphQLSearchAggregationOptionAdapter implements SearchAggregationOption {
 
     private final AggregationOption aggregationOption;
@@ -77,6 +81,8 @@ public class MagentoGraphQLSearchAggregationOptionAdapter implements SearchAggre
     @Nonnull
     @Override
     public Map<String, String> getAddFilterMap() {
-        return filters;
+        return filters.entrySet().stream()
+            .filter(item -> !item.getKey().equals("page"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

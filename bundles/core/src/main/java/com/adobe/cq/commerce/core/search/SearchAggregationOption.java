@@ -29,23 +29,15 @@ import org.osgi.annotation.versioning.ConsumerType;
 public interface SearchAggregationOption {
 
     @Nonnull
-    default String getFilterValue() {
-        throw new UnsupportedOperationException();
-    }
+    String getFilterValue();
 
     @Nonnull
-    default String getDisplayLabel() {
-        throw new UnsupportedOperationException();
-    }
+    String getDisplayLabel();
 
     @Nonnull
-    default Integer getCount() {
-        throw new UnsupportedOperationException();
-    }
+    Integer getCount();
 
     @Nonnull
-    default Map<String, String> getAddFilterMap() {
-        throw new UnsupportedOperationException();
-    }
+    Map<String, String> getAddFilterMap();
 
 }

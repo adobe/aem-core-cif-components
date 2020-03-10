@@ -116,7 +116,7 @@ public class SearchOptionsImpl implements SearchOptions {
      * @return the processed search term, by default {@code "%searchTerm%"}
      */
     @Nonnull
-    protected String processSearchTerm(String searchTerm) {
+    private String processSearchTerm(String searchTerm) {
         if (!StringUtils.isAlphanumericSpace(searchTerm)) {
             return "";
         }
