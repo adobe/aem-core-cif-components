@@ -84,6 +84,12 @@ public class MultiFieldDropTargetPostProcessor implements SlingPostProcessor {
     private static final String PROPERTY_PREFIX = "@";
     private static final String SLASH = "/";
     private static final String SLING_PROPERTY_PREFIX = "./";
+    private static final String SELECTION_TYPE = "./selectionType";
+    private static final String MULTIPLE = "./multiple";
+
+    private static final String COMBINED_SKU = "combinedSku";
+    private static final String SKU = "sku";
+    private static final String SLUG = "slug";
 
     @Override
     public void process(SlingHttpServletRequest request, List<Modification> modifications) throws Exception {
@@ -97,14 +103,26 @@ public class MultiFieldDropTargetPostProcessor implements SlingPostProcessor {
                     String target = key.replace(DROP_TARGET_PREFIX, StringUtils.EMPTY);
                     String propertyValue = requestParameter.getString();
                     Resource resource = request.getResource();
-                    processProperty(resource, target, propertyValue, key);
+
+                    RequestParameter selectionTypeParameter = requestParameterMap.getValue(SELECTION_TYPE);
+                    String selectionType = selectionTypeParameter != null ? selectionTypeParameter.getString() : null;
+
+                    RequestParameter multipleParameter = requestParameterMap.getValue(MULTIPLE);
+                    boolean multiple = true;
+                    if (multipleParameter != null) {
+                        multiple = Boolean.valueOf(multipleParameter.getString());
+                    }
+
+                    processProperty(resource, target, propertyValue, key, selectionType, multiple);
                     modifications.add(Modification.onModified(resource.getPath()));
                 }
             }
         }
     }
 
-    private void processProperty(Resource resource, String target, String propertyValue, String originalKey) throws Exception {
+    private void processProperty(Resource resource, String target, String propertyValue, String originalKey, String selectionType,
+        boolean multiple) throws Exception {
+
         String[] paths = target.split(SLASH);
 
         ResourceResolver resourceResolver = resource.getResourceResolver();
@@ -119,6 +137,20 @@ public class MultiFieldDropTargetPostProcessor implements SlingPostProcessor {
             resourceResolver.delete(dropTargetResource);
         }
 
+        if (selectionType != null) {
+            if (SKU.equals(selectionType) || COMBINED_SKU.equals(selectionType)) {
+                propertyValue = StringUtils.substringAfterLast(propertyValue, "/");
+            } else if (SLUG.equals(selectionType)) {
+                Resource product = resourceResolver.getResource(propertyValue);
+                if (product != null) {
+                    String slug = product.getValueMap().get(SLUG, String.class);
+                    if (slug != null) {
+                        propertyValue = slug;
+                    }
+                }
+            }
+        }
+
         // check all paths and create correct resources and properties
         boolean isArray = true;
         Resource currentResource = resource;
@@ -127,7 +159,7 @@ public class MultiFieldDropTargetPostProcessor implements SlingPostProcessor {
                 // this is the property
                 String propertyName = path.replace(PROPERTY_PREFIX, StringUtils.EMPTY);
                 ModifiableValueMap properties = currentResource.adaptTo(ModifiableValueMap.class);
-                if (isArray) {
+                if (isArray && multiple) {
                     List<String> childPages = new ArrayList<>(Arrays.asList(properties.get(propertyName, new String[0])));
                     childPages.add(propertyValue);
                     properties.remove(propertyName);
