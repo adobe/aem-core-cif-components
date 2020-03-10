@@ -162,7 +162,7 @@ public class ProductListImpl implements ProductList {
         searchOptions.setAttributeFilters(searchFilters);
         categoryId.ifPresent(searchOptions::setCategoryId);
 
-        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage);
+        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
     }
 
     @Nullable

@@ -35,7 +35,7 @@ public interface SearchAggregationOption {
     String getDisplayLabel();
 
     @Nonnull
-    Integer getCount();
+    int getCount();
 
     @Nonnull
     Map<String, String> getAddFilterMap();

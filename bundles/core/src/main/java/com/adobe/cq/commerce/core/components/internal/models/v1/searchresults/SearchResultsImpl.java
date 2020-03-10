@@ -92,7 +92,7 @@ public class SearchResultsImpl implements SearchResults {
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setSearchQuery(searchTerm);
 
-        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage);
+        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
     }
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {

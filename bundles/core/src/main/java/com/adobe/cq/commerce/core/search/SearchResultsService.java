@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.search;
 
 import javax.annotation.Nonnull;
 
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 
 import com.day.cq.wcm.api.Page;
@@ -36,10 +37,9 @@ public interface SearchResultsService {
      * @return a {@link SearchResultsSet} with search results and metadata
      */
     @Nonnull
-    default SearchResultsSet performSearch(
+    SearchResultsSet performSearch(
         SearchOptions searchOptions,
         Resource resource,
-        Page productPage) {
-        throw new UnsupportedOperationException();
-    }
+        Page productPage,
+        SlingHttpServletRequest request);
 }

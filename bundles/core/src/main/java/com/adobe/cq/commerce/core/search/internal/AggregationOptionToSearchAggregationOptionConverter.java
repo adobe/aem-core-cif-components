@@ -16,29 +16,26 @@ package com.adobe.cq.commerce.core.search.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.search.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 
 /**
- *
+ * This class is responsible for converting a Magento GraphQL {@link AggregationOption} domain object to a Sling Model / POJO friendly
+ * concrete
+ * class {@link SearchAggregationOption}.
  */
-public class MagentoGraphQLSearchAggregationOptionAdapter implements SearchAggregationOption {
-
-    private final AggregationOption aggregationOption;
+public class AggregationOptionToSearchAggregationOptionConverter implements Function<AggregationOption, SearchAggregationOption> {
 
     private final String attributeCode;
 
     private final Map<String, String> filters;
 
-    private Boolean isBooleanAttribute;
+    private boolean isBooleanAttribute;
 
-    public MagentoGraphQLSearchAggregationOptionAdapter(AggregationOption aggregationOption, final String attributeCode,
-                                                        final Map<String, String> filters) {
-        this.aggregationOption = aggregationOption;
+    public AggregationOptionToSearchAggregationOptionConverter(final String attributeCode, final Map<String, String> filters) {
 
         // This is a "special case" for the time, which is that some attributes end in "_bucket" even though
         // _bucket is not actually part of the attribute code in Magento. We'll fix that for the time being with a
@@ -46,43 +43,37 @@ public class MagentoGraphQLSearchAggregationOptionAdapter implements SearchAggre
         // option labels
         if (attributeCode.endsWith("_bucket")) {
             this.attributeCode = attributeCode.replace("_bucket", "");
-            isBooleanAttribute = true;
+            this.isBooleanAttribute = true;
         } else {
             this.attributeCode = attributeCode;
-            isBooleanAttribute = false;
+            this.isBooleanAttribute = false;
         }
 
-        this.filters = new HashMap(filters);
-        this.filters.put(attributeCode, aggregationOption.getValue());
+        this.filters = filters;
     }
 
-    @Nonnull
     @Override
-    public String getFilterValue() {
-        return aggregationOption.getValue();
-    }
+    public SearchAggregationOption apply(final AggregationOption aggregationOption) {
+        SearchAggregationOptionImpl searchAggregationOption = new SearchAggregationOptionImpl();
 
-    @Nonnull
-    @Override
-    public String getDisplayLabel() {
         // Special case handling for boolean values to return a friendlier "yes/no" response
         if (isBooleanAttribute) {
-            return "0".equalsIgnoreCase(aggregationOption.getLabel()) ? "No" : "Yes";
+            searchAggregationOption.setDisplayLabel(("0".equalsIgnoreCase(aggregationOption.getLabel()) ? "No" : "Yes"));
+        } else {
+            searchAggregationOption.setDisplayLabel(aggregationOption.getLabel());
         }
-        return aggregationOption.getLabel();
-    }
 
-    @Nonnull
-    @Override
-    public Integer getCount() {
-        return aggregationOption.getCount();
-    }
+        searchAggregationOption.setCount(aggregationOption.getCount());
+        searchAggregationOption.setFilterValue(aggregationOption.getValue());
 
-    @Nonnull
-    @Override
-    public Map<String, String> getAddFilterMap() {
-        return filters.entrySet().stream()
+        // this is done for convenience sake so we have all filters available
+        Map<String, String> newFilters = new HashMap<>(filters);
+        newFilters.put(attributeCode, aggregationOption.getValue());
+        searchAggregationOption.setAddFilterMap(newFilters.entrySet().stream()
             .filter(item -> !item.getKey().equals("page"))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
+        return searchAggregationOption;
     }
+
 }

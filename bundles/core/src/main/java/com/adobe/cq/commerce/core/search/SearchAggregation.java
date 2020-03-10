@@ -31,43 +31,27 @@ import org.osgi.annotation.versioning.ConsumerType;
 public interface SearchAggregation {
 
     @Nonnull
-    default Optional<String> getAppliedFilterValue() {
-        throw new UnsupportedOperationException();
-    }
+    Optional<String> getAppliedFilterValue();
 
     @Nonnull
-    default Optional<String> getAppliedFilterDisplayLabel() {
-        throw new UnsupportedOperationException();
-    }
+    Optional<String> getAppliedFilterDisplayLabel();
 
     @Nonnull
-    default boolean getFilterable() {
-        throw new UnsupportedOperationException();
-    }
+    boolean getFilterable();
 
     @Nonnull
-    default String getIdentifier() {
-        throw new UnsupportedOperationException();
-    }
+    String getIdentifier();
 
     @Nonnull
-    default String getDisplayLabel() {
-        throw new UnsupportedOperationException();
-    }
+    String getDisplayLabel();
 
     @Nonnull
-    default Integer getOptionCount() {
-        throw new UnsupportedOperationException();
-    }
+    int getOptionCount();
 
     @Nonnull
-    default List<SearchAggregationOption> getOptions() {
-        throw new UnsupportedOperationException();
-    }
+    List<SearchAggregationOption> getOptions();
 
     @Nonnull
-    default Map<String, String> getRemoveFilterMap() {
-        throw new UnsupportedOperationException();
-    }
+    Map<String, String> getRemoveFilterMap();
 
 }

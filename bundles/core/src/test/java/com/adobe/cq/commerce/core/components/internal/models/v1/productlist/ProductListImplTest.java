@@ -95,7 +95,7 @@ public class ProductListImplTest {
         SearchResultsSet searchResultSet = Mockito.mock(SearchResultsSetImpl.class);
 
         Mockito.when(searchResultSet.getProductListItems()).thenReturn(new ArrayList<>());
-        Mockito.when(searchResultsService.performSearch(any(), any(), any())).thenReturn(searchResultSet);
+        Mockito.when(searchResultsService.performSearch(any(), any(), any(), any())).thenReturn(searchResultSet);
         context.registerService(searchResultsService);
 
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));

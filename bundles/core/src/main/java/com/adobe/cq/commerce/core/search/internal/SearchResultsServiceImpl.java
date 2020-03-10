@@ -15,13 +15,13 @@
 package com.adobe.cq.commerce.core.search.internal;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -29,9 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.search.SearchAggregation;
 import com.adobe.cq.commerce.core.search.SearchFilterService;
@@ -67,20 +64,22 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     public SearchResultsSet performSearch(
         final SearchOptions searchOptions,
         final Resource resource,
-        final Page productPage) {
-
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-
-        Locale locale = productPage.getLanguage(false);
-
-        Map<String, String> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
+        final Page productPage,
+        final SlingHttpServletRequest request) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
 
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+
         if (magentoGraphqlClient == null) {
+            LOGGER.error("The search result service was unable to create a new MagentoGraphqlClient.");
             return searchResultsSet;
         }
+
+        // We will use the search filter service to retrieve all of the potential available filters the commerce system
+        // has available for querying against
+        Map<String, String> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
 
         String queryString = generateQueryString(searchOptions, availableFilters);
 
@@ -91,7 +90,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             final List<ProductListItem> productListItems = extractProductsFromResponse(
                 response.getData().getProducts().getItems(),
                 productPage,
-                locale);
+                request);
             final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
                 .getAggregations(),
                 searchOptions.getAllFilters(), availableFilters);
@@ -234,20 +233,22 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Extracts a list of products from the graphql response. This method uses
-     * {@link SearchResultsServiceImpl#generateItemFromProductInterface(ProductInterface, Page, Locale)} to tranform the objects from the
-     * Graphql response to {@link ProductListItem} objects
+     * Extracts a list of products suitable for Sling Model consumption from the graphql response.
      *
      * @param products a {@link List<ProductInterface>} object
+     * @param request
      * @return a list of {@link ProductListItem} objects
      */
     @Nonnull
-    private List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage, Locale locale) {
+    private List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage,
+        final SlingHttpServletRequest request) {
 
         LOGGER.debug("Found {} products for search term", products.size());
 
+        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request);
+
         return products.stream()
-            .map(product -> generateItemFromProductInterface(product, productPage, locale))
+            .map(converter)
             .collect(Collectors.toList());
     }
 
@@ -265,42 +266,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<Aggregation> aggregations,
         final Map<String, String> appliedFilters,
         final Map<String, String> availableFilters) {
+
+        AggregationToSearchAggregationConverter converter = new AggregationToSearchAggregationConverter(appliedFilters, availableFilters);
+
         return aggregations.stream()
-            .map(aggregation -> {
-                String filter = null;
-                if (appliedFilters.get(aggregation.getAttributeCode()) != null) {
-                    filter = appliedFilters.get(aggregation.getAttributeCode());
-                }
-                // filterable will be true or false depending on whether or not the attribute appears in the list of available filters
-                // provided by the introspection query
-                final boolean filterable = availableFilters.entrySet().stream()
-                    .anyMatch(filterCandidate -> filterCandidate.getKey().equals(aggregation.getAttributeCode().replace("_bucket", "")));
-                return new MagentoGraphQLSearchAggregationAdapter(aggregation, filter, filterable, appliedFilters);
-            })
+            .map(converter)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Transforms a {@link ProductInterface} object into a {@link ProductListItem}
-     *
-     * @param product the {@link ProductInterface} object to transform
-     * @return a new {@link ProductListItem} object
-     */
-    @Nonnull
-    private ProductListItem generateItemFromProductInterface(ProductInterface product, Page productPage, Locale locale) {
-
-        Price price = new PriceImpl(product.getPriceRange(), locale);
-
-        ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-            product.getUrlKey(),
-            product.getName(),
-            price,
-            product.getSmallImage()
-                .getUrl(),
-            productPage,
-            null,
-            null); // todo: should pass in request object
-
-        return productListItem;
-    }
 }

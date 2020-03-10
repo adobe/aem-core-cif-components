@@ -101,12 +101,6 @@ public class SearchResultsImplTest {
         Assert.assertEquals("retails valid query filters", 1, filterMap.size());
     }
 
-    // @Test
-    // public void testInitModel() {
-    // slingModel.initModel();
-    //
-    // }
-
     @Test
     public void testCalculateCurrentPageCursor() {
         Assert.assertEquals("negative page indexes are not allowed", 1, slingModel.calculateCurrentPageCursor("-1").intValue());
