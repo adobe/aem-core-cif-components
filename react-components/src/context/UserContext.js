@@ -11,22 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { useCookieValue } from '../utils/hooks';
-import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
+import { useAwaitQuery } from '../utils/hooks';
 
 import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
-import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
+import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
+import QUERY_CUSTOMER_CART from '../queries/query_customer_cart.graphql';
 
 const UserContext = React.createContext();
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
-    const [password, setPassword] = useState(null);
     const isSignedIn = () => !!userCookie;
 
     const initialState = {
@@ -40,145 +41,77 @@ const UserContextProvider = props => {
         signInError: null,
         inProgress: false,
         createAccountError: null,
-        isCreatingCustomer: false
+        isCreatingCustomer: false,
+        cartId: null
     };
-    const apolloClient = useApolloClient();
+
     const [userState, setUserState] = useState(initialState);
 
-    const [generateCustomerToken, { data, error }] = useMutation(MUTATION_GENERATE_TOKEN, {
-        onError: error => {
-            console.error('Error retrieving customer token', error);
-            let signInError = parseError(error);
-            setUserState({ ...userState, signInError });
-        }
-    });
+    const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
+    const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
 
-    const [
-        revokeCustomerToken,
-        { data: revokeTokenData, error: revokeTokenError, loading: revokeTokenLoading }
-    ] = useMutation(MUTATION_REVOKE_TOKEN);
+    const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
 
-    const [
-        createCustomer,
-        { data: createCustomerData, error: createCustomerError, loading: createCustomerLoading }
-    ] = useMutation(MUTATION_CREATE_CUSTOMER, {
-        onError: error => {
-            let createAccountError = parseError(error);
-            setUserState({ ...userState, createAccountError });
-        }
-    });
+    const getCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
+    const getCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
-    /*
-     * We use the apollo client directly because of the way the responses are handled by the hooks.
-     * Case in point: if we sign-out and then sign-in with a different user the data from the previous
-     * query is still available.
-     *
-     * This will need refactoring the next iterations, maybe even split into higher-level hooks.
-     */
-    const getCustomerDetails = opts => {
-        apolloClient
-            .query({
-                query: QUERY_CUSTOMER_DETAILS,
-                fetchPolicy: 'no-cache',
-                ...opts
-            })
-            .then(({ data, error }) => {
-                if (data) {
-                    const { firstname, lastname, email } = data.customer;
+    const signIn = useCallback(
+        ({ email, password }) => {
+            (async function fetchToken(e, p) {
+                try {
+                    //1. generate the user's token.
+                    const { data } = await generateCustomerToken({ variables: { email: e, password: p } });
+                    setUserCookie(data.generateCustomerToken.token);
+                    console.log(`Customer token?`, data);
+                    //2. read the customer's details
+                    const { data: customerData } = await getCustomerDetails({ fetchPolicy: 'no-cache' });
+                    console.log(`User details? `, customerData);
+                    const { firstname, lastname, email } = customerData.customer;
+
+                    //3. read the users cart details
+                    const { data: customerCartData } = await getCustomerCart();
+                    console.log(`Cart? `, customerCartData);
                     setUserState({
                         ...userState,
                         isSignedIn: true,
                         currentUser: { firstname, lastname, email },
-                        inProgress: false
+                        inProgress: false,
+                        cartId: customerCartData.customerCart.id,
+                        token: data.generateCustomerToken.token
                     });
+                } catch (error) {
+                    console.error('An error occurred during sign-in', error);
+                    let signInError = parseError(error);
+                    setUserState({ ...userState, signInError, isSignedIn: false, inProgress: false });
                 }
-                if (error) {
-                    setUserState({ ...userState, isSignedIn: false, token: '' });
-                    setUserCookie('', 0);
-                }
-            });
-    };
-
-    // if the token changed, retrieve the user details for that token
-    useEffect(() => {
-        if (userState.token.length > 0) {
-            getCustomerDetails({
-                context: {
-                    headers: {
-                        authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}`
-                    }
-                }
-            });
-            setUserState({ ...userState, inProgress: true });
-        }
-    }, [userState.token]);
-
-    // if the signin mutation returned something handle the response
-    useEffect(() => {
-        if (data && data.generateCustomerToken && !error) {
-            setUserCookie(data.generateCustomerToken.token);
-            setUserState({
-                ...userState,
-                signInError: null,
-                createAccountError: null,
-                token: data.generateCustomerToken.token
-            });
-        }
-    }, [data, error]);
-
-    useEffect(() => {
-        if (revokeTokenData && revokeTokenData.revokeCustomerToken && revokeTokenData.revokeCustomerToken.result) {
-            setCartCookie('', 0);
-            setUserCookie('', 0);
-            setUserState({
-                ...userState,
-                currentUser: {
-                    firstname: '',
-                    lastname: '',
-                    email: ''
-                },
-                isSignedIn: false,
-                token: ''
-            });
-        }
-        if (revokeTokenError) {
-            console.error(revokeTokenError.message);
-        }
-    }, [revokeTokenData, revokeTokenError, revokeTokenLoading]);
-
-    // after creating the customer we have to log them in
-    useEffect(() => {
-        if (createCustomerData && createCustomerData.createCustomer) {
-            setUserState({ ...userState, isCreatingCustomer: false });
-            signIn({ email: createCustomerData.createCustomer.customer.email, password });
-            // clear the password from the state
-            setPassword(null);
-        }
-
-        if (createCustomerError) {
-            let errorMessage = parseError(createCustomerError);
-            setUserState({ ...userState, createAccountError: errorMessage, isCreatingCustomer: false });
-        }
-        if (createCustomerLoading) {
-            setUserState({ ...userState, isCreatingCustomer: true });
-        }
-    }, [createCustomerData, createCustomerError, createCustomerLoading]);
-
-    const signIn = useCallback(
-        ({ email, password }) => {
-            generateCustomerToken({ variables: { email, password } });
+            })(email, password);
         },
-        [generateCustomerToken]
+        [generateCustomerToken, getCustomerDetails, getCustomerCart]
     );
 
     const signOut = useCallback(() => {
-        revokeCustomerToken({
-            context: {
-                headers: {
-                    authorization: `Bearer ${userState.token && userState.token.length > 0 ? userState.token : ''}`
-                }
+        async function revokeToken() {
+            try {
+                await revokeCustomerToken();
+                setCartCookie('', 0);
+                setUserCookie('', 0);
+                setUserState({
+                    ...userState,
+                    currentUser: {
+                        firstname: '',
+                        lastname: '',
+                        email: ''
+                    },
+                    isSignedIn: false,
+                    token: '',
+                    cartId: null
+                });
+            } catch (error) {
+                console.error('An error occurred during sign-out', error);
             }
-        });
+        }
+
+        revokeToken();
     }, [revokeCustomerToken, userState.token]);
 
     const resetPassword = async email => {
@@ -187,8 +120,20 @@ const UserContextProvider = props => {
 
     const createAccount = useCallback(
         ({ email, password, firstname, lastname }) => {
-            createCustomer({ variables: { email, password, firstname, lastname } });
-            setPassword(password);
+            async function createAccount({ email, password, firstname, lastname }) {
+                try {
+                    console.log(`Create account...`);
+                    const { data } = await createCustomer({ variables: { email, password, firstname, lastname } });
+                    setUserState({ ...userState, isCreatingCustomer: false });
+                    signIn({ email: data.createCustomer.customer.email, password });
+                    // clear the password from the state
+                } catch (error) {
+                    let createAccountError = parseError(error);
+                    setUserState({ ...userState, createAccountError });
+                }
+            }
+
+            createAccount({ email, password, firstname, lastname });
         },
         [createCustomer]
     );

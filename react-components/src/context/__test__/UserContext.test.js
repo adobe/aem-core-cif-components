@@ -20,6 +20,7 @@ import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql
 import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
+import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
 
@@ -34,7 +35,11 @@ describe('UserContext test', () => {
     const mocks = [
         {
             request: {
-                query: MUTATION_GENERATE_TOKEN
+                query: MUTATION_GENERATE_TOKEN,
+                variables: {
+                    email: 'imccoy@weretail.net',
+                    password: 'imccoy123'
+                }
             },
             result: {
                 data: {
@@ -81,19 +86,35 @@ describe('UserContext test', () => {
                     }
                 }
             }
+        },
+        {
+            request: {
+                query: QUERY_CUSTOMER_CART
+            },
+            result: {
+                data: {
+                    customerCart: {
+                        id: 'customercart'
+                    }
+                }
+            }
         }
     ];
     it('performs a sign in', async () => {
         const ContextWrapper = () => {
-            const [{ currentUser, isSignedIn }, { signIn }] = useUserContext();
+            const [{ currentUser, isSignedIn, cartId }, { signIn }] = useUserContext();
 
-            const display = `${currentUser.firstname} ${currentUser.lastname}`;
+            const display = `${currentUser.firstname} ${currentUser.lastname} ${cartId}`;
 
             let content;
             if (isSignedIn) {
                 content = <div data-testid="success">{display}</div>;
             } else {
-                content = <button onClick={() => signIn('', '')}>Sign in</button>;
+                content = (
+                    <button onClick={() => signIn({ email: 'imccoy@weretail.net', password: 'imccoy123' })}>
+                        Sign in
+                    </button>
+                );
             }
 
             return <div>{content}</div>;
@@ -112,7 +133,7 @@ describe('UserContext test', () => {
         fireEvent.click(getByRole('button'));
         const result = await waitForElement(() => getByTestId('success'));
         expect(result).not.toBeUndefined();
-        expect(result.textContent).toEqual('John Doe');
+        expect(result.textContent).toEqual('John Doe customercart');
     });
 
     it('performs a sign out', async () => {
@@ -206,6 +227,18 @@ describe('UserContext test', () => {
                             firstname: 'Iris',
                             lastname: 'McCoy',
                             email: 'imccoy@weretail.net'
+                        }
+                    }
+                }
+            },
+            {
+                request: {
+                    query: QUERY_CUSTOMER_CART
+                },
+                result: {
+                    data: {
+                        customerCart: {
+                            id: 'customercart'
                         }
                     }
                 }
