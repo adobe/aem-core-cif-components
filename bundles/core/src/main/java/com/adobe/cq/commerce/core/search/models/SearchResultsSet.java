@@ -31,36 +31,91 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 @ConsumerType
 public interface SearchResultsSet {
 
+    /**
+     * Get the search options used to provide this search result set.
+     *
+     * @return the {@link SearchOptions} used in the search
+     */
     @Nonnull
     SearchOptions getSearchOptions();
 
+    /**
+     * Get the total number of results.
+     *
+     * @return the total number of results
+     */
     @Nonnull
     Integer getTotalResults();
 
+    /**
+     * Get the search query used to provide this result set.
+     *
+     * @return the search query string used if any
+     */
     @Nonnull
     Optional<String> getSearchQuery();
 
+    /**
+     * Get a map of the applied search query string parameters.
+     *
+     * @return the query string parameters (key value pairs)
+     */
     @Nonnull
     Map<String, String> getAppliedQueryParameters();
 
+    /**
+     * Get the result product list items. These are the actual result of the search.
+     *
+     * @return the resulting products
+     */
     @Nonnull
     List<ProductListItem> getProductListItems();
 
+    /**
+     * Get the available search aggregations for the given result set.
+     *
+     * @return the aggregations or filters available for the search result set.
+     */
     @Nonnull
     List<SearchAggregation> getSearchAggregations();
 
+    /**
+     * Get the list of aggregations or filters that were applied in this search.
+     *
+     * @return the applied filter aggregations
+     */
     @Nonnull
     List<SearchAggregation> getAppliedAggregations();
 
+    /**
+     * Get the available search aggregations for the given result set
+     *
+     * @return the available aggregations
+     */
     @Nonnull
     List<SearchAggregation> getAvailableAggregations();
 
+    /**
+     * Get all pagination parameters available for the current result set.
+     *
+     * @return the pagination parameters
+     */
     @Nonnull
     List<Map<String, String>> getPaginationParameters();
 
+    /**
+     * Get the previous page parameters for supporting linking to the previous page.
+     *
+     * @return the previous page parameters
+     */
     @Nonnull
     Map<String, String> getPreviousPageParameters();
 
+    /**
+     * Get the mext page parameters for supporting linking to the mext page.
+     *
+     * @return the mext page parameters
+     */
     @Nonnull
     Map<String, String> getNextPageParameters();
 

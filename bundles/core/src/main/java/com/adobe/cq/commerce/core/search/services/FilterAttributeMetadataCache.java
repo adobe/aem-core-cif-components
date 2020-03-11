@@ -33,5 +33,10 @@ public interface FilterAttributeMetadataCache {
      */
     Optional<List<FilterAttributeMetadata>> getFilterAttributeMetadata();
 
+    /**
+     * Set the filter attribute metadata in cache.
+     *
+     * @param filterAttributeMetadata the filter metadata to be stored in cache
+     */
     void setFilterAttributeMetadata(List<FilterAttributeMetadata> filterAttributeMetadata);
 }

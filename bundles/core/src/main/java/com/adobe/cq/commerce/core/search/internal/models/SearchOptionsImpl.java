@@ -63,7 +63,6 @@ public class SearchOptionsImpl implements SearchOptions {
         return attributeFilters;
     }
 
-    @Override
     public void setAttributeFilters(final Map<String, String> attributeFilters) {
         this.attributeFilters = attributeFilters;
     }
@@ -73,7 +72,6 @@ public class SearchOptionsImpl implements SearchOptions {
         return Optional.ofNullable(categoryId);
     }
 
-    @Override
     public void setCategoryId(final String categoryId) {
         this.categoryId = categoryId;
     }
@@ -83,7 +81,6 @@ public class SearchOptionsImpl implements SearchOptions {
         return Optional.ofNullable(searchQuery);
     }
 
-    @Override
     public void setSearchQuery(final String searchQuery) {
         this.searchQuery = processSearchTerm(searchQuery);
     }
@@ -93,7 +90,6 @@ public class SearchOptionsImpl implements SearchOptions {
         return currentPage;
     }
 
-    @Override
     public void setCurrentPage(final Integer currentPage) {
         this.currentPage = currentPage;
     }
@@ -103,7 +99,6 @@ public class SearchOptionsImpl implements SearchOptions {
         return pageSize;
     }
 
-    @Override
     public void setPageSize(final Integer pageSize) {
         this.pageSize = pageSize;
     }

@@ -250,21 +250,6 @@ public class ProductListImplTest {
         Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
         Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
     }
-    //
-    // @Test
-    // public void testEditModePlaceholderData() throws IOException {
-    // MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-    // requestPathInfo.setSelectorString(null);
-    // productListModel = context.request().adaptTo(ProductListImpl.class);
-    //
-    // String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
-    // Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
-    // category = rootQuery.getCategory();
-    // storeConfig = rootQuery.getStoreConfig();
-    //
-    // Assert.assertEquals(category.getName(), productListModel.getTitle());
-    // Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
-    // }
 
     private String getResource(String filename) throws IOException {
         return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);

@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
- * Represents an aggregation
+ * Represents a search aggregation.
  */
 @ConsumerType
 public interface SearchAggregation {

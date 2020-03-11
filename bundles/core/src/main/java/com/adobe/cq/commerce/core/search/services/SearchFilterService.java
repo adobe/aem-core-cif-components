@@ -21,7 +21,7 @@ import org.apache.sling.api.resource.Resource;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 
 /**
- * This class is responsible for retrieving search filter and attribute metadata from the commerce backend.
+ * This service is responsible for retrieving search filter and attribute metadata from the commerce backend.
  */
 public interface SearchFilterService {
 

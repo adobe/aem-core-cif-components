@@ -50,7 +50,6 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 //import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
-import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -159,7 +158,7 @@ public class ProductListImpl implements ProductList {
             }
         }
 
-        SearchOptions searchOptions = new SearchOptionsImpl();
+        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setAttributeFilters(searchFilters);
         categoryId.ifPresent(searchOptions::setCategoryId);

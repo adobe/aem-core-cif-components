@@ -36,7 +36,6 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
-import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.day.cq.wcm.api.Page;
@@ -87,7 +86,7 @@ public class SearchResultsImpl implements SearchResults {
 
         LOGGER.debug("Detected search parameter {}", searchTerm);
 
-        SearchOptions searchOptions = new SearchOptionsImpl();
+        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setSearchQuery(searchTerm);

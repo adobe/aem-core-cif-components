@@ -14,6 +14,9 @@
 
 package com.adobe.cq.commerce.core.search.models;
 
+/**
+ * Contains information about search filters useful in places where filter metadata is required.
+ */
 public interface FilterAttributeMetadata {
 
     /**

@@ -28,23 +28,13 @@ public interface SearchOptions {
 
     Optional<String> getSearchQuery();
 
-    void setSearchQuery(String searchQuery);
-
     Optional<String> getCategoryId();
-
-    void setCategoryId(String categoryId);
 
     Integer getCurrentPage();
 
-    void setCurrentPage(Integer page);
-
     Integer getPageSize();
 
-    void setPageSize(Integer pageSize);
-
     Map<String, String> getAttributeFilters();
-
-    void setAttributeFilters(Map<String, String> attributeFilters);
 
     /**
      * Retrieves all filters, including the category id which is being treated as a special case as a developer convenience. This method
