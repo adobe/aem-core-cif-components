@@ -28,15 +28,35 @@ import org.osgi.annotation.versioning.ConsumerType;
 @ConsumerType
 public interface SearchAggregationOption {
 
+    /**
+     * Get the filter value for a aggregation option.
+     *
+     * @return the filter value
+     */
     @Nonnull
     String getFilterValue();
 
+    /**
+     * Get the display label for a aggregation option.
+     *
+     * @return the display label for the aggregation option
+     */
     @Nonnull
     String getDisplayLabel();
 
+    /**
+     * Get the number of results for this particular aggregation option.
+     *
+     * @return the product count for this aggregation option
+     */
     @Nonnull
     int getCount();
 
+    /**
+     * Get the key value map for this aggregation option.
+     *
+     * @return key value for this aggregation option
+     */
     @Nonnull
     Map<String, String> getAddFilterMap();
 

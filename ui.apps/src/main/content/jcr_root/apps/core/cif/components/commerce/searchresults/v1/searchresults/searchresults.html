@@ -21,7 +21,8 @@
                 <div class="search__filters"
                      data-sly-call="${layeredNavigationTemplate.searchResults @ searchResults = searchResults}"></div>
             </div>
-            <div data-sly-use.itemTemplate="item.html" data-sly-unwrap>
+            <div data-sly-use.itemTemplate="item.html" data-sly-unwrap data-cmp-is="searchresults"
+                 data-load-client-price="${searchResults.loadClientPrice}">
                 <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
                     <div class="item__root" data-sly-call="${itemTemplate.item @ item = product}"></div>
                 </div>

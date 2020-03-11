@@ -25,7 +25,9 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
@@ -54,11 +57,23 @@ public class SearchResultsImpl implements SearchResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
     private static final String SEARCH_FILTER_QUERY_STRING = "search_query";
     private static final String CURRENT_PAGE_QUERY_STRING = "page";
+    private static final int PAGE_SIZE_DEFAULT = 6;
+    private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
 
     Page productPage;
 
+    private boolean loadClientPrice;
+
+    private int navPageSize = PAGE_SIZE_DEFAULT;
+
     @Self
     private SlingHttpServletRequest request;
+
+    @ScriptVariable
+    private ValueMap properties;
+
+    @ScriptVariable
+    private Style currentStyle;
 
     @Inject
     private Resource resource;
@@ -75,6 +90,9 @@ public class SearchResultsImpl implements SearchResults {
 
     @PostConstruct
     protected void initModel() {
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+
         String searchTerm = request.getParameter(SEARCH_FILTER_QUERY_STRING);
 
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
@@ -154,4 +172,8 @@ public class SearchResultsImpl implements SearchResults {
         return searchResultsSet;
     }
 
+    @Override
+    public boolean loadClientPrice() {
+        return loadClientPrice;
+    }
 }

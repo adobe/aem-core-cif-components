@@ -17,8 +17,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -97,12 +95,7 @@ public class ProductListImpl implements ProductList {
     private boolean showImage;
     private boolean loadClientPrice;
 
-    private Locale locale;
-    private int navPageCursor = 1;
     private int navPageSize = PAGE_SIZE_DEFAULT;
-    private Integer navPagePrev;
-    private Integer navPageNext;
-    private List<Integer> navPages;
 
     private Optional<String> categoryId = Optional.empty();
 
@@ -161,6 +154,7 @@ public class ProductListImpl implements ProductList {
         SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setAttributeFilters(searchFilters);
+        searchOptions.setPageSize(navPageSize);
         categoryId.ifPresent(searchOptions::setCategoryId);
 
         searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);

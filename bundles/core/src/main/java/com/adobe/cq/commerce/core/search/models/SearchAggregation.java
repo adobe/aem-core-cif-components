@@ -30,27 +30,67 @@ import org.osgi.annotation.versioning.ConsumerType;
 @ConsumerType
 public interface SearchAggregation {
 
+    /**
+     * Get the currently applied filter value.
+     *
+     * @return the applied filter value
+     */
     @Nonnull
     Optional<String> getAppliedFilterValue();
 
+    /**
+     * Get the filter display label.
+     *
+     * @return the applied filter display label
+     */
     @Nonnull
     Optional<String> getAppliedFilterDisplayLabel();
 
+    /**
+     * Whether or not this aggregation can actually be used to filter results.
+     *
+     * @return true if available for filtering
+     */
     @Nonnull
     boolean getFilterable();
 
+    /**
+     * The identifier (e.g. the attribute code) for this aggregation.
+     *
+     * @return the identifier for the aggregation
+     */
     @Nonnull
     String getIdentifier();
 
+    /**
+     * Get the aggregation display label.
+     *
+     * @return the aggregation display label
+     */
     @Nonnull
     String getDisplayLabel();
 
+    /**
+     * Get the number of aggregation options exist for the current aggregation.
+     *
+     * @return the number of aggregation options
+     */
     @Nonnull
     int getOptionCount();
 
+    /**
+     * Get the search aggregation options available for this aggregation.
+     *
+     * @return the options
+     */
     @Nonnull
     List<SearchAggregationOption> getOptions();
 
+    /**
+     * Get the map of attributes that will remove this aggregation from results.
+     *
+     * @return the filters without this aggregation filter
+     */
     @Nonnull
     Map<String, String> getRemoveFilterMap();
 

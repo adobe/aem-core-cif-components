@@ -31,14 +31,22 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 public interface SearchResults {
 
     /**
+     * Name of the String resource property indicating number of products to render on front-end.
+     */
+    String PN_PAGE_SIZE = "pageSize";
+
+    /**
+     * Name of the boolean resource property indicating if the product list should load prices on the client-side.
+     */
+    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
+
+    /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
      *
      * @return {@link Collection} of {@link ProductListItem}s
      */
     @Nonnull
-    default Collection<ProductListItem> getProducts() {
-        throw new UnsupportedOperationException();
-    }
+    Collection<ProductListItem> getProducts();
 
     /**
      * Returns the aggregations resulting from the search, as {@link SearchAggregation}s elements.
@@ -53,5 +61,12 @@ public interface SearchResults {
 
     @Nonnull
     String getSearchResultsPagePath();
+
+    /**
+     * Should prices be re-loaded client-side.
+     *
+     * @return true if prices should be loaded client side
+     */
+    boolean loadClientPrice();
 
 }
