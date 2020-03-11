@@ -14,22 +14,20 @@
 
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
+import com.adobe.cq.commerce.core.search.internal.converters.FilterAttributeMetadataConverter;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.services.FilterAttributeMetadataCache;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
@@ -40,37 +38,46 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.introspection.FilterIntrospectionQuery;
+import com.adobe.cq.commerce.magento.graphql.introspection.InputField;
 import com.adobe.cq.commerce.magento.graphql.introspection.IntrospectionQuery;
 
 @Component(service = SearchFilterService.class)
 public class SearchFilterServiceImpl implements SearchFilterService {
 
-    // The "cache" life of the custom attributes for filter queries
-    private static final long ATTRIBUTE_CACHE_LIFE_MS = 600000;
-    private List<FilterAttributeMetadata> availableFilterMetadata = null;
-    private Long lastFetched = null;
+    @Reference
+    FilterAttributeMetadataCache filterAttributeMetadataCache;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFilterServiceImpl.class);
 
     @Override
     public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Resource resource) {
+        return filterAttributeMetadataCache.getFilterAttributeMetadata().orElseGet(() -> {
 
-        if (shouldRefreshData()) {
+            // First we query Magento for the required attribute and filter information
             MagentoGraphqlClient magentoIntrospectionGraphqlClient = MagentoGraphqlClient.create(resource, true);
-            Map<String, String> availableFilters = fetchAvailableSearchFilters(magentoIntrospectionGraphqlClient);
+            final List<InputField> availableFilters = fetchAvailableSearchFilters(magentoIntrospectionGraphqlClient);
             MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, false);
-            availableFilterMetadata = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
-        }
+            final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 
-        return availableFilterMetadata;
+            // Then we combine this data into a useful set of data usable by other systems
+            FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributes);
+            final List<FilterAttributeMetadata> filterAttributeMetadata = availableFilters.stream().map(converter).collect(Collectors
+                .toList());
+
+            // Finally we set the filter metadata back to the caching layer so it's available in the future without requring another set of
+            // calls
+            // to Magento's APIs
+            filterAttributeMetadataCache.setFilterAttributeMetadata(filterAttributeMetadata);
+            return filterAttributeMetadata;
+        });
     }
 
-    private List<FilterAttributeMetadata> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
-        final Map<String, String> availableFilters) {
+    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
+        final List<InputField> availableFilters) {
 
-        List<AttributeInput> attributeInputs = availableFilters.entrySet().stream().map(stringStringEntry -> {
+        List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
             AttributeInput attributeInput = new AttributeInput();
-            attributeInput.setAttributeCode(stringStringEntry.getKey());
+            attributeInput.setAttributeCode(inputField.getName());
             attributeInput.setEntityType("4");
             return attributeInput;
         }).collect(Collectors.toList());
@@ -90,41 +97,14 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(
             attributeQuery.toString());
 
-        final List<FilterAttributeMetadata> attributeMetadataCollection = availableFilters.entrySet().stream().map(stringStringEntry -> {
-            final FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
-
-            filterAttributeMetadata.setAttributeCode(stringStringEntry.getKey());
-            filterAttributeMetadata.setFilterInputType(stringStringEntry.getValue());
-
-            final Optional<Attribute> attributeData = response.getData().getCustomAttributeMetadata().getItems().stream()
-                .filter(item -> item.getAttributeCode().equals(stringStringEntry.getKey()))
-                .findFirst();
-            if (attributeData.isPresent()) {
-                filterAttributeMetadata.setAttributeInputType(attributeData.get().getInputType());
-                filterAttributeMetadata.setAttributeType(attributeData.get().getAttributeType());
-            }
-            return filterAttributeMetadata;
-        }).collect(Collectors.toList());
-
-        return attributeMetadataCollection;
-
-    }
-
-    /**
-     * Determines whether or not a refresh of data is required.
-     * TODO: should be refactored to separate decision making class or subsystem
-     *
-     * @return true if data should be refreshed.
-     */
-    private boolean shouldRefreshData() {
-
-        Long now = Instant.now().toEpochMilli();
-        if (availableFilterMetadata == null || lastFetched == null || (now - lastFetched) > ATTRIBUTE_CACHE_LIFE_MS) {
-            lastFetched = now;
-            return true;
+        // If there are errors we'll log them and return a safe but empty list
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            response.getErrors().stream()
+                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
+            return new ArrayList<>();
         }
 
-        return false;
+        return response.getData().getCustomAttributeMetadata().getItems();
 
     }
 
@@ -134,42 +114,24 @@ public class SearchFilterServiceImpl implements SearchFilterService {
      * @param magentoGraphqlClient client for making Magento GraphQL requests
      * @return key value pair of the attribute code or identifier and filter type for that attribute
      */
-    private Map<String, String> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
+    private List<InputField> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
-            return new HashMap<>();
+            return new ArrayList<>();
         }
 
         final GraphqlResponse<IntrospectionQuery, Error> response = magentoGraphqlClient.executeIntrospection(
             FilterIntrospectionQuery.QUERY);
 
-        if (!checkAndLogErrors(response.getErrors())) {
-
-            Map<String, String> inputFieldCandidates = new HashMap<>();
-            response.getData().getType().getInputFields().stream().forEach(inputField -> {
-                inputFieldCandidates.put(inputField.getName(), inputField.getType().getName());
-            });
-            return inputFieldCandidates;
-        }
-
-        return new HashMap<>();
-    }
-
-    /**
-     * Checks the graphql response for errors and logs out to the error console if any are found
-     *
-     * @param errors the {@link List <Error>} if any
-     * @return {@link true} if any errors were found, {@link false} otherwise
-     */
-    private boolean checkAndLogErrors(List<Error> errors) {
-        if (errors != null && errors.size() > 0) {
-            errors.stream()
+        // If there are errors in the response we'll log them out and return a safe but empty value
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return true;
-        } else {
-            return false;
+            return new ArrayList<>();
         }
+
+        return response.getData().getType().getInputFields();
     }
 
 }

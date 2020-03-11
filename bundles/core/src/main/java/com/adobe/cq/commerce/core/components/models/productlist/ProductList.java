@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,6 +79,8 @@ public interface ProductList {
     boolean loadClientPrice();
 
     SearchResultsSet getSearchResultsSet();
+
+    Optional<String> getSelectors();
 
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.

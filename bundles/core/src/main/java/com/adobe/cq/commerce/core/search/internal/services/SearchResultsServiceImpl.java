@@ -131,15 +131,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 final FilterAttributeMetadata filterAttributeMetadata = availableFilters.stream()
                     .filter(item -> item.getAttributeCode().equals(code)).findFirst().get();
 
-                if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
+                if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterEqualTypeInput filter = new FilterEqualTypeInput();
                     filter.setEq(value);
                     filterInputs.addEqualTypeInput(code, filter);
-                } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
+                } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterMatchTypeInput filter = new FilterMatchTypeInput();
                     filter.setMatch(value);
                     filterInputs.addMatchTypeInput(code, filter);
-                } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getAttributeInputType())) {
+                } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
                     filter.setFrom(rangeValues[0]);

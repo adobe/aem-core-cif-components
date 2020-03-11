@@ -103,8 +103,8 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
 
         if (candidate != null) {
             // Special case to handle boolean / "bucket" values in Magento's GraphQL API
-            if (attributeMetadata != null && attributeMetadata.getAttributeInputType().equals(
-                FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN)) {
+            if (attributeMetadata != null && FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN.equals(attributeMetadata
+                .getAttributeInputType())) {
                 return "0".equalsIgnoreCase(setFilterValue) ? "No" : "Yes";
             }
             return candidate;

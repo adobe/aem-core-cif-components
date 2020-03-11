@@ -105,6 +105,8 @@ public class ProductListImpl implements ProductList {
     private Integer navPageNext;
     private List<Integer> navPages;
 
+    private Optional<String> categoryId = Optional.empty();
+
     @Inject
     private SearchResultsService searchResultsService;
 
@@ -137,7 +139,7 @@ public class ProductListImpl implements ProductList {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         // Parse category id from URL
-        Optional<String> categoryId = parseCategoryId(this.request.getRequestPathInfo().getSelectorString(), request.getParameter(
+        categoryId = parseCategoryId(this.request.getRequestPathInfo().getSelectorString(), request.getParameter(
             "category_id"));
 
         // get GraphQL client and query data
@@ -264,6 +266,11 @@ public class ProductListImpl implements ProductList {
     @Override
     public SearchResultsSet getSearchResultsSet() {
         return searchResultsSet;
+    }
+
+    @Override
+    public Optional<String> getSelectors() {
+        return categoryId;
     }
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
