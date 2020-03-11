@@ -110,7 +110,7 @@
         <magento.graphql.version>5.1.0-magento234</magento.graphql.version>
 
         <!-- todo-kevin: do we still need this -->
-        <cif.connector.version>0.8.0</cif.connector.version>
+        <cif.connector.version>0.9.0</cif.connector.version>
 
         <core.wcm.components.version>2.7.0</core.wcm.components.version>
 
