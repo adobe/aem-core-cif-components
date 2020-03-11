@@ -55,7 +55,6 @@ BLOCK category
     ELEMENT category__root-message
     ELEMENT category__title
     ELEMENT category__pagination
-    ELEMENT category__placeholder
     ELEMENT category__categoryTitle
     ELEMENT category__image
     
