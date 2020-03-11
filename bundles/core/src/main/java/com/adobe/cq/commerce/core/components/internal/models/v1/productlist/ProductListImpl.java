@@ -269,8 +269,8 @@ public class ProductListImpl implements ProductList {
     }
 
     @Override
-    public Optional<String> getSelectors() {
-        return categoryId;
+    public String getSelectors() {
+        return categoryId.orElse(null);
     }
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
