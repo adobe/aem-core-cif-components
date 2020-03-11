@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search;
+package com.adobe.cq.commerce.core.search.models;
 
 public interface FilterAttributeMetadata {
 

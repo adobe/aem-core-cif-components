@@ -12,11 +12,13 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search;
+package com.adobe.cq.commerce.core.search.services;
 
 import java.util.List;
 
 import org.apache.sling.api.resource.Resource;
+
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 
 /**
  * This class is responsible for retrieving search filter and attribute metadata from the commerce backend.
@@ -26,7 +28,7 @@ public interface SearchFilterService {
     /**
      * Service to retrieve available search filters from the backing commerce system.
      *
-     * @return a {@link List<FilterAttributeMetadata>} of available search filters
+     * @return a {@link List< FilterAttributeMetadata >} of available search filters
      */
     List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(Resource resource);
 

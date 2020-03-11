@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.SearchFilterService;
+import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
 import com.adobe.cq.commerce.magento.graphql.AttributeInput;

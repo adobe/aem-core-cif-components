@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.search.SearchAggregation;
-import com.adobe.cq.commerce.core.search.SearchOptions;
-import com.adobe.cq.commerce.core.search.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
 public class SearchResultsSetImpl implements SearchResultsSet {
 

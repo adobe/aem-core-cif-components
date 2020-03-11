@@ -12,13 +12,15 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search;
+package com.adobe.cq.commerce.core.search.services;
 
 import javax.annotation.Nonnull;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.day.cq.wcm.api.Page;
 
 /**

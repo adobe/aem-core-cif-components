@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.core.search.SearchAggregation;
-import com.adobe.cq.commerce.core.search.SearchOptions;
-import com.adobe.cq.commerce.core.search.SearchResultsService;
-import com.adobe.cq.commerce.core.search.SearchResultsSet;
-import com.adobe.cq.commerce.core.search.internal.SearchOptionsImpl;
-import com.adobe.cq.commerce.core.search.internal.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.day.cq.wcm.api.Page;
 
 /**

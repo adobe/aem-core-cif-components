@@ -12,13 +12,13 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.search.SearchAggregationOption;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 
 /**
  * Basic implementation of {@link SearchAggregationOption}.

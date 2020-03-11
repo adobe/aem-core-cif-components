@@ -49,12 +49,12 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 //import com.adobe.cq.commerce.magento.graphql.ProductImage;
 //import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
-import com.adobe.cq.commerce.core.search.SearchOptions;
-import com.adobe.cq.commerce.core.search.SearchResultsService;
-import com.adobe.cq.commerce.core.search.SearchResultsSet;
-import com.adobe.cq.commerce.core.search.internal.SearchOptionsImpl;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+
 
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;

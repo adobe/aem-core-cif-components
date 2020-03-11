@@ -14,44 +14,30 @@
  *   limitations under the License.
  */
 
-package com.adobe.cq.commerce.core.search;
+package com.adobe.cq.commerce.core.search.models;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
- * Represents an aggregation
+ * Represents an aggregation option.
  */
 @ConsumerType
-public interface SearchAggregation {
+public interface SearchAggregationOption {
 
     @Nonnull
-    Optional<String> getAppliedFilterValue();
-
-    @Nonnull
-    Optional<String> getAppliedFilterDisplayLabel();
-
-    @Nonnull
-    boolean getFilterable();
-
-    @Nonnull
-    String getIdentifier();
+    String getFilterValue();
 
     @Nonnull
     String getDisplayLabel();
 
     @Nonnull
-    int getOptionCount();
+    int getCount();
 
     @Nonnull
-    List<SearchAggregationOption> getOptions();
-
-    @Nonnull
-    Map<String, String> getRemoveFilterMap();
+    Map<String, String> getAddFilterMap();
 
 }

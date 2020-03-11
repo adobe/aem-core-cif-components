@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.adobe.cq.commerce.core.search.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
 
 public class SearchOptionsImpl implements SearchOptions {
 

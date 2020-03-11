@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.List;
 import java.util.Map;
@@ -30,12 +30,15 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.SearchAggregation;
-import com.adobe.cq.commerce.core.search.SearchFilterService;
-import com.adobe.cq.commerce.core.search.SearchOptions;
-import com.adobe.cq.commerce.core.search.SearchResultsService;
-import com.adobe.cq.commerce.core.search.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
+import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.services.SearchFilterService;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;

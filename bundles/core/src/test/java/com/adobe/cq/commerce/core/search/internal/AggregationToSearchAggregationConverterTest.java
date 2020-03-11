@@ -26,8 +26,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.SearchAggregation;
+import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
+import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 

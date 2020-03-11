@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.converters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +22,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.SearchAggregation;
-import com.adobe.cq.commerce.core.search.SearchAggregationOption;
+import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchAggregationImpl;
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 

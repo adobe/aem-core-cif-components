@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.search.SearchResultsSet;
-import com.adobe.cq.commerce.core.search.internal.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.day.cq.wcm.api.Page;
 

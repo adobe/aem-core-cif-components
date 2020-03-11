@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,8 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import com.adobe.cq.commerce.core.search.SearchAggregation;
-import com.adobe.cq.commerce.core.search.SearchAggregationOption;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 
 /**
  * Basic implementation of {@link SearchAggregation}.

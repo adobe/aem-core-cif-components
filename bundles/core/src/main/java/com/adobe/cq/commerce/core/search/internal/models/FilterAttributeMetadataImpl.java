@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.search.internal;
+package com.adobe.cq.commerce.core.search.internal.models;
 
-import com.adobe.cq.commerce.core.search.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 
 public class FilterAttributeMetadataImpl implements FilterAttributeMetadata {
 
