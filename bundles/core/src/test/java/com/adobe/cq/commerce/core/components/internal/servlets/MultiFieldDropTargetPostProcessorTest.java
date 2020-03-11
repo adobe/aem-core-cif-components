@@ -39,7 +39,9 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
@@ -65,9 +67,31 @@ public class MultiFieldDropTargetPostProcessorTest {
 
     @Test
     public void testAppendToExistingMultiValue() throws Exception {
+        testAppendToExistingMultiValue(Collections.singletonMap("./multiDropTarget->@items", "b"), "a", "b");
+    }
+
+    @Test
+    public void testAppendToExistingMultiValueWithSkuSelection() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("./multiDropTarget->@items", "/var/commerce/products/b");
+        map.put("./selectionType", "sku");
+        map.put("./multiple", Boolean.TRUE);
+        testAppendToExistingMultiValue(map, "a", "b");
+    }
+
+    @Test
+    public void testAppendToExistingMultiValueWithCombinedSkuSelection() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("./multiDropTarget->@items", "/var/commerce/products/b");
+        map.put("./selectionType", "combinedSku");
+        map.put("./multiple", Boolean.FALSE);
+        testAppendToExistingMultiValue(map, "b");
+    }
+
+    private void testAppendToExistingMultiValue(Map<String, Object> parameterMap, String... expectedValues) throws Exception {
         MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
         request.setResource(context.resourceResolver().resolve("/content/postprocessor/jcr:content/existingMultiValue"));
-        request.setParameterMap(Collections.singletonMap("./multiDropTarget->@items", "b"));
+        request.setParameterMap(parameterMap);
 
         MultiFieldDropTargetPostProcessor dropTargetPostProcessor = new MultiFieldDropTargetPostProcessor();
         List<Modification> modifications = new ArrayList<>();
@@ -87,7 +111,7 @@ public class MultiFieldDropTargetPostProcessorTest {
 
         assertThat(resource.getValueMap().get("./items", String[].class))
             .isNotEmpty()
-            .containsExactly("a", "b");
+            .containsExactly(expectedValues);
     }
 
     @Test
