@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React, { useContext, useState, useCallback } from 'react';
 import { useCookieValue } from '../utils/hooks';
-import { useMutation, useLazyQuery } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
 

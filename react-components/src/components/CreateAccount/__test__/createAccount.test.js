@@ -23,6 +23,7 @@ import CreateAccount from '../createAccount';
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../../queries/mutation_create_customer.graphql';
+import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
 
 describe('<CreateAccount>', () => {
     beforeEach(() => {
@@ -84,6 +85,18 @@ describe('<CreateAccount>', () => {
                 result: {
                     data: {
                         customer: mockPerson
+                    }
+                }
+            },
+            {
+                request: {
+                    query: QUERY_CUSTOMER_CART
+                },
+                result: {
+                    data: {
+                        customerCart: {
+                            id: 'customercart'
+                        }
                     }
                 }
             }

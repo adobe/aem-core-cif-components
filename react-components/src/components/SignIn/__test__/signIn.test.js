@@ -19,6 +19,7 @@ import UserContextProvider from '../../../context/UserContext';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
+import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
 
 import SignIn from '../signIn';
 
@@ -49,6 +50,18 @@ const mocks = [
                     email: 'test@example.com',
                     firstname: 'John',
                     lastname: 'Doe'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: QUERY_CUSTOMER_CART
+        },
+        result: {
+            data: {
+                customerCart: {
+                    id: 'customercart'
                 }
             }
         }
