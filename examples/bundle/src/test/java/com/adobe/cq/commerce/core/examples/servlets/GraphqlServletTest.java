@@ -16,35 +16,75 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.models.spi.ImplementationPicker;
+import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
+import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.Products;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryArgumentsDefinition;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery.ProductsArgumentsDefinition;
-import com.adobe.cq.commerce.magento.graphql.StoreConfig;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.gson.reflect.TypeToken;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GraphqlServletTest {
+
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+                context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PAGE = "/content/page";
+    private static final String PRODUCT_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product";
+    private static final String PRODUCT_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist";
+    private static final String PRODUCT_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productcarousel";
+    private static final String PRODUCT_TEASER_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productteaser";
+    private static final String RELATED_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/relatedproducts";
+    private static final String UPSELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/upsellproducts";
+    private static final String CROSS_SELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/crosssellproducts";
+    private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
 
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
@@ -59,83 +99,14 @@ public class GraphqlServletTest {
     }
 
     @Test
-    public void testGetRequest() throws ServletException, IOException {
-        // Search parameters
-        CategoryArgumentsDefinition searchArgs = q -> q.id(2);
-
-        // Create "recursive" query with depth 5 to fetch category data and children
-        // There isn't any better way to build such a query with GraphQL
-        CategoryTreeQueryDefinition queryArgs = q -> TestGraphqlQueries.CATEGORY_TREE_LAMBDA
-            .apply(q)
-            .children(r -> TestGraphqlQueries.CATEGORY_TREE_LAMBDA
-                .apply(r)
-                .children(s -> TestGraphqlQueries.CATEGORY_TREE_LAMBDA
-                    .apply(s)
-                    .children(t -> TestGraphqlQueries.CATEGORY_TREE_LAMBDA
-                        .apply(t)
-                        .children(u -> TestGraphqlQueries.CATEGORY_TREE_LAMBDA
-                            .apply(u)))));
-
-        String query = Operations.query(q -> q.category(searchArgs, queryArgs)).toString();
-
-        request.setParameterMap(Collections.singletonMap("query", query));
-
-        graphqlServlet.doGet(request, response);
-        String output = response.getOutputAsString();
-
-        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
-        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-        CategoryTree category = graphqlResponse.getData().getCategory();
-
-        Assert.assertEquals(Integer.valueOf(2), category.getId());
-    }
-
-    @Test
-    public void testPostRequest() throws ServletException, IOException {
-        // Search parameters
-        ProductsArgumentsDefinition searchArgs = s -> s.search("whatever").currentPage(1).pageSize(3);
-
-        // Main queries
-        ProductsQueryDefinition queryArgs = q -> q.items(TestGraphqlQueries.CONFIGURABLE_PRODUCT_QUERY);
-        StoreConfigQueryDefinition storeQuery = q -> q.secureBaseMediaUrl();
-
-        String query = Operations.query(q -> q
-            .products(searchArgs, queryArgs)
-            .storeConfig(storeQuery)
-            .countries(c -> c.id())).toString(); // Not supported, should return null
-
-        GraphqlRequest graphqlRequest = new GraphqlRequest(query);
-        String body = QueryDeserializer.getGson().toJson(graphqlRequest);
-        request.setContent(body.getBytes());
-
-        graphqlServlet.doPost(request, response);
-        String output = response.getOutputAsString();
-
-        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
-        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-
-        Products products = graphqlResponse.getData().getProducts();
-        Assert.assertEquals(1, products.getItems().size());
-        Assert.assertEquals("MJ01", products.getItems().get(0).getSku());
-
-        // This is an important check, do NOT remove, see the comment in the servlet code
-        Assert.assertEquals("beaumont-summit-kit", products.getItems().get(0).getUrlKey());
-
-        StoreConfig storeConfig = graphqlResponse.getData().getStoreConfig();
-        Assert.assertTrue(storeConfig.getSecureBaseMediaUrl().startsWith("https://"));
-
-        Assert.assertNull(graphqlResponse.getData().getCountries());
-    }
-
-    @Test
     public void testGetRequestWithVariables() throws ServletException, IOException {
         String query = "query rootCategory($catId: Int!) {category(id: $catId){id,name,url_path}}";
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("query", query);
-        map.put("variables", Collections.singletonMap("catId", 2));
-        map.put("operationName", "rootCategory");
-        request.setParameterMap(map);
+        Map<String, Object> params = new HashMap<>();
+        params.put("query", query);
+        params.put("variables", Collections.singletonMap("catId", 2));
+        params.put("operationName", "rootCategory");
+        request.setParameterMap(params);
 
         graphqlServlet.doGet(request, response);
         String output = response.getOutputAsString();
@@ -165,5 +136,112 @@ public class GraphqlServletTest {
         CategoryTree category = graphqlResponse.getData().getCategory();
 
         Assert.assertEquals(Integer.valueOf(2), category.getId());
+    }
+
+    private Resource prepareModel(String resourcePath) throws ServletException {
+        Page page = context.currentPage(PAGE);
+        context.currentResource(resourcePath);
+        Resource resource = Mockito.spy(context.currentResource());
+
+        GraphqlClient graphqlClient = new MockGraphqlClient();
+        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(resource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.getValueMap());
+
+        XSSAPI xssApi = mock(XSSAPI.class);
+        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+        slingBindings.put("xssApi", xssApi);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        slingBindings.put("currentStyle", style);
+
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(false);
+        slingBindings.put("wcmmode", wcmMode);
+
+        return resource;
+    }
+
+    @Test
+    public void testProductModel() throws ServletException {
+        prepareModel(PRODUCT_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("MJ01", productModel.getSku());
+        Assert.assertEquals(15, productModel.getVariants().size());
+    }
+
+    @Test
+    public void testProductListModel() throws ServletException {
+        prepareModel(PRODUCT_LIST_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("13");
+
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertEquals("Tops", productListModel.getTitle());
+        Assert.assertEquals(6, productListModel.getProducts().size());
+    }
+
+    @Test
+    public void testProductCarouselModel() throws ServletException {
+        Resource resource = prepareModel(PRODUCT_CAROUSEL_RESOURCE);
+
+        String[] productSkuList = (String[]) resource.getValueMap().get("product"); // The HTL script uses an alias here
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put("productSkuList", productSkuList);
+
+        ProductCarousel productCarouselModel = context.request().adaptTo(ProductCarousel.class);
+        Assert.assertEquals(3, productCarouselModel.getProducts().size());
+        Assert.assertEquals("24-MG01", productCarouselModel.getProducts().get(0).getSKU());
+    }
+
+    @Test
+    public void testProductTeaserModel() throws ServletException {
+        prepareModel(PRODUCT_TEASER_RESOURCE);
+        ProductTeaser productTeaserModel = context.request().adaptTo(ProductTeaser.class);
+        Assert.assertEquals("Beaumont Summit Kit", productTeaserModel.getName());
+    }
+
+    @Test
+    public void testRelatedProductsModel() throws ServletException {
+        prepareModel(RELATED_PRODUCTS_RESOURCE);
+        ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
+        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
+        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+    }
+
+    @Test
+    public void testUpsellProductsModel() throws ServletException {
+        prepareModel(UPSELL_PRODUCTS_RESOURCE);
+        ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
+        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
+        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+    }
+
+    @Test
+    public void testCrosssellProductsModel() throws ServletException {
+        prepareModel(CROSS_SELL_PRODUCTS_RESOURCE);
+        ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
+        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
+        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+    }
+
+    @Test
+    public void testSearchResultsModel() throws ServletException {
+        prepareModel(SEARCH_RESULTS_RESOURCE);
+        context.request().setParameterMap(Collections.singletonMap("search_query", "beaumont"));
+        SearchResults searchResultsModel = context.request().adaptTo(SearchResults.class);
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
+        Assert.assertEquals(1, products.size());
+        Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
     }
 }

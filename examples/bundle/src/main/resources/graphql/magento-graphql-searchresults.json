@@ -1,0 +1,48 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "id": 278,
+          "url_key": "beaumont-summit-kit",
+          "name": "Beaumont Summit Kit",
+          "small_image": {
+            "label": "Beaumont Summit Kit",
+            "url": "http://magento2.vagrant78/pub/media/catalog/product/cache/cafecb2c660d511e3918d429acdc5ff6/m/j/mj01-yellow_main_1.jpg"
+          },
+          "price_range": {
+            "maximum_price": {
+              "regular_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "minimum_price": {
+              "regular_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

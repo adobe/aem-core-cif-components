@@ -1,0 +1,62 @@
+{
+  "page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "root": {
+        "responsivegrid": {
+          "product": {
+            "sling:resourceType": "core/cif/components/commerce/product/v1/product"
+          },
+          "productlist": {
+            "loadClientPrice": false,
+            "showImage": true,
+            "showTitle": true,
+            "sling:resourceType": "core/cif/components/commerce/productlist/v1/productlist"
+          },
+          "productcarousel": {
+            "product": ["24-MG01", "WJ01", "MJ01"],
+            "sling:resourceType": "core/cif/components/commerce/productcarousel/v1/productcarousel"
+          },
+          "productteaser": {
+            "selection": "MJ01",
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser"
+          },
+          "relatedproducts": {
+            "product": "24-MG01",
+            "relationType": "RELATED_PRODUCTS",
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
+          },
+          "upsellproducts": {
+            "product": "24-MG01",
+            "relationType": "UPSELL_PRODUCTS",
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
+          },
+          "crosssellproducts": {
+            "product": "24-MG01",
+            "relationType": "CROSS_SELL_PRODUCTS",
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
+          },
+          "searchresults": {
+            "sling:resourceType": "core/cif/components/commerce/searchresults/v1/searchresults"
+          }
+        }
+      }
+    }
+  },
+  "product-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
+    }
+  },
+  "category-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:language": "en_US"
+    }
+  }
+}

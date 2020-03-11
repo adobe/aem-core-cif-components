@@ -140,7 +140,7 @@ public class RelatedProductsImpl implements ProductCarousel {
                     null,
                     request));
             } catch (Exception e) {
-                LOGGER.error("Failed to instantiate product " + product.getSku(), e);
+                LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
         }
         return carouselProductList;

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -49,9 +50,9 @@ import graphql.introspection.IntrospectionResultToSchema;
 import graphql.language.Document;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.PropertyDataFetcher;
 import graphql.schema.TypeResolver;
 import graphql.schema.idl.FieldWiringEnvironment;
 import graphql.schema.idl.InterfaceWiringEnvironment;
@@ -77,6 +78,11 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String QUERY_PARAMETER = "query";
     private static final String VARIABLES_PARAMETER = "variables";
     private static final String OPERATION_NAME_PARAMETER = "operationName";
+
+    private static final String PRODUCTS_FILTER_ARG = "filter";
+    private static final String PRODUCTS_SEARCH_ARG = "search";
+    private static final String SKU_IN_REGEX = "\\{sku=\\{in=\\[.+\\]\\}\\}";
+    private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -108,7 +114,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             vars = gson.fromJson(variables, type);
         }
 
-        // To DEBUG: set 'notprivacysafe.graphql.GraphQL' to DEBUG level
         ExecutionResult executionResult = execute(query, operationName, vars);
         writeResponse(executionResult, response);
     }
@@ -122,10 +127,9 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
         Map<String, Object> vars = null;
         if (graphqlRequest.getVariables() != null) {
-            vars = (Map<String, Object>) graphqlRequest.getVariables(); // TODO: convert?
+            vars = (Map<String, Object>) graphqlRequest.getVariables();
         }
 
-        // To DEBUG: set 'notprivacysafe.graphql.GraphQL' to DEBUG level
         ExecutionResult executionResult = execute(graphqlRequest.getQuery(), graphqlRequest.getOperationName(), vars);
         writeResponse(executionResult, response);
     }
@@ -148,10 +152,13 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         IOUtils.write(json, response.getOutputStream(), StandardCharsets.UTF_8);
     }
 
+    private String readResource(String filename) throws IOException {
+        return IOUtils.toString(GraphqlServlet.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+    }
+
     @SuppressWarnings("unchecked")
     private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String filename = "magento-schema-2.3.4.json";
-        String json = IOUtils.toString(GraphqlServlet.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+        String json = readResource("graphql/magento-schema-2.3.4.json");
 
         Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
         Map<String, Object> map = gson.fromJson(json, type);
@@ -165,7 +172,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private GraphqlResponse<Query, Error> readGraphqlResponse(String filename) {
         String json = null;
         try {
-            json = IOUtils.toString(GraphqlServlet.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+            json = readResource(filename);
         } catch (IOException e) {
             LOGGER.error("Cannot read GraphQL response from " + filename, e);
             return null;
@@ -186,10 +193,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             public Object get(DataFetchingEnvironment env) {
                 Object obj = env.getSource();
                 String name = env.getField().getName();
-                if (obj instanceof AbstractResponse<?>) {
-                    return ((AbstractResponse<?>) obj).get(name);
-                }
-                return new PropertyDataFetcher<>(name).get(env); // use default property fetcher
+                return ((AbstractResponse<?>) obj).get(name);
             }
         };
 
@@ -232,15 +236,19 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 }
                 switch (fieldName) {
                     case "products": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-products-search.json");
-                        return graphqlResponse.getData().getProducts();
+                        return readProductsResponse(env);
                     }
                     case "storeConfig": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-storeconfig.json");
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("graphql/magento-graphql-storeconfig.json");
                         return graphqlResponse.getData().getStoreConfig();
                     }
                     case "category": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-categories.json");
+                        String filename = "graphql/magento-graphql-categories.json"; // Default query is fetching the category tree
+                        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
+                        if (selectionSet.contains("products")) {
+                            filename = "graphql/magento-graphql-category-products.json"; // Query to fetch category products
+                        }
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
                         return graphqlResponse.getData().getCategory();
                     }
                     default:
@@ -255,5 +263,40 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
             .build();
+    }
+
+    private Products readProductsResponse(DataFetchingEnvironment env) {
+
+        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
+        if (selectionSet.contains("items/related_products")) {
+            return readProductsFrom("graphql/magento-graphql-relatedproducts.json");
+        } else if (selectionSet.contains("items/upsell_products")) {
+            return readProductsFrom("graphql/magento-graphql-upsellproducts.json");
+        } else if (selectionSet.contains("items/crosssell_products")) {
+            return readProductsFrom("graphql/magento-graphql-crosssellproducts.json");
+        }
+
+        Map<String, Object> args = env.getArguments();
+        // We return different responses based on the products filter argument
+        Object productsFilter = args.get(PRODUCTS_FILTER_ARG);
+        if (productsFilter != null) {
+            String filter = productsFilter.toString();
+            if (filter.matches(SKU_IN_REGEX)) {
+                return readProductsFrom("graphql/magento-graphql-productcarousel.json");
+            } else if (filter.matches(SKU_EQ_REGEX)) {
+                return readProductsFrom("graphql/magento-graphql-productteaser.json");
+            }
+        }
+
+        if (args.containsKey(PRODUCTS_SEARCH_ARG)) {
+            return readProductsFrom("graphql/magento-graphql-searchresults.json");
+        }
+
+        return readProductsFrom("graphql/magento-graphql-products.json");
+    }
+
+    private Products readProductsFrom(String filename) {
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
+        return graphqlResponse.getData().getProducts();
     }
 }
