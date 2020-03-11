@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -84,21 +85,21 @@ public class SearchResultsSetImpl implements SearchResultsSet {
 
     @Nonnull
     @Override
-    public Map<String, String> getPreviousPageParameters(final Map<String, String> appliedParameters) {
+    public Map<String, String> getPreviousPageParameters() {
         Integer previousPage = getSearchOptions().getCurrentPage() <= 1 ? 1 : getSearchOptions().getCurrentPage() - 1;
-        Map<String, String> parameters = new HashMap<>(appliedParameters);
+        Map<String, String> parameters = new HashMap<>(getAppliedQueryParameters());
         parameters.put("page", previousPage.toString());
         return parameters;
     }
 
     @Nonnull
     @Override
-    public Map<String, String> getNextPageParameters(final Map<String, String> appliedParameters) {
+    public Map<String, String> getNextPageParameters() {
         final Integer totalPages = getTotalResults() % getSearchOptions().getPageSize() == 0
             ? getTotalResults() / getSearchOptions().getPageSize()
             : getTotalResults() / getSearchOptions().getPageSize() + 1;
         Integer nextPage = getSearchOptions().getCurrentPage() >= totalPages ? totalPages : getSearchOptions().getCurrentPage() + 1;
-        Map<String, String> parameters = new HashMap<>(appliedParameters);
+        Map<String, String> parameters = new HashMap<>(getAppliedQueryParameters());
         parameters.put("page", nextPage.toString());
         return parameters;
     }
@@ -154,4 +155,9 @@ public class SearchResultsSetImpl implements SearchResultsSet {
             .collect(Collectors.toList());
     }
 
+    @Nonnull
+    @Override
+    public Optional<String> getSearchQuery() {
+        return getSearchOptions().getSearchQuery();
+    }
 }

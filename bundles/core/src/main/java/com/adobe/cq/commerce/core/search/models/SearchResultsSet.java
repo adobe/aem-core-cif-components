@@ -32,58 +32,36 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 public interface SearchResultsSet {
 
     @Nonnull
-    default SearchOptions getSearchOptions() {
-        throw new UnsupportedOperationException();
-    }
+    SearchOptions getSearchOptions();
 
     @Nonnull
-    default Integer getTotalResults() {
-        throw new UnsupportedOperationException();
-    }
+    Integer getTotalResults();
 
     @Nonnull
-    default Optional<String> getSearchQuery() {
-        throw new UnsupportedOperationException();
-    }
+    Optional<String> getSearchQuery();
 
     @Nonnull
-    default Map<String, String> getAppliedQueryParameters() {
-        throw new UnsupportedOperationException();
-    }
+    Map<String, String> getAppliedQueryParameters();
 
     @Nonnull
-    default List<ProductListItem> getProductListItems() {
-        throw new UnsupportedOperationException();
-    }
+    List<ProductListItem> getProductListItems();
 
     @Nonnull
-    default List<SearchAggregation> getSearchAggregations() {
-        throw new UnsupportedOperationException();
-    }
+    List<SearchAggregation> getSearchAggregations();
 
     @Nonnull
-    default List<SearchAggregation> getAppliedAggregations() {
-        throw new UnsupportedOperationException();
-    }
+    List<SearchAggregation> getAppliedAggregations();
 
     @Nonnull
-    default List<SearchAggregation> getAvailableAggregations() {
-        throw new UnsupportedOperationException();
-    }
+    List<SearchAggregation> getAvailableAggregations();
 
     @Nonnull
-    default List<Map<String, String>> getPaginationParameters() {
-        throw new UnsupportedOperationException();
-    }
+    List<Map<String, String>> getPaginationParameters();
 
     @Nonnull
-    default Map<String, String> getPreviousPageParameters(Map<String, String> appliedParameters) {
-        throw new UnsupportedOperationException();
-    }
+    Map<String, String> getPreviousPageParameters();
 
     @Nonnull
-    default Map<String, String> getNextPageParameters(Map<String, String> appliedParameters) {
-        throw new UnsupportedOperationException();
-    }
+    Map<String, String> getNextPageParameters();
 
 }
