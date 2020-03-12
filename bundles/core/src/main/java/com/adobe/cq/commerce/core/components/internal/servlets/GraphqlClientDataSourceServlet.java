@@ -39,6 +39,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.granite.ui.components.Config;
+import com.adobe.granite.ui.components.ExpressionHelper;
+import com.adobe.granite.ui.components.ExpressionResolver;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
 import com.day.cq.i18n.I18n;
@@ -57,6 +60,9 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
     private I18n i18n;
 
     private Set<String> identifiers = new ConcurrentHashSet<>();
+
+    @Reference
+    private ExpressionResolver expressionResolver;
 
     @Reference(
         service = GraphqlClient.class,
@@ -83,9 +89,16 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         ResourceResolver resolver = request.getResourceResolver();
         List<Resource> graphqlClients = new ArrayList<>();
 
+        final Config cfg = new Config(request.getResource().getChild(Config.DATASOURCE));
+        boolean showEmptyOption = false;
+        if (cfg != null) {
+            ExpressionHelper expressionHelper = new ExpressionHelper(expressionResolver, request);
+            showEmptyOption = expressionHelper.getBoolean(cfg.get("showEmptyOption"));
+        }
         // Add empty option
-        graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
-
+        if (showEmptyOption) {
+            graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
+        }
         // Add other configurations
         for (String identifier : identifiers) {
             graphqlClients.add(new GraphqlClientResource(identifier, identifier, resolver));

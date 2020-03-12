@@ -123,6 +123,11 @@ public class ProductCarouselImpl implements ProductCarousel {
         List<ProductListItem> carouselProductList = new ArrayList<>();
         if (!products.isEmpty()) {
             for (String combinedSku : productSkuList) {
+
+                if (combinedSku.startsWith("/")) {
+                    combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
+                }
+
                 Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
                 ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
                 if (product == null) {
