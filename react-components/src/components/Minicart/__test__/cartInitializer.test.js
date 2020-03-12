@@ -25,6 +25,7 @@ import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.grap
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import { DefinePlugin } from 'webpack';
 
 const queryMocks = [
     {
@@ -97,13 +98,12 @@ const DummyCart = () => {
     const [{ cartId }] = useCartState();
     const [{ isSignedIn }, { signIn }] = useUserContext();
     if (!cartId || cartId.length === 0) {
-        return <div data-testid="cart-details">No cart</div>;
+        return <div>No cart</div>;
     }
 
     // we add this element to detect if the cart id has been updated.
     // This basically moves the assertion to the component
     let successElement = cartId === 'customercart' ? <div data-testid="success"></div> : '';
-
     return (
         <div>
             <div data-testid="cart-details">{cartId}</div>
@@ -155,7 +155,7 @@ describe('<CartInitializer />', () => {
     });
 
     it('creates a new cart if cartId is not set in cookie', async () => {
-        const { getByTestId } = render(
+        const { getByTestId, debug } = render(
             <MockedProvider
                 mocks={[
                     {
@@ -187,8 +187,7 @@ describe('<CartInitializer />', () => {
             </MockedProvider>
         );
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
-
-        expect(cartIdNode.children[0].textContent).toEqual('guest123');
+        expect(cartIdNode.textContent).toEqual('guest123');
     });
 
     it('merges the cart when the user signs in', async () => {
