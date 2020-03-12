@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.sling.api.SlingConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -426,7 +425,7 @@ public class NavigationImplTest {
         Integer categoryId = 0;
         String categoryName = "Category 1";
 
-        initCatalogPage(true, true, false );
+        initCatalogPage(true, true, false);
 
         NavigationItem item = mock(NavigationItem.class);
         when(item.getPath()).thenReturn(CATALOG_PAGE_PATH);
@@ -538,7 +537,7 @@ public class NavigationImplTest {
         when(catalogPageContent.isResourceType(RT_CATALOG_PAGE)).thenReturn(catalogRoot);
         Map<String, Object> catalogPageProperties = new HashMap<>();
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
-        
+
         if (!useCaConfig) {
             catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
         }
