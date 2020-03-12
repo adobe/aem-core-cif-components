@@ -14,25 +14,22 @@
 <sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
      data-sly-call="${clientlib.all @ categories='core.cif.components.productcarousel.v1'}"
      data-sly-use.carousel="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}"
-/>
+     data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
+     data-sly-use.productTpl="productcard.html" />
 
-<sly data-sly-test="${!carousel.isConfigured}">
-    <div class="placeholder__empty productcarousel__title" data-sly-text="${component.title}"></div>
-</sly>
-
-<sly data-sly-use.productTpl="productcard.html" data-sly-test="${carousel.isConfigured && (carousel.products || !wcmmode.disabled)}">
+<sly data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}">
     <div data-comp-is="productcarousel">
-        <sly data-sly-test.hasProducts="${carousel.products}">
-	        <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button"></button>
-	        <div class="productcarousel productcarousel__root">
-	            <div class="productcarousel__parent" >
-	                <div class="productcarousel__cardscontainer" data-sly-list.product=${carousel.products}>
-	                    <sly data-sly-call="${productTpl.productcard @ product=product}"></sly>
-	                </div>
-	            </div>
-	        </div>
-	        <button data-carousel-action='next' class="productcarousel__btn productcarousel__btn--next" type="button"></button>
-        </sly>
-        <div class="placeholder__empty productcarousel__title" data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</div>
+        <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button"></button>
+        <div class="productcarousel productcarousel__root">
+            <div class="productcarousel__parent" >
+                <div class="productcarousel__cardscontainer" data-sly-list.product=${carousel.products}>
+                    <sly data-sly-call="${productTpl.productcard @ product=product}"></sly>
+                </div>
+            </div>
+        </div>
+        <button data-carousel-action='next' class="productcarousel__btn productcarousel__btn--next" type="button"></button>
     </div>
 </sly>
+
+<sly data-sly-call="${templates.placeholder @ isEmpty = !carousel.isConfigured}" />
+<sly data-sly-call="${templates.placeholder @ isEmpty = carousel.isConfigured && !hasProducts, emptyTextAppend = 'Configured, but no products to display'}" />

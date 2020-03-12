@@ -91,7 +91,10 @@
                 "categoryId": "7",
                 "asset": "invalid-asset"
               },
-              "item3": {}
+              "item3": {},
+              "item4": {
+                "categoryId": "9999"
+              }
             }
           },
           "featuredcategorylist2": {
