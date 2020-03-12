@@ -56,9 +56,19 @@ public interface SearchResults {
     @Nonnull
     List<SearchAggregation> getAggregations();
 
+    /**
+     * Get the search result set. This is the actual search result data.
+     *
+     * @return the result of the search
+     */
     @Nonnull
     SearchResultsSet getSearchResultsSet();
 
+    /**
+     * This is the path to the search page.
+     *
+     * @return the search page page
+     */
     @Nonnull
     String getSearchResultsPagePath();
 

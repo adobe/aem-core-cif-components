@@ -23,6 +23,10 @@ public class FilterAttributeMetadataImpl implements FilterAttributeMetadata {
      */
     public static final String INPUT_TYPE_SELECT = "select";
     /**
+     * An input of type text.
+     */
+    public static final String INPUT_TYPE_TEXT = "text";
+    /**
      * An input of type select.
      */
     public static final String INPUT_TYPE_BOOLEAN = "boolean";
@@ -34,6 +38,10 @@ public class FilterAttributeMetadataImpl implements FilterAttributeMetadata {
      * An attribute of type Int.
      */
     public static final String ATTRIBUTE_TYPE_INT = "Int";
+    /**
+     * An attribute of type Int.
+     */
+    public static final String ATTRIBUTE_TYPE_STRING = "String";
     /**
      * An attribute of type Float.
      */

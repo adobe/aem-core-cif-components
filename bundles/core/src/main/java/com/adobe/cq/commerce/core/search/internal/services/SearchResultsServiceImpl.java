@@ -61,7 +61,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     @Reference
     SearchFilterService searchFilterService;
 
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsServiceImpl.class);
+
+    public SearchResultsServiceImpl() {}
+
+    public SearchResultsServiceImpl(final MagentoGraphqlClient magentoGraphqlClient) {
+        this.magentoGraphqlClient = magentoGraphqlClient;
+    }
 
     @Nonnull
     @Override
@@ -74,7 +82,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        if (magentoGraphqlClient == null) {
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        }
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("The search result service was unable to create a new MagentoGraphqlClient.");
@@ -85,23 +95,29 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
 
+        // Next we generate the graphql query and actually query the commerce system
         String queryString = generateQueryString(searchOptions, availableFilters);
-
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
-        if (!checkAndLogErrors(response.getErrors())) {
-            final List<ProductListItem> productListItems = extractProductsFromResponse(
-                response.getData().getProducts().getItems(),
-                productPage,
-                request);
-            final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
-                .getAggregations(),
-                searchOptions.getAllFilters(), availableFilters);
-            searchResultsSet.setTotalResults(response.getData().getProducts().getTotalCount());
-            searchResultsSet.setProductListItems(productListItems);
-            searchResultsSet.setSearchAggregations(searchAggregations);
+        // If we have any errors returned we'll log them and return an empty search result
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            response.getErrors().stream()
+                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
+            return searchResultsSet;
         }
+
+        // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
+        final List<ProductListItem> productListItems = extractProductsFromResponse(
+            response.getData().getProducts().getItems(),
+            productPage,
+            request);
+        final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
+            .getAggregations(),
+            searchOptions.getAllFilters(), availableFilters);
+        searchResultsSet.setTotalResults(response.getData().getProducts().getTotalCount());
+        searchResultsSet.setProductListItems(productListItems);
+        searchResultsSet.setSearchAggregations(searchAggregations);
 
         return searchResultsSet;
 
@@ -178,22 +194,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return Operations.query(query -> query.products(searchArgs, queryArgs))
             .toString();
 
-    }
-
-    /**
-     * Checks the graphql response for errors and logs out to the error console if any are found
-     *
-     * @param errors the {@link List<Error>} if any
-     * @return {@link true} if any errors were found, {@link false} otherwise
-     */
-    private boolean checkAndLogErrors(List<Error> errors) {
-        if (errors != null && errors.size() > 0) {
-            errors.stream()
-                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**
