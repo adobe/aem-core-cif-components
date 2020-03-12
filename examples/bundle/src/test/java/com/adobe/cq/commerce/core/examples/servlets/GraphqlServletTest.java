@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -37,7 +38,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
@@ -51,8 +54,10 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.gson.reflect.TypeToken;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -85,6 +90,8 @@ public class GraphqlServletTest {
     private static final String UPSELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/upsellproducts";
     private static final String CROSS_SELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/crosssellproducts";
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
+    private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
+    private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
 
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
@@ -115,7 +122,7 @@ public class GraphqlServletTest {
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
         CategoryTree category = graphqlResponse.getData().getCategory();
 
-        Assert.assertEquals(Integer.valueOf(2), category.getId());
+        Assert.assertEquals(2, category.getId().intValue());
     }
 
     @Test
@@ -135,16 +142,21 @@ public class GraphqlServletTest {
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
         CategoryTree category = graphqlResponse.getData().getCategory();
 
-        Assert.assertEquals(Integer.valueOf(2), category.getId());
+        Assert.assertEquals(2, category.getId().intValue());
     }
 
     private Resource prepareModel(String resourcePath) throws ServletException {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
+        context.currentPage(page);
         context.currentResource(resourcePath);
         Resource resource = Mockito.spy(context.currentResource());
 
         GraphqlClient graphqlClient = new MockGraphqlClient();
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Resource pageContent = Mockito.spy(page.getContentResource());
+        when(page.getContentResource()).thenReturn(pageContent);
+        when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -243,5 +255,29 @@ public class GraphqlServletTest {
         Collection<ProductListItem> products = searchResultsModel.getProducts();
         Assert.assertEquals(1, products.size());
         Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
+    }
+
+    @Test
+    public void testFeaturedCategoryListModel() throws ServletException {
+        prepareModel(FEATURED_CATEGORY_LIST_RESOURCE);
+        FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
+        List<CategoryTree> categories = featureCategoryListModel.getCategories();
+        Assert.assertEquals(3, categories.size());
+
+        // Test that the Servlet didn't return 3 times the catalog category tree
+        Assert.assertEquals(4, categories.get(0).getId().intValue());
+        Assert.assertEquals(5, categories.get(1).getId().intValue());
+        Assert.assertEquals(6, categories.get(2).getId().intValue());
+    }
+
+    @Test
+    public void testNavigationModel() throws ServletException {
+        prepareModel(NAVIGATION_RESOURCE);
+
+        context.registerService(LanguageManager.class, Mockito.mock(LanguageManager.class));
+        context.registerService(LiveRelationshipManager.class, Mockito.mock(LiveRelationshipManager.class));
+
+        Navigation navigationModel = context.request().adaptTo(Navigation.class);
+        Assert.assertEquals(7, navigationModel.getItems().size()); // Our test catalog has 7 top-level categories
     }
 }

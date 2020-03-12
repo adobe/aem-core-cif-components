@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.examples.servlets;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.Servlet;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -86,6 +88,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     private Gson gson;
     private GraphQL graphQL;
+    private Map<String, GraphqlResponse<Query, Error>> graphqlResponsesCache = new HashMap<>();
 
     @Override
     public void init() throws ServletException {
@@ -170,6 +173,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     }
 
     private GraphqlResponse<Query, Error> readGraphqlResponse(String filename) {
+        if (graphqlResponsesCache.containsKey(filename)) {
+            return graphqlResponsesCache.get(filename);
+        }
+
         String json = null;
         try {
             json = readResource(filename);
@@ -178,7 +185,9 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             return null;
         }
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
-        return QueryDeserializer.getGson().fromJson(json, type);
+        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(json, type);
+        graphqlResponsesCache.put(filename, graphqlResponse);
+        return graphqlResponse;
     }
 
     private RuntimeWiring buildRuntimeWiring() throws IOException {
@@ -229,10 +238,11 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             @Override
             public Object get(DataFetchingEnvironment env) {
                 String fieldName = env.getField().getName();
-                LOGGER.debug("Field: " + fieldName);
+                String fieldAlias = env.getField().getAlias();
+                LOGGER.debug("Field: {} {}", fieldName, StringUtils.isNotBlank(fieldAlias) ? ("(Alias: " + fieldAlias + ")") : "");
                 Map<String, Object> args = env.getArguments();
                 if (MapUtils.isNotEmpty(args)) {
-                    args.forEach((key, value) -> LOGGER.debug("Arg: " + key + " --> " + value + " (" + value.getClass() + ")"));
+                    args.forEach((key, value) -> LOGGER.debug("Arg: {} --> {} ({})", key, value, value.getClass()));
                 }
                 switch (fieldName) {
                     case "products": {
@@ -243,13 +253,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                         return graphqlResponse.getData().getStoreConfig();
                     }
                     case "category": {
-                        String filename = "graphql/magento-graphql-categories.json"; // Default query is fetching the category tree
-                        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
-                        if (selectionSet.contains("products")) {
-                            filename = "graphql/magento-graphql-category-products.json"; // Query to fetch category products
-                        }
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
-                        return graphqlResponse.getData().getCategory();
+                        return readCategoryResponse(env);
                     }
                     default:
                         return null;
@@ -298,5 +302,24 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private Products readProductsFrom(String filename) {
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
         return graphqlResponse.getData().getProducts();
+    }
+
+    private CategoryTree readCategoryResponse(DataFetchingEnvironment env) {
+
+        // If the query has aliases, it's the FeaturedCategoryList component
+        String fieldAlias = env.getField().getAlias();
+        if (StringUtils.isNotBlank(fieldAlias)) {
+            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("graphql/magento-graphql-featuredcategorylist.json");
+            return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
+        }
+
+        String filename = "graphql/magento-graphql-categories.json"; // Default query is fetching the category tree
+        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
+        if (selectionSet.contains("products")) {
+            filename = "graphql/magento-graphql-category-products.json"; // Query to fetch category products
+        }
+
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
+        return graphqlResponse.getData().getCategory();
     }
 }
