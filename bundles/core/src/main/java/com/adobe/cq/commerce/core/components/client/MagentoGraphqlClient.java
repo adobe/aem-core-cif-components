@@ -16,9 +16,12 @@ package com.adobe.cq.commerce.core.components.client;
 
 import java.util.Collections;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +51,16 @@ public class MagentoGraphqlClient {
 
     public static final String STORE_CODE_PROPERTY = "magentoStore";
 
+    public static final String CONFIGURATION_NAME = "cloudconfigs/commerce";
+
     private GraphqlClient graphqlClient;
+
     private RequestOptions requestOptions;
 
     /**
      * Instantiates and returns a new MagentoGraphqlClient.
      * This method returns <code>null</code> if the client cannot be instantiated.
-     * 
+     *
      * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
      * @return A new MagentoGraphqlClient instance.
      */
@@ -75,24 +81,19 @@ public class MagentoGraphqlClient {
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
-        InheritanceValueMap properties;
-        Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
-        if (page != null) {
-            properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
-        } else {
-            properties = new ComponentInheritanceValueMap(resource);
-        }
+        String storeCode;
+        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
 
-        // get Magento store code
-        String storeCode = properties.getInherited(STORE_CODE_PROPERTY, String.class);
-        // for backward compatibility also check of the old cq:magentoStore property
-        if (storeCode == null) {
-            storeCode = properties.getInherited("cq:" + STORE_CODE_PROPERTY, String.class);
-            if (storeCode != null) {
-                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
+        if (configBuilder != null) {
+            ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
+            storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
+            if (storeCode == null) {
+                storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
             }
+        } else {
+            storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
         }
-        if (storeCode != null) {
+        if (StringUtils.isNotEmpty(storeCode)) {
             Header storeHeader = new BasicHeader("Store", storeCode);
             requestOptions.withHeaders(Collections.singletonList(storeHeader));
         }
@@ -102,7 +103,7 @@ public class MagentoGraphqlClient {
      * Executes the given Magento query and returns the response. This method will use
      * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
      * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.
-     * 
+     *
      * @param query The GraphQL query.
      * @return The GraphQL response.
      */
@@ -113,7 +114,7 @@ public class MagentoGraphqlClient {
     /**
      * Executes the given Magento query and returns the response. This method
      * uses the given <code>httpMethod</code> to fetch the data.
-     * 
+     *
      * @param query The GraphQL query.
      * @param httpMethod The HTTP method that will be used to fetch the data.
      * @return The GraphQL response.
@@ -121,11 +122,33 @@ public class MagentoGraphqlClient {
     public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
 
         // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
-        RequestOptions options = new RequestOptions()
-            .withGson(requestOptions.getGson())
+        RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
             .withHeaders(requestOptions.getHeaders())
             .withHttpMethod(httpMethod);
 
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    }
+
+    private String readFallBackConfiguration(Resource resource, String propertyName) {
+
+        InheritanceValueMap properties;
+        String storeCode;
+
+        Page page = resource.getResourceResolver()
+            .adaptTo(PageManager.class)
+            .getContainingPage(resource);
+        if (page != null) {
+            properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
+        } else {
+            properties = new ComponentInheritanceValueMap(resource);
+        }
+        storeCode = properties.getInherited(propertyName, String.class);
+        if (storeCode == null) {
+            storeCode = properties.getInherited("cq:" + propertyName, String.class);
+            if (storeCode != null) {
+                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
+            }
+        }
+        return storeCode;
     }
 }
