@@ -138,6 +138,14 @@
       "cq:magentoStore": "old-store"
     }
   },
+  "pageG": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "cq:magentoStore": "old-store"
+    }
+  },
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
