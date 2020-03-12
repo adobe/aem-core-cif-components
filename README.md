@@ -44,7 +44,7 @@ For a list of requirements for previous versions, see [Historical System Require
 
 ### AEM Commerce connector for Magento
 
-This project uses the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed seperatly as part of the customer project.
+This project uses the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed separately as part of the customer project.
 
 ### AEM Sites Core Components
 
