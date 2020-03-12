@@ -19,7 +19,9 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -96,7 +98,11 @@ public class ProductCarouselImplTest {
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
 
-        List<String> productSkuList = Arrays.asList(productSkuArray);
+        List<String> productSkuList = Arrays.asList(productSkuArray)
+            .stream()
+            .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
+            .collect(Collectors.toList());
+
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
         int idx = 0;
