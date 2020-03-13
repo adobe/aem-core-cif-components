@@ -169,7 +169,8 @@ public class GraphqlServletTest {
         slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        when(style.get(Mockito.anyString(), Mockito.isA(Boolean.class))).then(i -> i.getArgumentAt(1, Boolean.class));
+        when(style.get(Mockito.anyString(), Mockito.isA(Integer.class))).then(i -> i.getArgumentAt(1, Integer.class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
