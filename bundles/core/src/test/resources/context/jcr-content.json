@@ -23,7 +23,7 @@
             "sling:resourceType": "venia/components/commerce/productteaser"
           },
           "productcarousel": {
-            "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "WJ01", "MJ01"],
+            "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01", "MJ01"],
             "sling:resourceType": "venia/components/commerce/productcarousel"
           },
           "product": {
@@ -131,6 +131,14 @@
     }
   },
   "pageF": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "cq:magentoStore": "old-store"
+    }
+  },
+  "pageG": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",

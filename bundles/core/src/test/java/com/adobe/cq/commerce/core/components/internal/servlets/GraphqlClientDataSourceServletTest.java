@@ -18,13 +18,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.testing.resourceresolver.MockResource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,6 +39,8 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.granite.ui.components.Config;
+import com.adobe.granite.ui.components.ExpressionResolver;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.day.cq.i18n.I18n;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -50,9 +57,15 @@ public class GraphqlClientDataSourceServletTest {
 
     private GraphqlClientDataSourceServlet servlet;
 
+    private ExpressionResolver mockExpressionResolver;
+
     @Before
     public void setUp() {
         servlet = new GraphqlClientDataSourceServlet();
+        mockExpressionResolver = Mockito.mock(ExpressionResolver.class);
+        context.registerService(ExpressionResolver.class, mockExpressionResolver);
+        context.registerInjectActivateService(servlet);
+
     }
 
     @Test
@@ -93,6 +106,17 @@ public class GraphqlClientDataSourceServletTest {
         identifiers.add("my-identifier");
         Whitebox.setInternalState(servlet, "identifiers", identifiers);
 
+        Resource mockResource = Mockito.mock(Resource.class);
+        Map<String, Object> datasourceProps = new HashMap<String, Object>();
+        datasourceProps.put("showEmptyOption", true);
+        Resource datasourceDefinition = new MockResource("/some/random/path", datasourceProps, context.resourceResolver());
+        Mockito.when(mockResource.getChild(Config.DATASOURCE)).thenReturn(datasourceDefinition);
+
+        Mockito.when(mockExpressionResolver.resolve(Mockito.any(String.class), Mockito.any(Locale.class), Mockito.any(Class.class), Mockito
+            .any(SlingHttpServletRequest.class))).thenReturn(true);
+
+        context.request().setResource(mockResource);
+
         // Call method
         List<Resource> resources = servlet.getGraphqlClients(context.request());
 
@@ -109,6 +133,41 @@ public class GraphqlClientDataSourceServletTest {
         // Verify actual client
         GraphqlClientDataSourceServlet.GraphqlClientResource client = (GraphqlClientDataSourceServlet.GraphqlClientResource) resources.get(
             1);
+        Assert.assertEquals("my-identifier", client.getText());
+        Assert.assertEquals("my-identifier", client.getValue());
+        Assert.assertFalse(client.getSelected());
+    }
+
+    @Test
+    public void testGetGraphqlClientsNoEmptyOption() throws IOException, InvalidSyntaxException {
+        // Stub i18n
+        I18n i18n = mock(I18n.class);
+        Mockito.doReturn("inherit-translated").when(i18n).get(eq("Inherit"), any());
+        Whitebox.setInternalState(servlet, "i18n", i18n);
+
+        // Add fake identifiers
+        Set<String> identifiers = new HashSet<>();
+        identifiers.add("my-identifier");
+        Whitebox.setInternalState(servlet, "identifiers", identifiers);
+
+        Resource mockResource = Mockito.mock(Resource.class);
+        Map<String, Object> datasourceProps = new HashMap<String, Object>();
+        datasourceProps.put("showEmptyOption", false);
+        Resource datasourceDefinition = new MockResource("/some/random/path", datasourceProps, context.resourceResolver());
+
+        Mockito.when(mockResource.getChild(Config.DATASOURCE)).thenReturn(datasourceDefinition);
+
+        context.request().setResource(mockResource);
+
+        // Call method
+        List<Resource> resources = servlet.getGraphqlClients(context.request());
+
+        // Verify list
+        Assert.assertEquals(1, resources.size());
+
+        // Verify actual client
+        GraphqlClientDataSourceServlet.GraphqlClientResource client = (GraphqlClientDataSourceServlet.GraphqlClientResource) resources.get(
+            0);
         Assert.assertEquals("my-identifier", client.getText());
         Assert.assertEquals("my-identifier", client.getValue());
         Assert.assertFalse(client.getSelected());

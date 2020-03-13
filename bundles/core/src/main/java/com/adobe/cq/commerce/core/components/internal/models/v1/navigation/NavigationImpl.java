@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -160,8 +161,16 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final InheritanceValueMap catalogPageProperties = new HierarchyNodeInheritanceValueMap(catalogPage.getContentResource());
-        Integer rootCategoryId = catalogPageProperties.getInherited(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+        Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        if (rootCategoryId == null) {
+            ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
+
+            if (configBuilder != null) {
+                ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
+                rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+            }
+        }
+
         if (rootCategoryId == null) {
             LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
             return;
@@ -194,6 +203,11 @@ public class NavigationImpl implements Navigation {
     @Override
     public String getParentId() {
         return null;
+    }
+
+    private Integer readPageConfiguration(Page page, String propertyName) {
+        InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
+        return properties.getInherited(propertyName, Integer.class);
     }
 
     class PageNavigationItem extends AbstractNavigationItem {
