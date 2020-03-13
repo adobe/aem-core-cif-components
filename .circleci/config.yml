@@ -34,6 +34,10 @@ jobs:
           path: bundles/core/target/surefire-reports
       - store_artifacts:
           path: bundles/core/target/surefire-reports
+      - store_test_results:
+          path: examples/bundle/target/surefire-reports
+      - store_artifacts:
+          path: examples/bundle/target/surefire-reports
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: unittests

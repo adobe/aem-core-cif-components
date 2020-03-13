@@ -44,6 +44,7 @@ flags:
   unittests:
     paths:
       - bundles/core/
+      - examples/bundle/
   karma:
     paths:
       - ui.apps/
