@@ -137,6 +137,14 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         writeResponse(executionResult, response);
     }
 
+    /**
+     * Executes the given GraphQL <code>query</code> with the optional <code>operationName</code> and <code>variables</code> parameters.
+     * 
+     * @param query The GraphQL query.
+     * @param operationName An optional operation name for that query.
+     * @param variables An optional map of variables for the query.
+     * @return The execution result.
+     */
     private ExecutionResult execute(String query, String operationName, Map<String, Object> variables) {
         Builder builder = new Builder().query(query);
         if (operationName != null) {
@@ -148,6 +156,13 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return graphQL.execute(builder);
     }
 
+    /**
+     * Write the result of a GraphQL query execution in the given Servlet response.
+     * 
+     * @param executionResult The GraphQL query execution result.
+     * @param response The Servlet response.
+     * @throws IOException If an I/O error occurs.
+     */
     private void writeResponse(ExecutionResult executionResult, SlingHttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         Map<String, Object> spec = executionResult.toSpecification();
@@ -155,23 +170,23 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         IOUtils.write(json, response.getOutputStream(), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Reads the given resource file and returns the content.
+     * 
+     * @param filename The name of the file.
+     * @return The string content of the file.
+     * @throws IOException If an I/O error occurs.
+     */
     private String readResource(String filename) throws IOException {
-        return IOUtils.toString(GraphqlServlet.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+        return IOUtils.toString(GraphqlServlet.class.getClassLoader().getResourceAsStream("graphql/" + filename), StandardCharsets.UTF_8);
     }
 
-    @SuppressWarnings("unchecked")
-    private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String json = readResource("graphql/magento-schema-2.3.4.json");
-
-        Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
-        Map<String, Object> map = gson.fromJson(json, type);
-        Map<String, Object> data = (Map<String, Object>) map.get("data");
-
-        Document document = new IntrospectionResultToSchema().createSchemaDefinition(data);
-        String sdl = new SchemaPrinter().print(document);
-        return new SchemaParser().parse(sdl);
-    }
-
+    /**
+     * Reads and parses the GraphQL response from the given filename.
+     * 
+     * @param filename The file with the GraphQL JSON response.
+     * @return A parsed GraphQL response object.
+     */
     private GraphqlResponse<Query, Error> readGraphqlResponse(String filename) {
         if (graphqlResponsesCache.containsKey(filename)) {
             return graphqlResponsesCache.get(filename);
@@ -190,6 +205,31 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return graphqlResponse;
     }
 
+    /**
+     * Initialises and parses the GraphQL schema.
+     * 
+     * @return The registry of type definitions.
+     * @throws IOException If an I/O error occurs.
+     */
+    @SuppressWarnings("unchecked")
+    private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
+        String json = readResource("magento-schema-2.3.4.json");
+
+        Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
+        Map<String, Object> map = gson.fromJson(json, type);
+        Map<String, Object> data = (Map<String, Object>) map.get("data");
+
+        Document document = new IntrospectionResultToSchema().createSchemaDefinition(data);
+        String sdl = new SchemaPrinter().print(document);
+        return new SchemaParser().parse(sdl);
+    }
+
+    /**
+     * Configures and builds the execution engine of the GraphQL server.
+     * 
+     * @return The runtime wiring of the server.
+     * @throws IOException If an I/O error occurs.
+     */
     private RuntimeWiring buildRuntimeWiring() throws IOException {
 
         // Fields like url_key cannot be fetched because graphql-java calls the method getUrl_key()
@@ -249,7 +289,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                         return readProductsResponse(env);
                     }
                     case "storeConfig": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("graphql/magento-graphql-storeconfig.json");
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-storeconfig.json");
                         return graphqlResponse.getData().getStoreConfig();
                     }
                     case "category": {
@@ -269,15 +309,24 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             .build();
     }
 
+    /**
+     * Based on the GraphQL query, this method returns a Magento <code>Products</code> object
+     * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
+     * specific JSON response. Luckily, each GraphQL query sent by each component is different so
+     * we can "detect" what response should be returned.
+     * 
+     * @param env The metadata of the GraphQL query.
+     * @return A Magento <code>Products</code> object.
+     */
     private Products readProductsResponse(DataFetchingEnvironment env) {
 
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
         if (selectionSet.contains("items/related_products")) {
-            return readProductsFrom("graphql/magento-graphql-relatedproducts.json");
+            return readProductsFrom("magento-graphql-relatedproducts.json");
         } else if (selectionSet.contains("items/upsell_products")) {
-            return readProductsFrom("graphql/magento-graphql-upsellproducts.json");
+            return readProductsFrom("magento-graphql-upsellproducts.json");
         } else if (selectionSet.contains("items/crosssell_products")) {
-            return readProductsFrom("graphql/magento-graphql-crosssellproducts.json");
+            return readProductsFrom("magento-graphql-crosssellproducts.json");
         }
 
         Map<String, Object> args = env.getArguments();
@@ -286,37 +335,52 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         if (productsFilter != null) {
             String filter = productsFilter.toString();
             if (filter.matches(SKU_IN_REGEX)) {
-                return readProductsFrom("graphql/magento-graphql-productcarousel.json");
+                return readProductsFrom("magento-graphql-productcarousel.json");
             } else if (filter.matches(SKU_EQ_REGEX)) {
-                return readProductsFrom("graphql/magento-graphql-productteaser.json");
+                return readProductsFrom("magento-graphql-productteaser.json");
             }
         }
 
         if (args.containsKey(PRODUCTS_SEARCH_ARG)) {
-            return readProductsFrom("graphql/magento-graphql-searchresults.json");
+            return readProductsFrom("magento-graphql-searchresults.json");
         }
 
-        return readProductsFrom("graphql/magento-graphql-products.json");
+        return readProductsFrom("magento-graphql-products.json");
     }
 
+    /**
+     * Reads the JSON of the given file and deserialises the content in a Magento <code>Products</code> object.
+     * 
+     * @param filename The file that contains the products JSON response.
+     * @return A Magento <code>Products</code> object.
+     */
     private Products readProductsFrom(String filename) {
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
         return graphqlResponse.getData().getProducts();
     }
 
+    /**
+     * Based on the GraphQL query, this method returns a Magento <code>CategoryTree</code> object
+     * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
+     * specific JSON response. Luckily, each GraphQL query sent by each component is different so
+     * we can "detect" what response should be returned.
+     * 
+     * @param env The metadata of the GraphQL query.
+     * @return A Magento <code>CategoryTree</code> object.
+     */
     private CategoryTree readCategoryResponse(DataFetchingEnvironment env) {
 
         // If the query has aliases, it's the FeaturedCategoryList component
         String fieldAlias = env.getField().getAlias();
         if (StringUtils.isNotBlank(fieldAlias)) {
-            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("graphql/magento-graphql-featuredcategorylist.json");
+            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-featuredcategorylist.json");
             return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
         }
 
-        String filename = "graphql/magento-graphql-categories.json"; // Default query is fetching the category tree
+        String filename = "magento-graphql-categories.json"; // Default query is fetching the category tree
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
         if (selectionSet.contains("products")) {
-            filename = "graphql/magento-graphql-category-products.json"; // Query to fetch category products
+            filename = "magento-graphql-category-products.json"; // Query to fetch category products
         }
 
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);

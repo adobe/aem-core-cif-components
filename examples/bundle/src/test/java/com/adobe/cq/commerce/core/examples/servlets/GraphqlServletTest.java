@@ -274,6 +274,7 @@ public class GraphqlServletTest {
     public void testNavigationModel() throws ServletException {
         prepareModel(NAVIGATION_RESOURCE);
 
+        // Mock OSGi services for the WCM Navigation component
         context.registerService(LanguageManager.class, Mockito.mock(LanguageManager.class));
         context.registerService(LiveRelationshipManager.class, Mockito.mock(LiveRelationshipManager.class));
 
