@@ -11,7 +11,7 @@
             <parameters
                 jcr:primaryType="nt:unstructured"
                 multiple="{Boolean}false"
-                selectionType="sku"/>
+                selectionId="sku"/>
         </product-data-reference>
     </cq:dropTargets>
 </jcr:root>
