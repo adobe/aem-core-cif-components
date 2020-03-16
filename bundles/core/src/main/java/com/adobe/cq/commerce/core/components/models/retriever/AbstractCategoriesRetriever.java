@@ -138,7 +138,9 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         for (String identifier : identifiers) {
             String alias = "category__category_" + identifier;
             CategoryTree category = (CategoryTree) rootQuery.get(alias);
-            categories.add(category);
+            if (category != null) {
+                categories.add(category);
+            }
         }
     }
 }
