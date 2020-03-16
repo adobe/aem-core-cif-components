@@ -18,5 +18,5 @@
 
 {category(id:6){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},total_count}}}
 
-{category__category_5:category(id:5){id,name,url_path,position,image},category__category_6:category(id:6){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image}}
+{category__category_5:category(id:5){id,name,url_path,position,image},category__category_6:category(id:6){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image},category__category_9999:category(id:9999){id,name,url_path,position,image}}
 
