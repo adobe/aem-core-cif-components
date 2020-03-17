@@ -62,15 +62,6 @@
                                         jcr:title="Magento Store Configuration"
                                         sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
                                         <items jcr:primaryType="nt:unstructured">
-                                            <storeview jcr:primaryType="nt:unstructured"
-                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
-                                                fieldDescription="Identifier to select Magento Store View. If empty, the default store will be used."
-                                                fieldLabel="Store View"
-                                                name="./magentoStore"
-                                                renderReadOnly="{Boolean}false">
-                                                <granite:data jcr:primaryType="nt:unstructured"
-                                                    cq-msm-lockable="magentoStore" />
-                                            </storeview>
                                             <categoryId cq:showOnCreate="{Boolean}true"
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
