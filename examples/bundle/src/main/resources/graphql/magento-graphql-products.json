@@ -1017,9 +1017,6 @@
           ]
         }
       ]
-    },
-    "storeConfig": {
-      "secure_base_media_url": "https://test-url.magentosite.cloud/pub/media/"
     }
   }
 }
