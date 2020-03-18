@@ -45,6 +45,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRe
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
@@ -123,6 +124,11 @@ public class ProductCarouselImpl implements ProductCarousel {
         List<ProductListItem> carouselProductList = new ArrayList<>();
         if (!products.isEmpty()) {
             for (String combinedSku : productSkuList) {
+
+                if (combinedSku.startsWith("/")) {
+                    combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
+                }
+
                 Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
                 ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
                 if (product == null) {
@@ -139,12 +145,13 @@ public class ProductCarouselImpl implements ProductCarousel {
 
                 try {
                     Price price = new PriceImpl(product.getPriceRange(), locale);
+                    ProductImage thumbnail = product.getThumbnail();
                     carouselProductList.add(new ProductListItemImpl(
                         skus.getLeft(),
                         slug,
                         product.getName(),
                         price,
-                        product.getThumbnail().getUrl(),
+                        thumbnail == null ? null : thumbnail.getUrl(),
                         productPage,
                         skus.getRight(),
                         request));

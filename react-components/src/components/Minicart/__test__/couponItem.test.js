@@ -14,8 +14,11 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
 import { CartProvider } from '../cartContext';
 import CouponItem from '../couponItem';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<CouponItem />', () => {
     it('renders the component', () => {
@@ -28,9 +31,11 @@ describe('<CouponItem />', () => {
         };
 
         const { asFragment } = render(
-            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                <CouponItem />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                    <CouponItem />
+                </CartProvider>
+            </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -48,9 +53,11 @@ describe('<CouponItem />', () => {
         };
 
         const { getByText } = render(
-            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                <CouponItem />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                    <CouponItem />
+                </CartProvider>
+            </I18nextProvider>
         );
 
         fireEvent.mouseDown(getByText('Remove coupon'));

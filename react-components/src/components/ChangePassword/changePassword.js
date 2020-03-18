@@ -12,14 +12,13 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { func } from 'prop-types';
+import { Form } from 'informed';
+import { useMutation } from '@apollo/react-hooks';
 
 import classes from './changePassword.css';
 import { useUserContext } from '../../context/UserContext';
-import { useMutation } from '@apollo/react-hooks';
-
-import { func } from 'prop-types';
-import { Form } from 'informed';
-
 import Field from '../Field';
 import TextInput from '../TextInput';
 import Button from '../Button';
@@ -34,6 +33,7 @@ const ChangePassword = props => {
     const { showMyAccount } = props;
     const [{ token }] = useUserContext();
     const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
+    const [t] = useTranslation(['account', 'common']);
 
     const handleSubmit = formValues => {
         doChangePassword({
@@ -60,10 +60,10 @@ const ChangePassword = props => {
     if (data) {
         return (
             <div className={classes.root}>
-                <p>Your password was changed.</p>
+                <p>{t('account:password-was-changed', 'Your password was changed.')}</p>
                 <div className={classes.actions}>
                     <Button priority="high" onClick={showMyAccount}>
-                        {'Back'}
+                        {t('common:back', 'Back')}
                     </Button>
                 </div>
             </div>
@@ -74,7 +74,7 @@ const ChangePassword = props => {
         return (
             <div className={classes.root}>
                 <Form onSubmit={handleSubmit}>
-                    <Field label="Current Password" required={true}>
+                    <Field label={t('account:current-password', 'Current Password')} required={true}>
                         <TextInput
                             field="oldPassword"
                             type="password"
@@ -83,7 +83,7 @@ const ChangePassword = props => {
                             aria-label="old-password"
                         />
                     </Field>
-                    <Field label="New Password" required={true}>
+                    <Field label={t('account:new-password', 'New Password')} required={true}>
                         <TextInput
                             field="password"
                             type="password"
@@ -93,7 +93,7 @@ const ChangePassword = props => {
                             aria-label="password"
                         />
                     </Field>
-                    <Field label="Confirm New Password" required={true}>
+                    <Field label={t('account:confirm-new-password', 'Confirm New Password')} required={true}>
                         <TextInput
                             field="confirm"
                             type="password"
@@ -105,7 +105,7 @@ const ChangePassword = props => {
                     {error && <div className={classes.error}>{parseError(error)}</div>}
                     <div className={classes.actions}>
                         <Button type="submit" priority="high" aria-label="submit">
-                            {'Change Password'}
+                            {t('account:change-password', 'Change Password')}
                         </Button>
                     </div>
                 </Form>

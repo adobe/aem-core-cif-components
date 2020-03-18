@@ -13,16 +13,19 @@
  ******************************************************************************/
 import React from 'react';
 import { bool, func } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import Icon from '../Icon';
 import { Lock as LockIcon } from 'react-feather';
 
 const CheckoutButton = ({ disabled, onClick }) => {
+    const [t] = useTranslation('checkout');
+
     return (
         <Button priority="high" disabled={disabled} onClick={onClick}>
             <Icon src={LockIcon} size={16} />
-            <span>Checkout</span>
+            <span>{t('checkout:checkout', 'Checkout')}</span>
         </Button>
     );
 };
