@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import { useCartState } from './cartContext';
 
@@ -20,6 +21,7 @@ import classes from './couponForm.css';
 const CouponForm = () => {
     const [{ addCoupon, couponError }] = useCartState();
     const [couponCode, setCouponCode] = useState('');
+    const [t] = useTranslation('cart');
 
     const addCouponHandler = () => {
         return addCoupon(couponCode);
@@ -34,10 +36,10 @@ const CouponForm = () => {
                 onChange={e => setCouponCode(e.target.value)}
                 type="text"
                 name="couponCode"
-                placeholder="Enter your code"
+                placeholder={t('cart:enter-coupon', 'Enter your code')}
             />
             <Button priority="high" onClick={addCouponHandler} disabled={couponCode.length < 3}>
-                <span>Apply Coupon</span>
+                <span>{t('cart:apply-coupon', 'Apply Coupon')}</span>
             </Button>
             {errorFragment}
         </form>

@@ -13,7 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import { number, shape, arrayOf, string } from 'prop-types';
-import { Price } from '@magento/peregrine';
+
+import Price from '../Price';
 
 import classes from './discountList.css';
 

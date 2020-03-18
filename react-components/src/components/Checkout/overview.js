@@ -14,6 +14,7 @@
 import React, { Fragment, useCallback } from 'react';
 import { shape, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
+import { useTranslation } from 'react-i18next';
 
 import PaymentMethodSummary from './paymentMethodSummary';
 import ShippingAddressSummary from './shippingAddressSummary';
@@ -33,6 +34,7 @@ const Overview = props => {
     const { classes } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ shippingAddress, shippingMethod, paymentMethod }, dispatch] = useCheckoutState();
+    const [t] = useTranslation('checkout');
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
@@ -54,7 +56,7 @@ const Overview = props => {
         <Fragment>
             <div className={classes.body}>
                 <Section
-                    label="Ship To"
+                    label={t('checkout:ship-to', 'Ship To')}
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'address' });
                     }}
@@ -62,7 +64,7 @@ const Overview = props => {
                     <ShippingAddressSummary classes={classes} />
                 </Section>
                 <Section
-                    label="Pay With"
+                    label={t('checkout:pay-with', 'Pay With')}
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'paymentMethod' });
                     }}
@@ -71,7 +73,7 @@ const Overview = props => {
                     <PaymentMethodSummary classes={classes} />
                 </Section>
                 <Section
-                    label="Use"
+                    label={t('checkout:use', 'Use')}
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'shippingMethod' });
                     }}
@@ -79,16 +81,18 @@ const Overview = props => {
                     disabled={!shippingAddress}>
                     <ShippingMethodSummary classes={classes} />
                 </Section>
-                <Section label="TOTAL">
+                <Section label={t('checkout:total', 'TOTAL')}>
                     <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} />
                     <br />
                     <span>{cart.items.length} Items</span>
                 </Section>
             </div>
             <div className={classes.footer}>
-                <Button onClick={() => dispatch({ type: 'cancelCheckout' })}>Back to Cart</Button>
+                <Button onClick={() => dispatch({ type: 'cancelCheckout' })}>
+                    {t('checkout:back-to-cart', 'Back to cart')}
+                </Button>
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
-                    Confirm Order
+                    {t('checkout:confirm-order', 'Confirm Order')}
                 </Button>
             </div>
         </Fragment>

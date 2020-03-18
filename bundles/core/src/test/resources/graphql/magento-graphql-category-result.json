@@ -130,9 +130,6 @@
             "id": 1099,
             "sku": "eqrusugor",
             "name": "GoMobile Fitness Monitor/Smart Music Player",
-            "small_image": {
-              "url": "https://some-hostname.magentosite.cloud/media/catalog/product/g/o/gomobile_wrist_2.jpg"
-            },
             "url_key": "gomobile-fitness-monitor-smart-music-player",
             "price_range": {
               "minimum_price": {

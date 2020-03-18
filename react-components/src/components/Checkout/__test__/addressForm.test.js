@@ -13,7 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
 import AddressForm from '../addressForm';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<AddressForm />', () => {
     const countries = [
@@ -29,7 +32,11 @@ describe('<AddressForm />', () => {
     ];
 
     it('renders the component', () => {
-        const { asFragment } = render(<AddressForm cancel={() => {}} submit={() => {}} />);
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <AddressForm cancel={() => {}} submit={() => {}} />
+            </I18nextProvider>
+        );
         expect(asFragment()).toMatchSnapshot();
     });
 

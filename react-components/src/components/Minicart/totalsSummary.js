@@ -13,12 +13,15 @@
  ******************************************************************************/
 import React from 'react';
 import { number, string, shape } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
-import { Price } from '@magento/peregrine';
+import Price from '../Price';
 
 import classes from './totalsSummary.css';
 
 const TotalsSummary = props => {
+    const [t] = useTranslation(['cart', 'common']);
+
     // Props.
     const { numItems, subtotal, subtotalDiscount } = props;
 
@@ -26,17 +29,6 @@ const TotalsSummary = props => {
     // items and the price is 0 (e.g. when coupons are applied).
     const hasSubtotal = Boolean(subtotal.value) || numItems > 0;
     const hasDiscount = subtotal.value !== subtotalDiscount.value;
-    const numItemsText = numItems === 1 ? 'item' : 'items';
-
-    let priceClasses = {};
-    if (hasDiscount) {
-        priceClasses = {
-            currency: classes.discounted,
-            integer: classes.discounted,
-            decimal: classes.discounted,
-            fraction: classes.discounted
-        };
-    }
 
     return (
         <div className={classes.root}>
@@ -44,12 +36,16 @@ const TotalsSummary = props => {
                 <dl className={classes.totals}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {'Cart Total: '}
-                            <Price classes={priceClasses} currencyCode={subtotal.currency} value={subtotal.value} />
+                            {`${t('cart:total', 'Cart Total:')} `}
+                            <Price
+                                className={hasDiscount ? classes.discounted : ''}
+                                currencyCode={subtotal.currency}
+                                value={subtotal.value}
+                            />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        ({numItems} {numItemsText})
+                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
                     </dd>
                 </dl>
             )}
@@ -57,12 +53,12 @@ const TotalsSummary = props => {
                 <dl className={classes.totalsDiscount}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {'New Cart Total: '}
+                            {`${t('cart:new-total', 'New Cart Total:')} `}
                             <Price currencyCode={subtotalDiscount.currency} value={subtotalDiscount.value} />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        ({numItems} {numItemsText})
+                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
                     </dd>
                 </dl>
             )}

@@ -12,6 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+
 import classes from './receipt.css';
 import Trigger from '../Trigger';
 import { useCartState } from '../Minicart/cartContext';
@@ -20,6 +22,7 @@ import { useCheckoutState } from './checkoutContext';
 const Receipt = () => {
     const [, cartDispatch] = useCartState();
     const [{ order }, dispatch] = useCheckoutState();
+    const [t] = useTranslation('checkout');
 
     const continueShopping = () => {
         cartDispatch({ type: 'reset' });
@@ -29,13 +32,18 @@ const Receipt = () => {
     return (
         <div className={classes.root}>
             <div className={classes.body}>
-                <h2 className={classes.header}>Thank you for your purchase!</h2>
+                <h2 className={classes.header}>
+                    {t('checkout:thankyou-for-purchase', 'Thank you for your purchase!')}
+                </h2>
                 <div className={classes.textBlock}>
-                    The order number is {order.order_id}. You will receive an order confirmation email with order status
-                    and other details.
+                    {/* prettier-ignore */}
+                    <Trans i18nKey="checkout:order-confirmation">
+                        The order number is {{ orderId : order.order_id }}. You will receive an order confirmation email with order
+                        status and other details.
+                    </Trans>
                 </div>
                 <Trigger action={continueShopping}>
-                    <span className={classes.continue}>Continue Shopping</span>
+                    <span className={classes.continue}>{t('checkout:continue-shopping', 'Continue Shopping')}</span>
                 </Trigger>
             </div>
         </div>

@@ -34,16 +34,18 @@ Featured Category List component uses graphql query to fetch categories to displ
 This component has several dependencies on internal client-side modules.
 
 ### Usage prerequisites
+
 Make sure you have dispatcher running with Magento url configured. See `dispatcher/README.md`. You should have the category images configured in your Magento instance.
 
-
 ### Use Object
+
 The Featured category list component uses the `com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList` Sling model as its Use-object.
 
-
 ### Edit Dialog Properties
+
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
+ `./jcr:title` - Optional title text
  `./categoryIds` - Category ids in an Array of string saved by Category Picker.
 
 ### CSS API (BEM)
@@ -58,8 +60,6 @@ BLOCK .cmp-categorylist
     ELEMENT cmp-categorylist__image
     ELEMENT cmp-categorylist__name
     ELEMENT cmp-categorylist__title 
-
-BLOCK placeholder__empty
 ```
 
 ## License information
