@@ -11,38 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 import React from 'react';
 import { render } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 
-import DiscountList from '../discountList';
+import Price from '../price';
 import i18n from '../../../../__mocks__/i18nForTests';
 
-const discounts = [
-    {
-        amount: {
-            currency: 'USD',
-            value: 36.4
-        },
-        label: '20% off for 3 or more'
-    },
-    {
-        amount: {
-            currency: 'USD',
-            value: 14.56
-        },
-        label: '10% off coupon'
-    }
-];
-
-describe('<DiscountList />', () => {
+describe('<Price />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <DiscountList discounts={discounts} />
+                <Price value={123.45} currencyCode="EUR" />
             </I18nextProvider>
         );
-
         expect(asFragment()).toMatchSnapshot();
     });
 });

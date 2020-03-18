@@ -50,6 +50,7 @@ frontend-maven-plugin
 
 **/dist
 **/dist
+**/react-components/resources/lang
 
 yarn-error.log
 .env
