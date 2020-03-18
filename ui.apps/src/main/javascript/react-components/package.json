@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack:dev": "webpack --mode=development && npm run translation:copy",
-    "webpack:prod": "webpack --mode=production && npm run translation:copy",
-    "lint": "eslint './src/**/*.js'",
-    "translation:copy": "node copy-translation.js"
+    "webpack:dev": "webpack --mode=development",
+    "webpack:prod": "webpack --mode=production",
+    "lint": "eslint './src/**/*.js'"
   },
   "repository": {
     "type": "git",

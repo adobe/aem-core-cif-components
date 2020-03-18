@@ -20,14 +20,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -134,11 +134,6 @@
                             <name>cq-ui-wcm-editor-content</name>
                             <version>(1.0.138,)</version>
                         </dependency>
-                        <dependency>
-                            <group>day/cq60/product</group>
-                            <name>cif-connector-content</name>
-                            <version>${cif.connector.version}</version>
-                        </dependency>
                     </dependencies>
                 </configuration>
             </plugin>
@@ -238,6 +233,28 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-react-translations</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang/en-US</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/javascript/react-components/node_modules/@adobe/aem-core-cif-react-components/i18n/en</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
@@ -247,21 +264,14 @@
                         <fileset>
                             <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist</directory>
                         </fileset>
+                        <fileset>
+                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-
-    <dependencies>
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>cif-connector-content</artifactId>
-            <version>${cif.connector.version}</version>
-            <type>zip</type>
-        </dependency>
-    </dependencies>
 
     <!-- ====================================================================== -->
     <!-- P R O F I L E S                                                        -->
