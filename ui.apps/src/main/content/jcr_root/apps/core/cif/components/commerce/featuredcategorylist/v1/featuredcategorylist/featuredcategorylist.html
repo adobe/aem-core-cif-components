@@ -34,7 +34,7 @@
         </div>
     </div>
     </sly>
-    <sly data-sly-call="${templates.placeholder @ isEmpty = !category.isConfigured, emptyTextAppend = 'Please configure categories'}" />
+    <sly data-sly-call="${templates.placeholder @ isEmpty = !category.isConfigured}" />
     <sly data-sly-call="${templates.placeholder @ isEmpty = category.isConfigured && !hasCategories, emptyTextAppend = 'Configured, no categories were loaded'}" />
 </sly>
 </sly>

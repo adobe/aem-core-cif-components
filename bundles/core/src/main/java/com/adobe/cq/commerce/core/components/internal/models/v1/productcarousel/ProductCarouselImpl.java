@@ -45,6 +45,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRe
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
@@ -82,17 +83,12 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
 
         List<String> productSkus = Arrays.asList(productSkuList);
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
 
         locale = productPage.getLanguage(false);
-
-        if (magentoGraphqlClient == null) {
-            LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
-        }
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus
@@ -102,8 +98,13 @@ public class ProductCarouselImpl implements ProductCarousel {
             .distinct()
             .collect(Collectors.toList());
 
-        productsRetriever = new ProductsRetriever(magentoGraphqlClient);
-        productsRetriever.setIdentifiers(baseProductSkus);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        if (magentoGraphqlClient == null) {
+            LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
+        } else {
+            productsRetriever = new ProductsRetriever(magentoGraphqlClient);
+            productsRetriever.setIdentifiers(baseProductSkus);
+        }
     }
 
     @Override
@@ -113,12 +114,21 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @Override
     public List<ProductListItem> getProducts() {
+        if (productsRetriever == null) {
+            return Collections.emptyList();
+        }
+
         List<ProductInterface> products = productsRetriever.fetchProducts();
         Collections.sort(products, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
         if (!products.isEmpty()) {
             for (String combinedSku : productSkuList) {
+
+                if (combinedSku.startsWith("/")) {
+                    combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
+                }
+
                 Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
                 ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
                 if (product == null) {
@@ -133,17 +143,21 @@ public class ProductCarouselImpl implements ProductCarousel {
                     }
                 }
 
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-
-                carouselProductList.add(new ProductListItemImpl(
-                    skus.getLeft(),
-                    slug,
-                    product.getName(),
-                    price,
-                    product.getThumbnail().getUrl(),
-                    productPage,
-                    skus.getRight(),
-                    request));
+                try {
+                    Price price = new PriceImpl(product.getPriceRange(), locale);
+                    ProductImage thumbnail = product.getThumbnail();
+                    carouselProductList.add(new ProductListItemImpl(
+                        skus.getLeft(),
+                        slug,
+                        product.getName(),
+                        price,
+                        thumbnail == null ? null : thumbnail.getUrl(),
+                        productPage,
+                        skus.getRight(),
+                        request));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to instantiate product " + combinedSku, e);
+                }
             }
         }
         return carouselProductList;

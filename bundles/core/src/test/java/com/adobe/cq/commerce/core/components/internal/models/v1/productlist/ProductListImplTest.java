@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
@@ -144,7 +145,9 @@ public class ProductListImplTest {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> products = productListModel.getProducts();
         Assert.assertNotNull(products);
-        Assert.assertEquals(true, category.getProducts().getItems().size() <= products.size());
+
+        // We introduce one "faulty" product data in the response, it should be skipped
+        Assert.assertEquals(5, products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
@@ -168,7 +171,13 @@ public class ProductListImplTest {
             Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
                 .getFormattedPrice());
 
-            Assert.assertEquals(productInterface.getSmallImage().getUrl(), item.getImageURL());
+            ProductImage smallImage = productInterface.getSmallImage();
+            if (smallImage == null) {
+                // if small image is missing for a product in GraphQL response then image URL is null for the related item
+                Assert.assertNull(item.getImageURL());
+            } else {
+                Assert.assertEquals(smallImage.getUrl(), item.getImageURL());
+            }
         }
     }
 

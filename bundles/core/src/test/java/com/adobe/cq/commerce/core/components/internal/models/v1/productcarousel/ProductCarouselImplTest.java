@@ -19,7 +19,9 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -37,6 +39,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.day.cq.wcm.api.Page;
@@ -94,9 +97,13 @@ public class ProductCarouselImplTest {
     public void getProducts() {
 
         List<ProductListItem> items = productCarousel.getProducts();
-        Assert.assertEquals(4, items.size()); // one product is not found
+        Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
 
-        List<String> productSkuList = Arrays.asList(productSkuArray);
+        List<String> productSkuList = Arrays.asList(productSkuArray)
+            .stream()
+            .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
+            .collect(Collectors.toList());
+
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
         int idx = 0;
@@ -104,7 +111,11 @@ public class ProductCarouselImplTest {
             Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
             ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
             if (product == null) {
-                continue; // Can happen that a product is not found
+                continue; // Can happen that a product is not found in the Magento JSON response
+            }
+
+            if (!items.stream().filter(i -> i.getSKU().equals(skus.getLeft())).findFirst().isPresent()) {
+                continue; // A "faulty" product does not appear in the parsed product instances
             }
 
             ProductInterface productOrVariant = toProductOrVariant(product, skus);
@@ -124,7 +135,13 @@ public class ProductCarouselImplTest {
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
             Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
 
-            Assert.assertEquals(productOrVariant.getThumbnail().getUrl(), item.getImageURL());
+            ProductImage thumbnail = productOrVariant.getThumbnail();
+            if (thumbnail == null) {
+                // if thumbnail is missing for a product in GraphQL response then thumbnail is null for the related item
+                Assert.assertNull(item.getImageURL());
+            } else {
+                Assert.assertEquals(thumbnail.getUrl(), item.getImageURL());
+            }
             idx++;
         }
     }
