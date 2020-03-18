@@ -44,6 +44,7 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -216,12 +217,13 @@ public class ProductListImpl implements ProductList {
                 for (ProductInterface product : products.getItems()) {
                     try {
                         Price price = new PriceImpl(product.getPriceRange(), locale);
+                        ProductImage smallImage = product.getSmallImage();
                         listItems.add(new ProductListItemImpl(
                             product.getSku(),
                             product.getUrlKey(),
                             product.getName(),
                             price,
-                            product.getSmallImage().getUrl(),
+                            smallImage == null ? null : smallImage.getUrl(),
                             productPage,
                             null,
                             request));
