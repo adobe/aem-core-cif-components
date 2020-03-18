@@ -31,10 +31,14 @@ module.exports = {
             i18nKey: 'i18nKey',
             defaultsKey: 'defaults',
             extensions: ['.js', '.jsx'],
-            fallbackKey: false
+            fallbackKey: false,
+            acorn: {
+                ecmaVersion: 10,
+                sourceType: 'module'
+            }
         },
         lngs: ['en'],
-        ns: ['cart', 'checkout', 'common'],
+        ns: ['cart', 'checkout', 'account', 'common'],
         defaultLng: 'en',
         defaultNs: 'common',
         defaultValue: '__STRING_NOT_TRANSLATED__',

@@ -13,14 +13,21 @@
  ******************************************************************************/
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
+
 import { useCheckoutState } from './checkoutContext';
 
 const PaymentMethodSummary = props => {
     const { classes } = props;
     const [{ paymentMethod }] = useCheckoutState();
+    const [t] = useTranslation('checkout');
 
     if (!paymentMethod) {
-        return <span className={classes.informationPrompt}>Add Billing Information</span>;
+        return (
+            <span className={classes.informationPrompt}>
+                {t('checkout:add-billing-information', 'Add Billing Information')}
+            </span>
+        );
     }
 
     return (
