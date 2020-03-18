@@ -16,17 +16,10 @@ exports[`<CartOptions> renders the component properly 1`] = `
       <span
         class="price"
       >
-        <span>
-          $
-        </span>
-        <span>
-          100
-        </span>
-        <span>
-          .
-        </span>
-        <span>
-          00
+        <span
+          class=""
+        >
+          $100.00
         </span>
       </span>
     </div>

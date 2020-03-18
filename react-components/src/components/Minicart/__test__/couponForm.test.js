@@ -14,15 +14,20 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
 import { CartProvider } from '../cartContext';
 import CouponForm from '../couponForm';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<CouponForm />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CouponForm />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                    <CouponForm />
+                </CartProvider>
+            </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -33,9 +38,11 @@ describe('<CouponForm />', () => {
         };
 
         const { asFragment } = render(
-            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                <CouponForm />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                    <CouponForm />
+                </CartProvider>
+            </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -48,9 +55,11 @@ describe('<CouponForm />', () => {
         };
 
         const { getByText, getByPlaceholderText } = render(
-            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                <CouponForm />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                    <CouponForm />
+                </CartProvider>
+            </I18nextProvider>
         );
 
         // Add coupon to input
