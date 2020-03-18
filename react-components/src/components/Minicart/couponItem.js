@@ -12,6 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { useCartState } from './cartContext';
 import Kebab from './kebab';
 import Section from './section';
@@ -20,6 +22,7 @@ import classes from './couponItem.css';
 
 const CouponItem = () => {
     const [{ cart, removeCoupon }] = useCartState();
+    const [t] = useTranslation('cart');
 
     const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
 
@@ -29,7 +32,7 @@ const CouponItem = () => {
                 Coupon <strong>{appliedCoupon}</strong> applied.
             </div>
             <Kebab>
-                <Section text="Remove coupon" onClick={removeCoupon} icon="Trash" />
+                <Section text={t('cart:remove-coupon', 'Remove coupon')} onClick={removeCoupon} icon="Trash" />
             </Kebab>
         </div>
     );

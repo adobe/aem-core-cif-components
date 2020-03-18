@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider from '../../../context/UserContext';
 
@@ -21,6 +22,7 @@ import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.gr
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
 
 import SignIn from '../signIn';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 const mocks = [
     {
@@ -65,11 +67,17 @@ describe('<SignIn>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
-                </UserContextProvider>
-            </MockedProvider>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <SignIn
+                            showMyAccount={jest.fn()}
+                            showCreateAccount={jest.fn()}
+                            showForgotPassword={jest.fn()}
+                        />
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();

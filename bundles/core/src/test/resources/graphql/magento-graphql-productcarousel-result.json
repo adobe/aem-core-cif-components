@@ -442,10 +442,6 @@
           "__typename": "ConfigurableProduct",
           "sku": "WJ01",
           "name": "Stellar Solar Jacket",
-          "thumbnail": {
-            "label": "Stellar Solar Jacket",
-            "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
-          },
           "url_key": "stellar-solar-jacket",
           "price_range": {
             "minimum_price": {

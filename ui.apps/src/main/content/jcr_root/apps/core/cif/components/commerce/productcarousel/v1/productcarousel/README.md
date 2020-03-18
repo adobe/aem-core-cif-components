@@ -45,6 +45,7 @@ BLOCK productcarousel
     ELEMENT productcarousel__btn--next
     ELEMENT productcarousel__btn--prev
     ELEMENT productcarousel__cardscontainer
+    ELEMENT productcarousel__container
     ELEMENT productcarousel__parent
     ELEMENT productcarousel__root
     ELEMENT productcarousel__title

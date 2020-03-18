@@ -34,17 +34,10 @@ exports[`<Product /> renders the component 1`] = `
         <span
           class="price"
         >
-          <span>
-            $
-          </span>
-          <span>
-            22
-          </span>
-          <span>
-            .
-          </span>
-          <span>
-            00
+          <span
+            class=""
+          >
+            $22.00
           </span>
         </span>
       </div>
@@ -54,17 +47,10 @@ exports[`<Product /> renders the component 1`] = `
         <span
           class="rowTotal"
         >
-          <span>
-            $
-          </span>
-          <span>
-            22
-          </span>
-          <span>
-            .
-          </span>
-          <span>
-            00
+          <span
+            class=""
+          >
+            $22.00
           </span>
         </span>
       </div>

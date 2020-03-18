@@ -14,6 +14,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Form } from 'informed';
 import { array, bool, func, object, shape, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import classes from './addressForm.css';
@@ -28,6 +29,7 @@ const AddressForm = props => {
     const [submitting, setIsSubmitting] = useState(false);
     const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
+    const [t] = useTranslation(['checkout', 'common']);
 
     const values = useMemo(
         () =>
@@ -59,17 +61,17 @@ const AddressForm = props => {
             <div className={classes.body}>
                 <h2 className={classes.heading}>Shipping Address</h2>
                 <div className={classes.firstname}>
-                    <Field label="First Name">
+                    <Field label={t('checkout:address-firstname', 'First Name')}>
                         <TextInput id={classes.firstname} field="firstname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.lastname}>
-                    <Field label="Last Name">
+                    <Field label={t('checkout:address-lastname', 'Last Name')}>
                         <TextInput id={classes.lastname} field="lastname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.email}>
-                    <Field label="Email">
+                    <Field label={t('checkout:address-email', 'E-Mail')}>
                         <TextInput
                             id={classes.email}
                             field="email"
@@ -79,17 +81,17 @@ const AddressForm = props => {
                     </Field>
                 </div>
                 <div className={classes.street0}>
-                    <Field label="Street">
+                    <Field label={t('checkout:address-street', 'Street')}>
                         <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.city}>
-                    <Field label="City">
+                    <Field label={t('checkout:address-city', 'City')}>
                         <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.region_code}>
-                    <Field label="State">
+                    <Field label={t('checkout:address-state', 'State')}>
                         <TextInput
                             id={classes.region_code}
                             field="region_code"
@@ -99,21 +101,21 @@ const AddressForm = props => {
                     </Field>
                 </div>
                 <div className={classes.postcode}>
-                    <Field label="ZIP">
+                    <Field label={t('checkout:address-postcode', 'ZIP')}>
                         <TextInput id={classes.postcode} field="postcode" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.telephone}>
-                    <Field label="Phone">
+                    <Field label={t('checkout:address-phone', 'Phone')}>
                         <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.validation}>{validationMessage}</div>
             </div>
             <div className={classes.footer}>
-                <Button onClick={cancel}>Cancel</Button>
+                <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
                 <Button type="submit" priority="high" disabled={submitting}>
-                    Use Address
+                    {t('checkout:address-submit', 'Use Address')}
                 </Button>
             </div>
         </Form>

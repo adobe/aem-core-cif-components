@@ -12,8 +12,11 @@
  *
  ******************************************************************************/
 import React from 'react';
-import DiscountList from '../discountList';
 import { render } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
+import DiscountList from '../discountList';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 const discounts = [
     {
@@ -34,7 +37,11 @@ const discounts = [
 
 describe('<DiscountList />', () => {
     it('renders the component', () => {
-        const { asFragment } = render(<DiscountList discounts={discounts} />);
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <DiscountList discounts={discounts} />
+            </I18nextProvider>
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });

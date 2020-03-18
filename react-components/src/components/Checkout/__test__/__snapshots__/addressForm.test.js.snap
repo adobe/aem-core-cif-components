@@ -94,7 +94,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           <span
             class="label"
           >
-            Email
+            E-Mail
           </span>
           <span
             class="root"

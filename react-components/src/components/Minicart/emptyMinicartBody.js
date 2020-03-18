@@ -12,20 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
 import { useCartState } from './cartContext';
 
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();
+    const [t] = useTranslation('cart');
+
     return (
         <div className={classes.root} data-testid="empty-minicart">
-            <h3 className={classes.emptyTitle}>There are no items in your shopping cart</h3>
+            <h3 className={classes.emptyTitle}>{t('cart:no-items', 'There are no items in your shopping cart')}</h3>
             <Trigger
                 action={() => {
                     dispatch({ type: 'close' });
                 }}>
-                <span className={classes.continue}>Continue Shopping</span>
+                <span className={classes.continue}>{t('cart:continue-shopping', 'Continue Shopping')}</span>
             </Trigger>
         </div>
     );
