@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 
@@ -20,6 +21,7 @@ import { useCartState } from './cartContext';
 
 const Error = () => {
     const [{ errorMessage }, dispatch] = useCartState();
+    const [t] = useTranslation('common');
 
     return (
         <div className={classes.root}>
@@ -31,7 +33,7 @@ const Error = () => {
                     onClick={() => {
                         dispatch({ type: 'discardError' });
                     }}>
-                    <span>Close</span>
+                    <span>{t('common:close', 'Close')}</span>
                 </Button>
             </div>
         </div>

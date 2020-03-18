@@ -14,6 +14,7 @@
 import React, { useCallback } from 'react';
 import { Form } from 'informed';
 import { array, bool, func, shape, string, object } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import Select from '../Select';
@@ -21,6 +22,7 @@ import Select from '../Select';
 import classes from './shippingForm.css';
 
 const ShippingForm = props => {
+    const [t] = useTranslation(['checkout', 'common']);
     const { availableShippingMethods, cancel, shippingMethod, submit, submitting } = props;
     let initialValue;
     let selectableShippingMethods;
@@ -59,16 +61,16 @@ const ShippingForm = props => {
     return (
         <Form className={classes.root} onSubmit={handleSubmit}>
             <div className={classes.body}>
-                <h2 className={classes.heading}>Shipping Information</h2>
+                <h2 className={classes.heading}>{t('checkout:shipping-information', 'Shipping Information')}</h2>
                 <div className={classes.shippingMethod} id={classes.shippingMethod}>
-                    <label htmlFor={classes.shippingMethod}>Shipping Method</label>
+                    <label htmlFor={classes.shippingMethod}>{t('checkout:shipping-method', 'Shipping Method')}</label>
                     <Select field="shippingMethod" initialValue={initialValue} items={selectableShippingMethods} />
                 </div>
             </div>
             <div className={classes.footer}>
-                <Button onClick={cancel}>Cancel</Button>
+                <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
                 <Button priority="high" type="submit" disabled={submitting}>
-                    Use Method
+                    {t('checkout:use-shipping-method', 'Use Method')}
                 </Button>
             </div>
         </Form>
