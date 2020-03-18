@@ -11,26 +11,5 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { CommerceApp, Cart, AuthBar } from '@adobe/aem-core-cif-react-components';
-import { I18nextProvider } from 'react-i18next';
 
-import i18n from './i18n';
-
-const App = () => {
-    const storeView = document.querySelector('body').dataset.storeView;
-    return (
-        <I18nextProvider i18n={i18n} defaultNS="common">
-            <CommerceApp uri={'/magento/graphql'} storeView={storeView}>
-                <Cart />
-                <AuthBar />
-            </CommerceApp>
-        </I18nextProvider>
-    );
-};
-
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
-};
+export { default } from './price';

@@ -1,0 +1,17 @@
+{
+  "shopping-cart": "Shopping Cart",
+  "total": "Cart Total:",
+  "itemsWithCount": "{{count}} items",
+  "itemsWithCount_plural": "{{count}} items",
+  "new-total": "New Cart Total:",
+  "no-items": "There are no items in your shopping cart",
+  "continue-shopping": "Continue Shopping",
+  "fetching-data": "Fetching cart data...",
+  "enter-coupon": "Enter your code",
+  "apply-coupon": "Apply Coupon",
+  "quantity": "Quantity",
+  "update-cart": "Update Cart",
+  "edit-item": "Edit item",
+  "remove-item": "Remove item",
+  "remove-coupon": "Remove coupon"
+}

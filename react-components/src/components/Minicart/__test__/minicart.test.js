@@ -14,10 +14,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { render } from 'test-utils';
+import { I18nextProvider } from 'react-i18next';
 
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
 import { CartProvider } from '../cartContext';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Minicart>', () => {
     beforeAll(() => {
@@ -29,9 +31,11 @@ describe('<Minicart>', () => {
 
     it('renders the empty cart', async () => {
         const { getByTestId } = render(
-            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                <Minicart />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
+                    <Minicart />
+                </CartProvider>
+            </I18nextProvider>
         );
 
         // the component is rendered async (the "Fetching cart data is displayed on first render") so we await the element to be ready

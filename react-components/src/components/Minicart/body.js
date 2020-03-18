@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -26,14 +27,18 @@ import CouponItem from './couponItem';
 import { useCartState } from './cartContext';
 import DiscountList from './discountList';
 
-const loadingIndicator = <LoadingIndicator>{`Fetching cart data...`}</LoadingIndicator>;
+const CartLoadingIndicator = () => {
+    const [t] = useTranslation('cart');
+
+    return <LoadingIndicator>{t('cart:fetching-data', 'Fetching cart data...')}</LoadingIndicator>;
+};
 
 const Body = () => {
     const [{ isEditing, cart, isLoading, errorMessage }] = useCartState();
     const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
 
     if (isLoading) {
-        return loadingIndicator;
+        return <CartLoadingIndicator />;
     }
 
     if (errorMessage) {
