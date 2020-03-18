@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import classes from './authBar.css';
@@ -23,6 +24,7 @@ const AuthBar = props => {
     const { showSignIn, showMyAccount } = props;
 
     const [{ currentUser, isSignedIn }] = useUserContext();
+    const [t] = useTranslation('account');
 
     const disabled = false;
 
@@ -30,10 +32,10 @@ const AuthBar = props => {
         <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
     ) : (
         <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
-            {'Sign In'}
+            {t('account:sign-in', 'Sign In')}
         </Button>
     );
-    return <div className={classes.root}>{content} </div>;
+    return <div className={classes.root}>{content}</div>;
 };
 
 AuthBar.propTypes = {
