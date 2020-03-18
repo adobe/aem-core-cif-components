@@ -58,8 +58,6 @@ BLOCK .cmp-categorylist
     ELEMENT cmp-categorylist__image
     ELEMENT cmp-categorylist__name
     ELEMENT cmp-categorylist__title 
-
-BLOCK placeholder__empty
 ```
 
 ## License information
