@@ -45,7 +45,7 @@ describe('GroupedProduct', () => {
                         <button>
                     </div>
                     <section class="productFullDetail__groupedProducts productFullDetail__quantity">         
-						<select data-product-sku="sku1">
+                        <select data-product-sku="sku1">
                             <option value="0" selected></option>
                             <option value="1"></option>
                         </select>
@@ -57,7 +57,7 @@ describe('GroupedProduct', () => {
                             <option value="0" selected></option>
                             <option value="1"></option>
                         </select>
-                	</section>
+                    </section>
                 </div>`
             );
 
