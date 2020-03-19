@@ -46,6 +46,7 @@ public class FeaturedCategoryListImplTest {
 
     private FeaturedCategoryListImpl slingModelConfigured;
     private FeaturedCategoryListImpl slingModelNotConfigured;
+    private FeaturedCategoryListImpl slingModelConfiguredNoGraphqlClient;
     private List<CategoryTree> categories = new ArrayList<>();
 
     private static final String CATEGORY_PAGE = "/content/category-page";
@@ -58,12 +59,16 @@ public class FeaturedCategoryListImplTest {
 
     private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
+    private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
 
     @Rule
     public final AemContext contextConfigured = createContext("/context/jcr-content.json");
 
     @Rule
     public final AemContext contextNotConfigured = createContext("/context/jcr-content.json");
+
+    @Rule
+    public final AemContext contextNotConfiguredClient = createContext("/context/jcr-content.json");
 
     @Before
     public void setup() throws Exception {
@@ -102,6 +107,16 @@ public class FeaturedCategoryListImplTest {
         slingBindings.setResource(resource);
         slingBindings.put("currentPage", page);
         slingModelNotConfigured = contextNotConfigured.request().adaptTo(FeaturedCategoryListImpl.class);
+
+        // init slingmodel with no graphql client
+        when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCLIENT));
+        contextNotConfiguredClient.currentResource(resource);
+        slingBindings = (SlingBindings) contextNotConfiguredClient.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(resource);
+        slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(contextNotConfiguredClient.request()));
+        slingBindings.put("currentPage", page);
+        slingModelConfiguredNoGraphqlClient = contextNotConfiguredClient.request().adaptTo(FeaturedCategoryListImpl.class);
     }
 
     @Test
@@ -140,6 +155,16 @@ public class FeaturedCategoryListImplTest {
         categories = slingModelNotConfigured.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.size(), 0);
+    }
+
+    @Test
+    public void verifyGraphQLClientNotConfigured() {
+        Assert.assertNotNull(slingModelConfiguredNoGraphqlClient);
+        Assert.assertNull(slingModelConfiguredNoGraphqlClient.getCategoriesRetriever());
+        Assert.assertTrue(slingModelConfiguredNoGraphqlClient.isConfigured());
+        categories = slingModelConfiguredNoGraphqlClient.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(0, categories.size());
     }
 
     @Test
