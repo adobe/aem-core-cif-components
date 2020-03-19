@@ -37,11 +37,11 @@ class AddToCart {
 
         const groupedProducts = document.querySelector(AddToCart.selectors.groupedProducts);
         if (groupedProducts) {
-        	this._element.disabled = true;
-	        // Disable/enable add to cart based on the selected quantities of a grouped product
-	        document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
-	        	selection.addEventListener('change', this._onQuantityChanged.bind(this));
-	        });
+            this._element.disabled = true;
+            // Disable/enable add to cart based on the selected quantities of a grouped product
+            document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
+                selection.addEventListener('change', this._onQuantityChanged.bind(this));
+            });
         }
 
         // Listen to variant updates on product
@@ -73,13 +73,13 @@ class AddToCart {
     }
 
     _onQuantityChanged() {
-    	const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity));
+        const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity));
         let item = selections.find(selection => {
             return parseInt(selection.value) > 0;
         });
-        this._element.disabled = (item == null);
+        this._element.disabled = item == null;
     }
-    
+
     /**
      * Click event handler for add to cart button.
      */
