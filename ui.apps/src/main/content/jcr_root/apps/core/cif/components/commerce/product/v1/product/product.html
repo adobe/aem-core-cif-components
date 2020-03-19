@@ -11,15 +11,13 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.variantsTpl="variantselector.html"
+<sly data-sly-use.variantsTpl="variantselector.html"
      data-sly-use.galleryTpl="gallery.html"
      data-sly-use.actionsTpl="actions.html"
      data-sly-use.quantityTpl="quantity.html"
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
-    <sly data-sly-call="${clientlib.all @ categories='core.cif.components.product.v1'}"/>
     <form class="productFullDetail__root"
           data-configurable="${product.configurable}"
           data-cmp-is="product"
