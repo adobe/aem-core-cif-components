@@ -15,20 +15,24 @@
 import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
 
 import ChangePassword from '../changePassword';
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
 
 describe('<ChangePassword />', () => {
     it('renders the change password form', () => {
         const { asFragment } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <ChangePassword showMyAccount={() => {}} />
-                </UserContextProvider>
-            </MockedProvider>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <ChangePassword showMyAccount={() => {}} />
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();

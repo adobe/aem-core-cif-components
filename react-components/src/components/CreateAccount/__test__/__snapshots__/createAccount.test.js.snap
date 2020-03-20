@@ -87,7 +87,7 @@ exports[`<CreateAccount> renders the component 1`] = `
         <span
           class="requiredSymbol"
         />
-        Email
+        E-Mail
       </span>
       <span
         class="root"
