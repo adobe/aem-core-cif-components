@@ -22,10 +22,16 @@ import TextInput from '../TextInput';
 
 import classes from './signIn.css';
 import { useSignin } from './useSignin';
+import LoadingIndicator from '../LoadingIndicator';
+import { useCartState } from '../Minicart/cartContext';
 
 const SignIn = props => {
     const { showMyAccount, showForgotPassword, showCreateAccount } = props;
-    const { errorMessage, isSignedIn, handleSubmit } = useSignin();
+    const { errorMessage, isSignedIn, handleSubmit, inProgress } = useSignin();
+
+    if (inProgress) {
+        return <LoadingIndicator>{'Signing in...'}</LoadingIndicator>;
+    }
 
     if (isSignedIn) {
         showMyAccount();

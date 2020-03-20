@@ -100,21 +100,15 @@ describe('UserContext test', () => {
             }
         }
     ];
-    it('performs a sign in', async () => {
+    it('updates the user token in state', async () => {
         const ContextWrapper = () => {
-            const [{ currentUser, isSignedIn, cartId }, { signIn }] = useUserContext();
-
-            const display = `${currentUser.firstname} ${currentUser.lastname} ${cartId}`;
+            const [{ token, isSignedIn }, { setToken }] = useUserContext();
 
             let content;
             if (isSignedIn) {
-                content = <div data-testid="success">{display}</div>;
+                content = <div data-testid="success">{token}</div>;
             } else {
-                content = (
-                    <button onClick={() => signIn({ email: 'imccoy@weretail.net', password: 'imccoy123' })}>
-                        Sign in
-                    </button>
-                );
+                content = <button onClick={() => setToken('guest123')}>Sign in</button>;
             }
 
             return <div>{content}</div>;
@@ -133,7 +127,37 @@ describe('UserContext test', () => {
         fireEvent.click(getByRole('button'));
         const result = await waitForElement(() => getByTestId('success'));
         expect(result).not.toBeUndefined();
-        expect(result.textContent).toEqual('John Doe customercart');
+        expect(result.textContent).toEqual('guest123');
+    });
+
+    it('updates the cart id of the user', async () => {
+        const ContextWrapper = () => {
+            const [{ cartId }, { setCustomerCart }] = useUserContext();
+
+            let content;
+            if (cartId) {
+                content = <div data-testid="success">{cartId}</div>;
+            } else {
+                content = <button onClick={() => setCustomerCart('guest123')}>Update cart id</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('success'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('guest123');
     });
 
     it('performs a sign out', async () => {
@@ -246,7 +270,7 @@ describe('UserContext test', () => {
         ];
 
         const ContextWrapper = () => {
-            const [{ currentUser, isSignedIn }, { createAccount }] = useUserContext();
+            const [{ isSignedIn }, { createAccount }] = useUserContext();
             const handleCreateAccount = () => {
                 createAccount({
                     firstname: 'Iris',
@@ -260,7 +284,7 @@ describe('UserContext test', () => {
             if (isSignedIn) {
                 content = (
                     <div data-testid="success">
-                        <span>{`${currentUser.firstname} ${currentUser.lastname}`}</span>
+                        <span>{`Done`}</span>
                     </div>
                 );
             } else {
@@ -291,7 +315,7 @@ describe('UserContext test', () => {
         });
 
         expect(successMessage).not.toBeUndefined();
-        expect(successMessage.textContent).toEqual('Iris McCoy');
+        expect(successMessage.textContent).toEqual('Done');
     });
 
     it('handles the account creation error', async () => {

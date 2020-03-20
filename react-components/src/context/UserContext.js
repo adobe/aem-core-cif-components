@@ -11,7 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useReducer, useCallback } from 'react';
+import { object } from 'prop-types';
+
 import { useCookieValue } from '../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
@@ -21,16 +23,80 @@ import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql'
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
-import QUERY_CUSTOMER_CART from '../queries/query_customer_cart.graphql';
 
 const UserContext = React.createContext();
+
+const reducerFactory = () => {
+    return (state, action) => {
+        console.log(`[UserContext] Dispatched action ${action.type}`);
+        switch (action.type) {
+            case 'setUserDetails':
+                return {
+                    ...state,
+                    inProgress: false,
+                    currentUser: {
+                        ...action.userDetails
+                    }
+                };
+            case 'setCartId':
+                return {
+                    ...state,
+                    cartId: action.cartId
+                };
+            case 'setInProgress': {
+                return {
+                    ...state,
+                    inProgress: true
+                };
+            }
+            case 'setToken':
+                return {
+                    ...state,
+                    isSignedIn: true,
+                    inProgress: false,
+                    token: action.token
+                };
+            case 'error': {
+                return {
+                    ...state,
+                    inProgress: false,
+                    signInError: action.error
+                };
+            }
+            case 'createAccountError': {
+                return {
+                    ...state,
+                    inProgress: false,
+                    createAccountError: action.error
+                };
+            }
+            case 'signOut':
+                return {
+                    ...state,
+                    isSignedIn: false,
+                    inProgress: false,
+                    token: '',
+                    currentUser: {
+                        firstname: '',
+                        lastname: '',
+                        email: ''
+                    },
+                    cartId: ''
+                };
+            default:
+                return {
+                    ...state
+                };
+        }
+    };
+};
 
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
     const isSignedIn = () => !!userCookie;
 
-    const initialState = {
+    const initialState = props.initialState || {
         currentUser: {
             firstname: '',
             lastname: '',
@@ -45,111 +111,96 @@ const UserContextProvider = props => {
         cartId: null
     };
 
-    const [userState, setUserState] = useState(initialState);
+    const [userState, dispatch] = useReducer(reducerFactory(), initialState);
 
     const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
 
     const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
 
-    const getCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
-    const getCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
+    const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
-    const signIn = useCallback(
-        ({ email, password }) => {
-            (async function fetchToken(e, p) {
-                try {
-                    //1. generate the user's token.
-                    const { data } = await generateCustomerToken({ variables: { email: e, password: p } });
-                    setUserCookie(data.generateCustomerToken.token);
-                    console.log(`Customer token?`, data);
-                    //2. read the customer's details
-                    const { data: customerData } = await getCustomerDetails({ fetchPolicy: 'no-cache' });
-                    console.log(`User details? `, customerData);
-                    const { firstname, lastname, email } = customerData.customer;
+    console.log(`[UserContext] Rendering the user context `, userState);
 
-                    //3. read the users cart details
-                    const { data: customerCartData } = await getCustomerCart();
-                    console.log(`Cart? `, customerCartData);
-                    setUserState({
-                        ...userState,
-                        isSignedIn: true,
-                        currentUser: { firstname, lastname, email },
-                        inProgress: false,
-                        cartId: customerCartData.customerCart.id,
-                        token: data.generateCustomerToken.token
-                    });
-                } catch (error) {
-                    console.error('An error occurred during sign-in', error);
-                    let signInError = parseError(error);
-                    setUserState({ ...userState, signInError, isSignedIn: false, inProgress: false });
-                }
-            })(email, password);
-        },
-        [generateCustomerToken, getCustomerDetails, getCustomerCart]
-    );
+    const setToken = token => {
+        setUserCookie(token);
+        dispatch({ type: 'setToken', token });
+    };
 
-    const signOut = useCallback(() => {
-        async function revokeToken() {
-            try {
-                await revokeCustomerToken();
-                setCartCookie('', 0);
-                setUserCookie('', 0);
-                setUserState({
-                    ...userState,
-                    currentUser: {
-                        firstname: '',
-                        lastname: '',
-                        email: ''
-                    },
-                    isSignedIn: false,
-                    token: '',
-                    cartId: null
-                });
-            } catch (error) {
-                console.error('An error occurred during sign-out', error);
-            }
+    const setError = error => {
+        dispatch({ type: 'error', error: parseError(error) });
+    };
+
+    const setCustomerCart = cartId => {
+        dispatch({ type: 'setCartId', cartId });
+    };
+
+    const signOut = async () => {
+        try {
+            await revokeCustomerToken();
+            setCartCookie('', 0);
+            setUserCookie('', 0);
+            dispatch({ type: 'signOut' });
+        } catch (error) {
+            console.error('An error occurred during sign-out', error);
         }
-
-        revokeToken();
-    }, [revokeCustomerToken, userState.token]);
+    };
 
     const resetPassword = async email => {
         await Promise.resolve(email);
     };
 
-    const createAccount = useCallback(
-        ({ email, password, firstname, lastname }) => {
-            async function createAccount({ email, password, firstname, lastname }) {
-                try {
-                    console.log(`Create account...`);
-                    const { data } = await createCustomer({ variables: { email, password, firstname, lastname } });
-                    setUserState({ ...userState, isCreatingCustomer: false });
-                    signIn({ email: data.createCustomer.customer.email, password });
-                    // clear the password from the state
-                } catch (error) {
-                    let createAccountError = parseError(error);
-                    setUserState({ ...userState, createAccountError });
-                }
+    const createAccount = ({ email, password, firstname, lastname }) => {
+        async function createAccount({ email, password, firstname, lastname }) {
+            try {
+                console.log(`Create account...`);
+                const { data } = await createCustomer({ variables: { email, password, firstname, lastname } });
+                const { data: customerTokenData } = await generateCustomerToken({
+                    variables: { email: data.createCustomer.customer.email, password }
+                });
+                const token = customerTokenData.generateCustomerToken.token;
+                setUserCookie(token);
+                setToken(token);
+            } catch (error) {
+                let createAccountError = parseError(error);
+                dispatch({ type: 'createAccountError', error: createAccountError });
             }
+        }
 
-            createAccount({ email, password, firstname, lastname });
-        },
-        [createCustomer]
-    );
+        createAccount({ email, password, firstname, lastname });
+    };
+
+    const getUserDetails = useCallback(async () => {
+        try {
+            console.log(`Retrieve details...`);
+            const { data: customerData } = await fetchCustomerDetails({ fetchPolicy: 'no-cache' });
+            console.log(`Got customer details `, customerData);
+            dispatch({ type: 'setUserDetails', userDetails: customerData.customer });
+        } catch (error) {
+            dispatch({ type: 'error', error });
+        }
+    }, [fetchCustomerDetails]);
 
     const { children } = props;
     const contextValue = [
         userState,
         {
-            signIn,
+            setToken,
+            setError,
             signOut,
             resetPassword,
-            createAccount
+            createAccount,
+            setCustomerCart,
+            getUserDetails
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
+
+UserContextProvider.propTypes = {
+    initialState: object
+};
+
 export default UserContextProvider;
 
 export const useUserContext = () => useContext(UserContext);

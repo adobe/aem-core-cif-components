@@ -16,11 +16,12 @@ import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 
 import UserContextProvider from '../../../context/UserContext';
+import { CartProvider } from '../../Minicart/cartContext';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
 import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-
+import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 import SignIn from '../signIn';
 
 const mocks = [
@@ -56,6 +57,22 @@ const mocks = [
     },
     {
         request: {
+            query: MUTATION_MERGE_CARTS,
+            variables: {
+                sourceCartId: 'guest123',
+                destinationCartId: 'customercart'
+            }
+        },
+        result: {
+            data: {
+                mergeCarts: {
+                    id: 'customercart'
+                }
+            }
+        }
+    },
+    {
+        request: {
             query: QUERY_CUSTOMER_CART
         },
         result: {
@@ -72,7 +89,7 @@ describe('<SignIn>', () => {
     beforeEach(() => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
-            value: ''
+            value: 'cif.cart=guest123'
         });
     });
 
@@ -80,7 +97,13 @@ describe('<SignIn>', () => {
         const { asFragment } = render(
             <MockedProvider>
                 <UserContextProvider>
-                    <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <SignIn
+                            showMyAccount={jest.fn()}
+                            showCreateAccount={jest.fn()}
+                            showForgotPassword={jest.fn()}
+                        />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -115,7 +138,9 @@ describe('<SignIn>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <SignInWrapper />
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <SignInWrapper />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -156,7 +181,13 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <SignIn showMyAccount={jest.fn()} showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <SignIn
+                            showMyAccount={jest.fn()}
+                            showForgotPassword={jest.fn()}
+                            showCreateAccount={jest.fn()}
+                        />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
