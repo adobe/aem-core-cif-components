@@ -102,7 +102,7 @@ const UserContextProvider = props => {
     const [, setCartCookie] = useCookieValue('cif.cart');
     const isSignedIn = () => !!userCookie;
 
-    const initialState = props.initialState || {
+    const initialState = {
         currentUser: {
             firstname: '',
             lastname: '',

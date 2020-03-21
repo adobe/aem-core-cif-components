@@ -26,7 +26,7 @@ export default () => {
     const [{ cartId }, cartDispatch] = useCartState();
     const [, setUserCookie] = useCookieValue('cif.userToken');
 
-    const [{ isSignedIn, createAccountError }, { dispatch }] = useUserContext();
+    const [{ isSignedIn, createAccountError }, { dispatch, setToken }] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [mergeCarts] = useMutation(MUTATION_MERGE_CARTS);
@@ -63,6 +63,7 @@ export default () => {
             //3. Set the token in the cookie now because subsequent requests would need it
             console.log(`[CreateAccount] Done generating token, let's get out ${token}`);
             setUserCookie(token);
+            setToken(token);
 
             const { data: customerCartData } = await fetchCustomerCart();
             const customerCartId = customerCartData.customerCart.id;
