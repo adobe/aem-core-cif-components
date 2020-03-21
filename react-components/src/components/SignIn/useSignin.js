@@ -49,7 +49,9 @@ export const useSignin = () => {
             // 2. get the user details
             await getUserDetails();
 
-            const { data: customerCartData } = await fetchCustomerCart();
+            const { data: customerCartData } = await fetchCustomerCart({
+                fetchPolicy: 'network-only'
+            });
             const customerCartId = customerCartData.customerCart.id;
 
             // 3. merge the shopping cart
