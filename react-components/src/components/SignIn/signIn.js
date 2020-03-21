@@ -23,7 +23,6 @@ import TextInput from '../TextInput';
 import classes from './signIn.css';
 import { useSignin } from './useSignin';
 import LoadingIndicator from '../LoadingIndicator';
-import { useCartState } from '../Minicart/cartContext';
 
 const SignIn = props => {
     const { showMyAccount, showForgotPassword, showCreateAccount } = props;

@@ -19,16 +19,14 @@ import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
 
-import MUTATION_GENERATE_TOKEN from '../queries/mutation_generate_token.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
-import MUTATION_CREATE_CUSTOMER from '../queries/mutation_create_customer.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
 const UserContext = React.createContext();
 
 const reducerFactory = () => {
     return (state, action) => {
-        console.log(`[UserContext] Dispatched action ${action.type}`);
+        console.log(`[UserContext] Dispatched action`, action);
         switch (action.type) {
             case 'setUserDetails':
                 return {
@@ -54,7 +52,17 @@ const reducerFactory = () => {
                     ...state,
                     isSignedIn: true,
                     inProgress: false,
-                    token: action.token
+                    token: action.token,
+                    signInError: null
+                };
+            case 'postCreateAccount':
+                return {
+                    ...state,
+                    isSignedIn: true,
+                    inProgress: false,
+                    token: action.token,
+                    createAccountError: null,
+                    currentUser: { ...action.currentUser }
                 };
             case 'error': {
                 return {
@@ -67,7 +75,7 @@ const reducerFactory = () => {
                 return {
                     ...state,
                     inProgress: false,
-                    createAccountError: action.error
+                    createAccountError: parseError(action.error)
                 };
             }
             case 'signOut':
@@ -84,9 +92,7 @@ const reducerFactory = () => {
                     cartId: ''
                 };
             default:
-                return {
-                    ...state
-                };
+                return state;
         }
     };
 };
@@ -107,17 +113,12 @@ const UserContextProvider = props => {
         signInError: null,
         inProgress: false,
         createAccountError: null,
-        isCreatingCustomer: false,
         cartId: null
     };
 
     const [userState, dispatch] = useReducer(reducerFactory(), initialState);
 
-    const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
-
-    const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
-
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
     console.log(`[UserContext] Rendering the user context `, userState);
@@ -150,26 +151,6 @@ const UserContextProvider = props => {
         await Promise.resolve(email);
     };
 
-    const createAccount = ({ email, password, firstname, lastname }) => {
-        async function createAccount({ email, password, firstname, lastname }) {
-            try {
-                console.log(`Create account...`);
-                const { data } = await createCustomer({ variables: { email, password, firstname, lastname } });
-                const { data: customerTokenData } = await generateCustomerToken({
-                    variables: { email: data.createCustomer.customer.email, password }
-                });
-                const token = customerTokenData.generateCustomerToken.token;
-                setUserCookie(token);
-                setToken(token);
-            } catch (error) {
-                let createAccountError = parseError(error);
-                dispatch({ type: 'createAccountError', error: createAccountError });
-            }
-        }
-
-        createAccount({ email, password, firstname, lastname });
-    };
-
     const getUserDetails = useCallback(async () => {
         try {
             console.log(`Retrieve details...`);
@@ -185,11 +166,11 @@ const UserContextProvider = props => {
     const contextValue = [
         userState,
         {
+            dispatch,
             setToken,
             setError,
             signOut,
             resetPassword,
-            createAccount,
             setCustomerCart,
             getUserDetails
         }
@@ -200,7 +181,6 @@ const UserContextProvider = props => {
 UserContextProvider.propTypes = {
     initialState: object
 };
-
 export default UserContextProvider;
 
 export const useUserContext = () => useContext(UserContext);

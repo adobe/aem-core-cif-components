@@ -11,15 +11,83 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import { useMutation } from '@apollo/react-hooks';
+import { useState } from 'react';
+import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
+import { useCartState } from '../Minicart/cartContext';
+
+import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
+import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
+import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
+import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 
 export default () => {
-    const [{ isSignedIn, createAccountError, isCreatingCustomer }, { createAccount }] = useUserContext();
+    const [{ cartId }, cartDispatch] = useCartState();
+    const [, setUserCookie] = useCookieValue('cif.userToken');
 
-    const handleCreateAccount = formValues => {
-        const { customer, password } = formValues;
-        createAccount({ ...customer, password });
+    const [{ isSignedIn, createAccountError }, { dispatch }] = useUserContext();
+    const [inProgress, setInProgress] = useState(false);
+
+    const [mergeCarts] = useMutation(MUTATION_MERGE_CARTS);
+    const fetchCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
+    const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
+    const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
+
+    const handleCreateAccount = async formValues => {
+        setInProgress(true);
+        const {
+            customer: { email, firstname, lastname },
+            password
+        } = formValues;
+        try {
+            console.log(`[CreateAccount] Create account...`);
+            //1. Create the account
+            const {
+                data: {
+                    createCustomer: { customer }
+                }
+            } = await createCustomer({
+                variables: { email, password, firstname, lastname }
+            });
+
+            //2. Generate the customer token.
+            // Most of the commerce solutions DO NOT sign in the user after the account is created.
+            // We must think of splitting this process
+            console.log(`[CreateAccount] Done creating account, generate user token...`);
+            const { data: customerTokenData } = await generateCustomerToken({
+                variables: { email: customer.email, password }
+            });
+            const token = customerTokenData.generateCustomerToken.token;
+
+            //3. Set the token in the cookie now because subsequent requests would need it
+            console.log(`[CreateAccount] Done generating token, let's get out ${token}`);
+            setUserCookie(token);
+
+            const { data: customerCartData } = await fetchCustomerCart();
+            const customerCartId = customerCartData.customerCart.id;
+
+            //4. Merge the shopping cart
+            const { data: mergeCartsData } = await mergeCarts({
+                variables: {
+                    sourceCartId: cartId,
+                    destinationCartId: customerCartId
+                }
+            });
+            const mergedCartId = mergeCartsData.mergeCarts.id;
+            console.log(`[CreateAccount] Carts are merged, ${mergedCartId} is the new cart id`);
+
+            //5. Dispatch the action to update the user state
+            dispatch({ type: 'postCreateAccount', token, currentUser: customer, cartId: mergedCartId });
+
+            //6. set the cart id in the cookie
+            cartDispatch({ type: 'cartId', cartId: mergedCartId });
+        } catch (error) {
+            dispatch({ type: 'createAccountError', error });
+        }
+
+        setInProgress(false);
     };
 
-    return [{ isSignedIn, createAccountError, isCreatingCustomer }, { createAccount: handleCreateAccount }];
+    return [{ isSignedIn, createAccountError, inProgress }, { createAccount: handleCreateAccount }];
 };

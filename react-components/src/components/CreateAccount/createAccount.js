@@ -29,12 +29,17 @@ import {
 import mergeClasses from '../../utils/mergeClasses';
 import defaultClasses from './createAccount.css';
 import useCreateAccount from './useCreateAccount';
+import LoadingIndicator from '../LoadingIndicator';
 
 const LEAD = 'Check out faster, use multiple addresses, track orders and more by creating an account!';
 
 const CreateAccount = props => {
     const { showMyAccount } = props;
-    const [{ createAccountError, isSignedIn, isCreatingCustomer }, { createAccount }] = useCreateAccount();
+    const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount();
+
+    if (inProgress) {
+        return <LoadingIndicator message="Creating account" />;
+    }
 
     const handleCreateAccount = formValues => {
         createAccount(formValues);
@@ -102,7 +107,7 @@ const CreateAccount = props => {
             </div>
             <div className={classes.error}>{errorMessage}</div>
             <div className={classes.actions}>
-                <Button disabled={isCreatingCustomer} type="submit" priority="high" aria-label="submit">
+                <Button disabled={inProgress} type="submit" priority="high" aria-label="submit">
                     {'Submit'}
                 </Button>
             </div>
