@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import Button from '../Button';
 import classes from './authBar.css';
@@ -22,7 +22,13 @@ import { func } from 'prop-types';
 const AuthBar = props => {
     const { showSignIn, showMyAccount } = props;
 
-    const [{ currentUser, isSignedIn }] = useUserContext();
+    const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
+
+    useEffect(() => {
+        if (isSignedIn && currentUser.email === '') {
+            getUserDetails();
+        }
+    }, [getUserDetails]);
 
     const disabled = false;
 
