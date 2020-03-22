@@ -13,17 +13,15 @@
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
 import { shape, string } from 'prop-types';
-import { useMutation } from '@apollo/react-hooks';
+import { Price } from '@magento/peregrine';
 
 import PaymentMethodSummary from './paymentMethodSummary';
 import ShippingAddressSummary from './shippingAddressSummary';
 import ShippingMethodSummary from './shippingMethodSummary';
+import LoadingIndicator from '../LoadingIndicator';
 import Section from './section';
 import Button from '../Button';
-import { Price } from '@magento/peregrine';
-import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
-import { useCartState } from '../Minicart/cartContext';
-import { useCheckoutState } from './checkoutContext';
+import useOverview from './useOverview';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -31,24 +29,20 @@ import { useCheckoutState } from './checkoutContext';
  */
 const Overview = props => {
     const { classes } = props;
-    const [{ cart, cartId }, cartDispatch] = useCartState();
-    const [{ shippingAddress, shippingMethod, paymentMethod }, dispatch] = useCheckoutState();
 
-    const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
+    const [
+        { shippingAddress, shippingMethod, paymentMethod, cart, inProgress },
+        { placeOrder, checkoutDispatch }
+    ] = useOverview();
 
     const ready = shippingAddress && paymentMethod && shippingMethod;
 
-    const submitOrder = useCallback(() => {
-        placeOrder({ variables: { cartId: cartId } });
-    }, [placeOrder]);
-
-    if (error) {
-        cartDispatch({ type: 'error', error: error.toString() });
+    if (inProgress) {
+        return <LoadingIndicator message="Placing order"></LoadingIndicator>;
     }
-
-    if (data) {
-        dispatch({ type: 'placeOrder', order: data.placeOrder.order });
-    }
+    const submitOrder = async () => {
+        await placeOrder(cart.id);
+    };
 
     return (
         <Fragment>
@@ -56,7 +50,7 @@ const Overview = props => {
                 <Section
                     label="Ship To"
                     onClick={() => {
-                        dispatch({ type: 'setEditing', editing: 'address' });
+                        checkoutDispatch({ type: 'setEditing', editing: 'address' });
                     }}
                     showEditIcon={!!shippingAddress}>
                     <ShippingAddressSummary classes={classes} />
@@ -64,7 +58,7 @@ const Overview = props => {
                 <Section
                     label="Pay With"
                     onClick={() => {
-                        dispatch({ type: 'setEditing', editing: 'paymentMethod' });
+                        checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' });
                     }}
                     showEditIcon={!!paymentMethod}
                     disabled={!shippingAddress}>
@@ -73,7 +67,7 @@ const Overview = props => {
                 <Section
                     label="Use"
                     onClick={() => {
-                        dispatch({ type: 'setEditing', editing: 'shippingMethod' });
+                        checkoutDispatch({ type: 'setEditing', editing: 'shippingMethod' });
                     }}
                     showEditIcon={!!shippingMethod}
                     disabled={!shippingAddress}>
@@ -86,7 +80,7 @@ const Overview = props => {
                 </Section>
             </div>
             <div className={classes.footer}>
-                <Button onClick={() => dispatch({ type: 'cancelCheckout' })}>Back to Cart</Button>
+                <Button onClick={() => checkoutDispatch({ type: 'cancelCheckout' })}>Back to Cart</Button>
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
                     Confirm Order
                 </Button>

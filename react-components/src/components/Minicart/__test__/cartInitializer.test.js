@@ -25,7 +25,6 @@ import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.grap
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import { DefinePlugin } from 'webpack';
 
 const queryMocks = [
     {
@@ -155,7 +154,7 @@ describe('<CartInitializer />', () => {
     });
 
     it('creates a new cart if cartId is not set in cookie', async () => {
-        const { getByTestId, debug } = render(
+        const { getByTestId } = render(
             <MockedProvider
                 mocks={[
                     {
@@ -190,30 +189,47 @@ describe('<CartInitializer />', () => {
         expect(cartIdNode.textContent).toEqual('guest123');
     });
 
-    it('merges the cart when the user signs in', async () => {
+    it('resets the cart id after a checkout', async () => {
+        Object.defineProperty(window.document, 'cookie', {
+            writable: true,
+            value: 'cif.cart=oldcustomercart;path=/;domain=http://localhost;Max-Age=3600'
+        });
+        const ResetCartComponent = () => {
+            const [{ cartId }, dispatch] = useCartState();
+
+            if (cartId === 'guest123') {
+                return <div data-testid="cart-id">customercart</div>;
+            }
+            console.log(document.cookie);
+            return (
+                <div>
+                    <button
+                        onClick={() => {
+                            console.log(`Reset`);
+                            dispatch({ type: 'reset' });
+                        }}>
+                        Reset
+                    </button>
+                </div>
+            );
+        };
+
         const { getByTestId, getByRole } = render(
             <MockedProvider mocks={queryMocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider
-                        initialState={{ cartId: null }}
-                        reducerFactory={() => (state, action) => {
-                            if (action.type === 'cartId') {
-                                return { ...state, cartId: action.cartId };
-                            }
-                            return state;
-                        }}>
+                    <CartProvider>
                         <CartInitializer>
-                            <DummyCart />
+                            <ResetCartComponent />
                         </CartInitializer>
                     </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
 
-        const button = await waitForElement(() => getByRole('button'));
-        fireEvent.click(button);
-        await waitForElement(() => getByTestId('success'));
-
-        expect(getByTestId('cart-details').textContent).toEqual('customercart');
+        fireEvent.click(getByRole('button'));
+        const cartIdNode = await waitForElement(() => {
+            return getByTestId('cart-id');
+        });
+        expect(cartIdNode.textContent).toEqual('customercart');
     });
 });

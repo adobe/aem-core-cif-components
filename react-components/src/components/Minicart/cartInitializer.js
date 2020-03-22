@@ -25,11 +25,11 @@ import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
-import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
 
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();
     const [{ cartId: registeredCartId }] = useUserContext();
+
     const CART_COOKIE = 'cif.cart';
 
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
@@ -39,7 +39,6 @@ const CartInitializer = props => {
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
     const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
-    const [mergeCarts] = useMutation(MUTATION_MERGE_CARTS);
 
     const createCartHandlers = (cartId, dispatch) => {
         return {
@@ -105,18 +104,17 @@ const CartInitializer = props => {
         };
     };
 
-    console.log(`Cart id from cookie is now ${cartId}`);
-    console.log(`Cart id from state is now ${stateCartId}`);
+    console.log(`Cart id from cookie is now ${cartId}, state is ${stateCartId}`);
     useEffect(() => {
-        console.log(`Running the effect that puts the cart id ${cartId} in the state`);
         if (cartId && cartId.length > 0) {
+            console.log(`Running the effect that puts the cart id ${cartId} in the state`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId]);
 
     useEffect(() => {
-        console.log(`Running the effect with the cart id`);
         if (!registeredCartId && (cartId === null || cartId.length === 0)) {
+            console.log(`Running the effect with the cart id`);
             (async function() {
                 const { data } = await createCart();
                 console.log(`Created empty cart ${data.createEmptyCart}`);
@@ -130,27 +128,10 @@ const CartInitializer = props => {
         }
 
         if (registeredCartId) {
+            setCartCookie(registeredCartId);
             dispatch({ type: 'cartId', cartId: registeredCartId, methods: createCartHandlers(cartId, dispatch) });
         }
-    }, [registeredCartId, cartId]);
-
-    useEffect(() => {
-        console.log(`Running the effect with the registered cart Id `);
-        if (registeredCartId && (cartId === null || cartId.length === 0) && registeredCartId !== cartId) {
-            console.log(`Carts not the same, merging`);
-            (async function() {
-                const { data: mergeCartsData } = await mergeCarts({
-                    variables: {
-                        sourceCartId: stateCartId,
-                        destinationCartId: registeredCartId
-                    }
-                });
-                const mergedCartId = mergeCartsData.mergeCarts.id;
-                setCartCookie(mergedCartId);
-                dispatch({ type: 'cartId', cartId: mergedCartId, methods: createCartHandlers(cartId, dispatch) });
-            })();
-        }
-    }, [registeredCartId]);
+    }, [cartId]);
 
     return props.children;
 };

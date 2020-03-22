@@ -14,27 +14,24 @@
 import React from 'react';
 import classes from './receipt.css';
 import Trigger from '../Trigger';
-import { useCartState } from '../Minicart/cartContext';
-import { useCheckoutState } from './checkoutContext';
+
+import useReceipt from './useReceipt';
 
 const Receipt = () => {
-    const [, cartDispatch] = useCartState();
-    const [{ order }, dispatch] = useCheckoutState();
-
-    const continueShopping = () => {
-        cartDispatch({ type: 'reset' });
-        dispatch({ type: 'reset' });
-    };
+    const [{ orderId }, continueShopping] = useReceipt();
 
     return (
         <div className={classes.root}>
             <div className={classes.body}>
                 <h2 className={classes.header}>Thank you for your purchase!</h2>
                 <div className={classes.textBlock}>
-                    The order number is {order.order_id}. You will receive an order confirmation email with order status
-                    and other details.
+                    The order number is {orderId}. You will receive an order confirmation email with order status and
+                    other details.
                 </div>
-                <Trigger action={continueShopping}>
+                <Trigger
+                    action={async () => {
+                        await continueShopping();
+                    }}>
                     <span className={classes.continue}>Continue Shopping</span>
                 </Trigger>
             </div>
