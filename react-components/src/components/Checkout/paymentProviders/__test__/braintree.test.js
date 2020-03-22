@@ -79,11 +79,13 @@ describe('<Braintree />', () => {
         let mockCartDispatchFn = jest.fn(state => state);
 
         render(
-            <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
-                <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
-                    <Braintree accept="card" />
-                </CheckoutProvider>
-            </CartProvider>
+            <MockedProvider>
+                <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
+                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                        <Braintree accept="card" />
+                    </CheckoutProvider>
+                </CartProvider>
+            </MockedProvider>
         );
 
         await wait(() => dropIn.create.mock.calls.length === 1 && mockOnFn.mock.calls.length === 2);
@@ -120,11 +122,13 @@ describe('<Braintree />', () => {
         };
 
         render(
-            <CartProvider initialState={cartState} reducerFactory={() => mockCartDispatchFn}>
-                <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
-                    <Braintree accept="paypal" />
-                </CheckoutProvider>
-            </CartProvider>
+            <MockedProvider>
+                <CartProvider initialState={cartState} reducerFactory={() => mockCartDispatchFn}>
+                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                        <Braintree accept="paypal" />
+                    </CheckoutProvider>
+                </CartProvider>
+            </MockedProvider>
         );
 
         await wait(() => dropIn.create.mock.calls.length === 1 && mockOnFn.mock.calls.length === 2);
@@ -160,11 +164,13 @@ describe('<Braintree />', () => {
 
         // Step 1, create Dropin
         render(
-            <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
-                <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
-                    <Braintree accept="card" />
-                </CheckoutProvider>
-            </CartProvider>
+            <MockedProvider>
+                <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
+                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                        <Braintree accept="card" />
+                    </CheckoutProvider>
+                </CartProvider>
+            </MockedProvider>
         );
 
         await wait(() => dropIn.create.mock.calls.length === 1 && mockOnFn.mock.calls.length === 2);

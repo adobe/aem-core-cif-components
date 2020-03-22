@@ -16,6 +16,8 @@ import { render } from '@testing-library/react';
 
 import CartOptions from '../cartOptions';
 import { CartProvider } from '../cartContext';
+import UserContextProvider from '../../../context/UserContext';
+import { MockedProvider } from '@apollo/react-testing';
 
 describe('<CartOptions>', () => {
     it('renders the component properly', () => {
@@ -42,9 +44,13 @@ describe('<CartOptions>', () => {
         };
 
         const { asFragment } = render(
-            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                <CartOptions />
-            </CartProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                        <CartOptions />
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
