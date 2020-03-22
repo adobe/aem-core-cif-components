@@ -125,7 +125,7 @@ describe('<CreateAccount>', () => {
             const [{ isSignedIn, currentUser }] = useUserContext();
             let content;
             console.log(`is signed in? ${isSignedIn}`);
-            if (isSignedIn) {
+            if (isSignedIn && currentUser.firstname) {
                 content = <div data-testid="success">{currentUser.firstname}</div>;
             } else {
                 content = <CreateAccount showMyAccount={jest.fn()} />;
