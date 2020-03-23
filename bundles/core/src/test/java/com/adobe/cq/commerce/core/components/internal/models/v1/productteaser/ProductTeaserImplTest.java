@@ -60,6 +60,7 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
+    private static final String PRODUCTTEASER_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-noclient";
 
     private Resource teaserResource;
 
@@ -154,5 +155,24 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
 
         Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
+    }
+
+    @Test
+    public void verifyProductTeaserNoGraphqlCLient() {
+        Page page = context.currentPage(PAGE);
+        context.currentResource(PRODUCTTEASER_NOCLIENT);
+        Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_NOCLIENT));
+        Mockito.when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+
+        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(teaserResource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+
+        ProductTeaserImpl productTeaserNoClient = context.request().adaptTo(ProductTeaserImpl.class);
+
+        Assert.assertNull(productTeaserNoClient.getProductRetriever());
+        Assert.assertNull(productTeaserNoClient.getUrl());
     }
 }

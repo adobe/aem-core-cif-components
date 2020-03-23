@@ -308,4 +308,14 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
     }
+
+    @Test
+    public void testProductListNoGraphqlClient() throws IOException {
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        Assert.assertTrue(productListModel.getTitle().isEmpty());
+        Assert.assertTrue(productListModel.getImage().isEmpty());
+        Assert.assertTrue(productListModel.getProducts().isEmpty());
+    }
 }

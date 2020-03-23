@@ -94,6 +94,10 @@ public class ProductTeaserImpl implements ProductTeaser {
     }
 
     private ProductInterface getProduct() {
+        if (productRetriever == null) {
+            return null;
+        }
+
         ProductInterface baseProduct = productRetriever.fetchProduct();
         if (combinedSku.getRight() != null && baseProduct instanceof ConfigurableProduct) {
             ConfigurableProduct configurableProduct = (ConfigurableProduct) baseProduct;
