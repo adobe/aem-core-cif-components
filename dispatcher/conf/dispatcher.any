@@ -48,9 +48,9 @@
       /rend01
         {
         # Hostname or IP of the render
-        /hostname "192.168.0.28"
+        /hostname "aem-hostname"
         # Port of the render
-        /port "4502"
+        /port "4503"
         # Connect timeout in milliseconds, 0 to wait indefinitely
         # /timeout "0"
         }
@@ -97,11 +97,11 @@
 #     /0013 { /type "allow" /url "/system/*" }  # allow OSGi console
         
       # Allow non-public content directories
-      /0021 { /type "allow" /url "/apps/*"   }  # allow apps access
+#     /0021 { /type "allow" /url "/apps/*"   }  # allow apps access
 #     /0022 { /type "allow" /url "/bin/*"    }
       /0023 { /type "allow" /url "/content*" }  # disable this rule to allow mapped content only
       
-      /0024 { /type "allow" /url "/libs/*"   }
+#     /0024 { /type "allow" /url "/libs/*"   }
 #     /0025 { /type "deny"  /url "/libs/shindig/proxy*" } # if you enable /libs close access to proxy
 
 #     /0026 { /type "allow" /url "/home/*"   }
