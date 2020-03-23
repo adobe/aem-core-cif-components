@@ -60,8 +60,8 @@ public class FeaturedCategoryListImplTest {
 
     private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
-    private static final String COMPONENT_PATH_BADID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
     private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
+    private static final String COMPONENT_PATH_BADID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
 
     @Rule
     public final AemContext contextConfigured = createContext("/context/jcr-content.json");
@@ -122,7 +122,6 @@ public class FeaturedCategoryListImplTest {
         when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         slingModelBadId = contextBadId.request().adaptTo(FeaturedCategoryListImpl.class);
 
-
         // init slingmodel with no graphql client
         when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCLIENT));
@@ -169,7 +168,7 @@ public class FeaturedCategoryListImplTest {
         Assert.assertFalse(slingModelNotConfigured.isConfigured());
         categories = slingModelNotConfigured.getCategories();
         Assert.assertNotNull(categories);
-        Assert.assertEquals(categories.size(), 0);
+        Assert.assertEquals(0, categories.size());
     }
 
     @Test
@@ -179,7 +178,7 @@ public class FeaturedCategoryListImplTest {
         Assert.assertTrue(slingModelBadId.isConfigured());
         categories = slingModelBadId.getCategories();
         Assert.assertNotNull(categories);
-        Assert.assertEquals(categories.size(), 1);
+        Assert.assertEquals(2, categories.size());
     }
 
     @Test

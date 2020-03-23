@@ -112,7 +112,7 @@
               }
             }
           },
-          "featuredcategorylist3": {
+          "featuredcategorylist4": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
@@ -120,6 +120,9 @@
               },
               "item1": {
                 "categoryId": "a"
+              },
+              "item2": {
+                "categoryId": "7"
               }
             }
           }
