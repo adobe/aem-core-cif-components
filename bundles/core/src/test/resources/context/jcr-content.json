@@ -99,6 +99,17 @@
           },
           "featuredcategorylist2": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist"
+          },
+          "featuredcategorylist3": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              },
+              "item1": {
+                "categoryId": "a"
+              }
+            }
           }
         }
       }

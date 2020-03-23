@@ -111,8 +111,13 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
             for (String identifier : identifiers) {
-                String alias = "category_" + identifier;
-                query.withAlias(alias).category(q -> q.id(Integer.parseInt(identifier)), queryArgs);
+                try {
+                    int value = Integer.parseInt(identifier);
+                    String alias = "category_" + identifier;
+                    query.withAlias(alias).category(q -> q.id(value), queryArgs);
+                } catch (NumberFormatException x) {
+                    // ignore
+                }
             }
         }).toString();
     }
