@@ -12,14 +12,38 @@
  *
  ******************************************************************************/
 
-const { exec } = require('child_process');
+import React from 'react';
+import { number, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
-const CLIENTLIB_PATH = '../../content/jcr_root/apps/core/cif/clientlibs/react-components/dist';
+const Price = props => {
+    const { value, currencyCode, className } = props;
+    const [t] = useTranslation(['common']);
 
-exec(`repo put -f ${CLIENTLIB_PATH}`, (err, stdout, stderr) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log(`stdout: ${stdout}`);
-    }
-});
+    return (
+        <span className={className}>
+            {t('common:formattedPrice', { price: { currency: currencyCode, value: value } })}
+        </span>
+    );
+};
+
+Price.propTypes = {
+    /**
+     * The numeric price
+     */
+    value: number.isRequired,
+    /**
+     * A string with any of the currency code supported by Intl.NumberFormat
+     */
+    currencyCode: string.isRequired,
+    /**
+     * Class name to use when styling this component
+     */
+    className: string
+};
+
+Price.defaultProps = {
+    className: ''
+};
+
+export default Price;

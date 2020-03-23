@@ -14,6 +14,7 @@
 import React from 'react';
 import { func, shape, string } from 'prop-types';
 import { Form } from 'informed';
+import { useTranslation } from 'react-i18next';
 
 import { isRequired } from '../../utils/formValidators';
 import Field from '../Field';
@@ -24,12 +25,13 @@ import defaultClasses from './forgotPassword.css';
 
 const ForgotPasswordForm = props => {
     const { handleFormSubmit } = props;
+    const [t] = useTranslation('account');
 
     const classes = Object.assign({}, defaultClasses, props.classes || {});
 
     return (
         <Form className={classes.root} onSubmit={handleFormSubmit}>
-            <Field label="Email address" required={true}>
+            <Field label={t('account:email', 'E-Mail')} required={true}>
                 <TextInput
                     autoComplete="email"
                     field="email"
@@ -39,7 +41,7 @@ const ForgotPasswordForm = props => {
             </Field>
             <div className={classes.buttonContainer}>
                 <Button disabled={false} type="submit" priority="high" aria-label="submit">
-                    Submit
+                    {t('account:forgot-password-submit', 'Submit')}
                 </Button>
             </div>
         </Form>

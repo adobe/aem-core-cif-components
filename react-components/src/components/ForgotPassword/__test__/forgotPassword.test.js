@@ -13,10 +13,12 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
 
 import ForgotPassword from '../forgotPassword';
 import UserContextProvider from '../../../context/UserContext';
 import { MockedProvider } from '@apollo/react-testing';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
@@ -25,11 +27,13 @@ describe('ForgotPassword', () => {
         };
 
         const { asFragment } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <Wrapper />
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -41,11 +45,13 @@ describe('ForgotPassword', () => {
         };
 
         const { getByLabelText } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <Wrapper />
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });

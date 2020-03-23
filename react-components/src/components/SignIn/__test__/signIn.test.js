@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
@@ -23,6 +24,7 @@ import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.grap
 import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
 import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 import SignIn from '../signIn';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 const mocks = [
     {
@@ -95,17 +97,20 @@ describe('<SignIn>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <MockedProvider>
-                <UserContextProvider>
+
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
                     <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
                         <SignIn
                             showMyAccount={jest.fn()}
                             showCreateAccount={jest.fn()}
                             showForgotPassword={jest.fn()}
                         />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();

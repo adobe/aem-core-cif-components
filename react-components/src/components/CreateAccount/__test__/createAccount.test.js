@@ -15,10 +15,12 @@
 import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import CreateAccount from '../createAccount';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
@@ -32,6 +34,7 @@ describe('<CreateAccount>', () => {
     });
     it('renders the component', () => {
         const { asFragment } = render(
+<I18nextProvider i18n={i18n}>
             <MockedProvider>
                 <UserContextProvider>
                     <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
@@ -39,6 +42,8 @@ describe('<CreateAccount>', () => {
                     </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
+            </I18nextProvider>
+
         );
 
         expect(asFragment()).toMatchSnapshot();

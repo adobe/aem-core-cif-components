@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 
 import { useEventListener } from '../../utils/hooks';
@@ -27,6 +27,7 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import CartTrigger from '../CartTrigger';
 
 import { useCartState } from './cartContext';
+import LoadingIndicator from '../LoadingIndicator';
 
 const MiniCart = () => {
     const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
@@ -71,9 +72,11 @@ const MiniCart = () => {
             <CartTrigger />
             <Mask />
             <aside className={rootClass}>
-                <Header />
-                <Body />
-                {footer}
+                <Suspense fallback={<LoadingIndicator />}>
+                    <Header />
+                    <Body />
+                    {footer}
+                </Suspense>
             </aside>
         </>
     );

@@ -14,8 +14,9 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { Price } from '@magento/peregrine';
+import { useTranslation } from 'react-i18next';
 
+import Price from '../Price';
 import Button from '../Button';
 import Select from '../Select';
 import classes from './cartOptions.css';
@@ -27,6 +28,7 @@ import { useCartState } from './cartContext';
 
 const CartOptions = () => {
     const [{ editItem, cartId }, dispatch] = useCartState();
+    const [t] = useTranslation(['cart', 'common']);
 
     const { product, quantity: initialQuantity, prices } = editItem;
     const { name } = product;
@@ -81,7 +83,7 @@ const CartOptions = () => {
             <div className={classes.form}>
                 <section className={classes.quantity}>
                     <h2 className={classes.quantityTitle}>
-                        <span>Quantity</span>
+                        <span>{t('cart:quantity', 'Quantity')}</span>
                     </h2>
                     <Select field="quantity" initialValue={quantity} onValueChange={handleOnChange} items={mockQtys} />
                 </section>
@@ -91,10 +93,10 @@ const CartOptions = () => {
                     onClick={() => {
                         dispatch({ type: 'endEditing' });
                     }}>
-                    <span>Cancel</span>
+                    <span>{t('common:cancel', 'Cancel')}</span>
                 </Button>
                 <Button priority="high" onClick={handleUpdateClick}>
-                    <span>Update Cart</span>
+                    <span>{t('cart:update-cart', 'Update Cart')}</span>
                 </Button>
             </div>
         </form>

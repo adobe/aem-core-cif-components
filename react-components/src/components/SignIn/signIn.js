@@ -14,6 +14,7 @@
 import React from 'react';
 import { Form } from 'informed';
 import { func } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { isRequired } from '../../utils/formValidators';
 import Button from '../Button';
@@ -32,6 +33,8 @@ const SignIn = props => {
         return <LoadingIndicator>{'Signing in...'}</LoadingIndicator>;
     }
 
+    const [t] = useTranslation('account');
+
     if (isSignedIn) {
         showMyAccount();
     }
@@ -39,10 +42,10 @@ const SignIn = props => {
     return (
         <div className={classes.root}>
             <Form onSubmit={handleSubmit} className={classes.form}>
-                <Field label="Email" required={true}>
+                <Field label={t('account:email', 'E-Mail')} required={true}>
                     <TextInput autoComplete="email" field="email" validate={isRequired} aria-label="email" />
                 </Field>
-                <Field label="Password" required={true}>
+                <Field label={t('account:password', 'Password')} required={true}>
                     <TextInput
                         autoComplete="current-password"
                         field="password"
@@ -54,18 +57,18 @@ const SignIn = props => {
                 <div className={classes.signInError}>{errorMessage}</div>
                 <div className={classes.signInButton}>
                     <Button priority="high" type="submit" aria-label="submit">
-                        {'Sign In'}
+                        {t('account:sign-in', 'Sign In')}
                     </Button>
                 </div>
                 <div className={classes.forgotPasswordButton}>
                     <Button priority="low" type="button" onClick={showForgotPassword}>
-                        {'Forgot Password?'}
+                        {t('account:forgot-password', 'Forgot Password?')}
                     </Button>
                 </div>
                 <div className={classes.signInDivider}></div>
                 <div className={classes.createAccountButton}>
                     <Button priority="normal" type="button" onClick={showCreateAccount}>
-                        {'Create an Account'}
+                        {t('account:create-an-account', 'Create an Account')}
                     </Button>
                 </div>
             </Form>

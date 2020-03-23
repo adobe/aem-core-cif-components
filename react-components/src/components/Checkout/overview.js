@@ -13,7 +13,9 @@
  ******************************************************************************/
 import React, { Fragment, useCallback } from 'react';
 import { shape, string } from 'prop-types';
+
 import { Price } from '@magento/peregrine';
+import { useTranslation } from 'react-i18next';
 
 import PaymentMethodSummary from './paymentMethodSummary';
 import ShippingAddressSummary from './shippingAddressSummary';
@@ -29,6 +31,9 @@ import useOverview from './useOverview';
  */
 const Overview = props => {
     const { classes } = props;
+    const [{ cart, cartId }, cartDispatch] = useCartState();
+    const [{ shippingAddress, shippingMethod, paymentMethod }, dispatch] = useCheckoutState();
+    const [t] = useTranslation('checkout');
 
     const [
         { shippingAddress, shippingMethod, paymentMethod, cart, inProgress },
@@ -48,7 +53,7 @@ const Overview = props => {
         <Fragment>
             <div className={classes.body}>
                 <Section
-                    label="Ship To"
+                    label={t('checkout:ship-to', 'Ship To')}
                     onClick={() => {
                         checkoutDispatch({ type: 'setEditing', editing: 'address' });
                     }}
@@ -56,7 +61,7 @@ const Overview = props => {
                     <ShippingAddressSummary classes={classes} />
                 </Section>
                 <Section
-                    label="Pay With"
+                    label={t('checkout:pay-with', 'Pay With')}
                     onClick={() => {
                         checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' });
                     }}
@@ -65,7 +70,7 @@ const Overview = props => {
                     <PaymentMethodSummary classes={classes} />
                 </Section>
                 <Section
-                    label="Use"
+                    label={t('checkout:use', 'Use')}
                     onClick={() => {
                         checkoutDispatch({ type: 'setEditing', editing: 'shippingMethod' });
                     }}
@@ -73,16 +78,17 @@ const Overview = props => {
                     disabled={!shippingAddress}>
                     <ShippingMethodSummary classes={classes} />
                 </Section>
-                <Section label="TOTAL">
+                <Section label={t('checkout:total', 'TOTAL')}>
                     <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} />
                     <br />
                     <span>{cart.items.length} Items</span>
                 </Section>
             </div>
             <div className={classes.footer}>
-                <Button onClick={() => checkoutDispatch({ type: 'cancelCheckout' })}>Back to Cart</Button>
+                <Button onClick={() => checkoutDispatch({ type: 'cancelCheckout' })}> {t('checkout:back-to-cart', 'Back to cart')}</Button>
+
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
-                    Confirm Order
+                    {t('checkout:confirm-order', 'Confirm Order')}
                 </Button>
             </div>
         </Fragment>

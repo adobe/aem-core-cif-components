@@ -21,7 +21,8 @@ module.exports = {
     reporters: ['default', ['jest-junit', { outputDirectory: './test-results'}]],
     transform: {
         '\\.(gql|graphql)$': 'jest-transform-graphql',
-        '.*': 'babel-jest'
+        ".+\\.json": "./__mocks__/jsonTransform.js",
+        '.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
     },
     moduleNameMapper: {
         '\\.css$': 'identity-obj-proxy',

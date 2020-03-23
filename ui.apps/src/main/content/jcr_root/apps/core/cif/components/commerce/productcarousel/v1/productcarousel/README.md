@@ -34,6 +34,7 @@ The Product Carousel component uses the `com.adobe.cq.commerce.core.components.m
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./product` - stores the product SKUs or JCR paths of the products to be displayed
+2. `./jcr:title` - Optional title text
 
 We also use a `SlingPostProcessor` in order to support "drag and drop" in the AEM Sites Editor, so that it is possible to easily add multiple products to the carousel. The custom processor only processes POST parameter keys starting with `./dropTarget->` so make sure that this doesn't collide with any other custom processor you might implement.
 
@@ -45,6 +46,7 @@ BLOCK productcarousel
     ELEMENT productcarousel__btn--next
     ELEMENT productcarousel__btn--prev
     ELEMENT productcarousel__cardscontainer
+    ELEMENT productcarousel__container
     ELEMENT productcarousel__parent
     ELEMENT productcarousel__root
     ELEMENT productcarousel__title

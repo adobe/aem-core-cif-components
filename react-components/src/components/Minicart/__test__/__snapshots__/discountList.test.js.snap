@@ -14,20 +14,10 @@ exports[`<DiscountList /> renders the component 1`] = `
       <span
         class="price"
       >
-        <span>
-          -
-        </span>
-        <span>
-          $
-        </span>
-        <span>
-          36
-        </span>
-        <span>
-          .
-        </span>
-        <span>
-          40
+        <span
+          class=""
+        >
+          -$36.40
         </span>
       </span>
     </div>
@@ -40,20 +30,10 @@ exports[`<DiscountList /> renders the component 1`] = `
       <span
         class="price"
       >
-        <span>
-          -
-        </span>
-        <span>
-          $
-        </span>
-        <span>
-          14
-        </span>
-        <span>
-          .
-        </span>
-        <span>
-          56
+        <span
+          class=""
+        >
+          -$14.56
         </span>
       </span>
     </div>

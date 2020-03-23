@@ -14,9 +14,8 @@
 
 import React from 'react';
 import { string } from 'prop-types';
-import ApolloClient from 'apollo-boost';
-
 import { ApolloProvider } from '@apollo/react-hooks';
+import ApolloClient from 'apollo-boost';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
