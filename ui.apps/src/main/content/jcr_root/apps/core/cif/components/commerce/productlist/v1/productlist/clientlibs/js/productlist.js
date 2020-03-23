@@ -65,6 +65,8 @@ class ProductList {
             Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
         );
 
+        price.isStartPrice = range.__typename == 'GroupedProduct';
+
         return price;
     }
 
@@ -105,7 +107,8 @@ class ProductList {
                             currency: price.currency
                         })}</span>`;
                 } else {
-                    innerHTML += `<span>${this._formatter.formatPrice({
+                    let prefix = price.isStartPrice ? 'Starting at ' : ''; // TODO: enable i18n text
+                    innerHTML += `<span>${prefix}${this._formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
                     })}</span>`;
