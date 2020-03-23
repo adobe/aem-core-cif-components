@@ -99,11 +99,13 @@ public class RelatedProductsImplTest {
             requestPathInfo.setSelectorString("endurance-watch");
         }
 
-        Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
-        ProductInterface product = rootQuery.getProducts().getItems().get(0);
-        products = PRODUCTS_GETTER.get(relationType).apply(product);
-
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
+        GraphqlClient graphqlClient = null;
+        if (jsonResponsePath != null) {
+            Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
+            ProductInterface product = rootQuery.getProducts().getItems().get(0);
+            products = PRODUCTS_GETTER.get(relationType).apply(product);
+            graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
+        }
         Mockito.when(relatedProductsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
@@ -142,6 +144,12 @@ public class RelatedProductsImplTest {
     @Test
     public void testIsNotConfigured() throws Exception {
         setUp(RelationType.CROSS_SELL_PRODUCTS, "graphql/magento-graphql-crosssellproducts-result.json", false);
+        Assert.assertTrue(relatedProducts.getProducts().isEmpty());
+    }
+
+    @Test
+    public void testNoGraphqlClient() throws Exception {
+        setUp(RelationType.UPSELL_PRODUCTS, null, true);
         Assert.assertTrue(relatedProducts.getProducts().isEmpty());
     }
 

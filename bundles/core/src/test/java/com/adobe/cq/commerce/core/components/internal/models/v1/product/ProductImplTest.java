@@ -359,5 +359,14 @@ public class ProductImplTest {
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
         }
+
+    @Test
+    public void testProductNoGraphqlClient() {
+        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertFalse(productModel.getFound());
+        Assert.assertFalse(productModel.isConfigurable());
+        Assert.assertNull(productModel.getProductRetriever());
     }
 }
