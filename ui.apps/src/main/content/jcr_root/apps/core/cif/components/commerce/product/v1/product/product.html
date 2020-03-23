@@ -15,6 +15,7 @@
      data-sly-use.galleryTpl="gallery.html"
      data-sly-use.actionsTpl="actions.html"
      data-sly-use.quantityTpl="quantity.html"
+     data-sly-use.groupedProductsTpl="groupedProducts.html"
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
@@ -24,8 +25,10 @@
           data-locale="${page.language}"
           data-load-client-price="${product.loadClientPrice}">
         <sly data-sly-test.found="${product.found}">
+            <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
             <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${product.name}</span></h1>
                 <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
+                     data-sly-test="${!isGroupedProduct}"
                      data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=true}"></sly>
             </section>
             <section class="productFullDetail__imageCarousel">
@@ -34,7 +37,11 @@
             <section class="productFullDetail__options" data-sly-test="${product.configurable}" data-variants="${product.variantsJson}">
                 <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section class="productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${isGroupedProduct}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
+                <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
+            </section>
+            <section data-sly-test="${!isGroupedProduct}" class="productFullDetail__quantity productFullDetail__section">
+                <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
             </section>
             <section class="productFullDetail__cartActions productFullDetail__section">

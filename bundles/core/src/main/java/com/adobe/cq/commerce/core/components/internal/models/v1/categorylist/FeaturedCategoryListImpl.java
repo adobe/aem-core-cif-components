@@ -105,8 +105,10 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
             if (categoryIds.size() > 0) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                categoriesRetriever.setIdentifiers(categoryIds);
+                if (magentoGraphqlClient != null) {
+                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                    categoriesRetriever.setIdentifiers(categoryIds);
+                }
             }
         }
     }
