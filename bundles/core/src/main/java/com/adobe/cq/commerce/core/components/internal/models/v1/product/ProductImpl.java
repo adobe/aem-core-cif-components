@@ -112,25 +112,26 @@ public class ProductImpl implements Product {
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-
-        if (StringUtils.isNotBlank(slug)) {
-            productRetriever = new ProductRetriever(magentoGraphqlClient);
-            productRetriever.setIdentifier(slug);
-            loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-        } else if (!wcmMode.isDisabled()) {
-            // In AEM Sites editor, load some dummy placeholder data for the component.
-            try {
-                productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
-            } catch (IOException e) {
-                LOGGER.warn("Cannot use placeholder data", e);
+        if (magentoGraphqlClient != null) {
+            if (StringUtils.isNotBlank(slug)) {
+                productRetriever = new ProductRetriever(magentoGraphqlClient);
+                productRetriever.setIdentifier(slug);
+                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+            } else if (!wcmMode.isDisabled()) {
+                // In AEM Sites editor, load some dummy placeholder data for the component.
+                try {
+                    productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
+                } catch (IOException e) {
+                    LOGGER.warn("Cannot use placeholder data", e);
+                }
+                loadClientPrice = false;
             }
-            loadClientPrice = false;
         }
     }
 
     @Override
     public Boolean getFound() {
-        return productRetriever.fetchProduct() != null;
+        return productRetriever != null && productRetriever.fetchProduct() != null;
     }
 
     @Override
@@ -171,7 +172,7 @@ public class ProductImpl implements Product {
     @Override
     public Boolean isConfigurable() {
         if (configurable == null) {
-            configurable = productRetriever.fetchProduct() instanceof ConfigurableProduct;
+            configurable = productRetriever != null && productRetriever.fetchProduct() instanceof ConfigurableProduct;
         }
 
         return configurable;

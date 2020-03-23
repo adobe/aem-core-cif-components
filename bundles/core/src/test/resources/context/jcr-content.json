@@ -22,6 +22,10 @@
             "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
             "sling:resourceType": "venia/components/commerce/productteaser"
           },
+          "productteaser-noclient": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
           "productcarousel": {
             "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01", "MJ01"],
             "sling:resourceType": "venia/components/commerce/productcarousel"
@@ -99,6 +103,14 @@
           },
           "featuredcategorylist2": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist"
+          },
+          "featuredcategorylist3": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              }
+            }
           }
         }
       }

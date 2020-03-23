@@ -35,6 +35,7 @@ The following properties are written to JCR for this component and are expected 
 
 1. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
 2. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
+3. `./jcr:title` - Optional title text
 
 ## BEM Description
 
