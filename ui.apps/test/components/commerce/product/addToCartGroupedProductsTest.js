@@ -15,7 +15,7 @@
 
 import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/addToCart.js';
 
-describe('Product', () => {
+describe('GroupedProduct', () => {
     describe('AddToCart', () => {
         let productRoot;
         let addToCartRoot;
@@ -39,16 +39,25 @@ describe('Product', () => {
                 'afterbegin',
                 `<div data-cmp-is="product">
                     <div class="productFullDetail__details">
-                        <span role="sku">my-sample-sku</span>
+                        <span role="sku">my-grouped-product</span>
                     </div>
                     <div class="productFullDetail__cartActions">
                         <button>
                     </div>
-                    <div class="productFullDetail__quantity">
-                        <select data-product-sku="my-sample-sku">
-                            <option value="5" selected></option>
+                    <section class="productFullDetail__groupedProducts productFullDetail__quantity">         
+                        <select data-product-sku="sku1">
+                            <option value="0" selected></option>
+                            <option value="1"></option>
                         </select>
-                    </div>
+                        <select data-product-sku="sku2">
+                            <option value="0" selected></option>
+                            <option value="1"></option>
+                        </select>
+                        <select data-product-sku="sku3">
+                            <option value="0" selected></option>
+                            <option value="1"></option>
+                        </select>
+                    </section>
                 </div>`
             );
 
@@ -56,71 +65,50 @@ describe('Product', () => {
             productRoot = pageRoot.querySelector(AddToCart.selectors.product);
         });
 
-        it('initializes an AddToCart component for a configurable product', () => {
-            productRoot.dataset.configurable = true;
-
+        it('initializes an AddToCart component for a grouped product', () => {
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
-
-            assert.isTrue(addToCart._state.configurable);
-            assert.isNull(addToCart._state.sku);
             assert.isTrue(addToCartRoot.disabled);
         });
 
-        it('initializes an AddToCart component for a simple product', () => {
+        it('enables/disables AddToCart button based on quantity selection', () => {
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
 
-            assert.isFalse(addToCart._state.configurable);
-            assert.equal(addToCart._state.sku, 'my-sample-sku');
+            // Select quantity "1" for first product
+            selections[0].selectedIndex = 1;
+            selections[0].dispatchEvent(new Event('change'));
             assert.isFalse(addToCartRoot.disabled);
-        });
 
-        it('is disabled on invalid variant', () => {
-            productRoot.dataset.configurable = true;
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
-
-            // Send event
-            let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
-                bubbles: true,
-                detail: {}
-            });
-            productRoot.dispatchEvent(changeEvent);
-
+            // Select quantity "0" for first product
+            selections[0].selectedIndex = 0;
+            selections[0].dispatchEvent(new Event('change'));
             assert.isTrue(addToCartRoot.disabled);
         });
 
-        it('reacts to a variantchanged event', () => {
-            productRoot.dataset.configurable = true;
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
-
-            // Send event
-            let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
-                bubbles: true,
-                detail: {
-                    variant: {
-                        sku: 'variant-sku'
-                    },
-                    attributes: {
-                        color: 'red'
-                    }
-                }
-            });
-            productRoot.dispatchEvent(changeEvent);
-
-            assert.equal(addToCart._state.sku, 'variant-sku');
-            assert.deepEqual(addToCart._state.attributes, { color: 'red' });
-            assert.isFalse(addToCartRoot.disabled);
-        });
-
-        it('dispatches an event on click', () => {
+        it('dispatches add-to-cart event on click', () => {
             let spy = sinon.spy();
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
+
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
+
+            // Select quantity "1" for two products
+            selections[0].selectedIndex = 1;
+            selections[2].selectedIndex = 1;
+            selections[0].dispatchEvent(new Event('change'));
+            assert.isFalse(addToCartRoot.disabled);
             addToCartRoot.click();
+
             sinon.assert.calledOnce(spy);
-            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
-            assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
-            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
+            let event = spy.getCall(0).args[0];
+            assert.equal(event.type, AddToCart.events.addToCart);
+            assert.equal(event.detail.length, 2);
+            assert.equal(event.detail[0].sku, 'sku1');
+            assert.equal(event.detail[0].quantity, 1);
+            assert.equal(event.detail[1].sku, 'sku3');
+            assert.equal(event.detail[1].quantity, 1);
+
             document.dispatchEvent = _originalDispatch;
         });
     });

@@ -51,6 +51,8 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
+import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
@@ -97,6 +99,7 @@ public class ProductImpl implements Product {
     private XSSAPI xssApi;
 
     private Boolean configurable;
+    private Boolean isGroupedProduct;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
@@ -174,8 +177,15 @@ public class ProductImpl implements Product {
         if (configurable == null) {
             configurable = productRetriever != null && productRetriever.fetchProduct() instanceof ConfigurableProduct;
         }
-
         return configurable;
+    }
+
+    @Override
+    public Boolean isGroupedProduct() {
+        if (isGroupedProduct == null) {
+            isGroupedProduct = productRetriever.fetchProduct() instanceof GroupedProduct;
+        }
+        return isGroupedProduct;
     }
 
     @Override
@@ -191,14 +201,28 @@ public class ProductImpl implements Product {
 
     @Override
     public List<Variant> getVariants() {
-        // Don't return any variants if the current product
-        // is not of type ConfigurableProduct.
+        // Don't return any variants if the current product is not of type ConfigurableProduct.
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
         ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Variant> getGroupedProductItems() {
+        // Don't return any items if the current product is not of type GroupedProduct.
+        if (!isGroupedProduct()) {
+            return Collections.emptyList();
+        }
+        GroupedProduct product = (GroupedProduct) productRetriever.fetchProduct();
+
+        return product.getItems()
+            .parallelStream()
+            .sorted(Comparator.comparing(GroupedProductItem::getPosition))
+            .map(this::mapGroupedProductItem)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -219,8 +243,7 @@ public class ProductImpl implements Product {
 
     @Override
     public List<VariantAttribute> getVariantAttributes() {
-        // Don't return any variant selection properties if the current
-        // product is not of type ConfigurableProduct.
+        // Don't return any variant selection properties if the current product is not of type ConfigurableProduct.
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
@@ -269,6 +292,17 @@ public class ProductImpl implements Product {
 
         List<Asset> assets = filterAndSortAssets(product.getMediaGalleryEntries());
         productVariant.setAssets(assets);
+
+        return productVariant;
+    }
+
+    private Variant mapGroupedProductItem(GroupedProductItem item) {
+        ProductInterface product = item.getProduct();
+
+        VariantImpl productVariant = new VariantImpl();
+        productVariant.setName(product.getName());
+        productVariant.setSku(product.getSku());
+        productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
 
         return productVariant;
     }

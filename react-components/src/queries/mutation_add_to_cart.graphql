@@ -1,5 +1,5 @@
-mutation($cartId: String!, $sku: String!, $quantity: Float!) {
-    addSimpleProductsToCart(input: { cart_id: $cartId, cart_items: [{ data: { quantity: $quantity, sku: $sku } }] }) {
+mutation($cartId: String!, $cartItems: [SimpleProductCartItemInput]!) {
+    addSimpleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
         cart {
             items {
                 id
