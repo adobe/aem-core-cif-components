@@ -359,6 +359,7 @@ public class ProductImplTest {
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
         }
+    }
 
     @Test
     public void testProductNoGraphqlClient() {
