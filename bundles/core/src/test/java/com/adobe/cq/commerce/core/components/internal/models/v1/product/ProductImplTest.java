@@ -45,6 +45,7 @@ import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
+import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
@@ -166,6 +167,8 @@ public class ProductImplTest {
             Assert.assertEquals(mge.getMediaType(), asset.getType());
             Assert.assertEquals(baseMediaPath + mge.getFile(), asset.getPath());
         }
+
+        Assert.assertTrue(productModel.getGroupedProductItems().isEmpty());
     }
 
     @Test
@@ -330,6 +333,32 @@ public class ProductImplTest {
         Assert.assertEquals(46.0, price.getFinalPrice(), 0.001);
         Assert.assertEquals(12.0, price.getDiscountAmount(), 0.001);
         Assert.assertEquals(20.69, price.getDiscountPercent(), 0.001);
+    }
+
+    @Test
+    public void testGroupedProduct() throws IOException {
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-groupedproduct-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+        storeConfig = rootQuery.getStoreConfig();
+
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-groupedproduct-result.json");
+        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        List<Variant> items = productModel.getGroupedProductItems();
+        Assert.assertTrue(productModel.isGroupedProduct());
+        Assert.assertEquals(3, items.size());
+
+        GroupedProduct gp = (GroupedProduct) product;
+        for (int i = 0; i < items.size(); i++) {
+            Variant item = items.get(i);
+            ProductInterface pi = gp.getItems().get(i).getProduct();
+
+            Assert.assertEquals(pi.getSku(), item.getSku());
+            Assert.assertEquals(pi.getName(), item.getName());
+            Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
+        }
     }
 
     @Test
