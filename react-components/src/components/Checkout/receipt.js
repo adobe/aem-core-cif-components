@@ -17,13 +17,10 @@ import { useTranslation, Trans } from 'react-i18next';
 import classes from './receipt.css';
 import Trigger from '../Trigger';
 
-
 import useReceipt from './useReceipt';
 const Receipt = () => {
-    
-    const Receipt = () => {
-        const [{ orderId }, continueShopping] = useReceipt();
-        const [t] = useTranslation('checkout');
+    const [{ orderId }, continueShopping] = useReceipt();
+    const [t] = useTranslation('checkout');
 
     return (
         <div className={classes.root}>
@@ -34,13 +31,14 @@ const Receipt = () => {
                 <div className={classes.textBlock}>
                     {/* prettier-ignore */}
                     <Trans i18nKey="checkout:order-confirmation">
-                        The order number is {{ orderId : order.order_id }}. You will receive an order confirmation email with order
+                        The order number is {{ orderId : orderId }}. You will receive an order confirmation email with order
                         status and other details.
                     </Trans>
                 </div>
-                <Trigger  action={async () => {
+                <Trigger
+                    action={async () => {
                         await continueShopping();
-                    }}>>
+                    }}>
                     <span className={classes.continue}>{t('checkout:continue-shopping', 'Continue Shopping')}</span>
                 </Trigger>
             </div>

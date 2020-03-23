@@ -97,16 +97,15 @@ describe('<SignIn>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
-                        <SignIn
-                            showMyAccount={jest.fn()}
-                            showCreateAccount={jest.fn()}
-                            showForgotPassword={jest.fn()}
-                        />
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                            <SignIn
+                                showMyAccount={jest.fn()}
+                                showCreateAccount={jest.fn()}
+                                showForgotPassword={jest.fn()}
+                            />
                         </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>

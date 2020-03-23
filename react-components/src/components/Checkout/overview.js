@@ -31,8 +31,6 @@ import useOverview from './useOverview';
  */
 const Overview = props => {
     const { classes } = props;
-    const [{ cart, cartId }, cartDispatch] = useCartState();
-    const [{ shippingAddress, shippingMethod, paymentMethod }, dispatch] = useCheckoutState();
     const [t] = useTranslation('checkout');
 
     const [
@@ -85,7 +83,10 @@ const Overview = props => {
                 </Section>
             </div>
             <div className={classes.footer}>
-                <Button onClick={() => checkoutDispatch({ type: 'cancelCheckout' })}> {t('checkout:back-to-cart', 'Back to cart')}</Button>
+                <Button onClick={() => checkoutDispatch({ type: 'cancelCheckout' })}>
+                    {' '}
+                    {t('checkout:back-to-cart', 'Back to cart')}
+                </Button>
 
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
                     {t('checkout:confirm-order', 'Confirm Order')}

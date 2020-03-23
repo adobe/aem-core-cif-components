@@ -36,11 +36,11 @@ import LoadingIndicator from '../LoadingIndicator';
 const CreateAccount = props => {
     const { showMyAccount } = props;
     const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount();
+    const [t] = useTranslation('account');
 
     if (inProgress) {
         return <LoadingIndicator message="Creating account" />;
     }
-    const [t] = useTranslation('account');
 
     const handleCreateAccount = formValues => {
         createAccount(formValues);
