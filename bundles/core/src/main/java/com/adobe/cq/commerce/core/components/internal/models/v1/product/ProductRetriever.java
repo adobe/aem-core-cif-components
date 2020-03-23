@@ -20,6 +20,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -127,13 +128,26 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributes(a -> a
                             .code()
                             .valueIndex())
-                        .product(generateSimpleProductQuery())));
+                        .product(generateSimpleProductQuery())))
+                .onGroupedProduct(generateGroupedProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
             }
         };
+    }
+
+    private GroupedProductQueryDefinition generateGroupedProductQuery() {
+        return gp -> gp
+            .items(i -> i
+                .position()
+                .qty()
+                .product(p -> p
+                    .sku()
+                    .name()
+                    .priceRange(r -> r
+                        .minimumPrice(generatePriceQuery()))));
     }
 
     private StoreConfigQueryDefinition generateStoreConfigQuery() {
