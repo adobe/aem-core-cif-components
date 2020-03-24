@@ -11,9 +11,7 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-call="${clientlib.all @ categories='core.cif.components.productcarousel.v1'}"
-     data-sly-use.carousel="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}"
+<sly data-sly-use.carousel="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}"
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
      data-sly-use.productTpl="productcard.html" />
 
