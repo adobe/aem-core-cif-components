@@ -24,7 +24,6 @@ describe('Cart handlers', () => {
     const aSpy = jest.fn();
     const mockReducerFactory = fn => {
         return (state, action) => {
-            console.log(`Action here `, action);
             switch (action.type) {
                 case 'cartId':
                     return {
@@ -70,7 +69,7 @@ describe('Cart handlers', () => {
                 <div>
                     <button
                         onClick={() => {
-                            addItem({ detail: { sku: 'TEST', quantity: '1' } });
+                            addItem({ detail: [{ sku: 'TEST', quantity: '1' }] });
                         }}>
                         Add item to cart
                     </button>
@@ -79,8 +78,7 @@ describe('Cart handlers', () => {
             );
         };
 
-        const { getByTestId, getByRole } = render(renderWithContext(MockComponent));
-
+        const { getByTestId, getByRole, debug } = render(renderWithContext(MockComponent));
         fireEvent.click(getByRole('button'));
         const cartElement = await waitForElement(() => getByTestId('cart-id'));
         expect(aSpy).toHaveBeenCalledWith('open');

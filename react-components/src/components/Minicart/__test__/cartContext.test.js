@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { CartProvider, useCartState } from '../cartContext';
-import { render, fireEvent, getByRole } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 describe('CartContext', () => {
     const MockConsumer = ({ action }) => {
