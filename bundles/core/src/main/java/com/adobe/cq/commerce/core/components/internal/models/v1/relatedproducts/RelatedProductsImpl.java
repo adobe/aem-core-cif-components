@@ -86,9 +86,9 @@ public class RelatedProductsImpl implements ProductCarousel {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
+        } else {
+            configureProductsRetriever();
         }
-
-        configureProductsRetriever();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @Override
     public List<ProductListItem> getProducts() {
-        if (!isConfigured()) {
+        if (productsRetriever == null || !isConfigured()) {
             return Collections.emptyList();
         }
 

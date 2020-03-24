@@ -44,11 +44,19 @@ const CartInitializer = props => {
         return {
             addItem: ev => {
                 if (!ev.detail) return;
-                const { sku, quantity } = ev.detail;
+
+                let cartItems = ev.detail.map(item => {
+                    return {
+                        data: {
+                            sku: item.sku,
+                            quantity: item.quantity
+                        }
+                    };
+                });
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
                 return addItem({
-                    variables: { cartId, sku, quantity },
+                    variables: { cartId, cartItems },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
                     awaitRefetchQueries: true
                 })

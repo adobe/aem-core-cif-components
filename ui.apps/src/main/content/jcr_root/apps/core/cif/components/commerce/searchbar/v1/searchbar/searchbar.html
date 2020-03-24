@@ -11,9 +11,8 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.searchbar="${'com.adobe.cq.commerce.core.components.models.searchbar.Searchbar'}">
-<sly data-sly-call="${clientlib.all @ categories='core.cif.components.searchbar.v1'}"/>
+<sly data-sly-use.searchbar="${'com.adobe.cq.commerce.core.components.models.searchbar.Searchbar'}" />
+
 <div class="searchBar__root" role="search">
     <div class="searchBar__searchInner">
         <form class="searchBar__form" autocomplete="off" _lpchecked="1" action="${searchbar.searchResultsPageUrl}">
