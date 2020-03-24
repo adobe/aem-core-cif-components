@@ -11,24 +11,25 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.header="${'com.adobe.cq.commerce.core.components.models.header.Header' @ minicartNodeName = 'minicart'}">
-    <sly data-sly-call="${clientlib.all @ categories='core.cif.components.header.v1'}"/>
-    <header class="header__root header__closed">
-        <div class="header__toolbar">
-            <a href="${header.navigationRootPageUrl}"><img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="Venia" title="Venia"/></a>
-            <div class="header__primaryActions">
-                <sly data-sly-test="${resource['navigation/navigationRoot']}" data-sly-resource="${resource.path}/navigation"/>
-            </div>
-            <div class="header__secondaryActions">
-                <button class="searchTrigger__root clickable__root">
-                <span class="icon-root"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
-                </button>
-                <div class="header__cartTrigger"></div>
-                <sly data-sly-test="${header.minicartResource}" data-sly-resource="${header.minicartResource}"></sly>
-            </div>
+<sly data-sly-use.header="${'com.adobe.cq.commerce.core.components.models.header.Header' @ minicartNodeName = 'minicart'}" />
+
+<header class="header__root header__closed">
+    <div class="header__toolbar">
+        <a href="${header.navigationRootPageUrl}"><img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="Venia" title="Venia" /></a>
+        <div class="header__primaryActions">
+            <sly data-sly-test="${resource['navigation/navigationRoot']}" data-sly-resource="${resource.path}/navigation" />
         </div>
-        <sly data-sly-test="${header.searchbarResource}" data-sly-resource="${header.searchbarResource}"/>
-    </header>
-</sly>
+        <div class="header__secondaryActions">
+            <button class="searchTrigger__root clickable__root">
+                <span class="icon-root"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg></span>
+            </button>
+            <div class="header__cartTrigger"></div>
+            <sly data-sly-test="${header.minicartResource}" data-sly-resource="${header.minicartResource}"></sly>
+        </div>
+    </div>
+    <sly data-sly-test="${header.searchbarResource}" data-sly-resource="${header.searchbarResource}" />
+</header>
