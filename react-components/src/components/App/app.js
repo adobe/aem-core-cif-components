@@ -30,11 +30,13 @@ const App = props => {
         headers: { Store: storeView },
         request: operation => {
             let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
-            operation.setContext({
-                headers: {
-                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                }
-            });
+            if (token.length > 0) {
+                operation.setContext({
+                    headers: {
+                        authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                    }
+                });
+            }
         }
     });
 

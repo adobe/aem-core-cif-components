@@ -35,10 +35,7 @@ const Receipt = () => {
                         status and other details.
                     </Trans>
                 </div>
-                <Trigger
-                    action={async () => {
-                        await continueShopping();
-                    }}>
+                <Trigger action={continueShopping}>
                     <span className={classes.continue}>{t('checkout:continue-shopping', 'Continue Shopping')}</span>
                 </Trigger>
             </div>

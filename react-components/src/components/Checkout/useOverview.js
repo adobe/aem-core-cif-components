@@ -12,12 +12,11 @@
  *
  ******************************************************************************/
 import { useMutation } from '@apollo/react-hooks';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
-import { useUserContext } from '../../context/UserContext';
 
 export default () => {
     const [{ shippingAddress, shippingMethod, paymentMethod }, checkoutDispatch] = useCheckoutState();
@@ -30,12 +29,12 @@ export default () => {
         setInProgress(true);
         try {
             const { data } = await placeOrder({ variables: { cartId } });
-            setInProgress(false);
             checkoutDispatch({ type: 'placeOrder', order: data.placeOrder.order });
         } catch (error) {
             console.error(error);
-            setInProgress(false);
             cartDispatch({ type: 'error', error: error.toString() });
+        } finally {
+            setInProgress(false);
         }
     };
 
