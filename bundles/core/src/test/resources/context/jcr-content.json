@@ -111,6 +111,20 @@
                 "categoryId": "5"
               }
             }
+          },
+          "featuredcategorylist4": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "5"
+              },
+              "item1": {
+                "categoryId": "a"
+              },
+              "item2": {
+                "categoryId": "7"
+              }
+            }
           }
         }
       }
