@@ -95,7 +95,7 @@ const EditableForm = props => {
 
     const handleSubmitPaymentsForm = useCallback(
         args => {
-            if (args.billingAddress.sameAsShippingAddress) {
+            if (!cart.is_virtual && args.billingAddress.sameAsShippingAddress) {
                 if (shippingAddress) {
                     setBillingAddressOnCart({
                         variables: {
@@ -139,6 +139,10 @@ const EditableForm = props => {
                     });
                 }
             }
+            
+            if (cart.is_virtual) {
+                setGuestEmailOnCart({ variables: { cartId: cartId, email: args.billingAddress.email } });
+            }
         },
         [dispatch]
     );
@@ -174,7 +178,8 @@ const EditableForm = props => {
         dispatch({
             type: 'setBillingAddress',
             billingAddress: {
-                ...billingAddressResult.setBillingAddressOnCart.cart.billing_address
+                ...billingAddressResult.setBillingAddressOnCart.cart.billing_address,
+                email: shippingAddress.email || guestEmailResult.setGuestEmailOnCart.cart.email
             }
         });
     }
@@ -210,6 +215,7 @@ const EditableForm = props => {
             return (
                 <PaymentsForm
                     cart={cart}
+                    allowSame={!cart.is_virtual}
                     cancel={handleCancel}
                     countries={countries}
                     initialValues={billingAddress}

@@ -32,7 +32,7 @@ import combine from '../../utils/combineValidators';
  * the submission state as well as prepare/set initial values.
  */
 const PaymentsForm = props => {
-    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, submit } = props;
+    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, submit, allowSame } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [t] = useTranslation(['checkout', 'common']);
 
@@ -49,7 +49,7 @@ const PaymentsForm = props => {
     const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
-    if (!initialValues || initialValues.sameAsShippingAddress) {
+    if (allowSame && (!initialValues || initialValues.sameAsShippingAddress)) {
         // If the addresses are the same, don't populate any fields
         // other than the checkbox with an initial value.
         initialFormValues = {
@@ -168,13 +168,15 @@ const PaymentsForm = props => {
                 </div>
                 <PaymentProvider />
                 <div className={classes.address_check}>
-                    <Checkbox
-                        field="addresses_same"
-                        label={t('checkout:same-as-shipping', 'Billing address same as shipping address')}
-                        onClick={ev => {
-                            setDifferentAddress(!ev.target.checked);
-                        }}
-                    />
+                    {allowSame && (
+                        <Checkbox
+                            field="addresses_same"
+                            label={t('checkout:same-as-shipping', 'Billing address same as shipping address')}
+                            onClick={ev => {
+                                setDifferentAddress(!ev.target.checked);
+                            }}
+                        />
+                    )}
                 </div>
                 {billingAddressFields}
             </div>
@@ -202,6 +204,7 @@ PaymentsForm.propTypes = {
         sameAsShippingAddress: bool,
         street0: array
     }),
+    allowSame: bool,
     cancel: func.isRequired,
     submit: func.isRequired,
     initialPaymentMethod: shape({
@@ -212,7 +215,8 @@ PaymentsForm.propTypes = {
 };
 
 PaymentsForm.defaultProps = {
-    initialValues: {}
+    initialValues: {},
+    allowSame: true
 };
 
 export default PaymentsForm;

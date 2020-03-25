@@ -38,7 +38,7 @@ const Overview = props => {
 
     const [placeOrder, { data, error }] = useMutation(MUTATION_PLACE_ORDER);
 
-    const ready = shippingAddress && paymentMethod && shippingMethod;
+    const ready = (cart.is_virtual && paymentMethod) || (shippingAddress && paymentMethod && shippingMethod);
 
     const submitOrder = useCallback(() => {
         placeOrder({ variables: { cartId: cartId } });
@@ -55,32 +55,36 @@ const Overview = props => {
     return (
         <Fragment>
             <div className={classes.body}>
-                <Section
-                    label={t('checkout:ship-to', 'Ship To')}
-                    onClick={() => {
-                        dispatch({ type: 'setEditing', editing: 'address' });
-                    }}
-                    showEditIcon={!!shippingAddress}>
-                    <ShippingAddressSummary classes={classes} />
-                </Section>
+                {!cart.is_virtual && (
+                    <Section
+                        label={t('checkout:ship-to', 'Ship To')}
+                        onClick={() => {
+                            dispatch({ type: 'setEditing', editing: 'address' });
+                        }}
+                        showEditIcon={!!shippingAddress}>
+                        <ShippingAddressSummary classes={classes} />
+                    </Section>
+                )}
                 <Section
                     label={t('checkout:pay-with', 'Pay With')}
                     onClick={() => {
                         dispatch({ type: 'setEditing', editing: 'paymentMethod' });
                     }}
                     showEditIcon={!!paymentMethod}
-                    disabled={!shippingAddress}>
+                    disabled={!cart.is_virtual && !shippingAddress}>
                     <PaymentMethodSummary classes={classes} />
                 </Section>
-                <Section
-                    label={t('checkout:use', 'Use')}
-                    onClick={() => {
-                        dispatch({ type: 'setEditing', editing: 'shippingMethod' });
-                    }}
-                    showEditIcon={!!shippingMethod}
-                    disabled={!shippingAddress}>
-                    <ShippingMethodSummary classes={classes} />
-                </Section>
+                {!cart.is_virtual && (
+                    <Section
+                        label={t('checkout:use', 'Use')}
+                        onClick={() => {
+                            dispatch({ type: 'setEditing', editing: 'shippingMethod' });
+                        }}
+                        showEditIcon={!!shippingMethod}
+                        disabled={!shippingAddress}>
+                        <ShippingMethodSummary classes={classes} />
+                    </Section>
+                )}
                 <Section label={t('checkout:total', 'TOTAL')}>
                     <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} />
                     <br />
