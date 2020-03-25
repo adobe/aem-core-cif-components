@@ -139,7 +139,7 @@ const EditableForm = props => {
                     });
                 }
             }
-            
+
             if (cart.is_virtual) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: args.billingAddress.email } });
             }
