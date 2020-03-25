@@ -103,11 +103,11 @@ describe('GroupedProduct', () => {
             sinon.assert.calledOnce(spy);
             let event = spy.getCall(0).args[0];
             assert.equal(event.type, AddToCart.events.addToCart);
-            assert.equal(event.detail.length, 2);
-            assert.equal(event.detail[0].sku, 'sku1');
-            assert.equal(event.detail[0].quantity, 1);
-            assert.equal(event.detail[1].sku, 'sku3');
-            assert.equal(event.detail[1].quantity, 1);
+            assert.equal(event.detail.items.length, 2);
+            assert.equal(event.detail.items[0].sku, 'sku1');
+            assert.equal(event.detail.items[0].quantity, 1);
+            assert.equal(event.detail.items[1].sku, 'sku3');
+            assert.equal(event.detail.items[1].quantity, 1);
 
             document.dispatchEvent = _originalDispatch;
         });
