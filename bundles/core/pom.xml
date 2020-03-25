@@ -89,6 +89,10 @@
                             javax.annotation;version=0.0.0,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            commons-text;inline=false;scope=compile|runtime
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
                 <dependencies>
@@ -367,6 +371,11 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>com.adobe.cq.export.json</artifactId>
             <version>0.1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
         </dependency>
         <dependency>
             <groupId>com.adobe.aem</groupId>

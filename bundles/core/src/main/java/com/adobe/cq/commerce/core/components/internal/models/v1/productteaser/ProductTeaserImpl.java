@@ -14,9 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -57,10 +59,12 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     @ScriptVariable
     private ValueMap properties;
 
-    private NumberFormat priceFormatter;
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
@@ -138,9 +142,12 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getUrl() {
         if (getProduct() != null) {
-            // Get slug from base product
-            SiteNavigation siteNavigation = new SiteNavigation(request);
-            return siteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
+            Map<String, String> params = new HashMap<>();
+            params.put(UrlProvider.URL_KEY_PARAM, productRetriever.fetchProduct().getUrlKey()); // Get slug from base product
+            params.put(UrlProvider.VARIANT_URL_KEY_PARAM, getProduct().getUrlKey());
+            params.put(UrlProvider.SKU_PARAM, combinedSku.getLeft());
+            params.put(UrlProvider.VARIANT_SKU_PARAM, combinedSku.getRight());
+            return urlProvider.toProductUrl(request, productPage, params);
         }
         return null;
     }
