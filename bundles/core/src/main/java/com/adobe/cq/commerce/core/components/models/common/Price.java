@@ -23,6 +23,8 @@ public interface Price {
 
     Boolean isDiscounted();
 
+    boolean isStartPrice();
+
     String getCurrency();
 
     Double getRegularPrice();
