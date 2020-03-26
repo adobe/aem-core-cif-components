@@ -25,8 +25,10 @@ import { useCartState } from '../Minicart/cartContext';
 const parentEl = document.querySelector('.header__cartTrigger');
 
 const Trigger = () => {
+    console.log(`Rendering trigger`);
     const [{ cart }, dispatch] = useCartState();
-    let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.items.length : 0;
+    console.log(cart);
+    let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.total_quantity : 0;
 
     const iconColor = 'rgb(var(--venia-text))';
     const svgAttributes = {
