@@ -28,7 +28,7 @@ describe('<CartTrigger>', () => {
         ReactDOM.createPortal.mockClear();
     });
 
-    const stateWithTwoItems = { cart: { items: [{}, {}] } };
+    const stateWithTwoItems = { cart: { items: [{}, {}], total_quantity: 3 } };
 
     it('renders the icon', () => {
         const { asFragment } = render(
@@ -40,7 +40,7 @@ describe('<CartTrigger>', () => {
     });
 
     it('renders the quantity', () => {
-        const expectedQuantity = '2';
+        const expectedQuantity = '3';
         const { getByTestId } = render(
             <CartProvider initialState={stateWithTwoItems} reducerFactory={() => state => state}>
                 <CartTrigger />

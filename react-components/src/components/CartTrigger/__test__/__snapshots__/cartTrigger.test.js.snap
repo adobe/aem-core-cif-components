@@ -39,7 +39,7 @@ exports[`<CartTrigger> renders the icon 1`] = `
       class="root"
       data-testid="cart-counter"
     >
-      2
+      3
     </span>
   </button>
 </DocumentFragment>
