@@ -162,6 +162,7 @@ class CommerceGraphqlApi {
         const query = `query {
             products(filter: { sku: { in: [${skuQuery}] }} ) {
                 items {
+                    __typename
                     sku
                     price_range {
                         minimum_price {${priceQuery}}
@@ -172,7 +173,16 @@ class CommerceGraphqlApi {
                         }
                         ${includeVariants ? variantQuery : ''}
                     }
-                    
+                    ... on GroupedProduct {
+                        items {
+                            product {
+                                sku
+                                price_range {
+                                    minimum_price {${priceQuery}}
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }`;
@@ -182,12 +192,19 @@ class CommerceGraphqlApi {
         let items = response.data.products.items;
         let dict = {};
         for (let item of items) {
-            dict[item.sku] = item.price_range;
+            dict[item.sku] = { __typename: item.__typename, ...item.price_range };
 
             // Go through variants
-            if (!item.variants) continue;
-            for (let variant of item.variants) {
-                dict[variant.product.sku] = variant.product.price_range;
+            if (item.variants) {
+                for (let variant of item.variants) {
+                    dict[variant.product.sku] = { __typename: item.__typename, ...variant.product.price_range };
+                }
+            }
+            // Go through grouped products
+            if (item.__typename == 'GroupedProduct' && item.items) {
+                for (let variant of item.items) {
+                    dict[variant.product.sku] = { __typename: item.__typename, ...variant.product.price_range };
+                }
             }
         }
         return dict;

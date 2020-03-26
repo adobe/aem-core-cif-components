@@ -22,6 +22,7 @@ describe('Product', () => {
 
         const clientPrices = {
             'sample-sku': {
+                __typename: 'SimpleProduct',
                 minimum_price: {
                     regular_price: {
                         value: 98,
@@ -41,6 +42,7 @@ describe('Product', () => {
 
         const convertedPrices = {
             'sample-sku': {
+                productType: 'SimpleProduct',
                 currency: 'USD',
                 regularPrice: 98,
                 finalPrice: 98,
@@ -83,7 +85,7 @@ describe('Product', () => {
                 <div class="productFullDetail__details">
                     <span role="sku">sample-sku</span>
                 </div>
-                <div class="price"></div>
+                <div class="price" data-product-sku="sample-sku"></div>
                 <div class="productFullDetail__description">
                     <span role="description"></span>
                 </div>`
