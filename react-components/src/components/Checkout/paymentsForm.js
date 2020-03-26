@@ -56,6 +56,18 @@ const PaymentsForm = props => {
             addresses_same: true
         };
     } else {
+        // Convert street array
+        if (initialValues && initialValues.street) {
+            initialValues.street.forEach((v, i) => {
+                initialValues[`street${i}`] = v;
+            });
+        }
+
+        // Convert region code
+        if (initialValues && initialValues.region) {
+            initialValues.region_code = initialValues.region.code;
+        }
+
         // The addresses are not the same, populate the other fields.
         initialFormValues = {
             addresses_same: false,
@@ -79,7 +91,7 @@ const PaymentsForm = props => {
                     lastname: formValues['lastname'],
                     postcode: formValues['postcode'],
                     region_code: formValues['region_code'],
-                    street: formValues['street'],
+                    street: [formValues['street0']],
                     telephone: formValues['telephone']
                 };
             } else {
@@ -115,7 +127,7 @@ const PaymentsForm = props => {
             </div>
             <div className={classes.street0}>
                 <Field label={t('checkout:address-street', 'Street')}>
-                    <TextInput id={classes.street0} field="street[0]" validate={isRequired} />
+                    <TextInput id={classes.street0} field="street0" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.city}>
@@ -202,7 +214,7 @@ PaymentsForm.propTypes = {
         postcode: string,
         region_code: string,
         sameAsShippingAddress: bool,
-        street0: array
+        street0: string
     }),
     allowSame: bool,
     cancel: func.isRequired,
