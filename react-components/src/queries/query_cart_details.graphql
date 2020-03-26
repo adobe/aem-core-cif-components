@@ -74,7 +74,7 @@ query cartDetails($cartId: String!) {
         applied_coupon {
             code
         }
-
+        total_quantity
         items {
             id
             quantity

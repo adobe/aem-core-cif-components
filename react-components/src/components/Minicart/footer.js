@@ -28,7 +28,7 @@ const Footer = () => {
             <TotalsSummary
                 subtotal={subtotal_excluding_tax}
                 subtotalDiscount={subtotal_with_discount_excluding_tax}
-                numItems={cart.items.length}
+                numItems={cart.total_quantity}
             />
             <Checkout />
         </div>
