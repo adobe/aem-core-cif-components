@@ -20,24 +20,35 @@ import ApolloClient from 'apollo-boost';
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
+import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 
 const App = props => {
     const { uri, storeView = 'default' } = props;
 
     const client = new ApolloClient({
         uri,
-        headers: { Store: storeView }
+        headers: { Store: storeView },
+        request: operation => {
+            let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+            if (token.length > 0) {
+                operation.setContext({
+                    headers: {
+                        authorization: `Bearer ${token && token.length > 0 ? token : ''}`
+                    }
+                });
+            }
+        }
     });
 
     return (
         <ApolloProvider client={client}>
-            <CartProvider>
-                <UserContextProvider>
+            <UserContextProvider>
+                <CartProvider>
                     <CartInitializer>
                         <CheckoutProvider>{props.children}</CheckoutProvider>
                     </CartInitializer>
-                </UserContextProvider>
-            </CartProvider>
+                </CartProvider>
+            </UserContextProvider>
         </ApolloProvider>
     );
 };

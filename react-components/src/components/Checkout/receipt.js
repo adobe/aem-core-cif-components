@@ -16,18 +16,11 @@ import { useTranslation, Trans } from 'react-i18next';
 
 import classes from './receipt.css';
 import Trigger from '../Trigger';
-import { useCartState } from '../Minicart/cartContext';
-import { useCheckoutState } from './checkoutContext';
 
+import useReceipt from './useReceipt';
 const Receipt = () => {
-    const [, cartDispatch] = useCartState();
-    const [{ order }, dispatch] = useCheckoutState();
+    const [{ orderId }, continueShopping] = useReceipt();
     const [t] = useTranslation('checkout');
-
-    const continueShopping = () => {
-        cartDispatch({ type: 'reset' });
-        dispatch({ type: 'reset' });
-    };
 
     return (
         <div className={classes.root}>
@@ -38,7 +31,7 @@ const Receipt = () => {
                 <div className={classes.textBlock}>
                     {/* prettier-ignore */}
                     <Trans i18nKey="checkout:order-confirmation">
-                        The order number is {{ orderId : order.order_id }}. You will receive an order confirmation email with order
+                        The order number is {{ orderId : orderId }}. You will receive an order confirmation email with order
                         status and other details.
                     </Trans>
                 </div>

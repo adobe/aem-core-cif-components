@@ -17,6 +17,7 @@ import { render, waitForElement } from '@testing-library/react';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider } from '../checkoutContext';
+import UserContextProvider from '../../../context/UserContext';
 
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
@@ -45,11 +46,15 @@ describe('<EditableForm />', () => {
 
         const { queryByText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                    <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
-                        <EditableForm />
-                    </CheckoutProvider>
-                </CartProvider>
+                <UserContextProvider>
+                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                        <CheckoutProvider
+                            initialState={{ editing: 'address', flowState: 'form' }}
+                            reducer={state => state}>
+                            <EditableForm />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -76,11 +81,15 @@ describe('<EditableForm />', () => {
 
         const { asFragment } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                    <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
-                        <EditableForm />
-                    </CheckoutProvider>
-                </CartProvider>
+                <UserContextProvider>
+                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                        <CheckoutProvider
+                            initialState={{ editing: 'address', flowState: 'form' }}
+                            reducer={state => state}>
+                            <EditableForm />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
 
