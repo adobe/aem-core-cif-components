@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -147,7 +148,7 @@ public class ProductListImplTest {
         Assert.assertNotNull(products);
 
         // We introduce one "faulty" product data in the response, it should be skipped
-        Assert.assertEquals(5, products.size());
+        Assert.assertEquals(6, products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
@@ -178,6 +179,8 @@ public class ProductListImplTest {
             } else {
                 Assert.assertEquals(smallImage.getUrl(), item.getImageURL());
             }
+
+            Assert.assertEquals(productInterface instanceof GroupedProduct, item.getPriceRange().isStartPrice());
         }
     }
 
