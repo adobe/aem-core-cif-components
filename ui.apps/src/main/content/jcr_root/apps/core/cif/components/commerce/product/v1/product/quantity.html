@@ -11,16 +11,16 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.quantity="${ @ product, allowZeroQuantity}">
+<template data-sly-template.quantity="${ @ product, allowZeroQuantity, defaultQuantity}">
     <div class="quantity__root">
         <span class="fieldIcons__root" style="--iconsBefore:0; --iconsAfter:1;">
             <span class="fieldIcons__input">
                 <select aria-label="product's quantity" class="select__input field__input" name="quantity" data-product-sku="${product.sku}">
-                    <option value="0" data-sly-test="${allowZeroQuantity}">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
+                    <option value="0" data-sly-test="${allowZeroQuantity}" selected="${defaultQuantity == '0'}">0</option>
+                    <option value="1" selected="${defaultQuantity == '1' || !defaultQuantity}">1</option>
+                    <option value="2" selected="${defaultQuantity == '2'}">2</option>
+                    <option value="3" selected="${defaultQuantity == '3'}">3</option>
+                    <option value="4" selected="${defaultQuantity == '4'}">4</option>
                 </select>
             </span>
             <span class="fieldIcons__before"></span>
