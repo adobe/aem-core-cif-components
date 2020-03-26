@@ -25,6 +25,7 @@ import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.gra
 export default () => {
     const [{ cartId }, cartDispatch] = useCartState();
     const [, setUserCookie] = useCookieValue('cif.userToken');
+    const [, setCartCookie] = useCookieValue('cif.cart');
 
     const [{ isSignedIn, createAccountError }, { dispatch, setToken }] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
@@ -79,15 +80,14 @@ export default () => {
             console.log(`[CreateAccount] Carts are merged, ${mergedCartId} is the new cart id`);
 
             //5. Dispatch the action to update the user state
-            dispatch({ type: 'postCreateAccount', token, currentUser: customer, cartId: mergedCartId });
-
-            //6. set the cart id in the cookie
+            setCartCookie(mergedCartId);
             cartDispatch({ type: 'cartId', cartId: mergedCartId });
+            dispatch({ type: 'postCreateAccount', token, currentUser: customer, cartId: mergedCartId });
         } catch (error) {
             dispatch({ type: 'createAccountError', error });
+        } finally {
+            setInProgress(false);
         }
-
-        setInProgress(false);
     };
 
     return [{ isSignedIn, createAccountError, inProgress }, { createAccount: handleCreateAccount }];
