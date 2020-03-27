@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.storeviewexporter;
+package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -20,16 +20,16 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
-import com.adobe.cq.commerce.core.components.models.storeviewexporter.StoreViewExporter;
+import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
-    adapters = { StoreViewExporter.class },
-    resourceType = StoreViewExporterImpl.RESOURCE_TYPE)
-public class StoreViewExporterImpl implements StoreViewExporter {
+    adapters = { StoreConfigExporter.class },
+    resourceType = StoreConfigExporterImpl.RESOURCE_TYPE)
+public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
     private static final String STORE_CODE_PROPERTY = "magentoStore";
@@ -51,5 +51,10 @@ public class StoreViewExporterImpl implements StoreViewExporter {
     @Override
     public String getStoreView() {
         return storeView;
+    }
+
+    @Override
+    public String getGraphqlEndpoint() {
+        return "/magento/graphql";
     }
 }

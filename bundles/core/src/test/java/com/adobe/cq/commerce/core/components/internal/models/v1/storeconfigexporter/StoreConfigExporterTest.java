@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.storeviewexporter;
+package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ import org.powermock.reflect.Whitebox;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-public class StoreViewExporterTest {
+public class StoreConfigExporterTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -42,29 +42,29 @@ public class StoreViewExporterTest {
 
     @Test
     public void testStoreView() {
-        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
-        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_A));
-        storeViewExporter.initModel();
+        StoreConfigExporterImpl storeConfigExporter = new StoreConfigExporterImpl();
+        Whitebox.setInternalState(storeConfigExporter, "currentPage", context.currentPage(PAGE_A));
+        storeConfigExporter.initModel();
 
-        Assert.assertEquals("my-store", storeViewExporter.getStoreView());
+        Assert.assertEquals("my-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewInherited() {
-        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
-        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_C));
-        storeViewExporter.initModel();
+        StoreConfigExporterImpl storeConfigExporter = new StoreConfigExporterImpl();
+        Whitebox.setInternalState(storeConfigExporter, "currentPage", context.currentPage(PAGE_C));
+        storeConfigExporter.initModel();
 
-        Assert.assertEquals("my-store", storeViewExporter.getStoreView());
+        Assert.assertEquals("my-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewDefault() {
-        StoreViewExporterImpl storeViewExporter = new StoreViewExporterImpl();
-        Whitebox.setInternalState(storeViewExporter, "currentPage", context.currentPage(PAGE_D));
-        storeViewExporter.initModel();
+        StoreConfigExporterImpl storeConfigExporter = new StoreConfigExporterImpl();
+        Whitebox.setInternalState(storeConfigExporter, "currentPage", context.currentPage(PAGE_D));
+        storeConfigExporter.initModel();
 
-        Assert.assertEquals("default", storeViewExporter.getStoreView());
+        Assert.assertEquals("default", storeConfigExporter.getStoreView());
     }
 
 }

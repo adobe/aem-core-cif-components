@@ -19,10 +19,10 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 
 const App = () => {
-    const storeView = document.querySelector('body').dataset.storeView;
+    const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
     return (
         <I18nextProvider i18n={i18n} defaultNS="common">
-            <CommerceApp uri={'/magento/graphql'} storeView={storeView}>
+            <CommerceApp uri={graphqlEndpoint} storeView={storeView}>
                 <Cart />
                 <AuthBar />
             </CommerceApp>

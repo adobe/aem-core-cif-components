@@ -12,13 +12,15 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.storeviewexporter;
+package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 
 import org.osgi.annotation.versioning.ProviderType;
 
 @ProviderType
-public interface StoreViewExporter {
+public interface StoreConfigExporter {
 
     String getStoreView();
+
+    String getGraphqlEndpoint();
 
 }
