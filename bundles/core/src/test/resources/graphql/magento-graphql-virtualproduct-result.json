@@ -1,0 +1,46 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "VirtualProduct",
+          "sku": "VVP01",
+          "name": "Venia Stylist Consultation",
+          "description": {
+            "html": "<p>Indulge in our personal styling service that uses a combination of expert stylists and technology to handpick apparel and accessories based on your budget, size and style. This is a great treat for yourself, or someone you think may need a little style intervention. ;-)</p><p>Quantity is per 15 minute consultation</p>"
+          },
+          "image": {
+            "label": "Venia Stylist Consultation",
+            "url": "https://adobe-starter.dummycachetest.com/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
+          },
+          "thumbnail": {
+            "label": "Venia Stylist Consultation",
+            "url": "https://adobe-starter.dummycachetest.com/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
+          },
+          "url_key": "venia-stylist-consultation",
+          "stock_status": "IN_STOCK",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 15,
+                "currency": "USD"
+              }
+            }
+          },
+          "media_gallery_entries": [
+            {
+              "disabled": false,
+              "file": "/v/v/vvp01_main.jpg",
+              "label": "Image",
+              "position": 1,
+              "media_type": "image"
+            }
+          ]
+        }
+      ]
+    },
+    "storeConfig": {
+      "secure_base_media_url": "https://test-url.magentosite.cloud/pub/media/"
+    }
+  }
+}
