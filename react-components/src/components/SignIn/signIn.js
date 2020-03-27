@@ -23,11 +23,16 @@ import TextInput from '../TextInput';
 
 import classes from './signIn.css';
 import { useSignin } from './useSignin';
+import LoadingIndicator from '../LoadingIndicator';
 
 const SignIn = props => {
     const { showMyAccount, showForgotPassword, showCreateAccount } = props;
-    const { errorMessage, isSignedIn, handleSubmit } = useSignin();
+    const { errorMessage, isSignedIn, handleSubmit, inProgress } = useSignin();
     const [t] = useTranslation('account');
+
+    if (inProgress) {
+        return <LoadingIndicator>{'Signing in...'}</LoadingIndicator>;
+    }
 
     if (isSignedIn) {
         showMyAccount();

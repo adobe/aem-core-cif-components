@@ -29,6 +29,7 @@ import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_add
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
 import { useCheckoutState } from './checkoutContext';
+import { useUserContext } from '../../context/UserContext';
 
 /**
  * The EditableForm component renders the actual edit forms for the sections
@@ -39,7 +40,7 @@ const EditableForm = props => {
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
-
+    const [{ isSignedIn }] = useUserContext();
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
     const [
@@ -88,7 +89,9 @@ const EditableForm = props => {
     const handleSubmitAddressForm = useCallback(
         formValues => {
             setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } });
-            setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
+            if (!isSignedIn) {
+                setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
+            }
         },
         [dispatch, setShippingAddressesOnCart]
     );
@@ -150,13 +153,14 @@ const EditableForm = props => {
         [dispatch, submitShippingMethod]
     );
 
-    if (data && guestEmailResult) {
+    if (data && (isSignedIn || guestEmailResult)) {
+        const guestEmail = guestEmailResult ? { email: guestEmailResult.setGuestEmailOnCart.cart.email } : {};
         const newShippingAddress = data.setShippingAddressesOnCart.cart.shipping_addresses[0];
         dispatch({
             type: 'setShippingAddress',
             shippingAddress: {
                 ...newShippingAddress,
-                email: guestEmailResult.setGuestEmailOnCart.cart.email,
+                ...guestEmail,
                 country: newShippingAddress.country.code,
                 region_code: newShippingAddress.region.code
             }
