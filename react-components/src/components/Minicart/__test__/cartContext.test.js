@@ -39,7 +39,6 @@ describe('CartContext', () => {
         );
 
         fireEvent.click(getByRole('button'));
-        debug();
         const stateNode = getByTestId('state');
         return stateNode.textContent;
     };
