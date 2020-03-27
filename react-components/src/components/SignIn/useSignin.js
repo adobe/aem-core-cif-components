@@ -62,7 +62,6 @@ export const useSignin = () => {
                 }
             });
             const mergedCartId = mergeCartsData.mergeCarts.id;
-            console.log(`[SignIn] Carts are merged, ${mergedCartId} is the new cart id`);
 
             //4. set the cart id in the cookie
             setCartCookie(mergedCartId);
