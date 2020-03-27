@@ -44,9 +44,15 @@ public class PriceImpl implements Price {
 
     private Boolean isDiscounted;
     private Boolean isRange;
+    private boolean isStartPrice;
 
     public PriceImpl(PriceRange range, Locale locale) {
+        this(range, locale, false);
+    }
+
+    public PriceImpl(PriceRange range, Locale locale, boolean isStartPrice) {
         this.locale = locale;
+        this.isStartPrice = isStartPrice;
         this.currency = range.getMinimumPrice().getFinalPrice().getCurrency().toString();
 
         this.regularPriceMin = range.getMinimumPrice().getRegularPrice().getValue();
@@ -86,6 +92,11 @@ public class PriceImpl implements Price {
         }
 
         return isDiscounted;
+    }
+
+    @Override
+    public boolean isStartPrice() {
+        return isStartPrice;
     }
 
     @Override

@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Footer> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="root"
+    >
+      <dl
+        class="totals"
+      >
+        <dt
+          class="subtotalLabel"
+        >
+          <span>
+            Cart Total: 
+            <span
+              class="discounted"
+            >
+              $60.00
+            </span>
+          </span>
+        </dt>
+        <dd
+          class="subtotalValue"
+        >
+          3 items
+        </dd>
+      </dl>
+      <dl
+        class="totalsDiscount"
+      >
+        <dt
+          class="subtotalLabel"
+        >
+          <span>
+            New Cart Total: 
+            <span
+              class=""
+            >
+              $34.00
+            </span>
+          </span>
+        </dt>
+        <dd
+          class="subtotalValue"
+        >
+          3 items
+        </dd>
+      </dl>
+    </div>
+  </div>
+</DocumentFragment>
+`;

@@ -26,7 +26,7 @@ const parentEl = document.querySelector('.header__cartTrigger');
 
 const Trigger = () => {
     const [{ cart }, dispatch] = useCartState();
-    let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.items.length : 0;
+    let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.total_quantity : 0;
 
     const iconColor = 'rgb(var(--venia-text))';
     const svgAttributes = {

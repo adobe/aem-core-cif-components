@@ -27,14 +27,16 @@ export default () => {
 
     const submitOrder = async () => {
         setInProgress(true);
+        // we set the progress to `false` *before* dispatching because the component
+        // will be unmounted and the `setInProgress` call will trigger a React warning
         try {
             const { data } = await placeOrder({ variables: { cartId } });
+            setInProgress(false);
             checkoutDispatch({ type: 'placeOrder', order: data.placeOrder.order });
         } catch (error) {
+            setInProgress(false);
             console.error(error);
             cartDispatch({ type: 'error', error: error.toString() });
-        } finally {
-            setInProgress(false);
         }
     };
 

@@ -149,6 +149,32 @@
             }
           },
           {
+            "__typename": "GroupedProduct",
+            "id": 45,
+            "sku": "24-WG085_Group",
+            "name": "Set of Sprite Yoga Straps",
+            "small_image": {
+              "url": "http://some-hostname.magentosite.cloud/media/catalog/product/l/u/luma-yoga-strap-set.jpg"
+            },
+            "url_key": "set-of-sprite-yoga-straps",
+            "price_range": {
+              "minimum_price": {
+                "regular_price": {
+                  "value": 14,
+                  "currency": "USD"
+                },
+                "final_price": {
+                  "value": 14,
+                  "currency": "USD"
+                },
+                "discount": {
+                  "amount_off": 0,
+                  "percent_off": 0
+                }
+              }
+            }
+          },
+          {
             "__typename": "SimpleProduct",
             "id": 4242,
             "sku": "faultyproduct",
