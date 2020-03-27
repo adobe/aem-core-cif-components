@@ -18,11 +18,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.Model;
 
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
-import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
-import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -32,20 +32,23 @@ import com.day.cq.wcm.api.Page;
 public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
+    private static final String CONFIG_NAME = "cloudconfigs/commerce";
     private static final String STORE_CODE_PROPERTY = "magentoStore";
+    private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
 
     @Inject
     private Page currentPage;
 
     private String storeView;
+    private String graphqlEndpoint = "/magento/graphql";
 
     @PostConstruct
     void initModel() {
-        InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(currentPage.getContentResource());
-        storeView = properties.getInherited(STORE_CODE_PROPERTY, String.class);
-        if (storeView == null) {
-            storeView = "default";
-        }
+        ConfigurationBuilder configurationBuilder = currentPage.adaptTo(ConfigurationBuilder.class);
+        ValueMap properties = configurationBuilder.name(CONFIG_NAME).asValueMap();
+
+        storeView = properties.get(STORE_CODE_PROPERTY, "default");
+        graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, "/magento/graphql");
     }
 
     @Override
@@ -55,6 +58,6 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @Override
     public String getGraphqlEndpoint() {
-        return "/magento/graphql";
+        return graphqlEndpoint;
     }
 }
