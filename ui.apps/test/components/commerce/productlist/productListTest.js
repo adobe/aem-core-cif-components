@@ -21,6 +21,7 @@ describe('Productlist', () => {
 
     const clientPrices = {
         'sku-a': {
+            __typename: 'SimpleProduct',
             minimum_price: {
                 regular_price: {
                     value: 156.89,
@@ -37,6 +38,7 @@ describe('Productlist', () => {
             }
         },
         'sku-b': {
+            __typename: 'ConfigurableProduct',
             minimum_price: {
                 regular_price: {
                     value: 123.45,
@@ -67,6 +69,7 @@ describe('Productlist', () => {
             }
         },
         'sku-c': {
+            __typename: 'SimpleProduct',
             minimum_price: {
                 regular_price: {
                     value: 20,
@@ -81,11 +84,29 @@ describe('Productlist', () => {
                     percent_off: 50
                 }
             }
+        },
+        'sku-d': {
+            __typename: 'GroupedProduct',
+            minimum_price: {
+                regular_price: {
+                    value: 20,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 20,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 0,
+                    percent_off: 0
+                }
+            }
         }
     };
 
     const convertedPrices = {
         'sku-a': {
+            isStartPrice: false,
             currency: 'USD',
             regularPrice: 156.89,
             finalPrice: 156.89,
@@ -95,6 +116,7 @@ describe('Productlist', () => {
             range: false
         },
         'sku-b': {
+            isStartPrice: false,
             currency: 'USD',
             regularPrice: 123.45,
             finalPrice: 123.45,
@@ -108,12 +130,23 @@ describe('Productlist', () => {
             range: true
         },
         'sku-c': {
+            isStartPrice: false,
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 10,
             discountAmount: 10,
             discountPercent: 50,
             discounted: true,
+            range: false
+        },
+        'sku-d': {
+            isStartPrice: true,
+            currency: 'USD',
+            regularPrice: 20,
+            finalPrice: 20,
+            discountAmount: 0,
+            discountPercent: 0,
+            discounted: false,
             range: false
         }
     };
@@ -154,6 +187,11 @@ describe('Productlist', () => {
                 <div class="price">
                     <span>789</span>
                 </div>
+            </div>
+            <div class="item__root" data-sku="sku-d" role="product">
+                <div class="price">
+                    <span>101112</span>
+                </div>
             </div>`
         );
 
@@ -165,7 +203,7 @@ describe('Productlist', () => {
     it('initializes a product list component', () => {
         let list = new ProductList({ element: listRoot });
 
-        assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c']);
+        assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
     });
 
     it('retrieves prices via GraphQL', () => {
@@ -182,6 +220,7 @@ describe('Productlist', () => {
             assert.include(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'USD 123.45 - USD 150.45');
             assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, 'USD 20');
             assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, 'USD 10');
+            assert.include(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at USD 20');
         });
     });
 
