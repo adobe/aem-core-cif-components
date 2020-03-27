@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
@@ -66,6 +67,7 @@ public class ProductTeaserImpl implements ProductTeaser {
     private AbstractProductRetriever productRetriever;
 
     private Locale locale;
+    private Boolean isVirtualProduct;
 
     @PostConstruct
     protected void initModel() {
@@ -156,6 +158,14 @@ public class ProductTeaserImpl implements ProductTeaser {
             return getProduct().getImage().getUrl();
         }
         return null;
+    }
+
+    @Override
+    public Boolean isVirtualProduct() {
+        if (isVirtualProduct == null) {
+            isVirtualProduct = getProduct() instanceof VirtualProduct;
+        }
+        return isVirtualProduct;
     }
 
     private SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
