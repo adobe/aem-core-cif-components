@@ -11,9 +11,10 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import { checkCookie, cookieValue } from './cookieUtils';
+import { useApolloClient } from '@apollo/react-hooks';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
@@ -48,4 +49,26 @@ export const useCountries = () => {
     }
 
     return { countries: data.countries };
+};
+
+/**
+ * This hook is taken from the Peregrine library.
+ * We don't use it because upgrading to the peregrine library that exports it would mean bringing in some dependencies we don't need (i.e. Redux)
+ *
+ * @param {DocumentNode} query - parsed GraphQL operation description
+ *
+ * @returns {Function} callback that runs the query and returns a Promise
+ */
+export const useAwaitQuery = query => {
+    const apolloClient = useApolloClient();
+
+    return useCallback(
+        options => {
+            return apolloClient.query({
+                ...options,
+                query
+            });
+        },
+        [apolloClient, query]
+    );
 };

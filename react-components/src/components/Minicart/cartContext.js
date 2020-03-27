@@ -18,6 +18,7 @@ import { useCookieValue } from '../../utils/hooks';
 
 export const initialState = {
     isOpen: false,
+    isRegistered: false,
     isEditing: false,
     isLoading: false,
     editItem: {},
@@ -86,6 +87,12 @@ export const reducerFactory = setCartCookie => {
                     isLoading: false,
                     couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
+            case 'register': {
+                return {
+                    ...state,
+                    isRegistered: true
+                };
+            }
             case 'error':
                 console.error(action.error);
                 return {
@@ -116,7 +123,6 @@ export const CartProvider = props => {
     const state = props.initialState || initialState;
 
     const [, setCartCookie] = useCookieValue('cif.cart');
-
     const contextValue = useReducer(factory(setCartCookie), state);
 
     return <CartContext.Provider value={contextValue}>{props.children}</CartContext.Provider>;

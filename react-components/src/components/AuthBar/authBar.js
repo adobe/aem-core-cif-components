@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
@@ -22,8 +22,13 @@ import { func } from 'prop-types';
 
 const AuthBar = props => {
     const { showSignIn, showMyAccount } = props;
+    const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
 
-    const [{ currentUser, isSignedIn }] = useUserContext();
+    useEffect(() => {
+        if (isSignedIn && currentUser.email === '') {
+            getUserDetails();
+        }
+    }, [getUserDetails]);
     const [t] = useTranslation('account');
 
     const disabled = false;

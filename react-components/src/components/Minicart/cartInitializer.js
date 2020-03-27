@@ -13,8 +13,10 @@
  ******************************************************************************/
 import { useEffect } from 'react';
 import { useCartState } from './cartContext';
-import { useCookieValue } from '../../utils/hooks';
-import { useMutation } from '@apollo/react-hooks';
+import { useCookieValue, useAwaitQuery } from '../../utils/hooks';
+import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import { useUserContext } from '../../context/UserContext';
+
 import parseError from '../../utils/parseError';
 
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
@@ -26,10 +28,13 @@ import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql
 
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();
+    const [{ cartId: registeredCartId }] = useUserContext();
+
     const CART_COOKIE = 'cif.cart';
 
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
-    const [createCart, { data, error }] = useMutation(MUTATION_CREATE_CART);
+
+    const [createCart] = useMutation(MUTATION_CREATE_CART);
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
@@ -107,32 +112,34 @@ const CartInitializer = props => {
         };
     };
 
+    console.log(`Cart id from cookie is now ${cartId}, state is ${stateCartId}`);
     useEffect(() => {
-        if (!cartId || cartId.length === 0) {
-            createCart();
+        if (cartId && cartId.length > 0) {
+            console.log(`Running the effect that puts the cart id ${cartId} in the state`);
+            dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId]);
 
     useEffect(() => {
-        if (cartId && (!stateCartId || stateCartId.length === 0)) {
-            dispatch({ type: 'cartId', cartId: cartId, methods: createCartHandlers(cartId, dispatch) });
+        if (!registeredCartId && (cartId === null || cartId.length === 0)) {
+            console.log(`Running the effect with the cart id`);
+            (async function() {
+                const { data } = await createCart();
+                console.log(`Created empty cart ${data.createEmptyCart}`);
+                setCartCookie(data.createEmptyCart);
+                dispatch({
+                    type: 'cartId',
+                    cartId: data.createEmptyCart,
+                    methods: createCartHandlers(data.createEmptyCart, dispatch)
+                });
+            })();
         }
-    }, [cartId, stateCartId]);
 
-    useEffect(() => {
-        if (data) {
-            setCartCookie(data.createEmptyCart);
-            dispatch({
-                type: 'cartId',
-                cartId: data.createEmptyCart,
-                methods: createCartHandlers(data.createEmptyCart, dispatch)
-            });
+        if (registeredCartId) {
+            setCartCookie(registeredCartId);
+            dispatch({ type: 'cartId', cartId: registeredCartId, methods: createCartHandlers(cartId, dispatch) });
         }
-
-        if (error) {
-            dispatch({ type: 'error', error: error.toString() });
-        }
-    }, [data, error]);
+    }, [cartId]);
 
     return props.children;
 };

@@ -17,10 +17,12 @@ import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider from '../../../context/UserContext';
+import { CartProvider } from '../../Minicart/cartContext';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
-
+import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
+import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 import SignIn from '../signIn';
 import i18n from '../../../../__mocks__/i18nForTests';
 
@@ -54,6 +56,34 @@ const mocks = [
                 }
             }
         }
+    },
+    {
+        request: {
+            query: MUTATION_MERGE_CARTS,
+            variables: {
+                sourceCartId: 'guest123',
+                destinationCartId: 'customercart'
+            }
+        },
+        result: {
+            data: {
+                mergeCarts: {
+                    id: 'customercart'
+                }
+            }
+        }
+    },
+    {
+        request: {
+            query: QUERY_CUSTOMER_CART
+        },
+        result: {
+            data: {
+                customerCart: {
+                    id: 'customercart'
+                }
+            }
+        }
     }
 ];
 
@@ -61,7 +91,7 @@ describe('<SignIn>', () => {
     beforeEach(() => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
-            value: ''
+            value: 'cif.cart=guest123'
         });
     });
 
@@ -70,11 +100,13 @@ describe('<SignIn>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <SignIn
-                            showMyAccount={jest.fn()}
-                            showCreateAccount={jest.fn()}
-                            showForgotPassword={jest.fn()}
-                        />
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                            <SignIn
+                                showMyAccount={jest.fn()}
+                                showCreateAccount={jest.fn()}
+                                showForgotPassword={jest.fn()}
+                            />
+                        </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -110,7 +142,9 @@ describe('<SignIn>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <SignInWrapper />
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <SignInWrapper />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -151,7 +185,13 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <SignIn showMyAccount={jest.fn()} showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <SignIn
+                            showMyAccount={jest.fn()}
+                            showForgotPassword={jest.fn()}
+                            showCreateAccount={jest.fn()}
+                        />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
