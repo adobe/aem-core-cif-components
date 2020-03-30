@@ -47,6 +47,7 @@ class Product {
      */
     _convertPriceToRange(range) {
         let price = {};
+        price.productType = range.__typename;
         price.currency = range.minimum_price.final_price.currency;
         price.regularPrice = range.minimum_price.regular_price.value;
         price.finalPrice = range.minimum_price.final_price.value;
@@ -83,7 +84,16 @@ class Product {
 
                 // Update price
                 if (!(this._state.sku in this._state.prices)) return;
-                this._updatePrice(this._state.prices[this._state.sku]);
+                if (this._state.prices[this._state.sku].productType == 'GroupedProduct') {
+                    for (let key in this._state.prices) {
+                        if (key == this._state.sku) {
+                            continue; // Only update the prices of the items inside the group
+                        }
+                        this._updatePrice(this._state.prices[key], key);
+                    }
+                } else {
+                    this._updatePrice(this._state.prices[this._state.sku]);
+                }
             })
             .catch(err => {
                 console.error('Could not fetch prices', err);
@@ -98,8 +108,9 @@ class Product {
         const variant = event.detail.variant;
         if (!variant) return;
 
-        // Update internal state
+        // Update internal state and 'data-product-sku' attribute of price element
         this._state.sku = variant.sku;
+        this._element.querySelector(Product.selectors.price).setAttribute('data-product-sku', variant.sku);
 
         // Update values and enable add to cart button
         this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
@@ -118,7 +129,7 @@ class Product {
     /**
      * Update price in the DOM.
      */
-    _updatePrice(price) {
+    _updatePrice(price, optionalSku) {
         let innerHTML = '';
         if (!price.range) {
             if (price.discounted) {
@@ -168,7 +179,8 @@ class Product {
             }
         }
 
-        this._element.querySelector(Product.selectors.price).innerHTML = innerHTML;
+        let sku = optionalSku || this._state.sku;
+        this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`).innerHTML = innerHTML;
     }
 }
 

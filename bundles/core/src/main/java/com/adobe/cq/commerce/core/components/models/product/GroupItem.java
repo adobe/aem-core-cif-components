@@ -12,47 +12,20 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.common;
+package com.adobe.cq.commerce.core.components.models.product;
+
+import com.adobe.cq.commerce.core.components.models.common.Price;
 
 /**
- * Asset is a view model interface representing a product asset.
+ * GroupItem is a view model interface representing the item of a grouped product.
  */
-public interface Price {
+public interface GroupItem {
 
-    Boolean isRange();
+    String getName();
 
-    Boolean isDiscounted();
+    String getSku();
 
-    boolean isStartPrice();
+    Price getPriceRange();
 
-    String getCurrency();
-
-    Double getRegularPrice();
-
-    String getFormattedRegularPrice();
-
-    Double getFinalPrice();
-
-    String getFormattedFinalPrice();
-
-    Double getDiscountAmount();
-
-    String getFormattedDiscountAmount();
-
-    Double getDiscountPercent();
-
-    Double getRegularPriceMax();
-
-    String getFormattedRegularPriceMax();
-
-    Double getFinalPriceMax();
-
-    String getFormattedFinalPriceMax();
-
-    Double getDiscountAmountMax();
-
-    String getFormattedDiscountAmountMax();
-
-    Double getDiscountPercentMax();
-
+    Double getDefaultQuantity();
 }

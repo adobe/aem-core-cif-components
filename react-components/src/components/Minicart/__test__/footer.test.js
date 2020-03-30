@@ -15,47 +15,34 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 
-import CartOptions from '../cartOptions';
 import { CartProvider } from '../cartContext';
-import UserContextProvider from '../../../context/UserContext';
-import { MockedProvider } from '@apollo/react-testing';
+import Footer from '../footer';
 import i18n from '../../../../__mocks__/i18nForTests';
-
-describe('<CartOptions>', () => {
-    it('renders the component properly', () => {
-        const initialState = {
-            cartId: '123ABC',
-            isLoading: false,
-            editItem: {
-                id: '123',
-                quantity: 2,
-                prices: {
-                    price: {
-                        currency: 'USD',
-                        value: 100
-                    },
-                    row_total: {
-                        currency: 'USD',
-                        value: 100
-                    }
-                },
-                product: {
-                    name: 'Dummy product'
-                }
-            }
-        };
-
+jest.mock('../../Checkout', () => {
+    return () => {
+        return null;
+    };
+});
+describe('<Footer>', () => {
+    it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                            <CartOptions />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <CartProvider
+                    initialState={{
+                        cart: {
+                            prices: {
+                                subtotal_excluding_tax: { currency: 'USD', value: 60 },
+                                subtotal_with_discount_excluding_tax: { currency: 'USD', value: 34 }
+                            },
+                            total_quantity: 3
+                        }
+                    }}
+                    reducerFactory={() => state => state}>
+                    <Footer />
+                </CartProvider>
             </I18nextProvider>
         );
+
         expect(asFragment()).toMatchSnapshot();
     });
 });

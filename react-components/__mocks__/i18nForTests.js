@@ -22,14 +22,13 @@ import common from '../i18n/en/common.json';
 i18n.use(initReactI18next).init({
     fallbackLng: 'en',
     debug: false,
+    lng: 'en',
 
     interpolation: {
         escapeValue: false,
         format: (value, format, lng) => {
             if (format === 'price') {
-                return new Intl.NumberFormat(lng, { style: 'currency', currency: value.currency }).format(
-                    value.value
-                );
+                return new Intl.NumberFormat(lng, { style: 'currency', currency: value.currency }).format(value.value);
             }
             return value;
         }

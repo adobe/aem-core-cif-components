@@ -11,16 +11,16 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-template.price="${@ priceRange=priceRange, displayYouSave}">
-    <div class="price" data-sly-test=${!priceRange.isRange}>
+<sly data-sly-template.price="${@ priceRange=priceRange, displayYouSave, sku}">
+    <div class="price" data-sly-test=${!priceRange.isRange} data-product-sku=${sku}>
         <sly data-sly-test.isDiscounted=${priceRange.isDiscounted}>
             <span class="regularPrice">${priceRange.formattedRegularPrice}</span>
             <span class="discountedPrice">${priceRange.formattedFinalPrice}</span>
             <span class="you-save" data-sly-test=${displayYouSave}>${'You save' @i18n} ${priceRange.formattedDiscountAmount} (${priceRange.discountPercent}%)</span>
         </sly>
-        <span data-sly-test=${!isDiscounted}>${priceRange.formattedRegularPrice}</span>
+        <span data-sly-test=${!isDiscounted}><sly data-sly-test=${priceRange.isStartPrice}>${'Starting at' @i18n} </sly>${priceRange.formattedRegularPrice}</span>
     </div>
-    <div class="price range" data-sly-test=${priceRange.isRange}>
+    <div class="price range" data-sly-test=${priceRange.isRange} data-product-sku=${sku}>
         <sly data-sly-test.isDiscounted=${priceRange.isDiscounted}>
             <span class="regularPrice">${priceRange.formattedRegularPrice} - ${priceRange.formattedRegularPriceMax}</span>
             <span class="discountedPrice">${priceRange.formattedFinalPrice} - ${priceRange.formattedFinalPriceMax}</span>
