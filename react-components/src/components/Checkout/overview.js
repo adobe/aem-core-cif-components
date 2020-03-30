@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Fragment, useCallback } from 'react';
+import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
 
 import { Price } from '@magento/peregrine';
