@@ -26,63 +26,61 @@ import com.shopify.graphql.support.Input;
 
 public class GenericProductAttributeFilterInput extends ProductAttributeFilterInput {
 
-	private Map<String, Input<FilterEqualTypeInput>> equalInputs = new HashMap<>();
+    private Map<String, Input<FilterEqualTypeInput>> equalInputs = new HashMap<>();
 
-	private Map<String, Input<FilterMatchTypeInput>> matchInputs = new HashMap<>();
+    private Map<String, Input<FilterMatchTypeInput>> matchInputs = new HashMap<>();
 
-	private Map<String, Input<FilterRangeTypeInput>> rangeInputs = new HashMap<>();
+    private Map<String, Input<FilterRangeTypeInput>> rangeInputs = new HashMap<>();
 
-	public void addEqualTypeInput(final String key, final FilterEqualTypeInput input) {
-		equalInputs.put(key, Input.optional(input));
-	}
+    public void addEqualTypeInput(final String key, final FilterEqualTypeInput input) {
+        equalInputs.put(key, Input.optional(input));
+    }
 
-	public void addMatchTypeInput(final String key, final FilterMatchTypeInput input) {
-		matchInputs.put(key, Input.optional(input));
-	}
+    public void addMatchTypeInput(final String key, final FilterMatchTypeInput input) {
+        matchInputs.put(key, Input.optional(input));
+    }
 
-	public void addRangeTypeInput(final String key, final FilterRangeTypeInput input) {
-		rangeInputs.put(key, Input.optional(input));
-	}
+    public void addRangeTypeInput(final String key, final FilterRangeTypeInput input) {
+        rangeInputs.put(key, Input.optional(input));
+    }
 
+    public void appendTo(StringBuilder _queryBuilder) {
+        String separator = "";
+        _queryBuilder.append('{');
 
-	public void appendTo(StringBuilder _queryBuilder) {
-		String separator = "";
-		_queryBuilder.append('{');
+        for (Entry<String, Input<FilterEqualTypeInput>> input : equalInputs.entrySet()) {
+            _queryBuilder.append(separator);
+            separator = ",";
+            _queryBuilder.append(input.getKey() + ":");
+            if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
+                input.getValue().getValue().appendTo(_queryBuilder);
+            } else {
+                _queryBuilder.append("null");
+            }
+        }
 
-		for (Entry<String, Input<FilterEqualTypeInput>> input : equalInputs.entrySet()) {
-			_queryBuilder.append(separator);
-			separator = ",";
-			_queryBuilder.append(input.getKey() + ":");
-			if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
-				input.getValue().getValue().appendTo(_queryBuilder);
-			} else {
-				_queryBuilder.append("null");
-			}
-		}
+        for (Entry<String, Input<FilterRangeTypeInput>> input : rangeInputs.entrySet()) {
+            _queryBuilder.append(separator);
+            separator = ",";
+            _queryBuilder.append(input.getKey() + ":");
+            if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
+                input.getValue().getValue().appendTo(_queryBuilder);
+            } else {
+                _queryBuilder.append("null");
+            }
+        }
 
+        for (Entry<String, Input<FilterMatchTypeInput>> input : matchInputs.entrySet()) {
+            _queryBuilder.append(separator);
+            separator = ",";
+            _queryBuilder.append(input.getKey() + ":");
+            if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
+                input.getValue().getValue().appendTo(_queryBuilder);
+            } else {
+                _queryBuilder.append("null");
+            }
+        }
 
-		for (Entry<String, Input<FilterRangeTypeInput>> input : rangeInputs.entrySet()) {
-			_queryBuilder.append(separator);
-			separator = ",";
-			_queryBuilder.append(input.getKey() + ":");
-			if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
-				input.getValue().getValue().appendTo(_queryBuilder);
-			} else {
-				_queryBuilder.append("null");
-			}
-		}
-
-		for (Entry<String, Input<FilterMatchTypeInput>> input : matchInputs.entrySet()) {
-			_queryBuilder.append(separator);
-			separator = ",";
-			_queryBuilder.append(input.getKey() + ":");
-			if ((input.getValue() != null) && (input.getValue().getValue() != null)) {
-				input.getValue().getValue().appendTo(_queryBuilder);
-			} else {
-				_queryBuilder.append("null");
-			}
-		}
-
-		_queryBuilder.append('}');
-	}
+        _queryBuilder.append('}');
+    }
 }

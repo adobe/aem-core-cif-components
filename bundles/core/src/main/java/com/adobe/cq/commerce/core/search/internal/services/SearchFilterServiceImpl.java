@@ -69,13 +69,14 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         });
     }
 
-    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient, final List<__InputValue> availableFilters) {
+    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
+        final List<__InputValue> availableFilters) {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
             return new ArrayList<>();
         }
-    	
+
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
             AttributeInput attributeInput = new AttributeInput();
             attributeInput.setAttributeCode(inputField.getName());
@@ -116,15 +117,15 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         }
 
         __TypeQueryDefinition typeQuery = q -> q
+            .name()
+            .description()
+            .inputFields(i -> i
                 .name()
-                .description()
-                .inputFields(i -> i
-                    .name()
-                    .type(t -> t
-                        .name()));
+                .type(t -> t
+                    .name()));
 
         String query = Operations.query(q -> q.__type("ProductAttributeFilterInput", typeQuery)).toString();
-        
+
         final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(query);
 
         // If there are errors in the response we'll log them out and return a safe but empty value

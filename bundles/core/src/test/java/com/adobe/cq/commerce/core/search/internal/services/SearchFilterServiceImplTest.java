@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,8 +38,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.day.cq.wcm.api.Page;
-
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -50,7 +47,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchFilterServiceImplTest {
 
-	@Rule
+    @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
@@ -66,7 +63,7 @@ public class SearchFilterServiceImplTest {
 
     @Mock
     FilterAttributeMetadataCache filterAttributeMetadataCache;
-    
+
     @Mock
     HttpClient httpClient;
 
@@ -78,43 +75,47 @@ public class SearchFilterServiceImplTest {
         when(filterAttributeMetadataCache.getFilterAttributeMetadata()).thenReturn(Optional.empty());
         context.registerService(FilterAttributeMetadataCache.class, filterAttributeMetadataCache);
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
-        
+
         context.currentPage(PAGE);
         context.currentResource(PAGE);
         resource = Mockito.spy(context.resourceResolver().getResource(PAGE));
-        
+
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
-        
+
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        
+
         Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
     }
 
     @Test
     public void testRetrieveMetadata() {
 
-        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest.retrieveCurrentlyAvailableCommerceFilters(resource);
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(resource);
 
         assertThat(filterAttributeMetadata).hasSize(29);
-        
+
         // Range type
-        FilterAttributeMetadata price = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("price")).findFirst().get();
+        FilterAttributeMetadata price = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("price")).findFirst()
+            .get();
         assertThat(price.getFilterInputType()).isEqualTo("FilterRangeTypeInput");
         assertThat(price.getAttributeType()).isEqualTo("Float");
         assertThat(price.getAttributeInputType()).isEqualTo("price");
-        
+
         // Equal type for string
-        FilterAttributeMetadata material = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("material")).findFirst().get();
+        FilterAttributeMetadata material = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("material")).findFirst()
+            .get();
         assertThat(material.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
         assertThat(material.getAttributeType()).isEqualTo("String");
         assertThat(material.getAttributeInputType()).isEqualTo("multiselect");
-        
+
         // Equal type for int/boolean
-        FilterAttributeMetadata newAttr = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("new")).findFirst().get();
+        FilterAttributeMetadata newAttr = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("new")).findFirst()
+            .get();
         assertThat(newAttr.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
         assertThat(newAttr.getAttributeType()).isEqualTo("Int");
         assertThat(newAttr.getAttributeInputType()).isEqualTo("boolean");

@@ -62,7 +62,7 @@ public class Utils {
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
-    	return setupHttpResponse(filename, httpClient, httpCode, null);
+        return setupHttpResponse(filename, httpClient, httpCode, null);
     }
 
     /**
@@ -106,7 +106,7 @@ public class Utils {
 
         return json;
     }
-    
+
     /**
      * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
      *
@@ -117,7 +117,7 @@ public class Utils {
     public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename) throws IOException {
         return setupGraphqlClientWithHttpResponseFrom(filename, null);
     }
-    
+
     /**
      * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
      *
@@ -153,7 +153,7 @@ public class Utils {
     public static String getResource(String filename) throws IOException {
         return IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
-    
+
     /**
      * Matcher class used to match a GraphQL query. This is used to properly mock GraphQL responses.
      */
