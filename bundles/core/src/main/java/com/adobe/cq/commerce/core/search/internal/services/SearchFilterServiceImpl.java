@@ -36,10 +36,9 @@ import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadataQueryDefinit
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.__InputValue;
+import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.introspection.FilterIntrospectionQuery;
-import com.adobe.cq.commerce.magento.graphql.introspection.InputField;
-import com.adobe.cq.commerce.magento.graphql.introspection.IntrospectionQuery;
 
 @Component(service = SearchFilterService.class)
 public class SearchFilterServiceImpl implements SearchFilterService {
@@ -54,9 +53,8 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         return filterAttributeMetadataCache.getFilterAttributeMetadata().orElseGet(() -> {
 
             // First we query Magento for the required attribute and filter information
-            MagentoGraphqlClient magentoIntrospectionGraphqlClient = MagentoGraphqlClient.create(resource, true);
-            final List<InputField> availableFilters = fetchAvailableSearchFilters(magentoIntrospectionGraphqlClient);
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, false);
+            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
             final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 
             // Then we combine this data into a useful set of data usable by other systems
@@ -65,16 +63,19 @@ public class SearchFilterServiceImpl implements SearchFilterService {
                 .toList());
 
             // Finally we set the filter metadata back to the caching layer so it's available in the future without requring another set of
-            // calls
-            // to Magento's APIs
+            // calls to Magento's APIs
             filterAttributeMetadataCache.setFilterAttributeMetadata(filterAttributeMetadata);
             return filterAttributeMetadata;
         });
     }
 
-    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
-        final List<InputField> availableFilters) {
+    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient, final List<__InputValue> availableFilters) {
 
+        if (magentoGraphqlClient == null) {
+            LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
+            return new ArrayList<>();
+        }
+    	
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
             AttributeInput attributeInput = new AttributeInput();
             attributeInput.setAttributeCode(inputField.getName());
@@ -89,13 +90,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
                 .inputType());
         final QueryQuery attributeQuery = Operations.query(query -> query.customAttributeMetadata(attributeInputs, queryArgs));
 
-        if (magentoGraphqlClient == null) {
-            LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
-            return new ArrayList<>();
-        }
-
-        final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(
-            attributeQuery.toString());
+        final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(attributeQuery.toString());
 
         // If there are errors we'll log them and return a safe but empty list
         if (response.getErrors() != null && response.getErrors().size() > 0) {
@@ -105,7 +100,6 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         }
 
         return response.getData().getCustomAttributeMetadata().getItems();
-
     }
 
     /**
@@ -114,15 +108,24 @@ public class SearchFilterServiceImpl implements SearchFilterService {
      * @param magentoGraphqlClient client for making Magento GraphQL requests
      * @return key value pair of the attribute code or identifier and filter type for that attribute
      */
-    private List<InputField> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
+    private List<__InputValue> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
             return new ArrayList<>();
         }
 
-        final GraphqlResponse<IntrospectionQuery, Error> response = magentoGraphqlClient.executeIntrospection(
-            FilterIntrospectionQuery.QUERY);
+        __TypeQueryDefinition typeQuery = q -> q
+                .name()
+                .description()
+                .inputFields(i -> i
+                    .name()
+                    .type(t -> t
+                        .name()));
+
+        String query = Operations.query(q -> q.__type("ProductAttributeFilterInput", typeQuery)).toString();
+        
+        final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(query);
 
         // If there are errors in the response we'll log them out and return a safe but empty value
         if (response.getErrors() != null && response.getErrors().size() > 0) {
@@ -131,7 +134,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
             return new ArrayList<>();
         }
 
-        return response.getData().getType().getInputFields();
+        return response.getData().__getType().getInputFields();
     }
 
 }

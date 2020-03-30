@@ -14,21 +14,35 @@
 
 package com.adobe.cq.commerce.core.search.internal.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.services.FilterAttributeMetadataCache;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
+
 import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -36,35 +50,74 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchFilterServiceImplTest {
 
-    @Rule
-    public final AemContext context = new AemContext();
+	@Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PAGE = "/content/pageA";
 
     @Mock
     FilterAttributeMetadataCache filterAttributeMetadataCache;
-
+    
     @Mock
-    Resource resource;
+    HttpClient httpClient;
 
     SearchFilterServiceImpl searchFilterServiceUnderTest;
+    Resource resource;
 
     @Before
-    public void setup() {
-
-        when(filterAttributeMetadataCache.getFilterAttributeMetadata())
-            .thenReturn(Optional.of(new ArrayList<>()));
-
+    public void setup() throws IOException {
+        when(filterAttributeMetadataCache.getFilterAttributeMetadata()).thenReturn(Optional.empty());
         context.registerService(FilterAttributeMetadataCache.class, filterAttributeMetadataCache);
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
+        
+        context.currentPage(PAGE);
+        context.currentResource(PAGE);
+        resource = Mockito.spy(context.resourceResolver().getResource(PAGE));
+        
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        
+        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
     }
 
     @Test
     public void testRetrieveMetadata() {
 
-        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
-            .retrieveCurrentlyAvailableCommerceFilters(resource);
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest.retrieveCurrentlyAvailableCommerceFilters(resource);
 
-        assertThat(filterAttributeMetadata).isNotNull();
-        assertThat(filterAttributeMetadata).isEmpty();
+        assertThat(filterAttributeMetadata).hasSize(29);
+        
+        // Range type
+        FilterAttributeMetadata price = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("price")).findFirst().get();
+        assertThat(price.getFilterInputType()).isEqualTo("FilterRangeTypeInput");
+        assertThat(price.getAttributeType()).isEqualTo("Float");
+        assertThat(price.getAttributeInputType()).isEqualTo("price");
+        
+        // Equal type for string
+        FilterAttributeMetadata material = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("material")).findFirst().get();
+        assertThat(material.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
+        assertThat(material.getAttributeType()).isEqualTo("String");
+        assertThat(material.getAttributeInputType()).isEqualTo("multiselect");
+        
+        // Equal type for int/boolean
+        FilterAttributeMetadata newAttr = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("new")).findFirst().get();
+        assertThat(newAttr.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
+        assertThat(newAttr.getAttributeType()).isEqualTo("Int");
+        assertThat(newAttr.getAttributeInputType()).isEqualTo("boolean");
     }
 
 }

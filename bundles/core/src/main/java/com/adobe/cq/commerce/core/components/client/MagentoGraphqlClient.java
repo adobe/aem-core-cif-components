@@ -32,9 +32,7 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.IntrospectionDeserializer;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.adobe.cq.commerce.magento.graphql.introspection.IntrospectionQuery;
 import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
@@ -68,40 +66,20 @@ public class MagentoGraphqlClient {
      */
     public static MagentoGraphqlClient create(Resource resource) {
         try {
-            return new MagentoGraphqlClient(resource, false);
+            return new MagentoGraphqlClient(resource);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    /**
-     * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.
-     * 
-     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
-     * @return A new MagentoGraphqlClient instance.
-     */
-    public static MagentoGraphqlClient create(Resource resource, Boolean introspection) {
-        try {
-            return new MagentoGraphqlClient(resource, introspection);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            return null;
-        }
-    }
-
-    private MagentoGraphqlClient(Resource resource, Boolean introspection) {
+    private MagentoGraphqlClient(Resource resource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
             throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
         }
 
-        if (introspection) {
-            requestOptions = new RequestOptions().withGson(IntrospectionDeserializer.getGson());
-        } else {
-            requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
-        }
+        requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
         String storeCode;
         ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);

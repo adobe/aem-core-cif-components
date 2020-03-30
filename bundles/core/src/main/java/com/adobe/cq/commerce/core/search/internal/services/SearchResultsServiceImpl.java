@@ -52,7 +52,6 @@ import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.introspection.GenericProductAttributeFilterInput;
 import com.day.cq.wcm.api.Page;
 
 @Component(service = SearchResultsService.class)

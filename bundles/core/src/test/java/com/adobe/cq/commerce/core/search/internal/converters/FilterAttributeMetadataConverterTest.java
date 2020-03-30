@@ -25,7 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
-import com.adobe.cq.commerce.magento.graphql.introspection.InputField;
+import com.adobe.cq.commerce.magento.graphql.__InputValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,7 @@ public class FilterAttributeMetadataConverterTest {
     Attribute attribute;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    InputField inputField;
+    __InputValue inputField;
 
     FilterAttributeMetadataConverter converterUnderTest;
 

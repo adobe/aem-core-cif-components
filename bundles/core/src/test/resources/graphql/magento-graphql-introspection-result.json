@@ -1,0 +1,184 @@
+{
+  "data": {
+    "__type": {
+      "name": "ProductAttributeFilterInput",
+      "description": "ProductAttributeFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.",
+      "inputFields": [
+        {
+          "name": "activity",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "category_gear",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "category_id",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "climate",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "collar",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "color",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "description",
+          "type": {
+            "name": "FilterMatchTypeInput"
+          }
+        },
+        {
+          "name": "eco_collection",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "erin_recommends",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "features_bags",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "format",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "gender",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "material",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "name": "FilterMatchTypeInput"
+          }
+        },
+        {
+          "name": "new",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "pattern",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "performance_fabric",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "price",
+          "type": {
+            "name": "FilterRangeTypeInput"
+          }
+        },
+        {
+          "name": "purpose",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "sale",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "short_description",
+          "type": {
+            "name": "FilterMatchTypeInput"
+          }
+        },
+        {
+          "name": "size",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "sku",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "sleeve",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "strap_bags",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "style_bags",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "style_bottom",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "style_general",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
+          "name": "url_key",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -20,12 +20,12 @@ import java.util.function.Function;
 import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
-import com.adobe.cq.commerce.magento.graphql.introspection.InputField;
+import com.adobe.cq.commerce.magento.graphql.__InputValue;
 
 /**
  * This class converts a Magento InputField into a more usable and metadata-enriched GraphQL package independent class.
  */
-public class FilterAttributeMetadataConverter implements Function<InputField, FilterAttributeMetadata> {
+public class FilterAttributeMetadataConverter implements Function<__InputValue, FilterAttributeMetadata> {
 
     private List<Attribute> allAttributeMetadata;
 
@@ -39,7 +39,7 @@ public class FilterAttributeMetadataConverter implements Function<InputField, Fi
     }
 
     @Override
-    public FilterAttributeMetadata apply(final InputField inputField) {
+    public FilterAttributeMetadata apply(final __InputValue inputField) {
         FilterAttributeMetadataImpl metadata = new FilterAttributeMetadataImpl();
 
         metadata.setAttributeCode(inputField.getName());
