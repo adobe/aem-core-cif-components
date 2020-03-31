@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
@@ -192,19 +192,17 @@ public class NavigationImpl implements Navigation {
         children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
         children.sort(Comparator.comparing(CategoryTree::getPosition));
 
-        // SiteNavigation siteNavigation = new SiteNavigation(request);
         for (CategoryTree child : children) {
-            String title = child.getName();
-            // String url = siteNavigation.toPageUrl(categoryPage, child.getId().toString());
+            Map<String, String> params = new ParamsBuilder()
+                .id(child.getId().toString())
+                .urlKey(child.getUrlKey())
+                .urlPath(child.getUrlPath())
+                .map();
 
-            Map<String, String> params = new HashMap<>();
-            params.put(UrlProvider.ID_PARAM, child.getId().toString());
-            params.put(UrlProvider.URL_KEY_PARAM, child.getUrlKey());
-            params.put(UrlProvider.URL_PATH_PARAM, child.getUrlPath());
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-
             boolean active = request.getRequestURI().equals(url);
-            CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, title, url, active, child, request, categoryPage);
+            CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request,
+                categoryPage);
             pages.add(navigationItem);
         }
     }
@@ -296,19 +294,16 @@ public class NavigationImpl implements Navigation {
 
             List<NavigationItem> pages = new ArrayList<>();
 
-            // SiteNavigation siteNavigation = new SiteNavigation(request);
             for (CategoryTree child : children) {
-                String title = child.getName();
-                // String url = siteNavigation.toPageUrl(categoryPage, child.getId().toString());
+                Map<String, String> params = new ParamsBuilder()
+                    .id(child.getId().toString())
+                    .urlKey(child.getUrlKey())
+                    .urlPath(child.getUrlPath())
+                    .map();
 
-                Map<String, String> params = new HashMap<>();
-                params.put(UrlProvider.ID_PARAM, child.getId().toString());
-                params.put(UrlProvider.URL_KEY_PARAM, child.getUrlKey());
-                params.put(UrlProvider.URL_PATH_PARAM, child.getUrlPath());
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-
                 boolean active = request.getRequestURI().equals(url);
-                pages.add(new CategoryNavigationItem(this, title, url, active, child, request, categoryPage));
+                pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request, categoryPage));
             }
 
             return pages;

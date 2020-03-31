@@ -14,7 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.services;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -86,11 +89,111 @@ public interface UrlProvider {
      */
     public static final String PAGE_PARAM = "page";
 
-    public String toProductUrl(SlingHttpServletRequest request, Page page, Map<String, String> params);
+    /**
+     * Returns the product page URL.
+     * 
+     * @param request The current Sling HTTP request.
+     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param params The parameters used in the URL template.
+     * @return The product URL.
+     */
+    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
+    /**
+     * Returns the category page URL.
+     * 
+     * @param request The current Sling HTTP request.
+     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param params The parameters used in the URL template.
+     * @return The category URL.
+     */
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params);
 
-    public Pair<IdentifierLocation, ProductIdentifierType> getProductIdentifierConfig();
+    /**
+     * Returns the type and value of the product identifier used in the given Sling HTTP request.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The type and value of the product identifier.
+     */
+    public Pair<ProductIdentifierType, String> getProductIdentifier(SlingHttpServletRequest request);
 
-    public Pair<IdentifierLocation, CategoryIdentifierType> getCategoryIdentifierConfig();
+    /**
+     * Returns the type and value of the category identifier used in the given Sling HTTP request.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The type and value of the category identifier.
+     */
+    public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * A helper class used to easily build parameters for the URL templates.
+     */
+    public static class ParamsBuilder {
+
+        private Map<String, String> params = new HashMap<>();
+
+        public ParamsBuilder urlPath(String urlPath) {
+            params.put(URL_PATH_PARAM, urlPath);
+            return this;
+        }
+
+        /**
+         * The <code>url_key</code> parameter of the product or category. In the case of a <code>ConfigurableProduct</code>,
+         * this must hold the url_key of the configurable product and the variant url_key must be set with {@link #variantUrlKey(String)}.
+         */
+        public ParamsBuilder urlKey(String urlKey) {
+            params.put(URL_KEY_PARAM, urlKey);
+            return this;
+        }
+
+        /**
+         * In the case of a <code>ConfigurableProduct</code>, the <code>variant_url_key</code> parameter must
+         * be set to the url_key of the currently selected/chosen variant.
+         */
+        public ParamsBuilder variantUrlKey(String variantUrlKey) {
+            params.put(VARIANT_URL_KEY_PARAM, variantUrlKey);
+            return this;
+        }
+
+        /**
+         * The <code>sku</code> parameter of the product. In the case of a <code>ConfigurableProduct</code>,
+         * this must hold the sku of the configurable product and the variant sku must be set with {@link #variantSku(String)}.
+         */
+        public ParamsBuilder sku(String sku) {
+            params.put(SKU_PARAM, sku);
+            return this;
+        }
+
+        /**
+         * In the case of a <code>ConfigurableProduct</code>, the <code>variant_sku</code> parameter must
+         * be set to the sku of the currently selected/chosen variant.
+         */
+        public ParamsBuilder variantSku(String variantSku) {
+            params.put(VARIANT_SKU_PARAM, variantSku);
+            return this;
+        }
+
+        /**
+         * The <code>id</code> of the category.
+         */
+        public ParamsBuilder id(String id) {
+            params.put(ID_PARAM, id);
+            return this;
+        }
+
+        /**
+         * Can be used to statically set the <code>page</code> parameter of the URL.
+         */
+        public ParamsBuilder page(String page) {
+            params.put(PAGE_PARAM, page);
+            return this;
+        }
+
+        /**
+         * @return The map of parameters.
+         */
+        public Map<String, String> map() {
+            return params;
+        }
+    }
 }

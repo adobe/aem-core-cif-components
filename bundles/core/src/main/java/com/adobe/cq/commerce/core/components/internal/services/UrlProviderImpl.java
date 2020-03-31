@@ -68,12 +68,12 @@ public class UrlProviderImpl implements UrlProvider {
         return toUrl(request, page, params, categoryUrlTemplate, UrlProvider.ID_PARAM);
     }
 
-    private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template, String idParameterName) {
-        if (page != null && params.containsKey(idParameterName)) {
+    private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template, String selectorFilter) {
+        if (page != null && params.containsKey(selectorFilter)) {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             if (deepLink) {
-                Resource subPageResource = toSpecificPage(pageResource, params.get(idParameterName));
+                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter));
                 if (subPageResource != null) {
                     pageResource = subPageResource;
                 }
@@ -127,12 +127,27 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public Pair<IdentifierLocation, ProductIdentifierType> getProductIdentifierConfig() {
-        return productIdentifierConfig;
+    public Pair<ProductIdentifierType, String> getProductIdentifier(SlingHttpServletRequest request) {
+        return Pair.of(productIdentifierConfig.getRight(), parseIdentifier(productIdentifierConfig.getLeft(), request));
     }
 
     @Override
-    public Pair<IdentifierLocation, CategoryIdentifierType> getCategoryIdentifierConfig() {
-        return categoryIdentifierConfig;
+    public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request) {
+        return Pair.of(categoryIdentifierConfig.getRight(), parseIdentifier(categoryIdentifierConfig.getLeft(), request));
+    }
+
+    /**
+     * Returns the identifier used in the URL, based on the configuration of the UrlProvider service.
+     *
+     * @return The identifier.
+     */
+    private String parseIdentifier(IdentifierLocation identifierLocation, SlingHttpServletRequest request) {
+        if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSelectorString();
+        } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+        } else {
+            throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
+        }
     }
 }

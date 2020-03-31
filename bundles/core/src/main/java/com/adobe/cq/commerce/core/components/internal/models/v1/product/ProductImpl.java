@@ -48,7 +48,6 @@ import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
@@ -110,7 +109,6 @@ public class ProductImpl implements Product {
     private Boolean isGroupedProduct;
     private Boolean loadClientPrice;
 
-    private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
     private AbstractProductRetriever productRetriever;
 
     private Locale locale;
@@ -119,17 +117,16 @@ public class ProductImpl implements Product {
     private void initModel() {
 
         // Parse identifier in URL
-        productIdentifierConfig = urlProvider.getProductIdentifierConfig();
-        String identifier = parseProductIdentifier();
+        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
 
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient != null) {
-            if (StringUtils.isNotBlank(identifier)) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(productIdentifierConfig.getRight(), identifier);
+                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -360,24 +357,6 @@ public class ProductImpl implements Product {
         attribute.setValues(values);
 
         return attribute;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the product identifier used in the URL, based on the configuration of the UrlProvider service.
-     *
-     * @return The product identifier.
-     */
-    private String parseProductIdentifier() {
-        IdentifierLocation identifierLocation = productIdentifierConfig.getLeft();
-        if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSelectorString();
-        } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSuffix();
-        } else {
-            throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
-        }
     }
 
     private String safeDescription(ProductInterface product) {

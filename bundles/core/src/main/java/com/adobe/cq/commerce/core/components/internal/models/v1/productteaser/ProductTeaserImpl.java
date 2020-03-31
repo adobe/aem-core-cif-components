@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +36,8 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -92,7 +93,7 @@ public class ProductTeaserImpl implements ProductTeaser {
             // Fetch product data
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(combinedSku.getLeft());
+                productRetriever.setIdentifier(ProductIdentifierType.SKU, combinedSku.getLeft());
             }
         }
     }
@@ -142,11 +143,13 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getUrl() {
         if (getProduct() != null) {
-            Map<String, String> params = new HashMap<>();
-            params.put(UrlProvider.URL_KEY_PARAM, productRetriever.fetchProduct().getUrlKey()); // Get slug from base product
-            params.put(UrlProvider.VARIANT_URL_KEY_PARAM, getProduct().getUrlKey());
-            params.put(UrlProvider.SKU_PARAM, combinedSku.getLeft());
-            params.put(UrlProvider.VARIANT_SKU_PARAM, combinedSku.getRight());
+            Map<String, String> params = new ParamsBuilder()
+                .sku(combinedSku.getLeft())
+                .variantSku(combinedSku.getRight())
+                .urlKey(productRetriever.fetchProduct().getUrlKey()) // Get slug from base product
+                .variantUrlKey(getProduct().getUrlKey())
+                .map();
+
             return urlProvider.toProductUrl(request, productPage, params);
         }
         return null;

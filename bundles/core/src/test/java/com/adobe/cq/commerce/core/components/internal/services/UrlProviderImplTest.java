@@ -14,9 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -24,7 +25,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -60,8 +63,9 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        Map<String, String> params = new HashMap<>();
-        params.put(UrlProvider.URL_KEY_PARAM, "beaumont-summit-kit");
+        Map<String, String> params = new ParamsBuilder()
+            .urlKey("beaumont-summit-kit")
+            .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
         Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
@@ -69,9 +73,10 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithCustomPage() {
-        Map<String, String> params = new HashMap<>();
-        params.put(UrlProvider.URL_KEY_PARAM, "beaumont-summit-kit");
-        params.put(UrlProvider.PAGE_PARAM, "/content/custom-page");
+        Map<String, String> params = new ParamsBuilder()
+            .urlKey("beaumont-summit-kit")
+            .page("/content/custom-page")
+            .map();
 
         String url = urlProvider.toProductUrl(request, null, params);
         Assert.assertEquals("/content/custom-page.beaumont-summit-kit.html", url);
@@ -82,11 +87,37 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        Map<String, String> params = new HashMap<>();
-        params.put(UrlProvider.URL_KEY_PARAM, "productId1");
-        params.put(UrlProvider.VARIANT_SKU_PARAM, "variantSku");
+        Map<String, String> params = new ParamsBuilder()
+            .urlKey("productId1")
+            .variantSku("variantSku")
+            .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
         Assert.assertEquals("/content/product-page/sub-page.productId1.html#variantSku", url);
+    }
+
+    @Test
+    public void testProductIdentifierParsingInSelector() {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        Pair<ProductIdentifierType, String> id = urlProvider.getProductIdentifier(context.request());
+        Assert.assertEquals(ProductIdentifierType.URL_KEY, id.getLeft());
+        Assert.assertEquals("beaumont-summit-kit", id.getRight());
+    }
+
+    @Test
+    public void testProductIdentifierParsingInSufix() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setProductIdentifierLocation(IdentifierLocation.SUFFIX);
+        config.setProductIdentifierType(ProductIdentifierType.SKU);
+
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/MJ01");
+        Pair<ProductIdentifierType, String> id = urlProvider.getProductIdentifier(context.request());
+        Assert.assertEquals(ProductIdentifierType.SKU, id.getLeft());
+        Assert.assertEquals("MJ01", id.getRight());
     }
 }

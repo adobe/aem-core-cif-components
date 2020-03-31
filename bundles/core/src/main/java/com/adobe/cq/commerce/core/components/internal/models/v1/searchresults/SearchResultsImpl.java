@@ -38,6 +38,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductLi
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -70,6 +71,9 @@ public class SearchResultsImpl implements SearchResults {
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private UrlProvider urlProvider;
 
     private String searchTerm;
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -197,7 +201,8 @@ public class SearchResultsImpl implements SearchResults {
                 .getUrl(),
             productPage,
             null,
-            request);
+            request,
+            urlProvider);
 
         return productListItem;
     }

@@ -45,7 +45,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
@@ -101,7 +100,6 @@ public class ProductListImpl implements ProductList {
     private Integer navPageNext;
     private List<Integer> navPages;
 
-    private Pair<IdentifierLocation, CategoryIdentifierType> categoryIdentifierConfig;
     private AbstractCategoryRetriever categoryRetriever;
 
     @PostConstruct
@@ -125,14 +123,13 @@ public class ProductListImpl implements ProductList {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         // Parse category identifier from URL
-        categoryIdentifierConfig = urlProvider.getCategoryIdentifierConfig();
-        String identifier = parseCategoryIdentifier();
+        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (StringUtils.isNotBlank(identifier)) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryIdentifierConfig.getRight(), identifier);
+                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 categoryRetriever.setCurrentPage(navPageCursor);
                 categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
@@ -242,7 +239,8 @@ public class ProductListImpl implements ProductList {
                             smallImage == null ? null : smallImage.getUrl(),
                             productPage,
                             null,
-                            request));
+                            request,
+                            urlProvider));
                     } catch (Exception e) {
                         LOGGER.error("Failed to instantiate product " + product.getSku(), e);
                     }
@@ -255,24 +253,6 @@ public class ProductListImpl implements ProductList {
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
         return this.categoryRetriever;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the category identifier used in the URL, based on the configuration of the UrlProvider service.
-     *
-     * @return The category identifier.
-     */
-    private String parseCategoryIdentifier() {
-        IdentifierLocation identifierLocation = categoryIdentifierConfig.getLeft();
-        if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSelectorString();
-        } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSuffix();
-        } else {
-            throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
-        }
     }
 
     /**

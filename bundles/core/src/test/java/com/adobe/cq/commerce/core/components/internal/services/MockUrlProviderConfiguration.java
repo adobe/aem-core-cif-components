@@ -16,11 +16,18 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.lang.annotation.Annotation;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
+
+    private IdentifierLocation productIdentifierLocation;
+    private IdentifierLocation categoryIdentifierLocation;
+    private ProductIdentifierType productIdentifierType;
+    private CategoryIdentifierType categoryIdentifierType;
 
     @Override
     public String productUrlTemplate() {
@@ -29,12 +36,12 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public IdentifierLocation productIdentifierLocation() {
-        return IdentifierLocation.SELECTOR;
+        return ObjectUtils.firstNonNull(productIdentifierLocation, IdentifierLocation.SELECTOR);
     }
 
     @Override
     public ProductIdentifierType productIdentifierType() {
-        return ProductIdentifierType.URL_KEY;
+        return ObjectUtils.firstNonNull(productIdentifierType, ProductIdentifierType.URL_KEY);
     }
 
     @Override
@@ -44,16 +51,32 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public IdentifierLocation categoryIdentifierLocation() {
-        return IdentifierLocation.SELECTOR;
+        return ObjectUtils.firstNonNull(categoryIdentifierLocation, IdentifierLocation.SELECTOR);
     }
 
     @Override
     public CategoryIdentifierType categoryIdentifierType() {
-        return CategoryIdentifierType.ID;
+        return ObjectUtils.firstNonNull(categoryIdentifierType, CategoryIdentifierType.ID);
     }
 
     @Override
     public Class<? extends Annotation> annotationType() {
         return UrlProviderConfiguration.class;
+    }
+
+    public void setProductIdentifierLocation(IdentifierLocation productIdentifierLocation) {
+        this.productIdentifierLocation = productIdentifierLocation;
+    }
+
+    public void setCategoryIdentifierLocation(IdentifierLocation categoryIdentifierLocation) {
+        this.categoryIdentifierLocation = categoryIdentifierLocation;
+    }
+
+    public void setProductIdentifierType(ProductIdentifierType productIdentifierType) {
+        this.productIdentifierType = productIdentifierType;
+    }
+
+    public void setCategoryIdentifierType(CategoryIdentifierType categoryIdentifierType) {
+        this.categoryIdentifierType = categoryIdentifierType;
     }
 }

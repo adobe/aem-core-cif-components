@@ -14,13 +14,16 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.day.cq.wcm.api.Page;
 
 public class ProductListItemImpl implements ProductListItem {
@@ -31,12 +34,12 @@ public class ProductListItemImpl implements ProductListItem {
     private final String imageURL;
     private final Price price;
     private final String activeVariantSku;
-    private final SiteNavigation siteNavigation;
-
-    private Page productPage;
+    private final Page productPage;
+    private final SlingHttpServletRequest request;
+    private final UrlProvider urlProvider;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request) {
+                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider) {
         this.sku = sku;
         this.slug = slug;
         this.name = name;
@@ -44,7 +47,8 @@ public class ProductListItemImpl implements ProductListItem {
         this.price = price;
         this.productPage = productPage;
         this.activeVariantSku = activeVariantSku;
-        this.siteNavigation = new SiteNavigation(request);
+        this.request = request;
+        this.urlProvider = urlProvider;
     }
 
     @Override
@@ -66,7 +70,13 @@ public class ProductListItemImpl implements ProductListItem {
     @Nullable
     @Override
     public String getURL() {
-        return siteNavigation.toProductUrl(productPage, this.getSlug(), activeVariantSku);
+        Map<String, String> params = new ParamsBuilder()
+            .sku(sku)
+            .urlKey(slug)
+            .variantSku(activeVariantSku)
+            .map();
+
+        return urlProvider.toProductUrl(request, productPage, params);
     }
 
     @Nullable
