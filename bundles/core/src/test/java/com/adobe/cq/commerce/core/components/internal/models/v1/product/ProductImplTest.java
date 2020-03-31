@@ -36,6 +36,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import com.adobe.cq.commerce.common.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
@@ -346,18 +347,19 @@ public class ProductImplTest {
 
         productModel = context.request().adaptTo(ProductImpl.class);
 
-        List<Variant> items = productModel.getGroupedProductItems();
+        List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
         Assert.assertEquals(3, items.size());
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
-            Variant item = items.get(i);
+            GroupItem item = items.get(i);
             ProductInterface pi = gp.getItems().get(i).getProduct();
 
             Assert.assertEquals(pi.getSku(), item.getSku());
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
         }
     }
 

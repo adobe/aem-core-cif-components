@@ -100,7 +100,7 @@ describe('<SignIn>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                             <SignIn
                                 showMyAccount={jest.fn()}
                                 showCreateAccount={jest.fn()}
@@ -142,7 +142,7 @@ describe('<SignIn>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                         <SignInWrapper />
                     </CartProvider>
                 </UserContextProvider>
@@ -185,7 +185,7 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                         <SignIn
                             showMyAccount={jest.fn()}
                             showForgotPassword={jest.fn()}
