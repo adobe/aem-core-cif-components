@@ -19,8 +19,14 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface StoreConfigExporter {
 
+    /**
+     * Returns the Magento store view identifier.
+     */
     String getStoreView();
 
+    /**
+     * Returns the GraphQL endpoint for client-side components.
+     */
     String getGraphqlEndpoint();
 
 }
