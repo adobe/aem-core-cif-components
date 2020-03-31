@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -43,12 +44,18 @@ public class UrlProviderImpl implements UrlProvider {
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
 
     private String productUrlTemplate;
+    private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
+
     private String categoryUrlTemplate;
+    private Pair<IdentifierLocation, CategoryIdentifierType> categoryIdentifierConfig;
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
         productUrlTemplate = conf.productUrlTemplate();
+        productIdentifierConfig = Pair.of(conf.productIdentifierLocation(), conf.productIdentifierType());
+
         categoryUrlTemplate = conf.categoryUrlTemplate();
+        categoryIdentifierConfig = Pair.of(conf.categoryIdentifierLocation(), conf.categoryIdentifierType());
     }
 
     @Override
@@ -117,5 +124,15 @@ public class UrlProviderImpl implements UrlProvider {
             }
         }
         return null;
+    }
+
+    @Override
+    public Pair<IdentifierLocation, ProductIdentifierType> getProductIdentifierConfig() {
+        return productIdentifierConfig;
+    }
+
+    @Override
+    public Pair<IdentifierLocation, CategoryIdentifierType> getCategoryIdentifierConfig() {
+        return categoryIdentifierConfig;
     }
 }

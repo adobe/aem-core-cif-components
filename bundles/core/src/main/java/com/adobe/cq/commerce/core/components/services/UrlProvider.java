@@ -16,11 +16,33 @@ package com.adobe.cq.commerce.core.components.services;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.day.cq.wcm.api.Page;
 
 public interface UrlProvider {
+
+    /**
+     * Defines the location of the product or ctegory identifier in the URL.
+     */
+    public static enum IdentifierLocation {
+        SELECTOR, SUFFIX
+    }
+
+    /**
+     * Defines the product identifier type used in product page urls.
+     */
+    public static enum ProductIdentifierType {
+        URL_KEY, SKU
+    }
+
+    /**
+     * Defines the category identifier type used in category page urls.
+     */
+    public static enum CategoryIdentifierType {
+        ID
+    }
 
     /**
      * The <code>url_key</code> parameter of the product or category. In the case of a <code>ConfigurableProduct</code>,
@@ -68,4 +90,7 @@ public interface UrlProvider {
 
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params);
 
+    public Pair<IdentifierLocation, ProductIdentifierType> getProductIdentifierConfig();
+
+    public Pair<IdentifierLocation, CategoryIdentifierType> getCategoryIdentifierConfig();
 }

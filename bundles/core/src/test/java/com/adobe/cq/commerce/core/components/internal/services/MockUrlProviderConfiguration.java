@@ -16,6 +16,10 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.lang.annotation.Annotation;
 
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
     @Override
@@ -24,8 +28,28 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     }
 
     @Override
+    public IdentifierLocation productIdentifierLocation() {
+        return IdentifierLocation.SELECTOR;
+    }
+
+    @Override
+    public ProductIdentifierType productIdentifierType() {
+        return ProductIdentifierType.URL_KEY;
+    }
+
+    @Override
     public String categoryUrlTemplate() {
         return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
+    }
+
+    @Override
+    public IdentifierLocation categoryIdentifierLocation() {
+        return IdentifierLocation.SELECTOR;
+    }
+
+    @Override
+    public CategoryIdentifierType categoryIdentifierType() {
+        return CategoryIdentifierType.ID;
     }
 
     @Override

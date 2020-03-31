@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -46,6 +47,9 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -87,6 +91,9 @@ public class ProductImpl implements Product {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     @ScriptVariable
     private Style currentStyle;
 
@@ -103,23 +110,26 @@ public class ProductImpl implements Product {
     private Boolean isGroupedProduct;
     private Boolean loadClientPrice;
 
+    private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
     private AbstractProductRetriever productRetriever;
 
     private Locale locale;
 
     @PostConstruct
     private void initModel() {
-        // Parse slug from URL
-        String slug = parseProductSlug();
+
+        // Parse identifier in URL
+        productIdentifierConfig = urlProvider.getProductIdentifierConfig();
+        String identifier = parseProductIdentifier();
 
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient != null) {
-            if (StringUtils.isNotBlank(slug)) {
+            if (StringUtils.isNotBlank(identifier)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(slug);
+                productRetriever.setIdentifier(productIdentifierConfig.getRight(), identifier);
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -355,13 +365,19 @@ public class ProductImpl implements Product {
     /* --- Utility methods --- */
 
     /**
-     * Returns the selector of the current request which is expected to be the
-     * product slug.
+     * Returns the product identifier used in the URL, based on the configuration of the UrlProvider service.
      *
-     * @return product slug
+     * @return The product identifier.
      */
-    private String parseProductSlug() {
-        return request.getRequestPathInfo().getSelectorString();
+    private String parseProductIdentifier() {
+        IdentifierLocation identifierLocation = productIdentifierConfig.getLeft();
+        if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSelectorString();
+        } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSuffix();
+        } else {
+            throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
+        }
     }
 
     private String safeDescription(ProductInterface product) {

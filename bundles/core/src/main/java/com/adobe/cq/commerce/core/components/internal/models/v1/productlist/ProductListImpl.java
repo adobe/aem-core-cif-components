@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -42,6 +43,9 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
@@ -82,6 +86,9 @@ public class ProductListImpl implements ProductList {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     private Page productPage;
     private boolean showTitle;
     private boolean showImage;
@@ -94,6 +101,7 @@ public class ProductListImpl implements ProductList {
     private Integer navPageNext;
     private List<Integer> navPages;
 
+    private Pair<IdentifierLocation, CategoryIdentifierType> categoryIdentifierConfig;
     private AbstractCategoryRetriever categoryRetriever;
 
     @PostConstruct
@@ -116,14 +124,15 @@ public class ProductListImpl implements ProductList {
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
-        // Parse category id from URL
-        final String categoryId = parseCategoryId();
+        // Parse category identifier from URL
+        categoryIdentifierConfig = urlProvider.getCategoryIdentifierConfig();
+        String identifier = parseCategoryIdentifier();
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (categoryId != null) {
+            if (StringUtils.isNotBlank(identifier)) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryId);
+                categoryRetriever.setIdentifier(categoryIdentifierConfig.getRight(), identifier);
                 categoryRetriever.setCurrentPage(navPageCursor);
                 categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
@@ -251,14 +260,19 @@ public class ProductListImpl implements ProductList {
     /* --- Utility methods --- */
 
     /**
-     * Returns the selector of the current request which is expected to be the category id.
+     * Returns the category identifier used in the URL, based on the configuration of the UrlProvider service.
      *
-     * @return category id
+     * @return The category identifier.
      */
-    private String parseCategoryId() {
-        // TODO this should be change to slug/url_path if that is available to retrieve category data,
-        // currently we only can use the category id for that.
-        return request.getRequestPathInfo().getSelectorString();
+    private String parseCategoryIdentifier() {
+        IdentifierLocation identifierLocation = categoryIdentifierConfig.getLeft();
+        if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSelectorString();
+        } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
+            return request.getRequestPathInfo().getSuffix();
+        } else {
+            throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
+        }
     }
 
     /**
