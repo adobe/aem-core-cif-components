@@ -53,6 +53,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -361,11 +362,7 @@ public class ProductImplTest {
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
             Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
 
-            if (i < 3) {
-                Assert.assertFalse(item.isVirtualProduct());
-            } else {
-                Assert.assertTrue(item.isVirtualProduct());
-            }
+            Assert.assertEquals(pi instanceof VirtualProduct, item.isVirtualProduct());
         }
     }
 
