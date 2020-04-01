@@ -69,7 +69,7 @@ describe('Cart handlers', () => {
                 <div>
                     <button
                         onClick={() => {
-                            addItem({ detail: [{ sku: 'TEST', quantity: '1' }] });
+                            addItem({ detail: { items: [{ sku: 'TEST', quantity: '1' }] } });
                         }}>
                         Add item to cart
                     </button>

@@ -14,6 +14,10 @@
             "selection": "MJ01",
             "sling:resourceType": "venia/components/commerce/productteaser"
           },
+          "productteaser-virtual": {
+            "selection": "VVP01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
           "productteaser-variant": {
             "selection": "MJ01#MJ01-XS-Orange",
             "sling:resourceType": "venia/components/commerce/productteaser",

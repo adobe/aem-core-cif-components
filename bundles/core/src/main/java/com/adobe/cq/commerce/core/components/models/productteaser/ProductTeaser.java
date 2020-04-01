@@ -75,6 +75,13 @@ public interface ProductTeaser {
     Price getPriceRange();
 
     /**
+     * Returns true if the product is a virtual product.
+     *
+     * @return Boolean
+     */
+    Boolean isVirtualProduct();
+
+    /**
      * Returns in instance of the product retriever for fetching product data via GraphQL.
      *
      * @return product retriever instance

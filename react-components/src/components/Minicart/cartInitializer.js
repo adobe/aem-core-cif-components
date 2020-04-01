@@ -23,6 +23,7 @@ import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graph
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
+import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
 import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 
@@ -36,6 +37,7 @@ const CartInitializer = props => {
 
     const [createCart] = useMutation(MUTATION_CREATE_CART);
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
+    const [addVirtualItem] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
     const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
@@ -45,7 +47,7 @@ const CartInitializer = props => {
             addItem: ev => {
                 if (!ev.detail) return;
 
-                let cartItems = ev.detail.map(item => {
+                let cartItems = ev.detail.items.map(item => {
                     return {
                         data: {
                             sku: item.sku,
@@ -55,7 +57,10 @@ const CartInitializer = props => {
                 });
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
-                return addItem({
+
+                let addItemFunc = ev.detail.virtual ? addVirtualItem : addItem;
+
+                return addItemFunc({
                     variables: { cartId, cartItems },
                     refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
                     awaitRefetchQueries: true

@@ -364,6 +364,15 @@ public class ProductImplTest {
     }
 
     @Test
+    public void testVirtualProduct() throws IOException {
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertTrue(productModel.isVirtualProduct());
+    }
+
+    @Test
     public void testProductNoGraphqlClient() {
         Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(null);
 
