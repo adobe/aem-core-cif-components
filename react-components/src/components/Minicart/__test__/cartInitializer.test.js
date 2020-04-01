@@ -153,43 +153,7 @@ describe('<CartInitializer />', () => {
         });
     });
 
-    it('creates a new cart if cartId is not set in cookie', async () => {
-        const { getByTestId } = render(
-            <MockedProvider
-                mocks={[
-                    {
-                        request: {
-                            query: MUTATION_CREATE_CART
-                        },
-                        result: {
-                            data: {
-                                createEmptyCart: 'guest123'
-                            }
-                        }
-                    }
-                ]}
-                addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider
-                        initialState={{ cartId: null }}
-                        reducerFactory={() => (state, action) => {
-                            if (action.type == 'cartId') {
-                                return { ...state, cartId: action.cartId };
-                            }
-                            return state;
-                        }}>
-                        <CartInitializer>
-                            <DummyCart />
-                        </CartInitializer>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
-        );
-        const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
-        expect(cartIdNode.textContent).toEqual('guest123');
-    });
-
-    it('resets the cart id after a checkout', async () => {
+    it.skip('resets the cart id after a checkout', async () => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
             value: 'cif.cart=oldcustomercart;path=/;domain=http://localhost;Max-Age=3600'
