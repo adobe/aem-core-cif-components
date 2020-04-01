@@ -213,9 +213,8 @@ class CommerceGraphqlApi {
 
 (function() {
     function onDocumentReady() {
-        const endpoint = '/magento/graphql';
-        const storeView = document.querySelector('body').dataset.storeView;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint, storeView });
+        const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint: graphqlEndpoint, storeView });
     }
 
     if (document.readyState !== 'loading') {

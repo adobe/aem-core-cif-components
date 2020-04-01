@@ -42,8 +42,6 @@ export default () => {
             password
         } = formValues;
         try {
-            console.log(`[CreateAccount] Create account...`);
-            //1. Create the account
             const {
                 data: {
                     createCustomer: { customer }
@@ -54,15 +52,12 @@ export default () => {
 
             //2. Generate the customer token.
             // Most of the commerce solutions DO NOT sign in the user after the account is created.
-            // We must think of splitting this process
-            console.log(`[CreateAccount] Done creating account, generate user token...`);
             const { data: customerTokenData } = await generateCustomerToken({
                 variables: { email: customer.email, password }
             });
             const token = customerTokenData.generateCustomerToken.token;
 
             //3. Set the token in the cookie now because subsequent requests would need it
-            console.log(`[CreateAccount] Done generating token, let's get out ${token}`);
             setUserCookie(token);
             setToken(token);
 
@@ -77,7 +72,6 @@ export default () => {
                 }
             });
             const mergedCartId = mergeCartsData.mergeCarts.id;
-            console.log(`[CreateAccount] Carts are merged, ${mergedCartId} is the new cart id`);
 
             //5. Dispatch the action to update the user state
             setCartCookie(mergedCartId);

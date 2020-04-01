@@ -37,7 +37,7 @@ describe('<CreateAccount>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => (state, action) => state}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                             <CreateAccount showMyAccount={jest.fn()} />
                         </CartProvider>
                     </UserContextProvider>
@@ -128,7 +128,6 @@ describe('<CreateAccount>', () => {
         const ContextWrapper = () => {
             const [{ isSignedIn, currentUser }] = useUserContext();
             let content;
-            console.log(`is signed in? ${isSignedIn}`);
             if (isSignedIn && currentUser.firstname) {
                 content = <div data-testid="success">{currentUser.firstname}</div>;
             } else {
@@ -141,7 +140,7 @@ describe('<CreateAccount>', () => {
         const { getByLabelText, getByTestId, container } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => (state, action) => state}>
+                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
                         <ContextWrapper />
                     </CartProvider>
                 </UserContextProvider>
@@ -225,7 +224,7 @@ describe('<CreateAccount>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => (state, action) => state}>
+                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
                         <ContextWrapper />
                     </CartProvider>
                 </UserContextProvider>

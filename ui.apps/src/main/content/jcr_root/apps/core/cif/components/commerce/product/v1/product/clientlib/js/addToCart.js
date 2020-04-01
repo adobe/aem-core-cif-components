@@ -39,7 +39,7 @@ class AddToCart {
 
         const groupedProducts = document.querySelector(AddToCart.selectors.groupedProducts);
         if (groupedProducts) {
-            this._element.disabled = true;
+            this._onQuantityChanged(); // init
             // Disable/enable add to cart based on the selected quantities of a grouped product
             document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
                 selection.addEventListener('change', this._onQuantityChanged.bind(this));

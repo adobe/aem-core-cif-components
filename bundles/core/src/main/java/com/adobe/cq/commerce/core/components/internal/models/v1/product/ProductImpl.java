@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
@@ -221,7 +222,7 @@ public class ProductImpl implements Product {
     }
 
     @Override
-    public List<Variant> getGroupedProductItems() {
+    public List<GroupItem> getGroupedProductItems() {
         // Don't return any items if the current product is not of type GroupedProduct.
         if (!isGroupedProduct()) {
             return Collections.emptyList();
@@ -306,15 +307,16 @@ public class ProductImpl implements Product {
         return productVariant;
     }
 
-    private Variant mapGroupedProductItem(GroupedProductItem item) {
+    private GroupItem mapGroupedProductItem(com.adobe.cq.commerce.magento.graphql.GroupedProductItem item) {
         ProductInterface product = item.getProduct();
 
-        VariantImpl productVariant = new VariantImpl();
-        productVariant.setName(product.getName());
-        productVariant.setSku(product.getSku());
-        productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
+        GroupItemImpl groupedProductItem = new GroupItemImpl();
+        groupedProductItem.setName(product.getName());
+        groupedProductItem.setSku(product.getSku());
+        groupedProductItem.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
+        groupedProductItem.setDefaultQuantity(item.getQty());
 
-        return productVariant;
+        return groupedProductItem;
     }
 
     private List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {

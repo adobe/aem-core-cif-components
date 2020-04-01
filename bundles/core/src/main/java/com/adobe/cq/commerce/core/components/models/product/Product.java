@@ -72,7 +72,7 @@ public interface Product {
 
     List<Variant> getVariants();
 
-    List<Variant> getGroupedProductItems();
+    List<GroupItem> getGroupedProductItems();
 
     List<Asset> getAssets();
 

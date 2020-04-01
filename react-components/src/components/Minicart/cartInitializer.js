@@ -13,8 +13,8 @@
  ******************************************************************************/
 import { useEffect } from 'react';
 import { useCartState } from './cartContext';
-import { useCookieValue, useAwaitQuery } from '../../utils/hooks';
-import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import { useCookieValue } from '../../utils/hooks';
+import { useMutation } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
 import parseError from '../../utils/parseError';
@@ -28,7 +28,7 @@ import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 
 const CartInitializer = props => {
-    const [{ cartId: stateCartId }, dispatch] = useCartState();
+    const [, dispatch] = useCartState();
     const [{ cartId: registeredCartId }] = useUserContext();
 
     const CART_COOKIE = 'cif.cart';
@@ -117,20 +117,16 @@ const CartInitializer = props => {
         };
     };
 
-    console.log(`Cart id from cookie is now ${cartId}, state is ${stateCartId}`);
     useEffect(() => {
         if (cartId && cartId.length > 0) {
-            console.log(`Running the effect that puts the cart id ${cartId} in the state`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId]);
 
     useEffect(() => {
         if (!registeredCartId && (cartId === null || cartId.length === 0)) {
-            console.log(`Running the effect with the cart id`);
             (async function() {
                 const { data } = await createCart();
-                console.log(`Created empty cart ${data.createEmptyCart}`);
                 setCartCookie(data.createEmptyCart);
                 dispatch({
                     type: 'cartId',
