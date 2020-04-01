@@ -47,24 +47,44 @@ const CartInitializer = props => {
             addItem: ev => {
                 if (!ev.detail) return;
 
-                let cartItems = ev.detail.items.map(item => {
+                const mapper = item => {
                     return {
                         data: {
                             sku: item.sku,
                             quantity: item.quantity
                         }
                     };
-                });
+                };
+
+                let physicalCartItems = ev.detail.filter(item => !item.virtual).map(mapper);
+                let virtualCartItems = ev.detail.filter(item => item.virtual).map(mapper);
+
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
 
-                let addItemFunc = ev.detail.virtual ? addVirtualItem : addItem;
+                let promises = [];
 
-                return addItemFunc({
-                    variables: { cartId, cartItems },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
-                })
+                if (physicalCartItems.length > 0) {
+                    promises.push(
+                        addItem({
+                            variables: { cartId, cartItems: physicalCartItems },
+                            refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                            awaitRefetchQueries: true
+                        })
+                    );
+                }
+
+                if (virtualCartItems.length > 0) {
+                    promises.push(
+                        addVirtualItem({
+                            variables: { cartId, cartItems: virtualCartItems },
+                            refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                            awaitRefetchQueries: true
+                        })
+                    );
+                }
+
+                return Promise.all(promises)
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
                     })

@@ -349,7 +349,7 @@ public class ProductImplTest {
 
         List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
-        Assert.assertEquals(3, items.size());
+        Assert.assertEquals(4, items.size());
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
@@ -360,6 +360,12 @@ public class ProductImplTest {
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
             Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
+
+            if (i < 3) {
+                Assert.assertFalse(item.isVirtualProduct());
+            } else {
+                Assert.assertTrue(item.isVirtualProduct());
+            }
         }
     }
 

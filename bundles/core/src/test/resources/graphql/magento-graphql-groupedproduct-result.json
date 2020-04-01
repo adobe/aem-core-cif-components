@@ -119,6 +119,31 @@
                   }
                 }
               }
+            },
+            {
+              "position": 3,
+              "qty": 1,
+              "product": {
+                "__typename": "VirtualProduct",
+                "sku": "24-WG088",
+                "name": "Sprite Yoga Strap 12 foot",
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 21,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 21,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
             }
           ]
         }
