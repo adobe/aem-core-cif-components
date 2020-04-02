@@ -56,7 +56,7 @@ public class NavigationImplTest {
     private static final String CATEGORY_PAGE_PATH = "category_page_path";
     NavigationImpl navigation;
     com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl wcmNavigation;
-    GraphQLCategoryProvider categoryProvider;
+    CategoryProvider categoryProvider;
     PageManager pageManager;
     List<NavigationItem> navigationItems;
     List<CategoryTree> categoryList;
@@ -92,10 +92,10 @@ public class NavigationImplTest {
         when(wcmNavigation.getItems()).thenReturn(navigationItems);
 
         // Magento category provider
-        categoryProvider = mock(GraphQLCategoryProvider.class);
-        Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
+        categoryProvider = mock(CategoryProvider.class);
+        Whitebox.setInternalState(navigation, "categoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any(), any())).thenReturn(categoryList);
 
         // current request
         request = mock(SlingHttpServletRequest.class);

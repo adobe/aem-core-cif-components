@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -73,13 +74,13 @@ public class NavigationImpl implements Navigation {
     @ScriptVariable
     private Style currentStyle = null;
 
-    private GraphQLCategoryProvider graphQLCategoryProvider;
+    @Inject
+    private CategoryProvider categoryProvider = null;
     private List<NavigationItem> items;
     private int structureDepth;
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
@@ -176,7 +177,7 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId, structureDepth);
+        List<CategoryTree> children = categoryProvider.getChildCategories(rootCategoryId, structureDepth, currentPage);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
