@@ -21,7 +21,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-reactor</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.10.1-SNAPSHOT</version>
 
     <name>AEM CIF Core Components Reactor</name>
     <description>Reactor POM for AEM CIF Core Components</description>
@@ -33,7 +33,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.10.1-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
 

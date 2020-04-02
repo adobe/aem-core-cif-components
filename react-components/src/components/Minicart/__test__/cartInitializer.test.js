@@ -164,12 +164,10 @@ describe('<CartInitializer />', () => {
             if (cartId === 'guest123') {
                 return <div data-testid="cart-id">customercart</div>;
             }
-            console.log(document.cookie);
             return (
                 <div>
                     <button
                         onClick={() => {
-                            console.log(`Reset`);
                             dispatch({ type: 'reset' });
                         }}>
                         Reset

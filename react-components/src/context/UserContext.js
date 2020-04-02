@@ -26,7 +26,6 @@ const UserContext = React.createContext();
 
 const reducerFactory = () => {
     return (state, action) => {
-        console.log(`[UserContext] Dispatched action`, action);
         switch (action.type) {
             case 'setUserDetails':
                 return {
@@ -121,8 +120,6 @@ const UserContextProvider = props => {
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
-    console.log(`[UserContext] Rendering the user context `, userState);
-
     const setToken = token => {
         setUserCookie(token);
         dispatch({ type: 'setToken', token });
@@ -153,9 +150,7 @@ const UserContextProvider = props => {
 
     const getUserDetails = useCallback(async () => {
         try {
-            console.log(`Retrieve details...`);
             const { data: customerData } = await fetchCustomerDetails({ fetchPolicy: 'no-cache' });
-            console.log(`Got customer details `, customerData);
             dispatch({ type: 'setUserDetails', userDetails: customerData.customer });
         } catch (error) {
             dispatch({ type: 'error', error });

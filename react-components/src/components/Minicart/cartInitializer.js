@@ -64,10 +64,8 @@ const CartInitializer = props => {
         };
     };
 
-    console.log(`Cart id from cookie is now ${cartId}, state is ${stateCartId}`);
     useEffect(() => {
         if (cartId && cartId.length > 0) {
-            console.log(`Running the effect that puts the cart id ${cartId} in the state`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         } else if (stateCartId) {
             console.log(`Put the cart id in the cookie`);

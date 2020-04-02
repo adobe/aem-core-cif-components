@@ -22,12 +22,14 @@ class AddToCart {
 
         // Get configuration from product reference
         let configurable = config.product.dataset.configurable !== undefined;
+        let virtual = config.product.dataset.virtual !== undefined;
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
 
         this._state = {
             sku: sku,
             attributes: {},
-            configurable: configurable
+            configurable: configurable,
+            virtual: virtual
         };
 
         // Disable add to cart if configurable product and no variant was selected
@@ -37,7 +39,7 @@ class AddToCart {
 
         const groupedProducts = document.querySelector(AddToCart.selectors.groupedProducts);
         if (groupedProducts) {
-            this._element.disabled = true;
+            this._onQuantityChanged(); // init
             // Disable/enable add to cart based on the selected quantities of a grouped product
             document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
                 selection.addEventListener('change', this._onQuantityChanged.bind(this));
@@ -101,7 +103,10 @@ class AddToCart {
 
         if (items.length > 0 && window.CIF) {
             const customEvent = new CustomEvent(AddToCart.events.addToCart, {
-                detail: items
+                detail: {
+                    items,
+                    virtual: this._state.virtual
+                }
             });
             document.dispatchEvent(customEvent);
         }

@@ -119,8 +119,45 @@ describe('Product', () => {
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
-            assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
-            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
+            assert.equal(spy.getCall(0).args[0].detail.items[0].sku, addToCart._state.sku);
+            assert.equal(spy.getCall(0).args[0].detail.items[0].quantity, 5);
+            assert.isFalse(spy.getCall(0).args[0].detail.virtual);
+            document.dispatchEvent = _originalDispatch;
+        });
+
+        it('dispatches a virtual add to cart event', () => {
+            while (pageRoot.firstChild) {
+                pageRoot.removeChild(pageRoot.firstChild);
+            }
+            pageRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div data-cmp-is="product" data-virtual>
+                    <div class="productFullDetail__details">
+                        <span role="sku">my-sample-sku</span>
+                    </div>
+                    <div class="productFullDetail__cartActions">
+                        <button>
+                    </div>
+                    <div class="productFullDetail__quantity">
+                        <select data-product-sku="my-sample-sku">
+                            <option value="4" selected></option>
+                        </select>
+                    </div>
+                </div>`
+            );
+
+            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            productRoot = pageRoot.querySelector(AddToCart.selectors.product);
+
+            let spy = sinon.spy();
+            let _originalDispatch = document.dispatchEvent;
+            document.dispatchEvent = spy;
+            new AddToCart({ element: addToCartRoot, product: productRoot });
+            addToCartRoot.click();
+            sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
+            assert.equal(spy.getCall(0).args[0].detail.items[0].quantity, 4);
+            assert.isTrue(spy.getCall(0).args[0].detail.virtual);
             document.dispatchEvent = _originalDispatch;
         });
     });
