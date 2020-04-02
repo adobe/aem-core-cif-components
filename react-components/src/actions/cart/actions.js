@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
+import parseError from '../../utils/parseError';
 /**
  * Adds an item to the cart
  * @param {Object} payload
@@ -62,15 +62,36 @@ export const getCartDetails = async payload => {
 
 export const removeItemFromCart = async payload => {
     const { cartDetailsQuery, removeItemMutation, cartId, itemId, dispatch } = payload;
-    dispatch({ type: 'beginLoading' });
+
     try {
         await removeItemMutation({
             variables: { cartId, itemId }
         });
     } catch (error) {
         dispatch({ type: 'error', error: error.toString() });
-    } finally {
-        dispatch({ type: 'endLoading' });
     }
+    await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+};
+
+export const removeCoupon = async payload => {
+    const { cartDetailsQuery, cartId, couponCode, removeCouponMutation, dispatch } = payload;
+
+    try {
+        await removeCouponMutation({ variables: { cartId, couponCode } });
+    } catch (error) {
+        dispatch({ type: 'couponError', error: parseError(error) });
+    }
+
+    await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+};
+export const addCoupon = async payload => {
+    const { cartDetailsQuery, cartId, couponCode, addCouponMutation, dispatch } = payload;
+
+    try {
+        await addCouponMutation({ variables: { cartId, couponCode } });
+    } catch (error) {
+        dispatch({ type: 'couponError', error: parseError(error) });
+    }
+
     await getCartDetails({ cartDetailsQuery, dispatch, cartId });
 };

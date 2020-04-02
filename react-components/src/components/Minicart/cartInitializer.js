@@ -17,9 +17,7 @@ import { useCookieValue, useAwaitQuery } from '../../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
-import parseError from '../../utils/parseError';
-
-import { removeItemFromCart } from '../../actions/cart';
+import { removeItemFromCart, addCoupon, removeCoupon } from '../../actions/cart';
 
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
@@ -35,42 +33,33 @@ const CartInitializer = props => {
     const [cartId, setCartCookie] = useCookieValue(CART_COOKIE);
 
     const [removeItemMutation] = useMutation(MUTATION_REMOVE_ITEM);
-    const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
-    const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
+    const [addCouponMutation] = useMutation(MUTATION_ADD_COUPON);
+    const [removeCouponMutation] = useMutation(MUTATION_REMOVE_COUPON);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
 
     const createCartHandlers = (cartId, dispatch) => {
         return {
             removeItem: async itemId => {
+                dispatch({ type: 'beginLoading' });
                 await removeItemFromCart({ cartId, itemId, dispatch, cartDetailsQuery, removeItemMutation });
+                dispatch({ type: 'endLoading' });
             },
-            addCoupon: couponCode => {
+            addCoupon: async couponCode => {
                 dispatch({ type: 'beginLoading' });
-                return addCoupon({
-                    variables: { cartId, couponCode },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
-                })
-                    .catch(error => {
-                        dispatch({ type: 'couponError', error: parseError(error) });
-                    })
-                    .finally(() => {
-                        dispatch({ type: 'endLoading' });
-                    });
+                await addCoupon({
+                    cartId,
+                    couponCode,
+                    cartDetailsQuery,
+                    addCouponMutation,
+                    dispatch
+                });
+
+                dispatch({ type: 'endLoading' });
             },
-            removeCoupon: () => {
+            removeCoupon: async () => {
                 dispatch({ type: 'beginLoading' });
-                return removeCoupon({
-                    variables: { cartId },
-                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                    awaitRefetchQueries: true
-                })
-                    .catch(error => {
-                        dispatch({ type: 'error', error: error.toString() });
-                    })
-                    .finally(() => {
-                        dispatch({ type: 'endLoading' });
-                    });
+                await removeCoupon({ cartId, removeCouponMutation, cartDetailsQuery, dispatch });
+                dispatch({ type: 'endLoading' });
             }
         };
     };
