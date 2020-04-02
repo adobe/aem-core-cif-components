@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.utils;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -149,7 +150,7 @@ public class SiteNavigation {
      * @param pagePath The base page path for the URL.
      * @param slug The slug of the product.
      * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, java.util.Map)} instead.
+     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)} instead.
      */
     @Deprecated
     public static String toProductUrl(String pagePath, String slug) {
@@ -163,7 +164,7 @@ public class SiteNavigation {
      * @param slug The slug of the product.
      * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
      * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, java.util.Map)} instead.
+     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)} instead.
      */
     @Deprecated
     public static String toProductUrl(String pagePath, String slug, String variantSku) {
@@ -213,7 +214,7 @@ public class SiteNavigation {
      * @param slug The slug of the product.
      * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
      * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, java.util.Map)}
+     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)}
      */
     @Deprecated
     public String toProductUrl(Page page, String slug, String variantSku) {
