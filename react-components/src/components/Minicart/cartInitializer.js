@@ -24,6 +24,7 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
+import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
 import MUTATION_ADD_COUPON from '../../queries/mutation_add_coupon.graphql';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 
@@ -38,6 +39,7 @@ const CartInitializer = props => {
     const [createCart] = useMutation(MUTATION_CREATE_CART);
     const [addItem] = useMutation(MUTATION_ADD_TO_CART);
     const [addVirtualItem] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
+    const [addSimpleAndVirtualItem] = useMutation(MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART);
     const [removeItem] = useMutation(MUTATION_REMOVE_ITEM);
     const [addCoupon] = useMutation(MUTATION_ADD_COUPON);
     const [removeCoupon] = useMutation(MUTATION_REMOVE_COUPON);
@@ -62,29 +64,30 @@ const CartInitializer = props => {
                 dispatch({ type: 'open' });
                 dispatch({ type: 'beginLoading' });
 
-                let promises = [];
+                let promise;
+                const refetchOptions = {
+                    refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+                    awaitRefetchQueries: true
+                };
 
-                if (physicalCartItems.length > 0) {
-                    promises.push(
-                        addItem({
-                            variables: { cartId, cartItems: physicalCartItems },
-                            refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                            awaitRefetchQueries: true
-                        })
-                    );
+                if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
+                    promise = addSimpleAndVirtualItem({
+                        variables: { cartId, virtualCartItems: virtualCartItems, simpleCartItems: physicalCartItems },
+                        ...refetchOptions
+                    });
+                } else if (physicalCartItems.length > 0) {
+                    promise = addItem({
+                        variables: { cartId, cartItems: physicalCartItems },
+                        ...refetchOptions
+                    });
+                } else if (virtualCartItems.length > 0) {
+                    promise = addVirtualItem({
+                        variables: { cartId, cartItems: virtualCartItems },
+                        ...refetchOptions
+                    });
                 }
 
-                if (virtualCartItems.length > 0) {
-                    promises.push(
-                        addVirtualItem({
-                            variables: { cartId, cartItems: virtualCartItems },
-                            refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-                            awaitRefetchQueries: true
-                        })
-                    );
-                }
-
-                return Promise.all(promises)
+                return promise
                     .catch(error => {
                         dispatch({ type: 'error', error: error.toString() });
                     })
