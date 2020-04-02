@@ -14,12 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.utils;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -27,11 +25,10 @@ import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
-import com.day.cq.commons.jcr.JcrConstants;
-import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.WCMMode;
@@ -221,7 +218,7 @@ public class SiteNavigation {
         Resource pageResource = page.adaptTo(Resource.class);
         boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         if (deepLink) {
-            Resource subPageResource = toSpecificPage(pageResource, slug);
+            Resource subPageResource = UrlProviderImpl.toSpecificPage(pageResource, slug);
             if (subPageResource != null) {
                 pageResource = subPageResource;
             }
@@ -232,44 +229,5 @@ public class SiteNavigation {
         } else {
             return String.format("%s.%s.html", pageResource.getPath(), slug);
         }
-    }
-
-    /**
-     * This method checks if any of the children of the given <code>page</code> resource
-     * is a page with a <code>selectorFilter</code> property set with the value
-     * of the given <code>selector</code>.
-     * 
-     * @param page The page resource, from where children pages will be checked.
-     * @param selector The searched value for the <code>selectorFilter</code> property.
-     * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     *         If not found, this method returns null.
-     */
-    public static Resource toSpecificPage(Resource page, String selector) {
-        Iterator<Resource> children = page.listChildren();
-        while (children.hasNext()) {
-            Resource child = children.next();
-            if (!NameConstants.NT_PAGE.equals(child.getResourceType())) {
-                continue;
-            }
-
-            Resource jcrContent = child.getChild(JcrConstants.JCR_CONTENT);
-            if (jcrContent == null) {
-                continue;
-            }
-
-            Object filter = jcrContent.getValueMap().get(SELECTOR_FILTER_PROPERTY);
-            if (filter == null) {
-                continue;
-            }
-
-            // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
-            String[] selectors = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
-
-            if (ArrayUtils.contains(selectors, selector)) {
-                LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
-                return child;
-            }
-        }
-        return null;
     }
 }

@@ -31,7 +31,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.day.cq.wcm.api.WCMMode;
 
 @Component(
@@ -69,7 +69,7 @@ public class SpecificPageFilterFactory implements Filter {
         Resource page = slingRequest.getResource();
         LOGGER.debug("Checking sub-pages for {}", slingRequest.getRequestURI());
 
-        Resource subPage = SiteNavigation.toSpecificPage(page, selector);
+        Resource subPage = UrlProviderImpl.toSpecificPage(page, selector);
         if (subPage != null) {
             RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(subPage);
             dispatcher.forward(slingRequest, response);
