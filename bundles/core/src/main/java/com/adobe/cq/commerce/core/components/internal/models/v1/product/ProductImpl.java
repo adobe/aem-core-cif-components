@@ -61,6 +61,7 @@ import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -107,6 +108,7 @@ public class ProductImpl implements Product {
 
     private Boolean configurable;
     private Boolean isGroupedProduct;
+    private Boolean isVirtualProduct;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
@@ -194,6 +196,14 @@ public class ProductImpl implements Product {
             isGroupedProduct = productRetriever.fetchProduct() instanceof GroupedProduct;
         }
         return isGroupedProduct;
+    }
+
+    @Override
+    public Boolean isVirtualProduct() {
+        if (isVirtualProduct == null) {
+            isVirtualProduct = productRetriever.fetchProduct() instanceof VirtualProduct;
+        }
+        return isVirtualProduct;
     }
 
     @Override

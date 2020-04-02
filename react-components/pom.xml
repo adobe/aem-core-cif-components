@@ -6,14 +6,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.10.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-react-components</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.10.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>AEM CIF Core Components - Content Package for React Components</name>
