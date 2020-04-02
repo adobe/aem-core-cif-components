@@ -15,7 +15,7 @@ import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 
 export default ({ queries }) => {
-    const { createCartMutation, addToCartMutation, cartDetailsQuery } = queries;
+    const { createCartMutation, addToCartMutation, cartDetailsQuery, addVirtualItemMutation } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
 
@@ -34,10 +34,12 @@ export default ({ queries }) => {
                 }
             };
         });
+
+        let addItemFunc = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
         console.log(`Adding ${cartItems.length} items to cart ${cartId}`);
         await addItemToCart({
             createCartMutation,
-            addToCartMutation,
+            addItemFunc,
             cartDetailsQuery,
             cart,
             cartId,
