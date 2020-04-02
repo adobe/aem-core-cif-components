@@ -6,7 +6,7 @@ mutation($cartId: String!, $virtualCartItems: [VirtualProductCartItemInput]!, $s
     }
     addVirtualProductsToCart(input: { cart_id: $cartId, cart_items: $virtualCartItems }) {
         cart {
-                id
+            id
         }
     }
 }
