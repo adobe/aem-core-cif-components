@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -52,6 +53,7 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
+    static final String PN_MAGENTO_STORE = "magentoStore";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
@@ -162,9 +164,10 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        ConfigurationBuilder configBuilder = null;
+        Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
         if (rootCategoryId == null) {
-            ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
+            configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
 
             if (configBuilder != null) {
                 ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
@@ -177,7 +180,19 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        List<CategoryTree> children = categoryProvider.getChildCategories(rootCategoryId, structureDepth, currentPage);
+        String magentoStore = null;
+        if (configBuilder == null) {
+            configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
+        }
+        if (configBuilder != null) {
+            ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
+            magentoStore = properties.get(PN_MAGENTO_STORE, String.class);
+        }
+        if (StringUtils.isBlank(magentoStore)) {
+            magentoStore = readPageConfiguration(catalogPage, PN_MAGENTO_STORE, String.class);
+        }
+
+        List<CategoryTree> children = categoryProvider.getChildCategories(rootCategoryId, structureDepth, magentoStore, currentPage);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -206,9 +221,9 @@ public class NavigationImpl implements Navigation {
         return null;
     }
 
-    private Integer readPageConfiguration(Page page, String propertyName) {
+    private <T> T readPageConfiguration(Page page, String propertyName, Class<T> clazz) {
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
-        return properties.getInherited(propertyName, Integer.class);
+        return properties.getInherited(propertyName, clazz);
     }
 
     class PageNavigationItem extends AbstractNavigationItem {

@@ -94,7 +94,7 @@ public class CategoryProviderTest {
 
     @Test
     public void testMissingMagentoGraphqlClient() throws IOException {
-        Assert.assertTrue(categoryProvider.getChildCategories(10, 2, page).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories(10, 2, null, page).isEmpty());
     }
 
     @Test
@@ -102,13 +102,13 @@ public class CategoryProviderTest {
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-none.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, page);
+        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, null, page);
         Assert.assertEquals(0, categories.size());
 
         graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-empty.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        categories = categoryProvider.getChildCategories(8, 64, page);
+        categories = categoryProvider.getChildCategories(8, 64, null, page);
         Assert.assertEquals(0, categories.size());
     }
 
@@ -118,10 +118,10 @@ public class CategoryProviderTest {
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         // Test null categoryId
-        Assert.assertTrue(categoryProvider.getChildCategories(null, 5, page).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories(null, 5, null, page).isEmpty());
 
         // Test category children found
-        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, page);
+        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, null, page);
         Assert.assertEquals(6, categories.size());
     }
 
@@ -136,37 +136,37 @@ public class CategoryProviderTest {
 
         // use these theoretical values for categoryId and depth for better coverage
 
-        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, page);
+        List<CategoryTree> categories = categoryProvider.getChildCategories(10, 2, null, page);
         Assert.assertEquals(6, categories.size());
         Assert.assertEquals(1, cache.size());
 
         graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        categories = categoryProvider.getChildCategories(8, 64, page);
+        categories = categoryProvider.getChildCategories(8, 64, null, page);
         Assert.assertEquals(6, categories.size());
         Assert.assertEquals(2, cache.size());
 
         graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-empty.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        categories = categoryProvider.getChildCategories(9, 33, page);
+        categories = categoryProvider.getChildCategories(9, 33, null, page);
         Assert.assertTrue(categories.isEmpty());
         Assert.assertEquals(3, cache.size());
 
         // check null arguments
-        categories = categoryProvider.getChildCategories(null, null, page);
+        categories = categoryProvider.getChildCategories(null, null, null, page);
         Assert.assertTrue(categories.isEmpty());
         Assert.assertEquals(3, cache.size());
-        categories = categoryProvider.getChildCategories(null, 1, page);
+        categories = categoryProvider.getChildCategories(null, 1, null, page);
         Assert.assertTrue(categories.isEmpty());
         Assert.assertEquals(3, cache.size());
-        categories = categoryProvider.getChildCategories(1, null, page);
+        categories = categoryProvider.getChildCategories(1, null, null, page);
         Assert.assertTrue(categories.isEmpty());
         Assert.assertEquals(3, cache.size());
 
         // check cached value
-        categories = categoryProvider.getChildCategories(10, 2, page);
+        categories = categoryProvider.getChildCategories(10, 2, null, page);
         Assert.assertEquals(6, categories.size());
         Assert.assertEquals(3, cache.size());
     }

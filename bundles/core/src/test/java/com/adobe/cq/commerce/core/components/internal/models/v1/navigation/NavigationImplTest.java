@@ -95,7 +95,7 @@ public class NavigationImplTest {
         categoryProvider = mock(CategoryProvider.class);
         Whitebox.setInternalState(navigation, "categoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any(), any(), any())).thenReturn(categoryList);
 
         // current request
         request = mock(SlingHttpServletRequest.class);

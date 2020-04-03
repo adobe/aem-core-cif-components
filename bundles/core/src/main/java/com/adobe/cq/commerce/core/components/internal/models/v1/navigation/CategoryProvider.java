@@ -52,11 +52,11 @@ public class CategoryProvider {
 
     }
 
-    public List<CategoryTree> getChildCategories(Integer categoryId, Integer depth, Page page) {
+    public List<CategoryTree> getChildCategories(Integer categoryId, Integer depth, String magentoStore, Page page) {
         if (categoryId == null || depth == null)
             return Collections.emptyList();
 
-        CacheKey key = new CacheKey(categoryId, depth);
+        CacheKey key = new CacheKey(categoryId, depth, magentoStore);
         try {
             List<CategoryTree> list = cache.get(key, () -> loadCategories(categoryId, depth, page)).orElse(Collections.emptyList());
             return list;
@@ -118,10 +118,12 @@ public class CategoryProvider {
     private static class CacheKey {
         private Integer categoryId;
         private Integer depth;
+        private String magentoStore;
 
-        public CacheKey(Integer categoryId, Integer depth) {
+        public CacheKey(Integer categoryId, Integer depth, String magentoStore) {
             this.categoryId = categoryId;
             this.depth = depth;
+            this.magentoStore = magentoStore;
         }
 
         @Override
@@ -136,13 +138,17 @@ public class CategoryProvider {
             if (!categoryId.equals(cacheKey.categoryId)) {
                 return false;
             }
-            return depth.equals(cacheKey.depth);
+            if (!depth.equals(cacheKey.depth)) {
+                return false;
+            }
+            return magentoStore != null ? magentoStore.equals(cacheKey.magentoStore) : cacheKey.magentoStore == null;
         }
 
         @Override
         public int hashCode() {
             int result = categoryId.hashCode();
             result = 31 * result + depth.hashCode();
+            result = 31 * result + (magentoStore != null ? magentoStore.hashCode() : 0);
             return result;
         }
     }
