@@ -78,7 +78,8 @@ export const reducerFactory = setCartCookie => {
                     cartId: null,
                     isOpen: false,
                     errorMessage: null,
-                    couponError: null
+                    couponError: null,
+                    cart: null
                 };
             case 'cart':
                 return {
