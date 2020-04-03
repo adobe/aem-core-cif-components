@@ -99,19 +99,6 @@ public class MagentoGraphqlClient {
         }
     }
 
-    //todo-kevin: do we still need this?
-    /**
-     * Executes the given Magento query and returns the response. This method will use
-     * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
-     * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.
-     *
-     * @param query The GraphQL query.
-     * @return The GraphQL response.
-     */
-    public GraphqlResponse<IntrospectionQuery, Error> executeIntrospection(String query) {
-        return graphqlClient.execute(new GraphqlRequest(query), IntrospectionDeserializer.class, Error.class, requestOptions);
-    }
-
     /**
      * Executes the given Magento query and returns the response. This method will use
      * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
