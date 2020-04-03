@@ -169,6 +169,13 @@ public class CategoryProviderTest {
         categories = categoryProvider.getChildCategories(10, 2, null, page);
         Assert.assertEquals(6, categories.size());
         Assert.assertEquals(3, cache.size());
+
+        // new magentoStore will trigger new GraphQL request and create new cache entry
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
+        when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        categories = categoryProvider.getChildCategories(10, 2, "test", page);
+        Assert.assertEquals(6, categories.size());
+        Assert.assertEquals(4, cache.size());
     }
 
     @Test
