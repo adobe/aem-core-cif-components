@@ -107,7 +107,6 @@
 #     /0026 { /type "allow" /url "/home/*"   }
 #     /0027 { /type "allow" /url "/tmp/*"    }
 #     /0028 { /type "allow" /url "/var/*"    }
-#     /0029 { /type "allow" /url '/[a-z]{2}/[a-z]{2}/.+' } # enable /us/en/ or /ch/de/ urls with regex
 
       # Enable extensions in non-public content directories, using a regular expression
       /0041
