@@ -95,3 +95,19 @@ export const addCoupon = async payload => {
 
     await getCartDetails({ cartDetailsQuery, dispatch, cartId });
 };
+
+export const mergeCarts = async payload => {
+    const { cartDetailsQuery, mergeCartsMutation, cartId, customerCartId, dispatch } = payload;
+    try {
+        const { data } = await mergeCartsMutation({
+            variables: {
+                sourceCartId: cartId,
+                destinationCartId: customerCartId
+            }
+        });
+        await getCartDetails({ cartDetailsQuery, dispatch, cartId: data.mergeCarts.id });
+        return data.mergeCarts.id;
+    } catch (error) {
+        dispatch({ type: 'error', error: parseError(error) });
+    }
+};
