@@ -11,6 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import { useEffect } from 'react';
 import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 
@@ -18,15 +19,10 @@ export default ({ queries }) => {
     const { createCartMutation, addToCartMutation, cartDetailsQuery, addVirtualItemMutation } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
-
-    const getCart = async () => {
-        await getCartDetails({ cartDetailsQuery, cartId, dispatch });
-    };
-
     const addItem = async event => {
         if (!event.detail) return;
 
-        let cartItems = event.detail.map(item => {
+        let cartItems = event.detail.items.map(item => {
             return {
                 data: {
                     sku: item.sku,
@@ -35,11 +31,11 @@ export default ({ queries }) => {
             };
         });
 
-        let addItemFunc = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
+        let addItemFn = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
         console.log(`Adding ${cartItems.length} items to cart ${cartId}`);
         await addItemToCart({
             createCartMutation,
-            addItemFunc,
+            addToCartMutation: addItemFn,
             cartDetailsQuery,
             cart,
             cartId,
@@ -47,10 +43,6 @@ export default ({ queries }) => {
             cartItems
         });
     };
-
-    if (cart === null) {
-        getCart();
-    }
 
     const data = { cartId, cart, isOpen, isLoading, isEditing, errorMessage };
     const api = { addItem, dispatch };

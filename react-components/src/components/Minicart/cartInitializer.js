@@ -66,6 +66,7 @@ const CartInitializer = props => {
 
     useEffect(() => {
         if (cartId && cartId.length > 0) {
+            console.log(`Put the cart id ${cartId} in the state.`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         } else if (stateCartId) {
             console.log(`Put the cart id in the cookie`);
@@ -74,11 +75,12 @@ const CartInitializer = props => {
     }, [cartId, stateCartId]);
 
     useEffect(() => {
+        console.log(`Running the effect with the registered cart id`);
         if (registeredCartId) {
             setCartCookie(registeredCartId);
             dispatch({ type: 'cartId', cartId: registeredCartId, methods: createCartHandlers(cartId, dispatch) });
         }
-    }, [cartId]);
+    }, [registeredCartId]);
 
     return props.children;
 };
