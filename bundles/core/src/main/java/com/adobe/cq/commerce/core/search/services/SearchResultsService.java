@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.search.services;
 
+import java.util.function.Consumer;
+
 import javax.annotation.Nonnull;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -21,6 +23,7 @@ import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -36,6 +39,7 @@ public interface SearchResultsService {
      * @param searchOptions the search options for thigns like filters, query, etc
      * @param resource resource for adaption
      * @param productPage product page to provide context to the search service
+     * @param request the original request object
      * @return a {@link SearchResultsSet} with search results and metadata
      */
     @Nonnull
@@ -44,4 +48,26 @@ public interface SearchResultsService {
         Resource resource,
         Page productPage,
         SlingHttpServletRequest request);
+
+    /**
+     * Perform a search against the commerce backend and return a {@link SearchResultsSet} for consumption by the frontend. When the search
+     * is performed the implementing concrete classes are responsible for correctly applying the provided filters.
+     *
+     * This method allows an override query hook to be provided.
+     *
+     * @param searchOptions the search options for thigns like filters, query, etc
+     * @param resource resource for adaption
+     * @param productPage product page to provide context to the search service
+     * @param request the original request object
+     * @param productQueryHook an optional query hook parameter
+     * @return a {@link SearchResultsSet} with search results and metadata
+     */
+    @Nonnull
+    SearchResultsSet performSearch(
+        SearchOptions searchOptions,
+        Resource resource,
+        Page productPage,
+        SlingHttpServletRequest request,
+        Consumer<ProductInterfaceQuery> productQueryHook);
+
 }

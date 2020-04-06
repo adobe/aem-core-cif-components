@@ -68,20 +68,7 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},total_count},children_count,level_custom_:level}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
-    }
-
-    @Test
-    public void testExtendProductQuery() {
-        retriever.extendProductQueryWith(p -> p.createdAt()
-            .addCustomSimpleField("is_returnable"));
-        retriever.fetchCategory();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,products(currentPage:1,pageSize:6){items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable},total_count}}}";
+        String expectedQuery = "{category(id:5){id,description,name,image,product_count,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 

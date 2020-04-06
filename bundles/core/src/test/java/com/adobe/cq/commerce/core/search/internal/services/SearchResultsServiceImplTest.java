@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -118,6 +119,33 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).isEmpty();
+    }
+
+    @Test
+    public void testExtendProductQuery() {
+
+        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
+        searchOptions.setPageSize(6);
+        searchOptions.setSearchQuery(SEARCH_QUERY);
+        searchOptions.setCurrentPage(1);
+
+        final SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request,
+            p -> p.createdAt()
+                .addCustomSimpleField("is_returnable"));
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+
+        String expectedQuery = "{products(search:\"pants\",currentPage:1,pageSize:6,filter:{}){total_count,items{__typename,id,sku,name,"
+            + "small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},"
+            + "discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},"
+            + "final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable},"
+            + "aggregations{options{count,label,value},attribute_code,count,label}}}";
+        assertThat(expectedQuery).isEqualTo(captor.getValue());
     }
 
     private FilterAttributeMetadata createMatchFilterAttributeMetadata(final String attributeCode) {

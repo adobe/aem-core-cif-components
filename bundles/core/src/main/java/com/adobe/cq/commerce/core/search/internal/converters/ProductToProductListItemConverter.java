@@ -23,6 +23,8 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 
@@ -45,14 +47,15 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     @Override
     public ProductListItem apply(final ProductInterface product) {
 
-        Price price = new PriceImpl(product.getPriceRange(), locale);
+        boolean isStartPrice = product instanceof GroupedProduct;
+        Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+        final ProductImage smallImage = product.getSmallImage();
 
         ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
             product.getUrlKey(),
             product.getName(),
             price,
-            product.getSmallImage()
-                .getUrl(),
+            smallImage == null ? null : smallImage.getUrl(),
             productPage,
             null, // search results aren't targeting specific variant
             request);

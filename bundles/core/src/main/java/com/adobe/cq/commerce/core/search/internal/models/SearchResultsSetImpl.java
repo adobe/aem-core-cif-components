@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.search.models.Pager;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
@@ -36,6 +37,10 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     private Integer totalResults;
     private List<ProductListItem> productListItems = new ArrayList<>();
     private List<SearchAggregation> searchAggregations = new ArrayList<>();
+
+    /**
+     * This is the query string parameter used for the search query
+     */
     private static final String SEARCH_FILTER_QUERY_STRING = "search_query";
 
     @Nonnull
@@ -64,44 +69,14 @@ public class SearchResultsSetImpl implements SearchResultsSet {
 
     @Nonnull
     @Override
-    public List<Map<String, String>> getPaginationParameters() {
-        final Integer totalPages = getTotalResults() % getSearchOptions().getPageSize() == 0
-            ? getTotalResults() / getSearchOptions().getPageSize()
-            : getTotalResults() / getSearchOptions().getPageSize() + 1;
-
-        List<Map<String, String>> pages = new ArrayList<>();
-
-        Map<String, String> existingQueryParameters = getAppliedQueryParameters();
-
-        for (Integer currentPage = 1; currentPage < totalPages; currentPage++) {
-            Map<String, String> pageParameters = new HashMap<>();
-            pageParameters.putAll(existingQueryParameters);
-            pageParameters.put("page", currentPage.toString());
-            pages.add(pageParameters);
-        }
-
-        return pages;
+    public Pager getPager() {
+        return new PagerImpl(getAppliedQueryParameters(), getTotalPages(), getSearchOptions().getCurrentPage());
     }
 
-    @Nonnull
-    @Override
-    public Map<String, String> getPreviousPageParameters() {
-        Integer previousPage = getSearchOptions().getCurrentPage() <= 1 ? 1 : getSearchOptions().getCurrentPage() - 1;
-        Map<String, String> parameters = new HashMap<>(getAppliedQueryParameters());
-        parameters.put("page", previousPage.toString());
-        return parameters;
-    }
-
-    @Nonnull
-    @Override
-    public Map<String, String> getNextPageParameters() {
-        final Integer totalPages = getTotalResults() % getSearchOptions().getPageSize() == 0
+    private int getTotalPages() {
+        return getTotalResults() % getSearchOptions().getPageSize() == 0
             ? getTotalResults() / getSearchOptions().getPageSize()
             : getTotalResults() / getSearchOptions().getPageSize() + 1;
-        Integer nextPage = getSearchOptions().getCurrentPage() >= totalPages ? totalPages : getSearchOptions().getCurrentPage() + 1;
-        Map<String, String> parameters = new HashMap<>(getAppliedQueryParameters());
-        parameters.put("page", nextPage.toString());
-        return parameters;
     }
 
     @Nonnull
@@ -137,11 +112,9 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     public List<SearchAggregation> getAvailableAggregations() {
         return searchAggregations
             .stream()
-            .filter(searchAggregation -> {
-                return !searchAggregation.getAppliedFilterValue().isPresent()
-                    && searchAggregation.getFilterable()
-                    && !"category_id".equals(searchAggregation.getIdentifier());
-            })
+            .filter(searchAggregation -> !searchAggregation.getAppliedFilterValue().isPresent()
+                && searchAggregation.getFilterable()
+                && !"category_id".equals(searchAggregation.getIdentifier()))
             .collect(Collectors.toList());
     }
 

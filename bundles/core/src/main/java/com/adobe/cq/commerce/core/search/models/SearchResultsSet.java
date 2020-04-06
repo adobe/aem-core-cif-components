@@ -96,27 +96,11 @@ public interface SearchResultsSet {
     List<SearchAggregation> getAvailableAggregations();
 
     /**
-     * Get all pagination parameters available for the current result set.
-     *
-     * @return the pagination parameters
+     * Returns the pager model, responsible for handling the pagination of search results.
+     * 
+     * @return
      */
     @Nonnull
-    List<Map<String, String>> getPaginationParameters();
-
-    /**
-     * Get the previous page parameters for supporting linking to the previous page.
-     *
-     * @return the previous page parameters
-     */
-    @Nonnull
-    Map<String, String> getPreviousPageParameters();
-
-    /**
-     * Get the mext page parameters for supporting linking to the mext page.
-     *
-     * @return the mext page parameters
-     */
-    @Nonnull
-    Map<String, String> getNextPageParameters();
+    Pager getPager();
 
 }

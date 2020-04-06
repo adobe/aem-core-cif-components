@@ -69,15 +69,6 @@ public class SearchResultsSetImplTest {
     }
 
     @Test
-    public void testGetPaginationParameters() {
-
-        List<Map<String, String>> result = modelUnderTest.getPaginationParameters();
-
-        Assert.assertEquals("page parameter is added to pagination parameters", 4, result.get(0).size());
-        Assert.assertTrue("page parameter is added to pagination parameters", result.get(0).containsKey("page"));
-    }
-
-    @Test
     public void testGetAppliedAggregations() {
         final List<SearchAggregation> appliedAggregations = modelUnderTest.getAppliedAggregations();
         Assert.assertEquals("identifies applied aggregations", 1, modelUnderTest.getAppliedAggregations().size());
@@ -93,22 +84,6 @@ public class SearchResultsSetImplTest {
             .size());
         Assert.assertEquals("returns zero applied aggregations for empty result set", 0, emptySearchResults.getAppliedAggregations()
             .size());
-    }
-
-    @Test
-    public void testGetPreviousPageParameters() {
-        Map<String, String> appliedParameters = new HashMap<>();
-        appliedParameters.put("color", "123");
-        final Map<String, String> previousPageParameters = modelUnderTest.getPreviousPageParameters();
-        Assert.assertEquals("previous page is added automatically", 4, previousPageParameters.size());
-    }
-
-    @Test
-    public void testGetNextPageParameters() {
-        Map<String, String> appliedParameters = new HashMap<>();
-        appliedParameters.put("color", "123");
-        final Map<String, String> previousPageParameters = modelUnderTest.getNextPageParameters();
-        Assert.assertEquals("next page is added automatically", 4, previousPageParameters.size());
     }
 
 }

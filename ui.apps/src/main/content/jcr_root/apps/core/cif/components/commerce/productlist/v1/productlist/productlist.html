@@ -12,14 +12,12 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
-<sly data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
-     data-sly-use.titleTemplate="title.html"
+<sly data-sly-use.titleTemplate="title.html"
      data-sly-use.imageTemplate="image.html"
      data-sly-use.itemTemplate="item.html"
      data-sly-use.paginationTemplate="paginationbar.html"
      data-sly-use.productList="com.adobe.cq.commerce.core.components.models.productlist.ProductList"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
-    <sly data-sly-call="${clientlib.all @ categories='core.cif.components.productlist.v1'}"/>
 
     <article class="category__root" data-sly-use.itemTemplate="item.html" data-locale="${page.language}" data-cmp-is="productlist"
              data-load-client-price="${productList.loadClientPrice}">

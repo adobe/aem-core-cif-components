@@ -40,11 +40,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-// todo-kevin: check what CategoryProducts and GroupedProducts were doing.
-// import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
-// import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-// import com.adobe.cq.commerce.magento.graphql.ProductImage;
-// import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
@@ -191,23 +186,6 @@ public class ProductListImpl implements ProductList {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-
-        // todo-kevin: make sure converter accounts for any updated logic here
-        // for (ProductInterface product : products.getItems()) {
-        // try {
-        // boolean isStartPrice = product instanceof GroupedProduct;
-        // Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-        // ProductImage smallImage = product.getSmallImage();
-        // listItems.add(new ProductListItemImpl(
-        // product.getSku(),
-        // product.getUrlKey(),
-        // product.getName(),
-        // price,
-        // smallImage == null ? null : smallImage.getUrl(),
-        // productPage,
-        // null,
-        // request));
-
         return searchResultsSet.getProductListItems();
     }
 

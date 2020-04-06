@@ -30,9 +30,9 @@ public interface SearchOptions {
 
     Optional<String> getCategoryId();
 
-    Integer getCurrentPage();
+    int getCurrentPage();
 
-    Integer getPageSize();
+    int getPageSize();
 
     Map<String, String> getAttributeFilters();
 

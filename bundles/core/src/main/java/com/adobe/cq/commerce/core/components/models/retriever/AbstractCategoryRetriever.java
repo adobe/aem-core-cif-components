@@ -21,7 +21,6 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -32,11 +31,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Lambda that extends the category query.
      */
     protected Consumer<CategoryTreeQuery> categoryQueryHook;
-
-    /**
-     * Lambda that extends the product query.
-     */
-    protected Consumer<ProductInterfaceQuery> productQueryHook;
 
     /**
      * Category instance. Is only available after populate() was called.
@@ -127,26 +121,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public void extendCategoryQueryWith(Consumer<CategoryTreeQuery> categoryQueryHook) {
         this.categoryQueryHook = categoryQueryHook;
-    }
-
-    /**
-     * Extend the product query part of the category GraphQL query with a partial query provided by a lambda hook that sets additional
-     * fields.
-     *
-     * Example:
-     *
-     * <pre>
-     * {@code
-     * categoryRetriever.extendProductQueryWith(p -> p
-     *     .createdAt()
-     *     .addCustomSimpleField("is_returnable"));
-     * }
-     * </pre>
-     *
-     * @param productQueryHook Lambda that extends the product query
-     */
-    public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
-        this.productQueryHook = productQueryHook;
     }
 
     /**

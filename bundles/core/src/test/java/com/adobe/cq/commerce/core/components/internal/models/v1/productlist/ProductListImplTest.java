@@ -151,51 +151,6 @@ public class ProductListImplTest {
         String image = productListModel.getImage();
         Assert.assertEquals("", image);
     }
-    //
-    // @Test
-    // public void getProducts() {
-    // productListModel = context.request().adaptTo(ProductListImpl.class);
-    //
-    // Collection<ProductListItem> products = productListModel.getProducts();
-    // Assert.assertNotNull(products);
-    //
-    // // We introduce one "faulty" product data in the response, it should be skipped
-    // Assert.assertEquals(6, products.size());
-    //
-    // NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-    // List<ProductListItem> results = products.stream().collect(Collectors.toList());
-    // for (int i = 0; i < results.size(); i++) {
-    // // get raw GraphQL object
-    // ProductInterface productInterface = category.getProducts().getItems().get(i);
-    // // get mapped product list item
-    // ProductListItem item = results.get(i);
-    //
-    // Assert.assertEquals(productInterface.getName(), item.getTitle());
-    // Assert.assertEquals(productInterface.getSku(), item.getSKU());
-    // Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
-    // Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html",
-    // .getUrlKey()), item.getURL());
-    //
-    // // Make sure deprecated methods still work
-    // Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPrice(), 0);
-    // Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(), item
-    // .getCurrency());
-    // priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
-    // .toString()));
-    // Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
-    // .getFormattedPrice());
-    //
-    // ProductImage smallImage = productInterface.getSmallImage();
-    // if (smallImage == null) {
-    // // if small image is missing for a product in GraphQL response then image URL is null for the related item
-    // Assert.assertNull(item.getImageURL());
-    // } else {
-    // Assert.assertEquals(smallImage.getUrl(), item.getImageURL());
-    // }
-    //
-    // Assert.assertEquals(productInterface instanceof GroupedProduct, item.getPriceRange().isStartPrice());
-    // }
-    // }
 
     @Test
     public void testParseCategoryId() {
@@ -248,13 +203,4 @@ public class ProductListImplTest {
         return IOUtils.toString(getClass().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 
-    // @Test
-    // public void testProductListNoGraphqlClient() throws IOException {
-    // Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(null);
-    // productListModel = context.request().adaptTo(ProductListImpl.class);
-    //
-    // Assert.assertTrue(productListModel.getTitle().isEmpty());
-    // Assert.assertTrue(productListModel.getImage().isEmpty());
-    // Assert.assertTrue(productListModel.getProducts().isEmpty());
-    // }
 }

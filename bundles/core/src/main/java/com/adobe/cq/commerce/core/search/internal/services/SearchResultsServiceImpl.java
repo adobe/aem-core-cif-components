@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -46,6 +47,7 @@ import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
@@ -77,6 +79,17 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Resource resource,
         final Page productPage,
         final SlingHttpServletRequest request) {
+        return performSearch(searchOptions, resource, productPage, request, null);
+    }
+
+    @Nonnull
+    @Override
+    public SearchResultsSet performSearch(
+        final SearchOptions searchOptions,
+        final Resource resource,
+        final Page productPage,
+        final SlingHttpServletRequest request,
+        final Consumer<ProductInterfaceQuery> productQueryHook) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
@@ -95,7 +108,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
 
         // Next we generate the graphql query and actually query the commerce system
-        String queryString = generateQueryString(searchOptions, availableFilters);
+        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook);
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
@@ -127,12 +140,14 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      *
      * @param searchOptions options for searching
      * @param availableFilters available filters
+     * @param productQueryHook
      * @return the query string
      */
     @Nonnull
     private String generateQueryString(
         final SearchOptions searchOptions,
-        final List<FilterAttributeMetadata> availableFilters) {
+        final List<FilterAttributeMetadata> availableFilters,
+        final Consumer<ProductInterfaceQuery> productQueryHook) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
@@ -180,7 +195,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         ProductsQueryDefinition queryArgs = productsQuery -> productsQuery
             .totalCount()
-            .items(generateProductQuery())
+            .items(generateProductQuery(productQueryHook))
             .aggregations(a -> a
                 .options(ao -> ao
                     .count()
@@ -200,22 +215,26 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * regular price, regular price currency
      *
      * @return a {@link ProductInterfaceQueryDefinition} object
+     * @param productQueryHook
      */
     @Nonnull
-    private ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q.id()
-            .urlKey()
-            .name()
-            .smallImage(i -> i
-                .label()
-                .url())
-            .onConfigurableProduct(cp -> cp
+    private ProductInterfaceQueryDefinition generateProductQuery(
+        final Consumer<ProductInterfaceQuery> productQueryHook) {
+        return (ProductInterfaceQuery q) -> {
+            q.id()
+                .sku()
+                .name()
+                .smallImage(i -> i.url())
+                .urlKey()
                 .priceRange(r -> r
-                    .maximumPrice(generatePriceQuery())
-                    .minimumPrice(generatePriceQuery())))
-            .onSimpleProduct(sp -> sp
-                .priceRange(r -> r
-                    .minimumPrice(generatePriceQuery())));
+                    .minimumPrice(generatePriceQuery()))
+                .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())));
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
+            }
+        };
     }
 
     /**

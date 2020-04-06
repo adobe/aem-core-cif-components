@@ -86,7 +86,7 @@ public class SearchOptionsImpl implements SearchOptions {
     }
 
     @Override
-    public Integer getCurrentPage() {
+    public int getCurrentPage() {
         return currentPage;
     }
 
@@ -95,7 +95,7 @@ public class SearchOptionsImpl implements SearchOptions {
     }
 
     @Override
-    public Integer getPageSize() {
+    public int getPageSize() {
         return pageSize;
     }
 
