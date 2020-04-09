@@ -82,7 +82,11 @@ const CartInitializer = props => {
         if (registeredCartId) {
             console.log(`Running the effect with the registered cart id ${registeredCartId}`);
             setCartCookie(registeredCartId);
-            dispatch({ type: 'cartId', cartId: registeredCartId });
+            dispatch({
+                type: 'cartId',
+                cartId: registeredCartId,
+                methods: createCartHandlers(registeredCartId, dispatch)
+            });
         }
     }, [registeredCartId]);
 
