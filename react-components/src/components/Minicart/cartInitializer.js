@@ -65,20 +65,24 @@ const CartInitializer = props => {
     };
 
     useEffect(() => {
-        if (cartId && cartId.length > 0) {
+        if (cartId && cartId.length > 0 && !stateCartId) {
             console.log(`Put the cart id ${cartId} in the state.`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
-        } else if (stateCartId) {
+        }
+    }, [cartId]);
+
+    useEffect(() => {
+        if (stateCartId && (!cartId || cartId.length === 0)) {
             console.log(`Put the cart id in the cookie`);
             setCartCookie(stateCartId);
         }
-    }, [cartId, stateCartId]);
+    }, [stateCartId]);
 
     useEffect(() => {
-        console.log(`Running the effect with the registered cart id`);
         if (registeredCartId) {
+            console.log(`Running the effect with the registered cart id ${registeredCartId}`);
             setCartCookie(registeredCartId);
-            dispatch({ type: 'cartId', cartId: registeredCartId, methods: createCartHandlers(cartId, dispatch) });
+            dispatch({ type: 'cartId', cartId: registeredCartId });
         }
     }, [registeredCartId]);
 

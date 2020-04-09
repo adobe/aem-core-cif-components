@@ -19,6 +19,11 @@ export default ({ queries }) => {
     const { createCartMutation, addToCartMutation, cartDetailsQuery, addVirtualItemMutation } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
+
+    useEffect(() => {
+        getCartDetails({ cartDetailsQuery, dispatch, cartId });
+    }, [cartId]);
+
     const addItem = async event => {
         if (!event.detail) return;
 
