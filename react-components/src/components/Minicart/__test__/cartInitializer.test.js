@@ -153,7 +153,7 @@ describe('<CartInitializer />', () => {
         });
     });
 
-    it.skip('resets the cart id after a checkout', async () => {
+    it('resets the cart id after a checkout', async () => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
             value: 'cif.cart=oldcustomercart;path=/;domain=http://localhost;Max-Age=3600'
@@ -161,8 +161,8 @@ describe('<CartInitializer />', () => {
         const ResetCartComponent = () => {
             const [{ cartId }, dispatch] = useCartState();
 
-            if (cartId === 'guest123') {
-                return <div data-testid="cart-id">customercart</div>;
+            if (!cartId || cartId.length === 0) {
+                return <div data-testid="cart-id">none</div>;
             }
             return (
                 <div>
@@ -192,6 +192,6 @@ describe('<CartInitializer />', () => {
         const cartIdNode = await waitForElement(() => {
             return getByTestId('cart-id');
         });
-        expect(cartIdNode.textContent).toEqual('customercart');
+        expect(cartIdNode.textContent).toEqual('none');
     });
 });
