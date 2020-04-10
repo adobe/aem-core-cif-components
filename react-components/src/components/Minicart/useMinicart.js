@@ -19,9 +19,12 @@ export default ({ queries }) => {
     const { createCartMutation, addToCartMutation, cartDetailsQuery, addVirtualItemMutation } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
-
     useEffect(() => {
-        getCartDetails({ cartDetailsQuery, dispatch, cartId });
+        async function fn() {
+            await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+        }
+
+        fn();
     }, [cartId]);
 
     const addItem = async event => {
@@ -37,7 +40,6 @@ export default ({ queries }) => {
         });
 
         let addItemFn = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
-        console.log(`Adding ${cartItems.length} items to cart ${cartId}`);
         await addItemToCart({
             createCartMutation,
             addToCartMutation: addItemFn,
