@@ -11,15 +11,27 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { addItemToCart, getCartDetails } from '../actions';
+import { addItemToCart, getCartDetails, mergeCarts, addCoupon, removeCoupon } from '../actions';
+
 describe('Cart actions', () => {
     const addToCartMutation = jest.fn();
-    const cartDetailsQuery = jest.fn(() => {
-        return { data: { cart: { id: 'guest123' } } };
+
+    const cartDetailsQuery = jest.fn(args => {
+        const cartId = args ? args.variables.cartId : 'guest123';
+        return { data: { cart: { id: cartId } } };
     });
+
     const createCartMutation = jest.fn(() => {
         return { data: { createEmptyCart: 'guest123' } };
     });
+
+    const mergeCartsMutation = jest.fn(args => {
+        return { data: { mergeCarts: { id: args.variables.destinationCartId } } };
+    });
+
+    const addCouponMutation = jest.fn();
+    const removeCouponMutation = jest.fn();
+
     const dispatch = jest.fn();
 
     afterEach(() => {
@@ -67,5 +79,34 @@ describe('Cart actions', () => {
 
         expect(cartDetailsQuery).toHaveBeenCalledTimes(1);
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: 'guest123' } });
+    });
+
+    it('executes the "merge carts" action', async () => {
+        const cartId = 'guest123';
+        const customerCartId = 'notguest123';
+
+        await mergeCarts({ cartDetailsQuery, mergeCartsMutation, cartId, customerCartId, dispatch });
+        expect(mergeCartsMutation).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: customerCartId } });
+    });
+
+    it('adds a coupon to a cart', async () => {
+        const cartId = 'guest123';
+        const couponCode = '10off';
+
+        await addCoupon({ cartDetailsQuery, addCouponMutation, couponCode, cartId, dispatch });
+
+        expect(addCouponMutation).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: cartId } });
+    });
+
+    it('removes a coupon from the cart', async () => {
+        const cartId = 'guest123';
+        const couponCode = '10off';
+
+        await removeCoupon({ cartDetailsQuery, removeCouponMutation, couponCode, cartId, dispatch });
+
+        expect(removeCouponMutation).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: cartId } });
     });
 });

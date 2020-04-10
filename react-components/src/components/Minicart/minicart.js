@@ -11,8 +11,8 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useEffect, Suspense } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import React, { Suspense } from 'react';
+import { useMutation } from '@apollo/react-hooks';
 
 import { useEventListener, useAwaitQuery } from '../../utils/hooks';
 
@@ -47,27 +47,6 @@ const MiniCart = () => {
             addVirtualItemMutation
         }
     });
-
-    // const { data, error, loading: queryLoading } = useQuery(cartDetailsQuery, {
-    //     variables: { cartId },
-    //     skip: !cartId
-    // });
-
-    // useEffect(() => {
-    //     if (queryLoading) {
-    //         dispatch({ type: 'beginLoading' });
-    //     }
-    // }, [queryLoading]);
-
-    // useEffect(() => {
-    //     if (data && data.cart) {
-    //         dispatch({ type: 'cart', cart: data.cart });
-    //     }
-    // }, [data]);
-
-    // if (error) {
-    //     dispatch({ type: 'error', error: error.toString() });
-    // }
 
     useEventListener(document, 'aem.cif.open-cart', () => {
         dispatch({ type: 'open' });
