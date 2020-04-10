@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { addItemToCart, getCartDetails, mergeCarts, addCoupon, removeCoupon } from '../actions';
+import { addItemToCart, getCartDetails, removeItemFromCart, mergeCarts, addCoupon, removeCoupon } from '../actions';
 
 describe('Cart actions', () => {
     const addToCartMutation = jest.fn();
@@ -71,6 +71,15 @@ describe('Cart actions', () => {
         await addItemToCart({ createCartMutation, addItemMutation, cartDetailsQuery, dispatch, items, cart });
 
         expect(createCartMutation).toHaveBeenCalledTimes(1);
+    });
+
+    it('removes an item from the cart', async () => {
+        const cartId = 'guest123';
+        const itemId = 'doesntmatter';
+
+        await removeItemFromCart({ cartDetailsQuery, removeCouponMutation, cartId, itemId, dispatch });
+        expect(removeItemFromCart).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: 'guest123' } });
     });
 
     it('retrieves the cart details and updates state', async () => {
