@@ -31,6 +31,7 @@ describe('Cart actions', () => {
 
     const addCouponMutation = jest.fn();
     const removeCouponMutation = jest.fn();
+    const removeItemMutation = jest.fn();
 
     const dispatch = jest.fn();
 
@@ -77,8 +78,8 @@ describe('Cart actions', () => {
         const cartId = 'guest123';
         const itemId = 'doesntmatter';
 
-        await removeItemFromCart({ cartDetailsQuery, removeCouponMutation, cartId, itemId, dispatch });
-        expect(removeItemFromCart).toHaveBeenCalledTimes(1);
+        await removeItemFromCart({ cartDetailsQuery, removeItemMutation, cartId, itemId, dispatch });
+        expect(removeItemMutation).toHaveBeenCalledTimes(1);
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: 'guest123' } });
     });
 
