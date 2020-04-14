@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.api.resource.Resource;
@@ -150,27 +149,6 @@ public class ProductListImplTest {
 
         String image = productListModel.getImage();
         Assert.assertEquals("", image);
-    }
-
-    @Test
-    public void testParseCategoryId() {
-
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-        final String TEST_CATEGORY_ID = "13";
-        final Optional<String> TEST_CATEGORY_OPTIONAL = Optional.of(TEST_CATEGORY_ID);
-
-        // null values should result in a null category id
-        Optional<String> parsedCategoryId = productListModel.parseCategoryId(null, null);
-        Assert.assertEquals("null values result in empty category id", parsedCategoryId, Optional.empty());
-
-        parsedCategoryId = productListModel.parseCategoryId(null, "13");
-        Assert.assertNotNull("fallback query string parameter works with valid category_id parameter", parsedCategoryId);
-        Assert.assertEquals("fallback query string parameter works with valid category_id parameter", TEST_CATEGORY_OPTIONAL,
-            parsedCategoryId);
-
-        parsedCategoryId = productListModel.parseCategoryId("13", null);
-        Assert.assertEquals("main path parsing returns correct cateogry", TEST_CATEGORY_OPTIONAL, parsedCategoryId);
-
     }
 
     @Test

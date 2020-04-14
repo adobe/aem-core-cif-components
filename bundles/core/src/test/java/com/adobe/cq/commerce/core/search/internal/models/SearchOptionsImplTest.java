@@ -86,18 +86,6 @@ public class SearchOptionsImplTest {
     }
 
     @Test
-    public void testInvalidSearchTermsFilteredOut() {
-        modelUnderTest = new SearchOptionsImpl();
-
-        final String searchQuery = "%DROPALLTHETHINGS;";
-
-        modelUnderTest.setAttributeFilters(testAttributeFilters);
-        modelUnderTest.setSearchQuery(searchQuery);
-
-        assertThat(modelUnderTest.getSearchQuery()).hasValue("");
-    }
-
-    @Test
     public void testNormalSearchTermsAllowedThrough() {
         modelUnderTest = new SearchOptionsImpl();
 

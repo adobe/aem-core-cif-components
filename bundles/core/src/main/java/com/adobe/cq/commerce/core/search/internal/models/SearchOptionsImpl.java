@@ -18,10 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 
 public class SearchOptionsImpl implements SearchOptions {
@@ -82,7 +78,7 @@ public class SearchOptionsImpl implements SearchOptions {
     }
 
     public void setSearchQuery(final String searchQuery) {
-        this.searchQuery = processSearchTerm(searchQuery);
+        this.searchQuery = searchQuery;
     }
 
     @Override
@@ -101,21 +97,6 @@ public class SearchOptionsImpl implements SearchOptions {
 
     public void setPageSize(final Integer pageSize) {
         this.pageSize = pageSize;
-    }
-
-    /**
-     * Processes the search term to prepare it for the actual query.
-     * This method just prepends/appends the default wildcard character % to the search term. Overriding methods can implement their own
-     * processing.
-     *
-     * @return the processed search term, by default {@code "%searchTerm%"}
-     */
-    @Nonnull
-    private String processSearchTerm(String searchTerm) {
-        if (!StringUtils.isAlphanumericSpace(searchTerm)) {
-            return "";
-        }
-        return searchTerm;
     }
 
 }

@@ -121,14 +121,13 @@ public class ProductListImpl implements ProductList {
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         // Parse category id from URL
-        categoryId = parseCategoryId(this.request.getRequestPathInfo().getSelectorString(), request.getParameter(
-            "category_id"));
+        final String categoryId = parseCategoryId();
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (categoryId.isPresent()) {
+            if (categoryId != null) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryId.get());
+                categoryRetriever.setIdentifier(categoryId);
                 categoryRetriever.setCurrentPage(currentPageIndex);
                 categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
@@ -145,7 +144,7 @@ public class ProductListImpl implements ProductList {
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setPageSize(navPageSize);
-        categoryId.ifPresent(searchOptions::setCategoryId);
+        searchOptions.setCategoryId(categoryId);
 
         searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
     }
@@ -211,22 +210,10 @@ public class ProductListImpl implements ProductList {
      *
      * @return category id
      */
-    protected Optional<String> parseCategoryId(final String selectorString, final String categoryIdCandidate) {
+    private String parseCategoryId() {
         // TODO this should be change to slug/url_path if that is available to retrieve category data,
         // currently we only can use the category id for that.
-        Integer categoryId = null;
-
-        try {
-            categoryId = Integer.parseInt(selectorString);
-        } catch (NullPointerException | NumberFormatException nef) {
-            LOGGER.warn("Could not parse category id from current page selectors.");
-        }
-
-        if (categoryId == null && StringUtils.isNumeric(categoryIdCandidate)) {
-            categoryId = Integer.parseInt(categoryIdCandidate);
-        }
-
-        return categoryId == null ? Optional.empty() : Optional.of(categoryId.toString());
+        return request.getRequestPathInfo().getSelectorString();
     }
 
     @Override
