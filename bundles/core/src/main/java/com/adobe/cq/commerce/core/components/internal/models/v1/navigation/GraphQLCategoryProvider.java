@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,6 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.Page;
 
 class GraphQLCategoryProvider {
 
@@ -38,8 +38,8 @@ class GraphQLCategoryProvider {
     private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    GraphQLCategoryProvider(Page page) {
-        magentoGraphqlClient = MagentoGraphqlClient.create(page.getContentResource());
+    GraphQLCategoryProvider(Resource resource, Resource pageResource) {
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, pageResource);
     }
 
     List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {

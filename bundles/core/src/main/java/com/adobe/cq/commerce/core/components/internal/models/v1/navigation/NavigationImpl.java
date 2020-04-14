@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -50,6 +51,7 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     adapters = Navigation.class,
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
+
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
@@ -67,6 +69,9 @@ public class NavigationImpl implements Navigation {
     @Self
     private SlingHttpServletRequest request = null;
 
+    @Inject
+    private Resource resource;
+
     @ScriptVariable
     private ValueMap properties = null;
 
@@ -79,7 +84,7 @@ public class NavigationImpl implements Navigation {
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(currentPage);
+        graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage.getContentResource());
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,

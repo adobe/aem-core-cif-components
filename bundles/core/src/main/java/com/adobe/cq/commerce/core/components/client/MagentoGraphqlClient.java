@@ -25,6 +25,8 @@ import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.graphql.client.CachingStrategy;
+import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -65,24 +67,43 @@ public class MagentoGraphqlClient {
      * @return A new MagentoGraphqlClient instance.
      */
     public static MagentoGraphqlClient create(Resource resource) {
+        return create(resource, null);
+    }
+
+    /**
+     * Instantiates and returns a new MagentoGraphqlClient.
+     * This method returns <code>null</code> if the client cannot be instantiated.
+     *
+     * @param resource The JCR resource of the component being rendered. This is used for caching purposes.
+     * @param pageResource The JCR page resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @return A new MagentoGraphqlClient instance.
+     */
+    public static MagentoGraphqlClient create(Resource resource, Resource pageResource) {
         try {
-            return new MagentoGraphqlClient(resource);
+            return new MagentoGraphqlClient(resource, pageResource);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource) {
+    private MagentoGraphqlClient(Resource resource, Resource pageResource) {
         graphqlClient = resource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
             throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
         }
+        LOGGER.info("{} --> {}", resource.getPath(), resource.getResourceType());
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
+        CachingStrategy cachingStrategy = new CachingStrategy()
+            .withCacheName(resource.getResourceType())
+            .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST);
+        requestOptions.withCachingStrategy(cachingStrategy);
+
         String storeCode;
-        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
+        Resource configurationResource = pageResource != null ? pageResource : resource;
+        ConfigurationBuilder configBuilder = configurationResource.adaptTo(ConfigurationBuilder.class);
 
         if (configBuilder != null) {
             ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
