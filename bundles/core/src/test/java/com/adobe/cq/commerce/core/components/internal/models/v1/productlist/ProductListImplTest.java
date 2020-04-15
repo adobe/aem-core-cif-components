@@ -35,7 +35,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -44,7 +47,6 @@ import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.StoreConfig;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -66,6 +68,10 @@ public class ProductListImplTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
+
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfiguration());
+                context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -77,7 +83,6 @@ public class ProductListImplTest {
     private Resource productListResource;
     private ProductListImpl productListModel;
     private CategoryInterface category;
-    private StoreConfig storeConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +92,6 @@ public class ProductListImplTest {
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json");
         category = rootQuery.getCategory();
-        storeConfig = rootQuery.getStoreConfig();
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-result.json");
         Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
@@ -306,7 +310,6 @@ public class ProductListImplTest {
         String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         category = rootQuery.getCategory();
-        storeConfig = rootQuery.getStoreConfig();
 
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());

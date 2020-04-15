@@ -135,6 +135,15 @@
                             <version>(1.0.138,)</version>
                         </dependency>
                     </dependencies>
+                    
+                    <embeddedTarget>/apps/bundles/install</embeddedTarget>
+                    <embeddeds> 
+                        <embedded>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-text</artifactId>
+                            <filter>true</filter>
+                        </embedded>
+                    </embeddeds>
                 </configuration>
             </plugin>
 
@@ -272,6 +281,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+    </dependencies>
 
     <!-- ====================================================================== -->
     <!-- P R O F I L E S                                                        -->
