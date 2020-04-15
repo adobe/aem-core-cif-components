@@ -22,9 +22,7 @@
 
     <article class="category__root" data-locale="${page.language}" data-cmp-is="productlist" data-load-client-price="${productList.loadClientPrice}">
         <sly data-sly-test="${productList.showTitle && productList.title}" data-sly-call="${titleTemplate.listTitle @ productList = productList}"/>
-
         <sly data-sly-test="${productList.showImage && productList.image}" data-sly-call="${imageTemplate.listImage @ productList = productList}"/>
-
         <section data-sly-test.hasProducts="${productList.products}">
             <div class="gallery__root search__root">
                 <div class="search__filters" data-sly-call="${layeredNavigationTemplate.searchResultsSet @ searchResultsSet = productList.searchResultsSet}"></div>
@@ -34,7 +32,6 @@
             </div>
         </section>
         <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
-
         <sly data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productList.searchResultsSet}"/>
     </article>
 </sly>

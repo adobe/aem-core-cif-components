@@ -16,7 +16,7 @@
      data-sly-use.itemTemplate="core/cif/components/commerce/productlist/v1/productlist/item.html"
      data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults">
      
-    <article class="category__root category__style_grid" data-cmp-is="searchresults" data-load-client-price="${searchResults.loadClientPrice}">
+    <article class="category__root category__style_grid" data-cmp-is="productlist" data-load-client-price="${searchResults.loadClientPrice}">
         <section data-sly-test.results="${searchResults.products}" class="search__root" >
             <div class="search__filters" data-sly-call="${layeredNavigationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"></div>
             <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
