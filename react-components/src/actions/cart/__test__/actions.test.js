@@ -55,7 +55,6 @@ describe('Cart actions', () => {
         expect(createCartMutation).toHaveBeenCalledTimes(0);
         expect(addToCartMutation).toHaveBeenCalledTimes(1);
         expect(cartDetailsQuery).toHaveBeenCalledTimes(1);
-        expect(dispatch).toHaveBeenCalledWith({ type: 'open' });
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: 'guest123' } });
     });
 

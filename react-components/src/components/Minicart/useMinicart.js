@@ -40,6 +40,9 @@ export default ({ queries }) => {
         });
 
         let addItemFn = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
+
+        dispatch({ type: 'open' });
+        dispatch({ type: 'beginLoading' });
         await addItemToCart({
             createCartMutation,
             addToCartMutation: addItemFn,
@@ -49,6 +52,7 @@ export default ({ queries }) => {
             dispatch,
             cartItems
         });
+        dispatch({ type: 'endLoading' });
     };
 
     const data = { cartId, cart, isOpen, isLoading, isEditing, errorMessage };

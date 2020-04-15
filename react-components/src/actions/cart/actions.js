@@ -28,9 +28,6 @@ import parseError from '../../utils/parseError';
 export const addItemToCart = async payload => {
     const { createCartMutation, cartDetailsQuery, addToCartMutation, dispatch, cartItems } = payload;
 
-    dispatch({ type: 'open' });
-    dispatch({ type: 'beginLoading' });
-
     try {
         let cartId = payload.cartId;
         if (!payload.cartId) {
@@ -45,8 +42,6 @@ export const addItemToCart = async payload => {
         await getCartDetails({ cartDetailsQuery, cartId, dispatch });
     } catch (error) {
         dispatch({ type: 'error', error: error.toString() });
-    } finally {
-        dispatch({ type: 'endLoading' });
     }
 };
 
