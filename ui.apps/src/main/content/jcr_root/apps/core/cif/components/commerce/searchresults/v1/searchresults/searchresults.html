@@ -23,8 +23,7 @@
                 <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
             </div>
         </section>
-        <h2 class="category__root-message" data-sly-test="${!results}">${'No products to display.' @ i18n}</h2>
-
+        <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
+        <sly data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
     </article>
-    <sly data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
 </sly>
