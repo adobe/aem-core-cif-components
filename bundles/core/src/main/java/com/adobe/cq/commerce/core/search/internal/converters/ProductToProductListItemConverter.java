@@ -18,6 +18,8 @@ import java.util.Locale;
 import java.util.function.Function;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
@@ -33,6 +35,8 @@ import com.day.cq.wcm.api.Page;
  */
 public class ProductToProductListItemConverter implements Function<ProductInterface, ProductListItem> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductToProductListItemConverter.class);
+
     private final Page productPage;
     private final Locale locale;
 
@@ -46,20 +50,24 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
 
     @Override
     public ProductListItem apply(final ProductInterface product) {
+        try {
+            boolean isStartPrice = product instanceof GroupedProduct;
+            Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+            final ProductImage smallImage = product.getSmallImage();
 
-        boolean isStartPrice = product instanceof GroupedProduct;
-        Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-        final ProductImage smallImage = product.getSmallImage();
+            ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
+                product.getUrlKey(),
+                product.getName(),
+                price,
+                smallImage == null ? null : smallImage.getUrl(),
+                productPage,
+                null, // search results aren't targeting specific variant
+                request);
 
-        ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-            product.getUrlKey(),
-            product.getName(),
-            price,
-            smallImage == null ? null : smallImage.getUrl(),
-            productPage,
-            null, // search results aren't targeting specific variant
-            request);
-
-        return productListItem;
+            return productListItem;
+        } catch (Exception e) {
+            LOGGER.error("Failed to instantiate product " + product.getSku(), e);
+            return null;
+        }
     }
 }

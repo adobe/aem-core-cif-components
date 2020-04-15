@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -33,7 +32,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.services.FilterAttributeMetadataCache;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -42,7 +40,6 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchFilterServiceImplTest {
@@ -55,14 +52,12 @@ public class SearchFilterServiceImplTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
+                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
             },
             ResourceResolverType.JCR_MOCK);
     }
 
     private static final String PAGE = "/content/pageA";
-
-    @Mock
-    FilterAttributeMetadataCache filterAttributeMetadataCache;
 
     @Mock
     HttpClient httpClient;
@@ -72,8 +67,6 @@ public class SearchFilterServiceImplTest {
 
     @Before
     public void setup() throws IOException {
-        when(filterAttributeMetadataCache.getFilterAttributeMetadata()).thenReturn(Optional.empty());
-        context.registerService(FilterAttributeMetadataCache.class, filterAttributeMetadataCache);
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
 
         context.currentPage(PAGE);

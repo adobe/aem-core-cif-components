@@ -132,7 +132,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         searchResultsSet.setSearchAggregations(searchAggregations);
 
         return searchResultsSet;
-
     }
 
     /**
@@ -205,9 +204,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .count()
                 .label());
 
-        return Operations.query(query -> query.products(searchArgs, queryArgs))
-            .toString();
-
+        return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }
 
     /**
@@ -272,6 +269,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         return products.stream()
             .map(converter)
+            .filter(p -> p != null) // the converter returns null if the conversion fails
             .collect(Collectors.toList());
     }
 

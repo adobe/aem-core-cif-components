@@ -37,7 +37,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
-import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
@@ -62,6 +61,7 @@ public class SearchResultsImpl implements SearchResults {
     private int navPageSize;
     private Page searchPage;
     private Page productPage;
+    private SearchOptionsImpl searchOptions;
     private SearchResultsSet searchResultsSet;
 
     @Self
@@ -98,20 +98,17 @@ public class SearchResultsImpl implements SearchResults {
 
         LOGGER.debug("Detected search parameter {}", searchTerm);
 
-        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
+        searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setPageSize(navPageSize);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setSearchQuery(searchTerm);
-
-        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
     }
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
-            ? Integer
-                .valueOf(currentPageIndexCandidate)
+            ? Integer.valueOf(currentPageIndexCandidate)
             : 1;
     }
 
@@ -149,20 +146,20 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        return searchResultsSet.getProductListItems();
+        return getSearchResultsSet().getProductListItems();
     }
 
     @Nonnull
     @Override
     public List<SearchAggregation> getAggregations() {
-        return searchResultsSet.getSearchAggregations();
+        return getSearchResultsSet().getSearchAggregations();
     }
 
     @Nonnull
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            return new SearchResultsSetImpl();
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
         }
         return searchResultsSet;
     }

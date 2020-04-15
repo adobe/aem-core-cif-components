@@ -4,6 +4,8 @@
 
 {products(filter:{sku:{in:["NOT-FOUND","24-MG01","MJ01","faultyproduct","WJ01"]}}){items{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
+{products(search:"glove",currentPage:1,pageSize:6,filter:{}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+
 {category(id:2){id,name,url_path,position,children{id,name,url_path,position,children{id,name,url_path,position,children{id,name,url_path,position,children{id,name,url_path,position,children{id,name,url_path,position}}}}}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,name,image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
@@ -19,6 +21,10 @@
 {products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
 {products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,crosssell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
+
+{products(currentPage:1,pageSize:6,filter:{category_id:{eq:"6"}}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+
+{category(id:6){id,description,name,image,product_count}}
 
 {category__category_5:category(id:5){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image}}
 

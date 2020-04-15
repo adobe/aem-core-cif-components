@@ -19,10 +19,8 @@ import java.util.Optional;
 
 /**
  * Represents a set of parameters that can be used to query a product search service. Rather than collecting a bunch of disparate parameters
- * as
- * individual strings, hash maps, etc, this object contains all of the information AEM might want to gather in preparation for a search
- * query being
- * executed.
+ * as individual strings, hash maps, etc, this object contains all of the information AEM might want to gather in preparation for a search
+ * query being executed.
  */
 public interface SearchOptions {
 

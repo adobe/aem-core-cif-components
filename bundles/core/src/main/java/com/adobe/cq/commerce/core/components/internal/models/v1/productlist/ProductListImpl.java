@@ -86,6 +86,7 @@ public class ProductListImpl implements ProductList {
     private SearchResultsService searchResultsService;
 
     private AbstractCategoryRetriever categoryRetriever;
+    private SearchOptionsImpl searchOptions;
     private SearchResultsSet searchResultsSet;
 
     @PostConstruct
@@ -128,13 +129,11 @@ public class ProductListImpl implements ProductList {
             }
         }
 
-        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
+        searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
         searchOptions.setPageSize(navPageSize);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setCategoryId(categoryId);
-
-        searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
     }
 
     @Nullable
@@ -173,7 +172,7 @@ public class ProductListImpl implements ProductList {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        return searchResultsSet.getProductListItems();
+        return getSearchResultsSet().getProductListItems();
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
@@ -206,14 +205,16 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public SearchResultsSet getSearchResultsSet() {
+        if (searchResultsSet == null) {
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
+        }
         return searchResultsSet;
     }
 
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
-            ? Integer
-                .parseInt(currentPageIndexCandidate)
+            ? Integer.parseInt(currentPageIndexCandidate)
             : 1;
     }
 
