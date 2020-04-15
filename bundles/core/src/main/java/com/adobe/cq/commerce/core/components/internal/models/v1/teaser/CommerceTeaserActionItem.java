@@ -14,26 +14,35 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
 public class CommerceTeaserActionItem implements ListItem {
 
     private String title;
-    private String selector = "";
-    private Page page = null;
-    private final SiteNavigation siteNavigation;
+    private String selector;
+    private Page page;
+    private SlingHttpServletRequest request;
+    private UrlProvider urlProvider;
+    private boolean isProduct;
 
-    public CommerceTeaserActionItem(String title, String selector, Page page, SlingHttpServletRequest request) {
+    public CommerceTeaserActionItem(String title, String selector, Page page, SlingHttpServletRequest request, UrlProvider urlProvider,
+                                    boolean isProduct) {
         this.title = title;
         this.selector = selector;
         this.page = page;
-        this.siteNavigation = new SiteNavigation(request);
+        this.request = request;
+        this.urlProvider = urlProvider;
+        this.isProduct = isProduct;
     }
 
     @Nonnull
@@ -45,7 +54,14 @@ public class CommerceTeaserActionItem implements ListItem {
     @Nonnull
     @Override
     public String getURL() {
-        return (selector == null || selector.trim().equalsIgnoreCase("")) ? (page.getPath() + ".html")
-            : siteNavigation.toPageUrl(page, selector);
+        if (StringUtils.isBlank(selector)) {
+            return page.getPath() + ".html";
+        } else if (isProduct) {
+            Map<String, String> params = new ParamsBuilder().urlKey(selector).map();
+            return urlProvider.toProductUrl(request, page, params);
+        } else {
+            Map<String, String> params = new ParamsBuilder().id(selector).map();
+            return urlProvider.toCategoryUrl(request, page, params);
+        }
     }
 }

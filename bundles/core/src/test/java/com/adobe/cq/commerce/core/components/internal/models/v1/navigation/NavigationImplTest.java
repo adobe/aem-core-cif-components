@@ -31,6 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -96,6 +98,11 @@ public class NavigationImplTest {
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
         when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+
+        // URL provider
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(new MockUrlProviderConfiguration());
+        Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
         request = mock(SlingHttpServletRequest.class);

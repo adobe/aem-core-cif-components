@@ -22,6 +22,7 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -34,12 +35,13 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.ProductIdType;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
@@ -61,6 +63,9 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private UrlProvider urlProvider;
 
     @ScriptVariable
     private ValueMap properties;
@@ -100,18 +105,19 @@ public class RelatedProductsImpl implements ProductCarousel {
         String relationType = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
         String skuOrSlug;
-        ProductIdType productIdType;
+        ProductIdentifierType productIdentifierType;
 
         if (product != null) {
             skuOrSlug = product; // The picker is configured to return the SKU
-            productIdType = ProductIdType.SKU;
+            productIdentifierType = ProductIdentifierType.SKU;
         } else {
-            skuOrSlug = request.getRequestPathInfo().getSelectorString(); // The slug is coming from the URL selector
-            productIdType = ProductIdType.SLUG;
+            Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
+            skuOrSlug = identifier.getRight();
+            productIdentifierType = identifier.getLeft();
         }
 
         RelationType rel = relationType != null ? RelationType.valueOf(relationType) : RelationType.RELATED_PRODUCTS;
-        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, rel, productIdType);
+        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, rel, productIdentifierType);
         productsRetriever.setIdentifiers(Collections.singletonList(skuOrSlug));
     }
 
@@ -138,7 +144,8 @@ public class RelatedProductsImpl implements ProductCarousel {
                     product.getThumbnail().getUrl(),
                     productPage,
                     null,
-                    request));
+                    request,
+                    urlProvider));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + product.getSku(), e);
             }

@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -42,6 +43,8 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
@@ -82,6 +85,9 @@ public class ProductListImpl implements ProductList {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     private Page productPage;
     private boolean showTitle;
     private boolean showImage;
@@ -116,14 +122,14 @@ public class ProductListImpl implements ProductList {
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
-        // Parse category id from URL
-        final String categoryId = parseCategoryId();
+        // Parse category identifier from URL
+        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (categoryId != null) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryId);
+                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 categoryRetriever.setCurrentPage(navPageCursor);
                 categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
@@ -233,7 +239,8 @@ public class ProductListImpl implements ProductList {
                             smallImage == null ? null : smallImage.getUrl(),
                             productPage,
                             null,
-                            request));
+                            request,
+                            urlProvider));
                     } catch (Exception e) {
                         LOGGER.error("Failed to instantiate product " + product.getSku(), e);
                     }
@@ -246,19 +253,6 @@ public class ProductListImpl implements ProductList {
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
         return this.categoryRetriever;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the selector of the current request which is expected to be the category id.
-     *
-     * @return category id
-     */
-    private String parseCategoryId() {
-        // TODO this should be change to slug/url_path if that is available to retrieve category data,
-        // currently we only can use the category id for that.
-        return request.getRequestPathInfo().getSelectorString();
     }
 
     /**
