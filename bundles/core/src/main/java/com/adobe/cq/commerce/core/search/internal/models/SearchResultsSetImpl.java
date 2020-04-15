@@ -38,11 +38,6 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     private List<ProductListItem> productListItems = new ArrayList<>();
     private List<SearchAggregation> searchAggregations = new ArrayList<>();
 
-    /**
-     * This is the query string parameter used for the search query
-     */
-    private static final String SEARCH_FILTER_QUERY_STRING = "search_query";
-
     @Nonnull
     @Override
     public SearchOptions getSearchOptions() {
@@ -86,7 +81,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
             return new HashMap<>();
         }
         Map<String, String> appliedParameters = new HashMap<>(searchOptions.getAllFilters());
-        searchOptions.getSearchQuery().ifPresent(query -> appliedParameters.put(SEARCH_FILTER_QUERY_STRING, query));
+        searchOptions.getSearchQuery().ifPresent(query -> appliedParameters.put(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID, query));
 
         return appliedParameters;
     }

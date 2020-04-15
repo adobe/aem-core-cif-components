@@ -26,10 +26,6 @@ class CategoryRetriever extends AbstractCategoryRetriever {
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-            .currentPage(currentPage)
-            .pageSize(pageSize);
-
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = (CategoryTreeQuery q) -> {
             q.id()
                 .description()

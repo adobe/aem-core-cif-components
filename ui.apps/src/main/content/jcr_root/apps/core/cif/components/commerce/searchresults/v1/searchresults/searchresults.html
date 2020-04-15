@@ -11,23 +11,20 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.paginationTemplate="paginationbar.html"
+<sly data-sly-use.paginationTemplate="core/cif/components/commerce/productlist/v1/productlist/paginationbar.html"
+     data-sly-use.layeredNavigationTemplate="core/cif/components/commerce/productlist/v1/productlist/layerednavigation.html"
+     data-sly-use.itemTemplate="core/cif/components/commerce/productlist/v1/productlist/item.html"
      data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults">
-    <article class="category__root category__style_grid">
+     
+    <article class="category__root category__style_grid" data-cmp-is="searchresults" data-load-client-price="${searchResults.loadClientPrice}">
         <section data-sly-test.results="${searchResults.products}" class="search__root" >
-            <div data-sly-use.layeredNavigationTemplate="layerednavigation.html" data-sly-unwrap>
-                <div class="search__filters"
-                     data-sly-call="${layeredNavigationTemplate.searchResults @ searchResults = searchResults}"></div>
-            </div>
-            <div data-sly-use.itemTemplate="item.html" data-sly-unwrap data-cmp-is="searchresults"
-                 data-load-client-price="${searchResults.loadClientPrice}">
-                <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
-                    <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
-                </div>
+            <div class="search__filters" data-sly-call="${layeredNavigationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"></div>
+            <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
+                <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
             </div>
         </section>
-        <h2 class="category__root-message" data-sly-test="${!results}">No results to display</h2>
+        <h2 class="category__root-message" data-sly-test="${!results}">${'No products to display.' @ i18n}</h2>
 
     </article>
-    <sly data-sly-call="${paginationTemplate.pagination @ searchResultsSet = searchResults.searchResultsSet}"/>
+    <sly data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
 </sly>

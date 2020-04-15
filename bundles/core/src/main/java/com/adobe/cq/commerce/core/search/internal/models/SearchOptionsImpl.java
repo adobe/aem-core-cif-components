@@ -22,9 +22,10 @@ import com.adobe.cq.commerce.core.search.models.SearchOptions;
 
 public class SearchOptionsImpl implements SearchOptions {
 
-    private static final Integer PAGE_SIZE_DEFAULT = 6;
-    private static final String CATEGORY_ID_PAREMETER_ID = "category_id";
-    private static final String SEARCH_QUERY_PAREMETER_ID = "search_query";
+    public static final Integer PAGE_SIZE_DEFAULT = 6;
+    public static final String CATEGORY_ID_PARAMETER_ID = "category_id";
+    public static final String SEARCH_QUERY_PARAMETER_ID = "search_query";
+    public static final String CURRENT_PAGE_PARAMETER_ID = "page";
 
     Map<String, String> attributeFilters;
 
@@ -45,10 +46,10 @@ public class SearchOptionsImpl implements SearchOptions {
         Map<String, String> allFilters = new HashMap<>(getAttributeFilters());
 
         if (getCategoryId().isPresent()) {
-            allFilters.put(CATEGORY_ID_PAREMETER_ID, getCategoryId().get());
+            allFilters.put(CATEGORY_ID_PARAMETER_ID, getCategoryId().get());
         }
         if (getSearchQuery().isPresent()) {
-            allFilters.put(SEARCH_QUERY_PAREMETER_ID, getSearchQuery().get());
+            allFilters.put(SEARCH_QUERY_PARAMETER_ID, getSearchQuery().get());
         }
 
         return allFilters;

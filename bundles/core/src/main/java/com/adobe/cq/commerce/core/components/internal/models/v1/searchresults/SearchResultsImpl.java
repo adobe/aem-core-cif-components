@@ -11,6 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
@@ -55,16 +56,13 @@ public class SearchResultsImpl implements SearchResults {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
-    private static final String SEARCH_FILTER_QUERY_STRING = "search_query";
-    private static final String CURRENT_PAGE_QUERY_STRING = "page";
-    private static final int PAGE_SIZE_DEFAULT = 6;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
 
-    Page productPage;
-
     private boolean loadClientPrice;
-
-    private int navPageSize = PAGE_SIZE_DEFAULT;
+    private int navPageSize;
+    private Page searchPage;
+    private Page productPage;
+    private SearchResultsSet searchResultsSet;
 
     @Self
     private SlingHttpServletRequest request;
@@ -81,22 +79,18 @@ public class SearchResultsImpl implements SearchResults {
     @Inject
     private Page currentPage;
 
-    private Page searchPage;
-
-    private SearchResultsSet searchResultsSet = null;
-
     @Inject
     private SearchResultsService searchResultsService;
 
     @PostConstruct
     protected void initModel() {
-        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, SearchOptionsImpl.PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
-        String searchTerm = request.getParameter(SEARCH_FILTER_QUERY_STRING);
+        String searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
 
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
-        Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(CURRENT_PAGE_QUERY_STRING));
+        Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID));
 
         productPage = SiteNavigation.getProductPage(currentPage);
         searchPage = SiteNavigation.getSearchResultsPage(currentPage);
@@ -106,6 +100,7 @@ public class SearchResultsImpl implements SearchResults {
 
         SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
+        searchOptions.setPageSize(navPageSize);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setSearchQuery(searchTerm);
 
@@ -133,7 +128,7 @@ public class SearchResultsImpl implements SearchResults {
             String[] value = filterCandidate.getValue();
 
             // we'll remove the search filter
-            if (code.equalsIgnoreCase(SEARCH_FILTER_QUERY_STRING)) {
+            if (code.equalsIgnoreCase(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID)) {
                 return;
             }
 

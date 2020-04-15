@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,13 +53,16 @@ public class ProductListImpl implements ProductList {
     protected static final String PLACEHOLDER_DATA = "/productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
-    private static final String CURRENT_PAGE_QUERY_STRING = "page";
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
-    private static final int PAGE_SIZE_DEFAULT = 6;
-    private static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
+
+    private Page productPage;
+    private boolean showTitle;
+    private boolean showImage;
+    private boolean loadClientPrice;
+    private int navPageSize;
 
     @Self
     private SlingHttpServletRequest request;
@@ -80,22 +82,10 @@ public class ProductListImpl implements ProductList {
     @Inject
     private Page currentPage;
 
-    private Page productPage;
-    private boolean showTitle;
-    private boolean showImage;
-    private boolean loadClientPrice;
-
-    private int navPageSize = PAGE_SIZE_DEFAULT;
-
-    private Optional<String> categoryId = Optional.empty();
-
     @Inject
     private SearchResultsService searchResultsService;
 
     private AbstractCategoryRetriever categoryRetriever;
-
-    private MagentoGraphqlClient magentoGraphqlClient;
-
     private SearchResultsSet searchResultsSet;
 
     @PostConstruct
@@ -103,10 +93,10 @@ public class ProductListImpl implements ProductList {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
-        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, SearchOptionsImpl.PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
-        String currentPageIndexCandidate = request.getParameter(CURRENT_PAGE_QUERY_STRING);
+        String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
 
@@ -128,8 +118,6 @@ public class ProductListImpl implements ProductList {
             if (categoryId != null) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(categoryId);
-                categoryRetriever.setCurrentPage(currentPageIndex);
-                categoryRetriever.setPageSize(navPageSize);
             } else if (!wcmMode.isDisabled()) {
                 try {
                     categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
@@ -142,8 +130,8 @@ public class ProductListImpl implements ProductList {
 
         SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setCurrentPage(currentPageIndex);
-        searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setPageSize(navPageSize);
+        searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setCategoryId(categoryId);
 
         searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
@@ -221,18 +209,12 @@ public class ProductListImpl implements ProductList {
         return searchResultsSet;
     }
 
-    @Override
-    public String getSelectors() {
-        return categoryId.orElse(null);
-    }
-
     protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
             ? Integer
                 .parseInt(currentPageIndexCandidate)
             : 1;
-
     }
 
     @Override

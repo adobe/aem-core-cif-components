@@ -79,8 +79,6 @@ public interface ProductList {
 
     SearchResultsSet getSearchResultsSet();
 
-    String getSelectors();
-
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.
      *
