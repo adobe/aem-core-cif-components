@@ -25,6 +25,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -39,13 +40,15 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
 
     private final Page productPage;
     private final Locale locale;
+    private final UrlProvider urlProvider;
 
     private final SlingHttpServletRequest request;
 
-    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request) {
+    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider) {
         this.productPage = productPage;
         this.locale = productPage.getLanguage(false);
         this.request = request;
+        this.urlProvider = urlProvider;
     }
 
     @Override
@@ -62,7 +65,8 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
                 smallImage == null ? null : smallImage.getUrl(),
                 productPage,
                 null, // search results aren't targeting specific variant
-                request);
+                request,
+                urlProvider);
 
             return productListItem;
         } catch (Exception e) {
