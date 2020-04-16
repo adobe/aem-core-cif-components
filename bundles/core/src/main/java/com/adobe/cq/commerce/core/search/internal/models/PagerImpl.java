@@ -123,7 +123,6 @@ public class PagerImpl implements Pager {
         }
 
         return (leftStartDisplay <= currentIndex) && (currentIndex <= rightEndDisplay);
-
     }
 
 }

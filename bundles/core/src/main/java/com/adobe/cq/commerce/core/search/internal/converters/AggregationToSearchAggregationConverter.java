@@ -118,7 +118,6 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
         }
 
         return null;
-
     }
 
     public Map<String, String> getRemoveFilters(Aggregation aggregation, Map<String, String> appliedFilters) {

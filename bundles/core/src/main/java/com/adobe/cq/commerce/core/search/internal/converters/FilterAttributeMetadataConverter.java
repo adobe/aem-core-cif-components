@@ -53,7 +53,6 @@ public class FilterAttributeMetadataConverter implements Function<__InputValue, 
             });
 
         return metadata;
-
     }
 
 }

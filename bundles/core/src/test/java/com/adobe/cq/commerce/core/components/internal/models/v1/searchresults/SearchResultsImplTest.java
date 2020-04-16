@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,8 +43,11 @@ import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceIm
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.Products;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -52,6 +56,7 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -161,4 +166,24 @@ public class SearchResultsImplTest {
         Assert.assertEquals("null value is dealt with", 1, searchResultsModel.calculateCurrentPageCursor(null).intValue());
     }
 
+    @Test
+    public void testFilterQueriesReturnNull() throws IOException {
+        // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
+        // For example, 3rd-party integrations might not support this immediately
+
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Products products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
+        Query query = new Query().setProducts(products);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        Collection<ProductListItem> productList = searchResultsModel.getProducts();
+        Assert.assertEquals("Return the correct number of products", 4, productList.size());
+
+        SearchResultsSet searchResultsSet = searchResultsModel.getSearchResultsSet();
+        Assert.assertEquals(0, searchResultsSet.getAvailableAggregations().size());
+    }
 }

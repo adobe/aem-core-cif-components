@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +33,13 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
 import com.adobe.cq.commerce.magento.graphql.AttributeInput;
+import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadata;
 import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadataQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.__InputValue;
+import com.adobe.cq.commerce.magento.graphql.__Type;
 import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
@@ -100,7 +103,8 @@ public class SearchFilterServiceImpl implements SearchFilterService {
             return new ArrayList<>();
         }
 
-        return response.getData().getCustomAttributeMetadata().getItems();
+        CustomAttributeMetadata cam = response.getData().getCustomAttributeMetadata();
+        return cam != null ? response.getData().getCustomAttributeMetadata().getItems() : Collections.emptyList();
     }
 
     /**
@@ -132,10 +136,11 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         if (response.getErrors() != null && response.getErrors().size() > 0) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
-        return response.getData().__getType().getInputFields();
+        __Type type = response.getData().__getType();
+        return type != null ? type.getInputFields() : Collections.emptyList();
     }
 
 }

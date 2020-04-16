@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.search.internal.services;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -178,7 +180,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     }
                     filterInputs.addRangeTypeInput(code, filter);
                 }
-
             });
 
         QueryQuery.ProductsArgumentsDefinition searchArgs;
@@ -287,6 +288,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<Aggregation> aggregations,
         final Map<String, String> appliedFilters,
         final List<FilterAttributeMetadata> availableFilters) {
+
+        if (CollectionUtils.isEmpty(aggregations) || CollectionUtils.isEmpty(availableFilters)) {
+            return Collections.emptyList();
+        }
 
         AggregationToSearchAggregationConverter converter = new AggregationToSearchAggregationConverter(appliedFilters, availableFilters);
 

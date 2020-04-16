@@ -45,15 +45,17 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -62,6 +64,7 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +92,7 @@ public class ProductListImplTest {
 
     private Resource productListResource;
     private ProductListImpl productListModel;
-    private CategoryInterface category;
+    private CategoryTree category;
     private Products products;
 
     @Mock
@@ -230,5 +233,27 @@ public class ProductListImplTest {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
         Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
+    }
+
+    @Test
+    public void testFilterQueriesReturnNull() {
+        // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
+        // For example, 3rd-party integrations might not support this immediately
+
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Query query = new Query().setProducts(products).setCategory(category);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Collection<ProductListItem> productList = productListModel.getProducts();
+        Assert.assertEquals("Return the correct number of products", 4, productList.size());
+
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        Assert.assertEquals(0, searchResultsSet.getAvailableAggregations().size());
     }
 }

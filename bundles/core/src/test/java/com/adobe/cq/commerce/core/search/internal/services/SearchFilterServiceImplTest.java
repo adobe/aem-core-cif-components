@@ -33,13 +33,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchFilterServiceImplTest {
@@ -112,6 +116,24 @@ public class SearchFilterServiceImplTest {
         assertThat(newAttr.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
         assertThat(newAttr.getAttributeType()).isEqualTo("Int");
         assertThat(newAttr.getAttributeInputType()).isEqualTo("boolean");
+    }
+
+    @Test
+    public void testFilterQueriesReturnNull() {
+        // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
+        // For example, 3rd-party integrations might not support this immediately
+
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(resource);
+        assertThat(filterAttributeMetadata).hasSize(0);
     }
 
 }

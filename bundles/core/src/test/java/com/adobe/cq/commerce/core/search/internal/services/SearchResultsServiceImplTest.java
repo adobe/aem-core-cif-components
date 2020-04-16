@@ -65,9 +65,6 @@ public class SearchResultsServiceImplTest {
     Resource resource;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    GraphqlResponse<Query, Error> response;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Query query;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -91,8 +88,9 @@ public class SearchResultsServiceImplTest {
         when(products.getItems()).thenReturn(new ArrayList<>());
         when(products.getAggregations()).thenReturn(new ArrayList<>());
         when(query.getProducts()).thenReturn(products);
-        when(response.getData()).thenReturn(query);
-        when(response.getErrors()).thenReturn(null);
+
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
+        response.setData(query);
 
         when(magentoGraphqlClient.execute(any())).thenReturn(response);
 
