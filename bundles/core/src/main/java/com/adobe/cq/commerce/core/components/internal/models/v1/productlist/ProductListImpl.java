@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,9 +43,12 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRe
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
+import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -53,7 +57,7 @@ import com.day.cq.wcm.api.designer.Style;
 public class ProductListImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
-    protected static final String PLACEHOLDER_DATA = "/productlist-component-placeholder-data.json";
+    protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
@@ -94,6 +98,7 @@ public class ProductListImpl implements ProductList {
     private AbstractCategoryRetriever categoryRetriever;
     private SearchOptionsImpl searchOptions;
     private SearchResultsSet searchResultsSet;
+    private boolean usePlaceholderData;
 
     @PostConstruct
     private void initModel() {
@@ -126,26 +131,32 @@ public class ProductListImpl implements ProductList {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
             } else if (!wcmMode.isDisabled()) {
+                usePlaceholderData = true;
+                loadClientPrice = false;
                 try {
                     categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-                loadClientPrice = false;
             }
         }
 
-        searchOptions = new SearchOptionsImpl();
-        searchOptions.setCurrentPage(currentPageIndex);
-        searchOptions.setPageSize(navPageSize);
-        searchOptions.setAttributeFilters(searchFilters);
-        searchOptions.setCategoryId(identifier.getRight());
+        if (usePlaceholderData) {
+            searchResultsSet = new SearchResultsSetImpl();
+        } else {
+            searchOptions = new SearchOptionsImpl();
+            searchOptions.setCurrentPage(currentPageIndex);
+            searchOptions.setPageSize(navPageSize);
+            searchOptions.setAttributeFilters(searchFilters);
+            searchOptions.setCategoryId(identifier.getRight());
+        }
     }
 
     @Nullable
     @Override
     public String getTitle() {
-        return categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName() : StringUtils.EMPTY;
+        return categoryRetriever != null && categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName()
+            : StringUtils.EMPTY;
     }
 
     @Override
@@ -178,7 +189,16 @@ public class ProductListImpl implements ProductList {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        return getSearchResultsSet().getProductListItems();
+        if (usePlaceholderData) {
+            CategoryProducts categoryProducts = categoryRetriever.fetchCategory().getProducts();
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider);
+            return categoryProducts.getItems().stream()
+                .map(converter)
+                .filter(p -> p != null) // the converter returns null if the conversion fails
+                .collect(Collectors.toList());
+        } else {
+            return getSearchResultsSet().getProductListItems();
+        }
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {

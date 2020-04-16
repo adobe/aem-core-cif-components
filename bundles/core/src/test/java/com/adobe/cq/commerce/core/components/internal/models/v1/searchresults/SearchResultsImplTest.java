@@ -128,13 +128,13 @@ public class SearchResultsImplTest {
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
-
-        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
     }
 
     @Test
     public void testProducts() {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
         Collection<ProductListItem> products = searchResultsModel.getProducts();
         Assert.assertEquals("Return the correct number of products", 4, products.size());
 
@@ -148,7 +148,27 @@ public class SearchResultsImplTest {
     }
 
     @Test
+    public void testMissingSearchTerm() {
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
+        Assert.assertTrue("Products list is empty", products.isEmpty());
+    }
+
+    @Test
+    public void testNoMagentoGraphqlClient() {
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        Collection<ProductListItem> products = searchResultsModel.getProducts();
+        Assert.assertTrue("Products list is empty", products.isEmpty());
+    }
+
+    @Test
     public void testCreateFilterMap() {
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
         Map<String, String[]> queryParameters;
         Map<String, String> filterMap;
 
@@ -170,6 +190,7 @@ public class SearchResultsImplTest {
 
     @Test
     public void testCalculateCurrentPageCursor() {
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
         Assert.assertEquals("negative page indexes are not allowed", 1, searchResultsModel.calculateCurrentPageCursor("-1").intValue());
         Assert.assertEquals("null value is dealt with", 1, searchResultsModel.calculateCurrentPageCursor(null).intValue());
     }
@@ -178,6 +199,9 @@ public class SearchResultsImplTest {
     public void testFilterQueriesReturnNull() throws IOException {
         // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
         // For example, 3rd-party integrations might not support this immediately
+
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
         GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
         Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);

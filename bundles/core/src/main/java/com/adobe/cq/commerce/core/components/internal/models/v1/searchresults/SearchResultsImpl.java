@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class SearchResultsImpl implements SearchResults {
     private int navPageSize;
     private Page searchPage;
     private Page productPage;
+    private String searchTerm;
     private SearchOptionsImpl searchOptions;
     private SearchResultsSet searchResultsSet;
 
@@ -87,7 +89,7 @@ public class SearchResultsImpl implements SearchResults {
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, SearchOptionsImpl.PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
-        String searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
+        searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
 
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID));
@@ -146,6 +148,10 @@ public class SearchResultsImpl implements SearchResults {
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
+        if (StringUtils.isBlank(searchTerm)) {
+            return Collections.emptyList();
+        }
+
         return getSearchResultsSet().getProductListItems();
     }
 

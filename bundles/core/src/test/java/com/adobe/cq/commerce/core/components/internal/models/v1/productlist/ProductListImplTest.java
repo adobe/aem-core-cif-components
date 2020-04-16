@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
@@ -263,5 +264,29 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         Assert.assertEquals(0, searchResultsSet.getAvailableAggregations().size());
+    }
+
+    @Test
+    public void testEditModePlaceholderData() throws IOException {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString(null);
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
+        Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+        category = rootQuery.getCategory();
+
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
+    }
+
+    @Test
+    public void testProductListNoGraphqlClient() throws IOException {
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        Assert.assertTrue(productListModel.getTitle().isEmpty());
+        Assert.assertTrue(productListModel.getImage().isEmpty());
+        Assert.assertTrue(productListModel.getProducts().isEmpty());
     }
 }

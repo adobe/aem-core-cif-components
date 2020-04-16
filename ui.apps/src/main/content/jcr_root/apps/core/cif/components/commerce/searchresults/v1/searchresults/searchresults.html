@@ -17,13 +17,13 @@
      data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults">
      
     <article class="category__root category__style_grid" data-cmp-is="productlist" data-load-client-price="${searchResults.loadClientPrice}">
-        <section data-sly-test.results="${searchResults.products}" class="search__root" >
+        <section data-sly-test.hasProducts="${searchResults.products}" class="search__root" >
             <div class="search__filters" data-sly-call="${layeredNavigationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"></div>
             <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
                 <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
             </div>
         </section>
         <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
-        <sly data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
+        <sly data-sly-test="${hasProducts}" data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
     </article>
 </sly>
