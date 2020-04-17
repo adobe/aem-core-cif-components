@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -49,6 +50,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -221,7 +223,8 @@ public class ProductListImpl implements ProductList {
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
+            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request, productQueryHook);
         }
         return searchResultsSet;
     }
@@ -235,7 +238,7 @@ public class ProductListImpl implements ProductList {
 
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
-        return this.categoryRetriever;
+        return categoryRetriever;
     }
 
 }

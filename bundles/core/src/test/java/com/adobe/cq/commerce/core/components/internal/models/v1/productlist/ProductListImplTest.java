@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -51,6 +52,7 @@ import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceIm
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -69,7 +71,9 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -288,5 +292,35 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getTitle().isEmpty());
         Assert.assertTrue(productListModel.getImage().isEmpty());
         Assert.assertTrue(productListModel.getProducts().isEmpty());
+    }
+
+    @Test
+    public void testExtendProductQuery() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Query query = new Query().setProducts(products).setCategory(category);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        productListModel.getCategoryRetriever().extendProductQueryWith(p -> p.createdAt().stockStatus());
+        productListModel.getProducts();
+
+        ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        verify(graphqlClient, atLeastOnce()).execute(captor.capture(), any(), any(), any());
+
+        // Check the "products" query
+        List<GraphqlRequest> requests = captor.getAllValues();
+        String productsQuery = null;
+        for (GraphqlRequest request : requests) {
+            if (request.getQuery().startsWith("{products")) {
+                productsQuery = request.getQuery();
+                break;
+            }
+        }
+        Assert.assertTrue(productsQuery.contains("created_at,stock_status"));
     }
 }

@@ -135,7 +135,7 @@ public class SearchResultsServiceImplTest {
         searchOptions.setSearchQuery(SEARCH_QUERY);
         searchOptions.setCurrentPage(1);
 
-        final SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+        serviceUnderTest.performSearch(
             searchOptions,
             resource,
             productPage,
