@@ -23,7 +23,7 @@ export const initialState = {
     isLoading: false,
     editItem: {},
     cartId: null,
-    cart: {},
+    cart: null,
     errorMessage: null,
     couponError: null,
     addItem: () => {},
@@ -78,7 +78,8 @@ export const reducerFactory = setCartCookie => {
                     cartId: null,
                     isOpen: false,
                     errorMessage: null,
-                    couponError: null
+                    couponError: null,
+                    cart: null
                 };
             case 'cart':
                 return {

@@ -11,10 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useEffect, Suspense } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import React, { Suspense } from 'react';
+import { useMutation } from '@apollo/react-hooks';
 
-import { useEventListener } from '../../utils/hooks';
+import { useEventListener, useAwaitQuery } from '../../utils/hooks';
+
+import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
+import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
+import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
+import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
 
 import Mask from '../Mask';
 
@@ -23,44 +28,30 @@ import Body from './body';
 import Footer from './footer';
 import classes from './minicart.css';
 
-import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import CartTrigger from '../CartTrigger';
 
-import { useCartState } from './cartContext';
+import useMinicart from './useMinicart';
 import LoadingIndicator from '../LoadingIndicator';
 
 const MiniCart = () => {
-    const [{ cartId, cart, isOpen, isLoading, isEditing, addItem, errorMessage }, dispatch] = useCartState();
+    const [createCartMutation] = useMutation(MUTATION_CREATE_CART);
+    const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
+    const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
+    const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
 
-    const { data, error, loading: queryLoading } = useQuery(CART_DETAILS_QUERY, {
-        variables: { cartId },
-        skip: !cartId
+    const [{ cart, isOpen, isLoading, isEditing, errorMessage }, { addItem, dispatch }] = useMinicart({
+        queries: {
+            createCartMutation,
+            addToCartMutation,
+            cartDetailsQuery,
+            addVirtualItemMutation
+        }
     });
-
-    useEffect(() => {
-        if (queryLoading) {
-            dispatch({ type: 'beginLoading' });
-        }
-    }, [queryLoading]);
-
-    useEffect(() => {
-        if (data && data.cart) {
-            dispatch({ type: 'cart', cart: data.cart });
-        }
-    }, [data]);
-
-    if (error) {
-        dispatch({ type: 'error', error: error.toString() });
-    }
 
     useEventListener(document, 'aem.cif.open-cart', () => {
         dispatch({ type: 'open' });
     });
     useEventListener(document, 'aem.cif.add-to-cart', addItem);
-
-    if (!cartId || cartId.length === 0) {
-        return null;
-    }
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
