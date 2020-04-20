@@ -32,12 +32,14 @@ import CartTrigger from '../CartTrigger';
 
 import useMinicart from './useMinicart';
 import LoadingIndicator from '../LoadingIndicator';
+import { useCheckoutState } from '../Checkout/checkoutContext';
 
 const MiniCart = () => {
     const [createCartMutation] = useMutation(MUTATION_CREATE_CART);
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
     const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
     const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
+    const [{ flowState }] = useCheckoutState();
 
     const [{ cart, isOpen, isLoading, isEditing, errorMessage }, { addItem, dispatch }] = useMinicart({
         queries: {
@@ -55,7 +57,7 @@ const MiniCart = () => {
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
-    const showFooter = !(isLoading || isEmpty || isEditing || errorMessage);
+    const showFooter = !(isLoading || isEmpty || isEditing || errorMessage) || flowState === 'receipt';
     const footer = showFooter ? <Footer /> : null;
 
     return (

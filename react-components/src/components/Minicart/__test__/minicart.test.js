@@ -19,6 +19,7 @@ import { I18nextProvider } from 'react-i18next';
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
 import { CartProvider } from '../cartContext';
+import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Minicart>', () => {
@@ -33,7 +34,9 @@ describe('<Minicart>', () => {
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
                 <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                    <Minicart />
+                    <CheckoutProvider initialState={{}} reducer={state => state}>
+                        <Minicart />
+                    </CheckoutProvider>
                 </CartProvider>
             </I18nextProvider>
         );

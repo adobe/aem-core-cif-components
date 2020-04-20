@@ -45,4 +45,20 @@ describe('<Footer>', () => {
 
         expect(asFragment()).toMatchSnapshot();
     });
+
+    it('renders the component with null cart', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <CartProvider
+                    initialState={{
+                        cart: null
+                    }}
+                    reducerFactory={() => state => state}>
+                    <Footer />
+                </CartProvider>
+            </I18nextProvider>
+        );
+
+        expect(asFragment()).toMatchSnapshot();
+    });
 });
