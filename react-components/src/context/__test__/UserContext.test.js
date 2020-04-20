@@ -159,6 +159,35 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('guest123');
     });
 
+    it('resets the customer cart', async () => {
+        const ContextWrapper = () => {
+            const [{ cartId }, { resetCustomerCart }] = useUserContext();
+
+            let content;
+            if (cartId) {
+                content = <div data-testid="success">{cartId}</div>;
+            } else {
+                content = <button onClick={() => resetCustomerCart()}>Reset cart</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('success'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('customercart');
+    });
+
     it('performs a sign out', async () => {
         const ContextWrapper = () => {
             const [{ isSignedIn }, { signOut }] = useUserContext();

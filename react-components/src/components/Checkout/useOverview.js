@@ -13,14 +13,16 @@
  ******************************************************************************/
 import { useMutation } from '@apollo/react-hooks';
 import { useState } from 'react';
-import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 
+import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
+import { useUserContext } from '../../context/UserContext';
 
 export default () => {
     const [{ shippingAddress, shippingMethod, paymentMethod }, checkoutDispatch] = useCheckoutState();
     const [{ cart, cartId }, cartDispatch] = useCartState();
+    const [{ isSignedIn }, { resetCustomerCart }] = useUserContext();
 
     const [placeOrder] = useMutation(MUTATION_PLACE_ORDER);
     const [inProgress, setInProgress] = useState(false);
@@ -31,12 +33,18 @@ export default () => {
         // will be unmounted and the `setInProgress` call will trigger a React warning
         try {
             const { data } = await placeOrder({ variables: { cartId } });
-            setInProgress(false);
             checkoutDispatch({ type: 'placeOrder', order: data.placeOrder.order });
+
+            // if user is signed in reset the cart
+            if (isSignedIn) {
+                resetCustomerCart();
+            }
+            cartDispatch({ type: 'reset' });
         } catch (error) {
-            setInProgress(false);
             console.error(error);
             cartDispatch({ type: 'error', error: error.toString() });
+        } finally {
+            setInProgress(false);
         }
     };
 
