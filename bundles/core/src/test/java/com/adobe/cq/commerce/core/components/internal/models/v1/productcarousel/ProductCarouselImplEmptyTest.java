@@ -25,7 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -42,6 +45,10 @@ public class ProductCarouselImplEmptyTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
+
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfiguration());
+                context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
     }

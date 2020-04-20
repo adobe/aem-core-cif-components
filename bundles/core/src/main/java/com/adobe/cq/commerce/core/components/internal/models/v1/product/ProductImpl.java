@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -46,6 +47,8 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -88,6 +91,9 @@ public class ProductImpl implements Product {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     @ScriptVariable
     private Style currentStyle;
 
@@ -111,17 +117,18 @@ public class ProductImpl implements Product {
 
     @PostConstruct
     private void initModel() {
-        // Parse slug from URL
-        String slug = parseProductSlug();
+
+        // Parse identifier in URL
+        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
 
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient != null) {
-            if (StringUtils.isNotBlank(slug)) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(slug);
+                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -361,18 +368,6 @@ public class ProductImpl implements Product {
         attribute.setValues(values);
 
         return attribute;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the selector of the current request which is expected to be the
-     * product slug.
-     *
-     * @return product slug
-     */
-    private String parseProductSlug() {
-        return request.getRequestPathInfo().getSelectorString();
     }
 
     private String safeDescription(ProductInterface product) {

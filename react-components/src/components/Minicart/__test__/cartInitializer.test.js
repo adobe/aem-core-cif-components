@@ -153,42 +153,6 @@ describe('<CartInitializer />', () => {
         });
     });
 
-    it('creates a new cart if cartId is not set in cookie', async () => {
-        const { getByTestId } = render(
-            <MockedProvider
-                mocks={[
-                    {
-                        request: {
-                            query: MUTATION_CREATE_CART
-                        },
-                        result: {
-                            data: {
-                                createEmptyCart: 'guest123'
-                            }
-                        }
-                    }
-                ]}
-                addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider
-                        initialState={{ cartId: null }}
-                        reducerFactory={() => (state, action) => {
-                            if (action.type == 'cartId') {
-                                return { ...state, cartId: action.cartId };
-                            }
-                            return state;
-                        }}>
-                        <CartInitializer>
-                            <DummyCart />
-                        </CartInitializer>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
-        );
-        const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
-        expect(cartIdNode.textContent).toEqual('guest123');
-    });
-
     it('resets the cart id after a checkout', async () => {
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
@@ -197,8 +161,8 @@ describe('<CartInitializer />', () => {
         const ResetCartComponent = () => {
             const [{ cartId }, dispatch] = useCartState();
 
-            if (cartId === 'guest123') {
-                return <div data-testid="cart-id">customercart</div>;
+            if (!cartId || cartId.length === 0) {
+                return <div data-testid="cart-id">none</div>;
             }
             return (
                 <div>
@@ -228,6 +192,6 @@ describe('<CartInitializer />', () => {
         const cartIdNode = await waitForElement(() => {
             return getByTestId('cart-id');
         });
-        expect(cartIdNode.textContent).toEqual('customercart');
+        expect(cartIdNode.textContent).toEqual('none');
     });
 });
