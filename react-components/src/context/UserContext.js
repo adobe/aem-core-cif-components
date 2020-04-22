@@ -18,6 +18,7 @@ import { useCookieValue } from '../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
+import { resetCustomerCart as resetCustomerCartAction } from '../actions/user';
 
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
@@ -120,7 +121,7 @@ const UserContextProvider = props => {
 
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
-    const fetchCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
+    const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
 
     const setToken = token => {
         setUserCookie(token);
@@ -147,11 +148,7 @@ const UserContextProvider = props => {
     };
 
     const resetCustomerCart = async () => {
-        const { data } = await fetchCustomerCart({
-            fetchPolicy: 'network-only'
-        });
-        const cartId = data.customerCart.id;
-        dispatch({ type: 'setCartId', cartId });
+        await resetCustomerCartAction({ fetchCustomerCartQuery, dispatch });
     };
 
     const resetPassword = async email => {
