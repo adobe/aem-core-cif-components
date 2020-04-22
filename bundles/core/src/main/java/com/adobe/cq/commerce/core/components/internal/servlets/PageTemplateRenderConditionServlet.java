@@ -34,6 +34,8 @@ import com.day.cq.wcm.api.NameConstants;
 /**
  * This servlet handles <code>granite:rendercondition</code> requests from the CIF page component,
  * in order to decide if the product and category pickers should be displayed in the page properties dialog.
+ *
+ * @deprecated
  */
 @Component(
     service = { Servlet.class },
@@ -42,6 +44,7 @@ import com.day.cq.wcm.api.NameConstants;
         "sling.servlet.methods=GET",
         "sling.servlet.extensions=html"
     })
+@Deprecated
 public class PageTemplateRenderConditionServlet extends SlingSafeMethodsServlet {
 
     public final static String RESOURCE_TYPE = "core/cif/components/renderconditions/pagetemplate";
