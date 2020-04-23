@@ -322,6 +322,7 @@ public class ProductImpl implements Product {
         groupedProductItem.setSku(product.getSku());
         groupedProductItem.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         groupedProductItem.setDefaultQuantity(item.getQty());
+        groupedProductItem.setVirtualProduct(product instanceof VirtualProduct);
 
         return groupedProductItem;
     }

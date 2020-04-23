@@ -40,6 +40,7 @@ describe('Navigation', () => {
                             </svg>
                         </span>
                     </button>
+                    <button data-role="mask" class="navigation__mask"></button>
                     <aside class="navigation__root navigation__root_open">                        
                         <div class="navigation__header">
                             <button class="trigger__root clickable__root trigger__root--back" type="button" style="display: none;">
@@ -201,6 +202,8 @@ describe('Navigation', () => {
         assert.isTrue(navigation.navigationPanel.classList.contains(Navigation.CSS_CLASS_NAVIGATION_OPEN));
         assert.equal('none', navigation.backNavigationButton.style.display);
         assert.equal('block', navigation.backNavigationEmpty.style.display);
+
+        assert.isTrue(navigation.navigationMask.classList.contains(Navigation.CSS_CLASS_MASK_ACTIVE));
     });
 
     it('closes the navigation pane', () => {
@@ -213,6 +216,7 @@ describe('Navigation', () => {
         document.querySelector(Navigation.selectors.closeNavigationButton).click();
 
         assert.isFalse(navigation.navigationPanel.classList.contains(Navigation.CSS_CLASS_NAVIGATION_OPEN));
+        assert.isFalse(navigation.navigationMask.classList.contains(Navigation.CSS_CLASS_MASK_ACTIVE));
     });
 
     it('navigates down by button click', () => {

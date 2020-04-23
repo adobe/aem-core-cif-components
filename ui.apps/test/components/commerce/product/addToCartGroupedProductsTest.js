@@ -37,7 +37,7 @@ describe('GroupedProduct', () => {
             }
             pageRoot.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product">
+                `<div data-cmp-is="product" data-grouped>
                     <div class="productFullDetail__details">
                         <span role="sku">my-grouped-product</span>
                     </div>
@@ -54,6 +54,10 @@ describe('GroupedProduct', () => {
                             <option value="1"></option>
                         </select>
                         <select data-product-sku="sku3">
+                            <option value="0" selected></option>
+                            <option value="1"></option>
+                        </select>
+                        <select data-product-sku="sku4" data-virtual>
                             <option value="0" selected></option>
                             <option value="1"></option>
                         </select>
@@ -103,11 +107,40 @@ describe('GroupedProduct', () => {
             sinon.assert.calledOnce(spy);
             let event = spy.getCall(0).args[0];
             assert.equal(event.type, AddToCart.events.addToCart);
-            assert.equal(event.detail.items.length, 2);
-            assert.equal(event.detail.items[0].sku, 'sku1');
-            assert.equal(event.detail.items[0].quantity, 1);
-            assert.equal(event.detail.items[1].sku, 'sku3');
-            assert.equal(event.detail.items[1].quantity, 1);
+            assert.equal(event.detail.length, 2);
+            assert.equal(event.detail[0].sku, 'sku1');
+            assert.equal(event.detail[0].quantity, 1);
+            assert.equal(event.detail[1].sku, 'sku3');
+            assert.equal(event.detail[1].quantity, 1);
+
+            document.dispatchEvent = _originalDispatch;
+        });
+
+        it('dispatches add-to-cart event with virtual product on click', () => {
+            let spy = sinon.spy();
+            let _originalDispatch = document.dispatchEvent;
+            document.dispatchEvent = spy;
+
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
+
+            // Select quantity "1" for two products
+            selections[0].selectedIndex = 1;
+            selections[3].selectedIndex = 1;
+            selections[0].dispatchEvent(new Event('change'));
+            assert.isFalse(addToCartRoot.disabled);
+            addToCartRoot.click();
+
+            sinon.assert.calledOnce(spy);
+            let event = spy.getCall(0).args[0];
+            assert.equal(event.type, AddToCart.events.addToCart);
+            assert.equal(event.detail.length, 2);
+            assert.equal(event.detail[0].sku, 'sku1');
+            assert.equal(event.detail[0].quantity, 1);
+            assert.isFalse(event.detail[0].virtual);
+            assert.equal(event.detail[1].sku, 'sku4');
+            assert.equal(event.detail[1].quantity, 1);
+            assert.isTrue(event.detail[1].virtual);
 
             document.dispatchEvent = _originalDispatch;
         });
