@@ -15,6 +15,9 @@ import { useMutation } from '@apollo/react-hooks';
 import { useState } from 'react';
 
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
+import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
+
+import { useAwaitQuery } from '../../utils/hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
@@ -23,6 +26,7 @@ export default () => {
     const [{ shippingAddress, shippingMethod, paymentMethod }, checkoutDispatch] = useCheckoutState();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ isSignedIn }, { resetCustomerCart }] = useUserContext();
+    const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
 
     const [placeOrder] = useMutation(MUTATION_PLACE_ORDER);
     const [inProgress, setInProgress] = useState(false);
@@ -37,7 +41,7 @@ export default () => {
 
             // if user is signed in reset the cart
             if (isSignedIn) {
-                resetCustomerCart();
+                resetCustomerCart(fetchCustomerCartQuery);
             }
             cartDispatch({ type: 'reset' });
         } catch (error) {

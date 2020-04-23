@@ -22,7 +22,6 @@ import { resetCustomerCart as resetCustomerCartAction } from '../actions/user';
 
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
-import QUERY_CUSTOMER_CART from '../queries/query_customer_cart.graphql';
 
 const UserContext = React.createContext();
 
@@ -121,7 +120,6 @@ const UserContextProvider = props => {
 
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
-    const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
 
     const setToken = token => {
         setUserCookie(token);
@@ -147,7 +145,7 @@ const UserContextProvider = props => {
         }
     };
 
-    const resetCustomerCart = async () => {
+    const resetCustomerCart = async fetchCustomerCartQuery => {
         await resetCustomerCartAction({ fetchCustomerCartQuery, dispatch });
     };
 

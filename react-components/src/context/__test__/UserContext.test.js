@@ -22,6 +22,7 @@ import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graph
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
+import { useAwaitQuery } from '../../utils/hooks';
 
 describe('UserContext test', () => {
     beforeEach(() => {
@@ -162,12 +163,13 @@ describe('UserContext test', () => {
     it('resets the customer cart', async () => {
         const ContextWrapper = () => {
             const [{ cartId }, { resetCustomerCart }] = useUserContext();
+            const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
 
             let content;
             if (cartId) {
                 content = <div data-testid="success">{cartId}</div>;
             } else {
-                content = <button onClick={() => resetCustomerCart()}>Reset cart</button>;
+                content = <button onClick={() => resetCustomerCart(fetchCustomerCartQuery)}>Reset cart</button>;
             }
 
             return <div>{content}</div>;
