@@ -21,6 +21,7 @@ class Navigation {
         this.categoryTreeRoot = document.querySelector(Navigation.selectors.categoryTreeRoot);
         this.shadowTreeRoot = document.querySelector(Navigation.selectors.shadowTreeRoot);
         this.panelTitleElement = document.querySelector(Navigation.selectors.navigationHeaderTitle);
+        this.navigationMask = document.querySelector(Navigation.selectors.navigationMask);
 
         this.defaultPanelTitle = this.panelTitleElement.textContent;
 
@@ -59,6 +60,9 @@ class Navigation {
             this.setVisible(this.backNavigationButton, false);
             this.setVisible(this.backNavigationEmpty, true);
         });
+
+        this.hidePanel = this.hidePanel.bind(this);
+        this.navigationMask.addEventListener('click', this.hidePanel);
     }
 
     setPanelTitle(title) {
@@ -67,12 +71,12 @@ class Navigation {
 
     showPanel() {
         this.navigationPanel.classList.add(Navigation.CSS_CLASS_NAVIGATION_OPEN);
-        window.CIF.PageContext.maskPage(this.hidePanel.bind(this));
+        this.navigationMask.classList.add(Navigation.CSS_CLASS_MASK_ACTIVE);
     }
 
     hidePanel() {
         this.navigationPanel.classList.remove(Navigation.CSS_CLASS_NAVIGATION_OPEN);
-        window.CIF.PageContext.unmaskPage();
+        this.navigationMask.classList.remove(Navigation.CSS_CLASS_MASK_ACTIVE);
     }
 
     getActiveNavigation() {
@@ -160,12 +164,14 @@ Navigation.selectors = {
     backNavigationButton: '.navigation__header .trigger__root--back',
     backNavigationEmpty: '.navigation__header .trigger__root--back--empty',
     closeNavigationButton: '.navigation__header .trigger__root--close',
-    downNavigationButton: '.categoryLeaf__root button'
+    downNavigationButton: '.categoryLeaf__root button',
+    navigationMask: 'button.navigation__mask'
 };
 
 Navigation.CSS_CLASS_NAVIGATION_OPEN = 'navigation__root_open';
 Navigation.CSS_CLASS_ICON_ROOT_ACTIVE = 'icon__root--active';
 Navigation.CSS_CLASS_CLICKABLE_ROOT = 'clickable__root';
+Navigation.CSS_CLASS_MASK_ACTIVE = 'navigation__mask_active';
 
 (function() {
     function onDocumentReady() {

@@ -26,8 +26,15 @@ describe('useMinicart', () => {
     const addToCartMutation = jest.fn();
     const addVirtualItemMutation = jest.fn();
     const createCartMutation = jest.fn();
+    const addSimpleAndVirtualItemMutation = jest.fn();
 
-    const queries = { cartDetailsQuery, addToCartMutation, addVirtualItemMutation, createCartMutation };
+    const queries = {
+        cartDetailsQuery,
+        addToCartMutation,
+        addVirtualItemMutation,
+        addSimpleAndVirtualItemMutation,
+        createCartMutation
+    };
 
     const MockComponent = props => {
         const [data, api] = useMinicart({ queries });
@@ -45,7 +52,7 @@ describe('useMinicart', () => {
     };
 
     it('adds an item to cart', async () => {
-        const mockEvent = { detail: { items: [{ sku: '123', quantity: 2 }] } };
+        const mockEvent = { detail: [{ sku: '123', quantity: 2 }] };
 
         const { getByRole, getByTestId, debug } = render(
             <CartProvider initialState={{ cartId: 'guest123' }}>
@@ -63,13 +70,10 @@ describe('useMinicart', () => {
 
     it('adds multiple items to cart', async () => {
         const mockEvent = {
-            detail: {
-                virtual: true,
-                items: [
-                    { sku: '4566', quantity: 2 },
-                    { sku: '123', quantity: 3 }
-                ]
-            }
+            detail: [
+                { sku: '4566', quantity: 2 },
+                { sku: '123', quantity: 3, virtual: true }
+            ]
         };
 
         const { getByRole } = render(
@@ -80,6 +84,6 @@ describe('useMinicart', () => {
 
         await act(async () => fireEvent.click(getByRole('button')));
 
-        expect(addToCartMutation).toHaveBeenCalledTimes(1);
+        expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
     });
 });

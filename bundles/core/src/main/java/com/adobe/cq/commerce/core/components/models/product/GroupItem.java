@@ -28,4 +28,6 @@ public interface GroupItem {
     Price getPriceRange();
 
     Double getDefaultQuantity();
+
+    Boolean isVirtualProduct();
 }

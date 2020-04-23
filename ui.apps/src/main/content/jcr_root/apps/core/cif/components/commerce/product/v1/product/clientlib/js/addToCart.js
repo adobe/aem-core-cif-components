@@ -23,13 +23,15 @@ class AddToCart {
         // Get configuration from product reference
         let configurable = config.product.dataset.configurable !== undefined;
         let virtual = config.product.dataset.virtual !== undefined;
+        let grouped = config.product.dataset.grouped !== undefined;
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
 
         this._state = {
-            sku: sku,
+            sku,
             attributes: {},
-            configurable: configurable,
-            virtual: virtual
+            configurable,
+            virtual,
+            grouped
         };
 
         // Disable add to cart if configurable product and no variant was selected
@@ -37,8 +39,7 @@ class AddToCart {
             this._element.disabled = true;
         }
 
-        const groupedProducts = document.querySelector(AddToCart.selectors.groupedProducts);
-        if (groupedProducts) {
+        if (grouped) {
             this._onQuantityChanged(); // init
             // Disable/enable add to cart based on the selected quantities of a grouped product
             document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
@@ -96,17 +97,15 @@ class AddToCart {
             })
             .map(selection => {
                 return {
-                    sku: selection.getAttribute('data-product-sku'),
+                    sku: selection.dataset.productSku,
+                    virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
                     quantity: selection.value
                 };
             });
 
         if (items.length > 0 && window.CIF) {
             const customEvent = new CustomEvent(AddToCart.events.addToCart, {
-                detail: {
-                    items,
-                    virtual: this._state.virtual
-                }
+                detail: items
             });
             document.dispatchEvent(customEvent);
         }
@@ -117,8 +116,7 @@ AddToCart.selectors = {
     self: '.productFullDetail__cartActions button',
     sku: '.productFullDetail__details [role=sku]',
     quantity: '.productFullDetail__quantity select',
-    product: '[data-cmp-is=product]',
-    groupedProducts: '.productFullDetail__groupedProducts'
+    product: '[data-cmp-is=product]'
 };
 
 AddToCart.events = {
