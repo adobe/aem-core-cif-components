@@ -16,7 +16,13 @@ import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 
 export default ({ queries }) => {
-    const { createCartMutation, addToCartMutation, cartDetailsQuery, addVirtualItemMutation } = queries;
+    const {
+        createCartMutation,
+        addToCartMutation,
+        cartDetailsQuery,
+        addVirtualItemMutation,
+        addSimpleAndVirtualItemMutation
+    } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
     useEffect(() => {
@@ -30,19 +36,28 @@ export default ({ queries }) => {
     const addItem = async event => {
         if (!event.detail) return;
 
-        let cartItems = event.detail.items.map(item => {
+        const mapper = item => {
             return {
                 data: {
                     sku: item.sku,
                     quantity: item.quantity
                 }
             };
-        });
+        };
 
-        let addItemFn = event.detail.virtual ? addVirtualItemMutation : addToCartMutation;
+        let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
+        let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
+
+        let addItemFn = addToCartMutation;
+        if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
+            addItemFn = addSimpleAndVirtualItemMutation;
+        } else if (virtualCartItems.length > 0) {
+            addItemFn = addVirtualItemMutation;
+        }
+
         await addItemToCart({
             createCartMutation,
             addToCartMutation: addItemFn,
@@ -50,7 +65,8 @@ export default ({ queries }) => {
             cart,
             cartId,
             dispatch,
-            cartItems
+            physicalCartItems,
+            virtualCartItems
         });
         dispatch({ type: 'endLoading' });
     };

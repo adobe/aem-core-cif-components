@@ -40,7 +40,8 @@ describe('Cart actions', () => {
     });
 
     it('handles the "addToCart" action and updates state', async () => {
-        const items = [];
+        const physicalCartItems = [];
+        const virtualCartItems = [];
         const cart = { cartId: 'guest123' };
 
         await addItemToCart({
@@ -48,7 +49,8 @@ describe('Cart actions', () => {
             addToCartMutation,
             cartDetailsQuery,
             dispatch,
-            items,
+            physicalCartItems,
+            virtualCartItems,
             cartId: cart.cartId
         });
 
@@ -65,10 +67,19 @@ describe('Cart actions', () => {
             return { data: { createEmptyCart: 'guest123' } };
         });
         const dispatch = jest.fn();
-        const items = [];
+        const physicalCartItems = [];
+        const virtualCartItems = [];
         const cart = {};
 
-        await addItemToCart({ createCartMutation, addItemMutation, cartDetailsQuery, dispatch, items, cart });
+        await addItemToCart({
+            createCartMutation,
+            addItemMutation,
+            cartDetailsQuery,
+            dispatch,
+            physicalCartItems,
+            virtualCartItems,
+            cart
+        });
 
         expect(createCartMutation).toHaveBeenCalledTimes(1);
     });

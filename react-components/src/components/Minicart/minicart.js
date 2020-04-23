@@ -20,6 +20,7 @@ import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graph
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
+import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
 
 import Mask from '../Mask';
 
@@ -37,6 +38,7 @@ const MiniCart = () => {
     const [createCartMutation] = useMutation(MUTATION_CREATE_CART);
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
     const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
+    const [addSimpleAndVirtualItemMutation] = useMutation(MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART);
     const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
 
     const [{ cart, isOpen, isLoading, isEditing, errorMessage }, { addItem, dispatch }] = useMinicart({
@@ -44,7 +46,8 @@ const MiniCart = () => {
             createCartMutation,
             addToCartMutation,
             cartDetailsQuery,
-            addVirtualItemMutation
+            addVirtualItemMutation,
+            addSimpleAndVirtualItemMutation
         }
     });
 
