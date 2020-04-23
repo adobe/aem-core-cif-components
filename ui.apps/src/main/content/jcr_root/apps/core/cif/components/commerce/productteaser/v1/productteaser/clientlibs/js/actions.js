@@ -53,7 +53,7 @@ class ProductTeaser {
     _addToCartHandler(dataset) {
         const sku = dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: { items: [{ sku, quantity: 1 }], virtual: this.virtual }
+            detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
         document.dispatchEvent(customEvent);
     }

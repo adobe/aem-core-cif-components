@@ -20,12 +20,21 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
+import { useCartState } from '../Minicart/cartContext';
+
 import { func } from 'prop-types';
 
 const MyAccount = props => {
     const { showMenu, showChangePassword } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
+    const [, dispatch] = useCartState();
+
     const [t] = useTranslation('account');
+
+    const handleSignOut = () => {
+        dispatch({ type: 'reset' });
+        signOut();
+    };
 
     if (inProgress) {
         return (
@@ -50,7 +59,7 @@ const MyAccount = props => {
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
                 </AccountLink>
-                <AccountLink onClick={signOut}>
+                <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />
                     {t('account:sign-out', 'Sign Out')}
                 </AccountLink>

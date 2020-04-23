@@ -23,6 +23,7 @@ public class GroupItemImpl implements GroupItem {
     private String sku;
     private Price priceRange;
     private Double defaultQuantity;
+    private Boolean virtualProduct;
 
     @Override
     public String getName() {
@@ -58,5 +59,14 @@ public class GroupItemImpl implements GroupItem {
 
     public void setDefaultQuantity(Double defaultQuantity) {
         this.defaultQuantity = defaultQuantity;
+    }
+
+    @Override
+    public Boolean isVirtualProduct() {
+        return virtualProduct;
+    }
+
+    public void setVirtualProduct(Boolean virtualProduct) {
+        this.virtualProduct = virtualProduct;
     }
 }
