@@ -148,6 +148,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
+     * @return The extended category query part if it was set with {@link AbstractCategoryRetriever#extendCategoryQueryWith(Consumer)}
+     */
+    public Consumer<CategoryTreeQuery> getCategoryQueryHook() {
+        return categoryQueryHook;
+    }
+
+    /**
      * Extend the product query part of the category GraphQL query with a partial query provided by a lambda hook that sets additional
      * fields.
      *
@@ -165,6 +172,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
         this.productQueryHook = productQueryHook;
+    }
+
+    /**
+     * @return The extended product query part if it was set with {@link AbstractCategoryRetriever#extendProductQueryWith(Consumer)}
+     */
+    public Consumer<ProductInterfaceQuery> getProductQueryHook() {
+        return productQueryHook;
     }
 
     /**

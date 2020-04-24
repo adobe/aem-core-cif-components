@@ -17,9 +17,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 
 class CategoryRetriever extends AbstractCategoryRetriever {
 
@@ -27,51 +24,14 @@ class CategoryRetriever extends AbstractCategoryRetriever {
         super(client);
     }
 
-    private ProductPriceQueryDefinition generatePriceQuery() {
-        return q -> q
-            .regularPrice(r -> r
-                .value()
-                .currency())
-            .finalPrice(f -> f
-                .value()
-                .currency())
-            .discount(d -> d
-                .amountOff()
-                .percentOff());
-    }
-
-    private ProductInterfaceQueryDefinition generateProductQuery() {
-        return (ProductInterfaceQuery q) -> {
-            q.id()
-                .sku()
-                .name()
-                .smallImage(i -> i.url())
-                .urlKey()
-                .priceRange(r -> r
-                    .minimumPrice(generatePriceQuery()))
-                .onConfigurableProduct(cp -> cp
-                    .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())));
-
-            if (productQueryHook != null) {
-                productQueryHook.accept(q);
-            }
-        };
-    }
-
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        CategoryTreeQuery.ProductsArgumentsDefinition pArgs = q -> q
-            .currentPage(currentPage)
-            .pageSize(pageSize);
-
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = (CategoryTreeQuery q) -> {
             q.id()
                 .description()
                 .name()
                 .image()
-                .productCount()
-                .products(pArgs, categoryProductsQuery -> categoryProductsQuery.items(generateProductQuery()).totalCount());
+                .productCount();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);
