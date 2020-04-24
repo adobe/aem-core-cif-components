@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +23,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
 @ProviderType
 public interface ProductList {
@@ -71,21 +71,13 @@ public interface ProductList {
     @Nullable
     String getTitle();
 
-    int getTotalCount();
-
-    int getCurrentNavPage();
-
-    int getNextNavPage();
-
     String getImage();
 
     boolean showImage();
 
     boolean loadClientPrice();
 
-    int getPreviousNavPage();
-
-    List<Integer> getPageList();
+    SearchResultsSet getSearchResultsSet();
 
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.

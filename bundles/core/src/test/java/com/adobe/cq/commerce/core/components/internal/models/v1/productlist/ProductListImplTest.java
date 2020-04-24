@@ -18,11 +18,14 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
@@ -32,20 +35,32 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
+import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
+import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -55,9 +70,13 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ProductListImplTest {
 
     @Rule
@@ -72,6 +91,10 @@ public class ProductListImplTest {
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
+
+                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
+                context.registerInjectActivateService(new SearchFilterServiceImpl());
+                context.registerInjectActivateService(new SearchResultsServiceImpl());
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -82,7 +105,11 @@ public class ProductListImplTest {
 
     private Resource productListResource;
     private ProductListImpl productListModel;
-    private CategoryInterface category;
+    private CategoryTree category;
+    private Products products;
+
+    @Mock
+    HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
@@ -90,10 +117,18 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json");
-        category = rootQuery.getCategory();
+        category = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json").getCategory();
+        products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
         Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -152,13 +187,13 @@ public class ProductListImplTest {
         Assert.assertNotNull(products);
 
         // We introduce one "faulty" product data in the response, it should be skipped
-        Assert.assertEquals(6, products.size());
+        Assert.assertEquals(4, products.size());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         List<ProductListItem> results = products.stream().collect(Collectors.toList());
         for (int i = 0; i < results.size(); i++) {
             // get raw GraphQL object
-            ProductInterface productInterface = category.getProducts().getItems().get(i);
+            ProductInterface productInterface = this.products.getItems().get(i);
             // get mapped product list item
             ProductListItem item = results.get(i);
 
@@ -189,116 +224,50 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void testPagination() {
+    public void testCreateFilterMap() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
-        // Cannot be added to JCR JSON content because of long/int conversion
-        int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
+        Map<String, String[]> queryParameters;
+        Map<String, String> filterMap;
 
-        Assert.assertTrue(pageSize >= productListModel.getProducts().size());
-        Assert.assertTrue(pageSize <= category.getProductCount());
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] {});
+        filterMap = productListModel.createFilterMap(queryParameters);
+        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
 
-        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
-
-        when(incomingRequest.getParameter("page")).thenReturn("1");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(3, productListModel.getPageList().size());
-
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(2, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        when(incomingRequest.getParameter("page")).thenReturn("2");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-
-        Assert.assertEquals(2, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(3, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        when(incomingRequest.getParameter("page")).thenReturn("3");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-
-        Assert.assertEquals(3, productListModel.getCurrentNavPage());
-        Assert.assertEquals(2, productListModel.getPreviousNavPage());
-        Assert.assertEquals(3, productListModel.getNextNavPage());
-        Assert.assertTrue(productListModel.getProducts().size() <= pageSize);
-
-        // Test when page size matches number of products
-        Whitebox.setInternalState(productListModel, "navPageSize", 13);
-        when(incomingRequest.getParameter("page")).thenReturn("1");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
-        Assert.assertEquals(1, productListModel.getPreviousNavPage());
-        Assert.assertEquals(1, productListModel.getNextNavPage());
-
-        // Test with invalid page size
-        when(incomingRequest.getParameter("page")).thenReturn("0");
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertEquals(1, productListModel.getCurrentNavPage());
+        queryParameters = new HashMap<>();
+        queryParameters.put("color", new String[] { "123" });
+        filterMap = productListModel.createFilterMap(queryParameters);
+        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
     }
 
     @Test
-    public void testPaginationLarge() {
+    public void testCalculateCurrentPageCursor() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
+        Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
+    }
 
-        // Cannot be added to JCR JSON content because of long/int conversion
-        int pageSize = (int) Whitebox.getInternalState(productListModel, "navPageSize");
+    @Test
+    public void testFilterQueriesReturnNull() {
+        // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
+        // For example, 3rd-party integrations might not support this immediately
 
-        Assert.assertTrue(pageSize >= productListModel.getProducts().size());
-        Assert.assertTrue(pageSize <= category.getProductCount());
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        productListModel.getCategoryRetriever().fetchCategory();
-        productListModel.getCategoryRetriever().fetchCategory().getProducts().setTotalCount(100);
+        Query query = new Query().setProducts(products).setCategory(category);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
 
-        SlingHttpServletRequest incomingRequest = mock(SlingHttpServletRequest.class);
-        Whitebox.setInternalState(productListModel, "request", incomingRequest);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
-        when(incomingRequest.getParameter("page")).thenReturn("1");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 2, 0, 17 }, productListModel.getPageList().toArray());
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Collection<ProductListItem> productList = productListModel.getProducts();
+        Assert.assertEquals("Return the correct number of products", 4, productList.size());
 
-        when(incomingRequest.getParameter("page")).thenReturn("2");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 0, 17 }, productListModel.getPageList().toArray());
-
-        when(incomingRequest.getParameter("page")).thenReturn("3");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 2, 3, 4, 0, 17 }, productListModel.getPageList().toArray());
-
-        when(incomingRequest.getParameter("page")).thenReturn("10");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 0, 9, 10, 11, 0, 17 }, productListModel.getPageList().toArray());
-
-        when(incomingRequest.getParameter("page")).thenReturn("15");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 0, 14, 15, 16, 17 }, productListModel.getPageList().toArray());
-
-        when(incomingRequest.getParameter("page")).thenReturn("16");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 0, 15, 16, 17 }, productListModel.getPageList().toArray());
-
-        when(incomingRequest.getParameter("page")).thenReturn("17");
-        productListModel.setNavPageCursor();
-        productListModel.setupPagination();
-        Assert.assertArrayEquals(new Object[] { 1, 0, 16, 17 }, productListModel.getPageList().toArray());
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        Assert.assertEquals(0, searchResultsSet.getAvailableAggregations().size());
     }
 
     @Test
@@ -323,5 +292,35 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getTitle().isEmpty());
         Assert.assertTrue(productListModel.getImage().isEmpty());
         Assert.assertTrue(productListModel.getProducts().isEmpty());
+    }
+
+    @Test
+    public void testExtendProductQuery() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Query query = new Query().setProducts(products).setCategory(category);
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        productListModel.getCategoryRetriever().extendProductQueryWith(p -> p.createdAt().stockStatus());
+        productListModel.getProducts();
+
+        ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        verify(graphqlClient, atLeastOnce()).execute(captor.capture(), any(), any(), any());
+
+        // Check the "products" query
+        List<GraphqlRequest> requests = captor.getAllValues();
+        String productsQuery = null;
+        for (GraphqlRequest request : requests) {
+            if (request.getQuery().startsWith("{products")) {
+                productsQuery = request.getQuery();
+                break;
+            }
+        }
+        Assert.assertTrue(productsQuery.contains("created_at,stock_status"));
     }
 }
