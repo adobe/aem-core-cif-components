@@ -40,11 +40,15 @@ This component is targeted for a search result display page showing the product 
 ```
 BLOCK category
     ELEMENT category__root
-    ELEMENT category__root-message
+        MOD category__root-message
     ELEMENT category__title
     ELEMENT category__pagination
     ELEMENT category__categoryTitle
     ELEMENT category__image
+
+BLOCK search
+    ELEMENT search__root
+    ELEMENT search__filters
 
 BLOCK gallery
     ELEMENT gallery__root
