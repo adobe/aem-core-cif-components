@@ -21,7 +21,8 @@ term is read from request parameters of the page and the data is retrieved from 
 
 ## Features
 
-- Support for basic full-text search
+- Support for full-text search
+- Support for faceted search
 - Display products in gallery view, incl. name, thumbnail, and price
 - Style System support.
 
@@ -34,6 +35,8 @@ This component uses the `com.adobe.cq.commerce.core.components.models.searchresu
 This component is targeted for a search result display page showing the product results of a full-text search.
 
 1. `search_query` parameter containing the search query term
+2. `page` parameter containing the current result page
+3. additional dynamic parameters based on search filter selection
 
 ## BEM Description
 
