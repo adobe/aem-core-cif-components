@@ -16,7 +16,7 @@
     <div class="filterSection-header">
         <h5 class="filterSection-title">${'Filter by' @ i18n}</h5>
     </div>
-    <ul class="currentFilters__root" data-sly-list.aggregate="${searchResultsSet.appliedAggregations}">
+    <ul class="currentFilters__root" data-sly-list.aggregate="${searchResultsSet.appliedAggregations    }">
         <li data-sly-test="${aggregate.filterable}">
             <span class="currentFilter__root">
             <span>${aggregate.displayLabel}: ${aggregate.appliedFilterDisplayLabel @ context='html'}</span>
