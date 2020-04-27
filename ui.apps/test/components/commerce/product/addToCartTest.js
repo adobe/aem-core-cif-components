@@ -119,9 +119,9 @@ describe('Product', () => {
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
-            assert.equal(spy.getCall(0).args[0].detail.items[0].sku, addToCart._state.sku);
-            assert.equal(spy.getCall(0).args[0].detail.items[0].quantity, 5);
-            assert.isFalse(spy.getCall(0).args[0].detail.virtual);
+            assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
+            assert.isFalse(spy.getCall(0).args[0].detail[0].virtual);
             document.dispatchEvent = _originalDispatch;
         });
 
@@ -156,8 +156,8 @@ describe('Product', () => {
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
-            assert.equal(spy.getCall(0).args[0].detail.items[0].quantity, 4);
-            assert.isTrue(spy.getCall(0).args[0].detail.virtual);
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 4);
+            assert.isTrue(spy.getCall(0).args[0].detail[0].virtual);
             document.dispatchEvent = _originalDispatch;
         });
     });

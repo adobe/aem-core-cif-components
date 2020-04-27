@@ -15,10 +15,11 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,6 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -36,17 +38,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
+import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -62,7 +66,12 @@ public class ProductListImpl implements ProductList {
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
-    private static final int PAGE_SIZE_DEFAULT = 6;
+
+    private Page productPage;
+    private boolean showTitle;
+    private boolean showImage;
+    private boolean loadClientPrice;
+    private int navPageSize;
 
     @Self
     private SlingHttpServletRequest request;
@@ -82,29 +91,30 @@ public class ProductListImpl implements ProductList {
     @Inject
     private Page currentPage;
 
-    private Page productPage;
-    private boolean showTitle;
-    private boolean showImage;
-    private boolean loadClientPrice;
+    @Inject
+    private SearchResultsService searchResultsService;
 
-    private Locale locale;
-    private int navPageCursor = 1;
-    private int navPageSize = PAGE_SIZE_DEFAULT;
-    private Integer navPagePrev;
-    private Integer navPageNext;
-    private List<Integer> navPages;
+    @Inject
+    private UrlProvider urlProvider;
 
     private AbstractCategoryRetriever categoryRetriever;
+    private SearchOptionsImpl searchOptions;
+    private SearchResultsSet searchResultsSet;
+    private boolean usePlaceholderData;
 
     @PostConstruct
     private void initModel() {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
-        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, SearchOptionsImpl.PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
 
-        setNavPageCursor();
+        String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
+
+        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -112,28 +122,35 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
-        locale = productPage.getLanguage(false);
-
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
-        // Parse category id from URL
-        final String categoryId = parseCategoryId();
+        // Parse category identifier from URL
+        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (categoryId != null) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryId);
-                categoryRetriever.setCurrentPage(navPageCursor);
-                categoryRetriever.setPageSize(navPageSize);
+                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
             } else if (!wcmMode.isDisabled()) {
+                usePlaceholderData = true;
+                loadClientPrice = false;
                 try {
                     categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-                loadClientPrice = false;
             }
+        }
+
+        if (usePlaceholderData) {
+            searchResultsSet = new SearchResultsSetImpl();
+        } else {
+            searchOptions = new SearchOptionsImpl();
+            searchOptions.setCurrentPage(currentPageIndex);
+            searchOptions.setPageSize(navPageSize);
+            searchOptions.setAttributeFilters(searchFilters);
+            searchOptions.setCategoryId(identifier.getRight());
         }
     }
 
@@ -147,31 +164,6 @@ public class ProductListImpl implements ProductList {
     @Override
     public boolean showTitle() {
         return showTitle;
-    }
-
-    @Override
-    public int getTotalCount() {
-        return categoryRetriever.fetchCategory().getProducts().getTotalCount();
-    }
-
-    @Override
-    public int getCurrentNavPage() {
-        return navPageCursor;
-    }
-
-    @Override
-    public int getNextNavPage() {
-        if (navPageNext == null) {
-            this.setupPagination();
-        }
-
-        if ((getTotalCount() % navPageSize) == 0) {
-            // if currentNavPage is already at last, set navPageNext to currentNavPage
-            navPageNext = (navPageCursor < (getTotalCount() / navPageSize)) ? (navPageCursor + 1) : navPageCursor;
-        } else {
-            navPageNext = (navPageCursor < ((getTotalCount() / navPageSize) + 1)) ? (navPageCursor + 1) : navPageCursor;
-        }
-        return navPageNext;
     }
 
     @Override
@@ -196,134 +188,57 @@ public class ProductListImpl implements ProductList {
         return loadClientPrice;
     }
 
-    @Override
-    public int getPreviousNavPage() {
-        if (navPagePrev == null) {
-            this.setupPagination();
-        }
-        return navPagePrev;
-    }
-
-    @Override
-    public List<Integer> getPageList() {
-        if (navPages == null) {
-            this.setupPagination();
-        }
-        return navPages;
-    }
-
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        Collection<ProductListItem> listItems = new ArrayList<>();
-
-        if (categoryRetriever != null && categoryRetriever.fetchCategory() != null) {
-            final CategoryProducts products = categoryRetriever.fetchCategory().getProducts();
-            if (products != null) {
-                for (ProductInterface product : products.getItems()) {
-                    try {
-                        boolean isStartPrice = product instanceof GroupedProduct;
-                        Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-                        ProductImage smallImage = product.getSmallImage();
-                        listItems.add(new ProductListItemImpl(
-                            product.getSku(),
-                            product.getUrlKey(),
-                            product.getName(),
-                            price,
-                            smallImage == null ? null : smallImage.getUrl(),
-                            productPage,
-                            null,
-                            request));
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to instantiate product " + product.getSku(), e);
-                    }
-                }
-            }
+        if (usePlaceholderData) {
+            CategoryProducts categoryProducts = categoryRetriever.fetchCategory().getProducts();
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider);
+            return categoryProducts.getItems().stream()
+                .map(converter)
+                .filter(p -> p != null) // the converter returns null if the conversion fails
+                .collect(Collectors.toList());
+        } else {
+            return getSearchResultsSet().getProductListItems();
         }
-        return listItems;
+    }
+
+    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
+        Map<String, String> filters = new HashMap<>();
+        parameterMap.entrySet().forEach(filterCandidate -> {
+            String code = filterCandidate.getKey();
+            String[] value = filterCandidate.getValue();
+
+            // we'll make sure there is a value defined for the key
+            if (value.length != 1) {
+                return;
+            }
+
+            filters.put(code, value[0]);
+        });
+
+        return filters;
+    }
+
+    @Override
+    public SearchResultsSet getSearchResultsSet() {
+        if (searchResultsSet == null) {
+            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request, productQueryHook);
+        }
+        return searchResultsSet;
+    }
+
+    protected Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        return StringUtils.isNumeric(currentPageIndexCandidate) && Integer.valueOf(currentPageIndexCandidate) > 0
+            ? Integer.parseInt(currentPageIndexCandidate)
+            : 1;
     }
 
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
-        return this.categoryRetriever;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the selector of the current request which is expected to be the category id.
-     *
-     * @return category id
-     */
-    private String parseCategoryId() {
-        // TODO this should be change to slug/url_path if that is available to retrieve category data,
-        // currently we only can use the category id for that.
-        return request.getRequestPathInfo().getSelectorString();
-    }
-
-    /**
-     * Obtains value from request for page, sets Pagination values for current, next and previous pages
-     *
-     * @return void
-     */
-    void setupPagination() {
-        int navPagesSize = 0;
-
-        navPagePrev = (navPageCursor <= 1) ? 1 : (navPageCursor - 1);
-        if ((getTotalCount() % navPageSize) == 0) {
-            navPagesSize = getTotalCount() / navPageSize;
-            navPageNext = (navPageCursor < (getTotalCount() / navPageSize)) ? (navPageCursor + 1) : navPageCursor;
-        } else {
-            navPagesSize = (getTotalCount() / navPageSize) + 1;
-            navPageNext = (navPageCursor < ((getTotalCount() / navPageSize) + 1)) ? (navPageCursor + 1) : navPageCursor;
-        }
-        navPages = new ArrayList<>();
-
-        if (navPagesSize < 8) {
-            for (int i = 0; i < navPagesSize; i++) {
-                navPages.add(i + 1);
-            }
-        } else {
-            if (navPagePrev > 1) {
-                navPages.add(1);
-            }
-            if (navPagePrev > 2) {
-                navPages.add(0);
-            }
-            if (navPagePrev < navPageCursor) {
-                navPages.add(navPagePrev);
-            }
-            navPages.add(navPageCursor);
-            if (navPageNext > navPageCursor) {
-                navPages.add(navPageNext);
-            }
-            if (navPageNext < navPagesSize - 1) {
-                navPages.add(0);
-            }
-            if (navPageNext < navPagesSize) {
-                navPages.add(navPagesSize);
-            }
-        }
-    }
-
-    /**
-     * Sets value of navPageCursor from URL param if provided, else keeps it to default 1
-     *
-     * @return void
-     */
-    void setNavPageCursor() {
-        // check if pageCursor available in queryString, already set to 1 if not.
-        if (request.getParameter("page") != null) {
-            try {
-                navPageCursor = Integer.parseInt(request.getParameter("page"));
-                if (navPageCursor <= 0) {
-                    LOGGER.warn("invalid value of CGI variable page encountered, using default instead");
-                    navPageCursor = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                LOGGER.warn("non-parseable value for CGI variable page encountered, keeping navPageCursor value to default ");
-            }
-        }
+        return categoryRetriever;
     }
 
 }

@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
@@ -69,7 +70,7 @@ public class ProductRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{url_key:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type}}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},created_at,is_returnable_custom_:is_returnable}},storeConfig{secure_base_media_url}}";
+        String expectedQuery = "{products(filter:{sku:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type}}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},created_at,is_returnable_custom_:is_returnable}},storeConfig{secure_base_media_url}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -82,8 +83,27 @@ public class ProductRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{url_key:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},weight,volume_custom_:volume}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}},storeConfig{secure_base_media_url}}";
+        String expectedQuery = "{products(filter:{sku:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery_entries{disabled,file,label,position,media_type},weight,volume_custom_:volume}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}},storeConfig{secure_base_media_url}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
+    @Test
+    public void testSkuIdentifierType() {
+        retriever.setIdentifier(ProductIdentifierType.SKU, "my-sku");
+        retriever.fetchProduct();
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+        String queryStartsWith = "{products(filter:{sku:{eq:\"my-sku\"}})";
+        Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
+    }
+
+    @Test
+    public void testUrlKeyIdentifierType() {
+        retriever.setIdentifier(ProductIdentifierType.URL_KEY, "my-slug");
+        retriever.fetchProduct();
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+        String queryStartsWith = "{products(filter:{url_key:{eq:\"my-slug\"}})";
+        Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
+    }
 }

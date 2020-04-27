@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
@@ -50,6 +51,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private UrlProvider urlProvider;
 
     @Self
     private SlingHttpServletRequest request;
@@ -79,8 +83,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String title = properties.get(PN_ACTION_TEXT, String.class);
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
-                String selector = "";
-                Page page = null;
+                String selector = null;
+                Page page;
 
                 if (categoryId != null) {
                     page = categoryPage;
@@ -92,7 +96,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     page = currentPage;
 
                 }
-                actions.add(new CommerceTeaserActionItem(title, selector, page, request));
+                actions.add(new CommerceTeaserActionItem(title, selector, page, request, urlProvider, productSlug != null));
             }
         }
     }

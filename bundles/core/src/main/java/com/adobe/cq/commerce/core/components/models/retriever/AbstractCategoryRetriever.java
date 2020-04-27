@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
@@ -49,10 +50,14 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     protected String mediaBaseUrl;
 
     /**
-     * Identifier of the category that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations.
+     * Identifier of the category that should be fetched. Which kind of identifier is used is specified in {@link #categoryIdentifierType}
      */
     protected String identifier;
+
+    /**
+     * The type of the product identifier.
+     */
+    protected CategoryIdentifierType categoryIdentifierType;
 
     /**
      * Current page for pagination of products in a category.
@@ -103,11 +108,24 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
      *
      * @param identifier Category identifier
+     * @deprecated Use {@link #setIdentifier(CategoryIdentifierType, String)} instead.
      */
+    @Deprecated
     public void setIdentifier(String identifier) {
+        setIdentifier(CategoryIdentifierType.ID, identifier);
+    }
+
+    /**
+     * Set the identifier and the identifier type of the category that should be fetched. Setting the identifier, removes any cached data.
+     *
+     * @param categoryIdentifierType The category identifier type.
+     * @param identifier The category identifier.
+     */
+    public void setIdentifier(CategoryIdentifierType categoryIdentifierType, String identifier) {
         category = null;
         query = null;
         this.identifier = identifier;
+        this.categoryIdentifierType = categoryIdentifierType;
     }
 
     /**
@@ -127,6 +145,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public void extendCategoryQueryWith(Consumer<CategoryTreeQuery> categoryQueryHook) {
         this.categoryQueryHook = categoryQueryHook;
+    }
+
+    /**
+     * @return The extended category query part if it was set with {@link AbstractCategoryRetriever#extendCategoryQueryWith(Consumer)}
+     */
+    public Consumer<CategoryTreeQuery> getCategoryQueryHook() {
+        return categoryQueryHook;
     }
 
     /**
@@ -150,6 +175,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
+     * @return The extended product query part if it was set with {@link AbstractCategoryRetriever#extendProductQueryWith(Consumer)}
+     */
+    public Consumer<ProductInterfaceQuery> getProductQueryHook() {
+        return productQueryHook;
+    }
+
+    /**
      * Generates the partial CategoryTree query part of the GraphQL category query.
      *
      * @return CategoryTree query definition
@@ -163,6 +195,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateQuery(String identifier) {
+        // Use 'categoryIdentifierType' when we switch to Query.categoryList
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(identifier));
 
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();

@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -68,6 +69,9 @@ public class ProductCarouselImpl implements ProductCarousel {
 
     @Inject
     private Page currentPage;
+
+    @Inject
+    private UrlProvider urlProvider;
 
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -154,7 +158,8 @@ public class ProductCarouselImpl implements ProductCarousel {
                         thumbnail == null ? null : thumbnail.getUrl(),
                         productPage,
                         skus.getRight(),
-                        request));
+                        request,
+                        urlProvider));
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate product " + combinedSku, e);
                 }
