@@ -41,25 +41,21 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
-import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.Products;
-import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +75,6 @@ public class SearchResultsImplTest {
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
 
-                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
             },
@@ -90,16 +85,16 @@ public class SearchResultsImplTest {
     private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
 
     private SearchResultsImpl searchResultsModel;
-    private Resource searchResultsResource;
+    private Resource pageResource;
 
     @Mock
     HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(SEARCHRESULTS);
-        searchResultsResource = Mockito.spy(context.resourceResolver().getResource(SEARCHRESULTS));
+        Resource searchResultsResource = context.resourceResolver().getResource(SEARCHRESULTS);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
@@ -109,7 +104,15 @@ public class SearchResultsImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
-        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Function<Resource, GraphqlClient> adapter = r -> {
+            return r.getPath().equals("/content/pageA") ? graphqlClient : null;
+        };
+        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -159,7 +162,7 @@ public class SearchResultsImplTest {
     public void testNoMagentoGraphqlClient() {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
-        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        Mockito.when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(null);
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
         Collection<ProductListItem> products = searchResultsModel.getProducts();
@@ -198,19 +201,15 @@ public class SearchResultsImplTest {
     @Test
     public void testFilterQueriesReturnNull() throws IOException {
         // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
-        // For example, 3rd-party integrations might not support this immediately
+        // For example, 3rd-party integrations might not support these queries
 
         context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
-        Mockito.when(searchResultsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Products products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
-        Query query = new Query().setProducts(products);
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
-        response.setData(query);
-        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+        Mockito.reset(httpClient);
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
 
         Collection<ProductListItem> productList = searchResultsModel.getProducts();
         Assert.assertEquals("Return the correct number of products", 4, productList.size());

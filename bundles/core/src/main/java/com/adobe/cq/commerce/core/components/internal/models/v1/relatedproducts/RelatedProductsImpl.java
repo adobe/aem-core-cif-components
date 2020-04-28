@@ -81,7 +81,7 @@ public class RelatedProductsImpl implements ProductCarousel {
             return;
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;

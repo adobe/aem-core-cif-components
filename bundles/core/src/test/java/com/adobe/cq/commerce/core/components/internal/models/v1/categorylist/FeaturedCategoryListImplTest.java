@@ -96,8 +96,12 @@ public class FeaturedCategoryListImplTest {
         when(resolver.getResource(TEST_ASSET_PATH)).thenReturn(assetResource);
 
         // init sling model
-        Page page = contextConfigured.currentPage(TEST_CATEGORY_PAGE_URL);
+        Page page = Mockito.spy(contextConfigured.currentPage(TEST_CATEGORY_PAGE_URL));
         contextConfigured.currentResource(resource);
+
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         SlingBindings slingBindings = (SlingBindings) contextConfigured.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
@@ -123,7 +127,7 @@ public class FeaturedCategoryListImplTest {
         slingModelBadId = contextBadId.request().adaptTo(FeaturedCategoryListImpl.class);
 
         // init slingmodel with no graphql client
-        when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(null);
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCLIENT));
         contextNotConfiguredClient.currentResource(resource);
         slingBindings = (SlingBindings) contextNotConfiguredClient.request().getAttribute(SlingBindings.class.getName());

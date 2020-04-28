@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -54,7 +56,16 @@ import static org.mockito.Mockito.when;
 public class SearchResultsServiceImplTest {
 
     @Rule
-    public final AemContext context = new AemContext();
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
 
     @Mock
     SearchFilterService searchFilterService;
@@ -64,8 +75,6 @@ public class SearchResultsServiceImplTest {
     MagentoGraphqlClient magentoGraphqlClient;
     @Mock
     Page productPage;
-    @Mock
-    Resource resource;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Query query;
@@ -73,6 +82,7 @@ public class SearchResultsServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Products products;
 
+    Resource resource;
     SearchResultsServiceImpl serviceUnderTest;
 
     private static final String FILTER_ATTRIBUTE_NAME_CODE = "name";
@@ -82,6 +92,8 @@ public class SearchResultsServiceImplTest {
 
     @Before
     public void setup() {
+
+        resource = context.resourceResolver().getResource("/content/pageA");
 
         when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),

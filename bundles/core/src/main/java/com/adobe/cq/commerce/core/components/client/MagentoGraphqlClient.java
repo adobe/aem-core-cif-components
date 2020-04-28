@@ -65,7 +65,9 @@ public class MagentoGraphqlClient {
      *
      * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
      * @return A new MagentoGraphqlClient instance.
+     * @deprecated Use {@link MagentoGraphqlClient#create(Resource, Page)}
      */
+    @Deprecated
     public static MagentoGraphqlClient create(Resource resource) {
         return create(resource, null);
     }
@@ -74,25 +76,29 @@ public class MagentoGraphqlClient {
      * Instantiates and returns a new MagentoGraphqlClient.
      * This method returns <code>null</code> if the client cannot be instantiated.
      *
-     * @param resource The JCR resource of the component being rendered. This is used for caching purposes.
-     * @param pageResource The JCR page resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @param resource The JCR resource of the component being rendered. This is used for caching purposes, where the resource type is used
+     *            as the cache key. An OSGi service should pass a synthetic resource, where the resource type should be set to the
+     *            fully-qualified class name of the service.
+     * @param page The current AEM page. This is used to adapt to the lower-level {@link GraphqlClient}.
+     *            This is needed because it is not possible to get the current page for components added to the page template.
+     *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
      * @return A new MagentoGraphqlClient instance.
      */
-    public static MagentoGraphqlClient create(Resource resource, Resource pageResource) {
+    public static MagentoGraphqlClient create(Resource resource, Page page) {
         try {
-            return new MagentoGraphqlClient(resource, pageResource);
+            return new MagentoGraphqlClient(resource, page);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource, Resource pageResource) {
-        graphqlClient = resource.adaptTo(GraphqlClient.class);
+    private MagentoGraphqlClient(Resource resource, Page page) {
+        Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
+        graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
-            throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
+            throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
         }
-        LOGGER.info("{} --> {}", resource.getPath(), resource.getResourceType());
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
@@ -102,17 +108,16 @@ public class MagentoGraphqlClient {
         requestOptions.withCachingStrategy(cachingStrategy);
 
         String storeCode;
-        Resource configurationResource = pageResource != null ? pageResource : resource;
         ConfigurationBuilder configBuilder = configurationResource.adaptTo(ConfigurationBuilder.class);
 
         if (configBuilder != null) {
             ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
             storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
             if (storeCode == null) {
-                storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+                storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
             }
         } else {
-            storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+            storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
         }
         if (StringUtils.isNotEmpty(storeCode)) {
             Header storeHeader = new BasicHeader("Store", storeCode);

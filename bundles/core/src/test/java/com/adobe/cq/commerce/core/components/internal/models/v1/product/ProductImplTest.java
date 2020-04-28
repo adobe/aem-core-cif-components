@@ -93,23 +93,25 @@ public class ProductImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
 
-    private Resource productResource;
+    private Resource pageResource;
     private ProductImpl productModel;
     private ProductInterface product;
     private StoreConfig storeConfig;
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(PRODUCT);
-        productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
+        Resource productResource = context.resourceResolver().getResource(PRODUCT);
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-product-result.json");
         product = rootQuery.getProducts().getItems().get(0);
         storeConfig = rootQuery.getStoreConfig();
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
@@ -350,7 +352,7 @@ public class ProductImplTest {
         storeConfig = rootQuery.getStoreConfig();
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-groupedproduct-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         productModel = context.request().adaptTo(ProductImpl.class);
 
@@ -375,7 +377,7 @@ public class ProductImplTest {
     @Test
     public void testVirtualProduct() throws IOException {
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         productModel = context.request().adaptTo(ProductImpl.class);
         Assert.assertTrue(productModel.isVirtualProduct());
@@ -383,7 +385,7 @@ public class ProductImplTest {
 
     @Test
     public void testProductNoGraphqlClient() {
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(null);
 
         productModel = context.request().adaptTo(ProductImpl.class);
         Assert.assertFalse(productModel.getFound());

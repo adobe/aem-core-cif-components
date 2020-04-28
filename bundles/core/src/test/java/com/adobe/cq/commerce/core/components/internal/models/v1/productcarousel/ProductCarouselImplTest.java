@@ -50,6 +50,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Mockito.when;
+
 public class ProductCarouselImplTest {
 
     @Rule
@@ -79,15 +81,17 @@ public class ProductCarouselImplTest {
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTCAROUSEL);
-        carouselResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTCAROUSEL));
+        carouselResource = context.resourceResolver().getResource(PRODUCTCAROUSEL);
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productcarousel-result.json");
         products = rootQuery.getProducts().getItems();
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productcarousel-result.json");
-        Mockito.when(carouselResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

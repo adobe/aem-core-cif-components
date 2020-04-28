@@ -47,13 +47,11 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
-import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -67,6 +65,7 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -92,7 +91,6 @@ public class ProductListImplTest {
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
 
-                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
             },
@@ -104,23 +102,25 @@ public class ProductListImplTest {
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
 
     private Resource productListResource;
+    private Resource pageResource;
     private ProductListImpl productListModel;
     private CategoryTree category;
     private Products products;
+    private GraphqlClient graphqlClient;
 
     @Mock
     HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTLIST);
-        productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
+        productListResource = context.resourceResolver().getResource(PRODUCTLIST);
 
         category = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json").getCategory();
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
 
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
@@ -129,7 +129,15 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
-        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Function<Resource, GraphqlClient> adapter = r -> {
+            return r.getPath().equals("/content/pageA") ? graphqlClient : null;
+        };
+        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
@@ -249,18 +257,15 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void testFilterQueriesReturnNull() {
+    public void testFilterQueriesReturnNull() throws IOException {
         // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
         // For example, 3rd-party integrations might not support this immediately
 
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
-        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Query query = new Query().setProducts(products).setCategory(category);
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
-        response.setData(query);
-
-        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+        Mockito.reset(httpClient);
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
 
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> productList = productListModel.getProducts();
@@ -286,7 +291,10 @@ public class ProductListImplTest {
 
     @Test
     public void testProductListNoGraphqlClient() throws IOException {
-        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(context.resourceResolver().getResource("/content/pageB"));
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.pageManager().getPage("/content/pageB"));
+
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
         Assert.assertTrue(productListModel.getTitle().isEmpty());
@@ -296,15 +304,6 @@ public class ProductListImplTest {
 
     @Test
     public void testExtendProductQuery() {
-        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
-        Mockito.when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Query query = new Query().setProducts(products).setCategory(category);
-        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
-        response.setData(query);
-
-        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
-
         productListModel = context.request().adaptTo(ProductListImpl.class);
         productListModel.getCategoryRetriever().extendProductQueryWith(p -> p.createdAt().stockStatus());
         productListModel.getProducts();

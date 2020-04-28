@@ -31,6 +31,7 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
 
 class GraphQLCategoryProvider {
 
@@ -38,8 +39,8 @@ class GraphQLCategoryProvider {
     private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    GraphQLCategoryProvider(Resource resource, Resource pageResource) {
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, pageResource);
+    GraphQLCategoryProvider(Resource resource, Page page) {
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
     }
 
     List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {
