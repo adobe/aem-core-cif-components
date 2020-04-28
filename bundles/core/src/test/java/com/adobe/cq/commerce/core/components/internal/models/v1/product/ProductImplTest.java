@@ -56,6 +56,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -355,7 +356,7 @@ public class ProductImplTest {
 
         List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
-        Assert.assertEquals(3, items.size());
+        Assert.assertEquals(4, items.size());
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
@@ -366,6 +367,8 @@ public class ProductImplTest {
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
             Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
+
+            Assert.assertEquals(pi instanceof VirtualProduct, item.isVirtualProduct());
         }
     }
 

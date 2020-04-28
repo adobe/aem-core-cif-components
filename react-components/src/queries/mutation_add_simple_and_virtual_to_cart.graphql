@@ -1,0 +1,12 @@
+mutation($cartId: String!, $virtualCartItems: [VirtualProductCartItemInput]!, $simpleCartItems: [SimpleProductCartItemInput]!) {
+    addSimpleProductsToCart(input: { cart_id: $cartId, cart_items: $simpleCartItems }) {
+        cart {
+            id
+        }
+    }
+    addVirtualProductsToCart(input: { cart_id: $cartId, cart_items: $virtualCartItems }) {
+        cart {
+            id
+        }
+    }
+}

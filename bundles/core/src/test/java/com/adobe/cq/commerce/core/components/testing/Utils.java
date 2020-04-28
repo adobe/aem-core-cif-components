@@ -16,26 +16,32 @@ package com.adobe.cq.commerce.core.components.testing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class Utils {
@@ -56,6 +62,26 @@ public class Utils {
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
+        return setupHttpResponse(filename, httpClient, httpCode, null);
+    }
+
+    /**
+     * This method prepares the mock http response with either the content of the <code>filename</code>
+     * or the provided <code>content</code> String.<br>
+     * <br>
+     * <b>Important</b>: because of the way the content of an HTTP response is consumed, this method MUST be called each time
+     * the client is called.
+     *
+     * @param filename The file to use for the json response.
+     * @param httpClient The HTTP client for which we want to mock responses.
+     * @param httpCode The http code that the mocked response will return.
+     * @param startsWith When set, the body of the GraphQL POST request must start with that String.
+     * 
+     * @return The JSON content of that file.
+     * 
+     * @throws IOException
+     */
+    public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String startsWith) throws IOException {
         String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
 
         HttpEntity mockedHttpEntity = Mockito.mock(HttpEntity.class);
@@ -67,7 +93,13 @@ public class Utils {
         Mockito.when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
 
         Mockito.when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
-        Mockito.when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+
+        if (startsWith != null) {
+            GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(startsWith);
+            Mockito.when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+        } else {
+            Mockito.when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+        }
 
         Mockito.when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
         Mockito.when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
@@ -83,12 +115,24 @@ public class Utils {
      * @throws IOException
      */
     public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename) throws IOException {
+        return setupGraphqlClientWithHttpResponseFrom(filename, null);
+    }
+
+    /**
+     * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
+     *
+     * @param filename The filename of the resource containing the JSON response.
+     * @param queryStartsWith An optional String that must match the start of the GraphQL query.
+     * @return The GraphqlClient instance.
+     * @throws IOException
+     */
+    public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename, String queryStartsWith) throws IOException {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
-        setupHttpResponse(filename, httpClient, HttpStatus.SC_OK);
+        setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, queryStartsWith);
         return graphqlClient;
     }
 
@@ -108,5 +152,49 @@ public class Utils {
 
     public static String getResource(String filename) throws IOException {
         return IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Matcher class used to match a GraphQL query. This is used to properly mock GraphQL responses.
+     */
+    private static class GraphqlQueryMatcher extends ArgumentMatcher<HttpUriRequest> {
+
+        private String startsWith;
+
+        public GraphqlQueryMatcher(String startsWith) {
+            this.startsWith = startsWith;
+        }
+
+        @Override
+        public boolean matches(Object obj) {
+            if (!(obj instanceof HttpUriRequest)) {
+                return false;
+            }
+
+            if (obj instanceof HttpEntityEnclosingRequest) {
+                // GraphQL query is in POST body
+                HttpEntityEnclosingRequest req = (HttpEntityEnclosingRequest) obj;
+                try {
+                    String body = IOUtils.toString(req.getEntity().getContent(), StandardCharsets.UTF_8);
+                    Gson gson = new Gson();
+                    GraphqlRequest graphqlRequest = gson.fromJson(body, GraphqlRequest.class);
+                    return graphqlRequest.getQuery().startsWith(startsWith);
+                } catch (Exception e) {
+                    return false;
+                }
+            } else {
+                // GraphQL query is in the URL 'query' parameter
+                HttpUriRequest req = (HttpUriRequest) obj;
+                String uri = null;
+                try {
+                    uri = URLDecoder.decode(req.getURI().toString(), StandardCharsets.UTF_8.name());
+                } catch (UnsupportedEncodingException e) {
+                    return false;
+                }
+                String graphqlQuery = uri.substring(uri.indexOf("?query=") + 7);
+                return graphqlQuery.startsWith(startsWith);
+            }
+        }
+
     }
 }
