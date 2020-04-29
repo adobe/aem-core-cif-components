@@ -122,7 +122,7 @@ public class ProductListImpl implements ProductList {
             productPage = currentPage;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);

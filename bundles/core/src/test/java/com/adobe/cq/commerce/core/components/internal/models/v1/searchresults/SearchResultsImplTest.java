@@ -105,10 +105,10 @@ public class SearchResultsImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
 
+        // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
         Function<Resource, GraphqlClient> adapter = r -> {
             return r.getPath().equals("/content/pageA") ? graphqlClient : null;
         };

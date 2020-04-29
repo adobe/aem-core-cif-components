@@ -53,7 +53,6 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class RelatedProductsImplTest {
 
@@ -97,10 +96,10 @@ public class RelatedProductsImplTest {
     private List<ProductInterface> products;
 
     private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector) throws Exception {
-        Page page = Mockito.spy(context.currentPage(PAGE));
+        Page page = context.currentPage(PAGE);
         String resourcePath = RESOURCES_PATHS.get(relationType);
         context.currentResource(resourcePath);
-        relatedProductsResource = context.resourceResolver().getResource(resourcePath);
+        relatedProductsResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
         if (addSlugInSelector) {
             MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -114,9 +113,7 @@ public class RelatedProductsImplTest {
             products = PRODUCTS_GETTER.get(relationType).apply(product);
             graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
         }
-        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
-        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(relatedProductsResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

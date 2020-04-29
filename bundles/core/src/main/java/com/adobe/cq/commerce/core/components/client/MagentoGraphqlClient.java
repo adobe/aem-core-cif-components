@@ -61,13 +61,15 @@ public class MagentoGraphqlClient {
 
     /**
      * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.
+     * This method returns <code>null</code> if the client cannot be instantiated.<br>
+     * <br>
+     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)} so the page can be used
+     * to adapt to the lower-level {@link GraphqlClient}, while the component resource can be used for caching purposes.
      *
-     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
+     *            the resource type is used as the cache key.
      * @return A new MagentoGraphqlClient instance.
-     * @deprecated Use {@link MagentoGraphqlClient#create(Resource, Page)}
      */
-    @Deprecated
     public static MagentoGraphqlClient create(Resource resource) {
         return create(resource, null);
     }

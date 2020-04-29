@@ -102,7 +102,7 @@ public class ProductCarouselImpl implements ProductCarousel {
             .distinct()
             .collect(Collectors.toList());
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {

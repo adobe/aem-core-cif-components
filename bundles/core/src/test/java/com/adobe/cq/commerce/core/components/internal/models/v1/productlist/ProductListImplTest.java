@@ -115,7 +115,7 @@ public class ProductListImplTest {
     public void setUp() throws Exception {
         Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTLIST);
-        productListResource = context.resourceResolver().getResource(PRODUCTLIST);
+        productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
         category = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json").getCategory();
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
@@ -129,11 +129,12 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
+        when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
+        // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
         Function<Resource, GraphqlClient> adapter = r -> {
             return r.getPath().equals("/content/pageA") ? graphqlClient : null;
         };
