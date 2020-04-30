@@ -12,11 +12,12 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form } from 'informed';
+import { Form, useFormState } from 'informed';
 import { array, bool, func, object, shape, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
+import Select from '../Select';
 import classes from './addressForm.css';
 import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
@@ -30,6 +31,18 @@ const AddressForm = props => {
     const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const [t] = useTranslation(['checkout', 'common']);
+
+    const displayCountries = useMemo(() => {
+        if (!countries || countries.length === 0) {
+            return [];
+        }
+        return countries.map(country => {
+            return {
+                label: country['full_name_locale'],
+                value: country['id']
+            };
+        });
+    }, [countries]);
 
     const values = useMemo(
         () =>
@@ -55,7 +68,6 @@ const AddressForm = props => {
         },
         [submit]
     );
-
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
@@ -90,13 +102,28 @@ const AddressForm = props => {
                         <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
+                <div className={classes.country}>
+                    <Field label={t('checkout:country', 'Country')}>
+                        <Select
+                            field="countryCode"
+                            initialValue={
+                                displayCountries && displayCountries.length > 0 ? displayCountries[0].value : ''
+                            }
+                            items={displayCountries}
+                        />
+                    </Field>
+                </div>
                 <div className={classes.region_code}>
                     <Field label={t('checkout:address-state', 'State')}>
                         <TextInput
                             id={classes.region_code}
+                            initialValue=""
                             field="region_code"
                             validateOnBlur
-                            validate={combine([isRequired, [hasLengthExactly, 2], [validateRegionCode, countries]])}
+                            validate={combine([
+                                [hasLengthExactly, 2],
+                                [validateRegionCode, countries]
+                            ])}
                         />
                     </Field>
                 </div>

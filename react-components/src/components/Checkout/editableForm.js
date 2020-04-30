@@ -64,7 +64,10 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
-            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } });
+            console.log(`Country? ${formValues.countryCode}`);
+            setShippingAddressesOnCart({
+                variables: { cartId: cartId, ...formValues }
+            });
             if (!isSignedIn) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
             }
@@ -77,7 +80,6 @@ const EditableForm = props => {
             let billingAddressVariables = {
                 cartId: cartId,
                 ...args.billingAddress,
-                countryCode: 'US',
                 region: args.billingAddress.region_code
             };
 

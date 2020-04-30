@@ -49,10 +49,16 @@ export const validateEmail = value => {
 };
 
 export const validateRegionCode = (value, values, countries) => {
+    const selectedCountry = values.countryCode;
+    console.log(`Selected country? ${selectedCountry}`);
+    if (selectedCountry !== 'US') {
+        return SUCCESS;
+    }
+
     const country = countries.find(({ id }) => id === 'US');
 
     if (!country) {
-        return 'Country "US" is not an available country.';
+        console.log(`country is not US ${value}, we don\'t validate the region code`);
     }
     const { available_regions: regions } = country;
 

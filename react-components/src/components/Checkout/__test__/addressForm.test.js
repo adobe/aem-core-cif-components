@@ -22,6 +22,7 @@ describe('<AddressForm />', () => {
     const countries = [
         {
             id: 'US',
+            full_name_locale: 'United States',
             available_regions: [
                 {
                     name: 'Michigan',
