@@ -50,16 +50,19 @@ export const validateEmail = value => {
 
 export const validateRegionCode = (value, values, countries) => {
     const selectedCountry = values.countryCode;
-    console.log(`Selected country? ${selectedCountry}`);
     if (selectedCountry !== 'US') {
+        // not validating the state for countries other than US
+        // this is actually more complex since on the Magento side
+        // you can define this in the store configuration
+        // ...but we don't read the store configuration now.
         return SUCCESS;
+    }
+    if (!value || value.length === 0) {
+        return 'This field is mandatory';
     }
 
     const country = countries.find(({ id }) => id === 'US');
 
-    if (!country) {
-        console.log(`country is not US ${value}, we don\'t validate the region code`);
-    }
     const { available_regions: regions } = country;
 
     if (!(Array.isArray(regions) && regions.length)) {

@@ -29,6 +29,7 @@ const mocks = [
                 countries: [
                     {
                         id: 'RO',
+                        full_name_locale: 'Romania',
                         available_regions: [
                             { code: 'AB', name: 'Alba' },
                             { code: 'AR', name: 'Arad' }
@@ -36,6 +37,7 @@ const mocks = [
                     },
                     {
                         id: 'US',
+                        full_name_locale: 'United States',
                         available_regions: [
                             { code: 'AL', name: 'Alabama' },
                             { code: 'AK', name: 'Alaska' }

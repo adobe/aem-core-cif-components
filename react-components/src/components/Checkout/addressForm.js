@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form, useFormState } from 'informed';
+import { Form } from 'informed';
 import { array, bool, func, object, shape, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +24,17 @@ import combine from '../../utils/combineValidators';
 import TextInput from '../TextInput';
 import Field from '../Field';
 
-const fields = ['city', 'email', 'firstname', 'lastname', 'postcode', 'region_code', 'street', 'telephone'];
+const fields = [
+    'city',
+    'email',
+    'firstname',
+    'lastname',
+    'postcode',
+    'region_code',
+    'street',
+    'telephone',
+    'countryCode'
+];
 
 const AddressForm = props => {
     const [submitting, setIsSubmitting] = useState(false);
@@ -62,6 +72,11 @@ const AddressForm = props => {
 
     const handleSubmit = useCallback(
         values => {
+            if (!values['region_code'] || values['region_code'].length === 0) {
+                // add an empty `region_code` value since
+                // the form doesn't provide one if you leave the field empty
+                values['region_code'] = '';
+            }
             setIsSubmitting(true);
             // Convert street back to array
             submit({ ...values, street: [values.street0] });
@@ -104,20 +119,13 @@ const AddressForm = props => {
                 </div>
                 <div className={classes.country}>
                     <Field label={t('checkout:country', 'Country')}>
-                        <Select
-                            field="countryCode"
-                            initialValue={
-                                displayCountries && displayCountries.length > 0 ? displayCountries[0].value : ''
-                            }
-                            items={displayCountries}
-                        />
+                        <Select field="countryCode" items={displayCountries} />
                     </Field>
                 </div>
                 <div className={classes.region_code}>
                     <Field label={t('checkout:address-state', 'State')}>
                         <TextInput
                             id={classes.region_code}
-                            initialValue=""
                             field="region_code"
                             validateOnBlur
                             validate={combine([
