@@ -32,14 +32,13 @@ describe('CartContext', () => {
     };
 
     const renderAndGetResult = action => {
-        const { getByRole, debug, getByTestId } = render(
+        const { getByRole, getByTestId } = render(
             <CartProvider>
                 <MockConsumer action={action} />
             </CartProvider>
         );
 
         fireEvent.click(getByRole('button'));
-        debug();
         const stateNode = getByTestId('state');
         return stateNode.textContent;
     };

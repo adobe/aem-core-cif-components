@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -40,11 +41,14 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -57,6 +61,7 @@ import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -86,6 +91,9 @@ public class ProductImpl implements Product {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     @ScriptVariable
     private Style currentStyle;
 
@@ -100,6 +108,7 @@ public class ProductImpl implements Product {
 
     private Boolean configurable;
     private Boolean isGroupedProduct;
+    private Boolean isVirtualProduct;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
@@ -108,17 +117,18 @@ public class ProductImpl implements Product {
 
     @PostConstruct
     private void initModel() {
-        // Parse slug from URL
-        String slug = parseProductSlug();
+
+        // Parse identifier in URL
+        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
 
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient != null) {
-            if (StringUtils.isNotBlank(slug)) {
+            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(slug);
+                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -189,6 +199,14 @@ public class ProductImpl implements Product {
     }
 
     @Override
+    public Boolean isVirtualProduct() {
+        if (isVirtualProduct == null) {
+            isVirtualProduct = productRetriever.fetchProduct() instanceof VirtualProduct;
+        }
+        return isVirtualProduct;
+    }
+
+    @Override
     public String getVariantsJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -211,7 +229,7 @@ public class ProductImpl implements Product {
     }
 
     @Override
-    public List<Variant> getGroupedProductItems() {
+    public List<GroupItem> getGroupedProductItems() {
         // Don't return any items if the current product is not of type GroupedProduct.
         if (!isGroupedProduct()) {
             return Collections.emptyList();
@@ -296,15 +314,17 @@ public class ProductImpl implements Product {
         return productVariant;
     }
 
-    private Variant mapGroupedProductItem(GroupedProductItem item) {
+    private GroupItem mapGroupedProductItem(com.adobe.cq.commerce.magento.graphql.GroupedProductItem item) {
         ProductInterface product = item.getProduct();
 
-        VariantImpl productVariant = new VariantImpl();
-        productVariant.setName(product.getName());
-        productVariant.setSku(product.getSku());
-        productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
+        GroupItemImpl groupedProductItem = new GroupItemImpl();
+        groupedProductItem.setName(product.getName());
+        groupedProductItem.setSku(product.getSku());
+        groupedProductItem.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
+        groupedProductItem.setDefaultQuantity(item.getQty());
+        groupedProductItem.setVirtualProduct(product instanceof VirtualProduct);
 
-        return productVariant;
+        return groupedProductItem;
     }
 
     private List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
@@ -348,18 +368,6 @@ public class ProductImpl implements Product {
         attribute.setValues(values);
 
         return attribute;
-    }
-
-    /* --- Utility methods --- */
-
-    /**
-     * Returns the selector of the current request which is expected to be the
-     * product slug.
-     *
-     * @return product slug
-     */
-    private String parseProductSlug() {
-        return request.getRequestPathInfo().getSelectorString();
     }
 
     private String safeDescription(ProductInterface product) {

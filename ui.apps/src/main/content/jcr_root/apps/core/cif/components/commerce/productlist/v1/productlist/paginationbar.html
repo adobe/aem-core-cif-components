@@ -11,14 +11,13 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.pagination="${@ productList}">
-    <div class="category__pagination">
+<template data-sly-template.searchResultsSet="${@ searchResultsSet}">
+    <div class="category__pagination" data-sly-test.pager="${searchResultsSet.pager}">
         <div class="category__pagination_root">
-            <sly data-sly-list.page="${productList.pageList}">
-
+            <sly data-sly-list.page="${pager.pages}">
                 <!--/*First Page button & Previous page button inactive */-->
-                <sly data-sly-test="${pageList.first && productList.currentNavPage==1} ">
-                    <a class=" category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page">
+                <sly data-sly-test="${pageList.first && pager.currentPage==1} ">
+                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
@@ -26,28 +25,42 @@
                 </sly>
 
                 <!--/*First Page button & Previous page button Active */-->
-                <sly data-sly-test="${pageList.first && productList.currentNavPage!=1} ">
-                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page" href="?page=${productList.previousNavPage  @context ='unsafe'}">
+                <sly data-sly-test="${pageList.first && pager.currentPage!=1} ">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page"
+                       href="${request.requestURI @ query=pager.previousPageParameters}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
                     </a>
                 </sly>
 
+                <!--/* Ommitted pages: ... */-->
+                <a class="category__pagination_tilebutton category__pagination_navbutton-inactive"
+                   data-sly-test="${pager.morePagesAfter && pageList.last}">
+                    <div class="category__pagination_tilebutton-text">&hellip;</div>
+                </a>
+
                 <!--/*Page numbers iterated*/-->
-                <a class=" category__pagination_tilebutton" href="?page=${page @context ='unsafe'}" data-sly-test="${page != 0}">
-                    <div class="category__pagination_tilebutton-text category__pagination_tilebutton-marker" data-sly-test="${page==productList.currentNavPage}">${page}</div>
-                    <div class="category__pagination_tilebutton-text" data-sly-test="${page!=productList.currentNavPage}">${page}</div>
+                <a class="category__pagination_tilebutton"
+                   href="${request.requestURI @ query=page.parameters}">
+                    <div class="category__pagination_tilebutton-text category__pagination_tilebutton-marker"
+                         data-sly-test.isCurrent="${page.pageNumber==pager.currentPage}">${page.pageNumber}</div>
+                    <div class="category__pagination_tilebutton-text" data-sly-test="${!isCurrent}">
+                        ${page.pageNumber}
+                    </div>
                 </a>
 
                 <!--/* Ommitted pages: ... */-->
-                <a class=" category__pagination_tilebutton category__pagination_navbutton-inactive" data-sly-test="${page == 0}">
-                    <div class="category__pagination_tilebutton-text">...</div>
+                <a class=" category__pagination_tilebutton category__pagination_navbutton-inactive"
+                   data-sly-test="${pager.morePagesBefore && pageList.first}">
+                    <div class="category__pagination_tilebutton-text">&hellip;</div>
                 </a>
 
+
                 <!--/* Next page button & Last Page button Active */-->
-                <sly data-sly-test="${pageList.last && productList.currentNavPage!=page}">
-                    <a class=" category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page" href="?page=${productList.nextNavPage  @context ='unsafe'}">
+                <sly data-sly-test="${pageList.last && pager.currentPage!=page.pageNumber}">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page"
+                       href="${request.requestURI @ query=pager.nextPageParameters}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
@@ -57,7 +70,7 @@
                 </sly>
 
                 <!--/* Next page button & Last Page button Inactive */-->
-                <sly data-sly-test="${pageList.last && productList.currentNavPage==page}">
+                <sly data-sly-test="${pageList.last && pager.currentPage==page.pageNumber}">
                     <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

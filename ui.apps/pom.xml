@@ -20,14 +20,14 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.10.2-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.10.2-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -135,6 +135,15 @@
                             <version>(1.0.138,)</version>
                         </dependency>
                     </dependencies>
+                    
+                    <embeddedTarget>/apps/bundles/install</embeddedTarget>
+                    <embeddeds> 
+                        <embedded>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-text</artifactId>
+                            <filter>true</filter>
+                        </embedded>
+                    </embeddeds>
                 </configuration>
             </plugin>
 
@@ -272,6 +281,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+        </dependency>
+    </dependencies>
 
     <!-- ====================================================================== -->
     <!-- P R O F I L E S                                                        -->

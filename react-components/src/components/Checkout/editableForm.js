@@ -43,18 +43,9 @@ const EditableForm = props => {
     const [{ isSignedIn }] = useUserContext();
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
-    const [
-        setBraintreePaymentMethodOnCart,
-        { data: braintreePaymentResult, error: braintreePaymentError }
-    ] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
-
-    const [setPaymentMethodOnCart, { data: paymentResult, error: paymentError }] = useMutation(
-        MUTATION_SET_PAYMENT_METHOD
-    );
-
-    const [setBillingAddressOnCart, { data: billingAddressResult, error: billingAddressError }] = useMutation(
-        MUTATION_SET_BILLING_ADDRESS
-    );
+    const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
+    const [setPaymentMethodOnCart] = useMutation(MUTATION_SET_PAYMENT_METHOD);
+    const [setBillingAddressOnCart] = useMutation(MUTATION_SET_BILLING_ADDRESS);
 
     const [setShippingMethodsOnCart, { data: shippingMethodsResult, error: shippingMethodsError }] = useMutation(
         MUTATION_SET_SHIPPING_METHOD
@@ -62,23 +53,8 @@ const EditableForm = props => {
 
     const [setGuestEmailOnCart, { data: guestEmailResult, error: guestEmailError }] = useMutation(MUTATION_SET_EMAIL);
 
-    if (
-        error ||
-        billingAddressError ||
-        paymentError ||
-        braintreePaymentError ||
-        shippingMethodsError ||
-        guestEmailError ||
-        countriesError
-    ) {
-        let errorObj =
-            error ||
-            billingAddressError ||
-            shippingMethodsError ||
-            guestEmailError ||
-            paymentError ||
-            braintreePaymentError ||
-            countriesError;
+    if (error || shippingMethodsError || guestEmailError || countriesError) {
+        let errorObj = error || shippingMethodsError || guestEmailError || countriesError;
         cartDispatch({ type: 'error', error: errorObj.toString() });
     }
 
@@ -96,38 +72,44 @@ const EditableForm = props => {
         [dispatch, setShippingAddressesOnCart]
     );
 
-    const handleSubmitPaymentsForm = useCallback(
-        args => {
-            if (args.billingAddress.sameAsShippingAddress) {
-                if (shippingAddress) {
-                    setBillingAddressOnCart({
-                        variables: {
-                            cartId: cartId,
-                            ...shippingAddress,
-                            countryCode: shippingAddress.country,
-                            region: shippingAddress.region.code
-                        }
-                    });
-                }
-            } else {
-                setBillingAddressOnCart({
-                    variables: {
-                        cartId: cartId,
-                        ...args.billingAddress,
-                        countryCode: 'US',
-                        region: args.billingAddress.region_code
-                    }
-                });
+    const handleSubmitPaymentsForm = async args => {
+        try {
+            let billingAddressVariables = {
+                cartId: cartId,
+                ...args.billingAddress,
+                countryCode: 'US',
+                region: args.billingAddress.region_code
+            };
+
+            if (!cart.is_virtual && args.billingAddress.sameAsShippingAddress && shippingAddress) {
+                billingAddressVariables = {
+                    ...billingAddressVariables,
+                    ...shippingAddress,
+                    countryCode: shippingAddress.country,
+                    region: shippingAddress.region.code
+                };
             }
 
-            // Store payment method in state, so we can later use it in the
-            // payment step of the checkout.
-            dispatch({ type: 'setPaymentMethod', paymentMethod: args.paymentMethod });
+            // If virtual and guest cart, set email with payment address, since no shipping address set
+            if (cart.is_virtual && !isSignedIn) {
+                await setGuestEmailOnCart({ variables: { cartId: cartId, email: args.billingAddress.email } });
+            }
 
+            const billingAddressResult = await setBillingAddressOnCart({ variables: billingAddressVariables });
+
+            dispatch({
+                type: 'setBillingAddress',
+                billingAddress: {
+                    ...billingAddressResult.data.setBillingAddressOnCart.cart.billing_address,
+                    email: args.billingAddress.email
+                }
+            });
+
+            let paymentResult;
             switch (args.paymentMethod.code) {
                 case 'braintree':
                 case 'braintree_paypal': {
-                    setBraintreePaymentMethodOnCart({
+                    paymentResult = await setBraintreePaymentMethodOnCart({
                         variables: {
                             cartId: cartId,
                             paymentMethodCode: args.paymentMethod.code,
@@ -137,14 +119,22 @@ const EditableForm = props => {
                     break;
                 }
                 default: {
-                    setPaymentMethodOnCart({
+                    paymentResult = await setPaymentMethodOnCart({
                         variables: { cartId: cartId, paymentMethodCode: args.paymentMethod.code }
                     });
                 }
             }
-        },
-        [dispatch]
-    );
+
+            dispatch({
+                type: 'setPaymentMethod',
+                paymentMethod: {
+                    ...paymentResult.data.setPaymentMethodOnCart.cart.selected_payment_method
+                }
+            });
+        } catch (err) {
+            cartDispatch({ type: 'error', error: err.toString() });
+        }
+    };
 
     const handleSubmitShippingForm = useCallback(
         formValues => {
@@ -163,22 +153,6 @@ const EditableForm = props => {
                 ...guestEmail,
                 country: newShippingAddress.country.code,
                 region_code: newShippingAddress.region.code
-            }
-        });
-    }
-
-    if (billingAddressResult) {
-        const combinedPaymentResult = paymentResult || braintreePaymentResult;
-        dispatch({
-            type: 'setPaymentMethod',
-            paymentMethod: {
-                ...combinedPaymentResult.setPaymentMethodOnCart.cart.selected_payment_method
-            }
-        });
-        dispatch({
-            type: 'setBillingAddress',
-            billingAddress: {
-                ...billingAddressResult.setBillingAddressOnCart.cart.billing_address
             }
         });
     }
@@ -214,6 +188,7 @@ const EditableForm = props => {
             return (
                 <PaymentsForm
                     cart={cart}
+                    allowSame={!cart.is_virtual}
                     cancel={handleCancel}
                     countries={countries}
                     initialValues={billingAddress}

@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
@@ -26,6 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -48,8 +52,11 @@ public class ProductTeaserImplTest {
     private static AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
             // Load page structure
-            context.load()
-                .json(contentPath, "/content");
+            context.load().json(contentPath, "/content");
+
+            UrlProviderImpl urlProvider = new UrlProviderImpl();
+            urlProvider.activate(new MockUrlProviderConfiguration());
+            context.registerService(UrlProvider.class, urlProvider);
         }, ResourceResolverType.JCR_MOCK);
     }
 
@@ -58,6 +65,7 @@ public class ProductTeaserImplTest {
     private static final String PAGE = "/content/pageA";
 
     private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
+    private static final String PRODUCTTEASER_VIRTUAL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-virtual";
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
     private static final String PRODUCTTEASER_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-noclient";
@@ -174,5 +182,23 @@ public class ProductTeaserImplTest {
 
         Assert.assertNull(productTeaserNoClient.getProductRetriever());
         Assert.assertNull(productTeaserNoClient.getUrl());
+    }
+
+    @Test
+    public void testVirtualProduct() throws IOException {
+        Page page = context.currentPage(PAGE);
+        context.currentResource(PRODUCTTEASER_VIRTUAL);
+        Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
+
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        Mockito.when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(teaserResource);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+
+        productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
+        Assert.assertTrue(productTeaser.isVirtualProduct());
     }
 }

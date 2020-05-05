@@ -2,6 +2,7 @@
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
       "cq:cifProductPage": "/content/product-page",
       "cq:cifCategoryPage": "/content/category-page",
       "jcr:language": "en_US",
@@ -11,6 +12,10 @@
         "responsivegrid": {
           "productteaser-simple": {
             "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-virtual": {
+            "selection": "VVP01",
             "sling:resourceType": "venia/components/commerce/productteaser"
           },
           "productteaser-variant": {

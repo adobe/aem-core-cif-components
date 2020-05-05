@@ -14,9 +14,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -35,11 +35,15 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
@@ -57,15 +61,18 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
     @ScriptVariable
     private ValueMap properties;
 
-    private NumberFormat priceFormatter;
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
 
     private Locale locale;
+    private Boolean isVirtualProduct;
 
     @PostConstruct
     protected void initModel() {
@@ -88,7 +95,7 @@ public class ProductTeaserImpl implements ProductTeaser {
             // Fetch product data
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(combinedSku.getLeft());
+                productRetriever.setIdentifier(ProductIdentifierType.SKU, combinedSku.getLeft());
             }
         }
     }
@@ -138,9 +145,14 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Override
     public String getUrl() {
         if (getProduct() != null) {
-            // Get slug from base product
-            SiteNavigation siteNavigation = new SiteNavigation(request);
-            return siteNavigation.toProductUrl(productPage, productRetriever.fetchProduct().getUrlKey(), combinedSku.getRight());
+            Map<String, String> params = new ParamsBuilder()
+                .sku(combinedSku.getLeft())
+                .variantSku(combinedSku.getRight())
+                .urlKey(productRetriever.fetchProduct().getUrlKey()) // Get slug from base product
+                .variantUrlKey(getProduct().getUrlKey())
+                .map();
+
+            return urlProvider.toProductUrl(request, productPage, params);
         }
         return null;
     }
@@ -156,6 +168,14 @@ public class ProductTeaserImpl implements ProductTeaser {
             return getProduct().getImage().getUrl();
         }
         return null;
+    }
+
+    @Override
+    public Boolean isVirtualProduct() {
+        if (isVirtualProduct == null) {
+            isVirtualProduct = getProduct() instanceof VirtualProduct;
+        }
+        return isVirtualProduct;
     }
 
     private SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {

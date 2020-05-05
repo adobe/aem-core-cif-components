@@ -66,11 +66,13 @@ public interface Product {
 
     Boolean isGroupedProduct();
 
+    Boolean isVirtualProduct();
+
     String getVariantsJson();
 
     List<Variant> getVariants();
 
-    List<Variant> getGroupedProductItems();
+    List<GroupItem> getGroupedProductItems();
 
     List<Asset> getAssets();
 

@@ -12,13 +12,37 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.models.storeviewexporter;
+package com.adobe.cq.commerce.core.search.internal.models;
 
-import org.osgi.annotation.versioning.ProviderType;
+import java.util.Map;
 
-@ProviderType
-public interface StoreViewExporter {
+import com.adobe.cq.commerce.core.search.models.PagerPage;
 
-    String getStoreView();
+/**
+ * A simple class for storing pagination page information.
+ */
+public class PagerPageImpl implements PagerPage {
+
+    private int pageNumber;
+    private Map<String, String> parameters;
+    private boolean displayed;
+
+    public PagerPageImpl(final int pageNumber, final Map<String, String> parameters, final boolean displayed) {
+        this.pageNumber = pageNumber;
+        this.parameters = parameters;
+        this.displayed = displayed;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public boolean isDisplayed() {
+        return displayed;
+    }
 
 }

@@ -30,7 +30,7 @@
                                         <items jcr:primaryType="nt:unstructured">
                                             <product
                                                     jcr:primaryType="nt:unstructured"
-                                                    sling:resourceType="/libs/commerce/gui/components/common/cifproductfield"
+                                                    sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                     fieldDescription="The product or product variant displayed by the teaser"
                                                     fieldLabel="Select Product"
                                                     filter="folderOrProductOrVariant"

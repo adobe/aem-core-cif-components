@@ -22,13 +22,15 @@ const LocationAdapter = {
 
 class ProductTeaser {
     constructor(element) {
+        this.virtual = element.dataset.virtual !== undefined;
+
         const actionButton = element.querySelector(`.productteaser__cta button`);
         if (actionButton != null) {
             const action = actionButton.dataset['action'];
             let actionHandler;
             switch (action) {
                 case 'addToCart':
-                    actionHandler = this._addToCartHandler;
+                    actionHandler = this._addToCartHandler.bind(this);
                     break;
                 case 'details':
                     actionHandler = this._seeDetailsHandler;
@@ -51,7 +53,7 @@ class ProductTeaser {
     _addToCartHandler(dataset) {
         const sku = dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: { sku, quantity: 1 }
+            detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
         document.dispatchEvent(customEvent);
     }

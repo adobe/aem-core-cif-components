@@ -11,15 +11,19 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults" />
-
-<article class="category__root" data-sly-use.itemTemplate="item.html">
-    <section data-sly-test.results="${searchResults.products}">
-        <div class="gallery__root">
-            <div class="gallery__items" data-sly-list.product="${searchResults.products}">
-                <div class="item__root" data-sly-call="${itemTemplate.item @ item = product}"></div>
+<sly data-sly-use.paginationTemplate="core/cif/components/commerce/productlist/v1/productlist/paginationbar.html"
+     data-sly-use.layeredNavigationTemplate="core/cif/components/commerce/productlist/v1/productlist/layerednavigation.html"
+     data-sly-use.itemTemplate="core/cif/components/commerce/productlist/v1/productlist/item.html"
+     data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults">
+     
+    <article class="category__root category__style_grid" data-cmp-is="productlist" data-load-client-price="${searchResults.loadClientPrice}">
+        <section data-sly-test.hasProducts="${searchResults.products}" class="search__root" >
+            <div class="search__filters" data-sly-call="${layeredNavigationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"></div>
+            <div class="gallery__items search__results" data-sly-list.product="${searchResults.products}">
+                <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
             </div>
-        </div>
-    </section>
-    <h2 class="category__root-message" data-sly-test="${!results}">${'No results to display' @ i18n}</h2>
-</article>
+        </section>
+        <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
+        <sly data-sly-test="${hasProducts}" data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = searchResults.searchResultsSet}"/>
+    </article>
+</sly>

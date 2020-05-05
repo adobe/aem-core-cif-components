@@ -18,7 +18,7 @@ import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import ChangePassword from '../changePassword';
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';

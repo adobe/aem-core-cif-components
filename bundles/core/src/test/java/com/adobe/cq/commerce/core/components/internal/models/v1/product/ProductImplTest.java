@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -33,12 +34,15 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -52,6 +56,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.StoreConfig;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -78,6 +83,9 @@ public class ProductImplTest {
                 context.load().json(contentPath, "/content");
                 context.load().json("/context/jcr-conf.json", "/conf");
 
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfiguration());
+                context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -346,19 +354,31 @@ public class ProductImplTest {
 
         productModel = context.request().adaptTo(ProductImpl.class);
 
-        List<Variant> items = productModel.getGroupedProductItems();
+        List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
-        Assert.assertEquals(3, items.size());
+        Assert.assertEquals(4, items.size());
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
-            Variant item = items.get(i);
+            GroupItem item = items.get(i);
             ProductInterface pi = gp.getItems().get(i).getProduct();
 
             Assert.assertEquals(pi.getSku(), item.getSku());
             Assert.assertEquals(pi.getName(), item.getName());
             Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
+
+            Assert.assertEquals(pi instanceof VirtualProduct, item.isVirtualProduct());
         }
+    }
+
+    @Test
+    public void testVirtualProduct() throws IOException {
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertTrue(productModel.isVirtualProduct());
     }
 
     @Test
