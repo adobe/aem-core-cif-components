@@ -14,12 +14,9 @@
 
 package com.adobe.cq.commerce.core.components.models;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * API for the Hero Image component
  */
-@ProviderType
 public interface HeroImage {
     String getClassList();
 
