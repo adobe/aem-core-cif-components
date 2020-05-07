@@ -128,10 +128,7 @@ const AddressForm = props => {
                             id={classes.region_code}
                             field="region_code"
                             validateOnBlur
-                            validate={combine([
-                                [hasLengthExactly, 2],
-                                [validateRegionCode, countries]
-                            ])}
+                            validate={(value, values) => validateRegionCode(value, values, countries)}
                         />
                     </Field>
                 </div>

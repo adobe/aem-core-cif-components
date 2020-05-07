@@ -61,6 +61,11 @@ export const validateRegionCode = (value, values, countries) => {
         return 'This field is mandatory';
     }
 
+    let lengthValidation = hasLengthExactly(value, values, 2);
+    if (lengthValidation) {
+        return lengthValidation;
+    }
+
     const country = countries.find(({ id }) => id === 'US');
 
     const { available_regions: regions } = country;
