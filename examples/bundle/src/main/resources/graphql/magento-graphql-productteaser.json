@@ -1,0 +1,409 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "name": "Beaumont Summit Kit",
+          "image": {
+            "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+          },
+          "url_key": "beaumont-summit-kit",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "variants": [
+            {
+              "product": {
+                "sku": "MJ01-XS-Orange",
+                "name": "Beaumont Summit Kit-XS-Orange",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-XS-Red",
+                "name": "Beaumont Summit Kit-XS-Red",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-XS-Yellow",
+                "name": "Beaumont Summit Kit-XS-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-S-Orange",
+                "name": "Beaumont Summit Kit-S-Orange",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-S-Red",
+                "name": "Beaumont Summit Kit-S-Red",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-S-Yellow",
+                "name": "Beaumont Summit Kit-S-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-M-Orange",
+                "name": "Beaumont Summit Kit-M-Orange",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-M-Red",
+                "name": "Beaumont Summit Kit-M-Red",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-M-Yellow",
+                "name": "Beaumont Summit Kit-M-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-L-Orange",
+                "name": "Beaumont Summit Kit-L-Orange",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-L-Red",
+                "name": "Beaumont Summit Kit-L-Red",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-L-Yellow",
+                "name": "Beaumont Summit Kit-L-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-XL-Orange",
+                "name": "Beaumont Summit Kit-XL-Orange",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-XL-Red",
+                "name": "Beaumont Summit Kit-XL-Red",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-red_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MJ01-XL-Yellow",
+                "name": "Beaumont Summit Kit-XL-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
