@@ -1,0 +1,25 @@
+{
+  "data": {
+    "category__category_4": {
+      "id": 4,
+      "name": "Bags",
+      "url_path": "gear/bags",
+      "position": 1,
+      "image": null
+    },
+    "category__category_5": {
+      "id": 5,
+      "name": "Fitness Equipment",
+      "url_path": "gear/fitness-equipment",
+      "position": 2,
+      "image": null
+    },
+    "category__category_6": {
+      "id": 6,
+      "name": "Watches",
+      "url_path": "gear/watches",
+      "position": 3,
+      "image": null
+    }
+  }
+}
