@@ -13,7 +13,7 @@
  ******************************************************************************/
 'use strict';
 
-class ProductList {
+class ProductCollection {
     constructor(config) {
         this._element = config.element;
 
@@ -33,7 +33,7 @@ class ProductList {
         this._formatter =
             window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
-        this._element.querySelectorAll(ProductList.selectors.item).forEach(item => {
+        this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
             this._state.skus.push(item.dataset.sku);
         });
 
@@ -90,7 +90,7 @@ class ProductList {
     }
 
     _updatePrices() {
-        this._element.querySelectorAll(ProductList.selectors.item).forEach(item => {
+        this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
             if (!(item.dataset.sku in this._state.prices)) return;
 
             const price = this._state.prices[item.dataset.sku];
@@ -140,22 +140,22 @@ class ProductList {
                 }
             }
 
-            item.querySelector(ProductList.selectors.price).innerHTML = innerHTML;
+            item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
         });
     }
 }
 
-ProductList.selectors = {
-    self: '[data-cmp-is=productlist]',
+ProductCollection.selectors = {
+    self: '[data-cmp-is=productcollection]',
     price: '.price',
     item: '.item__root[role=product]'
 };
 
 (function(document) {
     function onDocumentReady() {
-        // Initialize product list component
-        const productListCmp = document.querySelector(ProductList.selectors.self);
-        if (productListCmp) new ProductList({ element: productListCmp });
+        // Initialize product collection component
+        const productCollectionCmp = document.querySelector(ProductCollection.selectors.self);
+        if (productCollectionCmp) new ProductCollection({ element: productCollectionCmp });
     }
 
     if (document.readyState !== 'loading') {
@@ -165,4 +165,4 @@ ProductList.selectors = {
     }
 })(window.document);
 
-export default ProductList;
+export default ProductCollection;

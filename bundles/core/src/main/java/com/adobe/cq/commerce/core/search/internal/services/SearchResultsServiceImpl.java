@@ -66,7 +66,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     SearchFilterService searchFilterService;
 
     @Reference
-    private UrlProvider urlProvider;
+    private UrlProvider urlProvider = null;
 
     private MagentoGraphqlClient magentoGraphqlClient;
 

@@ -18,10 +18,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
@@ -221,31 +219,6 @@ public class ProductListImplTest {
 
             Assert.assertEquals(productInterface instanceof GroupedProduct, item.getPriceRange().isStartPrice());
         }
-    }
-
-    @Test
-    public void testCreateFilterMap() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-
-        Map<String, String[]> queryParameters;
-        Map<String, String> filterMap;
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] {});
-        filterMap = productListModel.createFilterMap(queryParameters);
-        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] { "123" });
-        filterMap = productListModel.createFilterMap(queryParameters);
-        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
-    }
-
-    @Test
-    public void testCalculateCurrentPageCursor() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-        Assert.assertEquals("negative page indexes are not allowed", 1, productListModel.calculateCurrentPageCursor("-1").intValue());
-        Assert.assertEquals("null value is dealt with", 1, productListModel.calculateCurrentPageCursor(null).intValue());
     }
 
     @Test
