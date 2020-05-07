@@ -31,10 +31,24 @@ RUN ln -s "/tmp/dispatcher/dispatcher-apache2.4-${DISPATCHER_VERSION}.so" "${HTT
     SetHandler dispatcher-handler \n\
 </IfModule>' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null
 
+# Enable mod_include
+RUN sed -i 's/#LoadModule include_module modules\/mod_include.so/LoadModule include_module modules\/mod_include.so/g' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null && \
+    sed -i 's/#AddOutputFilter INCLUDES .shtml/AddOutputFilter INCLUDES .html/g' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null && \
+    sed -i 's/Options Indexes FollowSymLinks/Options Indexes FollowSymLinks Includes/g' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null
+
+# Enable mod_rewrite
+RUN sed -i 's/#LoadModule rewrite_module modules\/mod_rewrite.so/LoadModule rewrite_module modules\/mod_rewrite.so/g' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null && \
+    sed -i '/<Directory "\/usr\/local\/apache2\/htdocs">/a <IfModule mod_rewrite.c> \n\
+    RewriteEngine On \n\
+    RewriteRule ^(.*)/navigation\..*\.header\.html$ $1/navigation.header.html [L,NC] \n\
+    </IfModule>' "${HTTPD_PREFIX}/conf/httpd.conf" > /dev/null
+
 # Add httpd-dispatcher.conf
 RUN cp /tmp/dispatcher/conf/httpd-dispatcher.conf "${HTTPD_PREFIX}/conf/extra/" && \
     echo 'Include conf/extra/httpd-dispatcher.conf' >> "${HTTPD_PREFIX}/conf/httpd.conf" && \
     cat "${HTTPD_PREFIX}/conf/httpd.conf"
+    
+RUN sed -i 's/LogLevel dispatcher:warn/LogLevel dispatcher:debug/g' "${HTTPD_PREFIX}/conf/extra/httpd-dispatcher.conf" > /dev/null
 
 # Add dispatcher.any
 COPY conf/dispatcher.any "${HTTPD_PREFIX}/conf/"

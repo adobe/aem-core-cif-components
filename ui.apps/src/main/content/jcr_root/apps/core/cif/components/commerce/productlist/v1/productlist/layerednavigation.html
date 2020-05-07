@@ -13,9 +13,13 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
 <template data-sly-template.searchResultsSet="${@ searchResultsSet}">
-    <h5 data-sly-test.appliedAggregations="${searchResultsSet.appliedAggregations}">${'Now Shopping by' @ i18n}</h5>
-    <ul data-sly-list.aggregate="${appliedAggregations}">
+    <div class="filterSection-header">
+        <h5 class="filterSection-title">${'Filter by' @ i18n}</h5>
+    </div>
+    <ul class="currentFilters__root" data-sly-list.aggregate="${searchResultsSet.appliedAggregations}">
         <li data-sly-test="${aggregate.filterable}">
+            <span class="currentFilter__root">
+            <span>${aggregate.displayLabel}: ${aggregate.appliedFilterDisplayLabel @ context='html'}</span>
             <a href="${request.requestURI @ query=aggregate.removeFilterMap}">
                 <span class="icon__root">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 19 19" fill="none" stroke="currentColor"
@@ -24,18 +28,27 @@
                          <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </span>
-                <strong>${aggregate.displayLabel}:</strong>
-                ${aggregate.appliedFilterDisplayLabel @ context='html'}
             </a>
+            </span>
         </li>
     </ul>
 
-    <h5 data-sly-test.availableAggregations="${searchResultsSet.availableAggregations}">${'Shopping Options' @ i18n}</h5>
-    <ul data-sly-list.aggregate="${availableAggregations}">
-        <li data-sly-test="${aggregate.filterable}">
-            <strong>${aggregate.displayLabel}</strong>
+    <ul data-sly-test.availableAggregations="${searchResultsSet.availableAggregations}" data-sly-list.aggregate="${availableAggregations}">
+        <li class="filterBlock__root" data-sly-test="${aggregate.filterable}">
+            <input type="radio" id="${aggregate.identifier}" name="activeFilter" class="filterBlock__toggler"/>
+                <label for="${aggregate.identifier}" class="filterBlock__header">
+                    <span class="filterBlock-name">${aggregate.displayLabel}</span>
+                    <span class="icon-root icon-open">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </span>
+                    <span class="icon-root icon-closed">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+                </label>
             <span data-sly-unwrap>
-                <ul data-sly-list.aggregateOption="${aggregate.options}">
+                <ul class="filterList-items" data-sly-list.aggregateOption="${aggregate.options}">
                     <li>
                         <a href="${request.requestURI @ query=aggregateOption.addFilterMap}">
                             ${aggregateOption.displayLabel @ context='html'}

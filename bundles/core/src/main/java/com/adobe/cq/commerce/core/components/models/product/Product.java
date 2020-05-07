@@ -16,15 +16,12 @@ package com.adobe.cq.commerce.core.components.models.product;
 
 import java.util.List;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 
 /**
  * Product is the sling model interface for the CIF core product component.
  */
-@ProviderType
 public interface Product {
 
     /**
