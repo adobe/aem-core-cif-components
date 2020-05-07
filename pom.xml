@@ -46,8 +46,23 @@
         <module>ui.apps</module>
         <module>bundles/core</module>
         <module>all</module>
-        <module>examples/bundle</module>
     </modules>
+
+    <!-- We have a dedicated profile for the CIF components examples library -->
+    <!-- They are included by default unless we perform a release -->
+    <profiles>
+        <profile>
+            <id>examples-library</id>
+            <activation>
+                <property>
+                    <name>!skip-examples</name>
+                </property>
+            </activation>
+            <modules>
+                <module>examples/bundle</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <!-- ====================================================================== -->
     <!-- S C M  D E F I N I T I O N                                             -->
