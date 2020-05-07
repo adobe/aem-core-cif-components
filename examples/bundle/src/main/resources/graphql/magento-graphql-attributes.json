@@ -1,0 +1,153 @@
+{
+  "data": {
+    "customAttributeMetadata": {
+      "items": [
+        {
+          "attribute_code": "activity",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "category_gear",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "category_id",
+          "attribute_type": "AnyType",
+          "input_type": null
+        },
+        {
+          "attribute_code": "climate",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "collar",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "color",
+          "attribute_type": "String",
+          "input_type": "select"
+        },
+        {
+          "attribute_code": "description",
+          "attribute_type": "String",
+          "input_type": "textarea"
+        },
+        {
+          "attribute_code": "eco_collection",
+          "attribute_type": "Int",
+          "input_type": "boolean"
+        },
+        {
+          "attribute_code": "erin_recommends",
+          "attribute_type": "Int",
+          "input_type": "boolean"
+        },
+        {
+          "attribute_code": "features_bags",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "format",
+          "attribute_type": "Int",
+          "input_type": "select"
+        },
+        {
+          "attribute_code": "gender",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "material",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "name",
+          "attribute_type": "String",
+          "input_type": "text"
+        },
+        {
+          "attribute_code": "new",
+          "attribute_type": "Int",
+          "input_type": "boolean"
+        },
+        {
+          "attribute_code": "pattern",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "performance_fabric",
+          "attribute_type": "Int",
+          "input_type": "boolean"
+        },
+        {
+          "attribute_code": "price",
+          "attribute_type": "Float",
+          "input_type": "price"
+        },
+        {
+          "attribute_code": "purpose",
+          "attribute_type": "Int",
+          "input_type": "select"
+        },
+        {
+          "attribute_code": "sale",
+          "attribute_type": "Int",
+          "input_type": "boolean"
+        },
+        {
+          "attribute_code": "short_description",
+          "attribute_type": "String",
+          "input_type": "textarea"
+        },
+        {
+          "attribute_code": "size",
+          "attribute_type": "Int",
+          "input_type": "select"
+        },
+        {
+          "attribute_code": "sku",
+          "attribute_type": "String",
+          "input_type": "text"
+        },
+        {
+          "attribute_code": "sleeve",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "strap_bags",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "style_bags",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "style_bottom",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "style_general",
+          "attribute_type": "String",
+          "input_type": "multiselect"
+        },
+        {
+          "attribute_code": "url_key",
+          "attribute_type": "String",
+          "input_type": "text"
+        }
+      ]
+    }
+  }
+}

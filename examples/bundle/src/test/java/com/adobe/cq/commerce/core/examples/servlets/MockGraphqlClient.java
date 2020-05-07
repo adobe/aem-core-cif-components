@@ -33,14 +33,10 @@ import com.google.gson.reflect.TypeToken;
 public class MockGraphqlClient implements GraphqlClient {
 
     private GraphqlServlet graphqlServlet;
-    private MockSlingHttpServletRequest request;
-    private MockSlingHttpServletResponse response;
 
     public MockGraphqlClient() throws ServletException {
         graphqlServlet = new GraphqlServlet();
         graphqlServlet.init();
-        request = new MockSlingHttpServletRequest(null);
-        response = new MockSlingHttpServletResponse();
     }
 
     @Override
@@ -55,6 +51,9 @@ public class MockGraphqlClient implements GraphqlClient {
 
     @Override
     public <T, U> GraphqlResponse<T, U> execute(GraphqlRequest graphqlRequest, Type typeOfT, Type typeOfU, RequestOptions options) {
+        MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(null);
+        MockSlingHttpServletResponse response = new MockSlingHttpServletResponse();
+
         try {
             if (options != null && HttpMethod.GET.equals(options.getHttpMethod())) {
                 request.setParameterMap(Collections.singletonMap("query", graphqlRequest.getQuery()));

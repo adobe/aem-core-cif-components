@@ -38,6 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
@@ -46,6 +47,10 @@ import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarou
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
+import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
+import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -77,6 +82,14 @@ public class GraphqlServletTest {
                 // Load page structure
                 context.load().json(contentPath, "/content");
                 context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
+
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfiguration());
+                context.registerService(UrlProvider.class, urlProvider);
+
+                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
+                context.registerInjectActivateService(new SearchFilterServiceImpl());
+                context.registerInjectActivateService(new SearchResultsServiceImpl());
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -197,10 +210,10 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_LIST_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("13");
+        requestPathInfo.setSelectorString("2");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertEquals("Tops", productListModel.getTitle());
+        Assert.assertEquals("Default Category", productListModel.getTitle());
         Assert.assertEquals(6, productListModel.getProducts().size());
     }
 

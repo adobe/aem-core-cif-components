@@ -85,6 +85,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCTS_SEARCH_ARG = "search";
     private static final String SKU_IN_REGEX = "\\{sku=\\{in=\\[.+\\]\\}\\}";
     private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
+    private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -146,6 +147,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * @return The execution result.
      */
     private ExecutionResult execute(String query, String operationName, Map<String, Object> variables) {
+        LOGGER.debug("Executing query {}", query);
         Builder builder = new Builder().query(query);
         if (operationName != null) {
             builder.operationName(operationName);
@@ -295,6 +297,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     case "category": {
                         return readCategoryResponse(env);
                     }
+                    case "customAttributeMetadata": {
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-attributes.json");
+                        return graphqlResponse.getData().getCustomAttributeMetadata();
+                    }
                     default:
                         return null;
                 }
@@ -306,6 +312,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
+            .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))
             .build();
     }
 
@@ -338,6 +345,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 return readProductsFrom("magento-graphql-productcarousel.json");
             } else if (filter.matches(SKU_EQ_REGEX)) {
                 return readProductsFrom("magento-graphql-productteaser.json");
+            } else if (filter.matches(CATEGORY_ID_REGEX)) {
+                return readProductsFrom("magento-graphql-searchresults-products.json");
             }
         }
 
