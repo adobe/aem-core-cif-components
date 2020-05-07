@@ -193,7 +193,7 @@ public class ProductImpl implements Product {
     @Override
     public Boolean isGroupedProduct() {
         if (isGroupedProduct == null) {
-            isGroupedProduct = productRetriever.fetchProduct() instanceof GroupedProduct;
+            isGroupedProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GroupedProduct;
         }
         return isGroupedProduct;
     }
@@ -201,7 +201,7 @@ public class ProductImpl implements Product {
     @Override
     public Boolean isVirtualProduct() {
         if (isVirtualProduct == null) {
-            isVirtualProduct = productRetriever.fetchProduct() instanceof VirtualProduct;
+            isVirtualProduct = productRetriever != null && productRetriever.fetchProduct() instanceof VirtualProduct;
         }
         return isVirtualProduct;
     }
