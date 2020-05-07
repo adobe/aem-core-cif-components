@@ -46,7 +46,6 @@
         <module>ui.apps</module>
         <module>bundles/core</module>
         <module>all</module>
-        <module>examples</module>
     </modules>
 
     <!-- We have a dedicated profile for the CIF components examples library -->
@@ -60,7 +59,7 @@
                 </property>
             </activation>
             <modules>
-                <module>examples/bundle</module>
+                <module>examples</module>
             </modules>
         </profile>
     </profiles>

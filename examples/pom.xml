@@ -23,7 +23,6 @@
     </parent>
 
     <artifactId>core-cif-components-examples-reactor</artifactId>
-    <version>0.10.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>AEM CIF Core Components - Examples Reactor</name>
@@ -31,8 +30,21 @@
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <modules>
+        <module>bundle</module>
         <module>ui.apps</module>
         <module>ui.content</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
