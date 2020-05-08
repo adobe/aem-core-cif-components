@@ -25,6 +25,8 @@ import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.graphql.client.CachingStrategy;
+import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -59,39 +61,65 @@ public class MagentoGraphqlClient {
 
     /**
      * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.
+     * This method returns <code>null</code> if the client cannot be instantiated.<br>
+     * <br>
+     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)} so the page can be used
+     * to adapt to the lower-level {@link GraphqlClient}, while the component resource can be used for caching purposes.
      *
-     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}.
+     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
+     *            the resource type is used as the cache key.
      * @return A new MagentoGraphqlClient instance.
      */
     public static MagentoGraphqlClient create(Resource resource) {
+        return create(resource, null);
+    }
+
+    /**
+     * Instantiates and returns a new MagentoGraphqlClient.
+     * This method returns <code>null</code> if the client cannot be instantiated.
+     *
+     * @param resource The JCR resource of the component being rendered. This is used for caching purposes, where the resource type is used
+     *            as the cache key. An OSGi service should pass a synthetic resource, where the resource type should be set to the
+     *            fully-qualified class name of the service.
+     * @param page The current AEM page. This is used to adapt to the lower-level {@link GraphqlClient}.
+     *            This is needed because it is not possible to get the current page for components added to the page template.
+     *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
+     * @return A new MagentoGraphqlClient instance.
+     */
+    public static MagentoGraphqlClient create(Resource resource, Page page) {
         try {
-            return new MagentoGraphqlClient(resource);
+            return new MagentoGraphqlClient(resource, page);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource) {
-        graphqlClient = resource.adaptTo(GraphqlClient.class);
+    private MagentoGraphqlClient(Resource resource, Page page) {
+        Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
+        graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
         if (graphqlClient == null) {
-            throw new RuntimeException("GraphQL client not available for resource " + resource.getPath());
+            throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
         }
 
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
+        CachingStrategy cachingStrategy = new CachingStrategy()
+            .withCacheName(resource.getResourceType())
+            .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST);
+        requestOptions.withCachingStrategy(cachingStrategy);
+
         String storeCode;
-        ConfigurationBuilder configBuilder = resource.adaptTo(ConfigurationBuilder.class);
+        ConfigurationBuilder configBuilder = configurationResource.adaptTo(ConfigurationBuilder.class);
 
         if (configBuilder != null) {
             ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
             storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
             if (storeCode == null) {
-                storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+                storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
             }
         } else {
-            storeCode = readFallBackConfiguration(resource, STORE_CODE_PROPERTY);
+            storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
         }
         if (StringUtils.isNotEmpty(storeCode)) {
             Header storeHeader = new BasicHeader("Store", storeCode);

@@ -23,32 +23,35 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.graphql.client.CachingStrategy;
+import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
-public class MagentoGraphqlClientTest {
-    private static final Logger LOG = LoggerFactory.getLogger(MagentoGraphqlClientTest.class);
-    private GraphqlClient graphqlClient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-    private ConfigurationBuilder mockConfigurationBuilder;
+public class MagentoGraphqlClientTest {
+
+    private GraphqlClient graphqlClient;
 
     @Rule
     public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).plugin(ContextPlugins.CACONFIG)
@@ -84,7 +87,6 @@ public class MagentoGraphqlClientTest {
         graphqlClient = Mockito.mock(GraphqlClient.class);
         Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(null);
-
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
@@ -93,7 +95,6 @@ public class MagentoGraphqlClientTest {
 
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
         executeAndCheck(withStoreHeader, client);
-
     }
 
     private void executeAndCheck(boolean withStoreHeader, MagentoGraphqlClient client) {
@@ -121,12 +122,42 @@ public class MagentoGraphqlClientTest {
          * data from the jcr:content node of the configuration page, something which we cannot reproduce in
          * a unit test scenario.
          */
-        Resource pageWithConfig = Mockito.spy(context.resourceResolver()
-            .getResource("/content/pageG"));
-        Mockito.when(pageWithConfig.adaptTo(GraphqlClient.class))
-            .thenReturn(graphqlClient);
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig);
+        Page pageWithConfig = Mockito.spy(context.pageManager().getPage("/content/pageG"));
+        Resource pageResource = Mockito.spy(pageWithConfig.adaptTo(Resource.class));
+        when(pageWithConfig.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
         executeAndCheck(true, client);
+    }
+
+    @Test
+    public void testCachingStrategyParametersForComponents() {
+        Resource resource = context.resourceResolver().getResource("/content/pageA/jcr:content/root/responsivegrid/product");
+        testCachingStrategyParameters(resource);
+    }
+
+    @Test
+    public void testCachingStrategyParametersForOsgiService() {
+        Resource resource = new SyntheticResource(null, (String) null, "com.adobe.myosgiservice");
+        testCachingStrategyParameters(resource);
+    }
+
+    private void testCachingStrategyParameters(Resource resource) {
+        Page page = Mockito.spy(context.pageManager().getPage("/content/pageA"));
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource, page);
+        client.execute("{dummy}");
+
+        ArgumentCaptor<RequestOptions> captor = ArgumentCaptor.forClass(RequestOptions.class);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), captor.capture());
+
+        CachingStrategy cachingStrategy = captor.getValue().getCachingStrategy();
+        Assert.assertEquals(resource.getResourceType(), cachingStrategy.getCacheName());
+        Assert.assertEquals(DataFetchingPolicy.CACHE_FIRST, cachingStrategy.getDataFetchingPolicy());
     }
 
     @Test

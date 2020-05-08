@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,8 @@ class GraphQLCategoryProvider {
     private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    GraphQLCategoryProvider(Page page) {
-        magentoGraphqlClient = MagentoGraphqlClient.create(page.getContentResource());
+    GraphQLCategoryProvider(Resource resource, Page page) {
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
     }
 
     List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {

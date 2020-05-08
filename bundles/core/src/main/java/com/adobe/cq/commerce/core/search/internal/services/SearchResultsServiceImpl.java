@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
 
 @Component(service = SearchResultsService.class)
 public class SearchResultsServiceImpl implements SearchResultsService {
@@ -100,8 +101,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
 
+        Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
+
         if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
         }
 
         if (magentoGraphqlClient == null) {
@@ -111,7 +114,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
-        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(resource);
+        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
 
         // Next we generate the graphql query and actually query the commerce system
         String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook);
