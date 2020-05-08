@@ -213,7 +213,13 @@ exports[`<AddressForm /> renders the component 1`] = `
               <select
                 class="input"
                 name="countryCode"
-              />
+              >
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
             </span>
             <span
               class="before"

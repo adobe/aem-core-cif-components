@@ -17,6 +17,12 @@ import { I18nextProvider } from 'react-i18next';
 
 import AddressForm from '../addressForm';
 import i18n from '../../../../__mocks__/i18nForTests';
+jest.mock('informed', () => {
+    return {
+        ...jest.requireActual('informed'),
+        useFieldState: () => 'US'
+    };
+});
 
 describe('<AddressForm />', () => {
     const countries = [
@@ -35,7 +41,7 @@ describe('<AddressForm />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <AddressForm cancel={() => {}} submit={() => {}} />
+                <AddressForm cancel={() => {}} submit={() => {}} countries={countries} />
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -46,7 +52,9 @@ describe('<AddressForm />', () => {
             street: ['street A', 'street B']
         };
 
-        const { container } = render(<AddressForm cancel={() => {}} submit={() => {}} initialValues={initialValues} />);
+        const { container } = render(
+            <AddressForm cancel={() => {}} countries={countries} submit={() => {}} initialValues={initialValues} />
+        );
 
         const streetField = container.querySelector('#street0');
         expect(streetField.value).toEqual('street A');

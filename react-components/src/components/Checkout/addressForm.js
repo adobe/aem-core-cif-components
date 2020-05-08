@@ -77,7 +77,6 @@ const AddressForm = props => {
                 // the form doesn't provide one if you leave the field empty
                 values['region_code'] = '';
             }
-            console.log(`Submitted region code ${values['region_code']}`);
             setIsSubmitting(true);
             // Convert street back to array
             submit({ ...values, street: [values.street0] });
@@ -105,8 +104,6 @@ const AddressForm = props => {
 
         return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
     };
-    console.log(`Got form initial values: `);
-    console.table(values);
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
