@@ -1,0 +1,21 @@
+<configuration>
+
+  <!-- The default console -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Set to DEBUG to enable more logging for the requests processing -->
+  <logger name="com.adobe.cq.commerce.core.examples.servlets.GraphqlServlet" level="INFO"/>
+  <logger name="notprivacysafe.graphql.GraphQL" level="INFO"/>
+  
+  <logger name="org.apache.sling.models.impl.ModelPackageBundleListener" level="OFF"/>
+  <logger name="org.apache.sling.models.impl.AdapterImplementations" level="OFF"/>
+    
+  <root level="INFO">          
+    <appender-ref ref="STDOUT" />
+  </root>  
+  
+</configuration>

@@ -18,12 +18,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 
-@ProviderType
 public interface ProductCarousel {
 
     /**

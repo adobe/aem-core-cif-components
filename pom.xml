@@ -21,7 +21,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-reactor</artifactId>
     <packaging>pom</packaging>
-    <version>0.10.1-SNAPSHOT</version>
+    <version>0.10.2-SNAPSHOT</version>
 
     <name>AEM CIF Core Components Reactor</name>
     <description>Reactor POM for AEM CIF Core Components</description>
@@ -33,7 +33,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.10.1-SNAPSHOT</version>
+        <version>0.10.2-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
 
@@ -47,6 +47,22 @@
         <module>bundles/core</module>
         <module>all</module>
     </modules>
+
+    <!-- We have a dedicated profile for the CIF components examples library -->
+    <!-- They are included by default unless we perform a release -->
+    <profiles>
+        <profile>
+            <id>examples-library</id>
+            <activation>
+                <property>
+                    <name>!skip-examples</name>
+                </property>
+            </activation>
+            <modules>
+                <module>examples/bundle</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <!-- ====================================================================== -->
     <!-- S C M  D E F I N I T I O N                                             -->

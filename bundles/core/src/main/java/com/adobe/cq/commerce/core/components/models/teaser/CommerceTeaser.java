@@ -14,11 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.models.teaser;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 import com.adobe.cq.wcm.core.components.models.Teaser;
 
-@ProviderType
 public interface CommerceTeaser extends Teaser {
 
     /**

@@ -12,7 +12,7 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.searchResultsSet="${@ searchResultsSet}">
-    <div class="category__pagination" data-sly-test.pager="${searchResultsSet.pager}">
+    <div class="category__pagination" data-sly-test.pager="${searchResultsSet.pager}" data-sly-test="${searchResultsSet.pager.pages.size > 1}">
         <div class="category__pagination_root">
             <sly data-sly-list.page="${pager.pages}">
                 <!--/*First Page button & Previous page button inactive */-->
@@ -41,14 +41,22 @@
                 </a>
 
                 <!--/*Page numbers iterated*/-->
-                <a class="category__pagination_tilebutton"
-                   href="${request.requestURI @ query=page.parameters}">
-                    <div class="category__pagination_tilebutton-text category__pagination_tilebutton-marker"
-                         data-sly-test.isCurrent="${page.pageNumber==pager.currentPage}">${page.pageNumber}</div>
-                    <div class="category__pagination_tilebutton-text" data-sly-test="${!isCurrent}">
-                        ${page.pageNumber}
-                    </div>
-                </a>
+                <sly data-sly-test="${page.pageNumber == pager.currentPage} ">
+                    <a class="category__pagination_tilebutton" >
+                        <div class="category__pagination_tilebutton-text category__pagination_tilebutton-marker">
+                            ${page.pageNumber}
+                        </div>
+                    </a>
+                </sly>
+
+                <sly data-sly-test="${page.pageNumber != pager.currentPage} ">
+                    <a class="category__pagination_tilebutton"
+                       href="${request.requestURI @ query=page.parameters}">
+                        <div class="category__pagination_tilebutton-text">
+                            ${page.pageNumber}
+                        </div>
+                    </a>
+                </sly>
 
                 <!--/* Ommitted pages: ... */-->
                 <a class=" category__pagination_tilebutton category__pagination_navbutton-inactive"
