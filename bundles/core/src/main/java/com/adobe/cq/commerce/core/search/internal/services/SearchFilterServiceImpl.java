@@ -20,15 +20,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.SyntheticResource;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.search.internal.converters.FilterAttributeMetadataConverter;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
-import com.adobe.cq.commerce.core.search.services.FilterAttributeMetadataCache;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
@@ -42,34 +41,28 @@ import com.adobe.cq.commerce.magento.graphql.__InputValue;
 import com.adobe.cq.commerce.magento.graphql.__Type;
 import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
 
 @Component(service = SearchFilterService.class)
 public class SearchFilterServiceImpl implements SearchFilterService {
 
-    @Reference
-    FilterAttributeMetadataCache filterAttributeMetadataCache;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFilterServiceImpl.class);
 
     @Override
-    public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Resource resource) {
-        return filterAttributeMetadataCache.getFilterAttributeMetadata().orElseGet(() -> {
+    public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Page page) {
 
-            // First we query Magento for the required attribute and filter information
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-            final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
-            final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
+        // This is used to configure the cache in the GraphqlClient with a cache name of
+        // --> com.adobe.cq.commerce.core.search.services.SearchFilterService
+        Resource resource = new SyntheticResource(null, (String) null, SearchFilterService.class.getName());
 
-            // Then we combine this data into a useful set of data usable by other systems
-            FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributes);
-            final List<FilterAttributeMetadata> filterAttributeMetadata = availableFilters.stream().map(converter).collect(Collectors
-                .toList());
+        // First we query Magento for the required attribute and filter information
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+        final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
+        final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 
-            // Finally we set the filter metadata back to the caching layer so it's available in the future without requring another set of
-            // calls to Magento's APIs
-            filterAttributeMetadataCache.setFilterAttributeMetadata(filterAttributeMetadata);
-            return filterAttributeMetadata;
-        });
+        // Then we combine this data into a useful set of data usable by other systems
+        FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributes);
+        return availableFilters.stream().map(converter).collect(Collectors.toList());
     }
 
     private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
