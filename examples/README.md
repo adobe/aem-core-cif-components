@@ -36,3 +36,19 @@ The components are configured to use the CIF configuration defined at `/conf/cor
 All the CIF components used on the CIF library pages issue GraphQL requests to the mock GraphQL server which responds with mocked JSON responses that contain the data and links to images to be rendered by the component. We use a mock GraphQL server to avoid having any dependency on a pre-installed Magento instance with sample data.
 
 When everything is correctly installed, you should be able to open the library page at [http://localhost:4502/content/core-components-examples/library.html](http://localhost:4502/content/core-components-examples/library.html) and see the "Commerce" at the bottom of the left-side panel and at the bottom of the page content.
+
+## Layout / design
+
+The layout/design of the examples is currently "borrowed" from the [Venia theme](https://github.com/adobe/aem-cif-project-archetype/tree/master/src/main/archetype/ui.apps/src/main/content/jcr_root/apps/__appsFolderName__/clientlibs/theme) available in the CIF archetype. To avoid having any project dependency on the venia sample data, we generate the [venia.css](src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.css) file "offline", based on the css files of the archetype sample data. This is done in 3 steps:
+
+The `css.txt` file of the Venia theme is converted into a (css) `less` master file:
+
+`sed "s/^#.*//;/^$/d;s/^.*$/@import (less) \"&\";/" css.txt`
+
+The output of that command is copied into the placeholder in [venia.less.template](src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.less.template) that you can save into a file called `venia.less`.
+
+With the less compiler (install it with `npm install -g less`), execute the following command:
+
+`lessc --verbose --math=strict venia.less venia.css`
+
+This generates the `venia.css` file that we use for the layout/design of the examples.
