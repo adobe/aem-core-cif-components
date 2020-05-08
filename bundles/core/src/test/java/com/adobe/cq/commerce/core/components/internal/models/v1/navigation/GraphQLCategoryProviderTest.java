@@ -61,7 +61,7 @@ public class GraphQLCategoryProviderTest {
     @Test
     public void testMissingMagentoGraphqlClient() throws IOException {
         Page page = Mockito.spy(context.currentPage("/content/pageA"));
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null);
         Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
         Assert.assertTrue(categoryProvider.getChildCategories(10, 10).isEmpty());
     }
@@ -71,7 +71,7 @@ public class GraphQLCategoryProviderTest {
         Page page = mock(Page.class);
         Resource pageContent = mock(Resource.class);
         when(page.getContentResource()).thenReturn(pageContent);
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null);
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
         Whitebox.setInternalState(categoryProvider, "magentoGraphqlClient", graphqlClient);
 
@@ -100,7 +100,7 @@ public class GraphQLCategoryProviderTest {
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null);
 
         // Test null categoryId
         Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());
