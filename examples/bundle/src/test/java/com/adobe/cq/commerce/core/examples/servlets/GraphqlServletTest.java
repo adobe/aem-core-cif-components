@@ -63,6 +63,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import com.google.gson.reflect.TypeToken;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -168,6 +169,9 @@ public class GraphqlServletTest {
         Resource pageContent = Mockito.spy(page.getContentResource());
         when(page.getContentResource()).thenReturn(pageContent);
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
+        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

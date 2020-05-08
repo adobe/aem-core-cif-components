@@ -135,9 +135,8 @@ public class ProductListImplTest {
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-        Function<Resource, GraphqlClient> adapter = r -> {
-            return r.getPath().equals("/content/pageA") ? graphqlClient : null;
-        };
+
+        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
         context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
