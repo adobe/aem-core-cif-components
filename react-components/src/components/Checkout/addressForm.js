@@ -12,14 +12,14 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form } from 'informed';
+import { Form, useFieldState } from 'informed';
 import { array, bool, func, object, shape, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import Select from '../Select';
 import classes from './addressForm.css';
-import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from '../../utils/formValidators';
+import { validateEmail, isRequired, validateRegionCode } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
 import TextInput from '../TextInput';
 import Field from '../Field';
@@ -77,12 +77,36 @@ const AddressForm = props => {
                 // the form doesn't provide one if you leave the field empty
                 values['region_code'] = '';
             }
+            console.log(`Submitted region code ${values['region_code']}`);
             setIsSubmitting(true);
             // Convert street back to array
             submit({ ...values, street: [values.street0] });
         },
         [submit]
     );
+
+    const Regions = () => {
+        const { value: countryCode } = useFieldState('countryCode');
+        const country = countries.find(({ id }) => countryCode === id);
+
+        if (!country || !country.available_regions) {
+            return <TextInput id={classes.region_code} field="region_code" />;
+        }
+
+        // US do not have regions with unique codes
+        const uniqueRegions = [...new Set(country.available_regions.map(item => item.code))];
+        const displayRegions = uniqueRegions.map(id => {
+            let entry = country.available_regions.find(({ code }) => code === id);
+            return {
+                value: entry.code,
+                label: entry.name
+            };
+        });
+
+        return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
+    };
+    console.log(`Got form initial values: `);
+    console.table(values);
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
@@ -124,12 +148,7 @@ const AddressForm = props => {
                 </div>
                 <div className={classes.region_code}>
                     <Field label={t('checkout:address-state', 'State')}>
-                        <TextInput
-                            id={classes.region_code}
-                            field="region_code"
-                            validateOnBlur
-                            validate={(value, values) => validateRegionCode(value, values, countries)}
-                        />
+                        <Regions />
                     </Field>
                 </div>
                 <div className={classes.postcode}>
