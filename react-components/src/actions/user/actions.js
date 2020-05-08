@@ -11,16 +11,20 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useCheckoutState } from './checkoutContext';
 
-export default () => {
-    const [{ order }, dispatch] = useCheckoutState();
+/**
+ * Re-fetches a customer cart.
+ *
+ * @param {Object} payload a parameters object with the following structure:
+ *     fetchCustomerCartQuery - the query object to execute to retrieve the cart details
+ *     dispatch - the dispatch callback for the user context
+ */
+export const resetCustomerCart = async payload => {
+    const { dispatch, fetchCustomerCartQuery } = payload;
 
-    const continueShopping = () => {
-        // Reset checkout state
-        dispatch({ type: 'reset' });
-    };
-
-    const orderId = order && order.order_id ? order.order_id : null;
-    return [{ orderId }, continueShopping];
+    const { data } = await fetchCustomerCartQuery({
+        fetchPolicy: 'network-only'
+    });
+    const cartId = data.customerCart.id;
+    dispatch({ type: 'setCartId', cartId });
 };

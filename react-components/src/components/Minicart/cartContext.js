@@ -76,7 +76,6 @@ export const reducerFactory = setCartCookie => {
                 return {
                     ...state,
                     cartId: null,
-                    isOpen: false,
                     errorMessage: null,
                     couponError: null,
                     cart: null

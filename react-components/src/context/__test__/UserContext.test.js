@@ -22,6 +22,7 @@ import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graph
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
+import { useAwaitQuery } from '../../utils/hooks';
 
 describe('UserContext test', () => {
     beforeEach(() => {
@@ -157,6 +158,36 @@ describe('UserContext test', () => {
         const result = await waitForElement(() => getByTestId('success'));
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('guest123');
+    });
+
+    it('resets the customer cart', async () => {
+        const ContextWrapper = () => {
+            const [{ cartId }, { resetCustomerCart }] = useUserContext();
+            const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
+
+            let content;
+            if (cartId) {
+                content = <div data-testid="success">{cartId}</div>;
+            } else {
+                content = <button onClick={() => resetCustomerCart(fetchCustomerCartQuery)}>Reset cart</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('success'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('customercart');
     });
 
     it('performs a sign out', async () => {
