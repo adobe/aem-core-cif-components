@@ -21,15 +21,21 @@ const Footer = () => {
     const [{ isOpen, cart }] = useCartState();
     const footerClassName = isOpen ? classes.root_open : classes.root;
 
-    const { subtotal_excluding_tax, subtotal_with_discount_excluding_tax } = cart.prices;
-
-    return (
-        <div className={footerClassName}>
+    let totalsSummary = null;
+    if (cart && cart.prices && cart.total_quantity) {
+        const { subtotal_excluding_tax, subtotal_with_discount_excluding_tax } = cart.prices;
+        totalsSummary = (
             <TotalsSummary
                 subtotal={subtotal_excluding_tax}
                 subtotalDiscount={subtotal_with_discount_excluding_tax}
                 numItems={cart.total_quantity}
             />
+        );
+    }
+
+    return (
+        <div className={footerClassName}>
+            {totalsSummary}
             <Checkout />
         </div>
     );

@@ -38,11 +38,12 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +57,6 @@ public class SearchFilterServiceImplTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -67,15 +67,12 @@ public class SearchFilterServiceImplTest {
     HttpClient httpClient;
 
     SearchFilterServiceImpl searchFilterServiceUnderTest;
-    Resource resource;
+    Page page;
+    Resource pageResource;
 
     @Before
     public void setup() throws IOException {
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
-
-        context.currentPage(PAGE);
-        context.currentResource(PAGE);
-        resource = Mockito.spy(context.resourceResolver().getResource(PAGE));
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
@@ -85,14 +82,17 @@ public class SearchFilterServiceImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
 
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        page = Mockito.spy(context.currentPage(PAGE));
+        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
     }
 
     @Test
     public void testRetrieveMetadata() {
 
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
-            .retrieveCurrentlyAvailableCommerceFilters(resource);
+            .retrieveCurrentlyAvailableCommerceFilters(page);
 
         assertThat(filterAttributeMetadata).hasSize(29);
 
@@ -124,7 +124,7 @@ public class SearchFilterServiceImplTest {
         // For example, 3rd-party integrations might not support this immediately
 
         GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
-        Mockito.when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         Query query = new Query();
         GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
@@ -132,7 +132,7 @@ public class SearchFilterServiceImplTest {
         when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
-            .retrieveCurrentlyAvailableCommerceFilters(resource);
+            .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
     }
 
