@@ -34,7 +34,6 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
-import com.adobe.cq.commerce.core.search.internal.services.FilterAttributeMetadataCacheImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -63,7 +62,6 @@ public class ProductCollectionImplTest {
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
 
-                context.registerInjectActivateService(new FilterAttributeMetadataCacheImpl());
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
             },
