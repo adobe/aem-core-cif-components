@@ -11,16 +11,18 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useCheckoutState } from './checkoutContext';
+import { resetCustomerCart } from '../actions';
 
-export default () => {
-    const [{ order }, dispatch] = useCheckoutState();
+describe('User actions', () => {
+    it('resets the customer cart', async () => {
+        const dispatch = jest.fn();
+        const query = jest.fn(() => {
+            return { data: { customerCart: { id: 'my-cart-id' } } };
+        });
 
-    const continueShopping = () => {
-        // Reset checkout state
-        dispatch({ type: 'reset' });
-    };
+        await resetCustomerCart({ dispatch, fetchCustomerCartQuery: query });
 
-    const orderId = order && order.order_id ? order.order_id : null;
-    return [{ orderId }, continueShopping];
-};
+        expect(query).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'setCartId', cartId: 'my-cart-id' });
+    });
+});
