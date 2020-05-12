@@ -20,6 +20,7 @@ import ApolloClient from 'apollo-boost';
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
+import NavigationContextProvider from '../../context/NavigationContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 
 const App = props => {
@@ -45,7 +46,9 @@ const App = props => {
             <UserContextProvider>
                 <CartProvider>
                     <CartInitializer>
-                        <CheckoutProvider>{props.children}</CheckoutProvider>
+                        <NavigationContextProvider>
+                            <CheckoutProvider>{props.children}</CheckoutProvider>
+                        </NavigationContextProvider>
                     </CartInitializer>
                 </CartProvider>
             </UserContextProvider>
