@@ -25,7 +25,7 @@
     </div>
 </section>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
-<sly data-sly-test="${productCollection.searchResultsSet.hasPagination}"
+<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts}"
      data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
 
 </template>
