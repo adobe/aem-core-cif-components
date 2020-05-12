@@ -28,6 +28,7 @@ import MUTATION_SET_BRAINTREE_PAYMENT_METHOD from '../../queries/mutation_set_br
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
@@ -41,7 +42,10 @@ const EditableForm = props => {
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
-    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+        awaitRefetchQueries: true
+    });
 
     const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
     const [setPaymentMethodOnCart] = useMutation(MUTATION_SET_PAYMENT_METHOD);
@@ -64,7 +68,15 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
-            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } });
+            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
+                .catch(error => {
+                    dispatch({ type: 'error', error: error.toString() });
+                })
+                .finally(() => {
+                    dispatch({ type: 'endLoading' });
+                });
+            dispatch({ type: 'beginLoading' });
+            dispatch({ type: 'endEditing' });
             if (!isSignedIn) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
             }
