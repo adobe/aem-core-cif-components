@@ -388,6 +388,8 @@ public class ProductImplTest {
         productModel = context.request().adaptTo(ProductImpl.class);
         Assert.assertFalse(productModel.getFound());
         Assert.assertFalse(productModel.isConfigurable());
+        Assert.assertFalse(productModel.isGroupedProduct());
+        Assert.assertFalse(productModel.isVirtualProduct());
         Assert.assertNull(productModel.getProductRetriever());
     }
 }

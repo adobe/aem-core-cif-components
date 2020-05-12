@@ -59,7 +59,7 @@
                 </property>
             </activation>
             <modules>
-                <module>examples/bundle</module>
+                <module>examples</module>
             </modules>
         </profile>
     </profiles>
