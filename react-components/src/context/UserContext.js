@@ -58,11 +58,9 @@ const reducerFactory = () => {
             case 'postCreateAccount':
                 return {
                     ...state,
-                    isSignedIn: true,
+                    isSignedIn: false,
                     inProgress: false,
-                    token: action.token,
-                    createAccountError: null,
-                    currentUser: { ...action.currentUser }
+                    createAccountError: null
                 };
             case 'error': {
                 return {
