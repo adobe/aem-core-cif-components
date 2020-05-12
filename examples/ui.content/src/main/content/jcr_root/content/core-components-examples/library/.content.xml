@@ -38,6 +38,29 @@
                                 width="12"/>
                         </cq:responsive>
                     </teaser_1837085907>
+                    <teaser_1837085917
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Product Teaser"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/productteaser.svg"
+                        linkURL="/content/core-components-examples/library/commerce/productteaser"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837085917>
                 </container_1589240807>
             </responsivegrid>
         </root>
