@@ -1,7 +1,7 @@
 {
   "data": {
     "storeConfig": {
-      "secure_base_media_url": "https://test-url.magentosite.cloud/pub/media/"
+      "secure_base_media_url": "/content/dam/core-components-examples/library/cif-sample-assets/"
     }
   }
 }
