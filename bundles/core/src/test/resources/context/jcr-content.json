@@ -130,6 +130,14 @@
                 "categoryId": "7"
               }
             }
+          },
+          "productcollection": {
+            "sling:resourceType": "venia/components/commerce/productcollection"
+          },
+          "productcollection2": {
+            "loadClientPrice": false,
+            "pageSize": 8,
+            "sling:resourceType": "venia/components/commerce/productcollection"
           }
         }
       }

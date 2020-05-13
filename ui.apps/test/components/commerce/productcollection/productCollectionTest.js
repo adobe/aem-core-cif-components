@@ -13,9 +13,9 @@
  ******************************************************************************/
 'use strict';
 
-import ProductList from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/js/productlist.js';
+import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs/js/productcollection.js';
 
-describe('Productlist', () => {
+describe('Productcollection', () => {
     let listRoot;
     let windowCIF;
 
@@ -201,14 +201,14 @@ describe('Productlist', () => {
     });
 
     it('initializes a product list component', () => {
-        let list = new ProductList({ element: listRoot });
+        let list = new ProductCollection({ element: listRoot });
 
         assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
     });
 
     it('retrieves prices via GraphQL', () => {
         listRoot.dataset.loadClientPrice = true;
-        let list = new ProductList({ element: listRoot });
+        let list = new ProductCollection({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 
         return list._fetchPrices().then(() => {
@@ -228,7 +228,7 @@ describe('Productlist', () => {
         delete window.CIF.CommerceGraphqlApi;
 
         listRoot.dataset.loadClientPrice = true;
-        let list = new ProductList({ element: listRoot });
+        let list = new ProductCollection({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 
         list._fetchPrices();
@@ -236,7 +236,7 @@ describe('Productlist', () => {
     });
 
     it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
-        let list = new ProductList({ element: listRoot });
+        let list = new ProductCollection({ element: listRoot });
         assert.isFalse(list._state.loadPrices);
     });
 });

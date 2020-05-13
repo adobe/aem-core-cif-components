@@ -22,6 +22,7 @@ You can install all 3 artifacts by running `mvn clean install -PautoInstallPacka
 ## Required configuration
 
 The mock GraphQL server can only serve content via HTTPS because our GraphQL client does not support non-secure connections for security reasons. This means you have to enable HTTPS on your AEM instance if you want to install and use the mock server. To do this, simply follow the [following documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html).
+If the self-signed certificate gets rejected by the browser, try adding it to the OS keychain and mark it as trusted.
 
 You must also enable anonymous access to the mock GraphQL server which will by defaut receive its requests on `https://localhost:8443/apps/cif-components-examples/graphql`. To do that, do the following:
 * In the AEM system configuration console, look for `Apache Sling Authentication Service`
