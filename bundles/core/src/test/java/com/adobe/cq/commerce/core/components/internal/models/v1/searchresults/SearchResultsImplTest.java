@@ -171,30 +171,12 @@ public class SearchResultsImplTest {
     @Test
     public void testCreateFilterMap() {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-        Map<String, String[]> queryParameters;
-        Map<String, String> filterMap;
 
-        queryParameters = new HashMap<>();
+        Map<String, String[]> queryParameters = new HashMap<>();
         queryParameters.put("search_query", new String[] { "ok" });
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
+        Map<String, String> filterMap = searchResultsModel.createFilterMap(queryParameters);
+
         Assert.assertEquals("filters query string parameter out correctly", 0, filterMap.size());
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] {});
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
-        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] { "123" });
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
-        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
-    }
-
-    @Test
-    public void testCalculateCurrentPageCursor() {
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-        Assert.assertEquals("negative page indexes are not allowed", 1, searchResultsModel.calculateCurrentPageCursor("-1").intValue());
-        Assert.assertEquals("null value is dealt with", 1, searchResultsModel.calculateCurrentPageCursor(null).intValue());
     }
 
     @Test
