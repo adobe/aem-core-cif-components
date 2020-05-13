@@ -22,7 +22,7 @@
                         sling:resourceType="core-components-examples/components/teaser"
                         actionsEnabled="false"
                         descriptionFromPage="true"
-                        fileReference="/content/dam/core-components-examples/library/components/container.svg"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/product.svg"
                         linkURL="/content/core-components-examples/library/commerce/product"
                         textIsRich="true"
                         titleFromPage="false">

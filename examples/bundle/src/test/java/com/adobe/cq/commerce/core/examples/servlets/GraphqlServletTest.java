@@ -42,7 +42,9 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
@@ -104,6 +106,8 @@ public class GraphqlServletTest {
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
+
+    private static final String CIF_DAM_ROOT = "/content/dam/core-components-examples/library/cif-sample-assets/";
 
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
@@ -203,8 +207,18 @@ public class GraphqlServletTest {
         requestPathInfo.setSelectorString("beaumont-summit-kit");
 
         Product productModel = context.request().adaptTo(Product.class);
-        Assert.assertEquals("MJ01", productModel.getSku());
+        Assert.assertEquals("MH01", productModel.getSku());
         Assert.assertEquals(15, productModel.getVariants().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+        for (Variant variant : productModel.getVariants()) {
+            for (Asset asset : variant.getAssets()) {
+                Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+            }
+        }
     }
 
     @Test
