@@ -250,7 +250,10 @@ public class GraphqlServletTest {
     public void testProductTeaserModel() throws ServletException {
         prepareModel(PRODUCT_TEASER_RESOURCE);
         ProductTeaser productTeaserModel = context.request().adaptTo(ProductTeaser.class);
-        Assert.assertEquals("Beaumont Summit Kit", productTeaserModel.getName());
+        Assert.assertEquals("Summit Watch", productTeaserModel.getName());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        Assert.assertTrue(productTeaserModel.getImage().startsWith(CIF_DAM_ROOT));
     }
 
     @Test

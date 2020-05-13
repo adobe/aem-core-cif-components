@@ -3,6 +3,7 @@
     jcr:primaryType="cq:Page">
     <jcr:content
         cq:allowedTemplates="[/conf/core-components-examples/settings/wcm/templates/.*]"
+        cq:cifProductPage="/content/core-components-examples/library/commerce/product"
         cq:conf="/conf/core-components-examples"
         cq:deviceGroups="[/etc/mobile/groups/responsive]"
         cq:lastModified="{Date}2018-12-06T19:40:56.470+01:00"
@@ -15,4 +16,5 @@
         sling:resourceType="foundation/components/redirect"
         redirectTarget="/content/core-components-examples/library"/>
     <product/>
+    <productteaser/>
 </jcr:root>
