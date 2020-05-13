@@ -7,4 +7,5 @@
     <filter root="/content/core-components-examples/library/jcr:content/root/responsivegrid/container_1589240807"/>
     <filter root="/content/core-components-examples/library/commerce"/>
     <filter root="/content/dam/core-components-examples/library/cif-sample-assets/"/>
+    <filter root="/content/dam/core-components-examples/library/cif-components"/>
 </workspaceFilter>
