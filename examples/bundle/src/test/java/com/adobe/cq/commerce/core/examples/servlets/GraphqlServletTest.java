@@ -242,8 +242,13 @@ public class GraphqlServletTest {
         slingBindings.put("productSkuList", productSkuList);
 
         ProductCarousel productCarouselModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, productCarouselModel.getProducts().size());
-        Assert.assertEquals("24-MG01", productCarouselModel.getProducts().get(0).getSKU());
+        Assert.assertEquals(4, productCarouselModel.getProducts().size());
+        Assert.assertEquals("24-MB02", productCarouselModel.getProducts().get(0).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productCarouselModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test

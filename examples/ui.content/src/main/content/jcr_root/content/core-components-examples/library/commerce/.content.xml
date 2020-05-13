@@ -17,4 +17,5 @@
         redirectTarget="/content/core-components-examples/library"/>
     <product/>
     <productteaser/>
+    <productcarousel/>
 </jcr:root>
