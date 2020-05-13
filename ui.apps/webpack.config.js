@@ -20,7 +20,7 @@ const LIB = {
     COMMON: 'apps/core/cif/clientlibs/common',
     PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
-    PRODUCTLIST: 'apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs',
+    PRODUCTCOLLECTION: 'apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs',
     SEARCHBAR: 'apps/core/cif/components/commerce/searchbar/v1/searchbar/clientlibs',
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs',
     PRODUCTTEASER: 'apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs',
@@ -35,7 +35,7 @@ function generateBaseConfig() {
             [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
             [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
-            [LIB.PRODUCTLIST]: glob.sync(JCR_ROOT + LIB.PRODUCTLIST + '/js/**/*.js'),
+            [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),
             [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
             [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
             [LIB.PRODUCTTEASER]:glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`)

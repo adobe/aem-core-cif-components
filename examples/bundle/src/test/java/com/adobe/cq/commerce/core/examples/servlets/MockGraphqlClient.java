@@ -72,4 +72,9 @@ public class MockGraphqlClient implements GraphqlClient {
         return QueryDeserializer.getGson().fromJson(output, type);
     }
 
+    @Override
+    public String getGraphQLEndpoint() {
+        return null;
+    }
+
 }

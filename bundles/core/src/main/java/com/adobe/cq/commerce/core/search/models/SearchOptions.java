@@ -26,8 +26,6 @@ public interface SearchOptions {
 
     Optional<String> getSearchQuery();
 
-    Optional<String> getCategoryId();
-
     int getCurrentPage();
 
     int getPageSize();

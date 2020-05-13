@@ -1,0 +1,128 @@
+/*******************************************************************************
+ *
+ *    Copyright 2020 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
+package com.adobe.cq.commerce.core.components.internal.models.v1.productcollection;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+
+import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl.PAGE_SIZE_DEFAULT;
+
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = ProductCollection.class,
+    resourceType = ProductCollectionImpl.RESOURCE_TYPE)
+public class ProductCollectionImpl implements ProductCollection {
+    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+    protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+    protected Page productPage;
+    protected boolean loadClientPrice;
+    protected int navPageSize;
+    @Self
+    protected SlingHttpServletRequest request;
+    @ScriptVariable
+    protected ValueMap properties;
+    @ScriptVariable
+    protected Style currentStyle;
+    @Inject
+    protected Resource resource;
+    @Inject
+    protected Page currentPage;
+    @Inject
+    protected SearchResultsService searchResultsService;
+    @Inject
+    protected UrlProvider urlProvider;
+    protected SearchOptionsImpl searchOptions;
+    protected SearchResultsSet searchResultsSet;
+
+    @PostConstruct
+    private void baseInitModel() {
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        // get product template page
+        productPage = SiteNavigation.getProductPage(currentPage);
+        if (productPage == null) {
+            productPage = currentPage;
+        }
+    }
+
+    public Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        try {
+            int i = Integer.parseInt(currentPageIndexCandidate);
+            if (i < 1) {
+                i = 1;
+            }
+            return i;
+        } catch (NumberFormatException x) {
+            return 1;
+        }
+    }
+
+    @Override
+    public boolean loadClientPrice() {
+        return loadClientPrice;
+    }
+
+    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
+        Map<String, String> filters = new HashMap<>();
+        parameterMap.forEach((code, value) -> {
+            // we'll make sure there is a value defined for the key
+            if (value.length != 1) {
+                return;
+            }
+
+            filters.put(code, value[0]);
+        });
+
+        return filters;
+    }
+
+    @Nonnull
+    @Override
+    public Collection<ProductListItem> getProducts() {
+        return getSearchResultsSet().getProductListItems();
+    }
+
+    @Nonnull
+    @Override
+    public SearchResultsSet getSearchResultsSet() {
+        if (searchResultsSet == null) {
+            searchResultsSet = new SearchResultsSetImpl();
+        }
+        return searchResultsSet;
+    }
+}
