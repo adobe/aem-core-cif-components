@@ -105,6 +105,8 @@ public class GraphqlServletTest {
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
 
+    private static final String CIF_DAM_ROOT = "/content/dam/core-components-examples/library/cif-sample-assets/";
+
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
     private MockSlingHttpServletResponse response;
@@ -228,8 +230,13 @@ public class GraphqlServletTest {
         slingBindings.put("productSkuList", productSkuList);
 
         ProductCarousel productCarouselModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, productCarouselModel.getProducts().size());
-        Assert.assertEquals("24-MG01", productCarouselModel.getProducts().get(0).getSKU());
+        Assert.assertEquals(4, productCarouselModel.getProducts().size());
+        Assert.assertEquals("24-MB02", productCarouselModel.getProducts().get(0).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productCarouselModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test

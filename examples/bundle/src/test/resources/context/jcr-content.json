@@ -18,7 +18,7 @@
             "sling:resourceType": "core/cif/components/commerce/productlist/v1/productlist"
           },
           "productcarousel": {
-            "product": ["24-MG01", "WJ01", "MJ01"],
+            "product": ["24-MB02", "WJ04#WJ04-XS-Orange", "MH01", "MH01#MH01-XS-Orange"],
             "sling:resourceType": "core/cif/components/commerce/productcarousel/v1/productcarousel"
           },
           "productteaser": {
