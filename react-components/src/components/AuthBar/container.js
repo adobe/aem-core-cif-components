@@ -16,42 +16,25 @@ import ReactDOM from 'react-dom';
 
 import AuthBar from './authBar';
 import AuthModal from '../AuthModal';
-import classes from './container.css';
-
 import { useNavigationContext } from '../../context/NavigationContext';
 
-
+import classes from './container.css';
 
 const Container = () => {
     const container = document.querySelector('#miniaccount');
-    const [{ view }, {
-        showSignIn,
-        showMyAccount,
-        showMenu,
-        showForgotPassword,
-        showChangePassword,
-        showCreateAccount
-    }] = useNavigationContext();
+    const [{ view }] = useNavigationContext();
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;
 
-
     return ReactDOM.createPortal(
         <>
             <div className="navigation__footer">
-                <AuthBar showSignIn={showSignIn} disabled={hasModal} showMyAccount={showMyAccount} />
+                <AuthBar />
             </div>
             {view !== null && (
                 <div className={modalClassName}>
-                    <AuthModal
-                        view={view}
-                        showMyAccount={showMyAccount}
-                        showMenu={showMenu}
-                        showForgotPassword={showForgotPassword}
-                        showChangePassword={showChangePassword}
-                        showCreateAccount={showCreateAccount}
-                    />
+                    <AuthModal />
                 </div>
             )}
         </>,

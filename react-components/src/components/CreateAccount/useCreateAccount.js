@@ -14,11 +14,13 @@
 import { useMutation } from '@apollo/react-hooks';
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
+import { useNavigationContext } from '../../context/NavigationContext';
 
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 
 export default () => {
     const [{ isSignedIn, createAccountError }, { dispatch }] = useUserContext();
+    const [, { showAccountCreated }] = useNavigationContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
@@ -35,6 +37,7 @@ export default () => {
             });
 
             dispatch({ type: 'postCreateAccount' });
+            //showAccountCreated();
         } catch (error) {
             dispatch({ type: 'createAccountError', error });
         } finally {

@@ -12,18 +12,21 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { string, func } from 'prop-types';
 
 import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
 import CreateAccount from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
+import { useNavigationContext } from '../../context/NavigationContext';
 
 import classes from './authModal.css';
 
-const AuthModal = props => {
-    const { view, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount } = props;
+const AuthModal = () => {
+    const [
+        { view },
+        { showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
+    ] = useNavigationContext();
 
     let child;
 
@@ -51,15 +54,6 @@ const AuthModal = props => {
     }
 
     return <div className={classes.root}>{child}</div>;
-};
-
-AuthModal.propTypes = {
-    view: string.isRequired,
-    showMyAccount: func.isRequired,
-    showMenu: func.isRequired,
-    showForgotPassword: func.isRequired,
-    showChangePassword: func.isRequired,
-    showCreateAccount: func.isRequired
 };
 
 export default AuthModal;

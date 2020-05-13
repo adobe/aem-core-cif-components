@@ -22,5 +22,7 @@
   "forgot-password": "Forgot Password?",
   "create-an-account": "Create an Account",
   "create-account-lead": "Check out faster, use multiple addresses, track orders and more by creating an account!",
-  "password-was-changed": "Your password was changed."
+  "password-was-changed": "Your password was changed.",
+  "account-created-title": "Your account was succesfully created",
+  "email-confirmation-info": "You will receive a link at {{email}}. Access that link to confirm your email address."
 }
