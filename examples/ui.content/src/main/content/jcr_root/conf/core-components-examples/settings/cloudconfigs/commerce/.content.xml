@@ -13,6 +13,7 @@
         jcr:title="Commerce"
         sling:configPropertyInherit="true"
         sling:resourceType="commerce/gui/components/configuration/page"
+        magentoGraphqlEndpoint="/apps/cif-components-examples/graphql"
         magentoRootCategoryId="2"
         magentoStore="default"/>
 </jcr:root>

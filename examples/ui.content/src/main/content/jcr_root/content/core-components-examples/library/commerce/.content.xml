@@ -16,5 +16,6 @@
         sling:resourceType="foundation/components/redirect"
         redirectTarget="/content/core-components-examples/library"/>
     <product/>
+    <productteaser/>
     <productcarousel/>
 </jcr:root>
