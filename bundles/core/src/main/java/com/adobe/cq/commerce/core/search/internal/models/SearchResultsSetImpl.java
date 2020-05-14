@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -35,6 +34,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     private Integer totalResults;
     private List<ProductListItem> productListItems = new ArrayList<>();
     private List<SearchAggregation> searchAggregations = new ArrayList<>();
+    private Pager pager;
 
     @Nonnull
     @Override
@@ -63,7 +63,10 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     @Nonnull
     @Override
     public Pager getPager() {
-        return new PagerImpl(getAppliedQueryParameters(), getTotalPages(), getSearchOptions().getCurrentPage());
+        if (pager == null) {
+            pager = new PagerImpl(getAppliedQueryParameters(), getTotalPages(), getSearchOptions().getCurrentPage());
+        }
+        return pager;
     }
 
     private int getTotalPages() {
@@ -78,10 +81,8 @@ public class SearchResultsSetImpl implements SearchResultsSet {
         if (searchOptions == null) {
             return new HashMap<>();
         }
-        Map<String, String> appliedParameters = new HashMap<>(searchOptions.getAllFilters());
-        searchOptions.getSearchQuery().ifPresent(query -> appliedParameters.put(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID, query));
 
-        return appliedParameters;
+        return searchOptions.getAllFilters();
     }
 
     public void setTotalResults(final Integer totalResults) {
@@ -121,9 +122,13 @@ public class SearchResultsSetImpl implements SearchResultsSet {
             .collect(Collectors.toList());
     }
 
-    @Nonnull
     @Override
-    public Optional<String> getSearchQuery() {
-        return getSearchOptions().getSearchQuery();
+    public boolean hasAggregations() {
+        return !searchAggregations.isEmpty();
+    }
+
+    @Override
+    public boolean hasPagination() {
+        return getTotalPages() > 1;
     }
 }

@@ -1,0 +1,9 @@
+
+.cif-demo .productteaser {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.cif-demo .productteaser .item__image {
+    border: none !important;
+}
