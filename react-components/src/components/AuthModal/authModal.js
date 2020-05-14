@@ -16,7 +16,7 @@ import React from 'react';
 import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
-import CreateAccount from '../CreateAccount';
+import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
 import { useNavigationContext } from '../../context/NavigationContext';
 
@@ -25,7 +25,7 @@ import classes from './authModal.css';
 const AuthModal = () => {
     const [
         { view },
-        { showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
+        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
     ] = useNavigationContext();
 
     let child;
@@ -51,6 +51,9 @@ const AuthModal = () => {
             break;
         case 'CREATE_ACCOUNT':
             child = <CreateAccount showMyAccount={showMyAccount} />;
+            break;
+        case 'ACCOUNT_CREATED':
+            child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
     return <div className={classes.root}>{child}</div>;

@@ -12,38 +12,49 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { func } from 'prop-types';
 import { useTranslation, Trans } from 'react-i18next';
-import { string } from 'prop-types';
 
 import Trigger from '../Trigger';
-import { useNavigationContext } from '../../context/NavigationContext';
+import { useUserContext } from '../../context/UserContext';
 import classes from './createAccountSuccess.css';
+import { useEffect } from 'react';
 
 const CreateAccountSuccess = props => {
     const [t] = useTranslation('account');
-    const { email } = props;
-    const [, { showSignIn }] = useNavigationContext();
+    const { showSignIn } = props;
+    const [{ createAccountEmail }, { dispatch }] = useUserContext();
+
+    useEffect(() => {
+        return () => {
+            dispatch({ type: 'cleanupAccountCreated' });
+        };
+    });
 
     return (
         <div className={classes.root}>
             <div className={classes.body}>
                 <h2 className={classes.header}>
-                    {t('account:account-created-title', 'Your account was succesfully created')}
+                    {t('account:account-created-title', 'Your account was successfully created')}
                 </h2>
                 <div className={classes.textBlock}>
                     {/* prettier-ignore */}
                     <Trans i18nKey="account:email-confirmation-info">
-                        You will receive a link at {{ email }}. Access that link to confirm your email address.
+                        You will receive a link at <b>{{ email: createAccountEmail }}</b>. Access that link to confirm your email address.
                     </Trans>
                 </div>
-                <Trigger action={showSignIn}>
-                    <span className={classes.signin}>{t('account:sign-in', 'Sign In')}</span>
-                </Trigger>
+                <div className={classes.actions}>
+                    <Trigger action={showSignIn}>
+                        <span className={classes.signin}>{t('account:sign-in', 'Sign In')}</span>
+                    </Trigger>
+                </div>
             </div>
         </div>
     );
 };
+
 CreateAccountSuccess.propTypes = {
-    email: string.isRequired
+    showSignIn: func.isRequired
 };
+
 export default CreateAccountSuccess;

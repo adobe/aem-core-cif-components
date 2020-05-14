@@ -55,3 +55,9 @@
     color: white;
     background-color: rgb(var(--venia-teal));
 }
+
+.actions {
+    display: grid;
+    justify-items: center;
+    margin-top: 1rem;
+}

@@ -12,21 +12,19 @@
  *
  ******************************************************************************/
 import { useMutation } from '@apollo/react-hooks';
-import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
 import { useNavigationContext } from '../../context/NavigationContext';
 
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 
 export default () => {
-    const [{ isSignedIn, createAccountError }, { dispatch }] = useUserContext();
+    const [{ isSignedIn, createAccountError, inProgress }, { dispatch }] = useUserContext();
     const [, { showAccountCreated }] = useNavigationContext();
-    const [inProgress, setInProgress] = useState(false);
 
     const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
 
     const handleCreateAccount = async formValues => {
-        setInProgress(true);
+        dispatch({ type: 'setInProgress' });
         const {
             customer: { email, firstname, lastname },
             password
@@ -36,12 +34,10 @@ export default () => {
                 variables: { email, password, firstname, lastname }
             });
 
-            dispatch({ type: 'postCreateAccount' });
-            //showAccountCreated();
+            dispatch({ type: 'postCreateAccount', accountEmail: email });
+            showAccountCreated();
         } catch (error) {
             dispatch({ type: 'createAccountError', error });
-        } finally {
-            setInProgress(false);
         }
     };
 

@@ -60,7 +60,13 @@ const reducerFactory = () => {
                     ...state,
                     isSignedIn: false,
                     inProgress: false,
-                    createAccountError: null
+                    createAccountError: null,
+                    createAccountEmail: action.accountEmail
+                };
+            case 'cleanupAccountCreated':
+                return {
+                    ...state,
+                    createAccountEmail: null
                 };
             case 'error': {
                 return {
@@ -111,6 +117,7 @@ const UserContextProvider = props => {
         signInError: null,
         inProgress: false,
         createAccountError: null,
+        createAccountEmail: null,
         cartId: null
     };
 
