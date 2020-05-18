@@ -110,7 +110,7 @@
                     <execution>
                         <id>npm-version</id>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <executable>npm</executable>
                             <arguments>
                                 <argument>version</argument>
