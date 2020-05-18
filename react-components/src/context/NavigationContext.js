@@ -69,6 +69,7 @@ const reducerFactory = () => {
 
 const NavigationContextProvider = props => {
     const navigationPanel = document.querySelector('aside.navigation__root');
+    const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
     const [t] = useTranslation('account');
 
     const stepTitles = {
@@ -89,45 +90,45 @@ const NavigationContextProvider = props => {
 
     const showSignIn = () => {
         const view = 'SIGN_IN';
-        navigationPanel.dispatchEvent(startAccMgEvent);
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(startAccMgEvent);
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
     const showMenu = () => {
         dispatch({ type: 'changeView', view: 'MENU' });
-        navigationPanel.dispatchEvent(exitAccMgEvent);
+        dispatchEvent(exitAccMgEvent);
     };
 
     const showMyAccount = () => {
         const view = 'MY_ACCOUNT';
-        navigationPanel.dispatchEvent(startAccMgEvent);
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(startAccMgEvent);
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
     const showChangePassword = () => {
         const view = 'CHANGE_PASSWORD';
-        navigationPanel.dispatchEvent(startAccMgEvent);
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(startAccMgEvent);
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
     const showForgotPassword = () => {
         const view = 'FORGOT_PASSWORD';
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
     const showCreateAccount = () => {
         const view = 'CREATE_ACCOUNT';
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
     const showAccountCreated = () => {
         const view = 'ACCOUNT_CREATED';
-        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
         dispatch({ type: 'changeView', view });
     };
 
