@@ -357,7 +357,7 @@
                         <exclude>**/.npmrc</exclude>
                         <exclude>**/.npmignore</exclude>
                         <exclude>**/test-results/**</exclude>
-
+                        <exclude>**/examples/**/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
