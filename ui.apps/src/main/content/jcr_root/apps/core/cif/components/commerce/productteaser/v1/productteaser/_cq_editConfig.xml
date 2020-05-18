@@ -7,11 +7,11 @@
             jcr:primaryType="cq:DropTargetConfig"
             accept="[.*]"
             groups="[product]"
-            propertyName="./multiDropTarget->@selection">
+            propertyName="./selection">
             <parameters
                 jcr:primaryType="nt:unstructured"
                 multiple="{Boolean}false"
-                selectionId="sku"/>
+                selectionId="path"/>
         </product-data-reference>
     </cq:dropTargets>
 </jcr:root>
