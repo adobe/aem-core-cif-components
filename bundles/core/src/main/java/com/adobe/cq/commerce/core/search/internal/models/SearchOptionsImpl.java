@@ -64,7 +64,6 @@ public class SearchOptionsImpl implements SearchOptions {
         this.attributeFilters = attributeFilters;
     }
 
-    @Override
     public Optional<String> getCategoryId() {
         return Optional.ofNullable(categoryId);
     }

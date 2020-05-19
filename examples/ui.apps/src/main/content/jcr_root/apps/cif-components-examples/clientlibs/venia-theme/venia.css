@@ -1851,6 +1851,28 @@ fieldset[disabled] .cif-demo .btn-link:focus {
   padding-left: 0;
   padding-right: 0;
 }
+.cif-demo .navigation__mask {
+  background-color: black;
+  cursor: pointer;
+  display: block;
+  height: 100vh;
+  left: 0;
+  opacity: 0;
+  position: fixed;
+  top: 0;
+  transition-duration: 192ms;
+  transition-property: opacity, visibility;
+  transition-timing-function: linear;
+  visibility: hidden;
+  width: 100vw;
+  z-index: 2;
+  -webkit-appearance: none;
+}
+.cif-demo .navigation__mask_active {
+  opacity: 0.5;
+  transition-duration: 224ms;
+  visibility: visible;
+}
 .cif-demo .clickable__root {
   align-items: center;
   cursor: pointer;
@@ -3136,8 +3158,8 @@ fieldset[disabled] .cif-demo .btn-link:focus {
   line-height: 1;
 }
 .cif-demo .category__style_grid .gallery__items {
+  align-content: start;
   display: grid;
-  grid-area: items;
   grid-gap: 1rem;
   grid-template-columns: repeat(3, 1fr);
   margin-bottom: 10px;
@@ -3174,6 +3196,92 @@ fieldset[disabled] .cif-demo .btn-link:focus {
   font-weight: 300;
   line-height: 1.375rem;
   text-align: center;
+}
+.cif-demo .search__root {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  grid-column-gap: 2rem;
+}
+.cif-demo .filterSection-header {
+  padding: 1.5rem 0;
+}
+.cif-demo .filterSection-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 14px;
+}
+.cif-demo .filterBlock__root {
+  display: grid;
+  border-color: rgb(var(--venia-border));
+  border-style: solid;
+  border-width: 1px 0 0;
+}
+.cif-demo .filterBlock__toggler {
+  opacity: 0;
+}
+.cif-demo .filterBlock__header {
+  align-items: center;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr auto;
+  min-height: 3rem;
+  cursor: pointer;
+}
+.cif-demo .filterBlock-name {
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: left;
+  font-weight: 600;
+}
+.cif-demo label {
+  cursor: pointer;
+}
+.cif-demo .filterBlock__toggler:checked ~ .filterList-items {
+  display: grid;
+}
+.cif-demo .filterBlock__toggler:checked + .filterBlock__header > .icon-closed {
+  display: none;
+}
+.cif-demo .filterBlock__toggler:checked + .filterBlock__header > .icon-open {
+  display: block;
+}
+.cif-demo .filterList-items {
+  display: none;
+  gap: 1rem;
+  grid-template-columns: 100%;
+  padding: 0.5rem 0;
+}
+.cif-demo .filterDefault-icon {
+  background-color: white;
+  border: 1px solid rgb(var(--venia-text));
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  border-radius: 3px;
+  margin-right: 1rem;
+}
+.cif-demo .currentFilters__root {
+  display: grid;
+  gap: 0.5rem;
+  grid-auto-flow: row;
+  padding: 0.5rem 0;
+}
+.cif-demo .currentFilter__root {
+  align-items: center;
+  border: 1px solid rgb(var(--venia-border));
+  border-radius: 4px;
+  display: inline-grid;
+  gap: 0.5rem;
+  grid-auto-flow: column;
+  justify-content: center;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+.cif-demo .icon-closed {
+  display: block;
+}
+.cif-demo .icon-open {
+  display: none;
 }
 .cif-demo .productteaser .item__root {
   position: relative;
