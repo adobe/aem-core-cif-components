@@ -12,31 +12,13 @@
  *
  ******************************************************************************/
 import React, { useCallback, useContext, useReducer, Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
 import { object } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useEventListener } from '../utils/hooks';
+import * as NavigationActions from '../actions/navigation';
 
-/*
-  Views:
-      SIGNIN - the signing modal is open
-      MENU - the default view
-      CREATE_ACCOUNT - the create account modal
-      MY_ACCOUNT - the account props modal
-      ACCOUNT_CREATED - the account created success message modal
-      FORGOT_PASSWORD - the forgot password modal
-      CHANGE_PASSWORD - the change password modal
-
-*/
-
-// DOM events that are used to talk to the navigation panel
-const events = {
-    START_ACC_MANAGEMENT: 'aem.accmg.start',
-    EXIT_ACC_MANAGEMENT: 'aem.accmg.exit'
-};
-
-// a map of the UI states so we can properly handle the "BACK" button
 const ancestors = {
     CREATE_ACCOUNT: 'SIGN_IN',
     FORGOT_PASSWORD: 'SIGN_IN',
@@ -46,9 +28,6 @@ const ancestors = {
     SIGN_IN: 'MENU',
     MENU: null
 };
-
-const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
-const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
 const NavigationContext = React.createContext();
 
@@ -68,69 +47,27 @@ const reducerFactory = () => {
 };
 
 const NavigationContextProvider = props => {
-    const navigationPanel = document.querySelector('aside.navigation__root');
-    const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
-    const [t] = useTranslation('account');
-
-    const stepTitles = {
-        CREATE_ACCOUNT: t('account:create-account', 'Create account'),
-        FORGOT_PASSWORD: t('account:password-recovery', 'Password recovery'),
-        CHANGE_PASSWORD: t('account:change-password', 'Change Password'),
-        MY_ACCOUNT: t('account:my-account', 'My account'),
-        ACCOUNT_CREATED: t('account:account-created', 'Account created'),
-        SIGN_IN: t('account:sign-in', 'Sign In')
-    };
-
     const initialState = props.initialState || {
         view: 'MENU'
     };
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
     const { view } = navigationState;
+    const [t] = useTranslation('account');
 
-    const showSignIn = () => {
-        const view = 'SIGN_IN';
-        dispatchEvent(startAccMgEvent);
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showSignIn = () => NavigationActions.showSignIn({ dispatch, t });
 
-    const showMenu = () => {
-        dispatch({ type: 'changeView', view: 'MENU' });
-        dispatchEvent(exitAccMgEvent);
-    };
+    const showMenu = () => NavigationActions.showMenu({ dispatch, t });
 
-    const showMyAccount = () => {
-        const view = 'MY_ACCOUNT';
-        dispatchEvent(startAccMgEvent);
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
 
-    const showChangePassword = () => {
-        const view = 'CHANGE_PASSWORD';
-        dispatchEvent(startAccMgEvent);
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
 
-    const showForgotPassword = () => {
-        const view = 'FORGOT_PASSWORD';
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, t });
 
-    const showCreateAccount = () => {
-        const view = 'CREATE_ACCOUNT';
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
 
-    const showAccountCreated = () => {
-        const view = 'ACCOUNT_CREATED';
-        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
-        dispatch({ type: 'changeView', view });
-    };
+    const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
 
     const handleBack = useCallback(() => {
         if (navigationState.view === null) {

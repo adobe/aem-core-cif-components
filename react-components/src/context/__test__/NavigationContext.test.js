@@ -78,13 +78,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('Sign in'));
         const result = await waitForElement(() => getByTestId('sign_in'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Sign in page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('menu'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('Menu page');
     });
 
@@ -101,13 +99,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('My account'));
         const result = await waitForElement(() => getByTestId('my_account'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('My account page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('menu'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('Menu page');
     });
 
@@ -124,13 +120,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('Forgot password'));
         const result = await waitForElement(() => getByTestId('forgot_password'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Forgot password page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('sign_in'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('Sign in page');
     });
 
@@ -147,13 +141,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('Change password'));
         const result = await waitForElement(() => getByTestId('change_password'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Change password page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('my_account'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('My account page');
     });
 
@@ -170,13 +162,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('Create account'));
         const result = await waitForElement(() => getByTestId('create_account'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Create account page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('sign_in'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('Sign in page');
     });
 
@@ -193,13 +183,11 @@ describe('NavigationContext test', () => {
 
         fireEvent.click(getByText('Account created'));
         const result = await waitForElement(() => getByTestId('account_created'));
-        expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Account created page');
 
         fireEvent(document, new CustomEvent('aem.navigation.back'));
 
         const backResult = await waitForElement(() => getByTestId('menu'));
-        expect(backResult).not.toBeUndefined();
         expect(backResult.textContent).toEqual('Menu page');
     });
 });
