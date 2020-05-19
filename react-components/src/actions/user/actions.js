@@ -28,3 +28,14 @@ export const resetCustomerCart = async payload => {
     const cartId = data.customerCart.id;
     dispatch({ type: 'setCartId', cartId });
 };
+
+export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch }) => {
+    try {
+        await revokeCustomerToken();
+        setCartCookie('', 0);
+        setUserCookie('', 0);
+        dispatch({ type: 'signOut' });
+    } catch (error) {
+        console.error('An error occurred during sign-out', error);
+    }
+};
