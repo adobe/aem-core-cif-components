@@ -70,13 +70,13 @@ const EditableForm = props => {
         formValues => {
             setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
                 .catch(error => {
-                    dispatch({ type: 'error', error: error.toString() });
+                    cartDispatch({ type: 'error', error: errorObj.toString() });
                 })
                 .finally(() => {
-                    dispatch({ type: 'endLoading' });
+                    cartDispatch({ type: 'endLoading' });
                 });
-            dispatch({ type: 'beginLoading' });
-            dispatch({ type: 'endEditing' });
+            cartDispatch({ type: 'beginLoading' });
+            cartDispatch({ type: 'endEditing' });
             if (!isSignedIn) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
             }
