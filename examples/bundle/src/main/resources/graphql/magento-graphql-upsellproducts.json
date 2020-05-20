@@ -7,21 +7,21 @@
           "upsell_products": [
             {
               "__typename": "SimpleProduct",
-              "sku": "24-MB01",
-              "name": "Joust Duffle Bag",
+              "sku": "24-MG03",
+              "name": "Summit Watch",
               "thumbnail": {
-                "label": "Joust Duffle Bag",
-                "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb01-blue-0.jpg"
+                "label": "Summit Watch",
+                "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"
               },
-              "url_key": "joust-duffle-bag",
+              "url_key": "summit-watch",
               "price_range": {
                 "minimum_price": {
                   "regular_price": {
-                    "value": 34,
+                    "value": 54,
                     "currency": "USD"
                   },
                   "final_price": {
-                    "value": 34,
+                    "value": 54,
                     "currency": "USD"
                   },
                   "discount": {
@@ -33,47 +33,21 @@
             },
             {
               "__typename": "SimpleProduct",
-              "sku": "24-MB04",
-              "name": "Strive Shoulder Pack",
+              "sku": "24-WG01",
+              "name": "Bolo Sport Watch",
               "thumbnail": {
-                "label": "Strive Shoulder Pack",
-                "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb04-black-0.jpg"
+                "label": "Image",
+                "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bolo-sport-watch/wg01-bk-0.jpg"
               },
-              "url_key": "strive-shoulder-pack",
+              "url_key": "bolo-sport-watch",
               "price_range": {
                 "minimum_price": {
                   "regular_price": {
-                    "value": 32,
+                    "value": 49,
                     "currency": "USD"
                   },
                   "final_price": {
-                    "value": 32,
-                    "currency": "USD"
-                  },
-                  "discount": {
-                    "amount_off": 0,
-                    "percent_off": 0
-                  }
-                }
-              }
-            },
-            {
-              "__typename": "SimpleProduct",
-              "sku": "24-MB03",
-              "name": "Crown Summit Backpack",
-              "thumbnail": {
-                "label": "Crown Summit Backpack",
-                "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/fc9c3d9f9a989ea397cc0813beceb4b5/m/b/mb03-black-0.jpg"
-              },
-              "url_key": "crown-summit-backpack",
-              "price_range": {
-                "minimum_price": {
-                  "regular_price": {
-                    "value": 38,
-                    "currency": "USD"
-                  },
-                  "final_price": {
-                    "value": 38,
+                    "value": 49,
                     "currency": "USD"
                   },
                   "discount": {

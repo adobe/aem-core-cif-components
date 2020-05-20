@@ -273,8 +273,17 @@ public class GraphqlServletTest {
     public void testUpsellProductsModel() throws ServletException {
         prepareModel(UPSELL_PRODUCTS_RESOURCE);
         ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
-        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+
+        // We test the SKUs to make sure we return the right response for UPSELL_PRODUCTS
+        List<ProductListItem> products = relatedProductsModel.getProducts();
+        Assert.assertEquals(2, products.size());
+        Assert.assertEquals("24-MG03", products.get(0).getSKU());
+        Assert.assertEquals("24-WG01", products.get(1).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
