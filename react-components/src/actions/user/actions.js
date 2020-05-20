@@ -19,9 +19,7 @@
  *     fetchCustomerCartQuery - the query object to execute to retrieve the cart details
  *     dispatch - the dispatch callback for the user context
  */
-export const resetCustomerCart = async payload => {
-    const { dispatch, fetchCustomerCartQuery } = payload;
-
+export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) => {
     const { data } = await fetchCustomerCartQuery({
         fetchPolicy: 'network-only'
     });

@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { resetCustomerCart } from '../actions';
+import { resetCustomerCart, signOutUser } from '../actions';
 
 describe('User actions', () => {
     it('resets the customer cart', async () => {
@@ -24,5 +24,28 @@ describe('User actions', () => {
 
         expect(query).toHaveBeenCalledTimes(1);
         expect(dispatch).toHaveBeenCalledWith({ type: 'setCartId', cartId: 'my-cart-id' });
+    });
+
+    it('signs out the user', async () => {
+        const revokeCustomerToken = jest.fn(() => {
+            return { data: { revokeCustomerToken: { result: true } } };
+        });
+
+        const setCartCookie = jest.fn();
+        const setUserCookie = jest.fn();
+        const dispatch = jest.fn();
+
+        await signOutUser({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
+
+        expect(revokeCustomerToken).toHaveBeenCalledTimes(1);
+
+        expect(setCartCookie).toHaveBeenCalledTimes(1);
+        expect(setCartCookie).toHaveBeenCalledWith('', 0);
+
+        expect(setUserCookie).toHaveBeenCalledTimes(1);
+        expect(setUserCookie).toHaveBeenCalledWith('', 0);
+
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'signOut' });
     });
 });
