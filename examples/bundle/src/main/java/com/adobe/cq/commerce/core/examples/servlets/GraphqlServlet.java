@@ -19,6 +19,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -86,7 +88,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_ID_ARG = "id";
     private static final String SKU_IN_REGEX = "\\{sku=\\{in=\\[.+\\]\\}\\}";
     private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
+    private static final String URL_KEY_EQ_REGEX = "\\{url_key=\\{eq=(.+)\\}\\}";
     private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
+
+    private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -348,6 +353,12 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 return readProductsFrom("magento-graphql-productteaser.json");
             } else if (filter.matches(CATEGORY_ID_REGEX)) {
                 return readProductsFrom("magento-graphql-category-products.json");
+            } else if (filter.matches(URL_KEY_EQ_REGEX)) {
+                Pattern pattern = Pattern.compile(URL_KEY_EQ_REGEX);
+                Matcher matcher = pattern.matcher(filter);
+                if (matcher.matches() && GROUPED_PRODUCT_URL_KEY.equals(matcher.group(1))) {
+                    return readProductsFrom("magento-graphql-grouped-product.json");
+                }
             }
         }
 
