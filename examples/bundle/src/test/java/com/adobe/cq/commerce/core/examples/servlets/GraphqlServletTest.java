@@ -324,9 +324,13 @@ public class GraphqlServletTest {
         prepareModel(SEARCH_RESULTS_RESOURCE);
         context.request().setParameterMap(Collections.singletonMap("search_query", "beaumont"));
         SearchResults searchResultsModel = context.request().adaptTo(SearchResults.class);
+
         Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertEquals(1, products.size());
-        Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
+        Assert.assertEquals(6, products.size());
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
