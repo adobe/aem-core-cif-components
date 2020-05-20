@@ -11,3 +11,7 @@
 .cif-demo .productcarousel__container {
     max-width: 50%;
 }
+
+.cif-demo .searchBar__root {
+    display: block !important;
+}
