@@ -83,6 +83,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     private static final String PRODUCTS_FILTER_ARG = "filter";
     private static final String PRODUCTS_SEARCH_ARG = "search";
+    private static final String CATEGORY_ID_ARG = "id";
     private static final String SKU_IN_REGEX = "\\{sku=\\{in=\\[.+\\]\\}\\}";
     private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
     private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
@@ -215,7 +216,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     @SuppressWarnings("unchecked")
     private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String json = readResource("magento-schema-2.3.4.json");
+        String json = readResource("magento-luma-schema-2.3.5.json");
 
         Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
         Map<String, Object> map = gson.fromJson(json, type);
@@ -346,7 +347,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             } else if (filter.matches(SKU_EQ_REGEX)) {
                 return readProductsFrom("magento-graphql-productteaser.json");
             } else if (filter.matches(CATEGORY_ID_REGEX)) {
-                return readProductsFrom("magento-graphql-searchresults-products.json");
+                return readProductsFrom("magento-graphql-category-products.json");
             }
         }
 
@@ -386,10 +387,17 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
         }
 
-        String filename = "magento-graphql-categories.json"; // Default query is fetching the category tree
+        // Default query is fetching the category tree except if the category id is not "2"
+        String filename = "magento-graphql-categories.json";
+
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
         if (selectionSet.contains("products")) {
             filename = "magento-graphql-category-products.json"; // Query to fetch category products
+        } else {
+            Object id = env.getArgument(CATEGORY_ID_ARG);
+            if (id != null && !id.toString().equals("2")) {
+                filename = "magento-graphql-category.json"; // Query to only fetch some category data
+            }
         }
 
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
