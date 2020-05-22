@@ -59,8 +59,8 @@ const Body = () => {
         cart.prices.discounts && cart.prices.discounts.length > 0 ? (
             <DiscountList discounts={cart.prices.discounts} />
         ) : (
-                <div />
-            );
+            <div />
+        );
 
     return (
         <div className={classes.root}>
