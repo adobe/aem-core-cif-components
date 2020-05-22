@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import classes from './addressForm.css';
-import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from '../../utils/formValidators';
+import { validateEmail, validatePhoneUS, validateZip, isRequired, hasLengthExactly, validateRegionCode } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
 import TextInput from '../TextInput';
 import Field from '../Field';
@@ -102,12 +102,12 @@ const AddressForm = props => {
                 </div>
                 <div className={classes.postcode}>
                     <Field label={t('checkout:address-postcode', 'ZIP')}>
-                        <TextInput id={classes.postcode} field="postcode" validateOnBlur validate={isRequired} />
+                        <TextInput id={classes.postcode} field="postcode" validateOnBlur validate={combine([isRequired, validateZip])} />
                     </Field>
                 </div>
                 <div className={classes.telephone}>
                     <Field label={t('checkout:address-phone', 'Phone')}>
-                        <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
+                        <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={combine([isRequired, validatePhoneUS])} />
                     </Field>
                 </div>
                 <div className={classes.validation}>{validationMessage}</div>

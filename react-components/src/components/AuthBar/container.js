@@ -29,6 +29,7 @@ import LoadingIndicator from '../LoadingIndicator';
         MY_ACCOUNT - the account props modal
         FORGOT_PASSWORD - the forgot password modal
         CHANGE_PASSWORD - the change password modal
+        UPDATE_ADDRESS - the change address modal
 
 */
 // a map of the UI states so we can properly handle the "BACK" button
@@ -38,6 +39,9 @@ const ancestors = {
     MY_ACCOUNT: 'MENU',
     CHANGE_PASSWORD: 'MY_ACCOUNT',
     SIGN_IN: 'MENU',
+    UPDATE_BILLING_ADDRESS: 'MY_ACCOUNT',
+    UPDATE_SHIPPING_ADDRESS: 'MY_ACCOUNT',
+    ORDER_HISTORY: 'MY_ACCOUNT',
     MENU: null
 };
 
@@ -66,6 +70,9 @@ const Container = () => {
         FORGOT_PASSWORD: t('account:password-recovery', 'Password recovery'),
         CHANGE_PASSWORD: t('account:change-password', 'Change Password'),
         MY_ACCOUNT: t('account:my-account', 'My account'),
+        UPDATE_BILLING_ADDRESS: t('account:change-billing-address', 'Change Billing Address'),
+        UPDATE_SHIPPING_ADDRESS: t('account:change-shipping-address', 'Change Shipping Address'),
+        ORDER_HISTORY: t('account:see-your-orders', 'See your orders'),
         SIGN_IN: t('account:sign-in', 'Sign In')
     };
 
@@ -113,6 +120,27 @@ const Container = () => {
         setView(view);
     }, [setView]);
 
+    const showUpdateCustomerBillingAddress = useCallback(() => {
+        const view = 'UPDATE_BILLING_ADDRESS';
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
+    }, [setView]);
+
+    const showUpdateCustomerShippingAddress = useCallback(() => {
+        const view = 'UPDATE_SHIPPING_ADDRESS';
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
+    }, [setView]);
+
+    const showOrderHistory = useCallback(() => {
+        const view = 'ORDER_HISTORY';
+        navigationPanel.dispatchEvent(startAccMgEvent);
+        navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
+        setView(view);
+    }, [setView]);
+
     const showForgotPassword = useCallback(() => {
         const view = 'FORGOT_PASSWORD';
         navigationPanel.dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view] } }));
@@ -141,6 +169,9 @@ const Container = () => {
                         showForgotPassword={showForgotPassword}
                         showChangePassword={showChangePassword}
                         showCreateAccount={showCreateAccount}
+                        showUpdateCustomerBillingAddress={showUpdateCustomerBillingAddress}
+                        showUpdateCustomerShippingAddress={showUpdateCustomerShippingAddress}
+                        showOrderHistory={showOrderHistory}
                     />
                 </div>
             )}

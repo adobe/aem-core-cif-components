@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 const path = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('./package.json');
 
 const libraryName = pkg.name;
@@ -58,7 +58,7 @@ module.exports = {
                         options: {
                             modules: {
                                 localIdentName:
-                                    '[name]__[local]__[hash:base64:5]'
+                                    '[name]__[local]'
                             }
                         }
                     }

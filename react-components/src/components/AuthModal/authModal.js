@@ -19,11 +19,14 @@ import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
 import CreateAccount from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
+import UpdateCustomerBillingAddress from '../UpdateCustomerBillingAddress';
+import UpdateCustomerShippingAddress from '../UpdateCustomerShippingAddress';
+import OrderHistory from '../OrderHistory';
 
 import classes from './authModal.css';
 
 const AuthModal = props => {
-    const { view, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount } = props;
+    const { view, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount, showUpdateCustomerBillingAddress, showUpdateCustomerShippingAddress, showOrderHistory } = props;
 
     let child;
 
@@ -34,11 +37,21 @@ const AuthModal = props => {
                     showMyAccount={showMyAccount}
                     showForgotPassword={showForgotPassword}
                     showCreateAccount={showCreateAccount}
+                    showOrderHistory={showOrderHistory}
                 />
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            child = <MyAccount showMenu={showMenu} showUpdateCustomerBillingAddress={showUpdateCustomerBillingAddress} showUpdateCustomerShippingAddress={showUpdateCustomerShippingAddress} showOrderHistory={showOrderHistory} showChangePassword={showChangePassword} />;
+            break;
+        case 'UPDATE_BILLING_ADDRESS':
+            child = <UpdateCustomerBillingAddress showMyAccount={showMyAccount} />;
+            break;
+        case 'UPDATE_SHIPPING_ADDRESS':
+            child = <UpdateCustomerShippingAddress showMyAccount={showMyAccount} />;
+            break;
+        case 'ORDER_HISTORY':
+            child = <OrderHistory showMyAccount={showMyAccount} />;
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} />;
@@ -59,7 +72,10 @@ AuthModal.propTypes = {
     showMenu: func.isRequired,
     showForgotPassword: func.isRequired,
     showChangePassword: func.isRequired,
-    showCreateAccount: func.isRequired
+    showCreateAccount: func.isRequired,
+    showUpdateCustomerBillingAddress: func.isRequired,
+    showUpdateCustomerShippingAddress: func.isRequired,
+    showOrderHistory: func.isRequired
 };
 
 export default AuthModal;

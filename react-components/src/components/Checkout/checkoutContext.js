@@ -23,7 +23,10 @@ export const initialCheckoutState = {
     billingAddress: null,
     shippingMethod: null,
     paymentMethod: null,
-    braintreeToken: false
+    braintreeToken: false,
+    anetToken: '8p5jpGY66cPwqU83B8W5SCDusCk82U3cE9sf8pYwESX8xQtj7Mc92sh9Q8523NVs',
+    anetActive: false,
+    anetApiId: '5A44mn22LfrX'
 };
 
 export const checkoutReducer = (state, action) => {
@@ -78,6 +81,7 @@ export const checkoutReducer = (state, action) => {
                 editing: null
             };
         case 'setPaymentMethod':
+            console.log('setPaymnet method');
             return {
                 ...state,
                 paymentMethod: action.paymentMethod,

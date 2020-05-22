@@ -47,6 +47,17 @@ const Overview = props => {
         await placeOrder(cart.id);
     };
 
+    let taxTotal = 0;
+    cart.prices.applied_taxes.forEach(el => taxTotal += el.amount.value);
+    // TODO figure out what to do with shipping addresses array. May need to get selected address cost different if costs are complex?
+    // Currently getting cost of first address in array
+    let shippingTotal = 0;
+    console.log(cart);
+    if (shippingMethod && cart.shipping_addresses[0].selected_shipping_method) {
+        shippingTotal = cart.shipping_addresses[0].selected_shipping_method.amount.value;
+    }
+
+    // TODO fix currency code. Currently shows USD, needs to run through function?
     return (
         <Fragment>
             <div className={classes.body}>
@@ -81,7 +92,7 @@ const Overview = props => {
                     </Section>
                 )}
                 <Section label={t('checkout:total', 'TOTAL')}>
-                    <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} />
+                    <Price currencyCode={cart.prices.grand_total.currency} value={cart.prices.grand_total.value || 0} /> <span className="total-includes">(includes ${taxTotal} Tax, ${shippingTotal} Shipping)</span>
                     <br />
                     <span>{cart.items.length} Items</span>
                 </Section>
@@ -93,7 +104,7 @@ const Overview = props => {
                 </Button>
 
                 <Button priority="high" disabled={!ready} onClick={submitOrder}>
-                    {t('checkout:confirm-order', 'Confirm Order')}
+                    {t('checkout:confirm-order', 'Place Order')}
                 </Button>
             </div>
         </Fragment>

@@ -25,9 +25,11 @@ import { useCartState } from '../Minicart/cartContext';
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_save_shipping_address.graphql';
 import MUTATION_SET_PAYMENT_METHOD from '../../queries/mutation_set_payment_method.graphql';
 import MUTATION_SET_BRAINTREE_PAYMENT_METHOD from '../../queries/mutation_set_braintree_payment_method.graphql';
+import MUTATION_SET_ANET_PLABS_PAYMENT_METHOD from '../../queries/mutation_set_anet_plabs_payment_method.graphql';
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
@@ -41,9 +43,13 @@ const EditableForm = props => {
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
-    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS, {
+        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
+        awaitRefetchQueries: true
+    });
 
     const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
+    const [setAnetPaymentMethodOnCart] = useMutation(MUTATION_SET_ANET_PLABS_PAYMENT_METHOD);
     const [setPaymentMethodOnCart] = useMutation(MUTATION_SET_PAYMENT_METHOD);
     const [setBillingAddressOnCart] = useMutation(MUTATION_SET_BILLING_ADDRESS);
 
@@ -64,7 +70,15 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = useCallback(
         formValues => {
-            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } });
+            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
+                .catch(error => {
+                    cartDispatch({ type: 'error', error: errorObj.toString() });
+                })
+                .finally(() => {
+                    cartDispatch({ type: 'endLoading' });
+                });
+            cartDispatch({ type: 'beginLoading' });
+            cartDispatch({ type: 'endEditing' });
             if (!isSignedIn) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
             }
@@ -73,6 +87,7 @@ const EditableForm = props => {
     );
 
     const handleSubmitPaymentsForm = async args => {
+        console.log("handleSubmitPaymentsForm");
         try {
             let billingAddressVariables = {
                 cartId: cartId,
@@ -113,6 +128,23 @@ const EditableForm = props => {
                         variables: {
                             cartId: cartId,
                             paymentMethodCode: args.paymentMethod.code,
+                            nonce: args.paymentNonce
+                        }
+                    });
+                    break;
+                }
+                case 'authnetcim': {
+                    console.log("payment form sumbit authnet");
+                    paymentResult = await setAnetPaymentMethodOnCart({
+                        variables: {
+                            cartId: cartId,
+                            paymentMethodCode: args.paymentMethod.code,
+                            ccLast4: args.ccLast4,
+                            ccType: args.ccType,
+                            ccExpYear: args.ccExpYear,
+                            ccExpMonth: args.ccExpMonth,
+                            ccCid: args.ccCid,
+                            opaqueDataDescriptor: args.opaqueDataDescriptor,
                             nonce: args.paymentNonce
                         }
                     });

@@ -22,6 +22,9 @@ export default (value, values) => {
         case 'braintree_paypal': {
             return !nonce || nonce.length < 11 ? 'Please provide your PayPal details.' : undefined;
         }
+        case 'authnetcim': {
+            return !nonce || nonce.length < 11 ? values.anetError : undefined;
+        }
         default: {
             // No nonce needed for any other payment methods
             return undefined;

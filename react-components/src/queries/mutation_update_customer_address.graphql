@@ -1,0 +1,54 @@
+mutation (
+    $id: Int!
+    $city: String!
+    $company: String
+    $country_code: CountryCodeEnum
+    $firstname: String!
+    $lastname: String!
+    $postcode: String
+    $region: String!
+    $region_code: String!
+    $region_id: Int!
+    $street: [String]!
+    $telephone: String!
+    $default_billing: Boolean!
+    $default_shipping: Boolean!
+) {
+    updateCustomerAddress(id: $id, 
+        input: { 
+            city: $city
+            company: $company
+            country_code: $country_code
+            firstname: $firstname
+            lastname: $lastname
+            postcode: $postcode
+            region: {
+                region: $region
+                region_code: $region_code
+                region_id: $region_id
+            }
+            street: $street
+            telephone: $telephone
+            default_billing: $default_billing
+            default_shipping: $default_shipping
+        })
+        {
+            id
+            city
+            company
+            country_code
+            firstname
+            lastname
+            postcode
+            region {
+                region
+                region_code
+                region_id
+            }
+            street
+            telephone
+            default_billing
+            default_shipping
+        }
+    
+}

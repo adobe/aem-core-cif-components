@@ -1,0 +1,34 @@
+mutation (
+    $cartId: String!, 
+    $paymentMethodCode: String!, 
+    $ccLast4: String!,
+    $ccExpYear: String!,
+    $ccExpMonth: String!, 
+    $ccCid: String!,
+    $opaqueDataDescriptor: String!,
+    $nonce: String!
+) {
+    setPaymentMethodOnCart( input: {
+        cart_id: $cartId, 
+        payment_method: {
+            code: $paymentMethodCode, 
+            tokenbase_data: {
+                cc_type: "VI"
+                cc_last4: $ccLast4,
+                cc_exp_year: $ccExpYear,
+                cc_exp_month: $ccExpMonth,
+                cc_cid: $ccCid,
+                acceptjs_key: $opaqueDataDescriptor,
+                acceptjs_value: $nonce,
+                save: false
+            }
+        }
+    }) {
+        cart {
+            selected_payment_method {
+                code
+                title
+            }
+        }
+    }
+}

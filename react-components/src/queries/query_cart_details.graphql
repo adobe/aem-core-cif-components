@@ -17,6 +17,12 @@ query cartDetails($cartId: String!) {
                 currency
                 value
             }
+            applied_taxes {
+                label
+                amount {
+                value
+                }
+            }
             grand_total {
                 currency
                 value
@@ -44,6 +50,9 @@ query cartDetails($cartId: String!) {
                 carrier_title
             }
             selected_shipping_method {
+                amount {
+                    value
+                }
                 carrier_code
                 carrier_title
                 method_code

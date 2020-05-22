@@ -2,6 +2,7 @@ query {
     countries {
         id
         available_regions {
+            id
             name
             code
         }

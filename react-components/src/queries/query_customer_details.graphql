@@ -3,5 +3,23 @@ query {
         email
         firstname
         lastname
+        id
+        addresses {
+            id
+            firstname
+            lastname
+            company
+            street
+            city
+            region {
+                region
+                region_code
+            }
+            postcode
+            country_code
+            telephone
+            default_billing
+            default_shipping
+        }
     }
 }

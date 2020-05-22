@@ -21,7 +21,7 @@ import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
-
+const accountLeadText = document.querySelector('p.createAccount__lead');
 export default () => {
     const [{ cartId }, cartDispatch] = useCartState();
     const [, setUserCookie] = useCookieValue('cif.userToken');
@@ -49,34 +49,7 @@ export default () => {
             } = await createCustomer({
                 variables: { email, password, firstname, lastname }
             });
-
-            //2. Generate the customer token.
-            // Most of the commerce solutions DO NOT sign in the user after the account is created.
-            const { data: customerTokenData } = await generateCustomerToken({
-                variables: { email: customer.email, password }
-            });
-            const token = customerTokenData.generateCustomerToken.token;
-
-            //3. Set the token in the cookie now because subsequent requests would need it
-            setUserCookie(token);
-            setToken(token);
-
-            const { data: customerCartData } = await fetchCustomerCart();
-            const customerCartId = customerCartData.customerCart.id;
-
-            //4. Merge the shopping cart
-            const { data: mergeCartsData } = await mergeCarts({
-                variables: {
-                    sourceCartId: cartId,
-                    destinationCartId: customerCartId
-                }
-            });
-            const mergedCartId = mergeCartsData.mergeCarts.id;
-
-            //5. Dispatch the action to update the user state
-            setCartCookie(mergedCartId);
-            cartDispatch({ type: 'cartId', cartId: mergedCartId });
-            dispatch({ type: 'postCreateAccount', token, currentUser: customer, cartId: mergedCartId });
+            dispatch({ type: 'createAccountEarly' });
         } catch (error) {
             dispatch({ type: 'createAccountError', error });
         } finally {

@@ -22,7 +22,7 @@ const LoadingIndicator = props => {
         <div className={className}>
             <img
                 className={classes.indicator}
-                src="/conf/venia/settings/wcm/templates/product-page/structure/_jcr_content/root/header/logo.svg"
+                src="/etc.clientlibs/fireball/clientlibs/clientlib-site/resources/images/loading-dark.svg"
                 width="64"
                 height="64"
                 alt="Loading indicator"

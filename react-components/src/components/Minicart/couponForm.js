@@ -39,7 +39,7 @@ const CouponForm = () => {
                 placeholder={t('cart:enter-coupon', 'Enter your code')}
             />
             <Button priority="high" onClick={addCouponHandler} disabled={couponCode.length < 3}>
-                <span>{t('cart:apply-coupon', 'Apply Coupon')}</span>
+                <span>{t('cart:apply-coupon', 'Apply')}</span>
             </Button>
             {errorFragment}
         </form>
