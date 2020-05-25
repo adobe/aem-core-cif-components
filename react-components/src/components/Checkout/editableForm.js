@@ -70,7 +70,7 @@ const EditableForm = props => {
         formValues => {
             setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
                 .catch(error => {
-                    cartDispatch({ type: 'error', error: errorObj.toString() });
+                    cartDispatch({ type: 'error', error: error.toString() });
                 })
                 .finally(() => {
                     cartDispatch({ type: 'endLoading' });
