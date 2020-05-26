@@ -43,10 +43,7 @@ const EditableForm = props => {
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
-    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-        awaitRefetchQueries: true
-    });
+    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
     const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
     const [setAnetPaymentMethodOnCart] = useMutation(MUTATION_SET_ANET_PLABS_PAYMENT_METHOD);
@@ -71,14 +68,6 @@ const EditableForm = props => {
     const handleSubmitAddressForm = useCallback(
         formValues => {
             setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
-                .catch(error => {
-                    cartDispatch({ type: 'error', error: errorObj.toString() });
-                })
-                .finally(() => {
-                    cartDispatch({ type: 'endLoading' });
-                });
-            cartDispatch({ type: 'beginLoading' });
-            cartDispatch({ type: 'endEditing' });
             if (!isSignedIn) {
                 setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
             }
