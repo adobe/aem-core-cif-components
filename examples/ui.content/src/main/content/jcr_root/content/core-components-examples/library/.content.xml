@@ -84,6 +84,75 @@
                                 width="12"/>
                         </cq:responsive>
                     </teaser_1837085927>
+                    <teaser_1837085937
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Related Products"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/relatedproducts.svg"
+                        linkURL="/content/core-components-examples/library/commerce/relatedproducts"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837085937>
+                    <teaser_1837085947
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Product List"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/productlist.svg"
+                        linkURL="/content/core-components-examples/library/commerce/productlist"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837085947>
+                    <teaser_1837085957
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Search"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/searchbar.svg"
+                        linkURL="/content/core-components-examples/library/commerce/search"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837085957>
                 </container_1589240807>
             </responsivegrid>
         </root>

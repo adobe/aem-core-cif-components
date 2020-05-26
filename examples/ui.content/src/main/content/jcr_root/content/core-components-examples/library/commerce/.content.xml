@@ -3,7 +3,9 @@
     jcr:primaryType="cq:Page">
     <jcr:content
         cq:allowedTemplates="[/conf/core-components-examples/settings/wcm/templates/.*]"
+        cq:cifCategoryPage="/content/core-components-examples/library/commerce/productlist"
         cq:cifProductPage="/content/core-components-examples/library/commerce/product"
+        cq:cifSearchResultsPage="/content/core-components-examples/library/commerce/search"
         cq:conf="/conf/core-components-examples"
         cq:deviceGroups="[/etc/mobile/groups/responsive]"
         cq:lastModified="{Date}2018-12-06T19:40:56.470+01:00"
@@ -18,4 +20,7 @@
     <product/>
     <productteaser/>
     <productcarousel/>
+    <relatedproducts/>
+    <productlist/>
+    <search/>
 </jcr:root>
