@@ -64,11 +64,11 @@ const NavigationContextProvider = props => {
 
     const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
 
-    const showUpdateCustomerBillingAddress = () => NavigationActions.showMyAccount({ dispatch, t });
+    const showUpdateCustomerBillingAddress = () => NavigationActions.showUpdateCustomerBillingAddress({ dispatch, t });
 
-    const showUpdateCustomerShippingAddress = () => NavigationActions.showMyAccount({ dispatch, t });
+    const showUpdateCustomerShippingAddress = () => NavigationActions.showUpdateCustomerShippingAddress({ dispatch, t });
 
-    const showOrderHistory = () => NavigationActions.showMyAccount({ dispatch, t });
+    const showOrderHistory = () => NavigationActions.showOrderHistory({ dispatch, t });
 
     const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
 
