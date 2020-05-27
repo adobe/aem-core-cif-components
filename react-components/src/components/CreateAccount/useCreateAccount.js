@@ -12,48 +12,31 @@
  *
  ******************************************************************************/
 import { useMutation } from '@apollo/react-hooks';
-import { useState } from 'react';
-import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
-import { useCartState } from '../Minicart/cartContext';
+import { useNavigationContext } from '../../context/NavigationContext';
 
-import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
-import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
-import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 const accountLeadText = document.querySelector('p.createAccount__lead');
 export default () => {
-    const [{ cartId }, cartDispatch] = useCartState();
-    const [, setUserCookie] = useCookieValue('cif.userToken');
-    const [, setCartCookie] = useCookieValue('cif.cart');
+    const [{ isSignedIn, createAccountError, inProgress }, { dispatch }] = useUserContext();
+    const [, { showAccountCreated }] = useNavigationContext();
 
-    const [{ isSignedIn, createAccountError }, { dispatch, setToken }] = useUserContext();
-    const [inProgress, setInProgress] = useState(false);
-
-    const [mergeCarts] = useMutation(MUTATION_MERGE_CARTS);
-    const fetchCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
     const [createCustomer] = useMutation(MUTATION_CREATE_CUSTOMER);
-    const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
 
     const handleCreateAccount = async formValues => {
-        setInProgress(true);
+        dispatch({ type: 'setInProgress' });
         const {
             customer: { email, firstname, lastname },
             password
         } = formValues;
         try {
-            const {
-                data: {
-                    createCustomer: { customer }
-                }
-            } = await createCustomer({
+            await createCustomer({
                 variables: { email, password, firstname, lastname }
             });
-            dispatch({ type: 'createAccountEarly' });
+            dispatch({ type: 'postCreateAccount', accountEmail: email });
+            showAccountCreated();
         } catch (error) {
             dispatch({ type: 'createAccountError', error });
-        } finally {
-            setInProgress(false);
         }
     };
 

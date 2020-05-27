@@ -62,11 +62,15 @@ const reducerFactory = () => {
             case 'postCreateAccount':
                 return {
                     ...state,
-                    isSignedIn: true,
+                    isSignedIn: false,
                     inProgress: false,
-                    token: action.token,
                     createAccountError: null,
-                    currentUser: { ...action.currentUser }
+                    createAccountEmail: action.accountEmail
+                };
+            case 'cleanupAccountCreated':
+                return {
+                    ...state,
+                    createAccountEmail: null
                 };
             case 'error': {
                 return {
@@ -159,6 +163,7 @@ const UserContextProvider = props => {
         hasOrders: false,
         needsOrders: false,
         createAccountError: null,
+        createAccountEmail: null,
         cartId: null
     };
 

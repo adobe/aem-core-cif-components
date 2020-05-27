@@ -12,21 +12,24 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { string, func } from 'prop-types';
 
 import SignIn from '../SignIn';
 import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
-import CreateAccount from '../CreateAccount';
+import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
+import { useNavigationContext } from '../../context/NavigationContext';
 import UpdateCustomerBillingAddress from '../UpdateCustomerBillingAddress';
 import UpdateCustomerShippingAddress from '../UpdateCustomerShippingAddress';
 import OrderHistory from '../OrderHistory';
 
 import classes from './authModal.css';
 
-const AuthModal = props => {
-    const { view, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount, showUpdateCustomerBillingAddress, showUpdateCustomerShippingAddress, showOrderHistory } = props;
+const AuthModal = () => {
+    const [
+        { view },
+        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount, showUpdateCustomerBillingAddress, showUpdateCustomerShippingAddress, showOrderHistory }
+    ] = useNavigationContext();
 
     let child;
 
@@ -61,21 +64,13 @@ const AuthModal = props => {
             break;
         case 'CREATE_ACCOUNT':
             child = <CreateAccount showMyAccount={showMyAccount} />;
+            break;
+        case 'ACCOUNT_CREATED':
+            child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
     return <div className={classes.root}>{child}</div>;
-};
 
-AuthModal.propTypes = {
-    view: string.isRequired,
-    showMyAccount: func.isRequired,
-    showMenu: func.isRequired,
-    showForgotPassword: func.isRequired,
-    showChangePassword: func.isRequired,
-    showCreateAccount: func.isRequired,
-    showUpdateCustomerBillingAddress: func.isRequired,
-    showUpdateCustomerShippingAddress: func.isRequired,
-    showOrderHistory: func.isRequired
 };
 
 export default AuthModal;
