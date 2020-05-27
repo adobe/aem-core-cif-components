@@ -26,6 +26,9 @@ const ancestors = {
     MY_ACCOUNT: 'MENU',
     CHANGE_PASSWORD: 'MY_ACCOUNT',
     SIGN_IN: 'MENU',
+    UPDATE_BILLING_ADDRESS: 'MY_ACCOUNT',
+    UPDATE_SHIPPING_ADDRESS: 'MY_ACCOUNT',
+    ORDER_HISTORY: 'MY_ACCOUNT',
     MENU: null
 };
 
@@ -60,6 +63,12 @@ const NavigationContextProvider = props => {
     const showMenu = () => NavigationActions.showMenu({ dispatch, t });
 
     const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
+
+    const showUpdateCustomerBillingAddress = () => NavigationActions.showMyAccount({ dispatch, t });
+
+    const showUpdateCustomerShippingAddress = () => NavigationActions.showMyAccount({ dispatch, t });
+
+    const showOrderHistory = () => NavigationActions.showMyAccount({ dispatch, t });
 
     const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
 
@@ -97,6 +106,9 @@ const NavigationContextProvider = props => {
             showSignIn,
             showMenu,
             showMyAccount,
+            showUpdateCustomerBillingAddress,
+            showUpdateCustomerShippingAddress,
+            showOrderHistory,
             showChangePassword,
             showForgotPassword,
             showCreateAccount,

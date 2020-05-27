@@ -44,6 +44,9 @@ const stepTitles = {
     CHANGE_PASSWORD: t => t('account:change-password', 'Change Password'),
     MY_ACCOUNT: t => t('account:my-account', 'My account'),
     ACCOUNT_CREATED: t => t('account:account-created', 'Account created'),
+    UPDATE_BILLING_ADDRESS: t => t('account:change-billing-address', 'Change Billing Address'),
+    UPDATE_SHIPPING_ADDRESS: t => t('account:change-shipping-address', 'Change Shipping Address'),
+    ORDER_HISTORY: t => t('account:see-your-orders', 'See your orders'),
     SIGN_IN: t => t('account:sign-in', 'Sign In')
 };
 
@@ -61,6 +64,27 @@ export const showMenu = ({ dispatch, t }) => {
 
 export const showMyAccount = ({ dispatch, t }) => {
     const view = 'MY_ACCOUNT';
+    dispatchEvent(startAccMgEvent);
+    dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
+    dispatch({ type: 'changeView', view });
+};
+
+export const showUpdateCustomerBillingAddress = ({ dispatch, t }) => {
+    const view = 'UPDATE_BILLING_ADDRESS';
+    dispatchEvent(startAccMgEvent);
+    dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
+    dispatch({ type: 'changeView', view });
+};
+
+export const showUpdateCustomerShippingAddress = ({ dispatch, t }) => {
+    const view = 'UPDATE_SHIPPING_ADDRESS';
+    dispatchEvent(startAccMgEvent);
+    dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
+    dispatch({ type: 'changeView', view });
+};
+
+export const showOrderHistory = ({ dispatch, t }) => {
+    const view = 'ORDER_HISTORY';
     dispatchEvent(startAccMgEvent);
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
     dispatch({ type: 'changeView', view });
