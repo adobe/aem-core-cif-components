@@ -35,5 +35,6 @@ export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserC
         dispatch({ type: 'signOut' });
     } catch (error) {
         console.error('An error occurred during sign-out', error);
+        dispatch({ type: 'error', error: error.toString() });
     }
 };
