@@ -222,15 +222,40 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testGroupedProductModel() throws ServletException {
+        prepareModel(PRODUCT_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG085_Group", productModel.getSku());
+        Assert.assertTrue(productModel.isGroupedProduct());
+        Assert.assertEquals(3, productModel.getGroupedProductItems().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+    }
+
+    @Test
     public void testProductListModel() throws ServletException {
         prepareModel(PRODUCT_LIST_RESOURCE);
 
+        // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("2");
-
+        requestPathInfo.setSelectorString("1");
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertEquals("Default Category", productListModel.getTitle());
+        Assert.assertEquals("Outdoor Collection", productListModel.getTitle());
+
+        // The products are coming from magento-graphql-category-products.json
         Assert.assertEquals(6, productListModel.getProducts().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productListModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -299,9 +324,13 @@ public class GraphqlServletTest {
         prepareModel(SEARCH_RESULTS_RESOURCE);
         context.request().setParameterMap(Collections.singletonMap("search_query", "beaumont"));
         SearchResults searchResultsModel = context.request().adaptTo(SearchResults.class);
+
         Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertEquals(1, products.size());
-        Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
+        Assert.assertEquals(6, products.size());
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
