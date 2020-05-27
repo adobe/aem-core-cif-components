@@ -352,7 +352,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             } else if (filter.matches(SKU_EQ_REGEX)) {
                 return readProductsFrom("magento-graphql-productteaser.json");
             } else if (filter.matches(CATEGORY_ID_REGEX)) {
-                return readProductsFrom("magento-graphql-category-products.json");
+                return readProductsFrom("magento-graphql-products-collection.json");
             } else if (filter.matches(URL_KEY_EQ_REGEX)) {
                 Pattern pattern = Pattern.compile(URL_KEY_EQ_REGEX);
                 Matcher matcher = pattern.matcher(filter);
@@ -363,7 +363,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         }
 
         if (args.containsKey(PRODUCTS_SEARCH_ARG)) {
-            return readProductsFrom("magento-graphql-searchresults.json");
+            return readProductsFrom("magento-graphql-products-collection.json");
         }
 
         return readProductsFrom("magento-graphql-products.json");
