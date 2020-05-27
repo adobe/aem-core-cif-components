@@ -21,7 +21,7 @@ import Button from '../Button';
 import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
-import { isRequired, hasLengthExactly, validateRegionCode, validateEmail } from '../../util/formValidators';
+import { isRequired, hasLengthExactly, validatePhoneUS, validateZip, validateRegionCode, validateEmail } from '../../util/formValidators';
 import combine from '../../util/combineValidators';
 
 /**
@@ -82,12 +82,12 @@ const PaymentsFormItems = props => {
             </div>
             <div className={classes.postcode}>
                 <Field label={t('checkout:address-postcode', 'ZIP')}>
-                    <TextInput id={classes.postcode} field="postcode" validate={isRequired} />
+                    <TextInput id={classes.postcode} field="postcode" validate={combine([isRequired, validateZip])} />
                 </Field>
             </div>
             <div className={classes.telephone}>
                 <Field label={t('checkout:address-phone', 'Phone')}>
-                    <TextInput id={classes.telephone} field="telephone" validate={isRequired} />
+                    <TextInput id={classes.telephone} field="telephone" validate={combine([isRequired, validatePhoneUS])} />
                 </Field>
             </div>
             <span ref={anchorRef} />
@@ -104,6 +104,7 @@ const PaymentsFormItems = props => {
     // comments for more info.
     const handleSuccess = useCallback(
         value => {
+            console.log("handleSuccess");
             setIsSubmitting(false);
             const sameAsShippingAddress = formState.values['addresses_same'];
             let billingAddress;

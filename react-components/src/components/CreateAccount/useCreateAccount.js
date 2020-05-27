@@ -16,7 +16,7 @@ import { useUserContext } from '../../context/UserContext';
 import { useNavigationContext } from '../../context/NavigationContext';
 
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
-
+const accountLeadText = document.querySelector('p.createAccount__lead');
 export default () => {
     const [{ isSignedIn, createAccountError, inProgress }, { dispatch }] = useUserContext();
     const [, { showAccountCreated }] = useNavigationContext();
@@ -33,7 +33,6 @@ export default () => {
             await createCustomer({
                 variables: { email, password, firstname, lastname }
             });
-
             dispatch({ type: 'postCreateAccount', accountEmail: email });
             showAccountCreated();
         } catch (error) {

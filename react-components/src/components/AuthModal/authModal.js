@@ -19,13 +19,16 @@ import ForgotPassword from '../ForgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
 import { useNavigationContext } from '../../context/NavigationContext';
+import UpdateCustomerBillingAddress from '../UpdateCustomerBillingAddress';
+import UpdateCustomerShippingAddress from '../UpdateCustomerShippingAddress';
+import OrderHistory from '../OrderHistory';
 
 import classes from './authModal.css';
 
 const AuthModal = () => {
     const [
         { view },
-        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
+        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount, showUpdateCustomerBillingAddress, showUpdateCustomerShippingAddress, showOrderHistory }
     ] = useNavigationContext();
 
     let child;
@@ -37,11 +40,21 @@ const AuthModal = () => {
                     showMyAccount={showMyAccount}
                     showForgotPassword={showForgotPassword}
                     showCreateAccount={showCreateAccount}
+                    showOrderHistory={showOrderHistory}
                 />
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            child = <MyAccount showMenu={showMenu} showUpdateCustomerBillingAddress={showUpdateCustomerBillingAddress} showUpdateCustomerShippingAddress={showUpdateCustomerShippingAddress} showOrderHistory={showOrderHistory} showChangePassword={showChangePassword} />;
+            break;
+        case 'UPDATE_BILLING_ADDRESS':
+            child = <UpdateCustomerBillingAddress showMyAccount={showMyAccount} />;
+            break;
+        case 'UPDATE_SHIPPING_ADDRESS':
+            child = <UpdateCustomerShippingAddress showMyAccount={showMyAccount} />;
+            break;
+        case 'ORDER_HISTORY':
+            child = <OrderHistory showMyAccount={showMyAccount} />;
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} />;
@@ -57,6 +70,7 @@ const AuthModal = () => {
     }
 
     return <div className={classes.root}>{child}</div>;
+
 };
 
 export default AuthModal;

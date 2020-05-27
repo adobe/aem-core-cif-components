@@ -1,0 +1,14 @@
+.root {
+    display: grid;
+    gap: 1rem;
+    justify-items: stretch;
+    padding: 1.5rem;
+}
+
+.buttonContainer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    text-align: center;
+}

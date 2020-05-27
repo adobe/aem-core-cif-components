@@ -25,7 +25,7 @@ import { useCartState } from '../Minicart/cartContext';
 import { func } from 'prop-types';
 
 const MyAccount = props => {
-    const { showMenu, showChangePassword } = props;
+    const { showMenu, showChangePassword, showUpdateCustomerBillingAddress, showUpdateCustomerShippingAddress, showOrderHistory } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
     const [, dispatch] = useCartState();
 
@@ -37,6 +37,7 @@ const MyAccount = props => {
     };
 
     if (inProgress) {
+        console.log('in p', currentUser);
         return (
             <div className={classes.modal_active}>
                 <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>
@@ -55,6 +56,18 @@ const MyAccount = props => {
                 <span className={classes.subtitle}>{currentUser.email}</span>
             </div>
             <div className={classes.actions}>
+                <AccountLink onClick={showUpdateCustomerBillingAddress}>
+                    <PasswordIcon size={18} />
+                    Update Billing Address
+                </AccountLink>
+                <AccountLink onClick={showUpdateCustomerShippingAddress}>
+                    <PasswordIcon size={18} />
+                    Update Shipping Address
+                </AccountLink>
+                <AccountLink onClick={showOrderHistory}>
+                    <PasswordIcon size={18} />
+                    Order History
+                </AccountLink>
                 <AccountLink onClick={showChangePassword}>
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
@@ -70,7 +83,10 @@ const MyAccount = props => {
 
 MyAccount.propTypes = {
     showMenu: func.isRequired,
-    showChangePassword: func.isRequired
+    showChangePassword: func.isRequired,
+    showUpdateCustomerBillingAddress: func.isRequired,
+    showUpdateCustomerShippingAddress: func.isRequired,
+    showOrderHistory: func.isRequired
 };
 
 export default MyAccount;

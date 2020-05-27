@@ -22,6 +22,7 @@ import { resetCustomerCart as resetCustomerCartAction } from '../actions/user';
 
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
+import QUERY_CUSTOMER_ORDERS from '../queries/query_customer_orders.graphql';
 
 const UserContext = React.createContext();
 
@@ -34,6 +35,9 @@ const reducerFactory = () => {
                     inProgress: false,
                     currentUser: {
                         ...action.userDetails
+                    },
+                    customerOrders: {
+                        ...action.userOrders
                     }
                 };
             case 'setCartId':
@@ -82,6 +86,13 @@ const reducerFactory = () => {
                     createAccountError: parseError(action.error)
                 };
             }
+            case 'createAccountEarly': {
+                return {
+                    ...state,
+                    inProgress: false,
+                    createAccountError: "The account is created, check your email and confirm your account."
+                };
+            }
             case 'signOut':
                 return {
                     ...state,
@@ -91,7 +102,12 @@ const reducerFactory = () => {
                     currentUser: {
                         firstname: '',
                         lastname: '',
-                        email: ''
+                        email: '',
+                        id: '',
+                        addresses: ''
+                    },
+                    customerOrders: {
+                        items: ''
                     },
                     cartId: ''
                 };
@@ -110,12 +126,42 @@ const UserContextProvider = props => {
         currentUser: {
             firstname: '',
             lastname: '',
-            email: ''
+            email: '',
+            id: '',
+            addresses: [
+                {
+                    id: '',
+                    firstname: '',
+                    lastname: '',
+                    street: '',
+                    city: '',
+                    region: {
+                        region_code: '',
+                        region: ''
+                    },
+                    postcode: '',
+                    country_code: '',
+                    telephone: ''
+                }
+            ]
+        },
+        customerOrders: {
+            items: [
+                {
+                    order_number: '',
+                    id: '',
+                    created_at: '',
+                    grand_total: '',
+                    status: ''
+                }
+            ]
         },
         token: userCookie,
         isSignedIn: isSignedIn(),
         signInError: null,
         inProgress: false,
+        hasOrders: false,
+        needsOrders: false,
         createAccountError: null,
         createAccountEmail: null,
         cartId: null
@@ -125,6 +171,8 @@ const UserContextProvider = props => {
 
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
+    const fetchCustomerOrders = useAwaitQuery(QUERY_CUSTOMER_ORDERS);
+
 
     const setToken = token => {
         setUserCookie(token);
@@ -161,7 +209,8 @@ const UserContextProvider = props => {
     const getUserDetails = useCallback(async () => {
         try {
             const { data: customerData } = await fetchCustomerDetails({ fetchPolicy: 'no-cache' });
-            dispatch({ type: 'setUserDetails', userDetails: customerData.customer });
+            const { data: orderData } = await fetchCustomerOrders({ fetchPolicy: 'no-cache' });
+            dispatch({ type: 'setUserDetails', userDetails: customerData.customer, userOrders: orderData.customerOrders });
         } catch (error) {
             dispatch({ type: 'error', error });
         }

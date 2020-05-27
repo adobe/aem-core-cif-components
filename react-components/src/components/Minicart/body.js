@@ -30,7 +30,7 @@ import DiscountList from './discountList';
 const CartLoadingIndicator = () => {
     const [t] = useTranslation('cart');
 
-    return <LoadingIndicator>{t('cart:fetching-data', 'Fetching cart data...')}</LoadingIndicator>;
+    return <LoadingIndicator>{t('cart:fetching-data', 'Loading...')}</LoadingIndicator>;
 };
 
 const Body = () => {

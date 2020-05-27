@@ -15,22 +15,39 @@ import React from 'react';
 import { Text, useFormState } from 'informed';
 
 import Braintree from './braintree';
+import Anet from './anet';
 import nonceValidation from './nonceValidation';
+import { useCheckoutState } from '../checkoutContext';
+import { useFieldApi } from 'informed';
 
 import classes from './paymentProvider.css';
 
 const PaymentProvider = () => {
     const formState = useFormState();
+    const [{ anetToken, anetApiId }, dispatch] = useCheckoutState();
+    const paymentNonceField = useFieldApi('payment_nonce');
+    const dataDescriptorField = useFieldApi('dataDescriptor');
+    const ccLast4Field = useFieldApi('ccLast4');
+    const ccType = useFieldApi('ccType');
+
     let child;
 
     switch (formState.values.payment_method) {
         case 'braintree': {
+            console.log("braintree pp");
             child = <Braintree accept="card" />;
             break;
         }
 
         case 'braintree_paypal': {
+            console.log("braintreepal pp");
             child = <Braintree accept="paypal" />;
+            break;
+        }
+
+        case 'authnetcim': {
+            console.log("anet pp", formState);
+            child = <Anet accept="card" />;
             break;
         }
 
@@ -42,7 +59,11 @@ const PaymentProvider = () => {
     return (
         <div className={classes.braintree}>
             {child}
+            <Text type="hidden" field="dataDescriptor" />
+            <Text type="hidden" field="ccLast4" />
+            <Text type="hidden" field="ccType" />
             <Text type="hidden" field="payment_nonce" validate={nonceValidation} />
+            <Text type="hidden" field="anetError" />
             {formState.errors.payment_nonce && (
                 <p className={classes.error_message}>{formState.errors.payment_nonce}</p>
             )}

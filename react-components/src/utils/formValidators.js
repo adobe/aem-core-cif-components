@@ -42,6 +42,11 @@ export const isRequired = value => {
     return (value || '').trim() ? SUCCESS : 'The field is required.';
 };
 
+export const validatePhoneUS = value => {
+    const regex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/
+    return regex.test(value) ? SUCCESS : 'Please enter a valid phone number (Ex: xxx-xxx-xxxx).';
+}
+
 export const validateEmail = value => {
     const regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -61,11 +66,19 @@ export const validateRegionCode = (value, values, countries) => {
     }
     const region = regions.find(({ code }) => code === value);
     if (!region) {
-        return `State "${value}" is not an valid state abbreviation.`;
+        return `State "${value}" is not an valid state abbreviation (Ex: LA).`;
     }
 
     return SUCCESS;
 };
+
+export const validateZip = value => {
+    const regex = /^\d{5}$|^\d{5}-\d{4}$/;
+
+    return regex.test(value) ? SUCCESS : 'Please enter a valid zip code.';
+};
+
+
 
 export const validatePassword = value => {
     const count = {
