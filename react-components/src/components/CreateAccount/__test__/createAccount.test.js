@@ -18,6 +18,7 @@ import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import NavigationContextProvider from '../../../context/NavigationContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import CreateAccount from '../createAccount';
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -37,9 +38,11 @@ describe('<CreateAccount>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <CreateAccount showMyAccount={jest.fn()} />
-                        </CartProvider>
+                        <NavigationContextProvider>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <CreateAccount showMyAccount={jest.fn()} />
+                            </CartProvider>
+                        </NavigationContextProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -126,10 +129,10 @@ describe('<CreateAccount>', () => {
         ];
 
         const ContextWrapper = () => {
-            const [{ isSignedIn, currentUser }] = useUserContext();
+            const [{ createAccountEmail }] = useUserContext();
             let content;
-            if (isSignedIn && currentUser.firstname) {
-                content = <div data-testid="success">{currentUser.firstname}</div>;
+            if (createAccountEmail !== null) {
+                content = <div data-testid="success">{createAccountEmail}</div>;
             } else {
                 content = <CreateAccount showMyAccount={jest.fn()} />;
             }
@@ -140,9 +143,11 @@ describe('<CreateAccount>', () => {
         const { getByLabelText, getByTestId, container } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                            <ContextWrapper />
+                        </CartProvider>
+                    </NavigationContextProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -167,7 +172,7 @@ describe('<CreateAccount>', () => {
 
         expect(container.querySelector('.root_error')).toBe(null);
         expect(result).not.toBeUndefined();
-        expect(result.textContent).toEqual(mockPerson.firstname);
+        expect(result.textContent).toEqual(mockPerson.email);
     });
 
     it('handles the account creation error', async () => {
@@ -224,9 +229,11 @@ describe('<CreateAccount>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                            <ContextWrapper />
+                        </CartProvider>
+                    </NavigationContextProvider>
                 </UserContextProvider>
             </MockedProvider>
         );

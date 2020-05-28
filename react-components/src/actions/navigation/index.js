@@ -11,5 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './createAccount';
-export { default as CreateAccountSuccess } from './createAccountSuccess';
+export * from './actions';
