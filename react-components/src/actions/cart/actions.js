@@ -174,3 +174,15 @@ export const mergeCarts = async payload => {
         dispatch({ type: 'error', error: parseError(error) });
     }
 };
+
+export const updateCartItem = async payload => {
+    const { cartDetailsQuery, updateCartItemMutation, cartId, cartItemId, itemQuantity, dispatch } = payload;
+    try {
+        await updateCartItemMutation({
+            variables: { cartId, cartItemId, quantity: itemQuantity }
+        });
+        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+    } catch (error) {
+        dispatch({ type: 'error', error: parseError(error) });
+    }
+};

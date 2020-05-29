@@ -16,6 +16,8 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import { useTranslation } from 'react-i18next';
 
+import { useAwaitQuery } from '../../utils/hooks';
+
 import Price from '../Price';
 import Button from '../Button';
 import Select from '../Select';
@@ -24,11 +26,17 @@ import classes from './cartOptions.css';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 
-import { useCartState } from './cartContext';
+import useCartOptions from './useCartOptions';
 
 const CartOptions = () => {
-    const [{ editItem, cartId }, dispatch] = useCartState();
+    const [updateCartItemMutation] = useMutation(MUTATION_UPDATE_CART_ITEM);
+    const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [t] = useTranslation(['cart', 'common']);
+
+    const [{ editItem }, { dispatch, updateCartItem }] = useCartOptions({
+        updateCartItemMutation,
+        cartDetailsQuery
+    });
 
     const { product, quantity: initialQuantity, prices } = editItem;
     const { name } = product;
@@ -51,20 +59,8 @@ const CartOptions = () => {
         }
     ];
 
-    const [updateCart] = useMutation(MUTATION_UPDATE_CART_ITEM, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-        awaitRefetchQueries: true
-    });
-
-    const handleUpdateClick = () => {
-        updateCart({ variables: { cartId, cartItemId: editItem.id, quantity } })
-            .catch(error => {
-                dispatch({ type: 'error', error: error.toString() });
-            })
-            .finally(() => {
-                dispatch({ type: 'endLoading' });
-            });
-        dispatch({ type: 'beginLoading' });
+    const handleUpdateClick = async () => {
+        await updateCartItem(quantity);
         dispatch({ type: 'endEditing' });
     };
 

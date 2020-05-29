@@ -15,8 +15,8 @@ import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 
-import { useCountries } from '../../utils/hooks';
-
+import { useCountries, useAwaitQuery } from '../../utils/hooks';
+import { getCartDetails } from '../../actions/cart';
 import AddressForm from './addressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
@@ -38,15 +38,15 @@ import { useUserContext } from '../../context/UserContext';
  * within the form.
  */
 const EditableForm = props => {
+
     const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
-    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS, {
-        refetchQueries: [{ query: CART_DETAILS_QUERY, variables: { cartId } }],
-        awaitRefetchQueries: true
-    });
+    const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
+
+    const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
 
     const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
     const [setAnetPaymentMethodOnCart] = useMutation(MUTATION_SET_ANET_PLABS_PAYMENT_METHOD);
@@ -68,23 +68,16 @@ const EditableForm = props => {
         dispatch({ type: 'endEditing' });
     }, [dispatch]);
 
-    const handleSubmitAddressForm = useCallback(
-        formValues => {
-            setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } })
-                .catch(error => {
-                    cartDispatch({ type: 'error', error: error.toString() });
-                })
-                .finally(() => {
-                    cartDispatch({ type: 'endLoading' });
-                });
-            cartDispatch({ type: 'beginLoading' });
-            cartDispatch({ type: 'endEditing' });
-            if (!isSignedIn) {
-                setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
-            }
-        },
-        [dispatch, setShippingAddressesOnCart]
-    );
+    const handleSubmitAddressForm = async formValues => {
+        cartDispatch({ type: 'beginLoading' });
+        await (setShippingAddressesOnCart({ variables: { cartId: cartId, countryCode: 'US', ...formValues } }));
+        await (getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId }));
+        cartDispatch({ type: 'endLoading' });
+
+        if (!isSignedIn) {
+            setGuestEmailOnCart({ variables: { cartId: cartId, email: formValues.email } });
+        }
+    }
 
     const handleSubmitPaymentsForm = async args => {
         console.log("handleSubmitPaymentsForm");
@@ -168,12 +161,12 @@ const EditableForm = props => {
         }
     };
 
-    const handleSubmitShippingForm = useCallback(
-        formValues => {
-            setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } });
-        },
-        [dispatch, submitShippingMethod]
-    );
+    const handleSubmitShippingForm = async formValues => {
+        cartDispatch({ type: 'beginLoading' });
+        await (setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } }));
+        await (getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId }));
+        cartDispatch({ type: 'endLoading' });
+    }
 
     if (data && (isSignedIn || guestEmailResult)) {
         const guestEmail = guestEmailResult ? { email: guestEmailResult.setGuestEmailOnCart.cart.email } : {};
