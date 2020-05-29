@@ -11,9 +11,19 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { resetCustomerCart } from '../actions';
+import { resetCustomerCart, signOutUser } from '../actions';
+
+const setCartCookie = jest.fn();
+const setUserCookie = jest.fn();
+const dispatch = jest.fn();
 
 describe('User actions', () => {
+    beforeEach(() => {
+        setCartCookie.mockReset();
+        setUserCookie.mockReset();
+        dispatch.mockReset();
+    });
+
     it('resets the customer cart', async () => {
         const dispatch = jest.fn();
         const query = jest.fn(() => {
@@ -24,5 +34,37 @@ describe('User actions', () => {
 
         expect(query).toHaveBeenCalledTimes(1);
         expect(dispatch).toHaveBeenCalledWith({ type: 'setCartId', cartId: 'my-cart-id' });
+    });
+
+    it('signs out the user', async () => {
+        const revokeCustomerToken = jest.fn(() => {
+            return { data: { revokeCustomerToken: { result: true } } };
+        });
+
+        await signOutUser({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
+
+        expect(revokeCustomerToken).toHaveBeenCalledTimes(1);
+
+        expect(setCartCookie).toHaveBeenCalledTimes(1);
+        expect(setCartCookie).toHaveBeenCalledWith('', 0);
+
+        expect(setUserCookie).toHaveBeenCalledTimes(1);
+        expect(setUserCookie).toHaveBeenCalledWith('', 0);
+
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'signOut' });
+    });
+
+    it('fails to sign out the user', async () => {
+        const revokeCustomerToken = jest.fn().mockRejectedValueOnce(new Error('Failed to sign out'));
+
+        await signOutUser({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
+
+        expect(revokeCustomerToken).toHaveBeenCalledTimes(1);
+        expect(setCartCookie).toHaveBeenCalledTimes(0);
+        expect(setUserCookie).toHaveBeenCalledTimes(0);
+
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'error', error: 'Error: Failed to sign out' });
     });
 });

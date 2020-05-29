@@ -18,7 +18,7 @@ import { useCookieValue } from '../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
-import { resetCustomerCart as resetCustomerCartAction } from '../actions/user';
+import { resetCustomerCart as resetCustomerCartAction, signOutUser as signOutUserAction } from '../actions/user';
 
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
@@ -188,14 +188,7 @@ const UserContextProvider = props => {
     };
 
     const signOut = async () => {
-        try {
-            await revokeCustomerToken();
-            setCartCookie('', 0);
-            setUserCookie('', 0);
-            dispatch({ type: 'signOut' });
-        } catch (error) {
-            console.error('An error occurred during sign-out', error);
-        }
+        await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
 
     const resetCustomerCart = async fetchCustomerCartQuery => {
