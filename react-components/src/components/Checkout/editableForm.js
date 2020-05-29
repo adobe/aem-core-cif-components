@@ -161,12 +161,12 @@ const EditableForm = props => {
         }
     };
 
-    const handleSubmitShippingForm = useCallback(
-        formValues => {
-            setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } });
-        },
-        [dispatch, submitShippingMethod]
-    );
+    const handleSubmitShippingForm = async formValues => {
+        cartDispatch({ type: 'beginLoading' });
+        await (setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } }));
+        await (getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId }));
+        cartDispatch({ type: 'endLoading' });
+    }
 
     if (data && (isSignedIn || guestEmailResult)) {
         const guestEmail = guestEmailResult ? { email: guestEmailResult.setGuestEmailOnCart.cart.email } : {};
