@@ -42,7 +42,9 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
@@ -104,6 +106,8 @@ public class GraphqlServletTest {
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
+
+    private static final String CIF_DAM_ROOT = "/content/dam/core-components-examples/library/cif-sample-assets/";
 
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
@@ -203,20 +207,55 @@ public class GraphqlServletTest {
         requestPathInfo.setSelectorString("beaumont-summit-kit");
 
         Product productModel = context.request().adaptTo(Product.class);
-        Assert.assertEquals("MJ01", productModel.getSku());
+        Assert.assertEquals("MH01", productModel.getSku());
         Assert.assertEquals(15, productModel.getVariants().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+        for (Variant variant : productModel.getVariants()) {
+            for (Asset asset : variant.getAssets()) {
+                Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+            }
+        }
+    }
+
+    @Test
+    public void testGroupedProductModel() throws ServletException {
+        prepareModel(PRODUCT_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG085_Group", productModel.getSku());
+        Assert.assertTrue(productModel.isGroupedProduct());
+        Assert.assertEquals(3, productModel.getGroupedProductItems().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
     public void testProductListModel() throws ServletException {
         prepareModel(PRODUCT_LIST_RESOURCE);
 
+        // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("2");
-
+        requestPathInfo.setSelectorString("1");
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertEquals("Default Category", productListModel.getTitle());
+        Assert.assertEquals("Outdoor Collection", productListModel.getTitle());
+
+        // The products are coming from magento-graphql-category-products.json
         Assert.assertEquals(6, productListModel.getProducts().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productListModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -228,15 +267,23 @@ public class GraphqlServletTest {
         slingBindings.put("productSkuList", productSkuList);
 
         ProductCarousel productCarouselModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, productCarouselModel.getProducts().size());
-        Assert.assertEquals("24-MG01", productCarouselModel.getProducts().get(0).getSKU());
+        Assert.assertEquals(4, productCarouselModel.getProducts().size());
+        Assert.assertEquals("24-MB02", productCarouselModel.getProducts().get(0).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productCarouselModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
     public void testProductTeaserModel() throws ServletException {
         prepareModel(PRODUCT_TEASER_RESOURCE);
         ProductTeaser productTeaserModel = context.request().adaptTo(ProductTeaser.class);
-        Assert.assertEquals("Beaumont Summit Kit", productTeaserModel.getName());
+        Assert.assertEquals("Summit Watch", productTeaserModel.getName());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        Assert.assertTrue(productTeaserModel.getImage().startsWith(CIF_DAM_ROOT));
     }
 
     @Test
@@ -251,8 +298,17 @@ public class GraphqlServletTest {
     public void testUpsellProductsModel() throws ServletException {
         prepareModel(UPSELL_PRODUCTS_RESOURCE);
         ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
-        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+
+        // We test the SKUs to make sure we return the right response for UPSELL_PRODUCTS
+        List<ProductListItem> products = relatedProductsModel.getProducts();
+        Assert.assertEquals(2, products.size());
+        Assert.assertEquals("24-MG03", products.get(0).getSKU());
+        Assert.assertEquals("24-WG01", products.get(1).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -268,9 +324,13 @@ public class GraphqlServletTest {
         prepareModel(SEARCH_RESULTS_RESOURCE);
         context.request().setParameterMap(Collections.singletonMap("search_query", "beaumont"));
         SearchResults searchResultsModel = context.request().adaptTo(SearchResults.class);
+
         Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertEquals(1, products.size());
-        Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
+        Assert.assertEquals(6, products.size());
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test

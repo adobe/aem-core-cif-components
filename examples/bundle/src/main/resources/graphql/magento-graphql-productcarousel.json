@@ -4,21 +4,21 @@
       "items": [
         {
           "__typename": "SimpleProduct",
-          "sku": "24-MG01",
-          "name": "Endurance Watch",
+          "sku": "24-MB02",
+          "name": "Fusion Backpack",
           "thumbnail": {
-            "label": "Endurance Watch",
-            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
+            "label": "Fusion Backpack",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
           },
-          "url_key": "endurance-watch",
+          "url_key": "fusion-backpack",
           "price_range": {
             "minimum_price": {
               "regular_price": {
-                "value": 49,
+                "value": 59,
                 "currency": "USD"
               },
               "final_price": {
-                "value": 49,
+                "value": 59,
                 "currency": "USD"
               },
               "discount": {
@@ -30,21 +30,35 @@
         },
         {
           "__typename": "ConfigurableProduct",
-          "sku": "MJ01",
-          "name": "Beaumont Summit Kit",
+          "sku": "MH01",
+          "name": "Chaz Kangeroo Hoodie",
           "thumbnail": {
-            "label": "Beaumont Summit Kit",
-            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+            "label": "Chaz Kangeroo Hoodie",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
           },
-          "url_key": "beaumont-summit-kit",
+          "url_key": "chaz-kangeroo-hoodie",
           "price_range": {
             "minimum_price": {
               "regular_price": {
-                "value": 42,
+                "value": 52,
                 "currency": "USD"
               },
               "final_price": {
-                "value": 42,
+                "value": 52,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "maximum_price": {
+              "regular_price": {
+                "value": 52,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 52,
                 "currency": "USD"
               },
               "discount": {
@@ -56,20 +70,20 @@
           "variants": [
             {
               "product": {
-                "sku": "MJ01-XS-Orange",
-                "name": "Beaumont Summit Kit-XS-Orange",
+                "sku": "MH01-XS-Black",
+                "name": "Chaz Kangeroo Hoodie-XS-Black",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XS-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-XS-Black",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -82,20 +96,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-XS-Red",
-                "name": "Beaumont Summit Kit-XS-Red",
+                "sku": "MH01-XS-Gray",
+                "name": "Chaz Kangeroo Hoodie-XS-Gray",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XS-Red",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-XS-Gray",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -108,20 +122,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-XS-Yellow",
-                "name": "Beaumont Summit Kit-XS-Yellow",
+                "sku": "MH01-XS-Orange",
+                "name": "Chaz Kangeroo Hoodie-XS-Orange",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XS-Yellow",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-XS-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -134,38 +148,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-S-Orange",
-                "name": "Beaumont Summit Kit-S-Orange",
+                "sku": "MH01-S-Black",
+                "name": "Chaz Kangeroo Hoodie-S-Black",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-S-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
-                },
-                "price": {
-                  "regularPrice": {
-                    "amount": {
-                      "currency": "USD",
-                      "value": 42
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "product": {
-                "sku": "MJ01-S-Red",
-                "name": "Beaumont Summit Kit-S-Red",
-                "thumbnail": {
-                  "label": "Beaumont Summit Kit-S-Red",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-S-Black",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -178,20 +174,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-S-Yellow",
-                "name": "Beaumont Summit Kit-S-Yellow",
+                "sku": "MH01-S-Gray",
+                "name": "Chaz Kangeroo Hoodie-S-Gray",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-S-Yellow",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-S-Gray",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -204,20 +200,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-M-Orange",
-                "name": "Beaumont Summit Kit-M-Orange",
+                "sku": "MH01-S-Orange",
+                "name": "Chaz Kangeroo Hoodie-S-Orange",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-M-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-S-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -230,20 +226,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-M-Red",
-                "name": "Beaumont Summit Kit-M-Red",
+                "sku": "MH01-M-Black",
+                "name": "Chaz Kangeroo Hoodie-M-Black",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-M-Red",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-M-Black",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -256,20 +252,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-M-Yellow",
-                "name": "Beaumont Summit Kit-M-Yellow",
+                "sku": "MH01-M-Gray",
+                "name": "Chaz Kangeroo Hoodie-M-Gray",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-M-Yellow",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-M-Gray",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -282,20 +278,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-L-Orange",
-                "name": "Beaumont Summit Kit-L-Orange",
+                "sku": "MH01-M-Orange",
+                "name": "Chaz Kangeroo Hoodie-M-Orange",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-L-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-M-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -308,20 +304,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-L-Red",
-                "name": "Beaumont Summit Kit-L-Red",
+                "sku": "MH01-L-Black",
+                "name": "Chaz Kangeroo Hoodie-L-Black",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-L-Red",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-L-Black",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -334,20 +330,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-L-Yellow",
-                "name": "Beaumont Summit Kit-L-Yellow",
+                "sku": "MH01-L-Gray",
+                "name": "Chaz Kangeroo Hoodie-L-Gray",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-L-Yellow",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-L-Gray",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -360,20 +356,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-XL-Orange",
-                "name": "Beaumont Summit Kit-XL-Orange",
+                "sku": "MH01-L-Orange",
+                "name": "Chaz Kangeroo Hoodie-L-Orange",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XL-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-L-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -386,20 +382,20 @@
             },
             {
               "product": {
-                "sku": "MJ01-XL-Red",
-                "name": "Beaumont Summit Kit-XL-Red",
+                "sku": "MH01-XL-Black",
+                "name": "Chaz Kangeroo Hoodie-XL-Black",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XL-Red",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-XL-Black",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -412,20 +408,46 @@
             },
             {
               "product": {
-                "sku": "MJ01-XL-Yellow",
-                "name": "Beaumont Summit Kit-XL-Yellow",
+                "sku": "MH01-XL-Gray",
+                "name": "Chaz Kangeroo Hoodie-XL-Gray",
                 "thumbnail": {
-                  "label": "Beaumont Summit Kit-XL-Yellow",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                  "label": "Chaz Kangeroo Hoodie-XL-Gray",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 42,
+                      "value": 52,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 42,
+                      "value": 52,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "MH01-XL-Orange",
+                "name": "Chaz Kangeroo Hoodie-XL-Orange",
+                "thumbnail": {
+                  "label": "Chaz Kangeroo Hoodie-XL-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 52,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 52,
                       "currency": "USD"
                     },
                     "discount": {
@@ -440,21 +462,35 @@
         },
         {
           "__typename": "ConfigurableProduct",
-          "sku": "WJ01",
-          "name": "Stellar Solar Jacket",
+          "sku": "WJ04",
+          "name": "Ingrid Running Jacket",
           "thumbnail": {
-            "label": "Stellar Solar Jacket",
-            "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+            "label": "Ingrid Running Jacket",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
           },
-          "url_key": "stellar-solar-jacket",
+          "url_key": "ingrid-running-jacket",
           "price_range": {
             "minimum_price": {
               "regular_price": {
-                "value": 75,
+                "value": 84,
                 "currency": "USD"
               },
               "final_price": {
-                "value": 75,
+                "value": 84,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "maximum_price": {
+              "regular_price": {
+                "value": 84,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 84,
                 "currency": "USD"
               },
               "discount": {
@@ -466,20 +502,20 @@
           "variants": [
             {
               "product": {
-                "sku": "WJ01-S-Blue",
-                "name": "Stellar Solar Jacket-S-Blue",
+                "sku": "WJ04-XS-Orange",
+                "name": "Ingrid Running Jacket-XS-Orange",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-S-Blue",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+                  "label": "Ingrid Running Jacket-XS-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -492,20 +528,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-S-Red",
-                "name": "Stellar Solar Jacket-S-Red",
+                "sku": "WJ04-XS-Red",
+                "name": "Ingrid Running Jacket-XS-Red",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-S-Red",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+                  "label": "Ingrid Running Jacket-XS-Red",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-red_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -518,20 +554,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-S-Yellow",
-                "name": "Stellar Solar Jacket-S-Yellow",
+                "sku": "WJ04-XS-White",
+                "name": "Ingrid Running Jacket-XS-White",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-S-Yellow",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+                  "label": "Ingrid Running Jacket-XS-White",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -544,20 +580,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-M-Blue",
-                "name": "Stellar Solar Jacket-M-Blue",
+                "sku": "WJ04-S-Orange",
+                "name": "Ingrid Running Jacket-S-Orange",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-M-Blue",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+                  "label": "Ingrid Running Jacket-S-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -570,20 +606,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-M-Red",
-                "name": "Stellar Solar Jacket-M-Red",
+                "sku": "WJ04-S-Red",
+                "name": "Ingrid Running Jacket-S-Red",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-M-Red",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+                  "label": "Ingrid Running Jacket-S-Red",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-red_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -596,20 +632,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-M-Yellow",
-                "name": "Stellar Solar Jacket-M-Yellow",
+                "sku": "WJ04-S-White",
+                "name": "Ingrid Running Jacket-S-White",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-M-Yellow",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+                  "label": "Ingrid Running Jacket-S-White",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -622,20 +658,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-L-Blue",
-                "name": "Stellar Solar Jacket-L-Blue",
+                "sku": "WJ04-M-Orange",
+                "name": "Ingrid Running Jacket-M-Orange",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-L-Blue",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-blue_main_6.jpg"
+                  "label": "Ingrid Running Jacket-M-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -648,20 +684,20 @@
             },
             {
               "product": {
-                "sku": "WJ01-L-Red",
-                "name": "Stellar Solar Jacket-L-Red",
+                "sku": "WJ04-M-Red",
+                "name": "Ingrid Running Jacket-M-Red",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-L-Red",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-red_main_6.jpg"
+                  "label": "Ingrid Running Jacket-M-Red",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-red_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {
@@ -674,20 +710,176 @@
             },
             {
               "product": {
-                "sku": "WJ01-L-Yellow",
-                "name": "Stellar Solar Jacket-L-Yellow",
+                "sku": "WJ04-M-White",
+                "name": "Ingrid Running Jacket-M-White",
                 "thumbnail": {
-                  "label": "Stellar Solar Jacket-L-Yellow",
-                  "url": "https://test-url.magentosite.cloud/media/wj01-yellow_main_6.jpg"
+                  "label": "Ingrid Running Jacket-M-White",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
                     "regular_price": {
-                      "value": 75,
+                      "value": 84,
                       "currency": "USD"
                     },
                     "final_price": {
-                      "value": 75,
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-L-Orange",
+                "name": "Ingrid Running Jacket-L-Orange",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-L-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-L-Red",
+                "name": "Ingrid Running Jacket-L-Red",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-L-Red",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-red_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-L-White",
+                "name": "Ingrid Running Jacket-L-White",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-L-White",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-XL-Orange",
+                "name": "Ingrid Running Jacket-XL-Orange",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-XL-Orange",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-XL-Red",
+                "name": "Ingrid Running Jacket-XL-Red",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-XL-Red",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-red_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "product": {
+                "sku": "WJ04-XL-White",
+                "name": "Ingrid Running Jacket-XL-White",
+                "thumbnail": {
+                  "label": "Ingrid Running Jacket-XL-White",
+                  "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 84,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 84,
                       "currency": "USD"
                     },
                     "discount": {

@@ -13,6 +13,7 @@
  ******************************************************************************/
 'use strict';
 
+window.CIF = window.CIF || {};
 class CommerceGraphqlApi {
     constructor(props) {
         if (!props || !props.endpoint || !props.storeView) {

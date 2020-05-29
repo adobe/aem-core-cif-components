@@ -1,0 +1,11 @@
+{
+  "data": {
+    "category": {
+      "id": 1,
+      "description": "A collection of products for outdoor activities",
+      "name": "Outdoor Collection",
+      "image": null,
+      "product_count": 0
+    }
+  }
+}
