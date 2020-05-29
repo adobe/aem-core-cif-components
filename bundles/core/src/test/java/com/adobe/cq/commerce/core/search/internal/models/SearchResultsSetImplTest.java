@@ -15,17 +15,14 @@
 package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchFilter;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,8 +36,8 @@ public class SearchResultsSetImplTest {
     public void setUp() throws IOException {
 
         // set up the search filters
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("color", "42");
+        Map<String, String[]> parameterMap = new HashMap<>();
+        parameterMap.put("color", new String[] { "42" });
 
         // setup some example search options
         searchOptions.setSearchQuery("test");
@@ -48,18 +45,22 @@ public class SearchResultsSetImplTest {
         searchOptions.setAttributeFilters(parameterMap);
 
         SearchAggregation appliedColorAggregation = mock(SearchAggregation.class);
+        SearchFilter appliedColorFilter = mock(SearchFilter.class);
+        List<SearchFilter> searchFilters = new ArrayList<>();
+        searchFilters.add(appliedColorFilter);
         when(appliedColorAggregation.getDisplayLabel()).thenReturn("Color");
         when(appliedColorAggregation.getIdentifier()).thenReturn("color");
         when(appliedColorAggregation.getFilterable()).thenReturn(true);
-        when(appliedColorAggregation.getAppliedFilterValue()).thenReturn(Optional.of("42"));
-        when(appliedColorAggregation.getAppliedFilterDisplayLabel()).thenReturn(Optional.of("blue"));
+        when(appliedColorAggregation.getAppliedFilters()).thenReturn(searchFilters);
+
+        when(appliedColorFilter.getValue()).thenReturn("42");
+        when(appliedColorFilter.getDisplayLabel()).thenReturn("blue");
 
         SearchAggregation availableMaterialAggregation = mock(SearchAggregation.class);
         when(availableMaterialAggregation.getDisplayLabel()).thenReturn("Material");
         when(availableMaterialAggregation.getIdentifier()).thenReturn("material");
         when(availableMaterialAggregation.getFilterable()).thenReturn(true);
-        when(availableMaterialAggregation.getAppliedFilterValue()).thenReturn(Optional.ofNullable(null));
-        when(availableMaterialAggregation.getAppliedFilterDisplayLabel()).thenReturn(Optional.empty());
+        when(availableMaterialAggregation.getAppliedFilters()).thenReturn(new ArrayList<>());
 
         modelUnderTest = new SearchResultsSetImpl();
         modelUnderTest.setSearchOptions(searchOptions);
@@ -77,7 +78,7 @@ public class SearchResultsSetImplTest {
     @Test
     public void testGetAvailableAggregations() {
         final List<SearchAggregation> availableAggregations = modelUnderTest.getAppliedAggregations();
-        Assert.assertEquals("Identifies available aggregations", 1, modelUnderTest.getAvailableAggregations().size());
+        Assert.assertEquals("Identifies available aggregations", 2, modelUnderTest.getAvailableAggregations().size());
 
         SearchResultsSetImpl emptySearchResults = new SearchResultsSetImpl();
         Assert.assertEquals("returns zero available aggregations for empty result set", 0, emptySearchResults.getAvailableAggregations()

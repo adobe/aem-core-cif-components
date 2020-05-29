@@ -41,7 +41,7 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
     @Mock
     AggregationOption aggregationOption;
 
-    Map<String, String> existingFilters;
+    Map<String, String[]> existingFilters;
 
     AggregationOptionToSearchAggregationOptionConverter converterUnderTest;
 
@@ -53,8 +53,8 @@ public class AggregationOptionToSearchAggregationOptionConverterTest {
         when(aggregationOption.getValue()).thenReturn(BLACK_VALUE);
 
         existingFilters = new HashMap<>();
-        existingFilters.put("size", "49");
-        existingFilters.put("color", "42");
+        existingFilters.put("size", new String[] { "49" });
+        existingFilters.put("color", new String[] { "42" });
 
     }
 

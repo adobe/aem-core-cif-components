@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,38 +11,40 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.Map;
 
-import com.adobe.cq.commerce.core.search.models.PagerPage;
+import javax.annotation.Nonnull;
 
-/**
- * A simple class for storing pagination page information.
- */
-public class PagerPageImpl implements PagerPage {
+import com.adobe.cq.commerce.core.search.models.SearchFilter;
 
-    private int pageNumber;
-    private Map<String, String[]> parameters;
-    private boolean displayed;
+public class SearchFilterImpl implements SearchFilter {
+    private String value;
+    private String displayLabel;
+    private Map<String, String[]> removeFilterMap;
 
-    public PagerPageImpl(final int pageNumber, final Map<String, String[]> parameters, final boolean displayed) {
-        this.pageNumber = pageNumber;
-        this.parameters = parameters;
-        this.displayed = displayed;
+    public SearchFilterImpl(String value, String displayLabel, Map<String, String[]> removeFilterMap) {
+        this.value = value;
+        this.displayLabel = displayLabel;
+        this.removeFilterMap = removeFilterMap;
     }
 
-    public int getPageNumber() {
-        return pageNumber;
+    @Nonnull
+    @Override
+    public String getValue() {
+        return value;
     }
 
-    public Map<String, String[]> getParameters() {
-        return parameters;
+    @Nonnull
+    @Override
+    public String getDisplayLabel() {
+        return displayLabel;
     }
 
-    public boolean isDisplayed() {
-        return displayed;
+    @Nonnull
+    @Override
+    public Map<String, String[]> getRemoveFilterMap() {
+        return removeFilterMap;
     }
-
 }

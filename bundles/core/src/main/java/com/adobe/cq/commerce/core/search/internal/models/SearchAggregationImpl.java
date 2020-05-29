@@ -16,13 +16,12 @@ package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
+import com.adobe.cq.commerce.core.search.models.SearchFilter;
 
 /**
  * Basic implementation of {@link SearchAggregation}.
@@ -31,23 +30,15 @@ public class SearchAggregationImpl implements SearchAggregation {
 
     String identifier;
     String displayLabel;
-    String appliedFilterValue = null;
-    String appliedFilterDisplayLabel = null;
+    List<SearchFilter> appliedFilters = new ArrayList<>();
     boolean filterable = false;
     int count = 0;
     List<SearchAggregationOption> options = new ArrayList<>();
-    Map<String, String> removeFilters;
 
     @Nonnull
     @Override
-    public Optional<String> getAppliedFilterValue() {
-        return Optional.ofNullable(appliedFilterValue);
-    }
-
-    @Nonnull
-    @Override
-    public Optional<String> getAppliedFilterDisplayLabel() {
-        return Optional.ofNullable(appliedFilterDisplayLabel);
+    public List<SearchFilter> getAppliedFilters() {
+        return appliedFilters;
     }
 
     @Nonnull
@@ -80,12 +71,6 @@ public class SearchAggregationImpl implements SearchAggregation {
         return options;
     }
 
-    @Nonnull
-    @Override
-    public Map<String, String> getRemoveFilterMap() {
-        return removeFilters;
-    }
-
     public void setIdentifier(final String identifier) {
         this.identifier = identifier;
     }
@@ -94,12 +79,8 @@ public class SearchAggregationImpl implements SearchAggregation {
         this.displayLabel = displayLabel;
     }
 
-    public void setAppliedFilterValue(final String appliedFilterValue) {
-        this.appliedFilterValue = appliedFilterValue;
-    }
-
-    public void setAppliedFilterDisplayLabel(final String appliedFilterDisplayLabel) {
-        this.appliedFilterDisplayLabel = appliedFilterDisplayLabel;
+    public void addFilter(final SearchFilter filter) {
+        this.appliedFilters.add(filter);
     }
 
     public void setFilterable(final boolean filterable) {
@@ -112,9 +93,5 @@ public class SearchAggregationImpl implements SearchAggregation {
 
     public void setOptions(final List<SearchAggregationOption> options) {
         this.options = options;
-    }
-
-    public void setRemoveFilters(final Map<String, String> removeFilters) {
-        this.removeFilters = removeFilters;
     }
 }

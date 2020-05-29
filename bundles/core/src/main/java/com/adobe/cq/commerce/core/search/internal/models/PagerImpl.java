@@ -39,11 +39,12 @@ public class PagerImpl implements Pager {
      */
     public static final int PAGINATION_RANGE_SIZE = 3;
 
-    Map<String, String> existingQueryParameters;
+    Map<String, String[]> existingQueryParameters;
     int totalPages;
     int currentPageIndex;
 
-    public PagerImpl(final Map<String, String> existingQueryParameters, final int totalPages, final int currentPageIndex) {
+    public PagerImpl(final Map<String, String[]> existingQueryParameters, final int totalPages,
+                     final int currentPageIndex) {
         this.existingQueryParameters = existingQueryParameters;
         this.totalPages = totalPages;
         this.currentPageIndex = currentPageIndex;
@@ -61,8 +62,8 @@ public class PagerImpl implements Pager {
         List<PagerPage> pages = new ArrayList<>();
 
         for (int currentIndex = 1; currentIndex <= totalPages; currentIndex++) {
-            Map<String, String> pageParameters = new HashMap<>(existingQueryParameters);
-            pageParameters.put("page", Integer.toString(currentIndex));
+            Map<String, String[]> pageParameters = new HashMap<>(existingQueryParameters);
+            pageParameters.put("page", new String[] { Integer.toString(currentIndex) });
             if (inDisplayRange(totalPages, currentIndex) || currentIndex == 1 || currentIndex == totalPages) {
                 pages.add(new PagerPageImpl(currentIndex, pageParameters, true));
             }
@@ -73,19 +74,19 @@ public class PagerImpl implements Pager {
 
     @Nonnull
     @Override
-    public Map<String, String> getPreviousPageParameters() {
+    public Map<String, String[]> getPreviousPageParameters() {
         Integer previousPage = currentPageIndex <= 1 ? 1 : currentPageIndex - 1;
-        Map<String, String> parameters = new HashMap<>(existingQueryParameters);
-        parameters.put("page", previousPage.toString());
+        Map<String, String[]> parameters = new HashMap<>(existingQueryParameters);
+        parameters.put("page", new String[] { previousPage.toString() });
         return parameters;
     }
 
     @Nonnull
     @Override
-    public Map<String, String> getNextPageParameters() {
+    public Map<String, String[]> getNextPageParameters() {
         Integer nextPage = currentPageIndex >= totalPages ? totalPages : currentPageIndex + 1;
-        Map<String, String> parameters = new HashMap<>(existingQueryParameters);
-        parameters.put("page", nextPage.toString());
+        Map<String, String[]> parameters = new HashMap<>(existingQueryParameters);
+        parameters.put("page", new String[] { nextPage.toString() });
         return parameters;
     }
 
@@ -107,7 +108,8 @@ public class PagerImpl implements Pager {
         }
 
         // if we have an even number we need to remove one as we don't want exactly the display amount before
-        final int displayBefore = PAGINATION_RANGE_SIZE % 2 == 0 ? PAGINATION_RANGE_SIZE / 2 - 1 : PAGINATION_RANGE_SIZE / 2;
+        final int displayBefore = PAGINATION_RANGE_SIZE % 2 == 0 ? PAGINATION_RANGE_SIZE / 2 - 1
+            : PAGINATION_RANGE_SIZE / 2;
         final int displayAfter = PAGINATION_RANGE_SIZE / 2;
 
         int leftStartDisplay = Math.max(currentPageIndex - displayBefore, 1);

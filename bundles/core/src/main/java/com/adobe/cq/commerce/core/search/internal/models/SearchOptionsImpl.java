@@ -27,7 +27,7 @@ public class SearchOptionsImpl implements SearchOptions {
     public static final String SEARCH_QUERY_PARAMETER_ID = "search_query";
     public static final String CURRENT_PAGE_PARAMETER_ID = "page";
 
-    Map<String, String> attributeFilters;
+    Map<String, String[]> attributeFilters;
 
     String categoryId;
 
@@ -42,25 +42,25 @@ public class SearchOptionsImpl implements SearchOptions {
     }
 
     @Override
-    public Map<String, String> getAllFilters() {
-        Map<String, String> allFilters = new HashMap<>(getAttributeFilters());
+    public Map<String, String[]> getAllFilters() {
+        Map<String, String[]> allFilters = new HashMap<>(getAttributeFilters());
 
         if (getCategoryId().isPresent()) {
-            allFilters.put(CATEGORY_ID_PARAMETER_ID, getCategoryId().get());
+            allFilters.put(CATEGORY_ID_PARAMETER_ID, new String[] { getCategoryId().get() });
         }
         if (getSearchQuery().isPresent()) {
-            allFilters.put(SEARCH_QUERY_PARAMETER_ID, getSearchQuery().get());
+            allFilters.put(SEARCH_QUERY_PARAMETER_ID, new String[] { getSearchQuery().get() });
         }
 
         return allFilters;
     }
 
     @Override
-    public Map<String, String> getAttributeFilters() {
+    public Map<String, String[]> getAttributeFilters() {
         return attributeFilters;
     }
 
-    public void setAttributeFilters(final Map<String, String> attributeFilters) {
+    public void setAttributeFilters(final Map<String, String[]> attributeFilters) {
         this.attributeFilters = attributeFilters;
     }
 

@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -36,10 +37,7 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
  */
-@Model(
-    adaptables = SlingHttpServletRequest.class,
-    adapters = SearchResults.class,
-    resourceType = SearchResultsImpl.RESOURCE_TYPE)
+@Model(adaptables = SlingHttpServletRequest.class, adapters = SearchResults.class, resourceType = SearchResultsImpl.RESOURCE_TYPE)
 public class SearchResultsImpl extends ProductCollectionImpl implements SearchResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
@@ -51,9 +49,16 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
 
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
-        Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID));
+        Integer currentPageIndex = calculateCurrentPageCursor(
+            request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID));
+        Map<String, String[]> params = request.getParameterMap();
+        if (params.containsKey("fashion_color")) {
+            String[] fashion_color = params.get("fashion_color");
 
-        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
+            LOGGER.debug("fashion_color size {}", fashion_color.length);
+        }
+
+        Map<String, String[]> searchFilters = createFilterMap(params);
 
         LOGGER.debug("Detected search parameter {}", searchTerm);
 
@@ -64,10 +69,10 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchOptions.setSearchQuery(searchTerm);
     }
 
-    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
-        Map<String, String> filters = super.createFilterMap(parameterMap);
-        filters.remove(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
-        return filters;
+    protected Map<String, String[]> createFilterMap(final Map<String, String[]> parameterMap) {
+        return super.createFilterMap(parameterMap).entrySet().stream()
+            .filter(entry -> !entry.getKey().equals(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

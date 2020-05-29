@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchAggregationOptionImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
@@ -26,21 +28,21 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 
 /**
- * This class is responsible for converting a Magento GraphQL {@link AggregationOption} domain object to a Sling Model / POJO friendly
- * concrete
- * class {@link SearchAggregationOption}.
+ * This class is responsible for converting a Magento GraphQL {@link AggregationOption} domain object to a Sling Model /
+ * POJO friendly concrete class {@link SearchAggregationOption}.
  */
-public class AggregationOptionToSearchAggregationOptionConverter implements Function<AggregationOption, SearchAggregationOption> {
+public class AggregationOptionToSearchAggregationOptionConverter
+    implements Function<AggregationOption, SearchAggregationOption> {
 
     private final FilterAttributeMetadata filterAttributeMetadata;
 
     private final String attributeCode;
 
-    private final Map<String, String> filters;
+    private final Map<String, String[]> filters;
 
     public AggregationOptionToSearchAggregationOptionConverter(final String attributeCode,
                                                                final FilterAttributeMetadata filterAttributeMetadata,
-                                                               final Map<String, String> filters) {
+                                                               final Map<String, String[]> filters) {
         this.attributeCode = attributeCode;
         this.filters = filters;
         this.filterAttributeMetadata = filterAttributeMetadata;
@@ -51,9 +53,10 @@ public class AggregationOptionToSearchAggregationOptionConverter implements Func
         SearchAggregationOptionImpl searchAggregationOption = new SearchAggregationOptionImpl();
 
         // Special case handling for boolean values to return a friendlier "yes/no" response
-        if (filterAttributeMetadata != null && FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN.equals(filterAttributeMetadata
-            .getAttributeInputType())) {
-            searchAggregationOption.setDisplayLabel(("0".equalsIgnoreCase(aggregationOption.getLabel()) ? "No" : "Yes"));
+        if (filterAttributeMetadata != null && FilterAttributeMetadataImpl.INPUT_TYPE_BOOLEAN
+            .equals(filterAttributeMetadata.getAttributeInputType())) {
+            searchAggregationOption
+                .setDisplayLabel(("0".equalsIgnoreCase(aggregationOption.getLabel()) ? "No" : "Yes"));
         } else {
             searchAggregationOption.setDisplayLabel(aggregationOption.getLabel());
         }
@@ -62,11 +65,14 @@ public class AggregationOptionToSearchAggregationOptionConverter implements Func
         searchAggregationOption.setFilterValue(aggregationOption.getValue());
 
         // this is done for convenience sake so we have all filters available
-        Map<String, String> newFilters = new HashMap<>(filters);
-        newFilters.put(attributeCode, aggregationOption.getValue());
-        searchAggregationOption.setAddFilterMap(newFilters.entrySet().stream()
-            .filter(item -> !item.getKey().equals("page"))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        Map<String, String[]> newFilters = new HashMap<>(filters);
+
+        newFilters.put(attributeCode, ArrayUtils.add(
+            (filters.containsKey(attributeCode) ? filters.get(attributeCode) : new String[0]),
+            aggregationOption.getValue()));
+        searchAggregationOption
+            .setAddFilterMap(newFilters.entrySet().stream().filter(item -> !item.getKey().equals("page"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         return searchAggregationOption;
     }

@@ -24,8 +24,8 @@ import org.osgi.annotation.versioning.ConsumerType;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 
 /**
- * Represents a set of search results from a backend service. This would generally contain the actual {@link ProductListItem}s
- * as well as {@link SearchAggregation}s.
+ * Represents a set of search results from a backend service. This would generally contain the actual
+ * {@link ProductListItem}s as well as {@link SearchAggregation}s.
  */
 @ConsumerType
 public interface SearchResultsSet {
@@ -52,7 +52,7 @@ public interface SearchResultsSet {
      * @return the query string parameters (key value pairs)
      */
     @Nonnull
-    Map<String, String> getAppliedQueryParameters();
+    Map<String, String[]> getAppliedQueryParameters();
 
     /**
      * Get the result product list items. These are the actual result of the search.
@@ -95,7 +95,8 @@ public interface SearchResultsSet {
     Pager getPager();
 
     /**
-     * @return {@code true} if the result set provides search aggregations for faceted search support, {@code false} otherwise
+     * @return {@code true} if the result set provides search aggregations for faceted search support, {@code false}
+     *         otherwise
      */
     boolean hasAggregations();
 

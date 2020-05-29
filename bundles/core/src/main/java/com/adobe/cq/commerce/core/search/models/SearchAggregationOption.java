@@ -56,6 +56,6 @@ public interface SearchAggregationOption {
      * @return key value for this aggregation option
      */
     @Nonnull
-    Map<String, String> getAddFilterMap();
+    Map<String, String[]> getAddFilterMap();
 
 }

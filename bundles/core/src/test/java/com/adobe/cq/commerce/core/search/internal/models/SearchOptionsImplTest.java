@@ -29,7 +29,7 @@ public class SearchOptionsImplTest {
 
     SearchOptionsImpl modelUnderTest;
 
-    Map<String, String> testAttributeFilters;
+    Map<String, String[]> testAttributeFilters;
 
     private final static String SEARCH_ATTRIBUTE_KEY_1 = "key1";
     private final static String SEARCH_ATTRIBUTE_KEY_2 = "key2";
@@ -42,9 +42,9 @@ public class SearchOptionsImplTest {
     @Before
     public void setup() {
         testAttributeFilters = new HashMap<>();
-        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_1, SEARCH_ATTRIBUTE_VALUE_1);
-        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_2, SEARCH_ATTRIBUTE_VALUE_2);
-        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_3, SEARCH_ATTRIBUTE_VALUE_3);
+        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_1, new String[] { SEARCH_ATTRIBUTE_VALUE_1 });
+        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_2, new String[] { SEARCH_ATTRIBUTE_VALUE_2 });
+        testAttributeFilters.put(SEARCH_ATTRIBUTE_KEY_3, new String[] { SEARCH_ATTRIBUTE_VALUE_3 });
 
     }
 

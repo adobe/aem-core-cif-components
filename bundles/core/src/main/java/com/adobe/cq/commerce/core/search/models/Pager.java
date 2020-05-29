@@ -20,8 +20,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
- * This class is responsible for providing pagination support for search results. This class does all of the logic required to provide any
- * information HTL templates may need to display the pagination interface element.
+ * This class is responsible for providing pagination support for search results. This class does all of the logic
+ * required to provide any information HTL templates may need to display the pagination interface element.
  */
 public interface Pager {
 
@@ -39,7 +39,7 @@ public interface Pager {
      * @return the previous page parameters
      */
     @Nonnull
-    Map<String, String> getPreviousPageParameters();
+    Map<String, String[]> getPreviousPageParameters();
 
     /**
      * Get the mext page parameters for supporting linking to the mext page.
@@ -47,7 +47,7 @@ public interface Pager {
      * @return the mext page parameters
      */
     @Nonnull
-    Map<String, String> getNextPageParameters();
+    Map<String, String[]> getNextPageParameters();
 
     /**
      * Get the current page.
@@ -57,7 +57,8 @@ public interface Pager {
     int getCurrentPage();
 
     /**
-     * Whether there are additional pages in pagination set than are displayable currently at the start of the page list.
+     * Whether there are additional pages in pagination set than are displayable currently at the start of the page
+     * list.
      *
      * @return true if more pages before current starting page
      */

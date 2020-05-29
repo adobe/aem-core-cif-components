@@ -28,13 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PagerImplTest {
 
     private static final String PARAMETER_KEY = "param-key";
-    private static final String PARAMETER_VALUE = "param-value";
+    private static final String[] PARAMETER_VALUE = new String[] { "param-value" };
     private static final int TOTAL_PAGES = 39;
     private static final int CURRENT_PAGE = 4;
 
     @Test
     public void testGetPaginationParameters() {
-        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, CURRENT_PAGE);
+        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES,
+            CURRENT_PAGE);
         final List<PagerPage> pagerPages = pager.getPages();
 
         assertThat(pagerPages.get(0).getParameters().size()).isEqualTo(2);
@@ -44,15 +45,17 @@ public class PagerImplTest {
 
     @Test
     public void testGetPreviousPageParameters() {
-        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, CURRENT_PAGE);
-        final Map<String, String> previousPageParameters = pager.getPreviousPageParameters();
+        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES,
+            CURRENT_PAGE);
+        final Map<String, String[]> previousPageParameters = pager.getPreviousPageParameters();
         assertThat(previousPageParameters.size()).isEqualTo(2);
     }
 
     @Test
     public void testGetNextPageParameters() {
-        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, CURRENT_PAGE);
-        final Map<String, String> previousPageParameters = pager.getNextPageParameters();
+        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES,
+            CURRENT_PAGE);
+        final Map<String, String[]> previousPageParameters = pager.getNextPageParameters();
         assertThat(previousPageParameters.size()).isEqualTo(2);
     }
 
@@ -65,17 +68,19 @@ public class PagerImplTest {
         assertThat(pager.getPages()).hasSize(2);
 
         pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), 4, 1);
-        assertThat(pager.getPages().stream().map(page -> page.getPageNumber()).collect(Collectors.toList())).contains(1, 2, 3, 4);
+        assertThat(pager.getPages().stream().map(PagerPage::getPageNumber).collect(Collectors.toList())).contains(1, 2,
+            3, 4);
 
-        pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), PagerImpl.MAXIMUM_PAGE_DISPLAY_COUNT, 1);
+        pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE),
+            PagerImpl.MAXIMUM_PAGE_DISPLAY_COUNT, 1);
         assertThat(pager.getPages()).hasSize(PagerImpl.MAXIMUM_PAGE_DISPLAY_COUNT);
 
     }
 
     @Test
     public void testUsesPageSubsetWhenOverMaxPageResults() {
-        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), PagerImpl.MAXIMUM_PAGE_DISPLAY_COUNT + 1,
-            5);
+        PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE),
+            PagerImpl.MAXIMUM_PAGE_DISPLAY_COUNT + 1, 5);
         assertThat(pager.getPages()).hasSize(PagerImpl.PAGINATION_RANGE_SIZE + 2);
     }
 
@@ -91,16 +96,16 @@ public class PagerImplTest {
     @Test
     public void testAlwaysReturnsFirstAndLastPage() {
         PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, 1);
-        assertThat(pager.getPages().stream().map(page -> page.getPageNumber()).collect(Collectors.toList()))
-            .contains(1, TOTAL_PAGES);
+        assertThat(pager.getPages().stream().map(PagerPage::getPageNumber).collect(Collectors.toList())).contains(1,
+            TOTAL_PAGES);
 
         pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, TOTAL_PAGES);
-        assertThat(pager.getPages().stream().map(page -> page.getPageNumber()).collect(Collectors.toList()))
-            .contains(1, TOTAL_PAGES);
+        assertThat(pager.getPages().stream().map(PagerPage::getPageNumber).collect(Collectors.toList())).contains(1,
+            TOTAL_PAGES);
 
         pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, 10);
-        assertThat(pager.getPages().stream().map(page -> page.getPageNumber()).collect(Collectors.toList()))
-            .contains(1, TOTAL_PAGES);
+        assertThat(pager.getPages().stream().map(PagerPage::getPageNumber).collect(Collectors.toList())).contains(1,
+            TOTAL_PAGES);
     }
 
     @Test

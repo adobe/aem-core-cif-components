@@ -46,7 +46,7 @@ public class AggregationToSearchAggregationConverterTest {
     @Mock
     AggregationOption testAggregationOption2;
 
-    Map<String, String> appliedFilters;
+    Map<String, String[]> appliedFilters;
     List<FilterAttributeMetadata> availableAttributes;
 
     AggregationToSearchAggregationConverter converterUnderTest;
@@ -87,15 +87,14 @@ public class AggregationToSearchAggregationConverterTest {
         assertThat(result.getFilterable()).isFalse();
         assertThat(result.getDisplayLabel()).isEqualTo(AGGREGATION_LABEL);
         assertThat(result.getOptionCount()).isEqualTo(AGGREGATION_COUNT);
-        assertThat(result.getAppliedFilterDisplayLabel()).isEmpty();
-        assertThat(result.getAppliedFilterValue()).isEmpty();
+        assertThat(result.getAppliedFilters()).isEmpty();
         assertThat(result.getOptions()).hasSize(1);
     }
 
     @Test
     public void testConvertsExpectedAggregationIfFilterable() {
         appliedFilters = new HashMap<>();
-        appliedFilters.put(AGGREGATION_CODE, AGGREGATION_OPTION_VALUE);
+        appliedFilters.put(AGGREGATION_CODE, new String[] { AGGREGATION_OPTION_VALUE });
         availableAttributes = new ArrayList<>();
         FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
         filterAttributeMetadata.setAttributeCode(AGGREGATION_CODE);
@@ -107,8 +106,8 @@ public class AggregationToSearchAggregationConverterTest {
         final SearchAggregation result = converterUnderTest.apply(testAggregation);
 
         assertThat(result.getFilterable()).isTrue();
-        assertThat(result.getAppliedFilterValue()).hasValue(AGGREGATION_OPTION_VALUE);
-        assertThat(result.getAppliedFilterDisplayLabel()).hasValue(AGGREGATION_OPTION_LABEL);
+        assertThat(result.getAppliedFilters().get(0).getValue()).isEqualTo(AGGREGATION_OPTION_VALUE);
+        assertThat(result.getAppliedFilters().get(0).getDisplayLabel()).isEqualTo(AGGREGATION_OPTION_LABEL);
     }
 
     @Test
@@ -129,7 +128,7 @@ public class AggregationToSearchAggregationConverterTest {
             testAggregationOption2));
 
         appliedFilters = new HashMap<>();
-        appliedFilters.put(AGGREGATION_CODE, "0");
+        appliedFilters.put(AGGREGATION_CODE, new String[] { "0" });
         availableAttributes = new ArrayList<>();
 
         FilterAttributeMetadataImpl filterAttributeMetadata = new FilterAttributeMetadataImpl();
@@ -142,7 +141,7 @@ public class AggregationToSearchAggregationConverterTest {
         final SearchAggregation result = converterUnderTest.apply(testAggregation);
 
         assertThat(result.getFilterable()).isNotNull();
-        assertThat(result.getAppliedFilterValue()).hasValue("0");
-        assertThat(result.getAppliedFilterDisplayLabel()).hasValue("No");
+        assertThat(result.getAppliedFilters().get(0).getValue()).isEqualTo("0");
+        assertThat(result.getAppliedFilters().get(0).getDisplayLabel()).isEqualTo("No");
     }
 }

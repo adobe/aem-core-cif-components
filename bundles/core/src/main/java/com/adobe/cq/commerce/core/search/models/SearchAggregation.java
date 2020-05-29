@@ -15,8 +15,6 @@
 package com.adobe.cq.commerce.core.search.models;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
@@ -34,15 +32,7 @@ public interface SearchAggregation {
      * @return the applied filter value
      */
     @Nonnull
-    Optional<String> getAppliedFilterValue();
-
-    /**
-     * Get the filter display label.
-     *
-     * @return the applied filter display label
-     */
-    @Nonnull
-    Optional<String> getAppliedFilterDisplayLabel();
+    List<SearchFilter> getAppliedFilters();
 
     /**
      * Whether or not this aggregation can actually be used to filter results.
@@ -83,13 +73,5 @@ public interface SearchAggregation {
      */
     @Nonnull
     List<SearchAggregationOption> getOptions();
-
-    /**
-     * Get the map of attributes that will remove this aggregation from results.
-     *
-     * @return the filters without this aggregation filter
-     */
-    @Nonnull
-    Map<String, String> getRemoveFilterMap();
 
 }

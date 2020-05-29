@@ -18,9 +18,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents a set of parameters that can be used to query a product search service. Rather than collecting a bunch of disparate parameters
- * as individual strings, hash maps, etc, this object contains all of the information AEM might want to gather in preparation for a search
- * query being executed.
+ * Represents a set of parameters that can be used to query a product search service. Rather than collecting a bunch of
+ * disparate parameters as individual strings, hash maps, etc, this object contains all of the information AEM might
+ * want to gather in preparation for a search query being executed.
  */
 public interface SearchOptions {
 
@@ -30,14 +30,15 @@ public interface SearchOptions {
 
     int getPageSize();
 
-    Map<String, String> getAttributeFilters();
+    Map<String, String[]> getAttributeFilters();
 
     /**
-     * Retrieves all filters, including the category id which is being treated as a special case as a developer convenience. This method
-     * essentially returns all of the attribute filters but also includes the category id if it was set.
+     * Retrieves all filters, including the category id which is being treated as a special case as a developer
+     * convenience. This method essentially returns all of the attribute filters but also includes the category id if it
+     * was set.
      *
      * @return a key value pair of the attribute codes or identifiers with the chosen value
      */
-    Map<String, String> getAllFilters();
+    Map<String, String[]> getAllFilters();
 
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,35 +11,41 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.search.models;
 
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import org.osgi.annotation.versioning.ConsumerType;
+
 /**
- * Contains metadata required to support display of pagination options.
+ * Represents a search filter.
  */
-public interface PagerPage {
+@ConsumerType
+public interface SearchFilter {
 
     /**
-     * The number of this page.
+     * Get the filter value.
      *
-     * @return the page number, 1 based index
+     * @return filter value
      */
-    int getPageNumber();
+    @Nonnull
+    String getValue();
 
     /**
-     * Get the parameters for this page.
+     * Get the filter display label.
      *
-     * @return the key value pair parameters for this page
+     * @return filter label
      */
-    Map<String, String[]> getParameters();
+    @Nonnull
+    String getDisplayLabel();
 
     /**
-     * Whether this particular page should be displayed in the pager.
+     * Get the map of attributes that will remove this filter from results.
      *
-     * @return true if should be displayed, false if intended to be hidden
+     * @return the filters without this filter value
      */
-    boolean isDisplayed();
-
+    @Nonnull
+    Map<String, String[]> getRemoveFilterMap();
 }

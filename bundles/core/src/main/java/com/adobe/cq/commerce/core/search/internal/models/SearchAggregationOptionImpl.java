@@ -28,7 +28,7 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
     private String filterValue;
     private String displayLabel;
     private int count;
-    private Map<String, String> addFilterMap;
+    private Map<String, String[]> addFilterMap;
 
     @Nonnull
     @Override
@@ -50,7 +50,7 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
 
     @Nonnull
     @Override
-    public Map<String, String> getAddFilterMap() {
+    public Map<String, String[]> getAddFilterMap() {
         return addFilterMap;
     }
 
@@ -66,7 +66,7 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
         this.count = count;
     }
 
-    public void setAddFilterMap(final Map<String, String> addFilterMap) {
+    public void setAddFilterMap(final Map<String, String[]> addFilterMap) {
         this.addFilterMap = addFilterMap;
     }
 }

@@ -53,19 +53,17 @@ public class ProductCollectionImplTest {
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
+        return new AemContext((AemContextCallback) context -> {
+            // Load page structure
+            context.load().json(contentPath, "/content");
 
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
+            UrlProviderImpl urlProvider = new UrlProviderImpl();
+            urlProvider.activate(new MockUrlProviderConfiguration());
+            context.registerService(UrlProvider.class, urlProvider);
 
-                context.registerInjectActivateService(new SearchFilterServiceImpl());
-                context.registerInjectActivateService(new SearchResultsServiceImpl());
-            },
-            ResourceResolverType.JCR_MOCK);
+            context.registerInjectActivateService(new SearchFilterServiceImpl());
+            context.registerInjectActivateService(new SearchResultsServiceImpl());
+        }, ResourceResolverType.JCR_MOCK);
     }
 
     private static final String PAGE = "/content/pageA";
@@ -115,7 +113,7 @@ public class ProductCollectionImplTest {
 
         Map<String, String[]> queryParameters = new HashMap<>();
         queryParameters.put("color", new String[] {});
-        Map<String, String> filterMap = productCollectionModel.createFilterMap(queryParameters);
+        Map<String, String[]> filterMap = productCollectionModel.createFilterMap(queryParameters);
         Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
 
         queryParameters = new HashMap<>();
@@ -127,9 +125,12 @@ public class ProductCollectionImplTest {
     @Test
     public void testCalculateCurrentPageCursor() {
         productCollectionModel = context.request().adaptTo(ProductCollectionImpl.class);
-        Assert.assertEquals("negative page indexes are not allowed", 1, productCollectionModel.calculateCurrentPageCursor("-1").intValue());
-        Assert.assertEquals("null value is dealt with", 1, productCollectionModel.calculateCurrentPageCursor(null).intValue());
-        Assert.assertEquals("non numeric value is dealt with", 1, productCollectionModel.calculateCurrentPageCursor("a").intValue());
+        Assert.assertEquals("negative page indexes are not allowed", 1,
+            productCollectionModel.calculateCurrentPageCursor("-1").intValue());
+        Assert.assertEquals("null value is dealt with", 1,
+            productCollectionModel.calculateCurrentPageCursor(null).intValue());
+        Assert.assertEquals("non numeric value is dealt with", 1,
+            productCollectionModel.calculateCurrentPageCursor("a").intValue());
         Assert.assertEquals("extra large value is dealt with", 1,
             productCollectionModel.calculateCurrentPageCursor("99999999999999").intValue());
     }

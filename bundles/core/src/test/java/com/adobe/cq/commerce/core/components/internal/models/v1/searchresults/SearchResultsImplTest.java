@@ -174,7 +174,7 @@ public class SearchResultsImplTest {
 
         Map<String, String[]> queryParameters = new HashMap<>();
         queryParameters.put("search_query", new String[] { "ok" });
-        Map<String, String> filterMap = searchResultsModel.createFilterMap(queryParameters);
+        Map<String, String[]> filterMap = searchResultsModel.createFilterMap(queryParameters);
 
         Assert.assertEquals("filters query string parameter out correctly", 0, filterMap.size());
     }

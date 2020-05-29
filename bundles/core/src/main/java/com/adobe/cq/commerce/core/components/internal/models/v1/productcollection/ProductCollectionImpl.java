@@ -97,15 +97,15 @@ public class ProductCollectionImpl implements ProductCollection {
         return loadClientPrice;
     }
 
-    protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
-        Map<String, String> filters = new HashMap<>();
+    protected Map<String, String[]> createFilterMap(final Map<String, String[]> parameterMap) {
+        Map<String, String[]> filters = new HashMap<>();
         parameterMap.forEach((code, value) -> {
             // we'll make sure there is a value defined for the key
-            if (value.length != 1) {
+            if (value.length == 0) {
                 return;
             }
 
-            filters.put(code, value[0]);
+            filters.put(code, value);
         });
 
         return filters;

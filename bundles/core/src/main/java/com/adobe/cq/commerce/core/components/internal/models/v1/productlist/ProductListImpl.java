@@ -77,7 +77,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
 
-        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
+        Map<String, String[]> searchFilters = createFilterMap(request.getParameterMap());
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
 

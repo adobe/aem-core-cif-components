@@ -77,7 +77,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
 
     @Nonnull
     @Override
-    public Map<String, String> getAppliedQueryParameters() {
+    public Map<String, String[]> getAppliedQueryParameters() {
         if (searchOptions == null) {
             return new HashMap<>();
         }
@@ -106,8 +106,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     public List<SearchAggregation> getAvailableAggregations() {
         return searchAggregations
             .stream()
-            .filter(searchAggregation -> !searchAggregation.getAppliedFilterValue().isPresent()
-                && searchAggregation.getFilterable()
+            .filter(searchAggregation -> searchAggregation.getFilterable()
                 && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
             .collect(Collectors.toList());
     }
@@ -117,7 +116,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     public List<SearchAggregation> getAppliedAggregations() {
         return searchAggregations
             .stream()
-            .filter(searchAggregation -> searchAggregation.getAppliedFilterValue().isPresent()
+            .filter(searchAggregation -> !searchAggregation.getAppliedFilters().isEmpty()
                 && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
             .collect(Collectors.toList());
     }
