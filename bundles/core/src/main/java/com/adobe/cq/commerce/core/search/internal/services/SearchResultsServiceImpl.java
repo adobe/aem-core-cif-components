@@ -180,7 +180,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
-					// For values such as `*_60`, the from range should be left empty
+                    // For values such as `*_60`, the from range should be left empty
                     if (StringUtils.isNumeric(rangeValues[0])) {
                         filter.setTo(rangeValues[0]);
                     }
