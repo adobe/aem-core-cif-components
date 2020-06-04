@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +57,14 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -356,5 +364,71 @@ public class GraphqlServletTest {
 
         Navigation navigationModel = context.request().adaptTo(Navigation.class);
         Assert.assertEquals(7, navigationModel.getItems().size()); // Our test catalog has 7 top-level categories
+    }
+
+    @Test
+    public void testPriceLoadingQueryForProductPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("MH01");
+    }
+
+    @Test
+    public void testPriceLoadingQueryForGroupedProductPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("24-WG085_Group");
+    }
+
+    @Test
+    public void testPriceLoadingQueryForCollectionPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("24-MB02", "24-MG03", "24-WG01", "MH01", "MH03", "WJ04");
+    }
+
+    private void testPriceLoadingQueryFor(String... skus) throws ServletException, IOException {
+
+        // This is the price query sent client-side by the components, it is defined in
+        // the file CommerceGraphqlApi.js in the components "common" clientlib
+
+        ProductInterfaceQueryDefinition priceQuery = q -> q
+            .sku()
+            .priceRange(r -> r
+                .minimumPrice(generatePriceQuery()))
+            .onConfigurableProduct(cp -> cp
+                .priceRange(r -> r
+                    .maximumPrice(generatePriceQuery())))
+            .onGroupedProduct(g -> g
+                .items(i -> i
+                    .product(p -> p
+                        .sku()
+                        .priceRange(r -> r
+                            .minimumPrice(generatePriceQuery())))));
+
+        FilterEqualTypeInput in = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(in);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        String query = Operations.query(q -> q.products(searchArgs, p -> p.items(priceQuery))).toString();
+
+        request.setParameterMap(Collections.singletonMap("query", query));
+        graphqlServlet.doGet(request, response);
+        String output = response.getOutputAsString();
+
+        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
+        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
+        Products products = graphqlResponse.getData().getProducts();
+
+        Assert.assertEquals(skus.length, products.getItems().size());
+        for (int i = 0, l = skus.length; i < l; i++) {
+            Assert.assertEquals(skus[i], products.getItems().get(i).getSku());
+        }
+    }
+
+    private ProductPriceQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 }
