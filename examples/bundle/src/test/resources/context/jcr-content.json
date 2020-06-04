@@ -46,13 +46,10 @@
           "featuredcategorylist": {
             "items": {
               "item0": {
-                "categoryId": "4"
+                "categoryId": "15"
               },
               "item1": {
-                "categoryId": "5"
-              },
-              "item2": {
-                "categoryId": "6"
+                "categoryId": "24"
               }
             },
             "sling:resourceType": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist"
