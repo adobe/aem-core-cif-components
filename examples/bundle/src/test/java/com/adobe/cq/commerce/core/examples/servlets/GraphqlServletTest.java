@@ -346,12 +346,11 @@ public class GraphqlServletTest {
         prepareModel(FEATURED_CATEGORY_LIST_RESOURCE);
         FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
         List<CategoryTree> categories = featureCategoryListModel.getCategories();
-        Assert.assertEquals(3, categories.size());
+        Assert.assertEquals(2, categories.size());
 
-        // Test that the Servlet didn't return 3 times the catalog category tree
-        Assert.assertEquals(4, categories.get(0).getId().intValue());
-        Assert.assertEquals(5, categories.get(1).getId().intValue());
-        Assert.assertEquals(6, categories.get(2).getId().intValue());
+        // Test that the Servlet didn't return 2 times the catalog category tree
+        Assert.assertEquals(15, categories.get(0).getId().intValue());
+        Assert.assertEquals(24, categories.get(1).getId().intValue());
     }
 
     @Test
