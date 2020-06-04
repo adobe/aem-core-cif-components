@@ -15,3 +15,13 @@
 .cif-demo .searchBar__root {
     display: block !important;
 }
+
+.cif-demo .navigation__root {
+    position: absolute;
+    min-height: 450px;
+    z-index: 1500;
+}
+
+.cif-demo .navigation__mask {
+    z-index: 1400;
+}
