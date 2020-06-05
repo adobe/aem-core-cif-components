@@ -28,10 +28,17 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     private IdentifierLocation categoryIdentifierLocation;
     private ProductIdentifierType productIdentifierType;
     private CategoryIdentifierType categoryIdentifierType;
+    private boolean useOldSyntax = false;
+
+    public MockUrlProviderConfiguration() {}
+
+    public MockUrlProviderConfiguration(boolean useOldSyntax) {
+        this.useOldSyntax = useOldSyntax;
+    }
 
     @Override
     public String productUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
+        return useOldSyntax ? UrlProviderConfiguration.OLD_PRODUCT_URL_TEMPLATE : UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public String categoryUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
+        return useOldSyntax ? UrlProviderConfiguration.OLD_CATEGORY_URL_TEMPLATE : UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
     }
 
     @Override
