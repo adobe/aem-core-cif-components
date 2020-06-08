@@ -53,6 +53,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vault.package.version>${project.version}</vault.package.version>
+        
+        <!-- Should always be the latest released version, not the SNAPSHOT version -->
+        <com.adobe.commerce.cif.components.version>1.0.0</com.adobe.commerce.cif.components.version>
     </properties>
 
     <!-- ====================================================================== -->
@@ -123,6 +126,11 @@
                             <group>adobe/cq60</group>
                             <name>core.wcm.components.examples.ui.apps</name>
                             <version>${core.wcm.components.library.version}</version>
+                        </dependency>
+                        <dependency>
+                            <group>adobe/aem650</group>
+                            <name>core-cif-components-apps</name>
+                            <version>${com.adobe.commerce.cif.components.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -203,6 +211,13 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.examples.ui.apps</artifactId>
             <version>${core.wcm.components.library.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>core-cif-components-apps</artifactId>
+            <version>${com.adobe.commerce.cif.components.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>

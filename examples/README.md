@@ -4,9 +4,9 @@ This folder contains the projects required to build the CIF Components Library t
 
 ## Prerequisites
 
-The CIF Components Library must be installed on top of the WCM Core Components Library, so **make sure** you first install both the latest [ui.content](https://oss.sonatype.org/content/repositories/public/com/adobe/cq/core.wcm.components.examples.ui.content/2.8.1-SNAPSHOT-20200410121300/core.wcm.components.examples.ui.content-2.8.1-SNAPSHOT-20200410121300.zip) and [ui.apps](https://oss.sonatype.org/content/repositories/public/com/adobe/cq/core.wcm.components.examples.ui.apps/2.8.1-SNAPSHOT-20200410121300/core.wcm.components.examples.ui.apps-2.8.1-SNAPSHOT-20200410121300.zip) content packages of the WCM Core Components Library.
+The CIF Components Library must be installed on top of the WCM Core Components Library, so **make sure** you first install both the latest [ui.content](https://repo1.maven.org/maven2/com/adobe/cq/core.wcm.components.examples.ui.content/2.9.0/core.wcm.components.examples.ui.content-2.9.0.zip) and [ui.apps](https://repo1.maven.org/maven2/com/adobe/cq/core.wcm.components.examples.ui.apps/2.9.0/core.wcm.components.examples.ui.apps-2.9.0.zip) content packages of the WCM Core Components Library.
 
-You will also need the latest version of the WCM Core Components, the easiest is to install the ["all" content package](https://oss.sonatype.org/content/repositories/public/com/adobe/cq/core.wcm.components.all/2.8.1-SNAPSHOT-20200410121300/core.wcm.components.all-2.8.1-SNAPSHOT-20200410121300.zip).
+You will also need the latest version of the WCM Core Components, the easiest is to install the ["all" content package](https://repo1.maven.org/maven2/com/adobe/cq/core.wcm.components.all/2.9.0/core.wcm.components.all-2.9.0.zip).
 
 Simply download the zip files, and install these three content packages directly in AEM's CRX Package Manager.
 
