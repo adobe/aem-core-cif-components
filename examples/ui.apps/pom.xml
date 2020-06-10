@@ -128,7 +128,7 @@
                             <version>${core.wcm.components.library.version}</version>
                         </dependency>
                         <dependency>
-                            <group>adobe/aem650</group>
+                            <group>${vault.package.group}</group>
                             <name>core-cif-components-apps</name>
                             <version>${com.adobe.commerce.cif.components.version}</version>
                         </dependency>

@@ -124,6 +124,11 @@
                             <name>core.wcm.components.examples.ui.content</name>
                             <version>${core.wcm.components.library.version}</version>
                         </dependency>
+                        <dependency>
+                            <group>${vault.package.group}</group>
+                            <name>core-cif-components-examples-apps</name>
+                            <version>${project.version}</version>
+                        </dependency>
                     </dependencies>
                 </configuration>
             </plugin>
@@ -203,6 +208,13 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.examples.ui.content</artifactId>
             <version>${core.wcm.components.library.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-examples-apps</artifactId>
+            <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
