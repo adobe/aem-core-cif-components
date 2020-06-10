@@ -82,9 +82,15 @@ public class UrlProviderImpl implements UrlProvider {
             params.put(PAGE_PARAM, pageResource.getPath());
         }
 
-        StringSubstitutor sub = new StringSubstitutor(params);
+        String prefix = "${", suffix = "}"; // variables have the format ${var}
+        if (template.contains("{{")) {
+            prefix = "{{";
+            suffix = "}}"; // variables have the format {{var}}
+        }
+
+        StringSubstitutor sub = new StringSubstitutor(params, prefix, suffix);
         String url = sub.replace(template);
-        return StringUtils.substringBeforeLast(url, "#${"); // remove anchor if it hasn't been substituted
+        return StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
     }
 
     /**
