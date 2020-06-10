@@ -215,7 +215,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>core-cif-components-apps</artifactId>
             <version>${com.adobe.commerce.cif.components.version}</version>
             <type>zip</type>
