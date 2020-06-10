@@ -108,7 +108,7 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> /home/circleci/.npmrc
             echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import
-            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public -Dskip-examples
+            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 
