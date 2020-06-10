@@ -14,7 +14,9 @@
 
 package com.adobe.cq.commerce.core.search.internal.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -37,10 +39,14 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -49,6 +55,7 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeSortInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
@@ -56,6 +63,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.SortEnum;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -115,9 +123,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
+        SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
 
         // Next we generate the graphql query and actually query the commerce system
-        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook);
+        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook, currentSorterKey);
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
@@ -143,6 +152,69 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return searchResultsSet;
     }
 
+    private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
+        List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
+        if (availableSorterKeys == null || availableSorterKeys.isEmpty()) {
+            return null;
+        }
+
+        SorterKey resultSorterKey = null;
+
+        SorterKey defaultSorterKey = availableSorterKeys.get(0);
+        String sortKeyParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_KEY);
+        if (sortKeyParam == null) {
+            sortKeyParam = defaultSorterKey.getName();
+        }
+        String sortOrderParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_ORDER);
+        Sorter.Order sortOrder;
+        try {
+            if (sortOrderParam != null) {
+                sortOrderParam = Sorter.Order.valueOf(sortOrderParam.toUpperCase()).name();
+            }
+        } catch (RuntimeException x) {
+            sortOrderParam = null;
+        }
+        if (sortOrderParam == null) {
+            sortOrder = defaultSorterKey.getOrder();
+            if (sortOrder == null) {
+                sortOrder = Sorter.Order.ASC;
+            }
+        } else {
+            sortOrder = Sorter.Order.valueOf(sortOrderParam.toUpperCase());
+        }
+
+        SorterImpl sorter = searchResultsSet.getSorter();
+        List<SorterKey> keys = new ArrayList<>();
+        keys.addAll(availableSorterKeys);
+        sorter.setKeys(keys);
+
+        for (SorterKey key : keys) {
+            SorterKeyImpl keyImpl = (SorterKeyImpl) key;
+
+            Map<String, String> cParams = new HashMap<>(searchOptions.getAllFilters());
+            cParams.put(Sorter.PARAMETER_SORT_KEY, key.getName());
+            Sorter.Order keyOrder = keyImpl.getOrder();
+            if (sortKeyParam.equals(key.getName())) {
+                keyImpl.setSelected(true);
+                sorter.setCurrentKey(key);
+                keyOrder = sortOrder;
+                resultSorterKey = keyImpl;
+            } else if (keyOrder == null) {
+                keyOrder = sortOrder;
+            }
+            keyImpl.setOrder(keyOrder);
+            cParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.name().toLowerCase());
+            keyImpl.setCurrentOrderParameters(cParams);
+
+            Map<String, String> oParams = new HashMap<>(searchOptions.getAllFilters());
+            oParams.put(Sorter.PARAMETER_SORT_KEY, key.getName());
+            oParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.opposite().name().toLowerCase());
+            keyImpl.setOppositeOrderParameters(oParams);
+        }
+
+        return resultSorterKey;
+    }
+
     /**
      * Generates a query string for the specified search term. This query string condition is 'like'.
      *
@@ -155,7 +227,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private String generateQueryString(
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
-        final Consumer<ProductInterfaceQuery> productQueryHook) {
+        final Consumer<ProductInterfaceQuery> productQueryHook, final SorterKey sorterKey) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
@@ -198,6 +270,28 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             productArguments.currentPage(searchOptions.getCurrentPage());
             productArguments.pageSize(searchOptions.getPageSize());
             productArguments.filter(filterInputs);
+            if (sorterKey != null) {
+                String sortKey = sorterKey.getName();
+                String sortOrder = sorterKey.getOrder().name();
+                ProductAttributeSortInput sort = new ProductAttributeSortInput();
+                SortEnum sortEnum = SortEnum.valueOf(sortOrder);
+                boolean validSortKey = true;
+                if ("relevance".equals(sortKey)) {
+                    sort.setRelevance(sortEnum);
+                } else if ("name".equals(sortKey)) {
+                    sort.setName(sortEnum);
+                } else if ("price".equals(sortKey)) {
+                    sort.setPrice(sortEnum);
+                } else if ("position".equals(sortKey)) {
+                    sort.setPosition(sortEnum);
+                } else {
+                    validSortKey = false;
+                    LOGGER.warn("Unknown sort key: " + sortKey);
+                }
+                if (validSortKey) {
+                    productArguments.sort(sort);
+                }
+            }
         };
 
         ProductsQueryDefinition queryArgs = productsQuery -> productsQuery
@@ -219,8 +313,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * Generates a query object for a product. The generated query contains the following fields: id, name, slug (url_key), image url,
      * regular price, regular price currency
      *
-     * @return a {@link ProductInterfaceQueryDefinition} object
      * @param productQueryHook
+     * @return a {@link ProductInterfaceQueryDefinition} object
      */
     @Nonnull
     private ProductInterfaceQueryDefinition generateProductQuery(
@@ -244,7 +338,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     /**
      * todo: this is used in a number of classes, should likely be moved to a shared class
-     * 
+     *
      * @return
      */
     private ProductPriceQueryDefinition generatePriceQuery() {

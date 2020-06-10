@@ -14,11 +14,15 @@
 
 package com.adobe.cq.commerce.core.search.internal.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
+import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.core.search.models.SorterKey;
 
 public class SearchOptionsImpl implements SearchOptions {
 
@@ -36,6 +40,8 @@ public class SearchOptionsImpl implements SearchOptions {
     Integer currentPage = 1;
 
     Integer pageSize = PAGE_SIZE_DEFAULT;
+
+    List<SorterKey> sorterKeys = new ArrayList<>();
 
     public SearchOptionsImpl() {
         attributeFilters = new HashMap<>();
@@ -99,4 +105,17 @@ public class SearchOptionsImpl implements SearchOptions {
         this.pageSize = pageSize;
     }
 
+    @Override
+    public void addSorterKey(String name, String label, Sorter.Order preferredOrder) {
+        SorterKeyImpl key = new SorterKeyImpl(name, label);
+        if (preferredOrder != null) {
+            key.setOrder(preferredOrder);
+        }
+        sorterKeys.add(key);
+    }
+
+    @Override
+    public List<SorterKey> getSorterKeys() {
+        return sorterKeys;
+    }
 }

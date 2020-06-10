@@ -95,6 +95,12 @@ public interface SearchResultsSet {
     Pager getPager();
 
     /**
+     * Returns the sorter model, responsible for handling the sorting of search results.
+     */
+    @Nonnull
+    Sorter getSorter();
+
+    /**
      * @return {@code true} if the result set provides search aggregations for faceted search support, {@code false} otherwise
      */
     boolean hasAggregations();
@@ -103,4 +109,9 @@ public interface SearchResultsSet {
      * @return {@code true} if the result set provides pagination, {@code false} otherwise
      */
     boolean hasPagination();
+
+    /**
+     * @return {@code true} if the result set provides support for sorting of the results, {@code false} otherwise
+     */
+    boolean hasSorting();
 }

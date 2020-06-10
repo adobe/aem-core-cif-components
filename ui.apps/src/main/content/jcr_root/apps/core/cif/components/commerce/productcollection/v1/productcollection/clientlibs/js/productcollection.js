@@ -17,6 +17,11 @@ class ProductCollection {
     constructor(config) {
         this._element = config.element;
 
+        let sortKeySelect = document.querySelector(ProductCollection.selectors.sortKey);
+        if (sortKeySelect) {
+            sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
+        }
+
         // Local state
         this._state = {
             // List of skus currently displayed in the list
@@ -143,12 +148,17 @@ class ProductCollection {
             item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
         });
     }
+
+    _applySortKey(sortKeySelect) {
+        window.location = sortKeySelect.options[sortKeySelect.selectedIndex].value;
+    }
 }
 
 ProductCollection.selectors = {
     self: '[data-cmp-is=productcollection]',
     price: '.price',
-    item: '.item__root[role=product]'
+    item: '.item__root[role=product]',
+    sortKey: '.sort__fields .sort__key'
 };
 
 (function(document) {
