@@ -113,7 +113,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-                    <requiresRoot>true</requiresRoot>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
