@@ -19,6 +19,8 @@ There are three sub-projects for the CIF Core Components Library:
 
 You can install all 3 artifacts by running `mvn clean install -PautoInstallPackage`
 
+_Note that the `ui.apps` examples content package depends on the same version of the `ui.apps` content package of the CIF components. This means that a developer working on the SNAPSHOT version of the library must ensure that the same SNAPSHOT version of the components `ui.apps` library is installed on AEM._
+
 ## Required configuration
 
 The mock GraphQL server can only serve content via HTTPS because our GraphQL client does not support non-secure connections for security reasons. This means you have to enable HTTPS on your AEM instance if you want to install and use the mock server. To do this, simply follow the [following documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html).

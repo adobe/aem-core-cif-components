@@ -53,9 +53,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vault.package.version>${project.version}</vault.package.version>
-        
-        <!-- Should always be the latest released version, not the SNAPSHOT version -->
-        <com.adobe.commerce.cif.components.version>1.0.0</com.adobe.commerce.cif.components.version>
+        <com.adobe.commerce.cif.components.version>${project.version}</com.adobe.commerce.cif.components.version>
     </properties>
 
     <!-- ====================================================================== -->
