@@ -53,7 +53,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vault.package.version>${project.version}</vault.package.version>
-        <com.adobe.commerce.cif.components.version>${project.version}</com.adobe.commerce.cif.components.version>
     </properties>
 
     <!-- ====================================================================== -->
@@ -127,7 +126,7 @@
                         <dependency>
                             <group>${vault.package.group}</group>
                             <name>core-cif-components-apps</name>
-                            <version>${com.adobe.commerce.cif.components.version}</version>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -214,7 +213,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>core-cif-components-apps</artifactId>
-            <version>${com.adobe.commerce.cif.components.version}</version>
+            <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
