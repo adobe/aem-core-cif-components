@@ -16,6 +16,7 @@
           data-sly-use.paginationTemplate="paginationbar.html"
           data-sly-use.facetSelectorTemplate="facetselector.html">
 
+<div class="results__count">${productCollection.searchResultsSet.totalResults} items</div>
 <section data-sly-test.hasProducts="${productCollection.products}" class="gallery__root search__root">
     <div class="search__filters"
          data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
