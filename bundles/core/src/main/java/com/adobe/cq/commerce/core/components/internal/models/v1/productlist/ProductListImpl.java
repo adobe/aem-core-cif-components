@@ -176,7 +176,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         return categorySearchResultsSet;
     }
 
-    public CategoryInterface getCategory() {
+    protected CategoryInterface getCategory() {
         if (usePlaceholderData) {
             return categoryRetriever.fetchCategory();
         }
