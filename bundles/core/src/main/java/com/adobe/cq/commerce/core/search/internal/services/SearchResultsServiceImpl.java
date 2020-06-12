@@ -48,6 +48,18 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -129,7 +141,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         if (response.getErrors() != null && response.getErrors().size() > 0) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return new ImmutablePair<>(null, searchResultsSet);
+            return new ImmutablePair<>(response.getData() != null ? response.getData().getCategory() : null, searchResultsSet);
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer

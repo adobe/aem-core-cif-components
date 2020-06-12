@@ -56,9 +56,9 @@ public class Utils {
      * @param filename The file to use for the json response.
      * @param httpClient The HTTP client for which we want to mock responses.
      * @param httpCode The http code that the mocked response will return.
-     * 
+     *
      * @return The JSON content of that file.
-     * 
+     *
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
@@ -76,34 +76,12 @@ public class Utils {
      * @param httpClient The HTTP client for which we want to mock responses.
      * @param httpCode The http code that the mocked response will return.
      * @param startsWith When set, the body of the GraphQL POST request must start with that String.
-     * 
+     *
      * @return The JSON content of that file.
-     * 
+     *
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String startsWith) throws IOException {
-        return setupHttpResponse(filename, httpClient, httpCode, startsWith, null);
-    }
-
-    /**
-     * This method prepares the mock http response with either the content of the <code>filename</code>
-     * or the provided <code>content</code> String.<br>
-     * <br>
-     * <b>Important</b>: because of the way the content of an HTTP response is consumed, this method MUST be called each time
-     * the client is called.
-     *
-     * @param filename The file to use for the json response.
-     * @param httpClient The HTTP client for which we want to mock responses.
-     * @param httpCode The http code that the mocked response will return.
-     * @param startsWith When set, the body of the GraphQL POST request must start with that String.
-     * @param contains When set, the body of the GraphQL POST request must contain that String.
-     *
-     * @return The JSON content of that file.
-     *
-     * @throws IOException
-     */
-    public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String startsWith, String contains)
-        throws IOException {
         String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
 
         HttpEntity mockedHttpEntity = Mockito.mock(HttpEntity.class);
@@ -117,8 +95,7 @@ public class Utils {
         Mockito.when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
 
         if (startsWith != null) {
-            GraphqlQueryMatcher matcher = contains == null ? new GraphqlQueryMatcher(startsWith)
-                : new GraphqlQueryMatcher(startsWith, contains);
+            GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(startsWith);
             Mockito.when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
         } else {
             Mockito.when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
@@ -161,7 +138,7 @@ public class Utils {
 
     /**
      * Returns a Magento Query response based on the given filename resource containing a JSON GraphQL response.
-     * 
+     *
      * @param filename The filename of the resource.
      * @return The parsed Magento Query object.
      * @throws IOException
@@ -183,15 +160,9 @@ public class Utils {
     private static class GraphqlQueryMatcher extends ArgumentMatcher<HttpUriRequest> {
 
         private String startsWith;
-        private String contains;
 
         public GraphqlQueryMatcher(String startsWith) {
             this.startsWith = startsWith;
-        }
-
-        public GraphqlQueryMatcher(String startsWith, String contains) {
-            this.startsWith = startsWith;
-            this.contains = contains;
         }
 
         @Override
@@ -207,8 +178,7 @@ public class Utils {
                     String body = IOUtils.toString(req.getEntity().getContent(), StandardCharsets.UTF_8);
                     Gson gson = new Gson();
                     GraphqlRequest graphqlRequest = gson.fromJson(body, GraphqlRequest.class);
-                    return graphqlRequest.getQuery().startsWith(startsWith)
-                        && (contains == null || graphqlRequest.getQuery().contains(contains));
+                    return graphqlRequest.getQuery().startsWith(startsWith);
                 } catch (Exception e) {
                     return false;
                 }
@@ -222,8 +192,7 @@ public class Utils {
                     return false;
                 }
                 String graphqlQuery = uri.substring(uri.indexOf("?query=") + 7);
-                return graphqlQuery.startsWith(startsWith)
-                    && (contains == null || graphqlQuery.contains(contains));
+                return graphqlQuery.startsWith(startsWith);
             }
         }
 
