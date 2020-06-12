@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -70,6 +71,9 @@ public class RelatedProductsImpl implements ProductCarousel {
     @ScriptVariable
     private ValueMap properties;
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
     private AbstractProductsRetriever productsRetriever;
@@ -81,7 +85,7 @@ public class RelatedProductsImpl implements ProductCarousel {
             return;
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;

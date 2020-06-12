@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.osgi.service.component.annotations.Component;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.FilterAttributeMetadataConverter;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
@@ -48,6 +51,9 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFilterServiceImpl.class);
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     @Override
     public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Page page) {
 
@@ -56,7 +62,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         Resource resource = new SyntheticResource(null, (String) null, SearchFilterService.class.getName());
 
         // First we query Magento for the required attribute and filter information
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource, page);
         final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
         final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 

@@ -35,6 +35,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -67,6 +68,9 @@ public class ProductTeaserImpl implements ProductTeaser {
     @ScriptVariable
     private ValueMap properties;
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
@@ -90,7 +94,7 @@ public class ProductTeaserImpl implements ProductTeaser {
             combinedSku = SiteNavigation.toProductSkus(selection);
 
             // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {

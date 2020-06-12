@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -32,10 +34,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -43,15 +48,23 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MagentoGraphqlClientTest {
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient","default","magentoStore","my-store"));
+
     private GraphqlClient graphqlClient;
+
+    private ComponentsConfigurationProvider configurationProvider;
 
     @Rule
     public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).plugin(ContextPlugins.CACONFIG)
@@ -87,13 +100,23 @@ public class MagentoGraphqlClientTest {
         graphqlClient = Mockito.mock(GraphqlClient.class);
         Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(null);
+
+        configurationProvider = mock(ComponentsConfigurationProvider.class);
+        Resource mockConfigurationResource = mock(Resource.class);
+        when(configurationProvider.getContextConfigurationResource(anyString())).thenReturn(mockConfigurationResource);
+        when(mockConfigurationResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
         Mockito.when(resource.adaptTo(GraphqlClient.class))
             .thenReturn(graphqlClient);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        Resource mockConfigurationResource = mock(Resource.class);
+        when(configurationProvider.getContextConfigurationResource(anyString())).thenReturn(mockConfigurationResource);
+        when(mockConfigurationResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(configurationProvider.getContextAwareConfigurationProperties(anyString())).thenReturn(new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient","default")));
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(configurationProvider, resource);
         executeAndCheck(withStoreHeader, client);
     }
 
@@ -127,7 +150,14 @@ public class MagentoGraphqlClientTest {
         when(pageWithConfig.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
+        Resource mockConfigurationResource = mock(Resource.class);
+        when(configurationProvider.getContextConfigurationResource(anyString())).thenReturn(mockConfigurationResource);
+        when(mockConfigurationResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(configurationProvider.getContextAwareConfigurationProperties(anyString())).thenReturn(MOCK_CONFIGURATION);
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(configurationProvider, pageWithConfig
+            .adaptTo(Resource.class), pageWithConfig);
+        Assert.assertNotNull("GraphQL client created successfully", client);
         executeAndCheck(true, client);
     }
 
@@ -149,7 +179,9 @@ public class MagentoGraphqlClientTest {
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource, page);
+        when(configurationProvider.getContextAwareConfigurationProperties(anyString())).thenReturn(MOCK_CONFIGURATION);
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(configurationProvider, resource, page);
         client.execute("{dummy}");
 
         ArgumentCaptor<RequestOptions> captor = ArgumentCaptor.forClass(RequestOptions.class);
@@ -209,7 +241,7 @@ public class MagentoGraphqlClientTest {
         Mockito.when(resource.adaptTo(GraphqlClient.class))
             .thenReturn(null);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(Mockito.mock(ComponentsConfigurationProvider.class), resource);
         Assert.assertNull(client);
     }
 

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -73,6 +74,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsServiceImpl.class);
 
+    @Reference
+    private ComponentsConfigurationProvider configurationProvider;
+
     public SearchResultsServiceImpl() {}
 
     public SearchResultsServiceImpl(final MagentoGraphqlClient magentoGraphqlClient) {
@@ -104,7 +108,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
 
         if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+            magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource, page);
         }
 
         if (magentoGraphqlClient == null) {

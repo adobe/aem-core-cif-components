@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -78,6 +79,9 @@ public class ProductCarouselImpl implements ProductCarousel {
     private List<String> baseProductSkus;
     private Locale locale;
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     private AbstractProductsRetriever productsRetriever;
 
     @PostConstruct
@@ -102,7 +106,7 @@ public class ProductCarouselImpl implements ProductCarousel {
             .distinct()
             .collect(Collectors.toList());
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {

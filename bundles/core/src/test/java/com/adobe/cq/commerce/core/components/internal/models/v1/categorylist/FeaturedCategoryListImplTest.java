@@ -15,7 +15,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -25,8 +27,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -79,6 +83,15 @@ public class FeaturedCategoryListImplTest {
     public void setup() throws Exception {
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
+
+        //Mock the ComponentsConfigurationProvider
+        ComponentsConfigurationProvider configurationProvider = Mockito.mock(ComponentsConfigurationProvider.class);
+        Resource mockConfigurationResource = mock(Resource.class);
+        when(configurationProvider.getContextConfigurationResource(anyString())).thenReturn(mockConfigurationResource);
+        when(mockConfigurationResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        Stream.of(contextBadId, contextConfigured, contextNotConfigured, contextNotConfiguredClient)
+            .forEach( ctx -> ctx.registerService(ComponentsConfigurationProvider.class, configurationProvider));
 
         // Mock resource and resolver
         Resource resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH));

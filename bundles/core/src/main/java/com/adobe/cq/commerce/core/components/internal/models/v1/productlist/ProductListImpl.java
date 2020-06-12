@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,6 +39,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.productcollectio
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
@@ -64,6 +66,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ScriptVariable(name = "wcmmode")
     private SightlyWCMMode wcmMode = null;
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     private AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
 
@@ -79,7 +84,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);

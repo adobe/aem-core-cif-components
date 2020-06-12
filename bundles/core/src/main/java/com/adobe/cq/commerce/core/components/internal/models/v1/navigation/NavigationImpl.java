@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -37,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -84,13 +84,22 @@ public class NavigationImpl implements Navigation {
     @ScriptVariable
     private Style currentStyle = null;
 
+    @Inject
+    private ComponentsConfigurationProvider configurationProvider;
+
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
     private int structureDepth;
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage);
+
+        // SlingBindings bindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
+        // SlingScriptHelper sling = bindings.getSling();
+        //
+        // configurationProvider = sling.getService(ComponentsConfigurationProvider.class);
+
+        graphQLCategoryProvider = new GraphQLCategoryProvider(configurationProvider, resource, currentPage);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
@@ -174,12 +183,8 @@ public class NavigationImpl implements Navigation {
 
         Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
         if (rootCategoryId == null) {
-            ConfigurationBuilder configBuilder = catalogPage.adaptTo(ConfigurationBuilder.class);
-
-            if (configBuilder != null) {
-                ValueMap properties = configBuilder.name("cloudconfigs/commerce").asValueMap();
-                rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
-            }
+            ValueMap properties = configurationProvider.getContextAwareConfigurationProperties(catalogPage.getPath());
+            rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
         }
 
         if (rootCategoryId == null) {

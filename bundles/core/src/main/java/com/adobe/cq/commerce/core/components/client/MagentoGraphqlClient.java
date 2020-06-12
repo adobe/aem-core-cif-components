@@ -21,10 +21,10 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -63,15 +63,16 @@ public class MagentoGraphqlClient {
      * Instantiates and returns a new MagentoGraphqlClient.
      * This method returns <code>null</code> if the client cannot be instantiated.<br>
      * <br>
-     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)} so the page can be used
+     * <b>Important:</b> components defined in a page template should use {@link #create(ComponentsConfigurationProvider, Resource, Page)}
+     * so the page can be used
      * to adapt to the lower-level {@link GraphqlClient}, while the component resource can be used for caching purposes.
      *
      * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
      *            the resource type is used as the cache key.
      * @return A new MagentoGraphqlClient instance.
      */
-    public static MagentoGraphqlClient create(Resource resource) {
-        return create(resource, null);
+    public static MagentoGraphqlClient create(ComponentsConfigurationProvider configurationProvider, Resource resource) {
+        return create(configurationProvider, resource, null);
     }
 
     /**
@@ -86,22 +87,30 @@ public class MagentoGraphqlClient {
      *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
      * @return A new MagentoGraphqlClient instance.
      */
-    public static MagentoGraphqlClient create(Resource resource, Page page) {
+    public static MagentoGraphqlClient create(ComponentsConfigurationProvider configurationProvider, Resource resource, Page page) {
         try {
-            return new MagentoGraphqlClient(resource, page);
+            return new MagentoGraphqlClient(configurationProvider, resource, page);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource, Page page) {
+    private MagentoGraphqlClient(ComponentsConfigurationProvider configurationProvider, Resource resource, Page page) {
         Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
-        graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
-        if (graphqlClient == null) {
-            throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
-        }
+        LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());
 
+        Resource configResource = configurationProvider.getContextConfigurationResource(configurationResource.getPath());
+            if (configResource == null) {
+            LOGGER.warn("Context configuration not found, attempt to read the configuration from the page");
+            graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
+        } else {
+            LOGGER.debug("Found configuration resource at {}", configResource.getPath());
+            graphqlClient = configResource.adaptTo(GraphqlClient.class);
+            if (graphqlClient == null) {
+                throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
+            }
+        }
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
         CachingStrategy cachingStrategy = new CachingStrategy()
@@ -110,10 +119,9 @@ public class MagentoGraphqlClient {
         requestOptions.withCachingStrategy(cachingStrategy);
 
         String storeCode;
-        ConfigurationBuilder configBuilder = configurationResource.adaptTo(ConfigurationBuilder.class);
+        ValueMap properties = configurationProvider.getContextAwareConfigurationProperties(configurationResource.getPath());
 
-        if (configBuilder != null) {
-            ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
+        if (properties.size() > 0) {
             storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
             if (storeCode == null) {
                 storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
