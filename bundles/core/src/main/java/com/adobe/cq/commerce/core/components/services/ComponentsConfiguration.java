@@ -16,10 +16,13 @@ import org.apache.sling.api.resource.ValueMap;
  */
 public final class ComponentsConfiguration {
 
+    public static final ComponentsConfiguration EMPTY = new ComponentsConfiguration(ValueMap.EMPTY);
+
     private ValueMap internalProperties;
 
     /**
      * Creates an object of this type.
+     * 
      * @param vm a {@link ValueMap} containing the properties
      */
     public ComponentsConfiguration(ValueMap vm) {
@@ -42,10 +45,11 @@ public final class ComponentsConfiguration {
 
     /**
      * Returns a {@link ValueMap} with the configuration properties.
+     * 
      * @return a {@link ValueMap} object. Note that this is the same object that was used in the constructor
      */
     public ValueMap getValueMap() {
-        //TODO we should return a copy.
+        // TODO we should return a copy.
         return internalProperties;
     }
 

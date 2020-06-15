@@ -116,7 +116,7 @@ public class MagentoGraphqlClient {
                 configurationResource.getPath(),
                 configurationResource.getResourceType(),
                 configuration.getValueMap());
-            
+
             graphqlClient = configResource.adaptTo(GraphqlClient.class);
         }
         if (graphqlClient == null) {

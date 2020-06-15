@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
@@ -40,8 +39,8 @@ class GraphQLCategoryProvider {
     private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    GraphQLCategoryProvider(ComponentsConfigurationProvider configurationProvider, Resource resource, Page page) {
-        magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource, page);
+    GraphQLCategoryProvider(Resource resource, Page page) {
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
     }
 
     List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {

@@ -15,22 +15,22 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
+import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -39,6 +39,8 @@ import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -48,6 +50,10 @@ import static org.mockito.Mockito.when;
 
 public class FeaturedCategoryListImplTest {
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
     private FeaturedCategoryListImpl slingModelConfigured;
     private FeaturedCategoryListImpl slingModelNotConfigured;
     private FeaturedCategoryListImpl slingModelBadId;
@@ -84,20 +90,16 @@ public class FeaturedCategoryListImplTest {
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
 
-        //Mock the ComponentsConfigurationProvider
-        ComponentsConfigurationProvider configurationProvider = Mockito.mock(ComponentsConfigurationProvider.class);
-        Resource mockConfigurationResource = mock(Resource.class);
-        when(configurationProvider.getContextConfigurationResource(anyString())).thenReturn(mockConfigurationResource);
-        when(mockConfigurationResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Stream.of(contextBadId, contextConfigured, contextNotConfigured, contextNotConfiguredClient)
-            .forEach( ctx -> ctx.registerService(ComponentsConfigurationProvider.class, configurationProvider));
+        Stream.of(contextBadId, contextConfigured, contextNotConfigured).forEach(ctx -> {
+            ctx.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> graphqlClient);
+        });
 
         // Mock resource and resolver
         Resource resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH));
         ResourceResolver resolver = Mockito.spy(resource.getResourceResolver());
         when(resource.getResourceResolver()).thenReturn(resolver);
         when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         // Mock asset
         Resource assetResource = mock(Resource.class);
@@ -128,6 +130,7 @@ public class FeaturedCategoryListImplTest {
 
         // init bad category id sling model
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_BADID));
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         contextBadId.currentResource(resource);
         slingBindings = (SlingBindings) contextBadId.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
@@ -136,7 +139,6 @@ public class FeaturedCategoryListImplTest {
         slingModelBadId = contextBadId.request().adaptTo(FeaturedCategoryListImpl.class);
 
         // init slingmodel with no graphql client
-        when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCLIENT));
         contextNotConfiguredClient.currentResource(resource);
         slingBindings = (SlingBindings) contextNotConfiguredClient.request().getAttribute(SlingBindings.class.getName());
@@ -186,12 +188,12 @@ public class FeaturedCategoryListImplTest {
 
     @Test
     public void verifyBadId() {
-        Assert.assertNotNull(slingModelBadId);
-        Assert.assertNotNull(slingModelBadId.getCategoriesRetriever());
-        Assert.assertTrue(slingModelBadId.isConfigured());
+        Assert.assertNotNull("The model is not null", slingModelBadId);
+        Assert.assertNotNull("The categories retriever is not null", slingModelBadId.getCategoriesRetriever());
+        Assert.assertTrue("The model is configured", slingModelBadId.isConfigured());
         categories = slingModelBadId.getCategories();
-        Assert.assertNotNull(categories);
-        Assert.assertEquals(2, categories.size());
+        Assert.assertNotNull("The categories list is not null", categories);
+        Assert.assertEquals("The categories list has 2 elements", 2, categories.size());
     }
 
     @Test
@@ -214,6 +216,7 @@ public class FeaturedCategoryListImplTest {
     private AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
             context.load().json(contentPath, "/content");
+            context.addModelsForPackage("com.adobe.cq.commerce");
         }, ResourceResolverType.JCR_MOCK);
     }
 }

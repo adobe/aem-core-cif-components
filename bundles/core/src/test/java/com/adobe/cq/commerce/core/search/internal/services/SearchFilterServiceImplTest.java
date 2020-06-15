@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +31,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -39,6 +42,8 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -52,11 +57,18 @@ public class SearchFilterServiceImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -69,12 +81,13 @@ public class SearchFilterServiceImplTest {
     SearchFilterServiceImpl searchFilterServiceUnderTest;
     Page page;
     Resource pageResource;
+    GraphqlClient graphqlClient;
 
     @Before
     public void setup() throws IOException {
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
 
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
@@ -85,11 +98,12 @@ public class SearchFilterServiceImplTest {
         page = Mockito.spy(context.currentPage(PAGE));
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
     }
 
     @Test
     public void testRetrieveMetadata() {
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
 
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
@@ -124,12 +138,17 @@ public class SearchFilterServiceImplTest {
         // For example, 3rd-party integrations might not support this immediately
 
         GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
 
         Query query = new Query();
         GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
         response.setData(query);
         when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        context.registerAdapter(Resource.class,
+            GraphqlClient.class,
+            (Function<Resource, GraphqlClient>) input -> input.getValueMap().get("cq:graphqlClient") != null ? graphqlClient : null);
 
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);

@@ -47,7 +47,6 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -107,9 +106,6 @@ public class ProductImpl implements Product {
     @Inject
     private XSSAPI xssApi;
 
-    @Inject
-    private ComponentsConfigurationProvider configurationProvider;
-
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
@@ -128,7 +124,7 @@ public class ProductImpl implements Product {
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient != null) {
             if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);

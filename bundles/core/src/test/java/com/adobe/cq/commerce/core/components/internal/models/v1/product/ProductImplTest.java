@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -62,11 +63,11 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,13 +76,17 @@ public class ProductImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+    private static final ValueMap MOCK_CONFIGURATION = new com.adobe.cq.commerce.common.ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.load().json("/context/jcr-conf.json", "/conf");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
@@ -124,14 +129,6 @@ public class ProductImplTest {
         when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
         slingBindings.put("xssApi", xssApi);
 
-        ConfigurationResourceResolver configurationResourceResolver = mock(ConfigurationResourceResolver.class);
-        Resource mockConfigurationResource = mock(Resource.class);
-        when(mockConfigurationResource.getValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.<String, Object>of("cq:graphqlClient",
-            "my-catalog")));
-        when(configurationResourceResolver.getResource(any(Resource.class), any(String.class), any(String.class))).thenReturn(
-            mockConfigurationResource);
-        slingBindings.put("configurationResourceResolver", configurationResourceResolver);
-
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
         slingBindings.put("currentStyle", style);
@@ -142,6 +139,11 @@ public class ProductImplTest {
 
         // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
         // and we want to override the "slug" in testEditModePlaceholderData()
+
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, (Function<Resource, ComponentsConfiguration>) input -> input
+            .getValueMap().get("cq:graphqlClient", String.class) != null ? MOCK_CONFIGURATION_OBJECT : ComponentsConfiguration.EMPTY);
+
+        context.addModelsForPackage("com.adobe.cq.commerce");
     }
 
     @Test
@@ -378,6 +380,7 @@ public class ProductImplTest {
         Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
 
         productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isVirtualProduct());
     }
 

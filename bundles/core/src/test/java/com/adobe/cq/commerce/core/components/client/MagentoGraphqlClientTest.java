@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.components.client;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -100,7 +99,7 @@ public class MagentoGraphqlClientTest {
         }).build();
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
 
         context.load()
             .json("/context/jcr-content.json", "/content");
@@ -110,13 +109,8 @@ public class MagentoGraphqlClientTest {
         Mockito.when(graphqlClient.execute(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(null);
 
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> {
-            GraphqlClient theClient = StringUtils.isNotEmpty(input.getValueMap().get("cq:graphqlClient", String.class)) ?
-                graphqlClient :
-                null;
-
-            return theClient;
-        });
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> StringUtils.isNotEmpty(
+            input.getValueMap().get("cq:graphqlClient", String.class)) ? graphqlClient : null);
 
     }
 
@@ -248,8 +242,6 @@ public class MagentoGraphqlClientTest {
         Resource resource = Mockito.spy(context.resourceResolver()
             .getResource("/content/pageG"));
 
-
-
         MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
         Assert.assertNull(client);
     }
@@ -287,7 +279,7 @@ public class MagentoGraphqlClientTest {
                         .stream()
                         .anyMatch(h -> h.getName()
                             .equals(header.getName()) && h.getValue()
-                            .equals(header.getValue()))) {
+                                .equals(header.getValue()))) {
                         return false;
                     }
                 }

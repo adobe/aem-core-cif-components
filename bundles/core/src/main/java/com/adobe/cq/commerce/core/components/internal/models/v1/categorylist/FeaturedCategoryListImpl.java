@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfigurationProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.dam.api.Asset;
@@ -67,9 +66,6 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     private Page categoryPage;
 
     private AbstractCategoriesRetriever categoriesRetriever;
-
-    @Inject
-    private ComponentsConfigurationProvider configurationProvider;
 
     @PostConstruct
     private void initModel() {
@@ -108,7 +104,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
             }
 
             if (categoryIds.size() > 0) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(configurationProvider, resource);
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                     categoriesRetriever.setIdentifiers(categoryIds);
