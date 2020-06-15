@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.osgi.annotation.versioning.ProviderType;
 
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
@@ -33,6 +34,7 @@ import com.day.cq.wcm.api.Page;
  * This service hides the interaction between the GraphQL backend and the Sling component models. It's job is to performa a search, given a
  * particular search query and filters.
  */
+@ProviderType
 public interface SearchResultsService {
 
     /**

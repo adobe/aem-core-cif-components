@@ -117,7 +117,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-                    <requiresRoot>true</requiresRoot>
 
                     <properties>
                         <acHandling>overwrite</acHandling>
@@ -133,6 +132,11 @@
                             <group>day/cq60/product</group>
                             <name>cq-ui-wcm-editor-content</name>
                             <version>(1.0.138,)</version>
+                        </dependency>
+                        <dependency>
+                            <group>adobe/cq60</group>
+                            <name>core.wcm.components.content</name>
+                            <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
                     
@@ -286,6 +290,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.cq</groupId>
+            <artifactId>core.wcm.components.content</artifactId>
+            <version>${core.wcm.components.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
