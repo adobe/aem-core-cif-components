@@ -163,6 +163,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
             searchResultsSet = getCategorySearchResultsSet().getRight();
+
+            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
+                searchResultsSet.getSearchAggregations()
+                    .stream()
+                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                    .collect(Collectors.toList()));
         }
         return searchResultsSet;
     }

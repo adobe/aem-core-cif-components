@@ -108,7 +108,8 @@ public class SearchResultsSetImpl implements SearchResultsSet {
             .stream()
             .filter(searchAggregation -> !searchAggregation.getAppliedFilterValue().isPresent()
                 && searchAggregation.getFilterable()
-                && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+            // && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier())
+            )
             .collect(Collectors.toList());
     }
 
@@ -118,7 +119,8 @@ public class SearchResultsSetImpl implements SearchResultsSet {
         return searchAggregations
             .stream()
             .filter(searchAggregation -> searchAggregation.getAppliedFilterValue().isPresent()
-                && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+            // && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier())
+            )
             .collect(Collectors.toList());
     }
 
