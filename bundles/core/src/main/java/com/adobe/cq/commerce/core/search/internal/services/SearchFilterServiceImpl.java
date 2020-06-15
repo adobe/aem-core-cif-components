@@ -30,7 +30,17 @@ import com.adobe.cq.commerce.core.search.internal.converters.FilterAttributeMeta
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.Attribute;
+import com.adobe.cq.commerce.magento.graphql.AttributeInput;
+import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadata;
+import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadataQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.__InputValue;
+import com.adobe.cq.commerce.magento.graphql.__Type;
+import com.adobe.cq.commerce.magento.graphql.__TypeQuery;
+import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 

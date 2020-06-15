@@ -107,8 +107,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
         return searchAggregations
             .stream()
             .filter(searchAggregation -> !searchAggregation.getAppliedFilterValue().isPresent()
-                && searchAggregation.getFilterable()
-            )
+                && searchAggregation.getFilterable())
             .collect(Collectors.toList());
     }
 
