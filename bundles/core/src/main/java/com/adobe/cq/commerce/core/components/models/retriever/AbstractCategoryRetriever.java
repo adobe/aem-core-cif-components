@@ -15,6 +15,9 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -194,13 +197,38 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @param identifier Category identifier, usually the category id
      * @return GraphQL query as string
      */
-    protected String generateQuery(String identifier) {
+    public String generateQuery(String identifier) {
+        Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> args = generateQueryArgs(identifier);
+        QueryQuery.CategoryArgumentsDefinition searchArgs = args.getLeft();
+
+        CategoryTreeQueryDefinition queryArgs = args.getRight();
+
+        return Operations.query(query -> query
+            .category(searchArgs, queryArgs)).toString();
+    }
+
+    /**
+     * Generates a pair of args for the category query for a given category identifier;
+     *
+     * @param identifier Category identifier, usually the category id
+     * @return GraphQL query as string
+     */
+    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs(String identifier) {
         // Use 'categoryIdentifierType' when we switch to Query.categoryList
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(identifier));
 
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
-        return Operations.query(query -> query
-            .category(searchArgs, queryArgs)).toString();
+
+        return new ImmutablePair<>(searchArgs, queryArgs);
+    }
+
+    /**
+     * Generates a pair of args for the category query for the instance identifier;
+     *
+     * @return GraphQL query as string
+     */
+    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs() {
+        return generateQueryArgs(identifier);
     }
 
     /**
