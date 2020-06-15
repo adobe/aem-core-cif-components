@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 
 @Component(
     service = Servlet.class,
@@ -53,11 +54,18 @@ public class PreviewServlet extends SlingSafeMethodsServlet {
     @Reference
     private UrlProvider urlProvider;
 
-    protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
+
+        if (WCMMode.DISABLED == WCMMode.fromRequest(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "The request not permitted");
+            return;
+        }
+
         Page page = getRefererPage(request);
         if (page == null) {
             LOGGER.warn("The path of the edited page cannot be determined");
-            throw new ServletException("The path of the edited page cannot be determined");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "The path of the edited page cannot be determined");
+            return;
         }
 
         Map<String, String> params = new UrlProvider.ParamsBuilder()

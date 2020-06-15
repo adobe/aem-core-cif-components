@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -27,11 +28,11 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.mockito.Mockito.any;
@@ -45,9 +46,6 @@ public class PreviewServletTest {
     @Rule
     public AemContext context = new AemContext(ResourceResolverType.JCR_MOCK);
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private PreviewServlet servlet;
     private SlingHttpServletRequest request;
     private SlingHttpServletResponse response;
@@ -59,6 +57,7 @@ public class PreviewServletTest {
     public void setUp() {
         servlet = new PreviewServlet();
         request = spy(context.request());
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
         response = spy(context.response());
 
         resourceResolver = mock(ResourceResolver.class);
@@ -72,23 +71,40 @@ public class PreviewServletTest {
     }
 
     @Test
-    public void testReferer_invalidContext() throws ServletException, IOException {
-        thrown.expect(ServletException.class);
-        thrown.expectMessage("The path of the edited page cannot be determined");
-        when(request.getHeader("Referer")).thenReturn("/invalid/path");
+    public void testInvalidMode() throws IOException {
+        // mock WCMMode
+        request.setAttribute(WCMMode.class.getName(), WCMMode.DISABLED);
 
-        servlet.doGet(request, null);
+        // handle request
+        servlet.doGet(request, response);
+
+        // verify error
+        verify(response).sendError(HttpServletResponse.SC_FORBIDDEN, "The request not permitted");
     }
 
     @Test
-    public void testReferer_invalidPage() throws ServletException, IOException {
-        thrown.expect(ServletException.class);
-        thrown.expectMessage("The path of the edited page cannot be determined");
+    public void testReferer_invalidContext() throws IOException {
+        // mock referer
+        when(request.getHeader("Referer")).thenReturn("/invalid/path");
 
+        // handle request
+        servlet.doGet(request, response);
+
+        // verify error
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND, "The path of the edited page cannot be determined");
+    }
+
+    @Test
+    public void testReferer_invalidPage() throws IOException {
+        // mock referer and page
         when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/invalid/page.html");
         when(resourceResolver.getResource("/path/to/invalid/page")).thenReturn(null);
 
-        servlet.doGet(request, null);
+        // handle request
+        servlet.doGet(request, response);
+
+        // verify error
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND, "The path of the edited page cannot be determined");
     }
 
     @Test
