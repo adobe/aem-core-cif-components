@@ -16,12 +16,15 @@ package com.adobe.cq.commerce.core.search.services;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.day.cq.wcm.api.Page;
 
 /**
  * This service is responsible for retrieving search filter and attribute metadata from the commerce backend.
  */
+@ProviderType
 public interface SearchFilterService {
 
     /**
