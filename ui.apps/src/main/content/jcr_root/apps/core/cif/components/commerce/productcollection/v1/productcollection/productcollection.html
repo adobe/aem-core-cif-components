@@ -16,15 +16,19 @@
           data-sly-use.paginationTemplate="paginationbar.html"
           data-sly-use.facetSelectorTemplate="facetselector.html">
 
-<div class="results__count">${productCollection.searchResultsSet.totalResults} items</div>
-<section data-sly-test.hasProducts="${productCollection.products}" class="gallery__root search__root">
-    <div class="search__filters"
-         data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
-         data-sly-call="${facetSelectorTemplate.facetSelector @ searchResultsSet = productCollection.searchResultsSet}"></div>
-    <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
-        <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
-    </div>
-</section>
+<sly data-sly-test.hasProducts="${productCollection.products}">
+     <div class="results__count">
+          ${productCollection.searchResultsSet.totalResults} ${productCollection.searchResultsSet.totalResults == 1 ? 'item' : 'items' @ i18n}
+     </div>
+     <section class="gallery__root search__root">
+          <div class="search__filters"
+               data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
+               data-sly-call="${facetSelectorTemplate.facetSelector @ searchResultsSet = productCollection.searchResultsSet}"></div>
+          <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
+               <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
+          </div>
+     </section>
+</sly>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
 <sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts}"
      data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
