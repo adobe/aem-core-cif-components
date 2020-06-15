@@ -47,9 +47,6 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
     @Reference
     private ResourceResolverFactory resolverFactory;
 
-    @Reference
-    private ConfigurationResourceResolver configurationResourceResolver;
-
     private ResourceResolver serviceResolver;
 
     @Override
@@ -57,19 +54,11 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
         if (!(adaptable instanceof Resource)) {
             return null;
         }
-
         try (ResourceResolver serviceResolver = resolverFactory.getServiceResourceResolver(authInfo)) {
-
             Resource res = serviceResolver.getResource(((Resource) adaptable).getPath());
-
-            Resource configurationResource = configurationResourceResolver.getResource(res, "settings", CONFIGURATION_NAME);
-
             ConfigurationBuilder cfgBuilder = res.adaptTo(ConfigurationBuilder.class);
-
             ComponentsConfiguration configuration = new ComponentsConfiguration(cfgBuilder.name(CONFIGURATION_NAME).asValueMap());
-
             return (AdapterType) configuration;
-
         } catch (LoginException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
