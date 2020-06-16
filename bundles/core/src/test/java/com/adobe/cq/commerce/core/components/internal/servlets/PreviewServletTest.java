@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -108,7 +107,7 @@ public class PreviewServletTest {
     }
 
     @Test
-    public void testPreviewProduct() throws ServletException, IOException {
+    public void testPreviewProduct() throws IOException {
         // mock referer
         when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/valid/product/page.html");
 
@@ -132,7 +131,7 @@ public class PreviewServletTest {
     }
 
     @Test
-    public void testPreviewCategory() throws ServletException, IOException {
+    public void testPreviewCategory() throws IOException {
         // mock referer
         when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/valid/category/page.html");
 
