@@ -19,12 +19,22 @@
  *     fetchCustomerCartQuery - the query object to execute to retrieve the cart details
  *     dispatch - the dispatch callback for the user context
  */
-export const resetCustomerCart = async payload => {
-    const { dispatch, fetchCustomerCartQuery } = payload;
-
+export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) => {
     const { data } = await fetchCustomerCartQuery({
         fetchPolicy: 'network-only'
     });
     const cartId = data.customerCart.id;
     dispatch({ type: 'setCartId', cartId });
+};
+
+export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch }) => {
+    try {
+        await revokeCustomerToken();
+        setCartCookie('', 0);
+        setUserCookie('', 0);
+        dispatch({ type: 'signOut' });
+    } catch (error) {
+        console.error('An error occurred during sign-out', error);
+        dispatch({ type: 'error', error: error.toString() });
+    }
 };

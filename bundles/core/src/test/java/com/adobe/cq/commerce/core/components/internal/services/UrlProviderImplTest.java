@@ -52,14 +52,31 @@ public class UrlProviderImplTest {
 
     @Before
     public void setup() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        Assert.assertTrue(config.productUrlTemplate().contains("{{"));
+        Assert.assertTrue(config.categoryUrlTemplate().contains("{{"));
+
         urlProvider = new UrlProviderImpl();
-        urlProvider.activate(new MockUrlProviderConfiguration());
+        urlProvider.activate(config);
 
         request = new MockSlingHttpServletRequest(context.resourceResolver());
     }
 
     @Test
     public void testProductUrl() {
+        testProductUrlImpl();
+    }
+
+    @Test
+    public void testProductUrlWithOldSyntax() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration(true);
+        Assert.assertTrue(config.productUrlTemplate().contains("${"));
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        testProductUrlImpl();
+    }
+
+    public void testProductUrlImpl() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
@@ -69,6 +86,32 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toProductUrl(request, page, params);
         Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
+    }
+
+    @Test
+    public void testCategoryUrl() {
+        testCategoryUrlImpl();
+    }
+
+    @Test
+    public void testCategoryUrlWithOldSyntax() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration(true);
+        Assert.assertTrue(config.categoryUrlTemplate().contains("${"));
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        testCategoryUrlImpl();
+    }
+
+    public void testCategoryUrlImpl() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .id("42")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page.42.html", url);
     }
 
     @Test
@@ -106,7 +149,7 @@ public class UrlProviderImplTest {
     }
 
     @Test
-    public void testProductIdentifierParsingInSufix() {
+    public void testProductIdentifierParsingInSuffix() {
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
         config.setProductIdentifierLocation(IdentifierLocation.SUFFIX);
         config.setProductIdentifierType(ProductIdentifierType.SKU);

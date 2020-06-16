@@ -21,12 +21,6 @@ describe('Navigation', () => {
     var navigationRoot;
 
     before(() => {
-        window.CIF = {
-            PageContext: {
-                maskPage: function() {},
-                unmaskPage: function() {}
-            }
-        };
         body = window.document.querySelector('body');
         navigationRoot = document.createElement('div');
         body.insertAdjacentElement('afterbegin', navigationRoot);

@@ -12,3 +12,4 @@
  *
  ******************************************************************************/
 export { default } from './createAccount';
+export { default as CreateAccountSuccess } from './createAccountSuccess';

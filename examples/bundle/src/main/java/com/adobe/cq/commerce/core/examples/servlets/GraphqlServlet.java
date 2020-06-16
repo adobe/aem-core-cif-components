@@ -86,12 +86,28 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCTS_FILTER_ARG = "filter";
     private static final String PRODUCTS_SEARCH_ARG = "search";
     private static final String CATEGORY_ID_ARG = "id";
-    private static final String SKU_IN_REGEX = "\\{sku=\\{in=\\[.+\\]\\}\\}";
+
     private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
-    private static final String URL_KEY_EQ_REGEX = "\\{url_key=\\{eq=(.+)\\}\\}";
     private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
+    private static final Pattern SKU_IN_PATTERN = Pattern.compile("\\{sku=\\{in=\\[(.+)\\]\\}\\}");
+    private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
 
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
+    private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
+
+    private static final String STORECONFIG_JSON = "magento-graphql-storeconfig.json";
+    private static final String ATTRIBUTES_JSON = "magento-graphql-attributes.json";
+    private static final String RELATED_PRODUCTS_JSON = "magento-graphql-relatedproducts.json";
+    private static final String UPSELL_PRODUCTS_JSON = "magento-graphql-upsellproducts.json";
+    private static final String CROSSSELL_PRODUCTS_JSON = "magento-graphql-crosssellproducts.json";
+    private static final String PRODUCT_CAROUSEL_JSON = "magento-graphql-productcarousel.json";
+    private static final String PRODUCT_TEASER_JSON = "magento-graphql-productteaser.json";
+    private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
+    private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
+    private static final String PRODUCTS_JSON = "magento-graphql-products.json";
+    private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
+    private static final String CATEGORY_JSON = "magento-graphql-category.json";
+    private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -297,14 +313,14 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                         return readProductsResponse(env);
                     }
                     case "storeConfig": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-storeconfig.json");
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(STORECONFIG_JSON);
                         return graphqlResponse.getData().getStoreConfig();
                     }
                     case "category": {
                         return readCategoryResponse(env);
                     }
                     case "customAttributeMetadata": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-attributes.json");
+                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(ATTRIBUTES_JSON);
                         return graphqlResponse.getData().getCustomAttributeMetadata();
                     }
                     default:
@@ -335,11 +351,11 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
         if (selectionSet.contains("items/related_products")) {
-            return readProductsFrom("magento-graphql-relatedproducts.json");
+            return readProductsFrom(RELATED_PRODUCTS_JSON);
         } else if (selectionSet.contains("items/upsell_products")) {
-            return readProductsFrom("magento-graphql-upsellproducts.json");
+            return readProductsFrom(UPSELL_PRODUCTS_JSON);
         } else if (selectionSet.contains("items/crosssell_products")) {
-            return readProductsFrom("magento-graphql-crosssellproducts.json");
+            return readProductsFrom(CROSSSELL_PRODUCTS_JSON);
         }
 
         Map<String, Object> args = env.getArguments();
@@ -347,26 +363,37 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         Object productsFilter = args.get(PRODUCTS_FILTER_ARG);
         if (productsFilter != null) {
             String filter = productsFilter.toString();
-            if (filter.matches(SKU_IN_REGEX)) {
-                return readProductsFrom("magento-graphql-productcarousel.json");
-            } else if (filter.matches(SKU_EQ_REGEX)) {
-                return readProductsFrom("magento-graphql-productteaser.json");
-            } else if (filter.matches(CATEGORY_ID_REGEX)) {
-                return readProductsFrom("magento-graphql-products-collection.json");
-            } else if (filter.matches(URL_KEY_EQ_REGEX)) {
-                Pattern pattern = Pattern.compile(URL_KEY_EQ_REGEX);
-                Matcher matcher = pattern.matcher(filter);
-                if (matcher.matches() && GROUPED_PRODUCT_URL_KEY.equals(matcher.group(1))) {
-                    return readProductsFrom("magento-graphql-grouped-product.json");
+            Matcher skuInMatcher = SKU_IN_PATTERN.matcher(filter);
+            Matcher urlKeyEqPattern = URL_KEY_EQ_PATTERN.matcher(filter);
+
+            if (skuInMatcher.matches()) {
+                // The filter {sku:{in:[...]}} can be a query for the carousel (3 skus) or a client-side query to fetch prices
+                // on the product (1 sku), productlist (6 skus), or search pages (6 skus)
+                String[] skus = skuInMatcher.group(1).split(",");
+                LOGGER.debug("Got sku:in filter with {} sku(s): {}", skus.length, skuInMatcher.group(1));
+                if (skus.length == 1) {
+                    if (GROUPED_PRODUCT_SKU.equals(skus[0])) {
+                        return readProductsFrom(GROUPED_PRODUCT_JSON);
+                    }
+                    return readProductsFrom(PRODUCTS_JSON);
+                } else if (skus.length == 6) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_JSON);
                 }
+                return readProductsFrom(PRODUCT_CAROUSEL_JSON);
+            } else if (filter.matches(SKU_EQ_REGEX)) {
+                return readProductsFrom(PRODUCT_TEASER_JSON);
+            } else if (filter.matches(CATEGORY_ID_REGEX)) {
+                return readProductsFrom(PRODUCTS_COLLECTION_JSON);
+            } else if (urlKeyEqPattern.matches() && GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                return readProductsFrom(GROUPED_PRODUCT_JSON);
             }
         }
 
         if (args.containsKey(PRODUCTS_SEARCH_ARG)) {
-            return readProductsFrom("magento-graphql-products-collection.json");
+            return readProductsFrom(PRODUCTS_COLLECTION_JSON);
         }
 
-        return readProductsFrom("magento-graphql-products.json");
+        return readProductsFrom(PRODUCTS_JSON);
     }
 
     /**
@@ -394,21 +421,15 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         // If the query has aliases, it's the FeaturedCategoryList component
         String fieldAlias = env.getField().getAlias();
         if (StringUtils.isNotBlank(fieldAlias)) {
-            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse("magento-graphql-featuredcategorylist.json");
+            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
             return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
         }
 
         // Default query is fetching the category tree except if the category id is not "2"
-        String filename = "magento-graphql-categories.json";
-
-        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
-        if (selectionSet.contains("products")) {
-            filename = "magento-graphql-category-products.json"; // Query to fetch category products
-        } else {
-            Object id = env.getArgument(CATEGORY_ID_ARG);
-            if (id != null && !id.toString().equals("2")) {
-                filename = "magento-graphql-category.json"; // Query to only fetch some category data
-            }
+        String filename = CATEGORY_TREE_JSON;
+        Object id = env.getArgument(CATEGORY_ID_ARG);
+        if (id != null && !id.toString().equals("2")) {
+            filename = CATEGORY_JSON; // Query to only fetch some category data
         }
 
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
