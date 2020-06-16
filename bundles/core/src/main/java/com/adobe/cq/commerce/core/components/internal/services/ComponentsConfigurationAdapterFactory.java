@@ -17,7 +17,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.caconfig.ConfigurationBuilder;
-import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

@@ -11,15 +11,12 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
 
-import org.apache.sling.api.adapter.AdapterFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.apache.sling.testing.resourceresolver.MockResource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -81,7 +78,7 @@ public class ComponentsConfigurationAdapterFactoryTest {
 
         Assert.assertNotNull("Configuration is not null", configuration);
         Assert.assertTrue("The configuration has some data in it", configuration.size() > 0);
-        
+
         String unrelatedProperty = configuration.get("aTotallyUnrelatedProperty", String.class);
         Assert.assertEquals("The configuration is correct", unrelatedProperty, "true");
     }
@@ -93,6 +90,6 @@ public class ComponentsConfigurationAdapterFactoryTest {
         ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
 
         Assert.assertNotNull("Configuration is not null", configuration);
-        Assert.assertTrue("The configuration has no data in it", configuration.size()  == 0);
+        Assert.assertTrue("The configuration has no data in it", configuration.size() == 0);
     }
 }
