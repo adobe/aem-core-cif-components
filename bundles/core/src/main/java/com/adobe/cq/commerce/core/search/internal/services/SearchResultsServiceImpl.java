@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.search.internal.services;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -301,7 +302,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         return products.stream()
             .map(converter)
-            .filter(p -> p != null) // the converter returns null if the conversion fails
+            .filter(Objects::nonNull) // the converter returns null if the conversion fails
             .collect(Collectors.toList());
     }
 
