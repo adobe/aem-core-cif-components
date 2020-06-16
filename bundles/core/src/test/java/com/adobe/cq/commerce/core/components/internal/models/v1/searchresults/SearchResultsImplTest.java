@@ -153,7 +153,7 @@ public class SearchResultsImplTest {
         Assert.assertEquals(products, searchResultsSet.getProductListItems());
         Assert.assertEquals(0, searchResultsSet.getAppliedAggregations().size());
         Assert.assertEquals(8, searchResultsSet.getSearchAggregations().size());
-        Assert.assertEquals(7, searchResultsSet.getAvailableAggregations().size()); // category_id is removed
+        Assert.assertEquals(8, searchResultsSet.getAvailableAggregations().size());
         Assert.assertEquals(1, searchResultsSet.getAppliedQueryParameters().size()); // only search_query
         Assert.assertEquals(4, searchResultsSet.getTotalResults().intValue());
     }
