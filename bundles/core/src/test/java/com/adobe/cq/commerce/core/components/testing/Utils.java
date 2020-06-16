@@ -56,9 +56,9 @@ public class Utils {
      * @param filename The file to use for the json response.
      * @param httpClient The HTTP client for which we want to mock responses.
      * @param httpCode The http code that the mocked response will return.
-     * 
+     *
      * @return The JSON content of that file.
-     * 
+     *
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
@@ -76,9 +76,9 @@ public class Utils {
      * @param httpClient The HTTP client for which we want to mock responses.
      * @param httpCode The http code that the mocked response will return.
      * @param startsWith When set, the body of the GraphQL POST request must start with that String.
-     * 
+     *
      * @return The JSON content of that file.
-     * 
+     *
      * @throws IOException
      */
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String startsWith) throws IOException {
@@ -138,7 +138,7 @@ public class Utils {
 
     /**
      * Returns a Magento Query response based on the given filename resource containing a JSON GraphQL response.
-     * 
+     *
      * @param filename The filename of the resource.
      * @return The parsed Magento Query object.
      * @throws IOException

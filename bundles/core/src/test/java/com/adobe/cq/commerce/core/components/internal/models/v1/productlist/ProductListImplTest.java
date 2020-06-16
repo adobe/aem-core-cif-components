@@ -124,8 +124,8 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        category = Utils.getQueryFromResource("graphql/magento-graphql-category-result.json").getCategory();
-        products = Utils.getQueryFromResource("graphql/magento-graphql-search-result.json").getProducts();
+        category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategory();
+        products = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getProducts();
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
@@ -136,6 +136,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
 
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
@@ -190,12 +191,13 @@ public class ProductListImplTest {
     @Test
     public void getImageWhenMissingInResponse() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
+        ProductListImpl spyProductListModel = Mockito.spy(productListModel);
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getImage()).thenReturn("");
-        Whitebox.setInternalState(productListModel.getCategoryRetriever(), "category", category);
+        Mockito.doReturn(category).when(spyProductListModel).getCategory();
 
-        String image = productListModel.getImage();
+        String image = spyProductListModel.getImage();
         Assert.assertEquals("", image);
     }
 
@@ -250,8 +252,7 @@ public class ProductListImplTest {
         Mockito.reset(httpClient);
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-result.json", httpClient, HttpStatus.SC_OK, "{category");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
 
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> productList = productListModel.getProducts();
