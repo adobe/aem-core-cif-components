@@ -127,7 +127,10 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         }
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
-            Map<String, String> params = new ParamsBuilder().id(category.getId().toString()).map();
+            Map<String, String> params = new ParamsBuilder()
+                .id(category.getId().toString())
+                .urlPath(category.getUrlPath())
+                .map();
             category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
