@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 
-(($) => {
-    "use strict";
+($ => {
+    'use strict';
 
     const dialogContentSelector = '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor';
     const productFieldSelector = '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Product"]';
@@ -22,7 +22,7 @@
     const actionsMultifieldItemSelector = '.coral3-Multifield-item';
     const actionsEnabledCheckboxSelector = 'coral-checkbox[name="./actionsEnabled"]';
 
-    $(document).on("dialog-loaded", e => {
+    $(document).on('dialog-loaded', e => {
         const $dialog = e.dialog;
         const $dialogContent = $dialog.find(dialogContentSelector);
         const dialogContent = $dialogContent.length > 0 ? $dialogContent[0] : undefined;
@@ -38,50 +38,57 @@
             multiFieldActions.on('change', () => {
                 // whenever actions are being added/removed, reattach picker change handlers
                 handlePickersChange(multiFieldActions);
-            })
+            });
 
             // Fix Core WCM Components Teaser editor bug.
             // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
             const $actionsEnabledCheckbox = $dialogContent.find(actionsEnabledCheckboxSelector);
-            $actionsEnabledCheckbox.on("change", e => {
-                const actionsEnabled = $(e.target).adaptTo("foundation-field").getValue() === "true";
+            $actionsEnabledCheckbox.on('change', e => {
+                const actionsEnabled =
+                    $(e.target)
+                        .adaptTo('foundation-field')
+                        .getValue() === 'true';
                 $(categoryFieldSelector).each((ix, catEl) => {
-                    $(catEl).adaptTo("foundation-field").setDisabled(!actionsEnabled);
-                })
+                    $(catEl)
+                        .adaptTo('foundation-field')
+                        .setDisabled(!actionsEnabled);
+                });
             });
         }
     });
 
     // used to handle picker value changes and keep only one picker populated
     const handlePickersChange = multiFieldActions => {
-        $(multiFieldActions).find(actionsMultifieldItemSelector).each((ix, action) => {
-            const productElement = $(action).find(productFieldSelector);
-            const categoryElement = $(action).find(categoryFieldSelector);
-            const productField = productElement.adaptTo("foundation-field");
-            const categoryField = categoryElement.adaptTo("foundation-field");
+        $(multiFieldActions)
+            .find(actionsMultifieldItemSelector)
+            .each((ix, action) => {
+                const productElement = $(action).find(productFieldSelector);
+                const categoryElement = $(action).find(categoryFieldSelector);
+                const productField = productElement.adaptTo('foundation-field');
+                const categoryField = categoryElement.adaptTo('foundation-field');
 
-            // remove attached handlers
-            productElement.off('change', handleProductChange);
-            categoryElement.off('change', handleCategoryChange);
+                // remove attached handlers
+                productElement.off('change', handleProductChange);
+                categoryElement.off('change', handleCategoryChange);
 
-            const eventData = {productField, categoryField};
-            // [re]attach change handlers
-            productElement.on('change', eventData, handleProductChange)
-            categoryElement.on('change', eventData, handleCategoryChange)
-        })
-    }
+                const eventData = { productField, categoryField };
+                // [re]attach change handlers
+                productElement.on('change', eventData, handleProductChange);
+                categoryElement.on('change', eventData, handleCategoryChange);
+            });
+    };
 
     // sets an empty value on the category field when product field gets updated
-    const handleProductChange = ({data: {productField, categoryField}}) => {
-        if (productField.getValue() !== "") {
-            categoryField.setValue("")
+    const handleProductChange = ({ data: { productField, categoryField } }) => {
+        if (productField.getValue() !== '') {
+            categoryField.setValue('');
         }
-    }
+    };
 
     // sets an empty value on the product field when category field gets updated
-    const handleCategoryChange = ({data: {productField, categoryField}}) => {
-        if (categoryField.getValue() !== "") {
-            productField.setValue("")
+    const handleCategoryChange = ({ data: { productField, categoryField } }) => {
+        if (categoryField.getValue() !== '') {
+            productField.setValue('');
         }
-    }
+    };
 })(jQuery);
