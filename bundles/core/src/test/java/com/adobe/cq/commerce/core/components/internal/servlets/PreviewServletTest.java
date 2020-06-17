@@ -24,9 +24,11 @@ import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -121,10 +123,33 @@ public class PreviewServletTest {
 
         // mock UrlProvider
         String PREVIEW_PRODUCT_URL = "/dummy/preview/url.key.html#variant_key";
-        when(urlProvider.toProductUrl(any(SlingHttpServletRequest.class), any(Page.class), any(Map.class))).thenReturn(PREVIEW_PRODUCT_URL);
+        when(urlProvider.toProductUrl(any(), any(), any())).thenReturn(PREVIEW_PRODUCT_URL);
+
+        // mock request parameters
+        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
+        when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
+        when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
+        when(request.getParameter(UrlProvider.VARIANT_SKU_PARAM)).thenReturn("testVariantSku");
+        when(request.getParameter(UrlProvider.VARIANT_URL_KEY_PARAM)).thenReturn("testVariantUrlKey");
+        when(request.getParameter(UrlProvider.URL_PATH_PARAM)).thenReturn("testUrlPath");
+        when(request.getParameter("invalidParam")).thenReturn("invalidValue");
 
         // handle request
         servlet.doGet(request, response);
+
+        // verify UrlProvider called and capture arguments
+        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+        verify(urlProvider).toProductUrl(any(), any(), captor.capture());
+
+        // verify UrlProvider parameters
+        Map<String, String> params = captor.getValue();
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
+        Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
+        Assert.assertEquals("Incorrect VARIANT_SKU parameter", "testVariantSku", params.get(UrlProvider.VARIANT_SKU_PARAM));
+        Assert.assertEquals("Incorrect VARIANT_URL_KEY parameter", "testVariantUrlKey", params.get(UrlProvider.VARIANT_URL_KEY_PARAM));
+        Assert.assertEquals("Incorrect URL_PATH parameter", "testUrlPath", params.get(UrlProvider.URL_PATH_PARAM));
 
         // verify we redirect to the correct url
         verify(response).sendRedirect(PREVIEW_PRODUCT_URL);
@@ -148,8 +173,31 @@ public class PreviewServletTest {
         when(urlProvider.toCategoryUrl(any(SlingHttpServletRequest.class), any(Page.class), any(Map.class))).thenReturn(
             PREVIEW_CATEGORY_URL);
 
+        // mock request parameters
+        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
+        when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
+        when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
+        when(request.getParameter(UrlProvider.VARIANT_SKU_PARAM)).thenReturn("testVariantSku");
+        when(request.getParameter(UrlProvider.VARIANT_URL_KEY_PARAM)).thenReturn("testVariantUrlKey");
+        when(request.getParameter(UrlProvider.URL_PATH_PARAM)).thenReturn("testUrlPath");
+        when(request.getParameter("invalidParam")).thenReturn("invalidValue");
+
         // handle request
         servlet.doGet(request, response);
+
+        // verify UrlProvider called and capture arguments
+        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+        verify(urlProvider).toCategoryUrl(any(), any(), captor.capture());
+
+        // verify UrlProvider parameters
+        Map<String, String> params = captor.getValue();
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
+        Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
+        Assert.assertEquals("Incorrect VARIANT_SKU parameter", "testVariantSku", params.get(UrlProvider.VARIANT_SKU_PARAM));
+        Assert.assertEquals("Incorrect VARIANT_URL_KEY parameter", "testVariantUrlKey", params.get(UrlProvider.VARIANT_URL_KEY_PARAM));
+        Assert.assertEquals("Incorrect URL_PATH parameter", "testUrlPath", params.get(UrlProvider.URL_PATH_PARAM));
 
         // verify we redirect to the correct url
         verify(response).sendRedirect(PREVIEW_CATEGORY_URL);
