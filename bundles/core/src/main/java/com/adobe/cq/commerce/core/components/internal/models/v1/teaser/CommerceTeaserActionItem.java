@@ -60,7 +60,7 @@ public class CommerceTeaserActionItem implements ListItem {
             Map<String, String> params = new ParamsBuilder().urlKey(selector).map();
             return urlProvider.toProductUrl(request, page, params);
         } else {
-            Map<String, String> params = new ParamsBuilder().id(selector).map();
+            Map<String, String> params = new ParamsBuilder().id(selector).urlPath("").map();
             return urlProvider.toCategoryUrl(request, page, params);
         }
     }
