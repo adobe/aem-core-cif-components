@@ -14,28 +14,26 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- ====================================================================== -->
-    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
-    <!-- ====================================================================== -->
-    <groupId>com.adobe.commerce.cif</groupId>
-    <artifactId>core-cif-components-reactor</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0.1-SNAPSHOT</version>
-
-    <name>AEM CIF Core Components Reactor</name>
-    <description>Reactor POM for AEM CIF Core Components</description>
-    <url>https://github.com/adobe/aem-core-cif-components</url>
-
+    
     <!-- ====================================================================== -->
     <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
     <!-- ====================================================================== -->
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
+
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
+    <!-- ====================================================================== -->
+    <artifactId>core-cif-components-reactor</artifactId>
+    <packaging>pom</packaging>
+
+    <name>AEM CIF Core Components Reactor</name>
+    <description>Reactor POM for AEM CIF Core Components</description>
+    <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <!-- ====================================================================== -->
     <!-- M O D U L E S                                                          -->
