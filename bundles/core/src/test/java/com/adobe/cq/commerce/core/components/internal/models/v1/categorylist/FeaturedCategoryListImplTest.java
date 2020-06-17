@@ -216,7 +216,6 @@ public class FeaturedCategoryListImplTest {
     private AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
             context.load().json(contentPath, "/content");
-            context.addModelsForPackage("com.adobe.cq.commerce");
         }, ResourceResolverType.JCR_MOCK);
     }
 }

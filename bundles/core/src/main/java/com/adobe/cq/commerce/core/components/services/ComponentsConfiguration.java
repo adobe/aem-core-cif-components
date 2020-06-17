@@ -1,15 +1,25 @@
-/*
- *  Copyright 2020 Adobe. All rights reserved.
+/*******************************************************************************
  *
- *   This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *    Copyright 2019 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
- */
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
 
 package com.adobe.cq.commerce.core.components.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.sling.api.resource.ValueMap;
+
+import com.adobe.cq.commerce.common.ValueMapDecorator;
 
 /**
  * Simple POJO to store the configuration properties
@@ -46,11 +56,13 @@ public final class ComponentsConfiguration {
     /**
      * Returns a {@link ValueMap} with the configuration properties.
      * 
-     * @return a {@link ValueMap} object. Note that this is the same object that was used in the constructor
+     * @return a {@link ValueMap} object.
      */
     public ValueMap getValueMap() {
-        // TODO we should return a copy.
-        return internalProperties;
+        Map<String, Object> temp = new HashMap<>();
+        internalProperties.entrySet().forEach(
+            entry -> temp.put(entry.getKey(), entry.getValue()));
+        return new ValueMapDecorator(temp);
     }
 
     /**

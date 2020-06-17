@@ -134,7 +134,6 @@ public class ProductListImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-result.json", httpClient, HttpStatus.SC_OK, "{products");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
 
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
