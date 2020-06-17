@@ -654,7 +654,7 @@
                 <plugin>
                     <groupId>net.revelc.code</groupId>
                     <artifactId>impsort-maven-plugin</artifactId>
-                    <version>1.2.0</version>
+                    <version>1.4.1</version>
                     <configuration>
                         <groups>java, javax, org</groups>
                         <staticGroups>*</staticGroups>
@@ -754,7 +754,7 @@
                     <plugin>
                         <groupId>net.revelc.code</groupId>
                         <artifactId>impsort-maven-plugin</artifactId>
-                        <version>1.2.0</version>
+                        <version>1.4.1</version>
                         <configuration>
                             <groups>java, javax, org</groups>
                             <staticGroups>*</staticGroups>
