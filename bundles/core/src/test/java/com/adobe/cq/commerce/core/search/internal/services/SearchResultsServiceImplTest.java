@@ -172,7 +172,7 @@ public class SearchResultsServiceImplTest {
         assertThat(query).contains("color:{eq:\"red\"}");
         assertThat(query).contains("price1:{from:\"20\",to:\"30\"}");
         assertThat(query).contains("price2:{from:\"40\"}");
-        assertThat(query).contains("price3:{from:\"*\",to:\"50\"}");
+        assertThat(query).contains("price3:{to:\"50\"}");
         assertThat(query).contains("is_new:{eq:\"1\"}");
     }
 
