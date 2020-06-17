@@ -161,6 +161,8 @@ Releases of this project are triggered by manually running `mvn release:prepare 
 
 _Important_: this project does Maven reactor releases, do **not** trigger releases from sub modules!
 
+Note: in case it is needed to update the version of a java bundle because of API changes and semantic versioning, one can easily update the parent POM version and all the POMs referencing the parent POM version by running the following command in the PARENT project folder: `mvn versions:set -DnewVersion=x.y.z-SNAPSHOT`. This will ensure all projects have the same version.
+
 ## Contributing
 
 Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
