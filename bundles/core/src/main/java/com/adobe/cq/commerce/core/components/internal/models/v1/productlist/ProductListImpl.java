@@ -44,6 +44,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -67,6 +68,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
+
+    private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
     private void initModel() {
@@ -119,7 +122,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Nullable
     @Override
     public String getTitle() {
-        return categoryRetriever != null && categoryRetriever.fetchCategory() != null ? categoryRetriever.fetchCategory().getName()
+        return getCategory() != null ? getCategory().getName()
             : StringUtils.EMPTY;
     }
 
@@ -130,11 +133,11 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getImage() {
-        if (categoryRetriever != null) {
-            if (StringUtils.isEmpty(categoryRetriever.fetchCategory().getImage())) {
+        if (getCategory() != null) {
+            if (StringUtils.isEmpty(getCategory().getImage())) {
                 return StringUtils.EMPTY;
             }
-            return categoryRetriever.fetchCategory().getImage();
+            return getCategory().getImage();
         } else {
             return StringUtils.EMPTY;
         }
@@ -149,7 +152,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
-            CategoryProducts categoryProducts = categoryRetriever.fetchCategory().getProducts();
+            CategoryProducts categoryProducts = getCategory().getProducts();
             ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider);
             return categoryProducts.getItems().stream()
                 .map(converter)
@@ -164,10 +167,31 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request, productQueryHook);
+            searchResultsSet = getCategorySearchResultsSet().getRight();
+
+            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
+                searchResultsSet.getSearchAggregations()
+                    .stream()
+                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                    .collect(Collectors.toList()));
         }
         return searchResultsSet;
+    }
+
+    private Pair<CategoryInterface, SearchResultsSet> getCategorySearchResultsSet() {
+        if (categorySearchResultsSet == null) {
+            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
+            categorySearchResultsSet = searchResultsService
+                .performSearch(searchOptions, resource, productPage, request, productQueryHook, categoryRetriever);
+        }
+        return categorySearchResultsSet;
+    }
+
+    protected CategoryInterface getCategory() {
+        if (usePlaceholderData) {
+            return categoryRetriever.fetchCategory();
+        }
+        return getCategorySearchResultsSet().getLeft();
     }
 
     @Override

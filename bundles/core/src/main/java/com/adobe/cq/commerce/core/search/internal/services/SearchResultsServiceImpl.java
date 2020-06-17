@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,8 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -51,6 +55,8 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
@@ -105,6 +111,18 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook) {
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null).getRight();
+    }
+
+    @Nonnull
+    @Override
+    public Pair<CategoryInterface, SearchResultsSet> performSearch(
+        final SearchOptions searchOptions,
+        final Resource resource,
+        final Page productPage,
+        final SlingHttpServletRequest request,
+        final Consumer<ProductInterfaceQuery> productQueryHook,
+        final AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         searchResultsSet.setSearchOptions(searchOptions);
@@ -117,7 +135,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("The search result service was unable to create a new MagentoGraphqlClient.");
-            return searchResultsSet;
+            return new ImmutablePair<>(null, searchResultsSet);
         }
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
@@ -126,7 +144,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
 
         // Next we generate the graphql query and actually query the commerce system
-        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook, currentSorterKey);
+        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook, categoryRetriever, currentSorterKey);
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
@@ -134,7 +152,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         if (response.getErrors() != null && response.getErrors().size() > 0) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return searchResultsSet;
+            return new ImmutablePair<>(response.getData() != null ? response.getData().getCategory() : null, searchResultsSet);
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
@@ -149,7 +167,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         searchResultsSet.setProductListItems(productListItems);
         searchResultsSet.setSearchAggregations(searchAggregations);
 
-        return searchResultsSet;
+        return new ImmutablePair<>(response.getData().getCategory(), searchResultsSet);
     }
 
     private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
@@ -227,13 +245,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private String generateQueryString(
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
-        final Consumer<ProductInterfaceQuery> productQueryHook, final SorterKey sorterKey) {
+        final Consumer<ProductInterfaceQuery> productQueryHook,
+        final AbstractCategoryRetriever categoryRetriever,
+        final SorterKey sorterKey) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
             .stream()
             .filter(field -> availableFilters.stream()
-                .filter(item -> item.getAttributeCode().equals(field.getKey())).findFirst().isPresent())
+                .anyMatch(item -> item.getAttributeCode().equals(field.getKey())))
             .forEach(filterCandidate -> {
                 String code = filterCandidate.getKey();
                 String value = filterCandidate.getValue();
@@ -305,6 +325,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .attributeCode()
                 .count()
                 .label());
+        if (categoryRetriever != null) {
+            Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateQueryArgs();
+            return Operations.query(query -> query
+                .products(searchArgs, queryArgs)
+                .category(categoryArgs.getLeft(), categoryArgs.getRight())).toString();
+        }
 
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }
@@ -371,7 +397,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         return products.stream()
             .map(converter)
-            .filter(p -> p != null) // the converter returns null if the conversion fails
+            .filter(Objects::nonNull) // the converter returns null if the conversion fails
             .collect(Collectors.toList());
     }
 

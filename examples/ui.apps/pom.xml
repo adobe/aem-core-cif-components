@@ -18,12 +18,11 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>core-cif-components-examples-apps</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Examples Application Package</name>
@@ -110,7 +109,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-                    <requiresRoot>true</requiresRoot>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
@@ -123,6 +121,11 @@
                             <group>adobe/cq60</group>
                             <name>core.wcm.components.examples.ui.apps</name>
                             <version>${core.wcm.components.library.version}</version>
+                        </dependency>
+                        <dependency>
+                            <group>${vault.package.group}</group>
+                            <name>core-cif-components-apps</name>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -203,6 +206,13 @@
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.examples.ui.apps</artifactId>
             <version>${core.wcm.components.library.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-apps</artifactId>
+            <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
