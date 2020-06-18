@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.services;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.sling.api.resource.ValueMap;
 
@@ -59,10 +58,7 @@ public final class ComponentsConfiguration {
      * @return a {@link ValueMap} object.
      */
     public ValueMap getValueMap() {
-        Map<String, Object> temp = new HashMap<>();
-        internalProperties.entrySet().forEach(
-            entry -> temp.put(entry.getKey(), entry.getValue()));
-        return new ValueMapDecorator(temp);
+        return new ValueMapDecorator(new HashMap<String, Object>(internalProperties));
     }
 
     /**
