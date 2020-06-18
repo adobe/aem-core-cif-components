@@ -22,19 +22,24 @@
     const actionsMultifieldItemSelector = '.coral3-Multifield-item';
     const actionsEnabledCheckboxSelector = 'coral-checkbox[name="./actionsEnabled"]';
 
+    // Listening for dialog windows to open
+    // The config inputs are available only when the right dialog opens
     $(document).on('dialog-loaded', e => {
         const $dialog = e.dialog;
+
+        // Checking if the dialog has the right selector for the teaser
         const $dialogContent = $dialog.find(dialogContentSelector);
         const dialogContent = $dialogContent.length > 0 ? $dialogContent[0] : undefined;
 
-        // check if the expected dialog was loaded
+        // check if the expected dialog window was loaded
         if (dialogContent) {
             const multiFieldActions = $dialogContent.find(actionsMultifieldSelector)[0];
 
-            // Handle pickers values change for existing actions
+            // Handle pickers values change for existing teaser actions
             handlePickersChange(multiFieldActions);
 
-            // Add change handler to multifield actions
+            // The user can add and delete actions on the teaser
+            // any time the user does this, event handlers need to be attached/reattached
             multiFieldActions.on('change', () => {
                 // whenever actions are being added/removed, reattach picker change handlers
                 handlePickersChange(multiFieldActions);
@@ -42,6 +47,7 @@
 
             // Fix Core WCM Components Teaser editor bug.
             // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
+            // this also enables/disables the category picker
             const $actionsEnabledCheckbox = $dialogContent.find(actionsEnabledCheckboxSelector);
             $actionsEnabledCheckbox.on('change', e => {
                 const actionsEnabled =
@@ -59,20 +65,30 @@
 
     // used to handle picker value changes and keep only one picker populated
     const handlePickersChange = multiFieldActions => {
+
+        // retrieve all teaser actions
         $(multiFieldActions)
             .find(actionsMultifieldItemSelector)
             .each((ix, action) => {
+                // each action contains a category and a product picker
+
+                // retrieve DOM elements for pickers
                 const productElement = $(action).find(productFieldSelector);
                 const categoryElement = $(action).find(categoryFieldSelector);
+
+                // adapt the pickers so we can read/update values
                 const productField = productElement.adaptTo('foundation-field');
                 const categoryField = categoryElement.adaptTo('foundation-field');
 
-                // remove attached handlers
+                // remove attached handlers (if any)
                 productElement.off('change', handleProductChange);
                 categoryElement.off('change', handleCategoryChange);
 
+                // create additional data to be sent to event handlers
+                // this contains the Granite UI adapted fields
                 const eventData = { productField, categoryField };
-                // [re]attach change handlers
+
+                // [re]attach change handlers with additional data
                 productElement.on('change', eventData, handleProductChange);
                 categoryElement.on('change', eventData, handleCategoryChange);
             });

@@ -92,7 +92,7 @@ public class UrlProviderImpl implements UrlProvider {
         String url = sub.replace(template);
         url = StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
 
-        if (url.contains("{{") || url.contains("${")) {
+        if (url.contains(prefix)) {
             LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
         }
 
