@@ -1,0 +1,52 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ 
+  ~ Copyright 2020 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~ 
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.sorting="${@ searchResultsSet}">
+    <div class="sort__fields">
+        <label>${'Sort by' @ i18n}
+            <select class="sort__key" data-sly-list.key="${searchResultsSet.sorter.keys}">
+                <option value="${request.requestURI @ query=key.currentOrderParameters}"
+                        data-sly-attribute.selected="${key.selected}">${key.label @ i18n}</option>
+            </select>
+        </label>
+        <a class="sort__order" title="${'Change Sort Order' @ i18n}"
+           href="${request.requestURI @ query=searchResultsSet.sorter.currentKey.oppositeOrderParameters}">
+            <svg data-sly-test.descending="${'DESC' == searchResultsSet.sorter.currentKey.order.name}"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 -3 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="5 12 12 19 19 12"></polyline>
+            </svg>
+            <svg data-sly-test="${!descending}"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 -3 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+        </a>
+    </div>
+</template>
