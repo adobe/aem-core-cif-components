@@ -43,6 +43,7 @@ import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductLis
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
@@ -111,6 +112,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             searchOptions.setPageSize(navPageSize);
             searchOptions.setAttributeFilters(searchFilters);
             searchOptions.setCategoryId(identifier.getRight());
+
+            // configure sorting
+            searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
+            searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
         }
     }
 
