@@ -66,21 +66,18 @@ const CartInitializer = props => {
 
     useEffect(() => {
         if (cartId && cartId.length > 0 && !stateCartId) {
-            console.log(`Put the cart id ${cartId} in the state.`);
             dispatch({ type: 'cartId', cartId, methods: createCartHandlers(cartId, dispatch) });
         }
     }, [cartId]);
 
     useEffect(() => {
         if (stateCartId && (!cartId || cartId.length === 0)) {
-            console.log(`Put the cart id in the cookie`);
             setCartCookie(stateCartId);
         }
     }, [stateCartId]);
 
     useEffect(() => {
         if (registeredCartId) {
-            console.log(`Running the effect with the registered cart id ${registeredCartId}`);
             setCartCookie(registeredCartId);
             dispatch({
                 type: 'cartId',

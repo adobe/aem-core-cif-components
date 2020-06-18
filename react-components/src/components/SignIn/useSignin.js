@@ -60,7 +60,6 @@ export const useSignin = () => {
             let mergedCartId;
 
             if (cartId) {
-                console.log(`We have a cart id already ${cartId}, let's merge...`);
                 mergedCartId = await mergeCarts({
                     mergeCartsMutation,
                     cartDetailsQuery,
@@ -69,10 +68,8 @@ export const useSignin = () => {
                     dispatch: cartDispatch
                 });
             } else {
-                console.log(`No cart id present, no need to merge anything.`);
                 mergedCartId = customerCartId;
             }
-            console.log(`Carts are merged, id is ${mergedCartId}`);
             //4. set the cart id in the cookie
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
