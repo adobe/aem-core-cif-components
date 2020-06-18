@@ -32,6 +32,7 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
 
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
@@ -62,6 +63,11 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchOptions.setPageSize(navPageSize);
         searchOptions.setAttributeFilters(searchFilters);
         searchOptions.setSearchQuery(searchTerm);
+
+        // configure sorting
+        searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.DESC);
+        searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
+        searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
