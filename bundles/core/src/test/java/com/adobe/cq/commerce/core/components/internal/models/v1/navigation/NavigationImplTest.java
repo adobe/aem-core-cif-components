@@ -25,7 +25,6 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +34,7 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
@@ -548,6 +548,8 @@ public class NavigationImplTest {
         if (!useCaConfig) {
             catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
         }
+        when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
+            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -558,10 +560,7 @@ public class NavigationImplTest {
         when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
 
         ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4));
-        ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
-        when(mockConfigBuilder.name(any(String.class))).thenReturn(mockConfigBuilder);
-        when(mockConfigBuilder.asValueMap()).thenReturn(configProperties);
 
-        when(catalogPage.adaptTo(ConfigurationBuilder.class)).thenReturn(mockConfigBuilder);
+        when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
     }
 }

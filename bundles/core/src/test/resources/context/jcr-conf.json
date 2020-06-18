@@ -10,6 +10,7 @@
             ],
             "cq:graphqlClient": "default",
             "magentoStore": "my-store",
+            "aTotallyUnrelatedProperty": "true",
             "jcr:createdBy": "admin",
             "jcr:created": "Thu Jan 16 2020 12:20:34 GMT+0200"
         }

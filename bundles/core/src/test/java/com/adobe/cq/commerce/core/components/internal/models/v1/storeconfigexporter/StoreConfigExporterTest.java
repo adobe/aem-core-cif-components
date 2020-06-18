@@ -14,29 +14,29 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
-import java.util.Collections;
-
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class StoreConfigExporterTest {
+
+    private static final ValueMap MOCK_CONFIGURATION = new com.adobe.cq.commerce.common.ValueMapDecorator(
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore",
+            "my-magento-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -47,41 +47,32 @@ public class StoreConfigExporterTest {
         return new AemContext(
             (AemContextCallback) context -> {
                 context.load().json(contentPath, "/content");
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> input.getValueMap().get("cq:conf", String.class) != null
+                        ? MOCK_CONFIGURATION_OBJECT
+                        : ComponentsConfiguration.EMPTY);
             },
             ResourceResolverType.JCR_MOCK);
     }
 
-    @Before
-    public void setup() {
-        Page page = mock(Page.class);
-        configurationBuilder = mock(ConfigurationBuilder.class, RETURNS_DEEP_STUBS);
-        when(configurationBuilder.name(any()).asValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.of("magentoStore",
-            "my-magento-store", "magentoGraphqlEndpoint", "/my/magento/graphql")));
-        when(page.adaptTo(ConfigurationBuilder.class)).thenReturn(configurationBuilder);
-
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-    }
-
     @Test
     public void testStoreView() {
+        setupWithPage("/content/pageH");
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
         Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewDefault() {
-        when(configurationBuilder.name(any()).asValueMap()).thenReturn(new ValueMapDecorator(
-            Collections.emptyMap()));
+        setupWithPage("/content/pageD");
 
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
         Assert.assertEquals("default", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testGraphqlEndpoint() {
+        setupWithPage("/content/pageH");
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
         Assert.assertEquals("/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
@@ -89,12 +80,15 @@ public class StoreConfigExporterTest {
 
     @Test
     public void testGraphqlEndpointDefault() {
-        when(configurationBuilder.name(any()).asValueMap()).thenReturn(new ValueMapDecorator(
-            Collections.emptyMap()));
-
+        setupWithPage("/content/pageD");
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
         Assert.assertEquals("/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
+    private void setupWithPage(String pagetPath) {
+        Page page = context.pageManager().getPage(pagetPath);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+    }
 }
