@@ -48,9 +48,9 @@ public class StoreConfigExporterTest {
             (AemContextCallback) context -> {
                 context.load().json(contentPath, "/content");
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) input -> input.getValueMap().get("cq:conf", String.class) != null ?
-                        MOCK_CONFIGURATION_OBJECT :
-                        ComponentsConfiguration.EMPTY);
+                    (Function<Resource, ComponentsConfiguration>) input -> input.getValueMap().get("cq:conf", String.class) != null
+                        ? MOCK_CONFIGURATION_OBJECT
+                        : ComponentsConfiguration.EMPTY);
             },
             ResourceResolverType.JCR_MOCK);
     }

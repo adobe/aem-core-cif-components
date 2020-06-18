@@ -18,8 +18,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.Model;
 
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;

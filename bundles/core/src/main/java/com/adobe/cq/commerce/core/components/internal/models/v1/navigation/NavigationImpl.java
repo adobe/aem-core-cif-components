@@ -174,7 +174,7 @@ public class NavigationImpl implements Navigation {
 
         Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
         if (rootCategoryId == null) {
-            ComponentsConfiguration properties = catalogPage.adaptTo(ComponentsConfiguration.class);
+            ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
             rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
         }
 
