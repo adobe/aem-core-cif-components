@@ -20,6 +20,7 @@ import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
@@ -46,7 +47,6 @@ import com.day.cq.wcm.api.WCMMode;
 public class PreviewServlet extends SlingSafeMethodsServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(PreviewServlet.class);
 
-    private static final String REFERER_HEADER = "Referer";
     private static final String PAGE_EDITOR_PATH = "editor.html";
     protected static final String PREVIEW_PRODUCT = "previewproduct";
     protected static final String PREVIEW_CATEGORY = "previewcategory";
@@ -86,7 +86,7 @@ public class PreviewServlet extends SlingSafeMethodsServlet {
     }
 
     private Page getRefererPage(SlingHttpServletRequest request) {
-        String referer = request.getHeader(REFERER_HEADER);
+        String referer = request.getHeader(HttpHeaders.REFERER);
         if (StringUtils.isBlank(referer) || !referer.contains(PAGE_EDITOR_PATH + "/")) {
             return null;
         }

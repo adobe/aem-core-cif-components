@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestPathInfo;
@@ -86,7 +87,7 @@ public class PreviewServletTest {
     @Test
     public void testReferer_invalidContext() throws IOException {
         // mock referer
-        when(request.getHeader("Referer")).thenReturn("/invalid/path");
+        when(request.getHeader(HttpHeaders.REFERER)).thenReturn("/invalid/path");
 
         // handle request
         servlet.doGet(request, response);
@@ -98,7 +99,7 @@ public class PreviewServletTest {
     @Test
     public void testReferer_invalidPage() throws IOException {
         // mock referer and page
-        when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/invalid/page.html");
+        when(request.getHeader(HttpHeaders.REFERER)).thenReturn("/editor.html/path/to/invalid/page.html");
         when(resourceResolver.getResource("/path/to/invalid/page")).thenReturn(null);
 
         // handle request
@@ -111,7 +112,7 @@ public class PreviewServletTest {
     @Test
     public void testPreviewProduct() throws IOException {
         // mock referer
-        when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/valid/product/page.html");
+        when(request.getHeader(HttpHeaders.REFERER)).thenReturn("/editor.html/path/to/valid/product/page.html");
 
         // mock selectors
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { "previewproduct" });
@@ -158,7 +159,7 @@ public class PreviewServletTest {
     @Test
     public void testPreviewCategory() throws IOException {
         // mock referer
-        when(request.getHeader("Referer")).thenReturn("/editor.html/path/to/valid/category/page.html");
+        when(request.getHeader(HttpHeaders.REFERER)).thenReturn("/editor.html/path/to/valid/category/page.html");
 
         // mock selectors
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { "previewcategory" });
