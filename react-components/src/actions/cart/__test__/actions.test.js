@@ -11,7 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { addItemToCart, getCartDetails, removeItemFromCart, mergeCarts, addCoupon, removeCoupon } from '../actions';
+import {
+    addItemToCart,
+    getCartDetails,
+    removeItemFromCart,
+    mergeCarts,
+    addCoupon,
+    removeCoupon,
+    updateCartItem
+} from '../actions';
 
 describe('Cart actions', () => {
     const addToCartMutation = jest.fn();
@@ -32,6 +40,8 @@ describe('Cart actions', () => {
     const addCouponMutation = jest.fn();
     const removeCouponMutation = jest.fn();
     const removeItemMutation = jest.fn();
+
+    const updateCartItemMutation = jest.fn();
 
     const dispatch = jest.fn();
 
@@ -127,6 +137,20 @@ describe('Cart actions', () => {
         await removeCoupon({ cartDetailsQuery, removeCouponMutation, couponCode, cartId, dispatch });
 
         expect(removeCouponMutation).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: cartId } });
+    });
+
+    it('update quantity in the cart', async () => {
+        const cartId = 'guest123';
+        const cartItemId = '1';
+        const itemQuantity = 2;
+
+        await updateCartItem({ cartDetailsQuery, updateCartItemMutation, cartId, cartItemId, itemQuantity, dispatch });
+        expect(updateCartItemMutation).toHaveBeenCalledTimes(1);
+        expect(updateCartItemMutation).toHaveBeenCalledWith({
+            variables: { cartId, cartItemId, quantity: itemQuantity }
+        });
+
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: cartId } });
     });
 });
