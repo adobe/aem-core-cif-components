@@ -30,7 +30,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -54,6 +57,7 @@ public class FeaturedCategoryListImplTest {
         "my-store"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
     private FeaturedCategoryListImpl slingModelConfigured;
     private FeaturedCategoryListImpl slingModelNotConfigured;
     private FeaturedCategoryListImpl slingModelBadId;
@@ -130,15 +134,15 @@ public class FeaturedCategoryListImplTest {
 
         // init bad category id sling model
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_BADID));
-        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         contextBadId.currentResource(resource);
         slingBindings = (SlingBindings) contextBadId.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
         slingBindings.put("currentPage", page);
-        when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         slingModelBadId = contextBadId.request().adaptTo(FeaturedCategoryListImpl.class);
 
         // init slingmodel with no graphql client
+        when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
         resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH_NOCLIENT));
         contextNotConfiguredClient.currentResource(resource);
         slingBindings = (SlingBindings) contextNotConfiguredClient.request().getAttribute(SlingBindings.class.getName());
@@ -188,12 +192,12 @@ public class FeaturedCategoryListImplTest {
 
     @Test
     public void verifyBadId() {
-        Assert.assertNotNull("The model is not null", slingModelBadId);
-        Assert.assertNotNull("The categories retriever is not null", slingModelBadId.getCategoriesRetriever());
-        Assert.assertTrue("The model is configured", slingModelBadId.isConfigured());
+        Assert.assertNotNull("Sling model is not null", slingModelBadId);
+        Assert.assertNotNull("Categories retriever is not null", slingModelBadId.getCategoriesRetriever());
+        Assert.assertTrue("The components is configured", slingModelBadId.isConfigured());
         categories = slingModelBadId.getCategories();
         Assert.assertNotNull("The categories list is not null", categories);
-        Assert.assertEquals("The categories list has 2 elements", 2, categories.size());
+        Assert.assertEquals("There are two categories in the list", 2, categories.size());
     }
 
     @Test
@@ -216,6 +220,9 @@ public class FeaturedCategoryListImplTest {
     private AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
             context.load().json(contentPath, "/content");
+            UrlProviderImpl urlProvider = new UrlProviderImpl();
+            urlProvider.activate(new MockUrlProviderConfiguration());
+            context.registerService(UrlProvider.class, urlProvider);
         }, ResourceResolverType.JCR_MOCK);
     }
 }
