@@ -65,7 +65,6 @@
 
     // used to handle picker value changes and keep only one picker populated
     const handlePickersChange = multiFieldActions => {
-
         // retrieve all teaser actions
         $(multiFieldActions)
             .find(actionsMultifieldItemSelector)
