@@ -185,6 +185,13 @@
       "cq:magentoStore": "old-store"
     }
   },
+  "pageH": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:conf": "/conf/testing"
+    }
+  },
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {

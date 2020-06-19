@@ -20,11 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -35,6 +34,7 @@ import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.granite.ui.components.ds.ValueMapResource;
 import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
@@ -63,7 +63,8 @@ public class MagentoGraphqlClient {
      * Instantiates and returns a new MagentoGraphqlClient.
      * This method returns <code>null</code> if the client cannot be instantiated.<br>
      * <br>
-     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)} so the page can be used
+     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)}
+     * so the page can be used
      * to adapt to the lower-level {@link GraphqlClient}, while the component resource can be used for caching purposes.
      *
      * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
@@ -96,12 +97,31 @@ public class MagentoGraphqlClient {
     }
 
     private MagentoGraphqlClient(Resource resource, Page page) {
+
         Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
-        graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
+
+        LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());
+
+        ComponentsConfiguration configuration = configurationResource.adaptTo(ComponentsConfiguration.class);
+        if (configuration.size() == 0) {
+            LOGGER.warn("Context configuration not found, attempt to read the configuration from the page");
+            graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
+        } else {
+            LOGGER.debug("Crafting a configuration resource and attempting to get a GraphQL client from it...");
+            // The Context-Aware Configuration API does return a ValueMap with all the collected properties from /conf and /libs,
+            // but if you ask it for a resource via ConfigurationResourceResolver#getConfigurationResource() you get the resource that
+            // resolves first (e.g. /conf/.../settings/cloudonfigs/commerce). This resource might not contain the properties
+            // we need to adapt it to a graphql client so we just craft our own resource using the value map provided above.
+            Resource configResource = new ValueMapResource(configurationResource.getResourceResolver(),
+                configurationResource.getPath(),
+                configurationResource.getResourceType(),
+                configuration.getValueMap());
+
+            graphqlClient = configResource.adaptTo(GraphqlClient.class);
+        }
         if (graphqlClient == null) {
             throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
         }
-
         requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
 
         CachingStrategy cachingStrategy = new CachingStrategy()
@@ -110,11 +130,9 @@ public class MagentoGraphqlClient {
         requestOptions.withCachingStrategy(cachingStrategy);
 
         String storeCode;
-        ConfigurationBuilder configBuilder = configurationResource.adaptTo(ConfigurationBuilder.class);
 
-        if (configBuilder != null) {
-            ValueMap properties = configBuilder.name(CONFIGURATION_NAME).asValueMap();
-            storeCode = properties.get(STORE_CODE_PROPERTY, String.class);
+        if (configuration.size() > 0) {
+            storeCode = configuration.get(STORE_CODE_PROPERTY, String.class);
             if (storeCode == null) {
                 storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
             }
