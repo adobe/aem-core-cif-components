@@ -46,9 +46,7 @@ i18n.use(Backend)
             order: ['htmlTag', 'path', 'subdomain'],
 
             lookupFromPathIndex: 1,
-            lookupFromSubdomainIndex: 0,
-
-            checkWhitelist: true
+            lookupFromSubdomainIndex: 0
         },
 
         backend: {
