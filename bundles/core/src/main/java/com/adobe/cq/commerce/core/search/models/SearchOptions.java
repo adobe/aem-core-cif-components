@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.search.models;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,11 +51,15 @@ public interface SearchOptions {
      * @param label the nonempty sort key label
      * @param preferredOrder preferred ordering for this sort key or null if not specified
      */
-    void addSorterKey(String name, String label, Sorter.Order preferredOrder);
+    default void addSorterKey(String name, String label, Sorter.Order preferredOrder) {
+        // empty
+    }
 
     /**
      * Returns the configured sort keys.
      * The first key is the default used for the initial sorting of search results.
      */
-    List<SorterKey> getSorterKeys();
+    default List<SorterKey> getSorterKeys() {
+        return Collections.emptyList();
+    }
 }

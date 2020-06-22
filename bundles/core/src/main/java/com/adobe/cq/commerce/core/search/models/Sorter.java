@@ -16,9 +16,12 @@ package com.adobe.cq.commerce.core.search.models;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * Provides sorting support for product search results and represents the data model for the product sorter UI.
  */
+@ProviderType
 public interface Sorter {
     /**
      * The sort key request parameter name.

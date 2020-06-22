@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.search.models;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +99,19 @@ public interface SearchResultsSet {
      * Returns the sorter model, responsible for handling the sorting of search results.
      */
     @Nonnull
-    Sorter getSorter();
+    default Sorter getSorter() {
+        return new Sorter() {
+            @Override
+            public List<SorterKey> getKeys() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public SorterKey getCurrentKey() {
+                return null;
+            }
+        };
+    }
 
     /**
      * @return {@code true} if the result set provides search aggregations for faceted search support, {@code false} otherwise
@@ -113,5 +126,7 @@ public interface SearchResultsSet {
     /**
      * @return {@code true} if the result set provides support for sorting of the results, {@code false} otherwise
      */
-    boolean hasSorting();
+    default boolean hasSorting() {
+        return false;
+    }
 }

@@ -16,9 +16,12 @@ package com.adobe.cq.commerce.core.search.models;
 
 import java.util.Map;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * Represents a sort key with sort order in the data model of product sorter UI.
  */
+@ProviderType
 public interface SorterKey {
     /**
      * Returns the sort key.
