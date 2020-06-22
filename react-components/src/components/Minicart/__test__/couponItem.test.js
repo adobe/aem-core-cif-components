@@ -13,6 +13,8 @@
  ******************************************************************************/
 
 import React from 'react';
+import { MockedProvider } from '@apollo/react-testing';
+
 import { render, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 
@@ -32,35 +34,13 @@ describe('<CouponItem />', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                    <CouponItem />
-                </CartProvider>
+                <MockedProvider mocks={[]}>
+                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                        <CouponItem />
+                    </CartProvider>
+                </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
-    });
-
-    it('removes a coupon', () => {
-        const mockFn = jest.fn();
-
-        const initialState = {
-            removeCoupon: mockFn,
-            cart: {
-                applied_coupon: {
-                    code: 'my-sample-coupon'
-                }
-            }
-        };
-
-        const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                    <CouponItem />
-                </CartProvider>
-            </I18nextProvider>
-        );
-
-        fireEvent.mouseDown(getByText('Remove coupon'));
-        expect(mockFn.mock.calls.length).toEqual(1);
     });
 });

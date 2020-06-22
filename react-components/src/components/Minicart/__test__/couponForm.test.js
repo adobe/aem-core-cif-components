@@ -13,8 +13,11 @@
  ******************************************************************************/
 
 import React from 'react';
+import { MockedProvider } from '@apollo/react-testing';
 import { render, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
+
+import MUTATION_ADD_COUPON from '../../../queries/mutation_add_coupon.graphql';
 
 import { CartProvider } from '../cartContext';
 import CouponForm from '../couponForm';
@@ -24,9 +27,11 @@ describe('<CouponForm />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                    <CouponForm />
-                </CartProvider>
+                <MockedProvider mocks={[]}>
+                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                        <CouponForm />
+                    </CartProvider>
+                </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -39,37 +44,13 @@ describe('<CouponForm />', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                    <CouponForm />
-                </CartProvider>
+                <MockedProvider mocks={[]}>
+                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                        <CouponForm />
+                    </CartProvider>
+                </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
-    });
-
-    it('applies an coupon', () => {
-        const mockFn = jest.fn();
-
-        const initialState = {
-            addCoupon: mockFn
-        };
-
-        const { getByText, getByPlaceholderText } = render(
-            <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                    <CouponForm />
-                </CartProvider>
-            </I18nextProvider>
-        );
-
-        // Add coupon to input
-        fireEvent.change(getByPlaceholderText('Enter your code'), { target: { value: 'my-coupon' } });
-
-        // Click on button
-        fireEvent.click(getByText('Apply Coupon'));
-
-        // Expect mock function to be called with coupon
-        expect(mockFn.mock.calls.length).toEqual(1);
-        expect(mockFn.mock.calls[0][0]).toBe('my-coupon');
     });
 });
