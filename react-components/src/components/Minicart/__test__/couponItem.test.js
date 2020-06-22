@@ -21,6 +21,14 @@ import { I18nextProvider } from 'react-i18next';
 import { CartProvider } from '../cartContext';
 import CouponItem from '../couponItem';
 import i18n from '../../../../__mocks__/i18nForTests';
+import useCouponItem from '../useCouponItem';
+
+const mockRemoveCouponFromCart = jest.fn();
+jest.mock('../useCouponItem.js', () => {
+    return jest.fn().mockImplementation(() => {
+        return [{ appliedCoupon: 'my-sample-coupon' }, { removeCouponFromCart: mockRemoveCouponFromCart }];
+    });
+});
 
 describe('<CouponItem />', () => {
     it('renders the component', () => {
@@ -42,5 +50,28 @@ describe('<CouponItem />', () => {
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('calls the appropriate function to remove the coupon', () => {
+        const initialState = {
+            cart: {
+                applied_coupon: {
+                    code: 'my-sample-coupon'
+                }
+            }
+        };
+
+        const { getByText } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider mocks={[]}>
+                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                        <CouponItem />
+                    </CartProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        fireEvent.mouseDown(getByText('Remove coupon'));
+
+        expect(mockRemoveCouponFromCart).toHaveBeenCalledTimes(1);
     });
 });
