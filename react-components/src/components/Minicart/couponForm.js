@@ -14,17 +14,17 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../Button';
-import { useCartState } from './cartContext';
 
 import classes from './couponForm.css';
+import useCouponForm from './useCouponForm';
 
 const CouponForm = () => {
-    const [{ addCoupon, couponError }] = useCartState();
+    const [{ couponError }, { addCouponToCart }] = useCouponForm();
     const [couponCode, setCouponCode] = useState('');
     const [t] = useTranslation('cart');
 
     const addCouponHandler = () => {
-        return addCoupon(couponCode);
+        return addCouponToCart(couponCode);
     };
 
     const errorFragment = couponError ? <div className={classes.error}>{couponError}</div> : '';
