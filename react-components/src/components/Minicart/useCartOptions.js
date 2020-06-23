@@ -11,30 +11,28 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useCartState } from './cartContext';
+import { updateCartItem } from '../../actions/cart';
 
-import Kebab from './kebab';
-import Section from './section';
+const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
+    const [{ editItem, cartId }, dispatch] = useCartState();
 
-import classes from './couponItem.css';
-import useCouponItem from './useCouponItem';
+    const updateCart = async newQuantity => {
+        dispatch({ type: 'beginLoading' });
+        await updateCartItem({
+            cartDetailsQuery,
+            updateCartItemMutation,
+            cartId,
+            cartItemId: editItem.id,
+            itemQuantity: newQuantity,
+            dispatch
+        });
+        dispatch({ type: 'endLoading' });
+    };
 
-const CouponItem = () => {
-    const [{ appliedCoupon }, { removeCouponFromCart }] = useCouponItem();
-
-    const [t] = useTranslation('cart');
-
-    return (
-        <div className={classes.root}>
-            <div className={classes.couponName}>
-                Coupon <strong>{appliedCoupon}</strong> applied.
-            </div>
-            <Kebab>
-                <Section text={t('cart:remove-coupon', 'Remove coupon')} onClick={removeCouponFromCart} icon="Trash" />
-            </Kebab>
-        </div>
-    );
+    const data = { editItem, cartId };
+    const api = { dispatch, updateCartItem: updateCart };
+    return [data, api];
 };
 
-export default CouponItem;
+export default useCartOptions;

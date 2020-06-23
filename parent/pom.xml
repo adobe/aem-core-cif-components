@@ -105,7 +105,7 @@
 
         <slf4j.version>1.7.6</slf4j.version>
         <jacoco.version>0.7.9</jacoco.version>
-        <graphql.client.version>1.5.0</graphql.client.version>
+        <graphql.client.version>1.6.0</graphql.client.version>
         <magento.graphql.version>5.1.0-magento234</magento.graphql.version>
 
         <core.wcm.components.version>2.7.0</core.wcm.components.version>
@@ -654,7 +654,7 @@
                 <plugin>
                     <groupId>net.revelc.code</groupId>
                     <artifactId>impsort-maven-plugin</artifactId>
-                    <version>1.2.0</version>
+                    <version>1.4.1</version>
                     <configuration>
                         <groups>java, javax, org</groups>
                         <staticGroups>*</staticGroups>
@@ -754,7 +754,7 @@
                     <plugin>
                         <groupId>net.revelc.code</groupId>
                         <artifactId>impsort-maven-plugin</artifactId>
-                        <version>1.2.0</version>
+                        <version>1.4.1</version>
                         <configuration>
                             <groups>java, javax, org</groups>
                             <staticGroups>*</staticGroups>

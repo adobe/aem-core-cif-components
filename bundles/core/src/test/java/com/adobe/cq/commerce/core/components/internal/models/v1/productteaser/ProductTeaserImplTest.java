@@ -20,6 +20,7 @@ import java.util.Currency;
 import java.util.Locale;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -27,8 +28,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -41,6 +44,8 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -48,6 +53,11 @@ public class ProductTeaserImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
@@ -85,7 +95,9 @@ public class ProductTeaserImplTest {
         product = rootQuery.getProducts().getItems().get(0);
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
-        Mockito.when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -189,9 +201,11 @@ public class ProductTeaserImplTest {
         Page page = context.currentPage(PAGE);
         context.currentResource(PRODUCTTEASER_VIRTUAL);
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
+        Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
-        Mockito.when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);

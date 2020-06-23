@@ -20,11 +20,13 @@ import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -40,14 +42,18 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -64,6 +70,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -78,6 +85,11 @@ public class ProductListImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -126,15 +138,19 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
-        when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
-        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
+        Function<Resource, ComponentsConfiguration> adapter = r -> r.getPath().equals(PAGE) ? MOCK_CONFIGURATION_OBJECT
+            : ComponentsConfiguration.EMPTY;
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
@@ -293,5 +309,47 @@ public class ProductListImplTest {
             }
         }
         Assert.assertTrue(productsQuery.contains("created_at,stock_status"));
+    }
+
+    @Test
+    public void testSorting() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        SearchResultsSet resultSet = productListModel.getSearchResultsSet();
+        Assert.assertNotNull(resultSet);
+        Assert.assertTrue(resultSet.hasSorting());
+        Sorter sorter = resultSet.getSorter();
+        Assert.assertNotNull(sorter);
+
+        SorterKey currentKey = sorter.getCurrentKey();
+        Assert.assertNotNull(currentKey);
+        Assert.assertEquals("price", currentKey.getName());
+        Assert.assertEquals("Price", currentKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, currentKey.getOrder());
+        Assert.assertTrue(currentKey.isSelected());
+
+        Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
+        Assert.assertNotNull(currentOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("asc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
+        Assert.assertNotNull(oppositeOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        Assert.assertEquals("price", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("desc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        List<SorterKey> keys = sorter.getKeys();
+        Assert.assertNotNull(keys);
+        Assert.assertEquals(2, keys.size());
+        SorterKey defaultKey = keys.get(0);
+        Assert.assertEquals(currentKey.getName(), defaultKey.getName());
+
+        SorterKey otherKey = keys.get(1);
+        Assert.assertEquals("name", otherKey.getName());
+        Assert.assertEquals("Product Name", otherKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
     }
 }
