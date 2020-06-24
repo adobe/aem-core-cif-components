@@ -20,13 +20,7 @@ const LoadingIndicator = props => {
 
     return (
         <div className={className}>
-            <img
-                className={classes.indicator}
-                src="/conf/venia/settings/wcm/templates/product-page/structure/_jcr_content/root/header/logo.svg"
-                width="64"
-                height="64"
-                alt="Loading indicator"
-            />
+            <span className={`${classes.indicator} loader-img`}></span>
             <span className={classes.message}>{props.children}</span>
         </div>
     );
