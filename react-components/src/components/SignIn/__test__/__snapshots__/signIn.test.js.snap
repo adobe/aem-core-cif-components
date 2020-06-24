@@ -99,38 +99,38 @@ exports[`<SignIn> renders the component 1`] = `
           </span>
         </button>
       </div>
-      <div
-        class="forgotPasswordButton"
-      >
-        <button
-          class="root_lowPriority"
-          type="button"
-        >
-          <span
-            class="content"
-          >
-            Forgot Password?
-          </span>
-        </button>
-      </div>
-      <div
-        class="signInDivider"
-      />
-      <div
-        class="createAccountButton"
-      >
-        <button
-          class="root_normalPriority"
-          type="button"
-        >
-          <span
-            class="content"
-          >
-            Create an Account
-          </span>
-        </button>
-      </div>
     </form>
+    <div
+      class="forgotPasswordButton"
+    >
+      <button
+        class="root_lowPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Forgot Password?
+        </span>
+      </button>
+    </div>
+    <div
+      class="signInDivider"
+    />
+    <div
+      class="createAccountButton"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Create an Account
+        </span>
+      </button>
+    </div>
   </div>
 </DocumentFragment>
 `;
