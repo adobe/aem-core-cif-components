@@ -23,18 +23,18 @@ import makeUrl from '../../utils/makeUrl';
 import Kebab from './kebab';
 import Section from './section';
 
-import { useCartState } from './cartContext';
+import useProduct from './useProduct';
 
 const imageWidth = 80;
 const imageHeight = 100;
 
 const Product = props => {
     const { item } = props;
-    const [{ removeItem }, dispatch] = useCartState();
     const [t] = useTranslation('cart');
 
     const { product = {}, quantity = 0, id = '', prices } = item;
     const { thumbnail, name } = product;
+    const [, { removeItem, editItem }] = useProduct({ item });
 
     let { price, row_total } = prices;
 
@@ -69,13 +69,7 @@ const Product = props => {
                 </div>
             </div>
             <Kebab>
-                <Section
-                    text={t('cart:edit-item', 'Edit item')}
-                    onClick={() => {
-                        dispatch({ type: 'beginEditing', item: item });
-                    }}
-                    icon="Edit2"
-                />
+                <Section text={t('cart:edit-item', 'Edit item')} onClick={editItem} icon="Edit2" />
                 <Section text={t('cart:remove-item', 'Remove item')} onClick={handleRemoveItem} icon="Trash" />
             </Kebab>
         </li>

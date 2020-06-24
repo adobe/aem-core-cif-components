@@ -14,17 +14,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useCartState } from './cartContext';
 import Kebab from './kebab';
 import Section from './section';
 
 import classes from './couponItem.css';
+import useCouponItem from './useCouponItem';
 
 const CouponItem = () => {
-    const [{ cart, removeCoupon }] = useCartState();
-    const [t] = useTranslation('cart');
+    const [{ appliedCoupon }, { removeCouponFromCart }] = useCouponItem();
 
-    const appliedCoupon = cart.applied_coupon ? cart.applied_coupon.code : null;
+    const [t] = useTranslation('cart');
 
     return (
         <div className={classes.root}>
@@ -32,7 +31,7 @@ const CouponItem = () => {
                 Coupon <strong>{appliedCoupon}</strong> applied.
             </div>
             <Kebab>
-                <Section text={t('cart:remove-coupon', 'Remove coupon')} onClick={removeCoupon} icon="Trash" />
+                <Section text={t('cart:remove-coupon', 'Remove coupon')} onClick={removeCouponFromCart} icon="Trash" />
             </Kebab>
         </div>
     );
