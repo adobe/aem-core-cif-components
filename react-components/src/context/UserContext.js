@@ -95,6 +95,11 @@ const reducerFactory = () => {
                     },
                     cartId: ''
                 };
+            case 'toggleAccountDropdown':
+                return {
+                    ...state,
+                    isAccountDropdownOpen: action.toggle
+                };
             default:
                 return state;
         }
@@ -114,6 +119,7 @@ const UserContextProvider = props => {
         },
         token: userCookie,
         isSignedIn: isSignedIn(),
+        isAccountDropdownOpen: false,
         signInError: null,
         inProgress: false,
         createAccountError: null,

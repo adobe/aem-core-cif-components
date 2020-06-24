@@ -42,4 +42,11 @@ public interface Header {
      */
     @Nullable
     Resource getSearchbarResource();
+
+    /**
+     * @return the {@link Resource} representing the "account" component, or <code>null</code> if there is no child resource with the name
+     *         <code>account</code>
+     */
+    @Nullable
+    Resource getAccountResource();
 }

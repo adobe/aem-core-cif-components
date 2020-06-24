@@ -1,0 +1,25 @@
+.form {
+    display: grid;
+    row-gap: 1rem;
+}
+
+.signInError {
+    background-color: rgb(var(--venia-grey));
+    border-radius: 4px;
+    color: rgb(var(--venia-error));
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 1rem;
+}
+
+.signInError:empty {
+    display: none;
+}
+
+.signInButton {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    margin-top: 1rem;
+}

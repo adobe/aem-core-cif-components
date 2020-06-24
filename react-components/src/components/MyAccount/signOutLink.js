@@ -12,26 +12,31 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { CommerceApp, Cart, AuthBar, Account } from '@adobe/aem-core-cif-react-components';
-import { I18nextProvider } from 'react-i18next';
+import { LogOut as SignOutIcon } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 
-import i18n from './i18n';
+import AccountLink from './accountLink';
 
-const App = () => {
-    const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
+import { useUserContext } from '../../context/UserContext';
+import { useCartState } from '../Minicart/cartContext';
+
+const SignOutLink = () => {
+    const [, { signOut }] = useUserContext();
+    const [, dispatch] = useCartState();
+
+    const handleSignOut = () => {
+        dispatch({ type: 'reset' });
+        signOut();
+    };
+
+    const [t] = useTranslation('account');
+
     return (
-        <I18nextProvider i18n={i18n} defaultNS="common">
-            <CommerceApp uri={graphqlEndpoint} storeView={storeView}>
-                <Cart />
-                <AuthBar />
-                <Account />
-            </CommerceApp>
-        </I18nextProvider>
+        <AccountLink onClick={handleSignOut}>
+            <SignOutIcon size={18} />
+            {t('account:sign-out', 'Sign Out')}
+        </AccountLink>
     );
 };
 
-window.onload = function() {
-    const element = document.getElementById('minicart');
-    ReactDOM.render(<App />, element);
-};
+export default SignOutLink;
