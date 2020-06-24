@@ -12,29 +12,22 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { LogOut as SignOutIcon, Lock as PasswordIcon } from 'react-feather';
+import { Lock as PasswordIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 import AccountLink from './accountLink';
 import LoadingIndicator from '../LoadingIndicator';
+import SignOutLink from './signOutLink';
 
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
-import { useCartState } from '../Minicart/cartContext';
 
 import { func } from 'prop-types';
 
 const MyAccount = props => {
     const { showMenu, showChangePassword } = props;
-    const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
-    const [, dispatch] = useCartState();
-
+    const [{ currentUser, isSignedIn, inProgress }] = useUserContext();
     const [t] = useTranslation('account');
-
-    const handleSignOut = () => {
-        dispatch({ type: 'reset' });
-        signOut();
-    };
 
     if (inProgress) {
         return (
@@ -59,10 +52,7 @@ const MyAccount = props => {
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
                 </AccountLink>
-                <AccountLink onClick={handleSignOut}>
-                    <SignOutIcon size={18} />
-                    {t('account:sign-out', 'Sign Out')}
-                </AccountLink>
+                <SignOutLink />
             </div>
         </div>
     );

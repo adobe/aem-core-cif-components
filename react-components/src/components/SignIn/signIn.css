@@ -12,11 +12,6 @@
     font-size: 0.8rem;
 }
 
-.form {
-    display: grid;
-    row-gap: 1rem;
-}
-
 .modal {
     visibility: hidden;
     height: 100%;
@@ -34,16 +29,11 @@
 }
 
 .createAccountButton,
-.forgotPasswordButton,
-.signInButton {
+.forgotPasswordButton {
     align-items: center;
     display: flex;
     justify-content: center;
     text-align: center;
-}
-
-.signInButton {
-    margin-top: 1rem;
 }
 
 .signInDivider {
@@ -51,17 +41,4 @@
     border-style: solid;
     border-width: 0 0 1px;
     margin: 1.5rem 1rem;
-}
-
-.signInError {
-    background-color: rgb(var(--venia-grey));
-    border-radius: 4px;
-    color: rgb(var(--venia-error));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    padding: 1rem;
-}
-
-.signInError:empty {
-    display: none;
 }
