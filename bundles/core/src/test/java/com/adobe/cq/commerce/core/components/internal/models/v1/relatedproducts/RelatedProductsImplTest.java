@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -33,7 +34,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.common.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
