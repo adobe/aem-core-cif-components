@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { LogOut as SignOutIcon, Lock as PasswordIcon } from 'react-feather';
+import { LogOut as SignOutIcon, Lock as PasswordIcon, List as OrdersIcon} from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 import AccountLink from './accountLink';
@@ -25,7 +25,7 @@ import { useCartState } from '../Minicart/cartContext';
 import { func } from 'prop-types';
 
 const MyAccount = props => {
-    const { showMenu, showChangePassword } = props;
+    const { showMenu, showChangePassword, showCustomerOrders } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
     const [, dispatch] = useCartState();
 
@@ -59,6 +59,10 @@ const MyAccount = props => {
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
                 </AccountLink>
+                <AccountLink onClick={showCustomerOrders}>
+                    <OrdersIcon size={18} />
+                    {t('account:customer-orders', 'Orders')}
+                </AccountLink>
                 <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />
                     {t('account:sign-out', 'Sign Out')}
@@ -70,7 +74,8 @@ const MyAccount = props => {
 
 MyAccount.propTypes = {
     showMenu: func.isRequired,
-    showChangePassword: func.isRequired
+    showChangePassword: func.isRequired,
+    showCustomerOrders: func.isRequired
 };
 
 export default MyAccount;

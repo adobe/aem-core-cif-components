@@ -25,5 +25,10 @@
   "password-was-changed": "Your password was changed.",
   "account-created-title": "Your account was successfully created",
   "email-confirmation-info": "You will receive a link at <1>{{email}}</1>. Access that link to confirm your email address.",
-  "account-created": "Account created"
+  "account-created": "Account created",
+  "customer-orders": "Orders",
+  "customer-order-number": "Order #",
+  "customer-order-created-at": "Date",
+  "customer-order-grand-total": "Total",
+  "customer-order-status": "Status"
 }

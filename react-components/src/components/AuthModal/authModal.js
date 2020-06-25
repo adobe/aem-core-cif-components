@@ -18,6 +18,7 @@ import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
+import CustomerOrders from '../CustomerOrders';
 import { useNavigationContext } from '../../context/NavigationContext';
 
 import classes from './authModal.css';
@@ -25,7 +26,7 @@ import classes from './authModal.css';
 const AuthModal = () => {
     const [
         { view },
-        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
+        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount, showCustomerOrders }
     ] = useNavigationContext();
 
     let child;
@@ -41,10 +42,13 @@ const AuthModal = () => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} showCustomerOrders={showCustomerOrders} />;
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} />;
+            break;
+        case 'CUSTOMER_ORDERS':
+            child = <CustomerOrders showMyAccount={showMyAccount} />;
             break;
         case 'FORGOT_PASSWORD':
             child = <ForgotPassword onClose={showMenu} />;

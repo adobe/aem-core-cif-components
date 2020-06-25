@@ -25,6 +25,7 @@ const ancestors = {
     ACCOUNT_CREATED: 'MENU',
     MY_ACCOUNT: 'MENU',
     CHANGE_PASSWORD: 'MY_ACCOUNT',
+    CUSTOMER_ORDERS: 'MY_ACCOUNT',
     SIGN_IN: 'MENU',
     MENU: null
 };
@@ -63,6 +64,8 @@ const NavigationContextProvider = props => {
 
     const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
 
+    const showCustomerOrders = () => NavigationActions.showCustomerOrders({ dispatch, t });
+
     const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, t });
 
     const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
@@ -98,6 +101,7 @@ const NavigationContextProvider = props => {
             showMenu,
             showMyAccount,
             showChangePassword,
+            showCustomerOrders,
             showForgotPassword,
             showCreateAccount,
             showAccountCreated

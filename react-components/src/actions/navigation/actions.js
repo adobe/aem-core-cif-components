@@ -42,6 +42,7 @@ const stepTitles = {
     CREATE_ACCOUNT: t => t('account:create-account', 'Create account'),
     FORGOT_PASSWORD: t => t('account:password-recovery', 'Password recovery'),
     CHANGE_PASSWORD: t => t('account:change-password', 'Change Password'),
+    CUSTOMER_ORDERS: t => t('account:customer-orders', 'Customer Orders'),
     MY_ACCOUNT: t => t('account:my-account', 'My account'),
     ACCOUNT_CREATED: t => t('account:account-created', 'Account created'),
     SIGN_IN: t => t('account:sign-in', 'Sign In')
@@ -68,6 +69,13 @@ export const showMyAccount = ({ dispatch, t }) => {
 
 export const showChangePassword = ({ dispatch, t }) => {
     const view = 'CHANGE_PASSWORD';
+    dispatchEvent(startAccMgEvent);
+    dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
+    dispatch({ type: 'changeView', view });
+};
+
+export const showCustomerOrders = ({ dispatch, t }) => {
+    const view = 'CUSTOMER_ORDERS';
     dispatchEvent(startAccMgEvent);
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
     dispatch({ type: 'changeView', view });
