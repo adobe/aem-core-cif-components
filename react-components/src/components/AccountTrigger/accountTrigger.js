@@ -14,11 +14,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-
-import Icon from '../Icon';
 import { User as UserIcon } from 'react-feather';
-import classes from './accountTrigger.css';
+
 import { useUserContext } from '../../context/UserContext';
+import Icon from '../Icon';
+import AccountIconText from '../AccountIconText';
+
+import classes from './accountTrigger.css';
 
 const parentEl = document.querySelector('.header__accountTrigger');
 
@@ -36,6 +38,7 @@ const AccountTrigger = () => {
             aria-label="Toggle account dropdown"
             onClick={() => dispatch({ type: 'toggleAccountDropdown', toggle: !isAccountDropdownOpen })}>
             <Icon src={UserIcon} attrs={svgAttributes} />
+            <AccountIconText />
         </button>
     );
 
