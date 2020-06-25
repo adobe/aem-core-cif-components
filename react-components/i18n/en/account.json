@@ -27,5 +27,5 @@
   "email-confirmation-info": "You will receive a link at <1>{{email}}</1>. Access that link to confirm your email address.",
   "account-created": "Account created",
   "account-icon-text-sign-in": "Sign In",
-  "account-icon-text-greeting": "Hi, {{name}}"
+  "account-icon-text-greeting": "Hi, <1>{{name}}</1>"
 }
