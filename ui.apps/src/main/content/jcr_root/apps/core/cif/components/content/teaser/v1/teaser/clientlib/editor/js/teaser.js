@@ -12,98 +12,128 @@
  *
  ******************************************************************************/
 
-($ => {
-    'use strict';
+class TeaserConfig {
+    constructor(jQuery) {
+        this.$ = jQuery;
+        this.handleDialogLoaded = this.handleDialogLoaded.bind(this);
+        this.attachEventHandlers = this.attachEventHandlers.bind(this);
+        this.actionsToggleHandler = this.actionsToggleHandler.bind(this);
+        this.handlePickersChange = this.handlePickersChange.bind(this);
+        this.handleProductChange = this.handleProductChange.bind(this);
+        this.handleCategoryChange = this.handleCategoryChange.bind(this);
 
-    const dialogContentSelector = '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor';
-    const productFieldSelector = '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Product"]';
-    const categoryFieldSelector = '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Category"]';
-    const actionsMultifieldSelector = '.cmp-teaser__editor-multifield_actions';
-    const actionsMultifieldItemSelector = '.coral3-Multifield-item';
-    const actionsEnabledCheckboxSelector = 'coral-checkbox[name="./actionsEnabled"]';
+        // Listening for dialog windows to open
+        // The config inputs are available only when the right dialog opens
+        this.$(document).on('dialog-loaded', this.handleDialogLoaded);
+    }
 
-    // Listening for dialog windows to open
-    // The config inputs are available only when the right dialog opens
-    $(document).on('dialog-loaded', e => {
-        const $dialog = e.dialog;
+    handleDialogLoaded(e) {
+        const dialog = e.dialog[0];
 
         // Checking if the dialog has the right selector for the teaser
-        const $dialogContent = $dialog.find(dialogContentSelector);
-        const dialogContent = $dialogContent.length > 0 ? $dialogContent[0] : undefined;
-
-        // check if the expected dialog window was loaded
+        const dialogContent = dialog.querySelector(TeaserConfig.selectors.dialogContentSelector);
         if (dialogContent) {
-            const multiFieldActions = $dialogContent.find(actionsMultifieldSelector)[0];
+            const multiFieldActions = dialogContent.querySelector(TeaserConfig.selectors.actionsMultifieldSelector);
+            this.attachEventHandlers(multiFieldActions);
 
-            // Handle pickers values change for existing teaser actions
-            handlePickersChange(multiFieldActions);
-
-            // The user can add and delete actions on the teaser
-            // any time the user does this, event handlers need to be attached/reattached
-            multiFieldActions.on('change', () => {
-                // whenever actions are being added/removed, reattach picker change handlers
-                handlePickersChange(multiFieldActions);
-            });
-
-            // Fix Core WCM Components Teaser editor bug.
-            // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
-            // this also enables/disables the category picker
-            const $actionsEnabledCheckbox = $dialogContent.find(actionsEnabledCheckboxSelector);
-            $actionsEnabledCheckbox.on('change', e => {
-                const actionsEnabled =
-                    $(e.target)
-                        .adaptTo('foundation-field')
-                        .getValue() === 'true';
-                $(categoryFieldSelector).each((ix, catEl) => {
-                    $(catEl)
-                        .adaptTo('foundation-field')
-                        .setDisabled(!actionsEnabled);
-                });
-            });
+            const actionsEnabledCheckbox = dialogContent.querySelector(
+                TeaserConfig.selectors.actionsEnabledCheckboxSelector
+            );
+            this.actionsToggleHandler(actionsEnabledCheckbox);
         }
-    });
+    }
+
+    attachEventHandlers(multiFieldActions) {
+        // Handle pickers values change for existing teaser actions
+        this.handlePickersChange(multiFieldActions);
+
+        // The user can add and delete actions on the teaser
+        // any time the user does this, event handlers need to be attached/reattached
+        this.$(multiFieldActions).on('change', () => {
+            // whenever actions are being added/removed, reattach picker change handlers
+            this.handlePickersChange(multiFieldActions);
+        });
+    }
+
+    // Fix Core WCM Components Teaser editor bug.
+    // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
+    // this also enables/disables the category picker
+    actionsToggleHandler(actionsEnabledCheckbox) {
+        this.$(actionsEnabledCheckbox).on('change', e => {
+            const actionsEnabled =
+                this.$(e.target)
+                    .adaptTo('foundation-field')
+                    .getValue() === 'true';
+            document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
+                this.$(catEl)
+                    .adaptTo('foundation-field')
+                    .setDisabled(!actionsEnabled);
+            });
+        });
+    }
 
     // used to handle picker value changes and keep only one picker populated
-    const handlePickersChange = multiFieldActions => {
+    handlePickersChange(multiFieldActions) {
         // retrieve all teaser actions
-        $(multiFieldActions)
-            .find(actionsMultifieldItemSelector)
-            .each((ix, action) => {
-                // each action contains a category and a product picker
+        multiFieldActions.querySelectorAll(TeaserConfig.selectors.actionsMultifieldItemSelector).forEach(action => {
+            // each action contains a category and a product picker
+            // retrieve DOM elements for pickers
+            const productElement = this.$(action.querySelector(TeaserConfig.selectors.productFieldSelector));
+            const categoryElement = this.$(action.querySelector(TeaserConfig.selectors.categoryFieldSelector));
 
-                // retrieve DOM elements for pickers
-                const productElement = $(action).find(productFieldSelector);
-                const categoryElement = $(action).find(categoryFieldSelector);
+            // adapt the pickers so we can read/update values
+            const productField = productElement.adaptTo('foundation-field');
+            const categoryField = categoryElement.adaptTo('foundation-field');
 
-                // adapt the pickers so we can read/update values
-                const productField = productElement.adaptTo('foundation-field');
-                const categoryField = categoryElement.adaptTo('foundation-field');
+            // remove attached handlers (if any)
+            productElement.off('change', this.handleProductChange);
+            categoryElement.off('change', this.handleCategoryChange);
 
-                // remove attached handlers (if any)
-                productElement.off('change', handleProductChange);
-                categoryElement.off('change', handleCategoryChange);
+            // create additional data to be sent to event handlers
+            // this contains the Granite UI adapted fields
+            const eventData = { productField, categoryField };
 
-                // create additional data to be sent to event handlers
-                // this contains the Granite UI adapted fields
-                const eventData = { productField, categoryField };
-
-                // [re]attach change handlers with additional data
-                productElement.on('change', eventData, handleProductChange);
-                categoryElement.on('change', eventData, handleCategoryChange);
-            });
-    };
+            // [re]attach change handlers with additional data
+            productElement.on('change', eventData, this.handleProductChange);
+            categoryElement.on('change', eventData, this.handleCategoryChange);
+        });
+    }
 
     // sets an empty value on the category field when product field gets updated
-    const handleProductChange = ({ data: { productField, categoryField } }) => {
+    handleProductChange({ data: { productField, categoryField } }) {
         if (productField.getValue() !== '') {
             categoryField.setValue('');
         }
-    };
+    }
 
     // sets an empty value on the product field when category field gets updated
-    const handleCategoryChange = ({ data: { productField, categoryField } }) => {
+    handleCategoryChange({ data: { productField, categoryField } }) {
         if (categoryField.getValue() !== '') {
             productField.setValue('');
         }
-    };
-})(jQuery);
+    }
+}
+
+TeaserConfig.selectors = {
+    dialogContentSelector: '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor',
+    productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Product"]',
+    categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Category"]',
+    actionsMultifieldSelector: '.cmp-teaser__editor-multifield_actions',
+    actionsMultifieldItemSelector: 'coral-multifield-item',
+    actionsEnabledCheckboxSelector: 'coral-checkbox[name="./actionsEnabled"]'
+};
+
+(function(jQuery) {
+    function onDocumentReady() {
+        // Initialize TeaserConfig component
+        new TeaserConfig(jQuery);
+    }
+
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
+    } else {
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
+    }
+})(window.jQuery);
+
+export default TeaserConfig;
