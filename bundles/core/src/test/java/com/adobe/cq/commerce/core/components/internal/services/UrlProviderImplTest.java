@@ -94,6 +94,29 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCategoryUrlMissingParams() {
+        class MockUrlProviderConfigurationMissingParams extends MockUrlProviderConfiguration {
+            @Override
+            public String categoryUrlTemplate() {
+                return "${page}.${id}.html/${url_path}";
+            }
+        }
+
+        MockUrlProviderConfigurationMissingParams config = new MockUrlProviderConfigurationMissingParams();
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+        Map<String, String> params = new ParamsBuilder()
+            .id("42")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page.42.html/${url_path}", url);
+    }
+
+    @Test
     public void testCategoryUrlWithOldSyntax() {
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration(true);
         Assert.assertTrue(config.categoryUrlTemplate().contains("${"));

@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -44,6 +46,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
@@ -67,6 +70,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -81,6 +85,11 @@ public class ProductListImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -129,15 +138,19 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
-        when(productListResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
-        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
+        Function<Resource, ComponentsConfiguration> adapter = r -> r.getPath().equals(PAGE) ? MOCK_CONFIGURATION_OBJECT
+            : ComponentsConfiguration.EMPTY;
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");

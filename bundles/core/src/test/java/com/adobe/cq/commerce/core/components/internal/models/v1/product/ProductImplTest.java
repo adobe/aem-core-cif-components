@@ -20,10 +20,10 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.caconfig.resource.ConfigurationResourceResolver;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -42,9 +42,12 @@ import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
@@ -62,11 +65,11 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,17 +78,25 @@ public class ProductImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+    private static final ValueMap MOCK_CONFIGURATION = new com.adobe.cq.commerce.common.ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.load().json("/context/jcr-conf.json", "/conf");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
+
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
+                        : ComponentsConfiguration.EMPTY);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -97,10 +108,13 @@ public class ProductImplTest {
     private ProductImpl productModel;
     private ProductInterface product;
     private StoreConfig storeConfig;
+    private HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
         Page page = context.currentPage(PAGE);
+        httpClient = mock(HttpClient.class);
+
         context.currentResource(PRODUCT);
         productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
 
@@ -108,8 +122,15 @@ public class ProductImplTest {
         product = rootQuery.getProducts().getItems().get(0);
         storeConfig = rootQuery.getStoreConfig();
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200);
+
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
@@ -124,14 +145,6 @@ public class ProductImplTest {
         when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
         slingBindings.put("xssApi", xssApi);
 
-        ConfigurationResourceResolver configurationResourceResolver = mock(ConfigurationResourceResolver.class);
-        Resource mockConfigurationResource = mock(Resource.class);
-        when(mockConfigurationResource.getValueMap()).thenReturn(new ValueMapDecorator(ImmutableMap.<String, Object>of("cq:graphqlClient",
-            "my-catalog")));
-        when(configurationResourceResolver.getResource(any(Resource.class), any(String.class), any(String.class))).thenReturn(
-            mockConfigurationResource);
-        slingBindings.put("configurationResourceResolver", configurationResourceResolver);
-
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
         slingBindings.put("currentStyle", style);
@@ -142,6 +155,7 @@ public class ProductImplTest {
 
         // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
         // and we want to override the "slug" in testEditModePlaceholderData()
+
     }
 
     @Test
@@ -151,7 +165,7 @@ public class ProductImplTest {
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {
-        Assert.assertTrue(productModel.getFound());
+        Assert.assertTrue("The product is found", productModel.getFound());
         Assert.assertEquals(product.getSku(), productModel.getSku());
         Assert.assertEquals(product.getName(), productModel.getName());
         Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
@@ -349,8 +363,7 @@ public class ProductImplTest {
         product = rootQuery.getProducts().getItems().get(0);
         storeConfig = rootQuery.getStoreConfig();
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-groupedproduct-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200);
 
         productModel = context.request().adaptTo(ProductImpl.class);
 
@@ -374,22 +387,21 @@ public class ProductImplTest {
 
     @Test
     public void testVirtualProduct() throws IOException {
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
+        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200);
         productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isVirtualProduct());
     }
 
     @Test
     public void testProductNoGraphqlClient() {
-        Mockito.when(productResource.adaptTo(GraphqlClient.class)).thenReturn(null);
-
+        when(productResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         productModel = context.request().adaptTo(ProductImpl.class);
-        Assert.assertFalse(productModel.getFound());
-        Assert.assertFalse(productModel.isConfigurable());
-        Assert.assertFalse(productModel.isGroupedProduct());
-        Assert.assertFalse(productModel.isVirtualProduct());
-        Assert.assertNull(productModel.getProductRetriever());
+
+        Assert.assertFalse("Product is not found", productModel.getFound());
+        Assert.assertFalse("Product is not configurable", productModel.isConfigurable());
+        Assert.assertFalse("Product is not a grouped product", productModel.isGroupedProduct());
+        Assert.assertFalse("Product is not virtual", productModel.isVirtualProduct());
+        Assert.assertNull("The product retriever is not created", productModel.getProductRetriever());
     }
 }

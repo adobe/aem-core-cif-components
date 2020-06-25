@@ -28,12 +28,15 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.dam.api.Asset;
@@ -61,10 +64,14 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Inject
     private Page currentPage;
 
+    @Inject
+    private UrlProvider urlProvider;
+
+    @Self
+    private SlingHttpServletRequest request;
+
     private Map<String, Asset> assetOverride;
-
     private Page categoryPage;
-
     private AbstractCategoriesRetriever categoriesRetriever;
 
     @PostConstruct
@@ -120,7 +127,11 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         }
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
-            category.setPath(String.format("%s.%s.html", categoryPage.getPath(), category.getId()));
+            Map<String, String> params = new ParamsBuilder()
+                .id(category.getId().toString())
+                .urlPath(category.getUrlPath())
+                .map();
+            category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
             String id = category.getId().toString();

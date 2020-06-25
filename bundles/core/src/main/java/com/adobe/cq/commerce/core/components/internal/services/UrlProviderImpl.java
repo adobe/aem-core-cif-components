@@ -90,7 +90,13 @@ public class UrlProviderImpl implements UrlProvider {
 
         StringSubstitutor sub = new StringSubstitutor(params, prefix, suffix);
         String url = sub.replace(template);
-        return StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
+        url = StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
+
+        if (url.contains(prefix)) {
+            LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
+        }
+
+        return url;
     }
 
     /**
