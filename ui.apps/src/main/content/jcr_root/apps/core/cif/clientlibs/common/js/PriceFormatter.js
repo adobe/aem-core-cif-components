@@ -17,6 +17,7 @@ class PriceFormatter {
     constructor(locale) {
         this._locale = locale;
         this._formatter = null;
+        this._i18n = null;
     }
 
     formatPrice(price) {
@@ -27,6 +28,19 @@ class PriceFormatter {
             });
         }
         return this._formatter.format(price.value);
+    }
+
+    // i18n support for price-related strings
+    get(key) {
+        if (!this._i18n) {
+            if (window.Granite && window.Granite.I18n) {
+                window.Granite.I18n.setLocale(this._locale);
+                this._i18n = window.Granite.I18n;
+            } else {
+                this._i18n = { get: key => key }; // If we don't have a dictionary, we simply return the key
+            }
+        }
+        return this._i18n.get(key);
     }
 }
 

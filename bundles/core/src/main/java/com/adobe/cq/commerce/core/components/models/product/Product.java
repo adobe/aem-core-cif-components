@@ -65,6 +65,8 @@ public interface Product {
 
     Boolean isVirtualProduct();
 
+    Boolean isBundleProduct();
+
     String getVariantsJson();
 
     List<Variant> getVariants();

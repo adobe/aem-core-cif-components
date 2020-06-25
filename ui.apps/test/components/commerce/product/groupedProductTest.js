@@ -14,6 +14,7 @@
 'use strict';
 
 import Product from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
+import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
 
 describe('GroupedProduct', () => {
     describe('Core', () => {
@@ -112,12 +113,14 @@ describe('GroupedProduct', () => {
             windowCIF = window.CIF;
             window.CIF = {};
 
-            window.CIF.PriceFormatter = class {
-                formatPrice(price) {}
+            // We mock the Granite i18n support to also test that part of the PriceFormatter
+            window.Granite = {};
+            window.Granite.I18n = {
+                setLocale: () => {}, // noop
+                get: key => key
             };
-            sinon
-                .stub(window.CIF.PriceFormatter.prototype, 'formatPrice')
-                .callsFake(price => price.currency + ' ' + price.value);
+
+            window.CIF.PriceFormatter = PriceFormatter;
 
             window.CIF.CommerceGraphqlApi = {
                 getProductPrices: sinon.stub().resolves(clientPrices)
@@ -131,6 +134,7 @@ describe('GroupedProduct', () => {
 
         beforeEach(() => {
             productRoot = document.createElement('div');
+            productRoot.dataset.locale = 'en-US'; // enforce the locale for prices
             productRoot.insertAdjacentHTML(
                 'afterbegin',
                 `<div class="productFullDetail__details">
@@ -153,10 +157,10 @@ describe('GroupedProduct', () => {
                 assert.deepEqual(product._state.prices, convertedPrices);
 
                 let price = productRoot.querySelector(Product.selectors.price + '[data-product-sku="sku1"]').innerText;
-                assert.include(price, 'USD 14');
+                assert.equal(price, '$14.00');
 
                 price = productRoot.querySelector(Product.selectors.price + '[data-product-sku="sku2"]').innerText;
-                assert.include(price, 'USD 17');
+                assert.equal(price, '$17.00');
             });
         });
     });
