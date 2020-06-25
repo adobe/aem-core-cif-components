@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import com.adobe.cq.commerce.common.ValueMapDecorator;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;

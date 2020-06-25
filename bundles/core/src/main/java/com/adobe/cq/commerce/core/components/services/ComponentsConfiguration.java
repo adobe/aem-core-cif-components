@@ -17,8 +17,7 @@ package com.adobe.cq.commerce.core.components.services;
 import java.util.HashMap;
 
 import org.apache.sling.api.resource.ValueMap;
-
-import com.adobe.cq.commerce.common.ValueMapDecorator;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 
 /**
  * Simple POJO to store the configuration properties
