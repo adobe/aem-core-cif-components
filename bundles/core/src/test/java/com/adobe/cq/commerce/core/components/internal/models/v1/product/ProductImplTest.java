@@ -53,12 +53,11 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
+import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import com.adobe.cq.commerce.magento.graphql.StoreConfig;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -107,7 +106,6 @@ public class ProductImplTest {
     private Resource productResource;
     private ProductImpl productModel;
     private ProductInterface product;
-    private StoreConfig storeConfig;
     private HttpClient httpClient;
 
     @Before
@@ -120,7 +118,6 @@ public class ProductImplTest {
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-product-result.json");
         product = rootQuery.getProducts().getItems().get(0);
-        storeConfig = rootQuery.getStoreConfig();
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
@@ -179,15 +176,14 @@ public class ProductImplTest {
 
         Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
 
-        Assert.assertEquals(product.getMediaGalleryEntries().size(), productModel.getAssets().size());
-        String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/product";
-        for (int j = 0; j < product.getMediaGalleryEntries().size(); j++) {
-            MediaGalleryEntry mge = product.getMediaGalleryEntries().get(j);
+        Assert.assertEquals(product.getMediaGallery().size(), productModel.getAssets().size());
+        for (int j = 0; j < product.getMediaGallery().size(); j++) {
+            MediaGalleryInterface mge = product.getMediaGallery().get(j);
             Asset asset = productModel.getAssets().get(j);
             Assert.assertEquals(mge.getLabel(), asset.getLabel());
             Assert.assertEquals(mge.getPosition(), asset.getPosition());
-            Assert.assertEquals(mge.getMediaType(), asset.getType());
-            Assert.assertEquals(baseMediaPath + mge.getFile(), asset.getPath());
+            Assert.assertEquals("image", asset.getType());
+            Assert.assertEquals(mge.getUrl(), asset.getPath());
         }
 
         Assert.assertTrue(productModel.getGroupedProductItems().isEmpty());
@@ -221,15 +217,14 @@ public class ProductImplTest {
             Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
             Assert.assertEquals(sp.getColor(), variant.getColor());
 
-            Assert.assertEquals(sp.getMediaGalleryEntries().size(), variant.getAssets().size());
-            String baseMediaPath = storeConfig.getSecureBaseMediaUrl() + "catalog/product";
-            for (int j = 0; j < sp.getMediaGalleryEntries().size(); j++) {
-                MediaGalleryEntry mge = sp.getMediaGalleryEntries().get(j);
+            Assert.assertEquals(sp.getMediaGallery().size(), variant.getAssets().size());
+            for (int j = 0; j < sp.getMediaGallery().size(); j++) {
+                MediaGalleryInterface mge = sp.getMediaGallery().get(j);
                 Asset asset = variant.getAssets().get(j);
                 Assert.assertEquals(mge.getLabel(), asset.getLabel());
                 Assert.assertEquals(mge.getPosition(), asset.getPosition());
-                Assert.assertEquals(mge.getMediaType(), asset.getType());
-                Assert.assertEquals(baseMediaPath + mge.getFile(), asset.getPath());
+                Assert.assertEquals("image", asset.getType());
+                Assert.assertEquals(mge.getUrl(), asset.getPath());
             }
         }
     }
@@ -326,7 +321,6 @@ public class ProductImplTest {
         String json = Utils.getResource(ProductImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
         product = rootQuery.getProducts().getItems().get(0);
-        storeConfig = rootQuery.getStoreConfig();
 
         testProduct(product, false);
     }
@@ -361,7 +355,6 @@ public class ProductImplTest {
     public void testGroupedProduct() throws IOException {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-groupedproduct-result.json");
         product = rootQuery.getProducts().getItems().get(0);
-        storeConfig = rootQuery.getStoreConfig();
 
         Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200);
 

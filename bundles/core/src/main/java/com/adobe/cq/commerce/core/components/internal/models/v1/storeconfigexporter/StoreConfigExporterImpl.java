@@ -31,7 +31,7 @@ import com.day.cq.wcm.api.Page;
 public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
-    private static final String CONFIG_NAME = "cloudconfigs/commerce";
+
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
 
