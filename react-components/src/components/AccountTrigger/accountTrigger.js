@@ -25,7 +25,7 @@ import classes from './accountTrigger.css';
 const parentEl = document.querySelector('.header__accountTrigger');
 
 const AccountTrigger = () => {
-    const [{ isAccountDropdownOpen }, { dispatch }] = useUserContext();
+    const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
 
     const iconColor = 'rgb(var(--venia-text))';
     const svgAttributes = {
@@ -36,7 +36,7 @@ const AccountTrigger = () => {
         <button
             className={classes.root}
             aria-label="Toggle account dropdown"
-            onClick={() => dispatch({ type: 'toggleAccountDropdown', toggle: !isAccountDropdownOpen })}>
+            onClick={() => toggleAccountDropdown(!isAccountDropdownOpen)}>
             <Icon src={UserIcon} attrs={svgAttributes} />
             <AccountIconText />
         </button>

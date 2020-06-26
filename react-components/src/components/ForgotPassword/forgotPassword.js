@@ -22,16 +22,19 @@ import { func } from 'prop-types';
 const INSTRUCTIONS = 'Enter your email below to receive a password reset link.';
 
 const ForgotPassword = props => {
-    const { onClose } = props;
+    const { onClose, onCancel } = props;
 
-    const [{ submitting, email }, { handleContinue, handleFormSubmit }] = useForgotPassword({ onClose });
+    const [{ submitting, email }, { handleContinue, handleFormSubmit, handleCancel }] = useForgotPassword({
+        onClose,
+        onCancel
+    });
 
     const content = submitting ? (
         <FormSubmissionSuccessful email={email} onContinue={handleContinue}></FormSubmissionSuccessful>
     ) : (
         <>
             <p className={classes.instructions}>{INSTRUCTIONS}</p>
-            <ForgotPasswordForm handleFormSubmit={handleFormSubmit} />
+            <ForgotPasswordForm handleFormSubmit={handleFormSubmit} handleCancel={handleCancel} />
         </>
     );
 
@@ -39,7 +42,8 @@ const ForgotPassword = props => {
 };
 
 ForgotPassword.propTypes = {
-    onClose: func.isRequired
+    onClose: func.isRequired,
+    onCancel: func
 };
 
 export default ForgotPassword;

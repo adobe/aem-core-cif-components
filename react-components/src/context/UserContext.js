@@ -86,6 +86,7 @@ const reducerFactory = () => {
                 return {
                     ...state,
                     isSignedIn: false,
+                    isAccountDropdownOpen: false,
                     inProgress: false,
                     token: '',
                     currentUser: {
@@ -93,12 +94,18 @@ const reducerFactory = () => {
                         lastname: '',
                         email: ''
                     },
-                    cartId: ''
+                    cartId: '',
+                    accountDropdownView: 'SIGN_IN'
                 };
             case 'toggleAccountDropdown':
                 return {
                     ...state,
                     isAccountDropdownOpen: action.toggle
+                };
+            case 'changeAccountDropdownView':
+                return {
+                    ...state,
+                    accountDropdownView: action.view
                 };
             default:
                 return state;
@@ -124,7 +131,8 @@ const UserContextProvider = props => {
         inProgress: false,
         createAccountError: null,
         createAccountEmail: null,
-        cartId: null
+        cartId: null,
+        accountDropdownView: 'SIGN_IN'
     };
 
     const [userState, dispatch] = useReducer(reducerFactory(), initialState);
@@ -166,6 +174,30 @@ const UserContextProvider = props => {
         }
     }, [fetchCustomerDetails]);
 
+    const toggleAccountDropdown = toggle => {
+        dispatch({ type: 'toggleAccountDropdown', toggle });
+    };
+
+    const showSignIn = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'SIGN_IN' });
+    };
+
+    const showMyAccount = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'MY_ACCOUNT' });
+    };
+
+    const showForgotPassword = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'FORGOT_PASSWORD' });
+    };
+
+    const showCreateAccount = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'CREATE_ACCOUNT' });
+    };
+
+    const showAccountCreated = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'ACCOUNT_CREATED' });
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
@@ -177,7 +209,13 @@ const UserContextProvider = props => {
             resetPassword,
             setCustomerCart,
             getUserDetails,
-            resetCustomerCart
+            resetCustomerCart,
+            toggleAccountDropdown,
+            showSignIn,
+            showMyAccount,
+            showForgotPassword,
+            showCreateAccount,
+            showAccountCreated
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

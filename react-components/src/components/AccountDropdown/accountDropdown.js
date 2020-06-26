@@ -16,32 +16,56 @@ import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
-import { useSignin } from '../SignIn/useSignin';
-import LoadingIndicator from '../LoadingIndicator';
-import SignOutLink from '../MyAccount/signOutLink';
-import SignInForm from '../SignIn/signInForm';
+import SignIn from '../SignIn/signIn';
+import MyAccountLinks from '../MyAccount/myAccountLinks';
+import ForgotPassword from '../ForgotPassword/forgotPassword';
+import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 
 import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
     const container = document.querySelector('#account');
-    const [{ isAccountDropdownOpen }] = useUserContext();
-    const { errorMessage, isSignedIn, handleSubmit, inProgress } = useSignin();
+    const [
+        { isAccountDropdownOpen, accountDropdownView },
+        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated }
+    ] = useUserContext();
 
     const [t] = useTranslation('account');
 
     const dropdownClassName = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
-    let dropdownContent = isSignedIn ? (
-        <SignOutLink />
-    ) : (
-        <SignInForm errorMessage={errorMessage} handleSubmit={handleSubmit} />
-    );
 
-    if (inProgress) {
-        dropdownContent = <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>;
+    let child;
+
+    switch (accountDropdownView) {
+        case 'SIGN_IN':
+            child = (
+                <SignIn
+                    showMyAccount={showMyAccount}
+                    showForgotPassword={showForgotPassword}
+                    showCreateAccount={showCreateAccount}
+                />
+            );
+            break;
+        case 'MY_ACCOUNT':
+            child = <MyAccountLinks showAddressBook={() => {}} showAccountInformation={() => {}} />;
+            break;
+        case 'FORGOT_PASSWORD':
+            child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
+            break;
+        case 'CREATE_ACCOUNT':
+            child = (
+                <CreateAccount
+                    showMyAccount={showMyAccount}
+                    showAccountCreated={showAccountCreated}
+                    handleCancel={showSignIn}
+                />
+            );
+            break;
+        case 'ACCOUNT_CREATED':
+            child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
-    return ReactDOM.createPortal(<div className={dropdownClassName}>{dropdownContent}</div>, container);
+    return ReactDOM.createPortal(<div className={dropdownClassName}>{child}</div>, container);
 };
 
 export default AccountDropdown;

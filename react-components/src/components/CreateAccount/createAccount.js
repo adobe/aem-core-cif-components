@@ -34,8 +34,10 @@ import useCreateAccount from './useCreateAccount';
 import LoadingIndicator from '../LoadingIndicator';
 
 const CreateAccount = props => {
-    const { showMyAccount } = props;
-    const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount();
+    const { showMyAccount, showAccountCreated, handleCancel } = props;
+    const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount({
+        showAccountCreated
+    });
     const [t] = useTranslation('account');
 
     if (inProgress) {
@@ -120,6 +122,16 @@ const CreateAccount = props => {
                 <Button disabled={inProgress} type="submit" priority="high" aria-label="submit">
                     {t('account:create-submit', 'Submit')}
                 </Button>
+                {handleCancel && (
+                    <Button
+                        disabled={inProgress}
+                        type="button"
+                        priority="normal"
+                        aria-label="cancel"
+                        onClick={handleCancel}>
+                        {t('account:create-cancel', 'Cancel')}
+                    </Button>
+                )}
             </div>
         </Form>
     );
@@ -133,7 +145,9 @@ CreateAccount.propTypes = {
         root: string,
         subscribe: string
     }),
-    showMyAccount: func.isRequired
+    showMyAccount: func.isRequired,
+    showAccountCreated: func.isRequired,
+    handleCancel: func
 };
 
 export default CreateAccount;

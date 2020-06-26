@@ -5,7 +5,6 @@
     gap: 1rem;
     min-width: 22rem;
     left: 50%;
-    padding: 1.5rem;
     position: absolute;
     top: 3.3rem;
     transform: translateX(-50%);
@@ -20,8 +19,4 @@
 .dropdown_open {
     opacity: 1;
     visibility: visible;
-}
-
-.dropdown_open button:last-child {
-    border-bottom: 0;
 }

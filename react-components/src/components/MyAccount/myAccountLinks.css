@@ -1,0 +1,9 @@
+.links {
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.links button {
+    border-bottom: 0px;
+}
