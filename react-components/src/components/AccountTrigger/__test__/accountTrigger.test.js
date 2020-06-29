@@ -12,18 +12,33 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { Book as BookIcon } from 'react-feather';
-import { render } from '@testing-library/react';
+import ReactDOM from 'react-dom';
+import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
+import { render, fireEvent, screen } from '@testing-library/react';
 
-import AccountLink from '../accountLink';
+import UserContextProvider from '../../../context/UserContext';
+import i18n from '../../../../__mocks__/i18nForTests';
 
-describe('<AccountLink>', () => {
-    it('renders the link of the address book', () => {
+import AccountTrigger from '../accountTrigger';
+
+describe('<AccountTrigger>', () => {
+    beforeAll(() => {
+        // mock createPortal because we don't have the DOM element to render the AccountTrigger
+        ReactDOM.createPortal = jest.fn(element => {
+            return element;
+        });
+    });
+
+    it('renders the component', () => {
         const { asFragment } = render(
-            <AccountLink>
-                <BookIcon size={18} />
-                Address Book
-            </AccountLink>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <AccountTrigger />
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });

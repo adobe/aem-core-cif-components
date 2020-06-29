@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AccountIconText> renders the component 1`] = `
+<DocumentFragment>
+  <span
+    class="text"
+  >
+    Sign In
+  </span>
+</DocumentFragment>
+`;
