@@ -31,5 +31,6 @@
   "address-book": "Address Book",
   "address-information": "Address Information",
   "forgot-password-cancel": "Cancel",
-  "create-cancel": "Canel"
+  "create-cancel": "Canel",
+  "change-password-cancel": "Cancel"
 }

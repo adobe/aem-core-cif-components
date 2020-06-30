@@ -198,6 +198,10 @@ const UserContextProvider = props => {
         dispatch({ type: 'changeAccountDropdownView', view: 'ACCOUNT_CREATED' });
     };
 
+    const showChangePassword = () => {
+        dispatch({ type: 'changeAccountDropdownView', view: 'CHANGE_PASSWORD' });
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
@@ -215,7 +219,8 @@ const UserContextProvider = props => {
             showMyAccount,
             showForgotPassword,
             showCreateAccount,
-            showAccountCreated
+            showAccountCreated,
+            showChangePassword
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;

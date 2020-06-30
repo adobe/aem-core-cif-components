@@ -49,7 +49,14 @@ const AuthModal = () => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            child = (
+                <MyAccount
+                    showMenu={showMenu}
+                    showChangePassword={showChangePassword}
+                    showAddressBook={() => {}}
+                    showAccountInformation={() => {}}
+                />
+            );
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} />;

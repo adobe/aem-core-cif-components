@@ -73,6 +73,77 @@ exports[`<MyAccount> renders the component 1`] = `
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
+                d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+              />
+              <path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+              />
+            </svg>
+          </span>
+          <span>
+            Address Book
+          </span>
+        </span>
+      </button>
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="16"
+                y2="12"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="8"
+                y2="8"
+              />
+            </svg>
+          </span>
+          <span>
+            Address Information
+          </span>
+        </span>
+      </button>
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
                 d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
               />
               <polyline

@@ -17,7 +17,8 @@ import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
-import MyAccountLinks from '../MyAccount/myAccountLinks';
+import MyAccount from '../MyAccount/myAccount';
+import ChangePassword from '../ChangePassword';
 import ForgotPassword from '../ForgotPassword/forgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 
@@ -27,7 +28,7 @@ const AccountDropdown = () => {
     const container = document.querySelector('#account');
     const [
         { isAccountDropdownOpen, accountDropdownView },
-        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated }
+        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
     const [t] = useTranslation('account');
@@ -47,7 +48,16 @@ const AccountDropdown = () => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccountLinks showAddressBook={() => {}} showAccountInformation={() => {}} />;
+            child = (
+                <MyAccount
+                    showChangePassword={showChangePassword}
+                    showAddressBook={() => {}}
+                    showAccountInformation={() => {}}
+                />
+            );
+            break;
+        case 'CHANGE_PASSWORD':
+            child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
             break;
         case 'FORGOT_PASSWORD':
             child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
