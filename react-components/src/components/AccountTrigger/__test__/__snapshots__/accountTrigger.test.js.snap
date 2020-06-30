@@ -30,11 +30,6 @@ exports[`<AccountTrigger> renders the component 1`] = `
         />
       </svg>
     </span>
-    <span
-      class="text"
-    >
-      Sign In
-    </span>
   </button>
 </DocumentFragment>
 `;

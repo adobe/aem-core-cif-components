@@ -21,9 +21,9 @@ import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
-import Account from '../account';
+import AccountContainer from '../accountContainer';
 
-describe('<Account>', () => {
+describe('<AccountContainer>', () => {
     beforeAll(() => {
         // mock createPortal because we don't have the DOM element to render the AccountTrigger and AccountDropdown
         ReactDOM.createPortal = jest.fn(element => {
@@ -37,7 +37,7 @@ describe('<Account>', () => {
                 <MockedProvider>
                     <UserContextProvider>
                         <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <Account />
+                            <AccountContainer />
                         </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>

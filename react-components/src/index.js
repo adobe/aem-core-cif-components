@@ -15,7 +15,7 @@
 export { default as CommerceApp } from './components/App';
 export { default as AuthBar } from './components/AuthBar';
 export { default as Cart } from './components/Minicart';
-export { default as Account } from './components/Account';
+export { default as AccountContainer } from './components/AccountContainer';
 
 export { default as UserContextProvider, useUserContext } from './context/UserContext';
 

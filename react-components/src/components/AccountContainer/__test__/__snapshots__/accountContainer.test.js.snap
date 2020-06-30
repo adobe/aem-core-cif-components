@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Account> renders the component 1`] = `
+exports[`<AccountContainer> renders the component 1`] = `
 <DocumentFragment>
   <button
     aria-label="Toggle account dropdown"
@@ -31,7 +31,7 @@ exports[`<Account> renders the component 1`] = `
       </svg>
     </span>
     <span
-      class="text"
+      class="label"
     >
       Sign In
     </span>

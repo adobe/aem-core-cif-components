@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { CommerceApp, Cart, AuthBar, Account } from '@adobe/aem-core-cif-react-components';
+import { CommerceApp, Cart, AuthBar, AccountContainer } from '@adobe/aem-core-cif-react-components';
 import { I18nextProvider } from 'react-i18next';
 
 import i18n from './i18n';
@@ -25,7 +25,7 @@ const App = () => {
             <CommerceApp uri={graphqlEndpoint} storeView={storeView}>
                 <Cart />
                 <AuthBar />
-                <Account />
+                <AccountContainer />
             </CommerceApp>
         </I18nextProvider>
     );

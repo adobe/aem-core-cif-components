@@ -12,17 +12,32 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+
+import { useUserContext } from '../../context/UserContext';
 
 import AccountTrigger from '../AccountTrigger';
 import AccountDropdown from '../AccountDropdown';
 
-const Account = () => {
+const AccountContainer = () => {
+    const [{ currentUser, isSignedIn }] = useUserContext();
+
+    const [t] = useTranslation('account');
+
+    const label = isSignedIn ? (
+        <Trans t={t} i18nKey="account:account-icon-text-greeting">
+            Hi, {{ name: currentUser.firstname }}
+        </Trans>
+    ) : (
+        t('account:account-icon-text-sign-in', 'Sign In')
+    );
+
     return (
         <>
-            <AccountTrigger />
+            <AccountTrigger label={label} />
             <AccountDropdown />
         </>
     );
 };
 
-export default Account;
+export default AccountContainer;

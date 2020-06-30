@@ -18,14 +18,14 @@ import { User as UserIcon } from 'react-feather';
 
 import { useUserContext } from '../../context/UserContext';
 import Icon from '../Icon';
-import AccountIconText from '../AccountIconText';
 
 import classes from './accountTrigger.css';
 
 const parentEl = document.querySelector('.header__accountTrigger');
 
-const AccountTrigger = () => {
+const AccountTrigger = props => {
     const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
+    const { label } = props;
 
     const iconColor = 'rgb(var(--venia-text))';
     const svgAttributes = {
@@ -38,7 +38,7 @@ const AccountTrigger = () => {
             aria-label="Toggle account dropdown"
             onClick={() => toggleAccountDropdown(!isAccountDropdownOpen)}>
             <Icon src={UserIcon} attrs={svgAttributes} />
-            <AccountIconText />
+            {label && <span className={classes.label}>{label}</span>}
         </button>
     );
 
@@ -49,7 +49,8 @@ AccountTrigger.propTypes = {
     children: PropTypes.node,
     classes: PropTypes.shape({
         root: PropTypes.string
-    })
+    }),
+    label: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
 };
 
 export default AccountTrigger;
