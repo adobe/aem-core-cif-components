@@ -31,7 +31,7 @@ const ForgotPasswordForm = props => {
 
     return (
         <Form className={classes.root} onSubmit={handleFormSubmit}>
-            <Field label={t('account:email', 'E-Mail')} required={true}>
+            <Field label={t('account:email', 'Email address')} required={true}>
                 <TextInput
                     autoComplete="email"
                     field="email"

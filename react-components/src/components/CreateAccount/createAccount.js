@@ -82,7 +82,7 @@ const CreateAccount = props => {
                     aria-label="lastname"
                 />
             </Field>
-            <Field label={t('account:email', 'E-Mail')} required={true}>
+            <Field label={t('account:email', 'Email address')} required={true}>
                 <TextInput
                     field="customer.email"
                     autoComplete="email"

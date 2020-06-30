@@ -9,7 +9,7 @@
   "confirm-new-password": "Confirm New Password",
   "firstname": "First Name",
   "lastname": "Last Name",
-  "email": "E-Mail",
+  "email": "Email address",
   "password": "Password",
   "confirm-password": "Confirm Password",
   "subscribe-news": "Subscribe to news and updates",
@@ -31,6 +31,7 @@
   "address-book": "Address Book",
   "address-information": "Address Information",
   "forgot-password-cancel": "Cancel",
-  "create-cancel": "Canel",
-  "change-password-cancel": "Cancel"
+  "create-cancel": "Cancel",
+  "change-password-cancel": "Cancel",
+  "sign-in-form-title": "Sign-in to Your Account"
 }
