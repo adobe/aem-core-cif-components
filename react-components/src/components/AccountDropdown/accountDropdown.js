@@ -25,7 +25,7 @@ import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
-    const container = document.querySelector('#account');
+    const container = document.querySelector('.header__accountTrigger #miniaccount');
     const [
         { isAccountDropdownOpen, accountDropdownView },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }

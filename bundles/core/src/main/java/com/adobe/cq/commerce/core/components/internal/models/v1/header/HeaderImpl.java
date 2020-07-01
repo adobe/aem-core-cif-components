@@ -41,7 +41,7 @@ public class HeaderImpl implements Header {
     static final String RESOURCE_TYPE = "core/cif/components/structure/header/v1/header";
     static final String MINICART_NODE_NAME = "minicart";
     static final String SEARCHBAR_NODE_NAME = "searchbar";
-    static final String ACCOUNT_NODE_NAME = "account";
+    static final String MINIACCOUNT_NODE_NAME = "miniaccount";
 
     @Inject
     private Page currentPage;
@@ -73,7 +73,7 @@ public class HeaderImpl implements Header {
         return resource.getChild(SEARCHBAR_NODE_NAME);
     }
 
-    public Resource getAccountResource() {
-        return resource.getChild(ACCOUNT_NODE_NAME);
+    public Resource getMiniaccountResource() {
+        return resource.getChild(MINIACCOUNT_NODE_NAME);
     }
 }
