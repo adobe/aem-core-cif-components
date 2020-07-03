@@ -76,11 +76,12 @@ export const useSignin = () => {
             //4. set the cart id in the cookie
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
+
+            if (userState.isAccountDropdownOpen) {
+                toggleAccountDropdown(false);
+            }
         } catch (e) {
             setError(e);
-        }
-        if (userState.isAccountDropdownOpen) {
-            toggleAccountDropdown(false);
         }
         setInProgress(false);
     };
