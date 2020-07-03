@@ -49,6 +49,7 @@ import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -108,6 +109,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
+    private Boolean isBundleProduct;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
@@ -203,6 +205,14 @@ public class ProductImpl implements Product {
             isVirtualProduct = productRetriever != null && productRetriever.fetchProduct() instanceof VirtualProduct;
         }
         return isVirtualProduct;
+    }
+
+    @Override
+    public Boolean isBundleProduct() {
+        if (isBundleProduct == null) {
+            isBundleProduct = productRetriever != null && productRetriever.fetchProduct() instanceof BundleProduct;
+        }
+        return isBundleProduct;
     }
 
     @Override

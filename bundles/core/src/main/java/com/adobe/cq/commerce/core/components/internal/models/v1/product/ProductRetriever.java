@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -109,7 +110,8 @@ class ProductRetriever extends AbstractProductRetriever {
                             .code()
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
-                .onGroupedProduct(generateGroupedProductQuery());
+                .onGroupedProduct(generateGroupedProductQuery())
+                .onBundleProduct(generateBundleProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
@@ -128,5 +130,11 @@ class ProductRetriever extends AbstractProductRetriever {
                     .name()
                     .priceRange(r -> r
                         .minimumPrice(generatePriceQuery()))));
+    }
+
+    private BundleProductQueryDefinition generateBundleProductQuery() {
+        return bp -> bp
+            .priceRange(r -> r
+                .maximumPrice(generatePriceQuery()));
     }
 }

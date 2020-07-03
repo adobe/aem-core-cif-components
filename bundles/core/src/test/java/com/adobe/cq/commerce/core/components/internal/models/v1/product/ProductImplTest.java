@@ -387,6 +387,14 @@ public class ProductImplTest {
     }
 
     @Test
+    public void testBundleProduct() throws IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200);
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertNotNull("Product model is not null", productModel);
+        Assert.assertTrue(productModel.isBundleProduct());
+    }
+
+    @Test
     public void testProductNoGraphqlClient() {
         when(productResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         productModel = context.request().adaptTo(ProductImpl.class);

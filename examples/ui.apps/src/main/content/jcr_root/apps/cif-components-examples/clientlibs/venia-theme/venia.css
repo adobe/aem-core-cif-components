@@ -1237,6 +1237,11 @@ fieldset[disabled] .cif-demo .btn-link:focus {
     padding: 180px 0 70px;
   }
 }
+.cif-demo .loader-img {
+  height: 64px;
+  width: 64px;
+  background: url('../../resources/logo.svg');
+}
 .cif-demo .flow__root {
   --flow-footer-height: 5.5rem;
   position: relative;
@@ -3197,10 +3202,19 @@ fieldset[disabled] .cif-demo .btn-link:focus {
   line-height: 1.375rem;
   text-align: center;
 }
+.cif-demo .results__count {
+  color: rgb(var(--venia-text));
+  font-size: 1rem;
+  text-align: center;
+  line-height: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 200;
+}
 .cif-demo .search__root {
   display: grid;
   grid-template-columns: minmax(240px, 1fr) auto;
   grid-column-gap: 2rem;
+  grid-row-gap: 1rem;
 }
 .cif-demo .filterSection-header {
   padding: 1.5rem 0;
@@ -3282,6 +3296,20 @@ fieldset[disabled] .cif-demo .btn-link:focus {
 }
 .cif-demo .icon-open {
   display: none;
+}
+.cif-demo .search__filters {
+  grid-row-start: 1;
+  grid-row-end: 2 span;
+}
+.cif-demo .sort__fields {
+  float: right;
+}
+.cif-demo .sort__fields label {
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.cif-demo .sort__fields select {
+  font-size: 1rem;
 }
 .cif-demo .productteaser .item__root {
   position: relative;

@@ -360,6 +360,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())))
+                .onBundleProduct(bp -> bp
+                    .priceRange(r -> r
                         .maximumPrice(generatePriceQuery())));
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
