@@ -13,15 +13,12 @@
  ******************************************************************************/
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import { User as UserIcon } from 'react-feather';
 
 import { useUserContext } from '../../context/UserContext';
 import Icon from '../Icon';
 
 import classes from './accountTrigger.css';
-
-const parentEl = document.querySelector('.header__accountTrigger');
 
 const AccountTrigger = props => {
     const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
@@ -32,7 +29,7 @@ const AccountTrigger = props => {
         stroke: iconColor
     };
 
-    const button = (
+    return (
         <button
             className={classes.root}
             aria-label="Toggle account dropdown"
@@ -41,8 +38,6 @@ const AccountTrigger = props => {
             {label && <span className={classes.label}>{label}</span>}
         </button>
     );
-
-    return ReactDOM.createPortal(button, parentEl);
 };
 
 AccountTrigger.propTypes = {

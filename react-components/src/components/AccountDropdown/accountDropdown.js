@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
@@ -25,7 +24,6 @@ import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
-    const container = document.querySelector('.header__accountTrigger #miniaccount');
     const [
         { isAccountDropdownOpen, accountDropdownView },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
@@ -33,7 +31,7 @@ const AccountDropdown = () => {
 
     const [t] = useTranslation('account');
 
-    const dropdownClassName = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
+    const className = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
 
     let child;
 
@@ -75,7 +73,7 @@ const AccountDropdown = () => {
             child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
-    return ReactDOM.createPortal(<div className={dropdownClassName}>{child}</div>, container);
+    return <div className={className}>{child}</div>;
 };
 
 export default AccountDropdown;

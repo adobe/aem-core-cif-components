@@ -12,12 +12,15 @@
  *
  ******************************************************************************/
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 
 import AccountTrigger from '../AccountTrigger';
 import AccountDropdown from '../AccountDropdown';
+
+const container = document.querySelector('.header__accountTrigger #miniaccount');
 
 const AccountContainer = () => {
     const [{ currentUser, isSignedIn }] = useUserContext();
@@ -32,11 +35,12 @@ const AccountContainer = () => {
         t('account:account-icon-text-sign-in', 'Sign In')
     );
 
-    return (
+    return ReactDOM.createPortal(
         <>
             <AccountTrigger label={label} />
             <AccountDropdown />
-        </>
+        </>,
+        container
     );
 };
 
