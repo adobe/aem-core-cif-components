@@ -17,8 +17,8 @@ import { useTranslation, Trans } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 
-import AccountTrigger from '../AccountTrigger';
-import AccountDropdown from '../AccountDropdown';
+import AccountTrigger from './accountTrigger';
+import AccountDropdown from './accountDropdown';
 
 const container = document.querySelector('.header__accountTrigger #miniaccount');
 
