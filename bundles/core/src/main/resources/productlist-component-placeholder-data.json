@@ -165,8 +165,5 @@
       ],
       "total_count": 12
     }
-  },
-  "storeConfig": {
-    "secure_base_media_url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/"
   }
 }

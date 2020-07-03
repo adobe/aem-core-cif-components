@@ -14,48 +14,23 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
-import java.util.List;
-
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.StoreConfigQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 class ProductRetriever extends AbstractProductRetriever {
 
     ProductRetriever(MagentoGraphqlClient client) {
         super(client);
-    }
-
-    @Override
-    protected void populate() {
-        // Get product list from response
-        GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
-
-        // TODO WORKAROUND
-        // we need a temporary detour and use storeconfig to get the base media url since the product media gallery only returns the images
-        // file names but no full URLs
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
-
-        // Return first product in list
-        if (products.size() > 0) {
-            product = products.get(0);
-        }
     }
 
     /* --- GraphQL queries --- */
@@ -76,8 +51,7 @@ class ProductRetriever extends AbstractProductRetriever {
         // GraphQL query
         ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
         return Operations.query(query -> query
-            .products(searchArgs, queryArgs)
-            .storeConfig(generateStoreConfigQuery())).toString();
+            .products(searchArgs, queryArgs)).toString();
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
@@ -92,12 +66,11 @@ class ProductRetriever extends AbstractProductRetriever {
                 .color()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
-                .mediaGalleryEntries(g -> g
+                .mediaGallery(g -> g
                     .disabled()
-                    .file()
+                    .url()
                     .label()
-                    .position()
-                    .mediaType());
+                    .position());
 
             // Apply product variant query hook
             if (variantQueryHook != null) {
@@ -118,12 +91,11 @@ class ProductRetriever extends AbstractProductRetriever {
                 .stockStatus()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
-                .mediaGalleryEntries(g -> g
+                .mediaGallery(g -> g
                     .disabled()
-                    .file()
+                    .url()
                     .label()
-                    .position()
-                    .mediaType())
+                    .position())
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
                         .maximumPrice(generatePriceQuery()))
@@ -139,7 +111,7 @@ class ProductRetriever extends AbstractProductRetriever {
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
                 .onGroupedProduct(generateGroupedProductQuery())
-                .onBundleProduct(generateBundleProductquery());
+                .onBundleProduct(generateBundleProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
@@ -160,14 +132,9 @@ class ProductRetriever extends AbstractProductRetriever {
                         .minimumPrice(generatePriceQuery()))));
     }
 
-    private BundleProductQueryDefinition generateBundleProductquery() {
+    private BundleProductQueryDefinition generateBundleProductQuery() {
         return bp -> bp
             .priceRange(r -> r
                 .maximumPrice(generatePriceQuery()));
     }
-
-    private StoreConfigQueryDefinition generateStoreConfigQuery() {
-        return q -> q.secureBaseMediaUrl();
-    }
-
 }

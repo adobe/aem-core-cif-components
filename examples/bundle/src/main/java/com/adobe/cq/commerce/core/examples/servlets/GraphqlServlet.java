@@ -95,7 +95,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
     private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
 
-    private static final String STORECONFIG_JSON = "magento-graphql-storeconfig.json";
     private static final String ATTRIBUTES_JSON = "magento-graphql-attributes.json";
     private static final String RELATED_PRODUCTS_JSON = "magento-graphql-relatedproducts.json";
     private static final String UPSELL_PRODUCTS_JSON = "magento-graphql-upsellproducts.json";
@@ -311,10 +310,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 switch (fieldName) {
                     case "products": {
                         return readProductsResponse(env);
-                    }
-                    case "storeConfig": {
-                        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(STORECONFIG_JSON);
-                        return graphqlResponse.getData().getStoreConfig();
                     }
                     case "category": {
                         return readCategoryResponse(env);
