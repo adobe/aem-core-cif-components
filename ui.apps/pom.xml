@@ -200,17 +200,6 @@
                             <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>npm-webpack-production-react-components</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.dev}</skip>
-                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>run webpack:prod</arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
