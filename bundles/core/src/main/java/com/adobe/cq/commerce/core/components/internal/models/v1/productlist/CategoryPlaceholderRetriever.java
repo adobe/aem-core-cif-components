@@ -32,7 +32,6 @@ class CategoryPlaceholderRetriever extends AbstractCategoryRetriever {
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
         category = rootQuery.getCategory();
-        mediaBaseUrl = rootQuery.getStoreConfig().getSecureBaseMediaUrl();
     }
 
     @Override

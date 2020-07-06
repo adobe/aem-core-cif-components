@@ -184,6 +184,11 @@ class CommerceGraphqlApi {
                             }
                         }
                     }
+                    ... on BundleProduct {
+                        price_range {
+                            maximum_price {${priceQuery}}
+                        }
+                    }
                 }
             }
         }`;

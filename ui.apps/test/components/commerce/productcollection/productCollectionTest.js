@@ -14,6 +14,7 @@
 'use strict';
 
 import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs/js/productcollection.js';
+import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
 
 describe('Productcollection', () => {
     let listRoot;
@@ -155,13 +156,7 @@ describe('Productcollection', () => {
         // Create empty context
         windowCIF = window.CIF;
         window.CIF = {};
-
-        window.CIF.PriceFormatter = class {
-            formatPrice(price) {}
-        };
-        sinon
-            .stub(window.CIF.PriceFormatter.prototype, 'formatPrice')
-            .callsFake(price => price.currency + ' ' + price.value);
+        window.CIF.PriceFormatter = PriceFormatter;
     });
 
     after(() => {
@@ -171,6 +166,7 @@ describe('Productcollection', () => {
 
     beforeEach(() => {
         listRoot = document.createElement('div');
+        listRoot.dataset.locale = 'en-US'; // enforce the locale for prices
         listRoot.insertAdjacentHTML(
             'afterbegin',
             `<div class="item__root" data-sku="sku-a" role="product">
@@ -216,11 +212,11 @@ describe('Productcollection', () => {
             assert.deepEqual(list._state.prices, convertedPrices);
 
             // Verify price updates
-            assert.include(listRoot.querySelector('[data-sku=sku-a] .price').innerText, 'USD 156.89');
-            assert.include(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'USD 123.45 - USD 150.45');
-            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, 'USD 20');
-            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, 'USD 10');
-            assert.include(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at USD 20');
+            assert.equal(listRoot.querySelector('[data-sku=sku-a] .price').innerText, '$156.89');
+            assert.equal(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'From $123.45 To $150.45');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$20.00');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$10.00');
+            assert.equal(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at $20.00');
         });
     });
 
