@@ -95,6 +95,8 @@ public class SearchResultsServiceImplTest {
     private static final String FILTER_ATTRIBUTE_PRICE1_CODE = "price1";
     private static final String FILTER_ATTRIBUTE_PRICE2_CODE = "price2";
     private static final String FILTER_ATTRIBUTE_PRICE3_CODE = "price3";
+    private static final String FILTER_ATTRIBUTE_PRICE4_CODE = "price4";
+    private static final String FILTER_ATTRIBUTE_PRICE5_CODE = "price5";
     private static final String FILTER_ATTRIBUTE_BOOLEAN_CODE = "is_new";
 
     private static final String SEARCH_QUERY = "pants";
@@ -110,6 +112,8 @@ public class SearchResultsServiceImplTest {
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE1_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE2_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE3_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE4_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE5_CODE),
             createBooleanEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE)));
 
         when(products.getTotalCount()).thenReturn(0);
@@ -143,10 +147,12 @@ public class SearchResultsServiceImplTest {
         filters.put(FILTER_ATTRIBUTE_NAME_CODE, "sport");
         filters.put(FILTER_ATTRIBUTE_COLOR_CODE, "red");
 
-        // To avoid having 3 tests for the price range, we introduce 3 price parameters
+        // To avoid having 5 tests for the price range, we introduce 5 price parameters
         filters.put(FILTER_ATTRIBUTE_PRICE1_CODE, "20_30");
         filters.put(FILTER_ATTRIBUTE_PRICE2_CODE, "40_*");
         filters.put(FILTER_ATTRIBUTE_PRICE3_CODE, "*_50");
+        filters.put(FILTER_ATTRIBUTE_PRICE4_CODE, "60");
+        filters.put(FILTER_ATTRIBUTE_PRICE5_CODE, "*"); // invalid
 
         filters.put(FILTER_ATTRIBUTE_BOOLEAN_CODE, "1");
         searchOptions.setAttributeFilters(filters);
@@ -173,6 +179,8 @@ public class SearchResultsServiceImplTest {
         assertThat(query).contains("price1:{from:\"20\",to:\"30\"}");
         assertThat(query).contains("price2:{from:\"40\"}");
         assertThat(query).contains("price3:{to:\"50\"}");
+        assertThat(query).contains("price4:{from:\"60\",to:\"60\"}");
+        assertThat(query).doesNotContain("price5:");
         assertThat(query).contains("is_new:{eq:\"1\"}");
     }
 

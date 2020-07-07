@@ -51,6 +51,7 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
@@ -243,6 +244,18 @@ public class ProductListImplTest {
 
             Assert.assertEquals(productInterface instanceof GroupedProduct, item.getPriceRange().isStartPrice());
         }
+
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
+        Assert.assertEquals(7, searchAggregations.size()); // category_id is excluded
+
+        // We want to make sure all price ranges are properly processed
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        Assert.assertEquals(3, priceAggregation.getOptions().size());
+        Assert.assertEquals(3, priceAggregation.getOptionCount());
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
     }
 
     @Test
