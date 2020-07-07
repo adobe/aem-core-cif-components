@@ -90,3 +90,11 @@ export const showAccountCreated = ({ dispatch, t }) => {
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](t) } }));
     dispatch({ type: 'changeView', view });
 };
+
+export const showView = ({ dispatch, t, view }) => {
+    const title = stepTitles[view](t);
+    if (title) {
+        dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: title } }));
+        dispatch({ type: 'changeView', view });
+    }
+};
