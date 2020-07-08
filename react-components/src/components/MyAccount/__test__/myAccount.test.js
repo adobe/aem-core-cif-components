@@ -30,12 +30,61 @@ describe('<MyAccount>', () => {
                 <MockedProvider>
                     <UserContextProvider>
                         <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <MyAccount showMenu={jest.fn()} showChangePassword={jest.fn()} />
+                            <MyAccount
+                                showMenu={jest.fn()}
+                                showAddressBook={jest.fn()}
+                                showAccountInformation={jest.fn()}
+                                showChangePassword={jest.fn()}
+                            />
                         </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the loading indicator when inProgress is true', () => {
+        const stateWithInProgress = { inProgress: true };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithInProgress}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <MyAccount
+                                showMenu={jest.fn()}
+                                showAddressBook={jest.fn()}
+                                showAccountInformation={jest.fn()}
+                                showChangePassword={jest.fn()}
+                            />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('call the showMenu callback function when user is not signed in', () => {
+        const showMenu = jest.fn();
+
+        render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <MyAccount
+                                showMenu={showMenu}
+                                showAddressBook={jest.fn()}
+                                showAccountInformation={jest.fn()}
+                                showChangePassword={jest.fn()}
+                            />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(showMenu.mock.calls.length).toEqual(1);
     });
 });

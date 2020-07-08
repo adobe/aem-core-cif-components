@@ -73,7 +73,11 @@ const AccountDropdown = () => {
             child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
-    return <div className={className}>{child}</div>;
+    return (
+        <div className={className} aria-label="account dropdown">
+            {child}
+        </div>
+    );
 };
 
 export default AccountDropdown;

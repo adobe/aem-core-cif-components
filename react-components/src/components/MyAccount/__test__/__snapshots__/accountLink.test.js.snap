@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<AccountLink> renders the link of the address book 1`] = `
+exports[`<AccountLink> renders the sign out account link 1`] = `
 <DocumentFragment>
   <button
     classes="[object Object]"
@@ -20,15 +20,21 @@ exports[`<AccountLink> renders the link of the address book 1`] = `
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
           />
-          <path
-            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+          <polyline
+            points="16 17 21 12 16 7"
+          />
+          <line
+            x1="21"
+            x2="9"
+            y1="12"
+            y2="12"
           />
         </svg>
       </span>
       <span>
-        Address Book
+        Sign Out
       </span>
     </span>
   </button>

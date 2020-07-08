@@ -45,7 +45,7 @@ describe('<Minicart>', () => {
         // getByTestId() throws an error if the element will not be available.
         const emptyCartNode = await waitForElement(() => getByTestId('empty-minicart'));
 
-        // compare the snapshow of the element with the stored one.
+        // compare the snapshot of the element with the stored one.
         expect(emptyCartNode).toMatchSnapshot();
     });
 });

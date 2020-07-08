@@ -45,4 +45,122 @@ describe('<AccountDropdown>', () => {
         );
         expect(asFragment()).toMatchSnapshot();
     });
+
+    it('render the account dropdown when account dropdown is open', () => {
+        const stateWithAccountDropdownOpen = { isAccountDropdownOpen: true };
+        const accountDropdownOpenClass = 'dropdown_open';
+
+        const { getByLabelText } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithAccountDropdownOpen}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(getByLabelText('account dropdown').getAttribute('class')).toEqual(accountDropdownOpenClass);
+    });
+
+    it('renders the my account component inside account dropdown', () => {
+        const stateWithMyAccountView = {
+            currentUser: {
+                firstname: '',
+                lastname: '',
+                email: ''
+            },
+            accountDropdownView: 'MY_ACCOUNT'
+        };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithMyAccountView}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the change password component inside account dropdown', () => {
+        const stateWithChangePasswordView = {
+            accountDropdownView: 'CHANGE_PASSWORD'
+        };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithChangePasswordView}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the forgot password component inside account dropdown', () => {
+        const stateWithForgotPasswordView = {
+            accountDropdownView: 'FORGOT_PASSWORD'
+        };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithForgotPasswordView}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the create account component inside account dropdown', () => {
+        const stateWithCreateAccountView = {
+            accountDropdownView: 'CREATE_ACCOUNT'
+        };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithCreateAccountView}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the account created component inside account dropdown', () => {
+        const stateWithAccountCreatedView = {
+            accountDropdownView: 'ACCOUNT_CREATED'
+        };
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider initialState={stateWithAccountCreatedView}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
 });

@@ -12,19 +12,34 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { Book as BookIcon } from 'react-feather';
-import { render } from '@testing-library/react';
+import { LogOut as SignOutIcon } from 'react-feather';
+import { render, fireEvent } from '@testing-library/react';
 
 import AccountLink from '../accountLink';
 
 describe('<AccountLink>', () => {
-    it('renders the link of the address book', () => {
+    it('renders the sign out account link', () => {
         const { asFragment } = render(
             <AccountLink>
-                <BookIcon size={18} />
-                Address Book
+                <SignOutIcon size={18} />
+                Sign Out
             </AccountLink>
         );
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('call onClick handler when account link is clicked', () => {
+        const mockedOnClick = jest.fn();
+
+        const { getByText } = render(
+            <AccountLink onClick={mockedOnClick}>
+                <SignOutIcon size={18} />
+                Sign Out
+            </AccountLink>
+        );
+
+        fireEvent.click(getByText('Sign Out'));
+
+        expect(mockedOnClick.mock.calls.length).toEqual(1);
     });
 });

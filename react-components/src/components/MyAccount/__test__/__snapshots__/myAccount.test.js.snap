@@ -166,3 +166,24 @@ exports[`<MyAccount> renders the component 1`] = `
   </div>
 </DocumentFragment>
 `;
+
+exports[`<MyAccount> renders the loading indicator when inProgress is true 1`] = `
+<DocumentFragment>
+  <div
+    class="modal_active"
+  >
+    <div
+      class="root"
+    >
+      <span
+        class="indicator loader-img"
+      />
+      <span
+        class="message"
+      >
+        Signing In
+      </span>
+    </div>
+  </div>
+</DocumentFragment>
+`;
