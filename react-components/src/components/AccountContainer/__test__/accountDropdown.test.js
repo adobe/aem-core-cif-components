@@ -31,21 +31,6 @@ describe('<AccountDropdown>', () => {
         });
     });
 
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-        expect(asFragment()).toMatchSnapshot();
-    });
-
     it('render the account dropdown when account dropdown is open', () => {
         const stateWithAccountDropdownOpen = { isAccountDropdownOpen: true };
         const accountDropdownOpenClass = 'dropdown_open';
