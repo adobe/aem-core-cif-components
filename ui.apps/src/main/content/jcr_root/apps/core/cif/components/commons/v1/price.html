@@ -22,10 +22,10 @@
     </div>
     <div class="price range" data-sly-test=${priceRange.isRange} data-product-sku=${sku}>
         <sly data-sly-test.isDiscounted=${priceRange.isDiscounted}>
-            <span class="regularPrice">${priceRange.formattedRegularPrice} - ${priceRange.formattedRegularPriceMax}</span>
-            <span class="discountedPrice">${priceRange.formattedFinalPrice} - ${priceRange.formattedFinalPriceMax}</span>
+            <span class="regularPrice">${'From' @i18n} ${priceRange.formattedRegularPrice} ${'To' @i18n} ${priceRange.formattedRegularPriceMax}</span>
+            <span class="discountedPrice">${'From' @i18n} ${priceRange.formattedFinalPrice} ${'To' @i18n} ${priceRange.formattedFinalPriceMax}</span>
             <span class="you-save" data-sly-test=${displayYouSave}>${'You save' @i18n} ${priceRange.formattedDiscountAmount} (${priceRange.discountPercent}%)</span>
         </sly>
-        <span data-sly-test=${!isDiscounted}>${priceRange.formattedRegularPrice} - ${priceRange.formattedRegularPriceMax}</span>
+        <span data-sly-test=${!isDiscounted}>${'From' @i18n} ${priceRange.formattedRegularPrice} ${'To' @i18n} ${priceRange.formattedRegularPriceMax}</span>
     </div>
 </sly>

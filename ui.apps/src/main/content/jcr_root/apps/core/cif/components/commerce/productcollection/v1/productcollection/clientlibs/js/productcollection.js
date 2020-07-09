@@ -112,33 +112,35 @@ class ProductCollection {
                             currency: price.currency
                         })}</span>`;
                 } else {
-                    let prefix = price.isStartPrice ? 'Starting at ' : ''; // TODO: enable i18n text
+                    let prefix = price.isStartPrice ? this._formatter.get('Starting at') + ' ' : '';
                     innerHTML += `<span>${prefix}${this._formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
                     })}</span>`;
                 }
             } else {
+                let from = this._formatter.get('From');
+                let to = this._formatter.get('To');
                 if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                    innerHTML += `<span class="regularPrice">${from} ${this._formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
-                    })} - ${this._formatter.formatPrice({
+                    })} ${to} ${this._formatter.formatPrice({
                         value: price.regularPriceMax,
                         currency: price.currency
                     })}</span>
-                        <span class="discountedPrice">${this._formatter.formatPrice({
-                            value: price.finalPrice,
-                            currency: price.currency
-                        })} - ${this._formatter.formatPrice({
+                        <span class="discountedPrice">${from} ${this._formatter.formatPrice({
+                        value: price.finalPrice,
+                        currency: price.currency
+                    })} ${to} ${this._formatter.formatPrice({
                         value: price.finalPriceMax,
                         currency: price.currency
                     })}</span>`;
                 } else {
-                    innerHTML += `<span>${this._formatter.formatPrice({
+                    innerHTML += `<span>${from} ${this._formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
-                    })} - ${this._formatter.formatPrice({
+                    })} ${to} ${this._formatter.formatPrice({
                         value: price.regularPriceMax,
                         currency: price.currency
                     })}</span>`;
