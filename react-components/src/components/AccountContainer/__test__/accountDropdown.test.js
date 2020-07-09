@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 import { render } from '@testing-library/react';
@@ -24,13 +23,6 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import AccountDropdown from '../accountDropdown';
 
 describe('<AccountDropdown>', () => {
-    beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the AccountDropdown
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
-    });
-
     it('render the account dropdown when account dropdown is open', () => {
         const stateWithAccountDropdownOpen = { isAccountDropdownOpen: true };
         const accountDropdownOpenClass = 'dropdown_open';

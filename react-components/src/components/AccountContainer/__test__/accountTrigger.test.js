@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 import { render, fireEvent } from '@testing-library/react';
@@ -30,17 +29,6 @@ jest.mock('../../../context/UserContext', () => ({
 }));
 
 describe('<AccountTrigger>', () => {
-    beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the AccountTrigger
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
-    });
-
-    afterEach(() => {
-        ReactDOM.createPortal.mockClear();
-    });
-
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
