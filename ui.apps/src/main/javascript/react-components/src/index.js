@@ -17,12 +17,13 @@ import { CommerceApp, Cart, AuthBar, AccountContainer } from '@adobe/aem-core-ci
 import { I18nextProvider } from 'react-i18next';
 
 import i18n from './i18n';
+import config from './config';
 
 const App = () => {
     const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
     return (
         <I18nextProvider i18n={i18n} defaultNS="common">
-            <CommerceApp uri={graphqlEndpoint} storeView={storeView}>
+            <CommerceApp uri={graphqlEndpoint} storeView={storeView} config={config}>
                 <Cart />
                 <AuthBar />
                 <AccountContainer />

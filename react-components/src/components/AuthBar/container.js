@@ -21,8 +21,8 @@ import { useNavigationContext } from '../../context/NavigationContext';
 import classes from './container.css';
 
 const Container = () => {
-    const container = document.querySelector('aside.navigation__root #miniaccount');
-    const [{ view }] = useNavigationContext();
+    const [{ view, authBarContainerQuerySelector }] = useNavigationContext();
+    const container = document.querySelector(authBarContainerQuerySelector);
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;

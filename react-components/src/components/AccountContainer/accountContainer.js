@@ -20,10 +20,9 @@ import { useUserContext } from '../../context/UserContext';
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
-const container = document.querySelector('.header__accountTrigger #miniaccount');
-
 const AccountContainer = () => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
+    const [{ currentUser, isSignedIn, accountContainerQuerySelector }] = useUserContext();
+    const container = document.querySelector(accountContainerQuerySelector);
 
     const [t] = useTranslation('account');
 
