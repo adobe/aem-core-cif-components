@@ -18,6 +18,6 @@ const config = {
     navigationContext: {
         authBarContainerQuerySelector: 'aside.navigation__root #miniaccount'
     }
-}
+};
 
 export default config;
