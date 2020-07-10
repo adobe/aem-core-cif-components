@@ -25,10 +25,8 @@ import AccountContainer from '../accountContainer';
 
 describe('<AccountContainer>', () => {
     beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the AccountTrigger and AccountDropdown
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
+        // mock createPortal because we don't have the DOM element to render the AccountContainer
+        jest.spyOn(ReactDOM, 'createPortal').mockImplementation(element => element);
     });
 
     it('renders the component', () => {
