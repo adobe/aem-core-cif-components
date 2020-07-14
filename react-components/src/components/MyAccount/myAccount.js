@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { LogOut as SignOutIcon, Lock as PasswordIcon } from 'react-feather';
+import { Book as BookIcon, Lock as PasswordIcon, LogOut as SignOutIcon, Info as InfoIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 import AccountLink from './accountLink';
@@ -25,16 +25,10 @@ import { useCartState } from '../Minicart/cartContext';
 import { func } from 'prop-types';
 
 const MyAccount = props => {
-    const { showMenu, showChangePassword } = props;
+    const { showMenu, showChangePassword, showAddressBook, showAccountInformation } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
     const [, dispatch] = useCartState();
-
     const [t] = useTranslation('account');
-
-    const handleSignOut = () => {
-        dispatch({ type: 'reset' });
-        signOut();
-    };
 
     if (inProgress) {
         return (
@@ -44,9 +38,14 @@ const MyAccount = props => {
         );
     }
 
-    if (!isSignedIn) {
+    if (!isSignedIn && showMenu) {
         showMenu();
     }
+
+    const handleSignOut = () => {
+        dispatch({ type: 'reset' });
+        signOut();
+    };
 
     return (
         <div className={classes.root}>
@@ -59,6 +58,14 @@ const MyAccount = props => {
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
                 </AccountLink>
+                <AccountLink onClick={showAddressBook}>
+                    <BookIcon size={18} />
+                    {t('account:address-book', 'Address Book')}
+                </AccountLink>
+                <AccountLink onClick={showAccountInformation}>
+                    <InfoIcon size={18} />
+                    {t('account:address-information', 'Address Information')}
+                </AccountLink>
                 <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />
                     {t('account:sign-out', 'Sign Out')}
@@ -69,7 +76,9 @@ const MyAccount = props => {
 };
 
 MyAccount.propTypes = {
-    showMenu: func.isRequired,
+    showMenu: func,
+    showAddressBook: func.isRequired,
+    showAccountInformation: func.isRequired,
     showChangePassword: func.isRequired
 };
 

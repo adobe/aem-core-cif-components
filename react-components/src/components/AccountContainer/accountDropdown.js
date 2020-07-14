@@ -12,33 +12,30 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import SignIn from '../SignIn';
-import MyAccount from '../MyAccount';
-import ForgotPassword from '../ForgotPassword';
-import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
+import { useUserContext } from '../../context/UserContext';
+import SignIn from '../SignIn/signIn';
+import MyAccount from '../MyAccount/myAccount';
 import ChangePassword from '../ChangePassword';
-import { useNavigationContext } from '../../context/NavigationContext';
+import ForgotPassword from '../ForgotPassword/forgotPassword';
+import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 
-import classes from './authModal.css';
+import classes from './accountDropdown.css';
 
-const AuthModal = () => {
+const AccountDropdown = () => {
     const [
-        { view },
-        {
-            showSignIn,
-            showMyAccount,
-            showMenu,
-            showForgotPassword,
-            showChangePassword,
-            showCreateAccount,
-            showAccountCreated
-        }
-    ] = useNavigationContext();
+        { isAccountDropdownOpen, accountDropdownView },
+        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
+    ] = useUserContext();
+
+    const [t] = useTranslation('account');
+
+    const className = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
 
     let child;
 
-    switch (view) {
+    switch (accountDropdownView) {
         case 'SIGN_IN':
             child = (
                 <SignIn
@@ -51,7 +48,6 @@ const AuthModal = () => {
         case 'MY_ACCOUNT':
             child = (
                 <MyAccount
-                    showMenu={showMenu}
                     showChangePassword={showChangePassword}
                     showAddressBook={() => {}}
                     showAccountInformation={() => {}}
@@ -59,19 +55,29 @@ const AuthModal = () => {
             );
             break;
         case 'CHANGE_PASSWORD':
-            child = <ChangePassword showMyAccount={showMyAccount} />;
+            child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
             break;
         case 'FORGOT_PASSWORD':
-            child = <ForgotPassword onClose={showMenu} />;
+            child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
             break;
         case 'CREATE_ACCOUNT':
-            child = <CreateAccount showMyAccount={showMyAccount} showAccountCreated={showAccountCreated} />;
+            child = (
+                <CreateAccount
+                    showMyAccount={showMyAccount}
+                    showAccountCreated={showAccountCreated}
+                    handleCancel={showSignIn}
+                />
+            );
             break;
         case 'ACCOUNT_CREATED':
             child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
-    return <div className={classes.root}>{child}</div>;
+    return (
+        <div className={className} aria-label="account dropdown">
+            {child}
+        </div>
+    );
 };
 
-export default AuthModal;
+export default AccountDropdown;
