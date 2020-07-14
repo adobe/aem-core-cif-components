@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexpo
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
@@ -33,9 +34,8 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 public class StoreConfigExporterTest {
 
-    private static final ValueMap MOCK_CONFIGURATION = new com.adobe.cq.commerce.common.ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore",
-            "my-magento-store"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
