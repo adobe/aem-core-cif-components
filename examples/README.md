@@ -26,9 +26,11 @@ _Note that the `ui.apps` examples content package depends on the same version of
 The mock GraphQL server can only serve content via HTTPS because our GraphQL client does not support non-secure connections for security reasons. This means you have to enable HTTPS on your AEM instance if you want to install and use the mock server. To do this, simply follow the [following documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html).
 If the self-signed certificate gets rejected by the browser, try adding it to the OS keychain and mark it as trusted.
 
-You must also enable anonymous access to the mock GraphQL server which will by defaut receive its requests on `https://localhost:8443/apps/cif-components-examples/graphql`. To do that, do the following:
+You must also enable anonymous access to the mock GraphQL server which will by defaut receive its requests on `/apps/cif-components-examples/graphql`. To do that, do the following:
 * In the AEM system configuration console, look for `Apache Sling Authentication Service`
 * Add the following line at the bottom of the "Authentication Requirements" property: `-/apps/cif-components-examples/graphql`
+
+The GraphQL client used by the examples is configured by default with the URL set to `$[env:CIF_MOCK_GRAPHQL_ENDPOINT]`, which means that it would use the environment variable `CIF_MOCK_GRAPHQL_ENDPOINT` (for local development, this is only supported by the Cloud SDK). For local development, if you do not want or cannot set that variable, just override that OSGi configuration manually and set it to `https://localhost:8443/apps/cif-components-examples/graphql`.
 
 ## How does it work?
 
@@ -38,7 +40,7 @@ The components are configured to use the CIF configuration defined at `/conf/cor
 
 All the CIF components used on the CIF library pages issue GraphQL requests to the mock GraphQL server which responds with mocked JSON responses that contain the data and links to images to be rendered by the component. We use a mock GraphQL server to avoid having any dependency on a pre-installed Magento instance with sample data.
 
-When everything is correctly installed, you should be able to open the library page at [http://localhost:4502/content/core-components-examples/library.html](http://localhost:4502/content/core-components-examples/library.html) and see the "Commerce" at the bottom of the left-side panel and at the bottom of the page content.
+When everything is correctly installed, you should be able to open the library page at [http://localhost:4502/content/core-components-examples/library.html](http://localhost:4502/content/core-components-examples/library.html) and see the "Commerce" section at the bottom of the left-side panel and at the bottom of the page content.
 
 ## Layout / design
 
