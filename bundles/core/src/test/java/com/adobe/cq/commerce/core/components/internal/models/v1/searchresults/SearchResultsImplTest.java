@@ -64,7 +64,9 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -101,6 +103,7 @@ public class SearchResultsImplTest {
 
     private SearchResultsImpl searchResultsModel;
     private Resource pageResource;
+    private GraphqlClient graphqlClient;
 
     @Mock
     HttpClient httpClient;
@@ -111,7 +114,7 @@ public class SearchResultsImplTest {
         context.currentResource(SEARCHRESULTS);
         Resource searchResultsResource = context.resourceResolver().getResource(SEARCHRESULTS);
 
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
@@ -178,7 +181,11 @@ public class SearchResultsImplTest {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
         Collection<ProductListItem> products = searchResultsModel.getProducts();
+
+        // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertTrue("Products list is empty", products.isEmpty());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -225,6 +232,7 @@ public class SearchResultsImplTest {
 
     @Test
     public void testSorting() {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
         SearchResultsSet resultSet = searchResultsModel.getSearchResultsSet();
         Assert.assertNotNull(resultSet);
