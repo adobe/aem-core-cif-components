@@ -74,6 +74,9 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
         if (!(adaptable instanceof Resource)) {
             return null;
         }
+        // TODO This is a temporary fix to unblock CIF-1514
+        // Permanent fix to be implemented by CIF-1516
+        serviceResolver.refresh();
         Resource res = serviceResolver.getResource(((Resource) adaptable).getPath());
         ConfigurationBuilder cfgBuilder = res.adaptTo(ConfigurationBuilder.class);
         ComponentsConfiguration configuration = new ComponentsConfiguration(cfgBuilder.name(CONFIGURATION_NAME).asValueMap());
