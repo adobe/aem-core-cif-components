@@ -24,7 +24,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -93,10 +92,7 @@ public class PreviewServlet extends SlingSafeMethodsServlet {
 
         int idx = referer.lastIndexOf(PAGE_EDITOR_PATH);
         String pagePath = referer.substring(idx + PAGE_EDITOR_PATH.length());
-        pagePath = pagePath.replaceAll(".html", ""); // get rid of .html extension
-
-        ResourceResolver resourceResolver = request.getResourceResolver();
-        Resource pageResource = resourceResolver.getResource(pagePath);
-        return pageResource != null ? pageResource.adaptTo(Page.class) : null;
+        Resource pageResource = request.getResourceResolver().resolve(pagePath);
+        return pageResource.adaptTo(Page.class);
     }
 }
