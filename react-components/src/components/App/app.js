@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import React from 'react';
-import { string } from 'prop-types';
+import { object, string } from 'prop-types';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
 
@@ -24,7 +24,7 @@ import NavigationContextProvider from '../../context/NavigationContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 
 const App = props => {
-    const { uri, storeView = 'default' } = props;
+    const { config, uri, storeView = 'default' } = props;
 
     const client = new ApolloClient({
         uri,
@@ -43,8 +43,8 @@ const App = props => {
 
     return (
         <ApolloProvider client={client}>
-            <UserContextProvider>
-                <NavigationContextProvider>
+            <UserContextProvider config={config.userContext}>
+                <NavigationContextProvider config={config.navigationContext}>
                     <CartProvider>
                         <CartInitializer>
                             <CheckoutProvider>{props.children}</CheckoutProvider>
@@ -57,6 +57,7 @@ const App = props => {
 };
 
 App.propTypes = {
+    config: object.isRequired,
     uri: string.isRequired,
     storeView: string
 };

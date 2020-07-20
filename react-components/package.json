@@ -53,7 +53,7 @@
     "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
-    "informed": "^2.11.17",
+    "informed": "^3.9.0",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
     "jest-transform-graphql": "^2.1.0",
