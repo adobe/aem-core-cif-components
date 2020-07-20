@@ -25,7 +25,7 @@ import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
     const [
-        { isAccountDropdownOpen, accountDropdownView },
+        { isAccountDropdownOpen, accountDropdownView, addressBookPath },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
@@ -49,7 +49,10 @@ const AccountDropdown = () => {
             child = (
                 <MyAccount
                     showChangePassword={showChangePassword}
-                    showAddressBook={() => {}}
+                    //showAddressBook={() => { window.location.href = addressBookPath }}
+                    showAddressBook={() => {
+                        window.location.href = '/content/venia/us/en/my-account/address-book.html';
+                    }}
                     showAccountInformation={() => {}}
                 />
             );
