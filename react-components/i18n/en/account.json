@@ -33,5 +33,8 @@
   "forgot-password-cancel": "Cancel",
   "create-cancel": "Cancel",
   "change-password-cancel": "Cancel",
-  "sign-in-form-title": "Sign-in to Your Account"
+  "sign-in-form-title": "Sign-in to Your Account",
+  "add-an-address": "Add an address",
+  "address-form-submitting": "Submitting...",
+  "address-save": "Save"
 }
