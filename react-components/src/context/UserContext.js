@@ -55,6 +55,54 @@ const reducerFactory = () => {
                     token: action.token,
                     signInError: null
                 };
+            case 'setNewAddress':
+                return {
+                    ...state,
+                    currentUser: {
+                        ...state.currentUser,
+                        addresses: [...state.currentUser.addresses, action.address]
+                    }
+                };
+            case 'setAddressFormError':
+                return {
+                    ...state,
+                    addressFormError: action.error
+                };
+            case 'clearAddressFormError':
+                return {
+                    ...state,
+                    addressFormError: null
+                };
+            case 'beginEditingAddress':
+                return {
+                    ...state,
+                    updateAddress: action.address
+                };
+            case 'endEditingAddress':
+                return {
+                    ...state,
+                    updateAddress: null
+                };
+            case 'updateAddresses':
+                return {
+                    ...state,
+                    currentUser: {
+                        ...state.currentUser,
+                        addresses: [...state.currentUser.addresses].map(address => {
+                            return address.id === action.address.id ? action.address : address;
+                        })
+                    }
+                };
+            case 'beginDeletingAddress':
+                return {
+                    ...state,
+                    deleteAddress: action.address
+                };
+            case 'endDeletingAddress':
+                return {
+                    ...state,
+                    deleteAddress: null
+                };
             case 'postCreateAccount':
                 return {
                     ...state,
@@ -92,7 +140,8 @@ const reducerFactory = () => {
                     currentUser: {
                         firstname: '',
                         lastname: '',
-                        email: ''
+                        email: '',
+                        addresses: []
                     },
                     cartId: '',
                     accountDropdownView: 'SIGN_IN'
@@ -107,6 +156,16 @@ const reducerFactory = () => {
                     ...state,
                     accountDropdownView: action.view
                 };
+            case 'openAddressForm':
+                return {
+                    ...state,
+                    isShowAddressForm: true
+                };
+            case 'closeAddressForm':
+                return {
+                    ...state,
+                    isShowAddressForm: false
+                };
             default:
                 return state;
         }
@@ -119,23 +178,33 @@ const UserContextProvider = props => {
     const isSignedIn = () => !!userCookie;
     const accountContainerQuerySelector =
         (props.config && props.config.accountContainerQuerySelector) || '.header__accountTrigger #miniaccount';
+    const addressBookContainerQuerySelector =
+        (props.config && props.config.addressBookContainerQuerySelector) || '#addressbook';
+    const addressBookPath = (props.config && props.config.addressBookPath) || '/my-account/address-book.html';
 
     const initialState = props.initialState || {
         currentUser: {
             firstname: '',
             lastname: '',
-            email: ''
+            email: '',
+            addresses: []
         },
         token: userCookie,
         isSignedIn: isSignedIn(),
         isAccountDropdownOpen: false,
+        isShowAddressForm: false,
+        addressFormError: null,
+        updateAddress: null,
+        deleteAddress: null,
         signInError: null,
         inProgress: false,
         createAccountError: null,
         createAccountEmail: null,
         cartId: null,
         accountDropdownView: 'SIGN_IN',
-        accountContainerQuerySelector
+        accountContainerQuerySelector,
+        addressBookContainerQuerySelector,
+        addressBookPath
     };
 
     const [userState, dispatch] = useReducer(reducerFactory(), initialState);

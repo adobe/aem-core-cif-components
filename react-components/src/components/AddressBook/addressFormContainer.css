@@ -1,0 +1,26 @@
+.mask {
+    composes: root from '../Mask/mask.css';
+    cursor: auto;
+    z-index: 10;
+}
+
+.mask_active {
+    composes: mask;
+    composes: root_active from '../Mask/mask.css';
+}
+
+.container {
+    background-color: white;
+    left: 50%;
+    max-width: 360px;
+    position: absolute;
+    top: 65%;
+    transform: translate(-50%, -65%);
+    width: 100%;
+    z-index: 11;
+}
+
+.error {
+    color: rgb(var(--venia-error));
+    padding: 0 1.5rem 1.5rem;
+}

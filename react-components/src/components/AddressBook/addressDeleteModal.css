@@ -1,0 +1,7 @@
+.root {
+    align-items: center;
+    background-color: rgba(var(--venia-grey), 0.5);
+    display: inline-flex;
+    justify-content: space-around;
+    z-index: 2;
+}
