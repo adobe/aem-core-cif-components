@@ -22,6 +22,7 @@ import org.apache.http.HttpHeaders;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestPathInfo;
+import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -100,7 +101,8 @@ public class PreviewServletTest {
     public void testReferer_invalidPage() throws IOException {
         // mock referer and page
         when(request.getHeader(HttpHeaders.REFERER)).thenReturn("/editor.html/path/to/invalid/page.html");
-        when(resourceResolver.getResource("/path/to/invalid/page")).thenReturn(null);
+        String path = "/path/to/invalid/page.html";
+        when(resourceResolver.resolve(path)).thenReturn(new NonExistingResource(resourceResolver, path));
 
         // handle request
         servlet.doGet(request, response);
@@ -119,7 +121,7 @@ public class PreviewServletTest {
 
         // mock page
         Resource resource = mock(Resource.class);
-        when(resourceResolver.getResource("/path/to/valid/product/page")).thenReturn(resource);
+        when(resourceResolver.resolve("/path/to/valid/product/page.html")).thenReturn(resource);
         when(resource.adaptTo(Page.class)).thenReturn(mock(Page.class));
 
         // mock UrlProvider
@@ -166,7 +168,7 @@ public class PreviewServletTest {
 
         // mock page
         Resource resource = mock(Resource.class);
-        when(resourceResolver.getResource("/path/to/valid/category/page")).thenReturn(resource);
+        when(resourceResolver.resolve("/path/to/valid/category/page.html")).thenReturn(resource);
         when(resource.adaptTo(Page.class)).thenReturn(mock(Page.class));
 
         // mock UrlProvider
