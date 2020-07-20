@@ -22,13 +22,14 @@ import Button from '../Button';
 import classes from './addressDeleteModal.css';
 
 const AddressDeleteModal = () => {
-    const [, { dispatch }] = useUserContext();
+    const [{ deleteAddress: address }, { dispatch }] = useUserContext();
     const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
 
     const [t] = useTranslation('account');
 
     const handleDeleteConfirmClick = async () => {
-        await deleteCustomerAddress({ variables: { id: deleteAddress.id } });
+        await deleteCustomerAddress({ variables: { id: address.id } });
+        dispatch({ type: 'removeDeletedAddress', address });
         dispatch({ type: 'endDeletingAddress' });
     };
 

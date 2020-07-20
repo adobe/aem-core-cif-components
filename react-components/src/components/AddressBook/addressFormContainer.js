@@ -42,7 +42,7 @@ const AddressFormContainer = () => {
         setIsSubmitting(true);
         try {
             if (updateAddress) {
-                const { data } = await updateCustomerAddress({ variables: { id: address.id, ...formValues } });
+                const { data } = await updateCustomerAddress({ variables: { id: updateAddress.id, ...formValues } });
                 dispatch({ type: 'updateAddresses', address: data.updateCustomerAddress });
                 dispatch({ type: 'endEditingAddress' });
             } else {
@@ -67,7 +67,7 @@ const AddressFormContainer = () => {
                     <AddressForm
                         cancel={handleCancel}
                         countries={countries}
-                        initialValues={address}
+                        initialValues={updateAddress}
                         submit={handleSubmit}
                         submitLabel={t('account:address-save', 'Save')}
                     />

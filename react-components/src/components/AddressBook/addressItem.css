@@ -6,6 +6,7 @@
     min-height: 8rem;
     max-width: 360px;
     padding: 1.5rem;
+    position: relative;
     width: 100%;
 }
 
