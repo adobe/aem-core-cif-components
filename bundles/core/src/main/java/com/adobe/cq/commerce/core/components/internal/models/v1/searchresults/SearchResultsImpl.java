@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -31,6 +30,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.productcollectio
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
+import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 
@@ -50,6 +50,10 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @PostConstruct
     protected void initModel() {
         searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
+        if (StringUtils.isBlank(searchTerm)) {
+            searchResultsSet = new SearchResultsSetImpl();
+            return;
+        }
 
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
         Integer currentPageIndex = calculateCurrentPageCursor(request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID));
@@ -82,10 +86,6 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        if (StringUtils.isBlank(searchTerm)) {
-            return Collections.emptyList();
-        }
-
         return getSearchResultsSet().getProductListItems();
     }
 
