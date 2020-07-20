@@ -11,38 +11,36 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { node, shape, string } from 'prop-types';
 import { BasicText, asField } from 'informed';
 
 import { FieldIcons, Message } from '../Field';
 import classes from './textInput.css';
 
-export class TextInput extends Component {
-    static propTypes = {
-        after: node,
-        before: node,
-        classes: shape({
-            input: string
-        }),
-        fieldState: shape({
-            value: string
-        }),
-        message: node
-    };
+const TextInput = props => {
+    const { after, before, fieldState, message, ...rest } = props;
 
-    render() {
-        const { after, before, fieldState, message, ...rest } = this.props;
+    return (
+        <Fragment>
+            <FieldIcons after={after} before={before}>
+                <BasicText {...rest} fieldState={fieldState} className={classes.input} />
+            </FieldIcons>
+            <Message fieldState={fieldState}>{message}</Message>
+        </Fragment>
+    );
+};
 
-        return (
-            <Fragment>
-                <FieldIcons after={after} before={before}>
-                    <BasicText {...rest} fieldState={fieldState} className={classes.input} />
-                </FieldIcons>
-                <Message fieldState={fieldState}>{message}</Message>
-            </Fragment>
-        );
-    }
-}
+TextInput.propTypes = {
+    after: node,
+    before: node,
+    classes: shape({
+        input: string
+    }),
+    fieldState: shape({
+        value: string
+    }),
+    message: node
+};
 
 export default asField(TextInput);
