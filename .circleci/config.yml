@@ -54,10 +54,11 @@ jobs:
           root: /home/circleci/build
           paths:
             - configuration.json
-            - bundles/*/target/*.jar
-            - ui.apps/*/target/*.zip
-            - examples/*/target/*.jar
-            - examples/*/target/*.zip
+            - bundles/core/target/*.jar
+            - ui.apps/target/*.zip
+            - examples/bundle/target/*.jar
+            - examples/ui.apps/target/*.zip
+            - examples/ui.content/target/*.zip
       - store_test_results:
           path: bundles/core/target/surefire-reports
       - store_artifacts:
