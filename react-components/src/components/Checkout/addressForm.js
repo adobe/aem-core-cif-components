@@ -27,7 +27,7 @@ const fields = ['city', 'email', 'firstname', 'lastname', 'postcode', 'region_co
 
 const AddressForm = props => {
     const [submitting, setIsSubmitting] = useState(false);
-    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit } = props;
+    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit, submitLabel } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const [t] = useTranslation(['checkout', 'common']);
 
@@ -55,6 +55,8 @@ const AddressForm = props => {
         },
         [submit]
     );
+
+    const submitButtonLabel = submitLabel || t('checkout:address-submit', 'Use Address');
 
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
@@ -115,7 +117,7 @@ const AddressForm = props => {
             <div className={classes.footer}>
                 <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
                 <Button type="submit" priority="high" disabled={submitting}>
-                    {t('checkout:address-submit', 'Use Address')}
+                    {submitButtonLabel}
                 </Button>
             </div>
         </Form>
@@ -145,7 +147,8 @@ AddressForm.propTypes = {
     initialValues: object,
     isAddressInvalid: bool,
     submit: func.isRequired,
-    submitting: bool
+    submitting: bool,
+    submitLabel: string
 };
 
 AddressForm.defaultProps = {
