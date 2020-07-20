@@ -30,7 +30,7 @@ import LoadingIndicator from '../LoadingIndicator';
 import MUTATION_CHANGE_PASSWORD from '../../queries/mutation_change_password.graphql';
 
 const ChangePassword = props => {
-    const { showMyAccount } = props;
+    const { showMyAccount, handleCancel } = props;
     const [{ token }] = useUserContext();
     const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
     const [t] = useTranslation(['account', 'common']);
@@ -107,6 +107,11 @@ const ChangePassword = props => {
                         <Button type="submit" priority="high" aria-label="submit">
                             {t('account:change-password', 'Change Password')}
                         </Button>
+                        {handleCancel && (
+                            <Button type="button" priority="normal" aria-label="cancel" onClick={handleCancel}>
+                                {t('account:change-password-cancel', 'Cancel')}
+                            </Button>
+                        )}
                     </div>
                 </Form>
             </div>
@@ -115,7 +120,8 @@ const ChangePassword = props => {
 };
 
 ChangePassword.propTypes = {
-    showMyAccount: func.isRequired
+    showMyAccount: func.isRequired,
+    handleCancel: func
 };
 
 export default ChangePassword;

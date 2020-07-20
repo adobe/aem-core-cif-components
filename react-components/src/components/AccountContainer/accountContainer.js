@@ -13,33 +13,34 @@
  ******************************************************************************/
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { useTranslation, Trans } from 'react-i18next';
 
-import AuthBar from './authBar';
-import AuthModal from '../AuthModal';
-import { useNavigationContext } from '../../context/NavigationContext';
+import { useUserContext } from '../../context/UserContext';
 
-import classes from './container.css';
+import AccountTrigger from './accountTrigger';
+import AccountDropdown from './accountDropdown';
 
-const Container = () => {
-    const [{ view, authBarContainerQuerySelector }] = useNavigationContext();
-    const container = document.querySelector(authBarContainerQuerySelector);
+const AccountContainer = () => {
+    const [{ currentUser, isSignedIn, accountContainerQuerySelector }] = useUserContext();
+    const container = document.querySelector(accountContainerQuerySelector);
 
-    const hasModal = view !== 'MENU';
-    const modalClassName = hasModal ? classes.modal_open : classes.modal;
+    const [t] = useTranslation('account');
+
+    const label = isSignedIn ? (
+        <Trans t={t} i18nKey="account:account-icon-text-greeting">
+            Hi, {{ name: currentUser.firstname }}
+        </Trans>
+    ) : (
+        t('account:account-icon-text-sign-in', 'Sign In')
+    );
 
     return ReactDOM.createPortal(
         <>
-            <div className="navigation__footer">
-                <AuthBar />
-            </div>
-            {view !== null && (
-                <div className={modalClassName}>
-                    <AuthModal />
-                </div>
-            )}
+            <AccountTrigger label={label} />
+            <AccountDropdown />
         </>,
         container
     );
 };
 
-export default Container;
+export default AccountContainer;

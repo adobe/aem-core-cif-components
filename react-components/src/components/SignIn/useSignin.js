@@ -25,7 +25,10 @@ import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 
 export const useSignin = () => {
     const [{ cartId }, cartDispatch] = useCartState();
-    const [userState, { setToken, getUserDetails, setCustomerCart, setError }] = useUserContext();
+    const [
+        userState,
+        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown }
+    ] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [, setCartCookie] = useCookieValue('cif.cart');
@@ -73,6 +76,10 @@ export const useSignin = () => {
             //4. set the cart id in the cookie
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
+
+            if (userState.isAccountDropdownOpen) {
+                toggleAccountDropdown(false);
+            }
         } catch (e) {
             setError(e);
         }
