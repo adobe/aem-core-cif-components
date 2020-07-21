@@ -1,11 +1,10 @@
-.button {
+.root {
     align-items: center;
     border: 1px dotted rgb(var(--venia-text));
     border-radius: 5px;
     display: inline-flex;
     justify-content: center;
     min-height: 8rem;
-    max-width: 360px;
     padding: 1.5rem;
     width: 100%;
 }
