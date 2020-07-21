@@ -14,7 +14,6 @@ query {
             lastname
             postcode
             region {
-                region
                 region_code
             }
             street

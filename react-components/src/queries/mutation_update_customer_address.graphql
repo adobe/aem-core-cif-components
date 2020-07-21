@@ -8,7 +8,7 @@ mutation(
   $firstname: String
   $lastname: String
   $postcode: String
-  $region_code: String
+  $region: CustomerAddressRegionInput
   $street: [String]
   $telephone: String
 ) {
@@ -23,10 +23,8 @@ mutation(
       firstname: $firstname
       lastname: $lastname
       postcode: $postcode
-      region: {
-        region_code: $region_code
-      }
-      street: $street,
+      region: $region
+      street: $street
       telephone: $telephone
     }
   ) {
