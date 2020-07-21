@@ -49,7 +49,7 @@ const AddressItem = props => {
                 </div>
                 <div className={classes.street}>{street}</div>
                 <div className={classes.cityRegion}>
-                    {address.city}, {address.region.region}
+                    {address.city}, {address.region.region_code}
                 </div>
                 <div className={classes.country}>{address.country_code}</div>
             </div>
