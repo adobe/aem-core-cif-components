@@ -22,12 +22,33 @@ import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from 
 import combine from '../../utils/combineValidators';
 import TextInput from '../TextInput';
 import Field from '../Field';
+import Checkbox from '../Checkbox';
 
-const fields = ['city', 'email', 'firstname', 'lastname', 'postcode', 'region_code', 'street', 'telephone'];
+const fields = [
+    'city',
+    'default_shipping',
+    'email',
+    'firstname',
+    'lastname',
+    'postcode',
+    'region_code',
+    'region',
+    'street',
+    'telephone'
+];
 
 const AddressForm = props => {
     const [submitting, setIsSubmitting] = useState(false);
-    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit, submitLabel } = props;
+    const {
+        cancel,
+        countries,
+        isAddressInvalid,
+        invalidAddressMessage,
+        initialValues,
+        submit,
+        submitLabel,
+        showDefaultAddressCheckbox
+    } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const [t] = useTranslation(['checkout', 'common']);
 
@@ -38,6 +59,11 @@ const AddressForm = props => {
                     // Convert street from array to flat strings
                     if (key === 'street') {
                         initialValues[key].forEach((v, i) => (acc[`street${i}`] = v));
+                        return acc;
+                    }
+                    // Convert region from object to region_code string
+                    if (key === 'region') {
+                        acc['region_code'] = initialValues[key].region_code;
                         return acc;
                     }
                     acc[key] = initialValues[key];
@@ -112,6 +138,15 @@ const AddressForm = props => {
                         <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
+                <div className={classes.default_shipping}>
+                    {showDefaultAddressCheckbox && (
+                        <Checkbox
+                            id={classes.default_shipping}
+                            label={t('checkout:address-default-address', 'Make my default address')}
+                            field="default_shipping"
+                        />
+                    )}
+                </div>
                 <div className={classes.validation}>{validationMessage}</div>
             </div>
             <div className={classes.footer}>
@@ -130,6 +165,7 @@ AddressForm.propTypes = {
         body: string,
         button: string,
         city: string,
+        default_shipping: string,
         email: string,
         firstname: string,
         footer: string,
@@ -146,6 +182,7 @@ AddressForm.propTypes = {
     invalidAddressMessage: string,
     initialValues: object,
     isAddressInvalid: bool,
+    showDefaultAddressCheckbox: bool,
     submit: func.isRequired,
     submitting: bool,
     submitLabel: string

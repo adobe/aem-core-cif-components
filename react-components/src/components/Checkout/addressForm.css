@@ -55,3 +55,8 @@
     grid-column-end: span 2;
     line-height: normal;
 }
+
+.default_shipping {
+    grid-column-end: span 2;
+    text-align: left;
+}
