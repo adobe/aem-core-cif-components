@@ -26,5 +26,6 @@
   "use-shipping-method": "Use Method",
   "specify-shipping-method": "Specify Shipping Method",
   "order-confirmation": "The order number is <1>{{orderId}}</1>. You will receive an order confirmation email with order status and other details.",
-  "add-shipping-information": "Add Shipping Information"
+  "add-shipping-information": "Add Shipping Information",
+  "address-default-address": "Make my default address"
 }
