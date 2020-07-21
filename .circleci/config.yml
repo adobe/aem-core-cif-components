@@ -120,11 +120,21 @@ jobs:
           conf: .circleci/codecov.yml
           flags: jest
  
-  integration-test-652:
+  integration-test-655:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.2
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.5
+        <<: *docker_auth
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+ 
+  integration-test-cloudready:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:V19852
         <<: *docker_auth
     resource_class: large
     working_directory: /home/circleci/build
@@ -168,7 +178,15 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - integration-test-652:
+      - integration-test-655:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build
+            - karma
+            - jest
+      - integration-test-cloudready:
           filters:
             tags:
               only: /.*/
