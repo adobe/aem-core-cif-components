@@ -202,9 +202,10 @@ const mockAddress = {
     street: ['6146 Honey Bluff Parkway'],
     city: 'Calder',
     postcode: '49628-7978',
-    region_id: 33,
     region_code: 'MI',
-    region: 'Michigan',
+    region: {
+        region_code: 'MI'
+    },
     telephone: '(555) 229-3326',
     email: 'veronica@example.com'
 };

@@ -302,6 +302,9 @@ exports[`<AddressForm /> renders the component 1`] = `
         </div>
       </div>
       <div
+        class="default_shipping"
+      />
+      <div
         class="validation"
       />
     </div>
