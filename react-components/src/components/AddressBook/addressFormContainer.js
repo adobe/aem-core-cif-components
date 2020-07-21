@@ -36,17 +36,24 @@ const AddressFormContainer = () => {
     const handleCancel = () => {
         dispatch({ type: 'clearAddressFormError' });
         dispatch({ type: 'closeAddressForm' });
+        if (updateAddress) {
+            dispatch({ type: 'endEditingAddress' });
+        }
     };
 
     const handleSubmit = async formValues => {
         setIsSubmitting(true);
         try {
             if (updateAddress) {
-                const { data } = await updateCustomerAddress({ variables: { id: updateAddress.id, ...formValues } });
+                const { data } = await updateCustomerAddress({
+                    variables: { id: updateAddress.id, region: { region_code: formValues.region_code }, ...formValues }
+                });
                 dispatch({ type: 'updateAddresses', address: data.updateCustomerAddress });
                 dispatch({ type: 'endEditingAddress' });
             } else {
-                const { data } = await createCustomerAddress({ variables: { country_code: 'US', ...formValues } });
+                const { data } = await createCustomerAddress({
+                    variables: { country_code: 'US', region: { region_code: formValues.region_code }, ...formValues }
+                });
                 dispatch({ type: 'setNewAddress', address: data.createCustomerAddress });
             }
             dispatch({ type: 'closeAddressForm' });
@@ -68,6 +75,7 @@ const AddressFormContainer = () => {
                         cancel={handleCancel}
                         countries={countries}
                         initialValues={updateAddress}
+                        showDefaultAddressCheckbox={true}
                         submit={handleSubmit}
                         submitLabel={t('account:address-save', 'Save')}
                     />
