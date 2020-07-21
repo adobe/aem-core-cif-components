@@ -29,17 +29,12 @@ const AddAddressButton = props => {
     const rootClass = displayType ? classes[displayType] : classes.root;
 
     return (
-        <div className={rootClass}>
-            <button
-                className={classes.button}
-                aria-label="Add an address"
-                onClick={() => dispatch({ type: 'openAddressForm' })}>
-                <span className={classes.icon}>
-                    <PlusIcon size={18} />
-                </span>
-                <span className={classes.label}>{t('account:add-an-address', 'Add an address')}</span>
-            </button>
-        </div>
+        <button className={rootClass} aria-label="Add an address" onClick={() => dispatch({ type: 'openAddressForm' })}>
+            <span className={classes.icon}>
+                <PlusIcon size={18} />
+            </span>
+            <span className={classes.label}>{t('account:add-an-address', 'Add an address')}</span>
+        </button>
     );
 };
 
