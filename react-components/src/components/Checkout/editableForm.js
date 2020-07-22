@@ -18,7 +18,7 @@ import { useMutation } from '@apollo/react-hooks';
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
 import { getCartDetails } from '../../actions/cart';
 
-import AddressForm from './addressForm';
+import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
 import { useCartState } from '../Minicart/cartContext';

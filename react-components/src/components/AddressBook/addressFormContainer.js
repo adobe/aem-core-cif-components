@@ -20,7 +20,7 @@ import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_cust
 import { useCountries } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
 import LoadingIndicator from '../LoadingIndicator';
-import AddressForm from '../Checkout/addressForm';
+import AddressForm from '../AddressForm';
 
 import classes from './addressFormContainer.css';
 
