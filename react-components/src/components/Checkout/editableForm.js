@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/react-hooks';
 
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
@@ -55,6 +56,8 @@ const EditableForm = props => {
     );
 
     const [setGuestEmailOnCart, { data: guestEmailResult, error: guestEmailError }] = useMutation(MUTATION_SET_EMAIL);
+
+    const [t] = useTranslation(['checkout']);
 
     if (error || shippingMethodsError || guestEmailError || countriesError) {
         let errorObj = error || shippingMethodsError || guestEmailError || countriesError;
@@ -190,11 +193,13 @@ const EditableForm = props => {
                 <AddressForm
                     cancel={handleCancel}
                     countries={countries}
+                    heading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
                     initialValues={shippingAddress}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
+                    submitLabel={t('checkout:address-submit', 'Use Address')}
                 />
             );
         }

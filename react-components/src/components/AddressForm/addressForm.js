@@ -42,6 +42,7 @@ const AddressForm = props => {
     const {
         cancel,
         countries,
+        heading,
         isAddressInvalid,
         invalidAddressMessage,
         initialValues,
@@ -50,7 +51,7 @@ const AddressForm = props => {
         showDefaultAddressCheckbox
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
-    const [t] = useTranslation(['checkout', 'common']);
+    const [t] = useTranslation(['account', 'checkout', 'common']);
 
     const values = useMemo(
         () =>
@@ -82,12 +83,13 @@ const AddressForm = props => {
         [submit]
     );
 
-    const submitButtonLabel = submitLabel || t('checkout:address-submit', 'Use Address');
+    const submitButtonLabel = submitLabel || t('account:address-save', 'Save');
+    const formHeading = heading || t('account:address-form-heading', 'Address');
 
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
-                <h2 className={classes.heading}>Shipping Address</h2>
+                <h2 className={classes.heading}>{formHeading}</h2>
                 <div className={classes.firstname}>
                     <Field label={t('checkout:address-firstname', 'First Name')}>
                         <TextInput id={classes.firstname} field="firstname" validateOnBlur validate={isRequired} />
@@ -179,6 +181,7 @@ AddressForm.propTypes = {
         validation: string
     }),
     countries: array,
+    heading: string,
     invalidAddressMessage: string,
     initialValues: object,
     isAddressInvalid: bool,

@@ -11,7 +11,7 @@ exports[`<AddressForm /> renders the component 1`] = `
       <h2
         class="heading"
       >
-        Shipping Address
+        Address
       </h2>
       <div
         class="firstname"
@@ -328,7 +328,7 @@ exports[`<AddressForm /> renders the component 1`] = `
         <span
           class="content"
         >
-          Use Address
+          Save
         </span>
       </button>
     </div>

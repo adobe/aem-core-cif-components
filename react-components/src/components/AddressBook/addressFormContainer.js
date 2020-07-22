@@ -87,7 +87,6 @@ const AddressFormContainer = () => {
                         initialValues={updateAddress}
                         showDefaultAddressCheckbox={true}
                         submit={handleSubmit}
-                        submitLabel={t('account:address-save', 'Save')}
                     />
                     {addressFormError && <div className={classes.error}>{addressFormError}</div>}
                 </div>
