@@ -46,18 +46,18 @@
         <module>all</module>
     </modules>
 
-    <!-- We have a dedicated profile for the CIF components examples library -->
+    <!-- We have a dedicated profile for integration tests -->
     <!-- They are included by default unless we perform a release -->
     <profiles>
         <profile>
-            <id>examples-library</id>
+            <id>integration-tests</id>
             <activation>
                 <property>
-                    <name>!skip-examples</name>
+                    <name>!skip-it</name>
                 </property>
             </activation>
             <modules>
-                <module>examples</module>
+                <module>it/http</module>
             </modules>
         </profile>
     </profiles>
