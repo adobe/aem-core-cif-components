@@ -60,12 +60,19 @@ const AddressItem = props => {
                     </span>
                     <span className={classes.label}>{t('account:address-edit', 'Edit')}</span>
                 </button>
-                <button className={classes.deleteButton} onClick={handleDeleteClick}>
-                    <span className={classes.icon}>
-                        <DeleteIcon size={18} />
-                    </span>
-                    <span className={classes.label}>{t('account:address-delete', 'Delete')}</span>
-                </button>
+                {!address.default_shipping && !address.default_billing && (
+                    <button className={classes.deleteButton} onClick={handleDeleteClick}>
+                        <span className={classes.icon}>
+                            <DeleteIcon size={18} />
+                        </span>
+                        <span className={classes.label}>{t('account:address-delete', 'Delete')}</span>
+                    </button>
+                )}
+                {!!address.default_shipping && !!address.default_billing && (
+                    <div className={classes.defaultTag}>
+                        <span>{t('account:address-default-tag', 'Default')}</span>
+                    </div>
+                )}
             </div>
             {deleteAddress && deleteAddress.id === address.id && <AddressDeleteModal />}
         </div>

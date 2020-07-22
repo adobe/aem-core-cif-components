@@ -9,6 +9,16 @@
     width: 100%;
 }
 
+.defaultTag {
+    border: 1px solid rgb(var(--venia-teal));
+    border-radius: 5px;
+    color: rgb(var(--venia-teal));
+    max-width: 4.5rem;
+    padding: 0.5rem;
+    text-align: left;
+    margin-top: 0.5rem;
+}
+
 .name,
 .street,
 .cityRegion,

@@ -46,13 +46,23 @@ const AddressFormContainer = () => {
         try {
             if (updateAddress) {
                 const { data } = await updateCustomerAddress({
-                    variables: { id: updateAddress.id, region: { region_code: formValues.region_code }, ...formValues }
+                    variables: {
+                        id: updateAddress.id,
+                        region: { region_code: formValues.region_code },
+                        default_billing: formValues.default_shipping,
+                        ...formValues
+                    }
                 });
                 dispatch({ type: 'updateAddresses', address: data.updateCustomerAddress });
                 dispatch({ type: 'endEditingAddress' });
             } else {
                 const { data } = await createCustomerAddress({
-                    variables: { country_code: 'US', region: { region_code: formValues.region_code }, ...formValues }
+                    variables: {
+                        country_code: 'US',
+                        region: { region_code: formValues.region_code },
+                        default_billing: formValues.default_shipping,
+                        ...formValues
+                    }
                 });
                 dispatch({ type: 'setNewAddress', address: data.createCustomerAddress });
             }
