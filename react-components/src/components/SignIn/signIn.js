@@ -31,7 +31,7 @@ const SignIn = props => {
     const [t] = useTranslation('account');
 
     if (inProgress) {
-        return <LoadingIndicator>{'Signing in...'}</LoadingIndicator>;
+        return <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>;
     }
 
     if (isSignedIn) {
@@ -41,7 +41,8 @@ const SignIn = props => {
     return (
         <div className={classes.root}>
             <Form onSubmit={handleSubmit} className={classes.form}>
-                <Field label={t('account:email', 'E-Mail')} required={true}>
+                <div className={classes.formTitle}>{t('account:sign-in-form-title', 'Sign-in to Your Account')}</div>
+                <Field label={t('account:email', 'Email address')} required={true}>
                     <TextInput autoComplete="email" field="email" validate={isRequired} aria-label="email" />
                 </Field>
                 <Field label={t('account:password', 'Password')} required={true}>
@@ -53,18 +54,17 @@ const SignIn = props => {
                         aria-label="password"
                     />
                 </Field>
+                <div className={classes.forgotPasswordButton}>
+                    <Button priority="low" type="button" onClick={showForgotPassword}>
+                        {t('account:forgot-password', 'Forgot Password?')}
+                    </Button>
+                </div>
                 <div className={classes.signInError}>{errorMessage}</div>
                 <div className={classes.signInButton}>
                     <Button priority="high" type="submit" aria-label="submit">
                         {t('account:sign-in', 'Sign In')}
                     </Button>
                 </div>
-                <div className={classes.forgotPasswordButton}>
-                    <Button priority="low" type="button" onClick={showForgotPassword}>
-                        {t('account:forgot-password', 'Forgot Password?')}
-                    </Button>
-                </div>
-                <div className={classes.signInDivider}></div>
                 <div className={classes.createAccountButton}>
                     <Button priority="normal" type="button" onClick={showCreateAccount}>
                         {t('account:create-an-account', 'Create an Account')}

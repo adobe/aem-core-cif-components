@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<CreateAccountSuccess> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="body"
+    >
+      <h2
+        class="header"
+      >
+        Your account was successfully created
+      </h2>
+      <div
+        class="textBlock"
+      >
+        You will receive a link at 
+        <b />
+        . Access that link to confirm your email address.
+      </div>
+      <div
+        class="actions"
+      >
+        <button
+          class="root"
+          type="button"
+        >
+          <span
+            class="signin"
+          >
+            Sign In
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

@@ -42,4 +42,12 @@ public interface Header {
      */
     @Nullable
     Resource getSearchbarResource();
+
+    /**
+     * @return the {@link Resource} representing the "miniaccount" component, or <code>null</code> if there is no child resource with the
+     *         name
+     *         <code>miniaccount</code>
+     */
+    @Nullable
+    Resource getMiniaccountResource();
 }

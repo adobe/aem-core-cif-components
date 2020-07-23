@@ -12,13 +12,21 @@
  *
  ******************************************************************************/
 
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as AccountContainer } from './components/AccountContainer';
+'use strict';
 
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
+const ci = new (require('./ci.js'))();
+const path = require('path');
 
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
+ci.context();
 
-export { CartProvider, CartInitializer } from './components/Minicart';
+ci.stage('Project Configuration');
+const configuration = ci.collectConfiguration();
+console.log(configuration);
+
+ci.stage('Build Project');
+ci.sh('mvn -B clean install');
+
+ci.stage('Collect test results');
+const testFolder = path.resolve(process.cwd(), 'test-results/junit');
+ci.sh(`mkdir -p ${testFolder}`);
+ci.sh(`find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ${testFolder}/ \\;`);

@@ -47,8 +47,11 @@ const reducerFactory = () => {
 };
 
 const NavigationContextProvider = props => {
+    const authBarContainerQuerySelector =
+        (props.config && props.config.authBarContainerQuerySelector) || 'aside.navigation__root #miniaccount';
     const initialState = props.initialState || {
-        view: 'MENU'
+        view: 'MENU',
+        authBarContainerQuerySelector
     };
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
@@ -111,6 +114,7 @@ const NavigationContextProvider = props => {
 };
 
 NavigationContextProvider.propTypes = {
+    config: object,
     initialState: object
 };
 
