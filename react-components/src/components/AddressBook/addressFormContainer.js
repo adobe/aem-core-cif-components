@@ -25,7 +25,6 @@ import AddressForm from '../AddressForm';
 import classes from './addressFormContainer.css';
 
 const AddressFormContainer = () => {
-    const [submitting, setIsSubmitting] = useState(false);
     const [{ isShowAddressForm, addressFormError, updateAddress }, { dispatch }] = useUserContext();
     const { countries } = useCountries();
     const [createCustomerAddress] = useMutation(MUTATION_CREATE_CUSTOMER_ADDRESS);
@@ -42,7 +41,6 @@ const AddressFormContainer = () => {
     };
 
     const handleSubmit = async formValues => {
-        setIsSubmitting(true);
         try {
             if (updateAddress) {
                 const { data } = await updateCustomerAddress({
@@ -70,7 +68,6 @@ const AddressFormContainer = () => {
         } catch (error) {
             dispatch({ type: 'setAddressFormError', error: error.toString() });
         }
-        setIsSubmitting(false);
     };
 
     return (
@@ -78,17 +75,14 @@ const AddressFormContainer = () => {
             <div className={isShowAddressForm ? classes.mask_active : classes.mask}></div>
             {isShowAddressForm && (
                 <div className={classes.container}>
-                    {submitting && (
-                        <LoadingIndicator>{t('account:address-form-submitting', 'Submitting...')}</LoadingIndicator>
-                    )}
                     <AddressForm
                         cancel={handleCancel}
                         countries={countries}
+                        formErrorMessage={addressFormError}
                         initialValues={updateAddress}
                         showDefaultAddressCheckbox={true}
                         submit={handleSubmit}
                     />
-                    {addressFormError && <div className={classes.error}>{addressFormError}</div>}
                 </div>
             )}
         </>

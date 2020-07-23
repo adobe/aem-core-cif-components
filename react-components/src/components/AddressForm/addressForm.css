@@ -93,12 +93,18 @@
     grid-column-end: span 2;
 }
 
+.default_shipping {
+    grid-column-end: span 2;
+    text-align: left;
+}
+
 .validation {
     grid-column-end: span 2;
     line-height: normal;
 }
 
-.default_shipping {
+.error {
+    color: rgb(var(--venia-error));
     grid-column-end: span 2;
-    text-align: left;
+    line-height: normal;
 }

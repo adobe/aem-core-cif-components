@@ -19,8 +19,3 @@
     width: 100%;
     z-index: 11;
 }
-
-.error {
-    color: rgb(var(--venia-error));
-    padding: 0 1.5rem 1.5rem;
-}

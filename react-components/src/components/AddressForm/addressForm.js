@@ -42,6 +42,7 @@ const AddressForm = props => {
     const {
         cancel,
         countries,
+        formErrorMessage,
         heading,
         isAddressInvalid,
         invalidAddressMessage,
@@ -51,6 +52,7 @@ const AddressForm = props => {
         showDefaultAddressCheckbox
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
+    const errorMessage = formErrorMessage ? formErrorMessage : null;
     const [t] = useTranslation(['account', 'checkout', 'common']);
 
     const values = useMemo(
@@ -150,6 +152,7 @@ const AddressForm = props => {
                     )}
                 </div>
                 <div className={classes.validation}>{validationMessage}</div>
+                <div className={classes.error}>{errorMessage}</div>
             </div>
             <div className={classes.footer}>
                 <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
@@ -181,6 +184,7 @@ AddressForm.propTypes = {
         validation: string
     }),
     countries: array,
+    formErrorMessage: string,
     heading: string,
     invalidAddressMessage: string,
     initialValues: object,

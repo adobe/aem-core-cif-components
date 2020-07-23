@@ -307,6 +307,9 @@ exports[`<AddressForm /> renders the component 1`] = `
       <div
         class="validation"
       />
+      <div
+        class="error"
+      />
     </div>
     <div
       class="footer"
