@@ -14,8 +14,8 @@
     left: 50%;
     max-width: 360px;
     position: absolute;
-    top: 65%;
-    transform: translate(-50%, -65%);
+    top: 5rem;
+    transform: translate(-50%);
     width: 100%;
     z-index: 11;
 }

@@ -28,7 +28,6 @@
     max-height: calc(100vh - 8.5rem);
     overflow: auto;
     padding: 0 1.5rem;
-    position: absolute;
     right: 0;
 }
 
@@ -43,6 +42,17 @@
     justify-content: center;
     justify-items: center;
     position: relative;
+}
+
+@keyframes enter {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 /* fields */
