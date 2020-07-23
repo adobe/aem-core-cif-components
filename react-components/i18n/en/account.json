@@ -40,5 +40,7 @@
   "address-delete-cancel": "Cancel",
   "address-delete-confirm": "Delete",
   "address-edit": "Edit",
-  "address-delete": "Delete"
+  "address-delete": "Delete",
+  "address-default-tag": "Default",
+  "address-form-heading": "Address"
 }
