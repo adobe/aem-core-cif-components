@@ -22,17 +22,28 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ComponentsLibraryIT extends CommerceTestBase {
+public class ProductListComponentIT extends CommerceTestBase {
 
-    private static final String BASE_PATH = "/content/core-components-examples/library/commerce";
+    // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
+    private static final String PRODUCTLIST_SELECTOR = CMP_EXAMPLE_DEMO_SELECTOR + " .productlist ";
 
     @Test
-    public void testProductPageWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(BASE_PATH + "/product.chaz-kangeroo-hoodie.html", 200);
+    public void testProductListPageWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.1.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify product name
-        Elements elements = doc.select(".productFullDetail__productName > span");
-        Assert.assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
+        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
+        Assert.assertEquals("Outdoor Collection", elements.first().html());
+    }
+
+    @Test
+    public void testProductListPageWithPlaceholderData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Verify product name
+        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
+        Assert.assertEquals("Category name", elements.first().html());
     }
 }
