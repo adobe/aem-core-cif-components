@@ -43,6 +43,7 @@
         <module>react-components</module>
         <module>ui.apps</module>
         <module>bundles/core</module>
+        <module>examples</module>
         <module>all</module>
     </modules>
 
