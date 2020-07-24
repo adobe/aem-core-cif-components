@@ -29,12 +29,17 @@ try {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
 
+        // The core components are already installed in the Cloud SDK
+        let extras = '';
+        if (process.env.AEM == 'classic') {
+        	extras = '--bundle com.adobe.cq:core.wcm.components.all:2.9.0:zip';
+        }
+        
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
             --bundle com.adobe.commerce.cif:graphql-client:1.6.1:jar \
-            --bundle com.adobe.commerce.cif:magento-graphql:6.0.0-magento235:jar \
-            --bundle com.adobe.cq:core.wcm.components.all:2.9.0:zip \
+            --bundle com.adobe.commerce.cif:magento-graphql:6.0.0-magento235:jar ${extras} \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:2.9.0:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:2.9.0:zip \
             ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
