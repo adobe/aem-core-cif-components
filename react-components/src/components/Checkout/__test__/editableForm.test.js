@@ -36,8 +36,8 @@ describe('<EditableForm />', () => {
                             {
                                 id: 'US',
                                 available_regions: [
-                                    { code: 'AL', name: 'Alabama' },
-                                    { code: 'AK', name: 'Alaska' }
+                                    { id: 4, code: 'AL', name: 'Alabama' },
+                                    { id: 7, code: 'AK', name: 'Alaska' }
                                 ]
                             }
                         ]
