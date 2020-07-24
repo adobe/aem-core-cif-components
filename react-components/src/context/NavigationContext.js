@@ -47,8 +47,11 @@ const reducerFactory = () => {
 };
 
 const NavigationContextProvider = props => {
+    const authBarContainerQuerySelector =
+        (props.config && props.config.authBarContainerQuerySelector) || 'aside.navigation__root #miniaccount';
     const initialState = props.initialState || {
-        view: 'MENU'
+        view: 'MENU',
+        authBarContainerQuerySelector
     };
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
@@ -69,6 +72,8 @@ const NavigationContextProvider = props => {
 
     const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
 
+    const showView = view => NavigationActions.showView({ dispatch, t, view });
+
     const handleBack = useCallback(() => {
         if (navigationState.view === null) {
             return;
@@ -84,7 +89,9 @@ const NavigationContextProvider = props => {
             showMyAccount();
             return;
         }
-        dispatch({ type: 'changeView', view: parent });
+        if (parent) {
+            showView(parent);
+        }
     }, [view]);
 
     useEventListener(document, 'aem.navigation.back', handleBack);
@@ -107,6 +114,7 @@ const NavigationContextProvider = props => {
 };
 
 NavigationContextProvider.propTypes = {
+    config: object,
     initialState: object
 };
 

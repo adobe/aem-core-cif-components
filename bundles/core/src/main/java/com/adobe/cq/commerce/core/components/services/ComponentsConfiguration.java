@@ -34,7 +34,7 @@ public final class ComponentsConfiguration {
      * @param vm a {@link ValueMap} containing the properties
      */
     public ComponentsConfiguration(ValueMap vm) {
-        this.internalProperties = vm;
+        this.internalProperties = new ValueMapDecorator(new HashMap<String, Object>(vm));
     }
 
     /**

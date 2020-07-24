@@ -35,13 +35,13 @@
               }
             }
           },
-          "media_gallery_entries": [
+          "media_gallery": [
             {
+              "__typename": "ProductImage",
               "disabled": false,
-              "file": "/yoga-strap/luma-yoga-strap-set.jpg",
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/yoga-strap/luma-yoga-strap-set.jpg",
               "label": "Image",
-              "position": 1,
-              "media_type": "image"
+              "position": 1
             }
           ],
           "items": [

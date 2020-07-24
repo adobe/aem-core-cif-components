@@ -51,6 +51,7 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
@@ -77,6 +78,7 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -243,6 +245,18 @@ public class ProductListImplTest {
 
             Assert.assertEquals(productInterface instanceof GroupedProduct, item.getPriceRange().isStartPrice());
         }
+
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
+        Assert.assertEquals(7, searchAggregations.size()); // category_id is excluded
+
+        // We want to make sure all price ranges are properly processed
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        Assert.assertEquals(3, priceAggregation.getOptions().size());
+        Assert.assertEquals(3, priceAggregation.getOptionCount());
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
     }
 
     @Test
@@ -275,6 +289,23 @@ public class ProductListImplTest {
 
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getProducts().getItems().size(), productListModel.getProducts().size());
+    }
+
+    @Test
+    public void testMissingSelectorOnPublish() throws IOException {
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(true);
+        slingBindings.put("wcmmode", wcmMode);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString(null);
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        // Check that we get an empty list of products and the GraphQL client is never called
+        Assert.assertTrue(productListModel.getProducts().isEmpty());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test

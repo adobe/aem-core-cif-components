@@ -12,15 +12,16 @@
  *
  ******************************************************************************/
 import React, { useCallback } from 'react';
-import { arrayOf, func, node } from 'prop-types';
+import { arrayOf, func, node, shape, string } from 'prop-types';
 
 import Button from '../Button';
 
-import classes from './accountLink.css';
+import defaultClasses from './accountLink.css';
 
 const AccountLink = props => {
     const { children, onClick } = props;
     const [icon, text] = children;
+    const classes = Object.assign({}, defaultClasses, props.classes);
 
     const handleClick = useCallback(() => {
         if (typeof onClick === 'function') {
@@ -40,5 +41,12 @@ export default AccountLink;
 
 AccountLink.propTypes = {
     children: arrayOf(node).isRequired,
+    classes: shape({
+        root: string,
+        content: string,
+        icon: string,
+        text: string,
+        root_normalPriority: string
+    }),
     onClick: func
 };

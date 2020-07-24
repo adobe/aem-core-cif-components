@@ -49,27 +49,27 @@
               }
             }
           },
-          "media_gallery_entries": [
+          "media_gallery": [
             {
+              "__typename": "ProductImage",
               "disabled": false,
-              "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
               "label": "",
-              "position": 1,
-              "media_type": "image"
+              "position": 1
             },
             {
+              "__typename": "ProductImage",
               "disabled": false,
-              "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
               "label": "",
-              "position": 2,
-              "media_type": "image"
+              "position": 2
             },
             {
+              "__typename": "ProductImage",
               "disabled": false,
-              "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
               "label": "",
-              "position": 3,
-              "media_type": "image"
+              "position": 3
             }
           ],
           "configurable_options": [
@@ -163,13 +163,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -218,27 +218,27 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
                     "label": "",
-                    "position": 2,
-                    "media_type": "image"
+                    "position": 2
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
                     "label": "",
-                    "position": 3,
-                    "media_type": "image"
+                    "position": 3
                   }
                 ]
               }
@@ -287,13 +287,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -342,13 +342,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -397,27 +397,27 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
                     "label": "",
-                    "position": 2,
-                    "media_type": "image"
+                    "position": 2
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
                     "label": "",
-                    "position": 3,
-                    "media_type": "image"
+                    "position": 3
                   }
                 ]
               }
@@ -466,13 +466,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -521,13 +521,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -576,27 +576,27 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
                     "label": "",
-                    "position": 2,
-                    "media_type": "image"
+                    "position": 2
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
                     "label": "",
-                    "position": 3,
-                    "media_type": "image"
+                    "position": 3
                   }
                 ]
               }
@@ -645,13 +645,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -700,13 +700,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -755,27 +755,27 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
                     "label": "",
-                    "position": 2,
-                    "media_type": "image"
+                    "position": 2
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
                     "label": "",
-                    "position": 3,
-                    "media_type": "image"
+                    "position": 3
                   }
                 ]
               }
@@ -824,13 +824,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -879,13 +879,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }
@@ -934,27 +934,27 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
                     "label": "",
-                    "position": 2,
-                    "media_type": "image"
+                    "position": 2
                   },
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
                     "label": "",
-                    "position": 3,
-                    "media_type": "image"
+                    "position": 3
                   }
                 ]
               }
@@ -1003,13 +1003,13 @@
                     }
                   }
                 },
-                "media_gallery_entries": [
+                "media_gallery": [
                   {
+                    "__typename": "ProductImage",
                     "disabled": false,
-                    "file": "/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
+                    "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
-                    "position": 1,
-                    "media_type": "image"
+                    "position": 1
                   }
                 ]
               }

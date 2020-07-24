@@ -272,17 +272,22 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
-
-                    // For values such as `*_60`, the from range should be left empty
-                    if (StringUtils.isNumeric(rangeValues[0])) {
+                    if (rangeValues.length == 1 && StringUtils.isNumeric(rangeValues[0])) {
+                        // The range has a single value like '60'
                         filter.setFrom(rangeValues[0]);
+                        filter.setTo(rangeValues[0]);
+                        filterInputs.addRangeTypeInput(code, filter);
+                    } else if (rangeValues.length > 1) {
+                        // For values such as '*_60', the from range should be left empty
+                        if (StringUtils.isNumeric(rangeValues[0])) {
+                            filter.setFrom(rangeValues[0]);
+                        }
+                        // For values such as '60_*', the to range should be left empty
+                        if (StringUtils.isNumeric(rangeValues[1])) {
+                            filter.setTo(rangeValues[1]);
+                        }
+                        filterInputs.addRangeTypeInput(code, filter);
                     }
-
-                    // For values such as `60_*`, the to range should be left empty
-                    if (StringUtils.isNumeric(rangeValues[1])) {
-                        filter.setTo(rangeValues[1]);
-                    }
-                    filterInputs.addRangeTypeInput(code, filter);
                 }
             });
 
@@ -359,6 +364,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
+                    .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())))
+                .onBundleProduct(bp -> bp
                     .priceRange(r -> r
                         .maximumPrice(generatePriceQuery())));
             if (productQueryHook != null) {

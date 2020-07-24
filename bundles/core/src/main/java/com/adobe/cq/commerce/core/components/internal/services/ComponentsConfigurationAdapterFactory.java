@@ -22,7 +22,6 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -53,31 +52,19 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
 
     private ResourceResolver serviceResolver;
 
-    protected void activate(ComponentContext context) {
-        try {
-            if (serviceResolver == null) {
-                serviceResolver = resolverFactory.getServiceResourceResolver(authInfo);
-            }
-        } catch (LoginException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void deactivate() {
-        if (serviceResolver != null) {
-            serviceResolver.close();
-        }
-    }
-
     @Override
     public <AdapterType> AdapterType getAdapter(Object adaptable, Class<AdapterType> type) {
         if (!(adaptable instanceof Resource)) {
             return null;
         }
-        Resource res = serviceResolver.getResource(((Resource) adaptable).getPath());
-        ConfigurationBuilder cfgBuilder = res.adaptTo(ConfigurationBuilder.class);
-        ComponentsConfiguration configuration = new ComponentsConfiguration(cfgBuilder.name(CONFIGURATION_NAME).asValueMap());
-        return (AdapterType) configuration;
+        try (ResourceResolver serviceResolver = resolverFactory.getServiceResourceResolver(authInfo)) {
+            Resource res = serviceResolver.getResource(((Resource) adaptable).getPath());
+            ConfigurationBuilder cfgBuilder = res.adaptTo(ConfigurationBuilder.class);
+            ComponentsConfiguration configuration = new ComponentsConfiguration(cfgBuilder.name(CONFIGURATION_NAME).asValueMap());
+            return (AdapterType) configuration;
+        } catch (LoginException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

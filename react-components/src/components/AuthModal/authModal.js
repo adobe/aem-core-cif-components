@@ -25,7 +25,15 @@ import classes from './authModal.css';
 const AuthModal = () => {
     const [
         { view },
-        { showSignIn, showMyAccount, showMenu, showForgotPassword, showChangePassword, showCreateAccount }
+        {
+            showSignIn,
+            showMyAccount,
+            showMenu,
+            showForgotPassword,
+            showChangePassword,
+            showCreateAccount,
+            showAccountCreated
+        }
     ] = useNavigationContext();
 
     let child;
@@ -41,7 +49,14 @@ const AuthModal = () => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = <MyAccount showMenu={showMenu} showChangePassword={showChangePassword} />;
+            child = (
+                <MyAccount
+                    showMenu={showMenu}
+                    showChangePassword={showChangePassword}
+                    showAddressBook={() => {}}
+                    showAccountInformation={() => {}}
+                />
+            );
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} />;
@@ -50,7 +65,7 @@ const AuthModal = () => {
             child = <ForgotPassword onClose={showMenu} />;
             break;
         case 'CREATE_ACCOUNT':
-            child = <CreateAccount showMyAccount={showMyAccount} />;
+            child = <CreateAccount showMyAccount={showMyAccount} showAccountCreated={showAccountCreated} />;
             break;
         case 'ACCOUNT_CREATED':
             child = <CreateAccountSuccess showSignIn={showSignIn} />;

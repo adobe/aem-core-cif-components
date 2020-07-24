@@ -127,10 +127,15 @@
               "count": 1,
               "label": "40-*",
               "value": "40_*"
+            },
+            {
+              "count": 1,
+              "label": "14",
+              "value": "14"
             }
           ],
           "attribute_code": "price",
-          "count": 2,
+          "count": 3,
           "label": "Price"
         },
         {
