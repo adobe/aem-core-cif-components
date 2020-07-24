@@ -3,6 +3,7 @@
           jcr:primaryType="nt:unstructured"
           jcr:title="Product Teaser"
           sling:resourceType="cq/gui/components/authoring/dialog"
+          extraClientlibs="[cif.shell.picker]"
           trackingFeature="cif-core-components:productteaser:v1">
     <content
             jcr:primaryType="nt:unstructured"
