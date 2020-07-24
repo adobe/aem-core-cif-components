@@ -55,3 +55,4 @@ frontend-maven-plugin
 yarn-error.log
 .env
 .npmrc
+*.tgz
