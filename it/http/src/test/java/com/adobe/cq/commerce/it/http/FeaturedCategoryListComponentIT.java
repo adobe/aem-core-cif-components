@@ -22,18 +22,22 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ProductTeaserIT extends CommerceTestBase {
+public class FeaturedCategoryListComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String PRODUCTTEASER_SELECTOR = CMP_EXAMPLE_DEMO_SELECTOR + " .productteaser ";
+    private static final String FEATUREDCATEGORYLIST_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .featuredcategorylist ";
 
     @Test
-    public void testProductTeaserWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productteaser.html", 200);
+    public void testFeaturedCategoryListWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/featuredcategorylist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Verify product name
-        Elements elements = doc.select(PRODUCTTEASER_SELECTOR + ".item__name > span");
-        Assert.assertEquals("Summit Watch", elements.first().html());
+        // Check title
+        Elements elements = doc.select(FEATUREDCATEGORYLIST_SELECTOR + ".cmp-categorylist__title");
+        Assert.assertEquals("Jackets for men and women!", elements.first().html());
+
+        // Check that the components displays 2 categories
+        elements = doc.select(FEATUREDCATEGORYLIST_SELECTOR + ".cmp-categorylist__content > .cmp-categorylist__anchor");
+        Assert.assertEquals(2, elements.size());
     }
 }

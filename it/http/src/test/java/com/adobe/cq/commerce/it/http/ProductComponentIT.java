@@ -25,7 +25,7 @@ import org.junit.Test;
 public class ProductComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String PRODUCT_SELECTOR = CMP_EXAMPLE_DEMO_SELECTOR + " .product ";
+    private static final String PRODUCT_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .product ";
 
     @Test
     public void testProductPageWithSampleData() throws ClientException {
@@ -50,7 +50,7 @@ public class ProductComponentIT extends CommerceTestBase {
         Assert.assertEquals("Set of Sprite Yoga Straps", elements.first().html());
 
         // Verify that the section for GroupedProduct is displayed
-        Assert.assertEquals(2, doc.select(PRODUCT_SELECTOR + ".productFullDetail__groupedProducts").size());
+        Assert.assertEquals(1, doc.select(PRODUCT_SELECTOR + ".productFullDetail__groupedProducts").size());
     }
 
     @Test

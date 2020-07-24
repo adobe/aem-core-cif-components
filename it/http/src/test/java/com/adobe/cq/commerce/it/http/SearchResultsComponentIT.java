@@ -22,44 +22,32 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ProductListComponentIT extends CommerceTestBase {
+public class SearchResultsComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String PRODUCTLIST_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productlist ";
+    private static final String SEARCHRESULTS_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .searchresults ";
 
     @Test
-    public void testProductListPageWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.1.html", 200);
+    public void testSearchResultsWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/search.html?search_query=test", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Verify category name
-        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
-        Assert.assertEquals("Outdoor Collection", elements.first().html());
-
         // Check that search filters are displayed
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".search__filters");
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".search__filters");
         Assert.assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(SEARCHRESULTS_SELECTOR + ".gallery__items > .item__root");
         Assert.assertEquals(6, elements.size());
     }
 
     @Test
-    public void testProductListPageWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html", 200);
+    public void testSearchResultsWithoutSearchQuery() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/search.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Verify category name
-        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
-        Assert.assertEquals("Category name", elements.first().html());
-
-        // Check that search filters are NOT displayed
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".search__filters");
-        Assert.assertTrue(elements.isEmpty());
-
-        // Check that the 6 products are displayed on the first page
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
-        Assert.assertEquals(6, elements.size());
+        // Check that the search doesn't display any product
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".category__root p");
+        Assert.assertEquals("No products to display.", elements.first().html());
     }
 }

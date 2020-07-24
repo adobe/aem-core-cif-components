@@ -53,7 +53,7 @@ public class CommerceTestBase {
     private static final String CONFIGURATION_CONSOLE_URL = CONSOLE_URL + "/configMgr";
 
     protected static final String COMMERCE_LIBRARY_PATH = "/content/core-components-examples/library/commerce";
-    protected static final String CMP_EXAMPLE_DEMO_SELECTOR = ".cmp-examples-demo";
+    protected static final String CMP_EXAMPLES_DEMO_SELECTOR = ".cmp-examples-demo__top";
 
     @ClassRule
     public static final CQAuthorClassRule cqBaseClassRule = new CQAuthorClassRule();
