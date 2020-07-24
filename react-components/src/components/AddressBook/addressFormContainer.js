@@ -19,7 +19,6 @@ import MUTATION_UPDATE_CUSTOMER_ADDRESS from '../../queries/mutation_update_cust
 import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_customer_address.graphql';
 import { useCountries } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
-import LoadingIndicator from '../LoadingIndicator';
 import AddressForm from '../AddressForm';
 
 import classes from './addressFormContainer.css';
@@ -46,7 +45,11 @@ const AddressFormContainer = () => {
                 const { data } = await updateCustomerAddress({
                     variables: {
                         id: updateAddress.id,
-                        region: { region_code: formValues.region_code },
+                        country_code: 'US',
+                        region: {
+                            region_code: formValues.region_code,
+                            region_id: getRegionId(countries, 'US', formValues.region_code)
+                        },
                         default_billing: formValues.default_shipping,
                         ...formValues
                     }
@@ -57,7 +60,10 @@ const AddressFormContainer = () => {
                 const { data } = await createCustomerAddress({
                     variables: {
                         country_code: 'US',
-                        region: { region_code: formValues.region_code },
+                        region: {
+                            region_code: formValues.region_code,
+                            region_id: getRegionId(countries, 'US', formValues.region_code)
+                        },
                         default_billing: formValues.default_shipping,
                         ...formValues
                     }
@@ -68,6 +74,15 @@ const AddressFormContainer = () => {
         } catch (error) {
             dispatch({ type: 'setAddressFormError', error: error.toString() });
         }
+    };
+
+    const getRegionId = (countries, countryCode, regionCode) => {
+        const region =
+            countries &&
+            countries
+                .filter(country => country.id == countryCode && country.available_regions)
+                .map(country => country.available_regions.find(region => region.code == regionCode));
+        return region ? region[0].id : null;
     };
 
     return (
