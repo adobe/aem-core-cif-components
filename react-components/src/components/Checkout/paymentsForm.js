@@ -173,31 +173,42 @@ const PaymentsForm = props => {
 
     return (
         <Form className={classes.root} initialValues={initialFormValues} onSubmit={handleSubmit}>
-            <div className={classes.body}>
-                <h2 className={classes.heading}>Billing Information</h2>
-                <div className={classes.braintree}>
-                    <Select items={paymentMethodsItems} field="payment_method" initialValue={paymentMethod} />
-                </div>
-                <PaymentProvider />
-                <div className={classes.address_check}>
-                    {allowSame && (
-                        <Checkbox
-                            field="addresses_same"
-                            label={t('checkout:same-as-shipping', 'Billing address same as shipping address')}
-                            onClick={ev => {
-                                setDifferentAddress(!ev.target.checked);
-                            }}
-                        />
-                    )}
-                </div>
-                {billingAddressFields}
-            </div>
-            <div className={classes.footer}>
-                <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
-                <Button priority="high" type="submit" disabled={isSubmitting}>
-                    {t('checkout:use-payment-method', 'Use Payment Method')}
-                </Button>
-            </div>
+            {({ formApi }) => (
+                <>
+                    <div className={classes.body}>
+                        <h2 className={classes.heading}>Billing Information</h2>
+                        <div className={classes.braintree}>
+                            <Select
+                                items={paymentMethodsItems}
+                                field="payment_method"
+                                initialValue={paymentMethod}
+                                onValueChange={() =>
+                                    formApi.getError('payment_nonce') && formApi.resetField('payment_nonce')
+                                }
+                            />
+                        </div>
+                        <PaymentProvider />
+                        <div className={classes.address_check}>
+                            {allowSame && (
+                                <Checkbox
+                                    field="addresses_same"
+                                    label={t('checkout:same-as-shipping', 'Billing address same as shipping address')}
+                                    onClick={ev => {
+                                        setDifferentAddress(!ev.target.checked);
+                                    }}
+                                />
+                            )}
+                        </div>
+                        {billingAddressFields}
+                    </div>
+                    <div className={classes.footer}>
+                        <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
+                        <Button priority="high" type="submit" disabled={isSubmitting}>
+                            {t('checkout:use-payment-method', 'Use Payment Method')}
+                        </Button>
+                    </div>
+                </>
+            )}
         </Form>
     );
 };
