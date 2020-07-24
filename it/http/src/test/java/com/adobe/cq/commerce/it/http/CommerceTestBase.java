@@ -47,13 +47,10 @@ public class CommerceTestBase {
     public static final String GRAPHQL_CLIENT_BUNDLE = "com.adobe.commerce.cif.graphql-client";
     public static final String GRAPHQL_CLIENT_FACTORY_PID = "com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl";
 
-    public static GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig();
-
-    private static final String CONSOLE_URL = "/system/console";
-    private static final String CONFIGURATION_CONSOLE_URL = CONSOLE_URL + "/configMgr";
-
     protected static final String COMMERCE_LIBRARY_PATH = "/content/core-components-examples/library/commerce";
     protected static final String CMP_EXAMPLES_DEMO_SELECTOR = ".cmp-examples-demo__top";
+
+    private static final String CONFIGURATION_CONSOLE_URL = "/system/console/configMgr";
 
     @ClassRule
     public static final CQAuthorClassRule cqBaseClassRule = new CQAuthorClassRule();
@@ -61,15 +58,15 @@ public class CommerceTestBase {
     @Rule
     public CQRule cqBaseRule = new CQRule(cqBaseClassRule.authorRule);
 
-    static CQClient adminAuthor;
+    protected static CQClient adminAuthor;
 
     @BeforeClass
     public static void init() throws ClientException, InterruptedException, TimeoutException {
         adminAuthor = cqBaseClassRule.authorRule.getAdminClient(CommerceClient.class);
 
         // This configures the GraphQL client for the CIF components library
-
-        graphqlOsgiConfig.withIdentifier("examples")
+        GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig()
+            .withIdentifier("examples")
             .withUrl("http://localhost:4502/apps/cif-components-examples/graphql")
             .withHttpMethod("GET")
             .withAcceptSelfSignedCertificates(true)
