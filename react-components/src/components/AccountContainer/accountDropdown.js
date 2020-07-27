@@ -25,56 +25,65 @@ import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
     const [
-        { isAccountDropdownOpen, accountDropdownView },
+        { isAccountDropdownOpen, isSignedIn, accountDropdownView, addressBookPath },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
     const [t] = useTranslation('account');
 
-    const className = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
+    if (!isAccountDropdownOpen) {
+        return <div className={classes.dropdown} aria-label="account dropdown"></div>
+    }
 
     let child;
-
-    switch (accountDropdownView) {
-        case 'SIGN_IN':
-            child = (
-                <SignIn
-                    showMyAccount={showMyAccount}
-                    showForgotPassword={showForgotPassword}
-                    showCreateAccount={showCreateAccount}
-                />
-            );
-            break;
-        case 'MY_ACCOUNT':
-            child = (
-                <MyAccount
-                    showChangePassword={showChangePassword}
-                    showAddressBook={() => {}}
-                    showAccountInformation={() => {}}
-                />
-            );
-            break;
-        case 'CHANGE_PASSWORD':
-            child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
-            break;
-        case 'FORGOT_PASSWORD':
-            child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
-            break;
-        case 'CREATE_ACCOUNT':
-            child = (
-                <CreateAccount
-                    showMyAccount={showMyAccount}
-                    showAccountCreated={showAccountCreated}
-                    handleCancel={showSignIn}
-                />
-            );
-            break;
-        case 'ACCOUNT_CREATED':
-            child = <CreateAccountSuccess showSignIn={showSignIn} />;
+    if (!isSignedIn) {
+        switch(accountDropdownView) {
+            case 'FORGOT_PASSWORD':
+                child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
+                break;
+            case 'CREATE_ACCOUNT':
+                child = (
+                    <CreateAccount
+                        showMyAccount={showMyAccount}
+                        showAccountCreated={showAccountCreated}
+                        handleCancel={showSignIn}
+                    />
+                );
+                break;
+            case 'ACCOUNT_CREATED':
+                child = <CreateAccountSuccess showSignIn={showSignIn} />;
+                break;
+            case 'SIGN_IN':
+            default:
+                child = (
+                    <SignIn
+                        showForgotPassword={showForgotPassword}
+                        showCreateAccount={showCreateAccount}
+                    />
+                );
+        }
+    } else {
+        switch (accountDropdownView) {
+            case 'CHANGE_PASSWORD':
+                child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
+                break;
+            case 'MY_ACCOUNT':
+            default:
+                child = (
+                    <MyAccount
+                        showChangePassword={showChangePassword}
+                        //showAddressBook={() => { window.location.href = addressBookPath }}
+                        showAddressBook={() => {
+                            window.location.href = '/content/venia/us/en/my-account/address-book.html';
+                        }}
+                        showAccountInformation={() => {}}
+                    />
+                );
+        }
     }
 
     return (
-        <div className={className} aria-label="account dropdown">
+        <div className={classes.dropdown_open} aria-label="account dropdown">
             {child}
         </div>
     );

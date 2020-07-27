@@ -95,7 +95,7 @@ const reducerFactory = () => {
                         email: ''
                     },
                     cartId: '',
-                    accountDropdownView: 'SIGN_IN'
+                    accountDropdownView: null
                 };
             case 'toggleAccountDropdown':
                 return {
@@ -134,7 +134,7 @@ const UserContextProvider = props => {
         createAccountError: null,
         createAccountEmail: null,
         cartId: null,
-        accountDropdownView: 'SIGN_IN',
+        accountDropdownView: null,
         accountContainerQuerySelector
     };
 

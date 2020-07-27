@@ -26,7 +26,7 @@ import { func } from 'prop-types';
 
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAddressBook, showAccountInformation } = props;
-    const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
+    const [{ currentUser, inProgress }, { signOut }] = useUserContext();
     const [, dispatch] = useCartState();
     const [t] = useTranslation('account');
 
@@ -38,13 +38,12 @@ const MyAccount = props => {
         );
     }
 
-    if (!isSignedIn && showMenu) {
-        showMenu();
-    }
-
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
         dispatch({ type: 'reset' });
-        signOut();
+        await signOut();
+        if (showMenu) {
+            showMenu();
+        }
     };
 
     return (

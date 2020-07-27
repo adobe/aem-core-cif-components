@@ -27,7 +27,7 @@ export const useSignin = () => {
     const [{ cartId }, cartDispatch] = useCartState();
     const [
         userState,
-        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown }
+        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown, showMyAccount }
     ] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
 
@@ -77,13 +77,14 @@ export const useSignin = () => {
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
 
+            //5. close account dropdown if it's open
             if (userState.isAccountDropdownOpen) {
+                await showMyAccount();
                 toggleAccountDropdown(false);
             }
         } catch (e) {
             setError(e);
         }
-        setInProgress(false);
     };
 
     return {

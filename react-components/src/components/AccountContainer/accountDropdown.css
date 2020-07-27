@@ -7,16 +7,20 @@
     left: 50%;
     position: absolute;
     top: 3.3rem;
-    transform: translateX(-50%);
+    transition-duration: 192ms;
+    transition-property: opacity, transform, visibility;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
     z-index: 1;
 }
 
 .dropdown {
     opacity: 0;
+    transform: translate3d(-50%, 100%, 0);
     visibility: hidden;
 }
 
 .dropdown_open {
     opacity: 1;
+    transform: translate3d(-50%, 0, 0);
     visibility: visible;
 }
