@@ -75,7 +75,6 @@ jobs:
       - store_artifacts:
           path: test-results/junit
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: unittests
 
   karma:
@@ -100,7 +99,6 @@ jobs:
       - store_artifacts:
           path: ui.apps/karma-junit
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: karma
           
   jest:
@@ -124,7 +122,6 @@ jobs:
       - store_artifacts:
           path: ./react-components/test-results
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: jest
  
   integration-test-655:
