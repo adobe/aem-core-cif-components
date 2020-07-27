@@ -3,33 +3,62 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
 
+common:
+  restore_cache: &restore_cache
+    restore_cache:
+      keys: 
+        - maven-repo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
+        - maven-repo-v2-{{ arch }}-{{ .Branch }}
+        - maven-repo-v2-
+
+  integration_test_steps: &integration_test_steps
+    steps:
+      - checkout
+      - *restore_cache
+      - attach_workspace:
+          at: /home/circleci/build
+      - run:
+          name: Integration tests
+          command: node .circleci/ci/it-tests.js
+      - store_artifacts:
+          path: logs
+
+  docker_auth: &docker_auth
+    auth:
+      username: $DOCKER_USER
+      password: $DOCKER_PASS
+
 executors:
   cif_executor:
     docker:
-      - image: circleci/openjdk:8u212-jdk-stretch-node
+      - image: circleci/openjdk:11-stretch-node
 
 jobs:
   build:
     executor: cif_executor
+    working_directory: /home/circleci/build
     steps:
       - checkout
-      - restore_cache:
-          keys: 
-            - maven-repo-v1-{{ checksum "pom.xml" }}
-            - maven-repo-v1-
+      - *restore_cache
       - run:
           name: Update permissions
           command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Build
-          command: |
-            java -version
-            mvn -v
-            mvn -B clean install
+          command: node .circleci/ci/build.js
       - save_cache:
           paths:
             - ~/.m2
-          key: maven-repo-v1-{{ checksum "pom.xml" }}
+          key: maven-repo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
+      - persist_to_workspace:
+          root: /home/circleci/build
+          paths:
+            - configuration.json
+            - bundles/core/target/*.jar
+            - ui.apps/target/*.zip
+            - examples/bundle/target/*.jar
+            - examples/ui.apps/target/*.zip
+            - examples/ui.content/target/*.zip
       - store_test_results:
           path: bundles/core/target/surefire-reports
       - store_artifacts:
@@ -66,6 +95,7 @@ jobs:
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: karma
+          
   jest:
     docker:
       - image: circleci/node:lts-browsers
@@ -89,6 +119,26 @@ jobs:
       - codecov/upload:
           conf: .circleci/codecov.yml
           flags: jest
+ 
+  integration-test-655:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.5
+        <<: *docker_auth
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+ 
+  integration-test-cloudready:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:3919
+        <<: *docker_auth
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
  
   release:
     executor: cif_executor
@@ -128,6 +178,22 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - integration-test-655:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build
+            - karma
+            - jest
+      - integration-test-cloudready:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build
+            - karma
+            - jest
       - release:
           requires:
             - build
