@@ -12,14 +12,19 @@
  *
  ******************************************************************************/
 import React, { useContext, useReducer, useCallback } from 'react';
-import { object } from 'prop-types';
+import { object, func } from 'prop-types';
 
 import { useCookieValue } from '../utils/hooks';
 import { useMutation } from '@apollo/react-hooks';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
-import { resetCustomerCart as resetCustomerCartAction, signOutUser as signOutUserAction } from '../actions/user';
+import {
+    resetCustomerCart as resetCustomerCartAction,
+    signOutUser as signOutUserAction,
+    deleteCustomerAddress as deleteCustomerAddressAction
+} from '../actions/user';
 
+import MUTATION_DELETE_CUSTOMER_ADDRESS from '../queries/mutation_delete_customer_address.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../queries/query_customer_details.graphql';
 
@@ -111,6 +116,11 @@ const reducerFactory = () => {
                         addresses: [...state.currentUser.addresses].filter(address => address.id !== action.address.id)
                     }
                 };
+            case 'deleteAddressError':
+                return {
+                    ...state,
+                    deleteAddressError: parseError(action.error)
+                };
             case 'postCreateAccount':
                 return {
                     ...state,
@@ -190,6 +200,7 @@ const UserContextProvider = props => {
         (props.config && props.config.addressBookContainerQuerySelector) || '#addressbook';
     const addressBookPath = (props.config && props.config.addressBookPath) || '/my-account/address-book.html';
 
+    const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
         currentUser: {
             firstname: '',
@@ -204,6 +215,7 @@ const UserContextProvider = props => {
         addressFormError: null,
         updateAddress: null,
         deleteAddress: null,
+        deleteAddressError: null,
         signInError: null,
         inProgress: false,
         createAccountError: null,
@@ -215,8 +227,9 @@ const UserContextProvider = props => {
         addressBookPath
     };
 
-    const [userState, dispatch] = useReducer(reducerFactory(), initialState);
+    const [userState, dispatch] = useReducer(factory(), initialState);
 
+    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
     const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
     const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
@@ -282,6 +295,10 @@ const UserContextProvider = props => {
         dispatch({ type: 'changeAccountDropdownView', view: 'CHANGE_PASSWORD' });
     };
 
+    const deleteAddress = async address => {
+        await deleteCustomerAddressAction({ address, deleteCustomerAddress, dispatch });
+    };
+
     const { children } = props;
     const contextValue = [
         userState,
@@ -300,7 +317,8 @@ const UserContextProvider = props => {
             showForgotPassword,
             showCreateAccount,
             showAccountCreated,
-            showChangePassword
+            showChangePassword,
+            deleteAddress
         }
     ];
     return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
@@ -308,6 +326,7 @@ const UserContextProvider = props => {
 
 UserContextProvider.propTypes = {
     config: object,
+    reducerFactory: func,
     initialState: object
 };
 export default UserContextProvider;

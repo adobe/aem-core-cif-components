@@ -38,3 +38,14 @@ export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserC
         dispatch({ type: 'error', error: error.toString() });
     }
 };
+
+export const deleteCustomerAddress = async ({ address, deleteCustomerAddress, dispatch }) => {
+    try {
+        await deleteCustomerAddress({ variables: { id: address.id } });
+        dispatch({ type: 'removeDeletedAddress', address });
+        dispatch({ type: 'endDeletingAddress' });
+    } catch (error) {
+        console.error('An error occurred during deleting customer address', error);
+        dispatch({ type: 'deleteAddressError', error });
+    }
+};

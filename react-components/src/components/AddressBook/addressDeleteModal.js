@@ -13,24 +13,19 @@
  ******************************************************************************/
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@apollo/react-hooks';
 
-import MUTATION_DELETE_CUSTOMER_ADDRESS from '../../queries/mutation_delete_customer_address.graphql';
 import { useUserContext } from '../../context/UserContext';
 import Button from '../Button';
 
 import classes from './addressDeleteModal.css';
 
 const AddressDeleteModal = () => {
-    const [{ deleteAddress: address }, { dispatch }] = useUserContext();
-    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
+    const [{ deleteAddress: address }, { deleteAddress, dispatch }] = useUserContext();
 
     const [t] = useTranslation('account');
 
-    const handleDeleteConfirmClick = async () => {
-        await deleteCustomerAddress({ variables: { id: address.id } });
-        dispatch({ type: 'removeDeletedAddress', address });
-        dispatch({ type: 'endDeletingAddress' });
+    const handleDeleteConfirmClick = () => {
+        deleteAddress(address);
     };
 
     const handleDeleteCancelClick = () => {
