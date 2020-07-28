@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { resetCustomerCart, signOutUser, deleteCustomerAddress as deleteAddress} from '../actions';
+import { resetCustomerCart, signOutUser, deleteCustomerAddress as deleteAddress } from '../actions';
 
 const setCartCookie = jest.fn();
 const setUserCookie = jest.fn();
@@ -98,6 +98,9 @@ describe('User actions', () => {
         expect(deleteCustomerAddress).toHaveBeenCalledTimes(1);
 
         expect(dispatch).toHaveBeenCalledTimes(1);
-        expect(dispatch).toHaveBeenCalledWith({ type: 'deleteAddressError', error: 'Error: Failed to delete the address' });
+        expect(dispatch).toHaveBeenCalledWith({
+            type: 'deleteAddressError',
+            error: 'Error: Failed to delete the address'
+        });
     });
 });
