@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@1.0.5
+  codecov: codecov/codecov@1.1.1
 
 common:
   restore_cache: &restore_cache
@@ -20,8 +20,19 @@ common:
       - run:
           name: Integration tests
           command: node .circleci/ci/it-tests.js
+      - store_test_results:
+          path: it/http/target/failsafe-reports
+      # Save test results as artifacts
+      - store_artifacts:
+          path: it/http/target/failsafe-reports
+      # Save AEM logs as artifacts
       - store_artifacts:
           path: logs
+      # Save Jacoco coverage report as artifact
+      - store_artifacts:
+          path: bundles/core/target/site/jacoco
+      - store_artifacts:
+          path: examples/bundle/target/site/jacoco
 
   docker_auth: &docker_auth
     auth:
@@ -60,15 +71,10 @@ jobs:
             - examples/ui.apps/target/*.zip
             - examples/ui.content/target/*.zip
       - store_test_results:
-          path: bundles/core/target/surefire-reports
+          path: test-results
       - store_artifacts:
-          path: bundles/core/target/surefire-reports
-      - store_test_results:
-          path: examples/bundle/target/surefire-reports
-      - store_artifacts:
-          path: examples/bundle/target/surefire-reports
+          path: test-results/junit
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: unittests
 
   karma:
@@ -93,7 +99,6 @@ jobs:
       - store_artifacts:
           path: ui.apps/karma-junit
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: karma
           
   jest:
@@ -117,7 +122,6 @@ jobs:
       - store_artifacts:
           path: ./react-components/test-results
       - codecov/upload:
-          conf: .circleci/codecov.yml
           flags: jest
  
   integration-test-655:
@@ -126,6 +130,8 @@ jobs:
         <<: *docker_auth
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.5
         <<: *docker_auth
+    environment:
+      AEM: classic
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
@@ -158,7 +164,7 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> /home/circleci/.npmrc
             echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import
-            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public
+            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public,skip-it
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 

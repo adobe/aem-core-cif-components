@@ -29,12 +29,17 @@ try {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
 
+        // The core components are already installed in the Cloud SDK
+        let extras = '';
+        if (process.env.AEM == 'classic') {
+        	extras = '--bundle com.adobe.cq:core.wcm.components.all:2.9.0:zip';
+        }
+        
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
-            --bundle com.adobe.commerce.cif:graphql-client:1.6.0:jar \
-            --bundle com.adobe.commerce.cif:magento-graphql:6.0.0-magento235:jar \
-            --bundle com.adobe.cq:core.wcm.components.all:2.9.0:zip \
+            --bundle com.adobe.commerce.cif:graphql-client:1.6.1:jar \
+            --bundle com.adobe.commerce.cif:magento-graphql:6.0.0-magento235:jar ${extras} \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:2.9.0:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:2.9.0:zip \
             ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
@@ -45,10 +50,36 @@ try {
             --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
+    // Run integration tests
+    ci.sh(`mvn clean verify -U -B \
+        -Ptest-all \
+        -Dsling.it.instance.url.1=http://localhost:4502 \
+        -Dsling.it.instance.runmode.1=author \
+        -Dsling.it.instances=1`);
+    
     ci.dir(qpPath, () => {
         // Stop CQ
         ci.sh('./qp.sh -v stop --id author');
     });
+    
+    // Create coverage reports
+    const createCoverageReport = () => {
+        // Executing the integration tests runs also executes unit tests and generates a Jacoco report for them. To 
+        // strictly separate unit test from integration test coverage, we explicitly delete the unit test report first.
+        ci.sh('rm -rf target/site/jacoco');
+
+        // Download Jacoco file which is exposed by a webserver running inside the AEM container.
+        ci.sh('curl -O -f http://localhost:3000/crx-quickstart/jacoco-it.exec');
+
+        // Generate new report
+        ci.sh(`mvn -B org.jacoco:jacoco-maven-plugin:${process.env.JACOCO_VERSION}:report -Djacoco.dataFile=jacoco-it.exec`);
+
+        // Upload report to codecov
+        ci.sh('curl -s https://codecov.io/bash | bash -s -- -c -F integration -f target/site/jacoco/jacoco.xml');
+    };
+
+    ci.dir('bundles/core', createCoverageReport);
+    ci.dir('examples/bundle', createCoverageReport);
 
 } finally { // Always download logs from AEM container
     ci.sh('mkdir logs');
