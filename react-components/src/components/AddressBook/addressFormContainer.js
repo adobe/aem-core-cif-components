@@ -13,7 +13,6 @@
  ******************************************************************************/
 import React from 'react';
 
-import { useCountries } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
 import { useAddressForm } from './useAddressForm';
 import AddressForm from '../AddressForm';
@@ -22,8 +21,7 @@ import classes from './addressFormContainer.css';
 
 const AddressFormContainer = () => {
     const [{ isShowAddressForm }] = useUserContext();
-    const { countries } = useCountries();
-    const { handleSubmit, handleCancel, errorMessage, updateAddress } = useAddressForm();
+    const { countries, handleSubmit, handleCancel, errorMessage, updateAddress } = useAddressForm();
 
     return (
         <>

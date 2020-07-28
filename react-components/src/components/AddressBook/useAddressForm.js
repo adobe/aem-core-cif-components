@@ -91,6 +91,7 @@ export const useAddressForm = () => {
 
     return {
         inProgress,
+        countries,
         handleSubmit,
         handleCancel,
         errorMessage,
