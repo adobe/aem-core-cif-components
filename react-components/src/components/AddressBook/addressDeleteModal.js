@@ -24,23 +24,15 @@ const AddressDeleteModal = () => {
 
     const [t] = useTranslation('account');
 
-    const handleDeleteConfirmClick = () => {
-        deleteAddress(address);
-    };
-
-    const handleDeleteCancelClick = () => {
-        dispatch({ type: 'endDeletingAddress' });
-    };
-
     return (
         <div className={classes.root}>
             <div className={classes.cancel}>
-                <Button priority="normal" type="button" onClick={handleDeleteCancelClick}>
+                <Button priority="normal" type="button" onClick={() => deleteAddress(address)}>
                     {t('account:address-delete-cancel', 'Cancel')}
                 </Button>
             </div>
             <div className={classes.delete}>
-                <Button priority="high" type="button" onClick={handleDeleteConfirmClick}>
+                <Button priority="high" type="button" onClick={() => dispatch({ type: 'endDeletingAddress' })}>
                     {t('account:address-delete-confirm', 'Delete')}
                 </Button>
             </div>
