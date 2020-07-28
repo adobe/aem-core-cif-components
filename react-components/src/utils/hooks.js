@@ -57,7 +57,8 @@ export const useRegionId = (countries, countryCode, regionCode) => {
         countries
             .filter(country => country.id == countryCode && country.available_regions)
             .map(country => country.available_regions.find(region => region.code == regionCode));
-    return region ? region[0].id : null;
+    console.log(region);
+    return region && region[0] ? region[0].id : null;
 };
 
 /**
