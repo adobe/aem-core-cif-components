@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AddressBook> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <h1
+      class="title"
+    >
+      Address Book
+    </h1>
+    <div
+      class="text"
+    >
+      Please Sign in to see your address book.
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<AddressBook> renders the component with signed in user 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <h1
+      class="title"
+    >
+      Address Book
+    </h1>
+    <div
+      class="root"
+    >
+      <button
+        aria-label="Add an address"
+        class="root"
+      >
+        <span
+          class="icon"
+        >
+          <svg
+            fill="none"
+            height="18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="18"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="18"
+              rx="2"
+              ry="2"
+              width="18"
+              x="3"
+              y="3"
+            />
+            <line
+              x1="12"
+              x2="12"
+              y1="8"
+              y2="16"
+            />
+            <line
+              x1="8"
+              x2="16"
+              y1="12"
+              y2="12"
+            />
+          </svg>
+        </span>
+        <span
+          class="label"
+        >
+          Add an address
+        </span>
+      </button>
+    </div>
+    <div
+      class="mask"
+    />
+  </div>
+</DocumentFragment>
+`;
