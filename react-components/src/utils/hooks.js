@@ -51,16 +51,6 @@ export const useCountries = () => {
     return { countries: data.countries };
 };
 
-export const useRegionId = (countries, countryCode, regionCode) => {
-    const region =
-        countries &&
-        countries
-            .filter(country => country.id == countryCode && country.available_regions)
-            .map(country => country.available_regions.find(region => region.code == regionCode));
-    console.log(region);
-    return region && region[0] ? region[0].id : null;
-};
-
 /**
  * This hook is taken from the Peregrine library.
  * We don't use it because upgrading to the peregrine library that exports it would mean bringing in some dependencies we don't need (i.e. Redux)

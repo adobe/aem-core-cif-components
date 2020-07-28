@@ -73,49 +73,4 @@ describe('Custom hooks', () => {
             expect(result.textContent).toEqual('US');
         });
     });
-
-    describe('useRegionId', () => {
-        it('returns the correct region id', async () => {
-            const HookWrapper = () => {
-                const { error, countries } = useCountries();
-                if (error || !countries || countries.length === 0) {
-                    return <div id="results"></div>;
-                }
-                const regionId = useRegionId(countries, 'US', 'AL');
-                return (
-                    <div id="results">
-                        <div data-testid="result">{regionId}</div>
-                    </div>
-                );
-            };
-            const { getByTestId } = render(
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <HookWrapper />
-                </MockedProvider>
-            );
-            const result = await waitForElement(() => getByTestId('result'));
-            expect(result.textContent).toEqual('4');
-        });
-        it('returns the not found region id', async () => {
-            const HookWrapper = () => {
-                const { error, countries } = useCountries();
-                if (error || !countries || countries.length === 0) {
-                    return <div id="results"></div>;
-                }
-                const regionId = useRegionId(countries, 'US', 'LA');
-                return (
-                    <div id="results">
-                        <div data-testid="result">{regionId}</div>
-                    </div>
-                );
-            };
-            const { getByTestId } = render(
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <HookWrapper />
-                </MockedProvider>
-            );
-            const result = await waitForElement(() => getByTestId('result'));
-            expect(result.textContent).toEqual('');
-        });
-    });
 });
