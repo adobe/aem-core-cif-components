@@ -16,7 +16,7 @@ import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
 
-import { useCountries, useRegionId } from '../hooks';
+import { useCountries } from '../hooks';
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
 
 const mocks = [
