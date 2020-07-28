@@ -46,6 +46,6 @@ export const deleteCustomerAddress = async ({ address, deleteCustomerAddress, di
         dispatch({ type: 'endDeletingAddress' });
     } catch (error) {
         console.error('An error occurred during deleting customer address', error);
-        dispatch({ type: 'deleteAddressError', error });
+        dispatch({ type: 'deleteAddressError', error: error.toString() });
     }
 };
