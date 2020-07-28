@@ -108,7 +108,7 @@ const reducerFactory = () => {
                     ...state,
                     deleteAddress: null
                 };
-            case 'postDeletedAddress':
+            case 'postDeleteAddress':
                 return {
                     ...state,
                     currentUser: {

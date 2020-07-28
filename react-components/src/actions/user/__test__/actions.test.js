@@ -82,7 +82,7 @@ describe('User actions', () => {
         expect(deleteCustomerAddress).toHaveBeenCalledTimes(1);
 
         expect(dispatch).toHaveBeenCalledTimes(1);
-        expect(dispatch).toHaveBeenCalledWith({ type: 'postDeletedAddress', address });
+        expect(dispatch).toHaveBeenCalledWith({ type: 'postDeleteAddress', address });
     });
 
     it('fails to delete the customer address', async () => {
