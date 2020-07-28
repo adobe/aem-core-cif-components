@@ -16,7 +16,7 @@ import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
 
-import { useCountries } from '../hooks';
+import { useCountries, useRegionId } from '../hooks';
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
 
 const mocks = [
@@ -71,6 +71,31 @@ describe('Custom hooks', () => {
             const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
             expect(count.textContent).toEqual('2');
             expect(result.textContent).toEqual('US');
+        });
+    });
+
+    describe('useRegionId', () => {
+        it('returns the correct region id', async () => {
+            const HookWrapper = () => {
+                const { error, countries } = useCountries();
+                if (error || !countries || countries.length === 0) {
+                    return <div id="results"></div>;
+                }
+                const regionId = useRegionId(countries, 'US', 'AL');
+                return (
+                    <div id="results">
+                        <div data-testid="result">{regionId}</div>
+                    </div>
+                );
+            };
+
+            const { getByTestId } = render(
+                <MockedProvider mocks={mocks} addTypename={false}>
+                    <HookWrapper />
+                </MockedProvider>
+            );
+            const result = await waitForElement(() => getByTestId('result'));
+            expect(result.textContent).toEqual('4');
         });
     });
 });

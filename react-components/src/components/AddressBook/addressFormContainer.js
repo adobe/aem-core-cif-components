@@ -17,7 +17,7 @@ import { useMutation } from '@apollo/react-hooks';
 
 import MUTATION_UPDATE_CUSTOMER_ADDRESS from '../../queries/mutation_update_customer_address.graphql';
 import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_customer_address.graphql';
-import { useCountries } from '../../utils/hooks';
+import { useCountries, useRegionId } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
 import AddressForm from '../AddressForm';
 
@@ -48,7 +48,7 @@ const AddressFormContainer = () => {
                         country_code: 'US',
                         region: {
                             region_code: formValues.region_code,
-                            region_id: getRegionId(countries, 'US', formValues.region_code)
+                            region_id: useRegionId(countries, 'US', formValues.region_code)
                         },
                         default_billing: formValues.default_shipping,
                         ...formValues
@@ -62,7 +62,7 @@ const AddressFormContainer = () => {
                         country_code: 'US',
                         region: {
                             region_code: formValues.region_code,
-                            region_id: getRegionId(countries, 'US', formValues.region_code)
+                            region_id: useRegionId(countries, 'US', formValues.region_code)
                         },
                         default_billing: formValues.default_shipping,
                         ...formValues
@@ -74,15 +74,6 @@ const AddressFormContainer = () => {
         } catch (error) {
             dispatch({ type: 'setAddressFormError', error: error.toString() });
         }
-    };
-
-    const getRegionId = (countries, countryCode, regionCode) => {
-        const region =
-            countries &&
-            countries
-                .filter(country => country.id == countryCode && country.available_regions)
-                .map(country => country.available_regions.find(region => region.code == regionCode));
-        return region ? region[0].id : null;
     };
 
     return (
