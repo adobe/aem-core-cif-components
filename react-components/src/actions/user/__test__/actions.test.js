@@ -81,9 +81,8 @@ describe('User actions', () => {
 
         expect(deleteCustomerAddress).toHaveBeenCalledTimes(1);
 
-        expect(dispatch).toHaveBeenCalledTimes(2);
-        expect(dispatch).toHaveBeenCalledWith({ type: 'removeDeletedAddress', address });
-        expect(dispatch).toHaveBeenCalledWith({ type: 'endDeletingAddress' });
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(dispatch).toHaveBeenCalledWith({ type: 'postDeletedAddress', address });
     });
 
     it('fails to delete the customer address', async () => {

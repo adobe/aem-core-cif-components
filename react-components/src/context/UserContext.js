@@ -108,13 +108,15 @@ const reducerFactory = () => {
                     ...state,
                     deleteAddress: null
                 };
-            case 'removeDeletedAddress':
+            case 'postDeletedAddress':
                 return {
                     ...state,
                     currentUser: {
                         ...state.currentUser,
                         addresses: [...state.currentUser.addresses].filter(address => address.id !== action.address.id)
-                    }
+                    },
+                    deleteAddress: null,
+                    deleteAddressError: null
                 };
             case 'deleteAddressError':
                 return {
