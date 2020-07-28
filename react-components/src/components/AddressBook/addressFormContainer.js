@@ -11,70 +11,19 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useMutation } from '@apollo/react-hooks';
+import React from 'react';
 
-import MUTATION_UPDATE_CUSTOMER_ADDRESS from '../../queries/mutation_update_customer_address.graphql';
-import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_customer_address.graphql';
-import { useCountries, useRegionId } from '../../utils/hooks';
+import { useCountries } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
+import { useAddressForm } from './useAddressForm';
 import AddressForm from '../AddressForm';
 
 import classes from './addressFormContainer.css';
 
 const AddressFormContainer = () => {
-    const [{ isShowAddressForm, addressFormError, updateAddress }, { dispatch }] = useUserContext();
+    const [{ isShowAddressForm }] = useUserContext();
     const { countries } = useCountries();
-    const [createCustomerAddress] = useMutation(MUTATION_CREATE_CUSTOMER_ADDRESS);
-    const [updateCustomerAddress] = useMutation(MUTATION_UPDATE_CUSTOMER_ADDRESS);
-
-    const [t] = useTranslation('account');
-
-    const handleCancel = () => {
-        dispatch({ type: 'clearAddressFormError' });
-        dispatch({ type: 'closeAddressForm' });
-        if (updateAddress) {
-            dispatch({ type: 'endEditingAddress' });
-        }
-    };
-
-    const handleSubmit = async formValues => {
-        try {
-            if (updateAddress) {
-                const { data } = await updateCustomerAddress({
-                    variables: {
-                        id: updateAddress.id,
-                        country_code: 'US',
-                        region: {
-                            region_code: formValues.region_code,
-                            region_id: useRegionId(countries, 'US', formValues.region_code)
-                        },
-                        default_billing: formValues.default_shipping,
-                        ...formValues
-                    }
-                });
-                dispatch({ type: 'updateAddresses', address: data.updateCustomerAddress });
-                dispatch({ type: 'endEditingAddress' });
-            } else {
-                const { data } = await createCustomerAddress({
-                    variables: {
-                        country_code: 'US',
-                        region: {
-                            region_code: formValues.region_code,
-                            region_id: useRegionId(countries, 'US', formValues.region_code)
-                        },
-                        default_billing: formValues.default_shipping,
-                        ...formValues
-                    }
-                });
-                dispatch({ type: 'setNewAddress', address: data.createCustomerAddress });
-            }
-            dispatch({ type: 'closeAddressForm' });
-        } catch (error) {
-            dispatch({ type: 'setAddressFormError', error: error.toString() });
-        }
-    };
+    const { handleSubmit, handleCancel, errorMessage, updateAddress } = useAddressForm();
 
     return (
         <>
@@ -84,7 +33,7 @@ const AddressFormContainer = () => {
                     <AddressForm
                         cancel={handleCancel}
                         countries={countries}
-                        formErrorMessage={addressFormError}
+                        formErrorMessage={errorMessage}
                         initialValues={updateAddress}
                         showDefaultAddressCheckbox={true}
                         submit={handleSubmit}
