@@ -30,15 +30,6 @@ const AddressItem = props => {
     const rootClass = displayType ? classes[displayType] : classes.root;
     const street = address.street.join(' ');
 
-    const handleEditClick = () => {
-        dispatch({ type: 'beginEditingAddress', address });
-        dispatch({ type: 'openAddressForm' });
-    };
-
-    const handleDeleteClick = () => {
-        dispatch({ type: 'beginDeletingAddress', address });
-    };
-
     return (
         <div className={rootClass}>
             <div className={classes.summary}>
@@ -54,14 +45,18 @@ const AddressItem = props => {
                 <div className={classes.country}>{address.country_code}</div>
             </div>
             <div className={classes.actions}>
-                <button className={classes.editButton} onClick={handleEditClick}>
+                <button
+                    className={classes.editButton}
+                    onClick={() => dispatch({ type: 'beginEditingAddress', address })}>
                     <span className={classes.icon}>
                         <EditIcon size={18} />
                     </span>
                     <span className={classes.label}>{t('account:address-edit', 'Edit')}</span>
                 </button>
                 {!address.default_shipping && !address.default_billing && (
-                    <button className={classes.deleteButton} onClick={handleDeleteClick}>
+                    <button
+                        className={classes.deleteButton}
+                        onClick={() => dispatch({ type: 'beginDeletingAddress', address })}>
                         <span className={classes.icon}>
                             <DeleteIcon size={18} />
                         </span>

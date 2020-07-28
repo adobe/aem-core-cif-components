@@ -81,7 +81,8 @@ const reducerFactory = () => {
             case 'beginEditingAddress':
                 return {
                     ...state,
-                    updateAddress: action.address
+                    updateAddress: action.address,
+                    isShowAddressForm: true
                 };
             case 'endEditingAddress':
                 return {
