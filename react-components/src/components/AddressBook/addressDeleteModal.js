@@ -32,7 +32,12 @@ const AddressDeleteModal = () => {
                 </Button>
             </div>
             <div className={classes.delete}>
-                <Button priority="high" type="button" onClick={() => {deleteAddress(address)}}>
+                <Button
+                    priority="high"
+                    type="button"
+                    onClick={() => {
+                        deleteAddress(address);
+                    }}>
                     {t('account:address-delete-confirm', 'Delete')}
                 </Button>
             </div>
