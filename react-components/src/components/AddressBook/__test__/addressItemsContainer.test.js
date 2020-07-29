@@ -23,7 +23,7 @@ import AddressItemsContainer from '../addressItemsContainer';
 
 describe('<AddressItemsContainer>', () => {
     it('renders the component', () => {
-        const initialState = {
+        const mockInitialState = {
             currentUser: {
                 addresses: [
                     {
@@ -42,7 +42,7 @@ describe('<AddressItemsContainer>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={initialState}>
+                    <UserContextProvider initialState={mockInitialState}>
                         <AddressItemsContainer />
                     </UserContextProvider>
                 </MockedProvider>

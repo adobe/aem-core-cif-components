@@ -22,7 +22,7 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import AddressItem from '../addressItem';
 
 describe('<AddressItem>', () => {
-    const address = {
+    const mockAddress = {
         id: 'my-address-id',
         region: {
             region_code: 'LA'
@@ -37,7 +37,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <AddressItem address={address} />
+                        <AddressItem address={mockAddress} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -50,7 +50,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <AddressItem address={address} displayType={'list'} />
+                        <AddressItem address={mockAddress} displayType={'list'} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -59,11 +59,8 @@ describe('<AddressItem>', () => {
     });
 
     it('renders the component without default address checkbox', () => {
-        const defaultAddress = {
-            region: {
-                region_code: 'LA'
-            },
-            street: ['14 Stamford Court'],
+        const mockDefaultAddress = {
+            ...mockAddress,
             default_shipping: true,
             default_billing: true
         };
@@ -71,7 +68,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <AddressItem address={defaultAddress} />
+                        <AddressItem address={mockDefaultAddress} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -85,7 +82,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider initialState={{ deleteAddress: { id: 'my-address-id' } }}>
-                        <AddressItem address={address} />
+                        <AddressItem address={mockAddress} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -101,7 +98,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider reducerFactory={() => handler}>
-                        <AddressItem address={address} />
+                        <AddressItem address={mockAddress} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -118,7 +115,7 @@ describe('<AddressItem>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider reducerFactory={() => handler}>
-                        <AddressItem address={address} />
+                        <AddressItem address={mockAddress} />
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>

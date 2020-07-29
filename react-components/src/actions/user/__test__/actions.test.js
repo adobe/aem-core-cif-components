@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { resetCustomerCart, signOutUser, deleteCustomerAddress as deleteAddress } from '../actions';
+import { resetCustomerCart, signOutUser, deleteAddress } from '../actions';
 
 const setCartCookie = jest.fn();
 const setUserCookie = jest.fn();
