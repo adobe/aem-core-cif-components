@@ -27,12 +27,12 @@ const AddressDeleteModal = () => {
     return (
         <div className={classes.root}>
             <div className={classes.cancel}>
-                <Button priority="normal" type="button" onClick={() => deleteAddress(address)}>
+                <Button priority="normal" type="button" onClick={() => dispatch({ type: 'endDeletingAddress' })}>
                     {t('account:address-delete-cancel', 'Cancel')}
                 </Button>
             </div>
             <div className={classes.delete}>
-                <Button priority="high" type="button" onClick={() => dispatch({ type: 'endDeletingAddress' })}>
+                <Button priority="high" type="button" onClick={() => {deleteAddress(address)}}>
                     {t('account:address-delete-confirm', 'Delete')}
                 </Button>
             </div>
