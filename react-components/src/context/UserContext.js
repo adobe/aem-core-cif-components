@@ -21,7 +21,7 @@ import { useAwaitQuery } from '../utils/hooks';
 import {
     resetCustomerCart as resetCustomerCartAction,
     signOutUser as signOutUserAction,
-    deleteCustomerAddress as deleteCustomerAddressAction
+    deleteAddress as deleteAddressAction
 } from '../actions/user';
 
 import MUTATION_DELETE_CUSTOMER_ADDRESS from '../queries/mutation_delete_customer_address.graphql';
@@ -60,23 +60,25 @@ const reducerFactory = () => {
                     token: action.token,
                     signInError: null
                 };
-            case 'setNewAddress':
-                return {
-                    ...state,
-                    currentUser: {
-                        ...state.currentUser,
-                        addresses: [...state.currentUser.addresses, action.address]
-                    }
-                };
             case 'setAddressFormError':
                 return {
                     ...state,
-                    addressFormError: action.error
+                    addressFormError: parseError(action.error)
                 };
             case 'clearAddressFormError':
                 return {
                     ...state,
                     addressFormError: null
+                };
+            case 'postCreateAddress':
+                return {
+                    ...state,
+                    currentUser: {
+                        ...state.currentUser,
+                        addresses: [...state.currentUser.addresses, action.address]
+                    },
+                    addressFormError: null,
+                    isShowAddressForm: false
                 };
             case 'beginEditingAddress':
                 return {
@@ -89,7 +91,7 @@ const reducerFactory = () => {
                     ...state,
                     updateAddress: null
                 };
-            case 'updateAddresses':
+            case 'postUpdateAddress':
                 return {
                     ...state,
                     currentUser: {
@@ -97,7 +99,10 @@ const reducerFactory = () => {
                         addresses: [...state.currentUser.addresses].map(address => {
                             return address.id === action.address.id ? action.address : address;
                         })
-                    }
+                    },
+                    updateAddress: null,
+                    addressFormError: null,
+                    isShowAddressForm: false
                 };
             case 'beginDeletingAddress':
                 return {
@@ -217,6 +222,7 @@ const UserContextProvider = props => {
         isShowAddressForm: false,
         addressFormError: null,
         updateAddress: null,
+        updateAddressError: null,
         deleteAddress: null,
         deleteAddressError: null,
         signInError: null,
@@ -299,7 +305,7 @@ const UserContextProvider = props => {
     };
 
     const deleteAddress = async address => {
-        await deleteCustomerAddressAction({ address, deleteCustomerAddress, dispatch });
+        await deleteAddressAction({ deleteCustomerAddress, address, dispatch });
     };
 
     const { children } = props;

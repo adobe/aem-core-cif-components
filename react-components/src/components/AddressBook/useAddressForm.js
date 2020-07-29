@@ -16,6 +16,7 @@ import { useUserContext } from '../../context/UserContext';
 import { useMutation } from '@apollo/react-hooks';
 
 import { useCountries } from '../../utils/hooks';
+import { createAddress, updateAddress } from '../../actions/user';
 
 import MUTATION_UPDATE_CUSTOMER_ADDRESS from '../../queries/mutation_update_customer_address.graphql';
 import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_customer_address.graphql';
@@ -44,39 +45,20 @@ export const useAddressForm = () => {
 
     const handleSubmit = async formValues => {
         setInProgress(true);
-        try {
-            if (userState.updateAddress) {
-                const { data } = await updateCustomerAddress({
-                    variables: {
-                        id: userState.updateAddress.id,
-                        country_code: 'US',
-                        region: {
-                            region_code: formValues.region_code,
-                            region_id: getRegionId(countries, 'US', formValues.region_code)
-                        },
-                        default_billing: formValues.default_shipping,
-                        ...formValues
-                    }
-                });
-                dispatch({ type: 'updateAddresses', address: data.updateCustomerAddress });
-                dispatch({ type: 'endEditingAddress' });
-            } else {
-                const { data } = await createCustomerAddress({
-                    variables: {
-                        country_code: 'US',
-                        region: {
-                            region_code: formValues.region_code,
-                            region_id: getRegionId(countries, 'US', formValues.region_code)
-                        },
-                        default_billing: formValues.default_shipping,
-                        ...formValues
-                    }
-                });
-                dispatch({ type: 'setNewAddress', address: data.createCustomerAddress });
-            }
-            dispatch({ type: 'closeAddressForm' });
-        } catch (error) {
-            dispatch({ type: 'setAddressFormError', error: error.toString() });
+        const variables = {
+            country_code: 'US',
+            region: {
+                region_code: formValues.region_code,
+                region_id: getRegionId(countries, 'US', formValues.region_code)
+            },
+            default_billing: formValues.default_shipping,
+            ...formValues
+        };
+        if (userState.updateAddress) {
+            variables.id = userState.updateAddress.id;
+            updateAddress({ updateCustomerAddress, variables, dispatch });
+        } else {
+            createAddress({ createCustomerAddress, variables, dispatch });
         }
         setInProgress(false);
     };
@@ -92,6 +74,7 @@ export const useAddressForm = () => {
     return {
         inProgress,
         countries,
+        getRegionId,
         handleSubmit,
         handleCancel,
         errorMessage,

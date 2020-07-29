@@ -35,6 +35,7 @@ mutation(
     default_billing
     default_shipping
     firstname
+    lastname
     postcode
     region {
       region_code
