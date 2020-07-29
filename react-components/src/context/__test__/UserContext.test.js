@@ -100,6 +100,7 @@ describe('UserContext test', () => {
             }
         }
     ];
+
     it('updates the user token in state', async () => {
         const ContextWrapper = () => {
             const [{ token, isSignedIn }, { setToken }] = useUserContext();
@@ -232,5 +233,205 @@ describe('UserContext test', () => {
         //...but we're not in a browser
         const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
         expect(document.cookie).toEqual(expectedCookieValue);
+    });
+
+    it('open account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
+
+            let content;
+            if (isAccountDropdownOpen) {
+                content = <div data-testid="account-dropdown-open">Account dropdown opened</div>;
+            } else {
+                content = <button onClick={() => toggleAccountDropdown(true)}>Open account dropdown</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('account-dropdown-open'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('Account dropdown opened');
+    });
+
+    it('show sign in view in account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ accountDropdownView }, { showForgotPassword, showSignIn }] = useUserContext();
+
+            let content;
+            if (accountDropdownView === 'SIGN_IN') {
+                content = (
+                    <>
+                        <div data-testid="sign-in-view">Sign-in view shown</div>
+                        <button onClick={() => showForgotPassword()}>Show forgot password view</button>
+                    </>
+                );
+            } else {
+                content = (
+                    <>
+                        <div data-testid="forgot-password-view">Forgot password view shown</div>;
+                        <button data-testid="show-sign-in-button" onClick={() => showSignIn()}>
+                            Show sign-in view
+                        </button>
+                    </>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const forgotPasswordView = await waitForElement(() => getByTestId('forgot-password-view'));
+        expect(forgotPasswordView).not.toBeUndefined();
+        expect(forgotPasswordView.textContent).toEqual('Forgot password view shown');
+
+        const showSignInButton = getByTestId('show-sign-in-button');
+        expect(showSignInButton).not.toBeUndefined();
+        fireEvent.click(showSignInButton);
+
+        const result = await waitForElement(() => getByTestId('sign-in-view'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('Sign-in view shown');
+    });
+
+    it('show create account view in account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ accountDropdownView }, { showCreateAccount }] = useUserContext();
+
+            let content;
+            if (accountDropdownView === 'CREATE_ACCOUNT') {
+                content = <div data-testid="create-account-view">Create account view shown</div>;
+            } else {
+                content = <button onClick={() => showCreateAccount()}>Show create account view</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('create-account-view'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('Create account view shown');
+    });
+
+    it('show my account view in account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ accountDropdownView }, { showMyAccount }] = useUserContext();
+
+            let content;
+            if (accountDropdownView === 'MY_ACCOUNT') {
+                content = <div data-testid="my-account-view">My account view shown</div>;
+            } else {
+                content = <button onClick={() => showMyAccount()}>Show my account view</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('my-account-view'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('My account view shown');
+    });
+
+    it('show account created view in account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ accountDropdownView }, { showAccountCreated }] = useUserContext();
+
+            let content;
+            if (accountDropdownView === 'ACCOUNT_CREATED') {
+                content = <div data-testid="account-created-view">Account created view shown</div>;
+            } else {
+                content = <button onClick={() => showAccountCreated()}>Show account created view</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('account-created-view'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('Account created view shown');
+    });
+
+    it('show change password view in account dropdown', async () => {
+        const ContextWrapper = () => {
+            const [{ accountDropdownView }, { showChangePassword }] = useUserContext();
+
+            let content;
+            if (accountDropdownView === 'CHANGE_PASSWORD') {
+                content = <div data-testid="change-password-view">Change password view shown</div>;
+            } else {
+                content = <button onClick={() => showChangePassword()}>Show Change password view</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const result = await waitForElement(() => getByTestId('change-password-view'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('Change password view shown');
     });
 });
