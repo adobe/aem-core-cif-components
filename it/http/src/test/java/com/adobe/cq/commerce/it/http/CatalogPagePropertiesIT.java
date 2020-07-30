@@ -77,10 +77,6 @@ public class CatalogPagePropertiesIT {
         // Check checkbox for show catalog page
         elements = doc.select("coral-panel coral-checkbox coral-checkbox-label:contains(Show catalog page)");
         Assert.assertEquals(1, elements.size());
-
-        // Check category picker
-        elements = doc.select("section label:contains(Root category ID)");
-        Assert.assertEquals(1, elements.size());
     }
 
     @After
