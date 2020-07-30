@@ -235,7 +235,7 @@ describe('UserContext test', () => {
         expect(document.cookie).toEqual(expectedCookieValue);
     });
 
-    it('open account dropdown', async () => {
+    it('opens account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
 
@@ -265,7 +265,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('Account dropdown opened');
     });
 
-    it('show sign in view in account dropdown', async () => {
+    it('shows sign in and forgot password views in account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ accountDropdownView }, { showForgotPassword, showSignIn }] = useUserContext();
 
@@ -315,7 +315,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('Sign-in view shown');
     });
 
-    it('show create account view in account dropdown', async () => {
+    it('shows create account view in account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ accountDropdownView }, { showCreateAccount }] = useUserContext();
 
@@ -345,7 +345,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('Create account view shown');
     });
 
-    it('show my account view in account dropdown', async () => {
+    it('shows my account view in account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ accountDropdownView }, { showMyAccount }] = useUserContext();
 
@@ -375,7 +375,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('My account view shown');
     });
 
-    it('show account created view in account dropdown', async () => {
+    it('shows account created view in account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ accountDropdownView }, { showAccountCreated }] = useUserContext();
 
@@ -405,7 +405,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('Account created view shown');
     });
 
-    it('show change password view in account dropdown', async () => {
+    it('shows change password view in account dropdown', async () => {
         const ContextWrapper = () => {
             const [{ accountDropdownView }, { showChangePassword }] = useUserContext();
 
@@ -433,5 +433,531 @@ describe('UserContext test', () => {
         const result = await waitForElement(() => getByTestId('change-password-view'));
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Change password view shown');
+    });
+
+    it('performs create a user address', async () => {
+        const ContextWrapper = () => {
+            const [{ currentUser, addressFormError, isShowAddressForm }, { dispatch }] = useUserContext();
+
+            let content;
+            if (currentUser.addresses.length > 0) {
+                content = (
+                    <>
+                        <div data-testid="current-user-firstname">{currentUser.firstname}</div>;
+                        <div data-testid="current-user-lastname">{currentUser.lastname}</div>;
+                        <div data-testid="current-user-email">{currentUser.email}</div>;
+                        <div data-testid="user-address-id">{currentUser.addresses[0].id}</div>
+                        <div data-testid="user-address-firstname">{currentUser.addresses[0].firstname}</div>
+                        <div data-testid="user-address-lastname">{currentUser.addresses[0].lastname}</div>
+                        <div data-testid="user-address-street">{currentUser.addresses[0].street}</div>
+                        <div data-testid="address-form-error">{addressFormError}</div>
+                        <div data-testid="is-show-address-form">{isShowAddressForm.toString()}</div>
+                    </>
+                );
+            } else {
+                content = (
+                    <button
+                        onClick={() =>
+                            dispatch({
+                                type: 'postCreateAddress',
+                                address: {
+                                    id: 'my-address-id',
+                                    firstname: 'my-address-firstname',
+                                    lastname: 'my-address-lastname',
+                                    street: 'my-address-street'
+                                }
+                            })
+                        }>
+                        Create a user address
+                    </button>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const mockInitialState = {
+            addressFormError: 'address form error',
+            currentUser: {
+                firstname: 'current-user-firstname',
+                lastname: 'current-user-lastname',
+                email: 'current-user-email',
+                addresses: []
+            },
+            isShowAddressForm: true
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const currentUserFirstname = await waitForElement(() => getByTestId('current-user-firstname'));
+        expect(currentUserFirstname).not.toBeUndefined();
+        expect(currentUserFirstname.textContent).toEqual('current-user-firstname');
+
+        const currentUserLastname = getByTestId('current-user-lastname');
+        expect(currentUserLastname).not.toBeUndefined();
+        expect(currentUserLastname.textContent).toEqual('current-user-lastname');
+
+        const currentUserEmail = getByTestId('current-user-email');
+        expect(currentUserEmail).not.toBeUndefined();
+        expect(currentUserEmail.textContent).toEqual('current-user-email');
+
+        const userAddressId = getByTestId('user-address-id');
+        expect(userAddressId).not.toBeUndefined();
+        expect(userAddressId.textContent).toEqual('my-address-id');
+
+        const userAddressFirstname = getByTestId('user-address-firstname');
+        expect(userAddressFirstname).not.toBeUndefined();
+        expect(userAddressFirstname.textContent).toEqual('my-address-firstname');
+
+        const userAddressLastname = getByTestId('user-address-lastname');
+        expect(userAddressLastname).not.toBeUndefined();
+        expect(userAddressLastname.textContent).toEqual('my-address-lastname');
+
+        const userAddressStreet = getByTestId('user-address-street');
+        expect(userAddressStreet).not.toBeUndefined();
+        expect(userAddressStreet.textContent).toEqual('my-address-street');
+
+        const addressFormError = getByTestId('address-form-error');
+        expect(addressFormError).not.toBeUndefined();
+        expect(addressFormError.textContent).toEqual('');
+
+        const isShowAddressForm = getByTestId('is-show-address-form');
+        expect(isShowAddressForm).not.toBeUndefined();
+        expect(isShowAddressForm.textContent).toEqual('false');
+    });
+
+    it('performs edit an address, including begin edit, end edit, and confirm edit', async () => {
+        const mockAddress = {
+            id: 'my-address-id',
+            firstname: 'my-address-firstname',
+            lastname: 'my-address-lastname',
+            street: 'my-address-street'
+        };
+
+        const ContextWrapper = () => {
+            const [
+                { updateAddress, isShowAddressForm, currentUser, addressFormError },
+                { dispatch }
+            ] = useUserContext();
+
+            let content;
+            if (updateAddress) {
+                content = (
+                    <>
+                        <div data-testid="is-show-address-form">{isShowAddressForm.toString()}</div>
+                        <button
+                            data-testid="post-update-address-button"
+                            onClick={() =>
+                                dispatch({
+                                    type: 'postUpdateAddress',
+                                    address: {
+                                        ...mockAddress,
+                                        firstname: 'update-address-firstname',
+                                        lastname: 'update-address-lastname',
+                                        street: 'update-address-street'
+                                    }
+                                })
+                            }>
+                            Save address
+                        </button>
+                        <button
+                            data-testid="end-editing-address-button"
+                            onClick={() => dispatch({ type: 'endEditingAddress' })}>
+                            Cancel edit
+                        </button>
+                    </>
+                );
+            } else {
+                content = (
+                    <>
+                        <div data-testid="updated-address-firstname">{currentUser.addresses[0].firstname}</div>
+                        <div data-testid="updated-address-lastname">{currentUser.addresses[0].lastname}</div>
+                        <div data-testid="updated-address-street">{currentUser.addresses[0].street}</div>
+                        <div data-testid="user-address-firstname">{currentUser.addresses[1].firstname}</div>
+                        <div data-testid="user-address-lastname">{currentUser.addresses[1].lastname}</div>
+                        <div data-testid="user-address-street">{currentUser.addresses[1].street}</div>
+                        <div data-testid="address-form-error">{addressFormError}</div>
+                        <button
+                            data-testid="begin-editing-address-button"
+                            onClick={() =>
+                                dispatch({
+                                    type: 'beginEditingAddress',
+                                    address: mockAddress
+                                })
+                            }>
+                            Edit address
+                        </button>
+                    </>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const mockInitialState = {
+            addressFormError: 'address form error',
+            currentUser: {
+                addresses: [mockAddress, { ...mockAddress, id: 'address-id' }]
+            },
+            isShowAddressForm: false
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('begin-editing-address-button')).not.toBeUndefined();
+        fireEvent.click(getByTestId('begin-editing-address-button'));
+
+        const isShowAddressForm = await waitForElement(() => getByTestId('is-show-address-form'));
+        expect(isShowAddressForm).not.toBeUndefined();
+        expect(isShowAddressForm.textContent).toEqual('true');
+
+        const endEditingAddressButton = getByTestId('end-editing-address-button');
+        expect(endEditingAddressButton).not.toBeUndefined();
+        fireEvent.click(endEditingAddressButton);
+
+        const beginEditingAddressButton = await waitForElement(() => getByTestId('begin-editing-address-button'));
+        expect(beginEditingAddressButton).not.toBeUndefined();
+        fireEvent.click(beginEditingAddressButton);
+
+        const postUpdateAddressButton = getByTestId('post-update-address-button');
+        expect(postUpdateAddressButton).not.toBeUndefined();
+        fireEvent.click(postUpdateAddressButton);
+
+        const updatedAddressFirstname = getByTestId('updated-address-firstname');
+        expect(updatedAddressFirstname).not.toBeUndefined();
+        expect(updatedAddressFirstname.textContent).toEqual('update-address-firstname');
+
+        const updatedAddressLastname = getByTestId('updated-address-lastname');
+        expect(updatedAddressLastname).not.toBeUndefined();
+        expect(updatedAddressLastname.textContent).toEqual('update-address-lastname');
+
+        const updatedAddressStreet = getByTestId('updated-address-street');
+        expect(updatedAddressStreet).not.toBeUndefined();
+        expect(updatedAddressStreet.textContent).toEqual('update-address-street');
+
+        const userAddressFirstname = getByTestId('user-address-firstname');
+        expect(userAddressFirstname).not.toBeUndefined();
+        expect(userAddressFirstname.textContent).toEqual('my-address-firstname');
+
+        const userAddressLastname = getByTestId('user-address-lastname');
+        expect(userAddressLastname).not.toBeUndefined();
+        expect(userAddressLastname.textContent).toEqual('my-address-lastname');
+
+        const userAddressStreet = getByTestId('user-address-street');
+        expect(userAddressStreet).not.toBeUndefined();
+        expect(userAddressStreet.textContent).toEqual('my-address-street');
+
+        const addressFormError = getByTestId('address-form-error');
+        expect(addressFormError).not.toBeUndefined();
+        expect(addressFormError.textContent).toEqual('');
+    });
+
+    it('performs delete an address, including begin delete, end delete, and confirm delete', async () => {
+        const mockAddress = {
+            id: 'my-address-id',
+            firstname: 'my-address-firstname',
+            lastname: 'my-address-lastname',
+            street: 'my-address-street'
+        };
+
+        const ContextWrapper = () => {
+            const [{ deleteAddress, currentUser, deleteAddressError }, { dispatch }] = useUserContext();
+
+            let content;
+            if (deleteAddress) {
+                content = (
+                    <>
+                        <button
+                            data-testid="post-delete-address-button"
+                            onClick={() =>
+                                dispatch({
+                                    type: 'postDeleteAddress',
+                                    address: mockAddress
+                                })
+                            }>
+                            Confirm delete
+                        </button>
+                        <button
+                            data-testid="end-delete-address-button"
+                            onClick={() => dispatch({ type: 'endDeletingAddress' })}>
+                            Cancel delete
+                        </button>
+                    </>
+                );
+            } else {
+                content = (
+                    <>
+                        <div data-testid="user-addresses-length">{currentUser.addresses.length}</div>
+                        <div data-testid="delete-address">{deleteAddress}</div>
+                        <div data-testid="delete-address-error">{deleteAddressError}</div>
+                        <button
+                            data-testid="begin-deleting-address-button"
+                            onClick={() =>
+                                dispatch({
+                                    type: 'beginDeletingAddress',
+                                    address: mockAddress
+                                })
+                            }>
+                            Delete address
+                        </button>
+                    </>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const mockInitialState = {
+            currentUser: {
+                addresses: [mockAddress]
+            },
+            deleteAddressError: 'delete address error'
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('begin-deleting-address-button')).not.toBeUndefined();
+        fireEvent.click(getByTestId('begin-deleting-address-button'));
+
+        const endDeletingAddressButton = await waitForElement(() => getByTestId('end-delete-address-button'));
+        expect(endDeletingAddressButton).not.toBeUndefined();
+        fireEvent.click(endDeletingAddressButton);
+
+        const deleteAddress = await waitForElement(() => getByTestId('delete-address'));
+        expect(deleteAddress).not.toBeUndefined();
+        expect(deleteAddress.textContent).toEqual('');
+
+        const beginDeletingAddressButton = getByTestId('begin-deleting-address-button');
+        expect(beginDeletingAddressButton).not.toBeUndefined();
+        fireEvent.click(beginDeletingAddressButton);
+
+        const postDeleteAddressButton = await waitForElement(() => getByTestId('post-delete-address-button'));
+        expect(postDeleteAddressButton).not.toBeUndefined();
+        fireEvent.click(postDeleteAddressButton);
+
+        const clearedDeleteAddress = getByTestId('delete-address');
+        expect(clearedDeleteAddress).not.toBeUndefined();
+        expect(clearedDeleteAddress.textContent).toEqual('');
+
+        const userAddressesLength = await waitForElement(() => getByTestId('user-addresses-length'));
+        expect(userAddressesLength).not.toBeUndefined();
+        expect(userAddressesLength.textContent).toEqual('0');
+
+        const deleteAddressError = getByTestId('delete-address-error');
+        expect(deleteAddressError).not.toBeUndefined();
+        expect(deleteAddressError.textContent).toEqual('');
+    });
+
+    it('sets address form error and clear it from state', async () => {
+        const ContextWrapper = () => {
+            const [{ addressFormError }, { dispatch }] = useUserContext();
+
+            let content;
+            if (addressFormError) {
+                content = (
+                    <>
+                        <div data-testid="address-form-error">{addressFormError}</div>;
+                        <button
+                            data-testid="clear-address-form-error-button"
+                            onClick={() => dispatch({ type: 'clearAddressFormError' })}>
+                            Clear address form error
+                        </button>
+                    </>
+                );
+            } else {
+                content = (
+                    <>
+                        <div data-testid="address-form-error">{addressFormError}</div>;
+                        <button
+                            onClick={() =>
+                                dispatch({ type: 'setAddressFormError', error: new Error('address form error') })
+                            }>
+                            Set address form error
+                        </button>
+                    </>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+
+        fireEvent.click(getByRole('button'));
+        const addressFormError = await waitForElement(() => getByTestId('address-form-error'));
+        expect(addressFormError).not.toBeUndefined();
+        expect(addressFormError.textContent).toEqual('address form error');
+
+        const clearAddressFormErrorButton = getByTestId('clear-address-form-error-button');
+        expect(clearAddressFormErrorButton).not.toBeUndefined();
+        fireEvent.click(clearAddressFormErrorButton);
+
+        const result = await waitForElement(() => getByTestId('address-form-error'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('');
+    });
+
+    it('sets delete address error', async () => {
+        const ContextWrapper = () => {
+            const [{ deleteAddressError }, { dispatch }] = useUserContext();
+
+            let content;
+            if (deleteAddressError) {
+                content = <div data-testid="delete-address-error">{deleteAddressError}</div>;
+            } else {
+                content = (
+                    <button
+                        onClick={() =>
+                            dispatch({ type: 'deleteAddressError', error: new Error('delete address error') })
+                        }>
+                        Set delete address error
+                    </button>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+        fireEvent.click(getByRole('button'));
+
+        const result = await waitForElement(() => getByTestId('delete-address-error'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('delete address error');
+    });
+
+    it('opens address form and closes address form', async () => {
+        const ContextWrapper = () => {
+            const [{ isShowAddressForm }, { dispatch }] = useUserContext();
+
+            let content;
+            if (isShowAddressForm) {
+                content = (
+                    <>
+                        <div data-testid="is-show-address-form">{isShowAddressForm.toString()}</div>;
+                        <button
+                            data-testid="close-address-form-button"
+                            onClick={() => dispatch({ type: 'closeAddressForm' })}>
+                            Close address form
+                        </button>
+                    </>
+                );
+            } else {
+                content = (
+                    <>
+                        <div data-testid="is-show-address-form">{isShowAddressForm.toString()}</div>;
+                        <button
+                            data-testid="open-address-form-button"
+                            onClick={() => dispatch({ type: 'openAddressForm' })}>
+                            Open address form
+                        </button>
+                    </>
+                );
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('open-address-form-button')).not.toBeUndefined();
+        fireEvent.click(getByTestId('open-address-form-button'));
+
+        const isShowAddressForm = await waitForElement(() => getByTestId('is-show-address-form'));
+        expect(isShowAddressForm).not.toBeUndefined();
+        expect(isShowAddressForm.textContent).toEqual('true');
+
+        expect(getByTestId('close-address-form-button')).not.toBeUndefined();
+        fireEvent.click(getByTestId('close-address-form-button'));
+
+        const result = await waitForElement(() => getByTestId('is-show-address-form'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('false');
+    });
+
+    it('sets props for account container and address book', async () => {
+        const ContextWrapper = () => {
+            const [
+                { accountContainerQuerySelector, addressBookContainerQuerySelector, addressBookPath }
+            ] = useUserContext();
+
+            const content = (
+                <>
+                    <div data-testid="account-container-query-selector">{accountContainerQuerySelector}</div>;
+                    <div data-testid="address-book-container-query-selector">{addressBookContainerQuerySelector}</div>;
+                    <div data-testid="address-book-path">{addressBookPath}</div>;
+                </>
+            );
+
+            return <div>{content}</div>;
+        };
+
+        const mockConfig = {
+            accountContainerQuerySelector: 'account container query selector',
+            addressBookContainerQuerySelector: 'address book container query selector',
+            addressBookPath: 'address book path'
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider config={mockConfig}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByTestId('account-container-query-selector')).not.toBeUndefined();
+        expect(getByTestId('account-container-query-selector').textContent).toEqual('account container query selector');
+
+        expect(getByTestId('address-book-container-query-selector')).not.toBeUndefined();
+        expect(getByTestId('address-book-container-query-selector').textContent).toEqual(
+            'address book container query selector'
+        );
+
+        expect(getByTestId('address-book-path')).not.toBeUndefined();
+        expect(getByTestId('address-book-path').textContent).toEqual('address book path');
     });
 });
