@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
 
@@ -32,8 +34,9 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
 /**
- * {@code PageTypeRenderConditionServlet} implements a {@code granite:rendercondition} used to decide if the product picker
- * and category picker should be displayed in the page properties dialog of custom product pages and custom category pages.
+ * {@code PageTypeRenderConditionServlet} implements a {@code granite:rendercondition} used which evaluates to true for catalog pages,
+ * custom category pages and custom product pages.
+ * It requires the {@code pageType} parameter which should have one of the values: {@code catalog}, {@code category}, {@code product}.
  */
 @Component(
     service = { Servlet.class },
@@ -51,6 +54,8 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final String PAGE_TYPE_PROPERTY = "pageType";
     private static final String PAGE_TYPE_PRODUCT = "product";
     private static final String PAGE_TYPE_CATEGORY = "category";
+    private static final String PAGE_TYPE_CATALOG = "catalog";
+    private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
@@ -61,6 +66,11 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private boolean checkPageType(SlingHttpServletRequest slingRequest, String pageType) {
         if (StringUtils.isBlank(pageType)) {
             LOGGER.error("{} property is not defined at {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath());
+            return false;
+        }
+
+        if (!Arrays.asList(new String[] { PAGE_TYPE_CATALOG, PAGE_TYPE_CATEGORY, PAGE_TYPE_PRODUCT }).contains(pageType)) {
+            LOGGER.error("{} property has invalid value at {}: {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath(), pageType);
             return false;
         }
 
@@ -75,6 +85,10 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
         Page page = pageManager.getPage(pagePath);
         if (page == null) {
             return false;
+        }
+
+        if (PAGE_TYPE_CATALOG.equals(pageType)) {
+            return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
         }
 
         Page parentPage = page.getParent();

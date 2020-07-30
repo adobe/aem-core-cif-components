@@ -33,5 +33,13 @@
         "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
     }
+  },
+
+  "catalog-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType":"cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
+    }
   }
 }

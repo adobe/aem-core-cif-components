@@ -82,6 +82,30 @@ public class PageTypeRenderConditionServletTest {
     }
 
     @Test
+    public void testCatalogPage() {
+        request.getResource().getValueMap().put("pageType", "catalog");
+        request.setQueryString("item=/content/catalog-page");
+        request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
+
+        servlet.doGet(request, null);
+
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+        Assert.assertTrue(condition.check());
+    }
+
+    @Test
+    public void testNotCatalogPage() {
+        request.getResource().getValueMap().put("pageType", "catalog");
+        request.setQueryString("item=/content/category-page/sub-page");
+        request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
+
+        servlet.doGet(request, null);
+
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+        Assert.assertFalse(condition.check());
+    }
+
+    @Test
     public void testNotProductPage() {
         request.getResource().getValueMap().put("pageType", "product");
         request.setQueryString("item=/content/category-page/sub-page");
@@ -120,6 +144,18 @@ public class PageTypeRenderConditionServletTest {
     @Test
     public void testNoPageType() {
         request.setQueryString("item=/content/product-page/ignored");
+        request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
+
+        servlet.doGet(request, null);
+
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+        Assert.assertFalse(condition.check());
+    }
+
+    @Test
+    public void testInvalidPageType() {
+        request.getResource().getValueMap().put("pageType", "something");
+        request.setQueryString("item=/content/product-page/sub-page");
         request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
 
         servlet.doGet(request, null);
