@@ -79,7 +79,7 @@ public class CatalogPagePropertiesIT {
         Assert.assertEquals(1, elements.size());
 
         // Check category picker
-        elements = doc.select("foundation-autocomplete[name=./magentoRootCategoryId");
+        elements = doc.select("section label:contains(Root category ID)");
         Assert.assertEquals(1, elements.size());
     }
 
