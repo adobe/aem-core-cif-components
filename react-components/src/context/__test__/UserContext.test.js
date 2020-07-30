@@ -918,7 +918,7 @@ describe('UserContext test', () => {
         expect(result.textContent).toEqual('false');
     });
 
-    it('sets props for account container and address book', async () => {
+    it('sets config prop for account container and address book', async () => {
         const ContextWrapper = () => {
             const [
                 { accountContainerQuerySelector, addressBookContainerQuerySelector, addressBookPath }
