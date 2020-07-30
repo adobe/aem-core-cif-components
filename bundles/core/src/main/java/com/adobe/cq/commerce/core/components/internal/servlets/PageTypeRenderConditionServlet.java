@@ -52,9 +52,9 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(PageTypeRenderConditionServlet.class);
     private static final String PAGE_PROPERTIES = "wcm/core/content/sites/properties";
     private static final String PAGE_TYPE_PROPERTY = "pageType";
-    private static final String PAGE_TYPE_PRODUCT = "product";
-    private static final String PAGE_TYPE_CATEGORY = "category";
-    private static final String PAGE_TYPE_CATALOG = "catalog";
+    private static final String PRODUCT_PAGE_TYPE = "product";
+    private static final String CATEGORY_PAGE_TYPE = "category";
+    private static final String CATALOG_PAGE_TYPE = "catalog";
     private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
 
     @Override
@@ -69,7 +69,7 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
             return false;
         }
 
-        if (!Arrays.asList(new String[] { PAGE_TYPE_CATALOG, PAGE_TYPE_CATEGORY, PAGE_TYPE_PRODUCT }).contains(pageType)) {
+        if (!Arrays.asList(new String[] { CATALOG_PAGE_TYPE, CATEGORY_PAGE_TYPE, PRODUCT_PAGE_TYPE }).contains(pageType)) {
             LOGGER.error("{} property has invalid value at {}: {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath(), pageType);
             return false;
         }
@@ -87,7 +87,7 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
             return false;
         }
 
-        if (PAGE_TYPE_CATALOG.equals(pageType)) {
+        if (CATALOG_PAGE_TYPE.equals(pageType)) {
             return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
         }
 
@@ -97,10 +97,10 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
         }
 
         // perform the appropriate checks according to the pageType property
-        if (PAGE_TYPE_PRODUCT.equals(pageType)) {
+        if (PRODUCT_PAGE_TYPE.equals(pageType)) {
             Page productPage = SiteNavigation.getProductPage(page);
             return productPage != null && productPage.getPath().equals(parentPage.getPath());
-        } else if (PAGE_TYPE_CATEGORY.equals(pageType)) {
+        } else if (CATEGORY_PAGE_TYPE.equals(pageType)) {
             Page categoryPage = SiteNavigation.getCategoryPage(page);
             return categoryPage != null && categoryPage.getPath().equals(parentPage.getPath());
         }
