@@ -54,7 +54,7 @@ describe('useMinicart', () => {
     it('adds an item to cart', async () => {
         const mockEvent = { detail: [{ sku: '123', quantity: 2 }] };
 
-        const { getByRole, getByTestId, debug } = render(
+        const { getByRole, getByTestId } = render(
             <CartProvider initialState={{ cartId: 'guest123' }}>
                 <MockComponent event={mockEvent} />
             </CartProvider>
