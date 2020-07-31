@@ -47,9 +47,10 @@ const AddressForm = props => {
         isAddressInvalid,
         invalidAddressMessage,
         initialValues,
+        showDefaultAddressCheckbox,
+        showEmailInput,
         submit,
-        submitLabel,
-        showDefaultAddressCheckbox
+        submitLabel
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const errorMessage = formErrorMessage ? formErrorMessage : null;
@@ -102,16 +103,18 @@ const AddressForm = props => {
                         <TextInput id={classes.lastname} field="lastname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
-                <div className={classes.email}>
-                    <Field label={t('checkout:address-email', 'E-Mail')}>
-                        <TextInput
-                            id={classes.email}
-                            field="email"
-                            validateOnBlur
-                            validate={combine([isRequired, validateEmail])}
-                        />
-                    </Field>
-                </div>
+                {showEmailInput && (
+                    <div className={classes.email}>
+                        <Field label={t('checkout:address-email', 'E-Mail')}>
+                            <TextInput
+                                id={classes.email}
+                                field="email"
+                                validateOnBlur
+                                validate={combine([isRequired, validateEmail])}
+                            />
+                        </Field>
+                    </div>
+                )}
                 <div className={classes.street0}>
                     <Field label={t('checkout:address-street', 'Street')}>
                         <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
@@ -142,15 +145,15 @@ const AddressForm = props => {
                         <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
-                <div className={classes.default_shipping}>
-                    {showDefaultAddressCheckbox && (
+                {showDefaultAddressCheckbox && (
+                    <div className={classes.default_shipping}>
                         <Checkbox
                             id={classes.default_shipping}
                             label={t('checkout:address-default-address', 'Make my default address')}
                             field="default_shipping"
                         />
-                    )}
-                </div>
+                    </div>
+                )}
                 <div className={classes.validation}>{validationMessage}</div>
                 <div className={classes.error}>{errorMessage}</div>
             </div>
@@ -190,6 +193,7 @@ AddressForm.propTypes = {
     initialValues: object,
     isAddressInvalid: bool,
     showDefaultAddressCheckbox: bool,
+    showEmailInput: bool,
     submit: func.isRequired,
     submitting: bool,
     submitLabel: string

@@ -197,6 +197,7 @@ const EditableForm = props => {
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
                     initialValues={shippingAddress}
+                    showEmailInput={true}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
                     submitLabel={t('checkout:address-submit', 'Use Address')}
