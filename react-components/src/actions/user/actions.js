@@ -39,20 +39,20 @@ export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserC
     }
 };
 
-export const createAddress = async ({ createCustomerAddress, variables, dispatch }) => {
+export const createAddress = async ({ createCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await createCustomerAddress({ variables: variables });
-        dispatch({ type: 'postCreateAddress', address: data.createCustomerAddress });
+        dispatch({ type: 'postCreateAddress', address: data.createCustomerAddress, resetFields });
     } catch (error) {
         console.error('An error occurred during creating customer address', error);
         dispatch({ type: 'setAddressFormError', error: error.toString() });
     }
 };
 
-export const updateAddress = async ({ updateCustomerAddress, variables, dispatch }) => {
+export const updateAddress = async ({ updateCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await updateCustomerAddress({ variables: variables });
-        dispatch({ type: 'postUpdateAddress', address: data.updateCustomerAddress });
+        dispatch({ type: 'postUpdateAddress', address: data.updateCustomerAddress, resetFields });
     } catch (error) {
         console.error('An error occurred during updating customer address', error);
         dispatch({ type: 'setAddressFormError', error: error.toString() });

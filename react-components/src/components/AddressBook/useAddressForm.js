@@ -54,11 +54,19 @@ export const useAddressForm = () => {
             default_billing: formValues.default_shipping,
             ...formValues
         };
+        let resetFields;
+        if (formValues.default_shipping === true) {
+            resetFields = {
+                default_shipping: false,
+                default_billing: false
+            };
+        }
+
         if (userState.updateAddress) {
             variables.id = userState.updateAddress.id;
-            updateAddress({ updateCustomerAddress, variables, dispatch });
+            updateAddress({ updateCustomerAddress, variables, resetFields, dispatch });
         } else {
-            createAddress({ createCustomerAddress, variables, dispatch });
+            createAddress({ createCustomerAddress, variables, resetFields, dispatch });
         }
         setInProgress(false);
     };

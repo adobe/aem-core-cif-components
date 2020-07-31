@@ -75,7 +75,17 @@ const reducerFactory = () => {
                     ...state,
                     currentUser: {
                         ...state.currentUser,
-                        addresses: [...state.currentUser.addresses, action.address]
+                        addresses: [
+                            ...[...state.currentUser.addresses].map(address => {
+                                if (action.resetFields) {
+                                    Object.entries(action.resetFields).forEach(([key, value]) => {
+                                        address[key] = value;
+                                    });
+                                }
+                                return address;
+                            }),
+                            action.address
+                        ]
                     },
                     addressFormError: null,
                     isShowAddressForm: false
@@ -97,6 +107,11 @@ const reducerFactory = () => {
                     currentUser: {
                         ...state.currentUser,
                         addresses: [...state.currentUser.addresses].map(address => {
+                            if (action.resetFields) {
+                                Object.entries(action.resetFields).forEach(([key, value]) => {
+                                    address[key] = value;
+                                });
+                            }
                             return address.id === action.address.id ? action.address : address;
                         })
                     },
