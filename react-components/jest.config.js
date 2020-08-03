@@ -17,11 +17,12 @@ module.exports = {
     moduleDirectories: ['node_modules', 'src/utils'],
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
+    coveragePathIgnorePatterns: ['<rootDir>/src/queries'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
-    reporters: ['default', ['jest-junit', { outputDirectory: './test-results'}]],
+    reporters: ['default', ['jest-junit', { outputDirectory: './test-results' }]],
     transform: {
         '\\.(gql|graphql)$': 'jest-transform-graphql',
-        ".+\\.json": "./__mocks__/jsonTransform.js",
+        '.+\\.json': './__mocks__/jsonTransform.js',
         '.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
     },
     moduleNameMapper: {

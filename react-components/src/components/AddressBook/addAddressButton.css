@@ -1,0 +1,22 @@
+.root {
+    align-items: center;
+    border: 1px dotted rgb(var(--venia-text));
+    border-radius: 5px;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 8rem;
+    padding: 1.5rem;
+    width: 100%;
+}
+
+.icon {
+    color: rgb(var(--venia-teal));
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.label {
+    padding-left: 0.5rem;
+}
