@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const pkg = require('./package.json');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const libraryName = pkg.name;
 
@@ -53,12 +52,13 @@ module.exports = {
             {
                 test: /\.css/,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    'style-loader',
                     {
                         loader: 'css-loader',
                         options: {
                             modules: {
-                                localIdentName: 'cmp-[folder]__[name]__[local]'
+                                localIdentName:
+                                    '[name]__[local]__[hash:base64:5]'
                             }
                         }
                     }
@@ -78,13 +78,7 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        new CleanWebpackPlugin(),
-        new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css'
-        })
-    ],
+    plugins: [new CleanWebpackPlugin()],
     devtool: 'source-map',
     mode: 'development',
     resolve: {
