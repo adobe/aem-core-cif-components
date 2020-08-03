@@ -145,7 +145,19 @@ jobs:
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
- 
+    
+  integration-test-cloudready-with-addon:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:3919
+        <<: *docker_auth
+    environment:
+      AEM: addon
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+
   release:
     executor: cif_executor
     steps:
@@ -193,6 +205,14 @@ workflows:
             - karma
             - jest
       - integration-test-cloudready:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build
+            - karma
+            - jest
+      - integration-test-cloudready-with-addon:
           filters:
             tags:
               only: /.*/
