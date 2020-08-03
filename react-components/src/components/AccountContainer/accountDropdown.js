@@ -32,12 +32,12 @@ const AccountDropdown = () => {
     const [t] = useTranslation('account');
 
     if (!isAccountDropdownOpen) {
-        return <div className={classes.dropdown} aria-label="account dropdown"></div>
+        return <div className={classes.dropdown} aria-label="account dropdown"></div>;
     }
 
     let child;
     if (!isSignedIn) {
-        switch(accountDropdownView) {
+        switch (accountDropdownView) {
             case 'FORGOT_PASSWORD':
                 child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
                 break;
@@ -55,12 +55,7 @@ const AccountDropdown = () => {
                 break;
             case 'SIGN_IN':
             default:
-                child = (
-                    <SignIn
-                        showForgotPassword={showForgotPassword}
-                        showCreateAccount={showCreateAccount}
-                    />
-                );
+                child = <SignIn showForgotPassword={showForgotPassword} showCreateAccount={showCreateAccount} />;
         }
     } else {
         switch (accountDropdownView) {
