@@ -1,0 +1,21 @@
+.mask {
+    composes: root from '../Mask/mask.css';
+    cursor: auto;
+    z-index: 10;
+}
+
+.mask_active {
+    composes: mask;
+    composes: root_active from '../Mask/mask.css';
+}
+
+.container {
+    background-color: white;
+    left: 50%;
+    max-width: 360px;
+    position: absolute;
+    top: 5rem;
+    transform: translate(-50%);
+    width: 100%;
+    z-index: 11;
+}

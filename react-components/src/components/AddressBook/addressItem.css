@@ -1,0 +1,51 @@
+.root {
+    border: 1px solid rgb(var(--venia-text));
+    border-radius: 5px;
+    display: inline-flex;
+    justify-content: space-between;
+    min-height: 8rem;
+    padding: 1.5rem;
+    position: relative;
+    width: 100%;
+}
+
+.defaultTag {
+    border: 1px solid rgb(var(--venia-teal));
+    border-radius: 5px;
+    color: rgb(var(--venia-teal));
+    max-width: 4.5rem;
+    padding: 0.5rem;
+    text-align: left;
+    margin-top: 0.5rem;
+}
+
+.name,
+.street,
+.cityRegion,
+.country {
+    text-align: left;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.editButton,
+.deleteButton {
+    display: inline-flex;
+    align-items: center;
+}
+
+.icon {
+    color: rgb(var(--venia-teal));
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.label {
+    padding-left: 0.5rem;
+}
