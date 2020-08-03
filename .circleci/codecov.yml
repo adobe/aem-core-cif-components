@@ -51,5 +51,3 @@ flags:
   jest:
     paths:
       - react-components/
-ignore:
-  - "react-components/src/queries
