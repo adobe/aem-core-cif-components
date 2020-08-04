@@ -13,6 +13,7 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
+import { useNavigationContext } from '../../context/NavigationContext';
 import { useMutation } from '@apollo/react-hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
@@ -27,8 +28,16 @@ export const useSignin = () => {
     const [{ cartId }, cartDispatch] = useCartState();
     const [
         userState,
-        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown, showMyAccount }
+        {
+            setToken,
+            getUserDetails,
+            setCustomerCart,
+            setError,
+            toggleAccountDropdown,
+            showMyAccount: userContextShowMyAccount
+        }
     ] = useUserContext();
+    const [, { showMyAccount: navigationContextShowMyAccount }] = useNavigationContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [, setCartCookie] = useCookieValue('cif.cart');
@@ -77,10 +86,12 @@ export const useSignin = () => {
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
 
-            //5. close account dropdown if it's open
+            //5. if account dropdown is open, show my account view in account dropdown and close account dropdown after that, otherwise show my account view in navigation side panel
             if (userState.isAccountDropdownOpen) {
-                await showMyAccount();
+                await userContextShowMyAccount();
                 toggleAccountDropdown(false);
+            } else {
+                navigationContextShowMyAccount();
             }
         } catch (e) {
             setError(e);
