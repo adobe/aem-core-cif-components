@@ -33,5 +33,14 @@
   "forgot-password-cancel": "Cancel",
   "create-cancel": "Cancel",
   "change-password-cancel": "Cancel",
-  "sign-in-form-title": "Sign-in to Your Account"
+  "sign-in-form-title": "Sign-in to Your Account",
+  "add-an-address": "Add an address",
+  "address-save": "Save",
+  "address-book-sign-in-text": "Please Sign in to see your address book.",
+  "address-delete-cancel": "Cancel",
+  "address-delete-confirm": "Delete",
+  "address-edit": "Edit",
+  "address-delete": "Delete",
+  "address-default-tag": "Default",
+  "address-form-heading": "Address"
 }

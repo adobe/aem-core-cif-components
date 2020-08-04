@@ -27,6 +27,9 @@
                         <granite:rendercondition
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="granite/ui/components/coral/foundation/renderconditions/or">
+                            <catalogPageCondition jcr:primaryType="nt:unstructured"
+                                sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                pageType="catalog"/>
                             <categoryPageCondition jcr:primaryType="nt:unstructured"
                                 sling:resourceType="core/cif/components/renderconditions/pagetype"
                                 pageType="category"/>

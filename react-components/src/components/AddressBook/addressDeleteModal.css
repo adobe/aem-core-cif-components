@@ -1,0 +1,12 @@
+.root {
+    align-items: center;
+    background-color: rgba(var(--venia-grey), 0.8);
+    bottom: 0;
+    display: inline-flex;
+    justify-content: space-around;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 2;
+}

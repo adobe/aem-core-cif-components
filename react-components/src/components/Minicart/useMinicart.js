@@ -37,10 +37,11 @@ export default ({ queries }) => {
         if (!event.detail) return;
 
         const mapper = item => {
+            let quantity = parseFloat(item.quantity);
             return {
                 data: {
                     sku: item.sku,
-                    quantity: item.quantity
+                    quantity
                 }
             };
         };
