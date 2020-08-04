@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
@@ -37,20 +36,16 @@ const AccountDropdown = () => {
         }
     ] = useUserContext();
 
-    const [t] = useTranslation('account');
+    const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
 
-    if (!isAccountDropdownOpen) {
-        return <div className={classes.dropdown} aria-label="account dropdown"></div>;
-    }
-
-    let child;
+    let view;
     if (!isSignedIn) {
         switch (accountDropdownView) {
             case 'FORGOT_PASSWORD':
-                child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
+                view = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
                 break;
             case 'CREATE_ACCOUNT':
-                child = (
+                view = (
                     <CreateAccount
                         showMyAccount={showMyAccount}
                         showAccountCreated={showAccountCreated}
@@ -59,20 +54,20 @@ const AccountDropdown = () => {
                 );
                 break;
             case 'ACCOUNT_CREATED':
-                child = <CreateAccountSuccess showSignIn={showSignIn} />;
+                view = <CreateAccountSuccess showSignIn={showSignIn} />;
                 break;
             case 'SIGN_IN':
             default:
-                child = <SignIn showForgotPassword={showForgotPassword} showCreateAccount={showCreateAccount} />;
+                view = <SignIn showForgotPassword={showForgotPassword} showCreateAccount={showCreateAccount} />;
         }
     } else {
         switch (accountDropdownView) {
             case 'CHANGE_PASSWORD':
-                child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
+                view = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
                 break;
             case 'MY_ACCOUNT':
             default:
-                child = (
+                view = (
                     <MyAccount
                         showChangePassword={showChangePassword}
                         showAddressBook={showAddressBook}
@@ -83,8 +78,8 @@ const AccountDropdown = () => {
     }
 
     return (
-        <div className={classes.dropdown_open} aria-label="account dropdown">
-            {child}
+        <div className={rootClass} aria-label="account dropdown">
+            {view}
         </div>
     );
 };
