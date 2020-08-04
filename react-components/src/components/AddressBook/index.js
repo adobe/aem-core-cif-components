@@ -11,15 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as AccountContainer } from './components/AccountContainer';
-export { default as AddressBook } from './components/AddressBook';
-
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
-
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
-
-export { CartProvider, CartInitializer } from './components/Minicart';
+export { default } from './addressBook';

@@ -40,6 +40,21 @@ describe('<AddressForm />', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
+    it('renders the component with address validation message and form error message', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <AddressForm
+                    isAddressInvalid={true}
+                    validationMessage={'address validation message'}
+                    formErrorMessage={'form error message'}
+                    cancel={() => {}}
+                    submit={() => {}}
+                />
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     it('fills the street0 field with a given street array value', () => {
         const initialValues = {
             street: ['street A', 'street B']
@@ -58,9 +73,10 @@ describe('<AddressForm />', () => {
             lastname: 'Costello',
             city: 'Calder',
             postcode: '49628-7978',
-            region_id: 33,
             region_code: 'MI',
-            region: 'Michigan',
+            region: {
+                region_code: 'MI'
+            },
             telephone: '(555) 229-3326',
             email: 'veronica@example.com'
         };

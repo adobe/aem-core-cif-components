@@ -26,7 +26,15 @@ import classes from './accountDropdown.css';
 const AccountDropdown = () => {
     const [
         { isAccountDropdownOpen, accountDropdownView },
-        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
+        {
+            showSignIn,
+            showMyAccount,
+            showForgotPassword,
+            showCreateAccount,
+            showAccountCreated,
+            showChangePassword,
+            showAddressBook
+        }
     ] = useUserContext();
 
     const [t] = useTranslation('account');
@@ -49,7 +57,7 @@ const AccountDropdown = () => {
             child = (
                 <MyAccount
                     showChangePassword={showChangePassword}
-                    showAddressBook={() => {}}
+                    showAddressBook={showAddressBook}
                     showAccountInformation={() => {}}
                 />
             );
