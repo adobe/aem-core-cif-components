@@ -14,10 +14,12 @@
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider } from '../checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
@@ -34,8 +36,8 @@ describe('<EditableForm />', () => {
                             {
                                 id: 'US',
                                 available_regions: [
-                                    { code: 'AL', name: 'Alabama' },
-                                    { code: 'AK', name: 'Alaska' }
+                                    { id: 4, code: 'AL', name: 'Alabama' },
+                                    { id: 7, code: 'AK', name: 'Alaska' }
                                 ]
                             }
                         ]
@@ -45,17 +47,19 @@ describe('<EditableForm />', () => {
         ];
 
         const { queryByText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                        <CheckoutProvider
-                            initialState={{ editing: 'address', flowState: 'form' }}
-                            reducer={state => state}>
-                            <EditableForm />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider mocks={mocks} addTypename={false}>
+                    <UserContextProvider>
+                        <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                            <CheckoutProvider
+                                initialState={{ editing: 'address', flowState: 'form' }}
+                                reducer={state => state}>
+                                <EditableForm />
+                            </CheckoutProvider>
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
         );
 
         const result = await waitForElement(() => {

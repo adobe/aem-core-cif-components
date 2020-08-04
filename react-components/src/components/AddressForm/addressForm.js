@@ -22,14 +22,39 @@ import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from 
 import combine from '../../utils/combineValidators';
 import TextInput from '../TextInput';
 import Field from '../Field';
+import Checkbox from '../Checkbox';
 
-const fields = ['city', 'email', 'firstname', 'lastname', 'postcode', 'region_code', 'street', 'telephone'];
+const fields = [
+    'city',
+    'default_shipping',
+    'email',
+    'firstname',
+    'lastname',
+    'postcode',
+    'region_code',
+    'region',
+    'street',
+    'telephone'
+];
 
 const AddressForm = props => {
     const [submitting, setIsSubmitting] = useState(false);
-    const { cancel, countries, isAddressInvalid, invalidAddressMessage, initialValues, submit } = props;
+    const {
+        cancel,
+        countries,
+        formErrorMessage,
+        heading,
+        isAddressInvalid,
+        invalidAddressMessage,
+        initialValues,
+        showDefaultAddressCheckbox,
+        showEmailInput,
+        submit,
+        submitLabel
+    } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
-    const [t] = useTranslation(['checkout', 'common']);
+    const errorMessage = formErrorMessage ? formErrorMessage : null;
+    const [t] = useTranslation(['account', 'checkout', 'common']);
 
     const values = useMemo(
         () =>
@@ -38,6 +63,11 @@ const AddressForm = props => {
                     // Convert street from array to flat strings
                     if (key === 'street') {
                         initialValues[key].forEach((v, i) => (acc[`street${i}`] = v));
+                        return acc;
+                    }
+                    // Convert region from object to region_code string
+                    if (key === 'region') {
+                        acc['region_code'] = initialValues[key].region_code;
                         return acc;
                     }
                     acc[key] = initialValues[key];
@@ -56,10 +86,13 @@ const AddressForm = props => {
         [submit]
     );
 
+    const submitButtonLabel = submitLabel || t('account:address-save', 'Save');
+    const formHeading = heading || t('account:address-form-heading', 'Address');
+
     return (
         <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
             <div className={classes.body}>
-                <h2 className={classes.heading}>Shipping Address</h2>
+                <h2 className={classes.heading}>{formHeading}</h2>
                 <div className={classes.firstname}>
                     <Field label={t('checkout:address-firstname', 'First Name')}>
                         <TextInput id={classes.firstname} field="firstname" validateOnBlur validate={isRequired} />
@@ -70,16 +103,18 @@ const AddressForm = props => {
                         <TextInput id={classes.lastname} field="lastname" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
-                <div className={classes.email}>
-                    <Field label={t('checkout:address-email', 'E-Mail')}>
-                        <TextInput
-                            id={classes.email}
-                            field="email"
-                            validateOnBlur
-                            validate={combine([isRequired, validateEmail])}
-                        />
-                    </Field>
-                </div>
+                {showEmailInput && (
+                    <div className={classes.email}>
+                        <Field label={t('checkout:address-email', 'E-Mail')}>
+                            <TextInput
+                                id={classes.email}
+                                field="email"
+                                validateOnBlur
+                                validate={combine([isRequired, validateEmail])}
+                            />
+                        </Field>
+                    </div>
+                )}
                 <div className={classes.street0}>
                     <Field label={t('checkout:address-street', 'Street')}>
                         <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
@@ -110,12 +145,22 @@ const AddressForm = props => {
                         <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
                     </Field>
                 </div>
+                {showDefaultAddressCheckbox && (
+                    <div className={classes.default_shipping}>
+                        <Checkbox
+                            id={classes.default_shipping}
+                            label={t('checkout:address-default-address', 'Make my default address')}
+                            field="default_shipping"
+                        />
+                    </div>
+                )}
                 <div className={classes.validation}>{validationMessage}</div>
+                <div className={classes.error}>{errorMessage}</div>
             </div>
             <div className={classes.footer}>
                 <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
                 <Button type="submit" priority="high" disabled={submitting}>
-                    {t('checkout:address-submit', 'Use Address')}
+                    {submitButtonLabel}
                 </Button>
             </div>
         </Form>
@@ -128,6 +173,7 @@ AddressForm.propTypes = {
         body: string,
         button: string,
         city: string,
+        default_shipping: string,
         email: string,
         firstname: string,
         footer: string,
@@ -141,11 +187,16 @@ AddressForm.propTypes = {
         validation: string
     }),
     countries: array,
+    formErrorMessage: string,
+    heading: string,
     invalidAddressMessage: string,
     initialValues: object,
     isAddressInvalid: bool,
+    showDefaultAddressCheckbox: bool,
+    showEmailInput: bool,
     submit: func.isRequired,
-    submitting: bool
+    submitting: bool,
+    submitLabel: string
 };
 
 AddressForm.defaultProps = {
@@ -162,9 +213,10 @@ const mockAddress = {
     street: ['6146 Honey Bluff Parkway'],
     city: 'Calder',
     postcode: '49628-7978',
-    region_id: 33,
     region_code: 'MI',
-    region: 'Michigan',
+    region: {
+        region_code: 'MI'
+    },
     telephone: '(555) 229-3326',
     email: 'veronica@example.com'
 };
