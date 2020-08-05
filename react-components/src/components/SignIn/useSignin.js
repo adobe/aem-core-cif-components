@@ -80,11 +80,6 @@ export const useSignin = props => {
 
             //5. show my account view in account dropdown or navigation side panel after sign in
             showMyAccount();
-
-            //6. if account dropdown is open, close it
-            if (userState.isAccountDropdownOpen) {
-                toggleAccountDropdown(false);
-            }
         } catch (e) {
             setError(e);
             setInProgress(false);

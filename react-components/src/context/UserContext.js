@@ -175,7 +175,6 @@ const reducerFactory = () => {
                 return {
                     ...state,
                     isSignedIn: false,
-                    isAccountDropdownOpen: false,
                     inProgress: false,
                     token: '',
                     currentUser: {
