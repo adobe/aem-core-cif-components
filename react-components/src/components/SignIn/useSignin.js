@@ -13,7 +13,6 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
-import { useNavigationContext } from '../../context/NavigationContext';
 import { useMutation } from '@apollo/react-hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
@@ -24,20 +23,13 @@ import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 
-export const useSignin = () => {
+export const useSignin = props => {
+    const { showMyAccount } = props;
     const [{ cartId }, cartDispatch] = useCartState();
     const [
         userState,
-        {
-            setToken,
-            getUserDetails,
-            setCustomerCart,
-            setError,
-            toggleAccountDropdown,
-            showMyAccount: userContextShowMyAccount
-        }
+        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown }
     ] = useUserContext();
-    const [, { showMyAccount: navigationContextShowMyAccount }] = useNavigationContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [, setCartCookie] = useCookieValue('cif.cart');
@@ -86,12 +78,12 @@ export const useSignin = () => {
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
 
-            //5. if account dropdown is open, show my account view in account dropdown and close account dropdown after that, otherwise show my account view in navigation side panel
+            //5. show my account view in account dropdown or navigation side panel after sign in
+            showMyAccount();
+
+            //6. if account dropdown is open, close it
             if (userState.isAccountDropdownOpen) {
-                await userContextShowMyAccount();
                 toggleAccountDropdown(false);
-            } else {
-                navigationContextShowMyAccount();
             }
         } catch (e) {
             setError(e);

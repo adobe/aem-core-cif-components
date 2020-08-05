@@ -17,7 +17,6 @@ import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import NavigationContextProvider from '../../../context/NavigationContext';
 import { CartProvider } from '../../Minicart/cartContext';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
@@ -101,11 +100,13 @@ describe('<SignIn>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <NavigationContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <SignIn showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
-                            </CartProvider>
-                        </NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <SignIn
+                                showMyAccount={jest.fn()}
+                                showCreateAccount={jest.fn()}
+                                showForgotPassword={jest.fn()}
+                            />
+                        </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -123,7 +124,9 @@ describe('<SignIn>', () => {
             if (isSignedIn) {
                 content = <div data-testid="success">Done</div>;
             } else {
-                content = <SignIn showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />;
+                content = (
+                    <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
+                );
             }
 
             return <div>{content}</div>;
@@ -132,11 +135,9 @@ describe('<SignIn>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <NavigationContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <SignInWrapper />
-                        </CartProvider>
-                    </NavigationContextProvider>
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                        <SignInWrapper />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -177,11 +178,13 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <NavigationContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <SignIn showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
-                        </CartProvider>
-                    </NavigationContextProvider>
+                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                        <SignIn
+                            showMyAccount={jest.fn()}
+                            showForgotPassword={jest.fn()}
+                            showCreateAccount={jest.fn()}
+                        />
+                    </CartProvider>
                 </UserContextProvider>
             </MockedProvider>
         );

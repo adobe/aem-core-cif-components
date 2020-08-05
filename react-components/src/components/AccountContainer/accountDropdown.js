@@ -58,7 +58,13 @@ const AccountDropdown = () => {
                 break;
             case 'SIGN_IN':
             default:
-                view = <SignIn showForgotPassword={showForgotPassword} showCreateAccount={showCreateAccount} />;
+                view = (
+                    <SignIn
+                        showMyAccount={showMyAccount}
+                        showForgotPassword={showForgotPassword}
+                        showCreateAccount={showCreateAccount}
+                    />
+                );
         }
     } else {
         switch (accountDropdownView) {

@@ -17,7 +17,6 @@ import { I18nextProvider } from 'react-i18next';
 import { render } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
-import NavigationContextProvider from '../../../context/NavigationContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
@@ -32,11 +31,9 @@ describe('<AccountDropdown>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider initialState={stateWithAccountDropdownOpen}>
-                        <NavigationContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountDropdown />
+                        </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>

@@ -26,8 +26,8 @@ import { useSignin } from './useSignin';
 import LoadingIndicator from '../LoadingIndicator';
 
 const SignIn = props => {
-    const { showForgotPassword, showCreateAccount } = props;
-    const { errorMessage, handleSubmit, inProgress } = useSignin();
+    const { showMyAccount, showForgotPassword, showCreateAccount } = props;
+    const { errorMessage, handleSubmit, inProgress } = useSignin({ showMyAccount });
     const [t] = useTranslation('account');
 
     if (inProgress) {
@@ -72,7 +72,7 @@ const SignIn = props => {
 };
 
 SignIn.propTypes = {
-    showMyAccount: func,
+    showMyAccount: func.isRequired,
     showForgotPassword: func.isRequired,
     showCreateAccount: func.isRequired
 };
