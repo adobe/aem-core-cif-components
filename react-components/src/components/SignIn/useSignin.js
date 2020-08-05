@@ -95,6 +95,7 @@ export const useSignin = () => {
             }
         } catch (e) {
             setError(e);
+            setInProgress(false);
         }
     };
 
