@@ -270,7 +270,7 @@ describe('UserContext test', () => {
             const [{ accountDropdownView }, { showForgotPassword, showSignIn }] = useUserContext();
 
             let content;
-            if (accountDropdownView === 'SIGN_IN') {
+            if (accountDropdownView === 'SIGN_IN' || accountDropdownView === null) {
                 content = (
                     <>
                         <div data-testid="sign-in-view">Sign-in view shown</div>

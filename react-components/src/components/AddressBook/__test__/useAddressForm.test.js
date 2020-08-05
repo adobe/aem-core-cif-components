@@ -21,8 +21,6 @@ import * as actions from '../../../actions/user';
 
 jest.mock('../../../actions/user');
 
-const mockReducerFactory = jest.fn(state => state);
-
 describe('useAddressForm', () => {
     it('calls the "updateAddress"', async () => {
         const Wrapper = () => {

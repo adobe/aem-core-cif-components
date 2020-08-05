@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
@@ -66,16 +66,16 @@ describe('<MyAccount>', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('call the showMenu callback function when user is not signed in', () => {
-        const showMenu = jest.fn();
+    it('call the callback function when sign out button is clicked', () => {
+        const mockReducerFactory = jest.fn(state => state);
 
-        render(
+        const { getByText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => mockReducerFactory}>
                             <MyAccount
-                                showMenu={showMenu}
+                                showMenu={jest.fn()}
                                 showAddressBook={jest.fn()}
                                 showAccountInformation={jest.fn()}
                                 showChangePassword={jest.fn()}
@@ -85,6 +85,10 @@ describe('<MyAccount>', () => {
                 </MockedProvider>
             </I18nextProvider>
         );
-        expect(showMenu.mock.calls.length).toEqual(1);
+
+        expect(getByText('Sign Out')).not.toBeUndefined();
+        fireEvent.click(getByText('Sign Out'));
+
+        expect(mockReducerFactory).toHaveBeenCalledTimes(1);
     });
 });

@@ -16,7 +16,8 @@ import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
-import UserContextProvider from '../../../context/UserContext';
+import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import NavigationContextProvider from '../../../context/NavigationContext';
 import { CartProvider } from '../../Minicart/cartContext';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
@@ -100,13 +101,11 @@ describe('<SignIn>', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <SignIn
-                                showMyAccount={jest.fn()}
-                                showCreateAccount={jest.fn()}
-                                showForgotPassword={jest.fn()}
-                            />
-                        </CartProvider>
+                        <NavigationContextProvider>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <SignIn showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
+                            </CartProvider>
+                        </NavigationContextProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -118,22 +117,13 @@ describe('<SignIn>', () => {
         // To simulate an almost real use case of the sign in component we create a wrapper around it
         // which displays a "success" message when the user is signed in
         const SignInWrapper = () => {
-            const [signedIn, setSignedIn] = useState(false);
+            const [{ isSignedIn }] = useUserContext();
 
-            const showMyAccount = () => {
-                setSignedIn(true);
-            };
             let content;
-            if (signedIn) {
+            if (isSignedIn) {
                 content = <div data-testid="success">Done</div>;
             } else {
-                content = (
-                    <SignIn
-                        showMyAccount={showMyAccount}
-                        showCreateAccount={jest.fn()}
-                        showForgotPassword={jest.fn()}
-                    />
-                );
+                content = <SignIn showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />;
             }
 
             return <div>{content}</div>;
@@ -142,9 +132,11 @@ describe('<SignIn>', () => {
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                        <SignInWrapper />
-                    </CartProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <SignInWrapper />
+                        </CartProvider>
+                    </NavigationContextProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
@@ -185,13 +177,11 @@ describe('<SignIn>', () => {
         const { getByText, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                        <SignIn
-                            showMyAccount={jest.fn()}
-                            showForgotPassword={jest.fn()}
-                            showCreateAccount={jest.fn()}
-                        />
-                    </CartProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <SignIn showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
+                        </CartProvider>
+                    </NavigationContextProvider>
                 </UserContextProvider>
             </MockedProvider>
         );
