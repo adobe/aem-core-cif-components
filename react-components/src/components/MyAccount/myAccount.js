@@ -63,7 +63,7 @@ const MyAccount = props => {
                 </AccountLink>
                 <AccountLink onClick={showAccountInformation}>
                     <InfoIcon size={18} />
-                    {t('account:address-information', 'Address Information')}
+                    {t('account:account-information', 'Account Information')}
                 </AccountLink>
                 <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />

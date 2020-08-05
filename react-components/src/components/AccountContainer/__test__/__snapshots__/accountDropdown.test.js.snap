@@ -646,7 +646,7 @@ exports[`<AccountDropdown> renders the my account component inside account dropd
               </svg>
             </span>
             <span>
-              Address Information
+              Account Information
             </span>
           </span>
         </button>
