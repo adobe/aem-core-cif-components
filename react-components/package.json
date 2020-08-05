@@ -9,7 +9,7 @@
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
   "module": "dist/index.js",
-  "files":[
+  "files": [
     "dist",
     "i18n"
   ],

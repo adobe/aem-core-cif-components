@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
 
@@ -32,8 +34,9 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
 /**
- * {@code PageTypeRenderConditionServlet} implements a {@code granite:rendercondition} used to decide if the product picker
- * and category picker should be displayed in the page properties dialog of custom product pages and custom category pages.
+ * {@code PageTypeRenderConditionServlet} implements a {@code granite:rendercondition} used which evaluates to true for catalog pages,
+ * custom category pages and custom product pages.
+ * It requires the {@code pageType} parameter which should have one of the values: {@code catalog}, {@code category}, {@code product}.
  */
 @Component(
     service = { Servlet.class },
@@ -49,8 +52,10 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(PageTypeRenderConditionServlet.class);
     private static final String PAGE_PROPERTIES = "wcm/core/content/sites/properties";
     private static final String PAGE_TYPE_PROPERTY = "pageType";
-    private static final String PAGE_TYPE_PRODUCT = "product";
-    private static final String PAGE_TYPE_CATEGORY = "category";
+    private static final String PRODUCT_PAGE_TYPE = "product";
+    private static final String CATEGORY_PAGE_TYPE = "category";
+    private static final String CATALOG_PAGE_TYPE = "catalog";
+    private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
@@ -61,6 +66,11 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private boolean checkPageType(SlingHttpServletRequest slingRequest, String pageType) {
         if (StringUtils.isBlank(pageType)) {
             LOGGER.error("{} property is not defined at {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath());
+            return false;
+        }
+
+        if (!Arrays.asList(new String[] { CATALOG_PAGE_TYPE, CATEGORY_PAGE_TYPE, PRODUCT_PAGE_TYPE }).contains(pageType)) {
+            LOGGER.error("{} property has invalid value at {}: {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath(), pageType);
             return false;
         }
 
@@ -77,16 +87,20 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
             return false;
         }
 
+        if (CATALOG_PAGE_TYPE.equals(pageType)) {
+            return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
+        }
+
         Page parentPage = page.getParent();
         if (parentPage == null) {
             return false;
         }
 
         // perform the appropriate checks according to the pageType property
-        if (PAGE_TYPE_PRODUCT.equals(pageType)) {
+        if (PRODUCT_PAGE_TYPE.equals(pageType)) {
             Page productPage = SiteNavigation.getProductPage(page);
             return productPage != null && productPage.getPath().equals(parentPage.getPath());
-        } else if (PAGE_TYPE_CATEGORY.equals(pageType)) {
+        } else if (CATEGORY_PAGE_TYPE.equals(pageType)) {
             Page categoryPage = SiteNavigation.getCategoryPage(page);
             return categoryPage != null && categoryPage.getPath().equals(parentPage.getPath());
         }
