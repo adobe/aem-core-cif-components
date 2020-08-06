@@ -20,20 +20,20 @@ let schema = buildClientSchema(magentoSchema.data);
 import fs from 'fs';
 import path from 'path';
 
-describe('Validate all GraphQL queries against Magento schema', () => {
+let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql')); // eslint-disable-line
+
+describe('Validate all GraphQL request against Magento schema', () => {
     beforeEach(() => {
         jest.resetModules();
     });
 
-    it('validate all queries', () => {
-        let files = fs.readdirSync(path.join(__dirname, '..')); // eslint-disable-line
-        files
-            .filter(file => file.endsWith('.graphql'))
-            .forEach(file => {
-                console.log('Validating ' + file);
-                let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
-                let errors = validate(schema, parse(query));
-                expect(errors).toHaveLength(0);
-            });
+    expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
+
+    files.forEach(file => {
+        it('validates the GraphQL request from ' + file, () => {
+            let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
+            let errors = validate(schema, parse(query));
+            expect(errors).toHaveLength(0);
+        });
     });
 });
