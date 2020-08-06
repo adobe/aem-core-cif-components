@@ -15,6 +15,11 @@
 
 import CommerceGraphqlApi from '../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
+// This is used to validate the queries against the Magento GraphQL schema
+import { buildClientSchema, parse, validate } from 'graphql';
+import magentoSchema from './magento-schema-2.3.5.json';
+let schema = buildClientSchema(magentoSchema.data);
+
 describe('CommerceGraphqlApi', () => {
     let graphqlApi;
     let fetchSpy;
@@ -177,6 +182,10 @@ describe('CommerceGraphqlApi', () => {
             let query = fetchGraphqlSpy.firstCall.args[0];
             assert.notInclude(query, 'variants');
 
+            // Validate the query against Magento GraphQL schema
+            let errors = validate(schema, parse(query));
+            assert.isTrue(errors.length == 0);
+
             // Validate price dictionary
             assert.hasAllKeys(res, ['sku-a', 'sku-b']);
             assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
@@ -246,59 +255,16 @@ describe('CommerceGraphqlApi', () => {
             let query = fetchGraphqlSpy.firstCall.args[0];
             assert.include(query, 'variants');
 
+            // Validate the query against Magento GraphQL schema
+            let errors = validate(schema, parse(query));
+            assert.isTrue(errors.length == 0);
+
             // Validate price dictionary
             assert.hasAllKeys(res, ['sku-a', 'sku-a-xl']);
             assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
             assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
             assert.equal(res['sku-a-xl'].minimum_price.final_price.currency, 'USD');
             assert.equal(res['sku-a-xl'].minimum_price.final_price.value, 200);
-        });
-    });
-
-    it('retrieves product image urls', () => {
-        const mockResponse = {
-            data: {
-                products: {
-                    items: [
-                        {
-                            sku: 'sku-a',
-                            name: 'product-a',
-                            thumbnail: {
-                                url: '/vsk12-la_main_3.jpg'
-                            },
-                            variants: [
-                                {
-                                    product: {
-                                        sku: 'sku-a-xl',
-                                        thumbnail: {
-                                            url: '/vsk12-la_main_2.jpg'
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            sku: 'sku-b',
-                            name: 'product-b',
-                            thumbnail: {
-                                url: '/vsk02-ll_main_2.jpg'
-                            }
-                        }
-                    ]
-                }
-            }
-        };
-
-        fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
-
-        return graphqlApi.getProductImageUrls({ 'product-a': 'sku-a-xl', 'product-b': 'sku-b' }).then(res => {
-            assert.isTrue(fetchGraphqlSpy.calledOnce);
-
-            // Validate image url dictionary
-            assert.hasAllKeys(res, ['sku-a-xl', 'sku-b']);
-            assert.equal(res['sku-a-xl'], '/vsk12-la_main_2.jpg');
-            assert.equal(res['sku-b'], '/vsk02-ll_main_2.jpg');
         });
     });
 });
