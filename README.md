@@ -36,9 +36,9 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM 6.4 | AEM 6.5 | Magento                    | Java |
-| ------------------- | ------- | ------- | -------------------------- | ---- |
-| 1.2.0               | 6.4.4.0 | 6.5.0   | 2.3.4 / 2.3.5              | 1.8  |
+| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento                    | Java   |
+| ------------------- | ---------------------- | ------- | ------- | -------------------------- | ------ |
+| 1.2.0               | Continual              | 6.5.0   | 6.4.4.0 | 2.3.4 / 2.3.5              | 8, 11  |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
