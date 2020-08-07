@@ -47,8 +47,7 @@
         <module>all</module>
     </modules>
 
-    <!-- We have a dedicated profile for integration tests -->
-    <!-- They are included by default unless we perform a release -->
+    <!-- Integration tests are included unless we perform a release -->
     <profiles>
         <profile>
             <id>integration-tests</id>
