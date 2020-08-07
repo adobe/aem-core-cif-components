@@ -63,7 +63,7 @@ const NavigationContextProvider = props => {
 
     const showSignIn = () => NavigationActions.showSignIn({ dispatch, t });
 
-    const showMenu = () => NavigationActions.showMenu({ dispatch, t });
+    const showMenu = () => NavigationActions.showMenu({ dispatch });
 
     const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
 
