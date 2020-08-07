@@ -14,19 +14,20 @@
 import React from 'react';
 import { bool, shape, string } from 'prop-types';
 
+import useCart from './useCart';
+
 import CheckoutButton from './checkoutButton';
 import classes from './cart.css';
-import { useCheckoutState } from './checkoutContext';
 
 const Cart = props => {
     const { ready, submitting } = props;
-    const [, dispatch] = useCheckoutState();
+    const { beginCheckout } = useCart();
 
     const disabled = submitting || !ready;
 
     return (
         <div className={classes.root}>
-            <CheckoutButton disabled={disabled} onClick={() => dispatch({ type: 'beginCheckout' })} />
+            <CheckoutButton disabled={disabled} onClick={beginCheckout} />
         </div>
     );
 };

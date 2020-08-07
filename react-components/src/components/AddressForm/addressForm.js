@@ -65,9 +65,11 @@ const AddressForm = props => {
                         initialValues[key].forEach((v, i) => (acc[`street${i}`] = v));
                         return acc;
                     }
-                    // Convert region from object to region_code string
+                    // Convert region from object to region_code string, region object returned in different graphql
+                    // endpoints has different shape, so we have to check both 'region_code' and 'code' to get the
+                    // value of the region code
                     if (key === 'region') {
-                        acc['region_code'] = initialValues[key].region_code;
+                        acc['region_code'] = initialValues[key].region_code || initialValues[key].code;
                         return acc;
                     }
                     acc[key] = initialValues[key];
