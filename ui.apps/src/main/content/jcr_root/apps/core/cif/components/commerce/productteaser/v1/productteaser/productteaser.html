@@ -16,15 +16,15 @@
 
 <sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser"
     data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
+    data-sly-use.imageTpl="image.html"
+    data-sly-use.titleTpl="title.html"
     data-sly-use.actionsTpl="actions.html"
     data-sly-test.isConfigured="${properties.selection}"
     data-sly-test.hasProduct="${product.url}" />
 
 <div data-sly-test="${isConfigured && hasProduct}" class="item__root" data-cmp-is="productteaser" data-virtual="${product.virtualProduct}">
-    <a class="item__images" href=${product.url}>
-        <img class="item__image" width="100%" height="100%" src="${product.image}" alt="${product.image}" />
-    </a>
-    <a class="item__name" href=${product.url}><span>${product.name}</span></a>
+    <sly data-sly-call="${imageTpl.actions @ product=product}" />
+    <sly data-sly-call="${titleTpl.actions @ product=product}" />
     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
         data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"/>
     <sly data-sly-call="${actionsTpl.actions @ product=product}"/>
