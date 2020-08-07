@@ -47,6 +47,7 @@
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
             <section data-sly-test="${!isGroupedProduct}" class="productFullDetail__quantity productFullDetail__section">
+                <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
             </section>
             <section class="productFullDetail__cartActions productFullDetail__section">
