@@ -13,24 +13,41 @@
  ******************************************************************************/
 import React from 'react';
 import { render } from '@testing-library/react';
-import Cart from '../cart';
+import { MockedProvider } from '@apollo/react-testing';
+
+import UserContextProvider from '../../../context/UserContext';
+import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider } from '../checkoutContext';
+
+import Cart from '../cart';
 
 describe('<Cart />', () => {
     it('renders the disabled checkout button', () => {
         const { getByRole } = render(
-            <CheckoutProvider initialState={{}} reducer={state => state}>
-                <Cart ready={false} submitting={false} />
-            </CheckoutProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider>
+                        <CheckoutProvider initialState={{}} reducer={state => state}>
+                            <Cart ready={false} submitting={false} />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
         );
         expect(getByRole('button').disabled).toEqual(true);
     });
 
     it('renders the active checkout button', () => {
         const { getByRole } = render(
-            <CheckoutProvider initialState={{}} reducer={state => state}>
-                <Cart ready={true} submitting={false} />
-            </CheckoutProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider>
+                        <CheckoutProvider initialState={{}} reducer={state => state}>
+                            <Cart ready={true} submitting={false} />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
         );
         expect(getByRole('button').disabled).toEqual(false);
     });
