@@ -63,7 +63,7 @@
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                                                 fieldDescription="The text displayed by the call-to-action button"
-                                                fieldLabel="Call to action: text"
+                                                fieldLabel="Call to action text"
                                                 name="./ctaText"/>
                                         </items>
                                     </column>
