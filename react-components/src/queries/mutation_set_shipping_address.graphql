@@ -2,7 +2,7 @@ mutation(
     $cartId: String!
     $city: String!
     $company: String
-    $countryCode: String!
+    $country_code: String!
     $firstname: String!
     $lastname: String!
     $postcode: String
@@ -18,7 +18,7 @@ mutation(
                     address: {
                         city: $city
                         company: $company
-                        country_code: $countryCode
+                        country_code: $country_code
                         firstname: $firstname
                         lastname: $lastname
                         postcode: $postcode
