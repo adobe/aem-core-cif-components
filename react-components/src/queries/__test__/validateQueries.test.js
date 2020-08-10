@@ -16,32 +16,27 @@
 import { buildClientSchema, parse, validate } from 'graphql';
 import magentoSchema234 from './magento-schema-2.3.4.json';
 import magentoSchema235 from './magento-schema-2.3.5.json';
-let magentoSchemas = {
-    '2.3.4': magentoSchema234,
-    '2.3.5': magentoSchema235
-};
 
 import fs from 'fs';
 import path from 'path';
 
 let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql')); // eslint-disable-line
 
-for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
-    describe(`Validate all GraphQL request against Magento schema ${version}`, () => {
-        beforeEach(() => {
-            jest.resetModules();
-        });
-
-        expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
-        console.log(`Validating ${files.length} GraphQL request against Magento schema ${version}`);
-        let schema = buildClientSchema(magentoSchema.data);
-
-        files.forEach(file => {
-            it('validates the GraphQL request from ' + file, () => {
-                let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
-                let errors = validate(schema, parse(query));
-                expect(errors).toHaveLength(0);
-            });
-        });
+describe.each([
+    ['2.3.4', magentoSchema234],
+    ['2.3.5', magentoSchema235]
+])('Validate all GraphQL requests against Magento schema %s', (version, magentoSchema) => {
+    beforeEach(() => {
+        jest.resetModules();
     });
-}
+
+    expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
+    console.log(`Validating ${files.length} GraphQL requests against Magento schema ${version}`);
+    let schema = buildClientSchema(magentoSchema.data);
+
+    it.each(files)('validates the GraphQL request from %s', file => {
+        let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
+        let errors = validate(schema, parse(query));
+        expect(errors).toHaveLength(0);
+    });
+});
