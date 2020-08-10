@@ -196,9 +196,8 @@ Gallery.events = {
 (function(document) {
     function onDocumentReady() {
         const galleryRoot = document.querySelector(Gallery.selectors.galleryRoot);
-        let galleryItemsJson = galleryRoot ? galleryRoot.dataset.galleryItems : { assets: [] };
 
-        const galleryItems = JSON.parse(galleryItemsJson);
+        const galleryItems = galleryRoot ? JSON.parse(galleryRoot.dataset.galleryItems) : { assets: [] };
         const gallery = new Gallery({ galleryItems });
     }
 
