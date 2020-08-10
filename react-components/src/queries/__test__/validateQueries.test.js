@@ -14,26 +14,34 @@
 
 // This is used to validate the queries against the Magento GraphQL schema
 import { buildClientSchema, parse, validate } from 'graphql';
-import magentoSchema from './magento-schema-2.3.5.json';
-let schema = buildClientSchema(magentoSchema.data);
+import magentoSchema234 from './magento-schema-2.3.4.json';
+import magentoSchema235 from './magento-schema-2.3.5.json';
+let magentoSchemas = {
+    '2.3.4': magentoSchema234,
+    '2.3.5': magentoSchema235
+};
 
 import fs from 'fs';
 import path from 'path';
 
 let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql')); // eslint-disable-line
 
-describe('Validate all GraphQL request against Magento schema', () => {
-    beforeEach(() => {
-        jest.resetModules();
-    });
+for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
+    describe(`Validate all GraphQL request against Magento schema ${version}`, () => {
+        beforeEach(() => {
+            jest.resetModules();
+        });
 
-    expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
+        expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
+        console.log(`Validating ${files.length} GraphQL request against Magento schema ${version}`);
+        let schema = buildClientSchema(magentoSchema.data);
 
-    files.forEach(file => {
-        it('validates the GraphQL request from ' + file, () => {
-            let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
-            let errors = validate(schema, parse(query));
-            expect(errors).toHaveLength(0);
+        files.forEach(file => {
+            it('validates the GraphQL request from ' + file, () => {
+                let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
+                let errors = validate(schema, parse(query));
+                expect(errors).toHaveLength(0);
+            });
         });
     });
-});
+}

@@ -17,8 +17,12 @@ import CommerceGraphqlApi from '../../../src/main/content/jcr_root/apps/core/cif
 
 // This is used to validate the queries against the Magento GraphQL schema
 import { buildClientSchema, parse, validate } from 'graphql';
-import magentoSchema from './magento-schema-2.3.5.json';
-let schema = buildClientSchema(magentoSchema.data);
+import magentoSchema234 from './magento-schema-2.3.4.json';
+import magentoSchema235 from './magento-schema-2.3.5.json';
+let magentoSchemas = {
+    '2.3.4': magentoSchema234,
+    '2.3.5': magentoSchema235
+};
 
 describe('CommerceGraphqlApi', () => {
     let graphqlApi;
@@ -124,147 +128,153 @@ describe('CommerceGraphqlApi', () => {
         );
     });
 
-    it('retrieves product prices without variants', () => {
-        const mockResponse = {
-            data: {
-                products: {
-                    items: [
-                        {
-                            sku: 'sku-a',
-                            price_range: {
-                                minimum_price: {
-                                    regular_price: {
-                                        value: 118,
-                                        currency: 'USD'
-                                    },
-                                    final_price: {
-                                        value: 118,
-                                        currency: 'USD'
-                                    },
-                                    discount: {
-                                        amount_off: 0,
-                                        percent_off: 0
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            sku: 'sku-b',
-                            price_range: {
-                                minimum_price: {
-                                    regular_price: {
-                                        value: 78,
-                                        currency: 'USD'
-                                    },
-                                    final_price: {
-                                        value: 78,
-                                        currency: 'USD'
-                                    },
-                                    discount: {
-                                        amount_off: 0,
-                                        percent_off: 0
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        };
-
-        fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
-
-        return graphqlApi.getProductPrices(['sku-a', 'sku-b'], false).then(res => {
-            assert.isTrue(fetchGraphqlSpy.calledOnce);
-
-            // Make sure that query does not contain "variants"
-            let query = fetchGraphqlSpy.firstCall.args[0];
-            assert.notInclude(query, 'variants');
-
-            // Validate the query against Magento GraphQL schema
-            let errors = validate(schema, parse(query));
-            assert.isTrue(errors.length == 0);
-
-            // Validate price dictionary
-            assert.hasAllKeys(res, ['sku-a', 'sku-b']);
-            assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
-            assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
-        });
-    });
-
-    it('retrieves product prices with variants', () => {
-        const mockResponse = {
-            data: {
-                products: {
-                    items: [
-                        {
-                            sku: 'sku-a',
-                            price_range: {
-                                minimum_price: {
-                                    regular_price: {
-                                        value: 118,
-                                        currency: 'USD'
-                                    },
-                                    final_price: {
-                                        value: 118,
-                                        currency: 'USD'
-                                    },
-                                    discount: {
-                                        amount_off: 0,
-                                        percent_off: 0
+    for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
+        it('retrieves product prices without variants with Magento schema ' + version, () => {
+            const mockResponse = {
+                data: {
+                    products: {
+                        items: [
+                            {
+                                sku: 'sku-a',
+                                price_range: {
+                                    minimum_price: {
+                                        regular_price: {
+                                            value: 118,
+                                            currency: 'USD'
+                                        },
+                                        final_price: {
+                                            value: 118,
+                                            currency: 'USD'
+                                        },
+                                        discount: {
+                                            amount_off: 0,
+                                            percent_off: 0
+                                        }
                                     }
                                 }
                             },
-                            variants: [
-                                {
-                                    product: {
-                                        sku: 'sku-a-xl',
-                                        price_range: {
-                                            minimum_price: {
-                                                regular_price: {
-                                                    value: 200,
-                                                    currency: 'USD'
-                                                },
-                                                final_price: {
-                                                    value: 200,
-                                                    currency: 'USD'
-                                                },
-                                                discount: {
-                                                    amount_off: 0,
-                                                    percent_off: 0
+                            {
+                                sku: 'sku-b',
+                                price_range: {
+                                    minimum_price: {
+                                        regular_price: {
+                                            value: 78,
+                                            currency: 'USD'
+                                        },
+                                        final_price: {
+                                            value: 78,
+                                            currency: 'USD'
+                                        },
+                                        discount: {
+                                            amount_off: 0,
+                                            percent_off: 0
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            };
+
+            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
+            graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
+
+            return graphqlApi.getProductPrices(['sku-a', 'sku-b'], false).then(res => {
+                assert.isTrue(fetchGraphqlSpy.calledOnce);
+
+                // Make sure that query does not contain "variants"
+                let query = fetchGraphqlSpy.firstCall.args[0];
+                assert.notInclude(query, 'variants');
+
+                // Validate the query against Magento GraphQL schema
+                let schema = buildClientSchema(magentoSchema.data);
+                let errors = validate(schema, parse(query));
+                assert.isTrue(errors.length == 0);
+
+                // Validate price dictionary
+                assert.hasAllKeys(res, ['sku-a', 'sku-b']);
+                assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
+                assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
+            });
+        });
+    }
+
+    for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
+        it('retrieves product prices with variants with Magento schema ' + version, () => {
+            const mockResponse = {
+                data: {
+                    products: {
+                        items: [
+                            {
+                                sku: 'sku-a',
+                                price_range: {
+                                    minimum_price: {
+                                        regular_price: {
+                                            value: 118,
+                                            currency: 'USD'
+                                        },
+                                        final_price: {
+                                            value: 118,
+                                            currency: 'USD'
+                                        },
+                                        discount: {
+                                            amount_off: 0,
+                                            percent_off: 0
+                                        }
+                                    }
+                                },
+                                variants: [
+                                    {
+                                        product: {
+                                            sku: 'sku-a-xl',
+                                            price_range: {
+                                                minimum_price: {
+                                                    regular_price: {
+                                                        value: 200,
+                                                        currency: 'USD'
+                                                    },
+                                                    final_price: {
+                                                        value: 200,
+                                                        currency: 'USD'
+                                                    },
+                                                    discount: {
+                                                        amount_off: 0,
+                                                        percent_off: 0
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            ]
-                        }
-                    ]
+                                ]
+                            }
+                        ]
+                    }
                 }
-            }
-        };
+            };
 
-        fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
+            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
+            graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
 
-        return graphqlApi.getProductPrices(['sku-a'], true).then(res => {
-            assert.isTrue(fetchGraphqlSpy.calledOnce);
+            return graphqlApi.getProductPrices(['sku-a'], true).then(res => {
+                assert.isTrue(fetchGraphqlSpy.calledOnce);
 
-            // Make sure that query contains "variants"
-            let query = fetchGraphqlSpy.firstCall.args[0];
-            assert.include(query, 'variants');
+                // Make sure that query contains "variants"
+                let query = fetchGraphqlSpy.firstCall.args[0];
+                assert.include(query, 'variants');
 
-            // Validate the query against Magento GraphQL schema
-            let errors = validate(schema, parse(query));
-            assert.isTrue(errors.length == 0);
+                // Validate the query against Magento GraphQL schema
+                let schema = buildClientSchema(magentoSchema.data);
+                let errors = validate(schema, parse(query));
+                assert.isTrue(errors.length == 0);
 
-            // Validate price dictionary
-            assert.hasAllKeys(res, ['sku-a', 'sku-a-xl']);
-            assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
-            assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
-            assert.equal(res['sku-a-xl'].minimum_price.final_price.currency, 'USD');
-            assert.equal(res['sku-a-xl'].minimum_price.final_price.value, 200);
+                // Validate price dictionary
+                assert.hasAllKeys(res, ['sku-a', 'sku-a-xl']);
+                assert.equal(res['sku-a'].minimum_price.final_price.currency, 'USD');
+                assert.equal(res['sku-a'].minimum_price.final_price.value, 118);
+                assert.equal(res['sku-a-xl'].minimum_price.final_price.currency, 'USD');
+                assert.equal(res['sku-a-xl'].minimum_price.final_price.value, 200);
+            });
         });
-    });
+    }
 });
