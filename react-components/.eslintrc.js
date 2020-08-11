@@ -54,6 +54,7 @@ module.exports = {
         'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
         // override the default which is more restrictive
         'react/prop-types': ['warn', {ignore: ['children']}],
-        strict: ['error', 'global']
+        strict: ['error', 'global'],
+        'jest/valid-describe': 'off'
     }
 };
