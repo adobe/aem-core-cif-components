@@ -61,7 +61,7 @@
     "sinon": "^7.5.0",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
-    "graphql": "15.3.0"
+    "graphql": "^15.3.0"
   },
   "dependencies": {
     "@babel/polyfill": "^7.8.3"
