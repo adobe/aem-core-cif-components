@@ -55,35 +55,35 @@
                                             <productPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="Product Page"
-                                                fieldDescription="blabla"
+                                                fieldDescription="Path to CIF product page."
                                                 name="./cq:cifProductPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
                                                 rootPath="/content" />
                                             <categoryPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="Category Page"
-                                                fieldDescription="blabla"
+                                                fieldDescription="Path to CIF category page."
                                                 name="./cq:cifCategoryPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
                                                 rootPath="/content" />
                                             <searchResultsPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="Search Results Page"
-                                                fieldDescription="blabla"
+                                                fieldDescription="Path to search results page."
                                                 name="./cq:cifSearchResultsPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
                                                 rootPath="/content" />
                                             <addressBookPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="Address Book Page"
-                                                fieldDescription="blabla"
+                                                fieldDescription="Path to address book page."
                                                 name="./cq:cifAddressBookPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
                                                 rootPath="/content" />
                                             <myAccountPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="My Account Page"
-                                                fieldDescription="blabla"
+                                                fieldDescription="Path to my account page."
                                                 name="./cq:cifMyAccountPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
                                                 rootPath="/content" />
