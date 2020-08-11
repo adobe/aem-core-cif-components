@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,15 +11,16 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as AccountContainer } from './components/AccountContainer';
-export { default as AddressBook } from './components/AddressBook';
-export { default as ProductOptions } from './components/ProductOptions';
+import React from 'react';
+import BundleProductOptions from './bundleProductOptions';
 
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
+const ProductOptions = () => {
 
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
+    const productComponent = document.querySelector('[data-cmp-is="product"]');
 
-export { CartProvider, CartInitializer } from './components/Minicart';
+    return <>
+        {productComponent !== null && <BundleProductOptions container={productComponent} />}
+    </>
+
+}
+export default ProductOptions;

@@ -1,0 +1,41 @@
+query bundleProduct($sku: String!) {
+    products(filter: { sku: { eq: $sku } }) {
+        items {
+            sku
+            __typename
+            id
+            name
+            ... on BundleProduct {
+                dynamic_sku
+                dynamic_price
+                dynamic_weight
+                price_view
+                ship_bundle_items
+                items {
+                    option_id
+                    title
+                    required
+                    type
+                    position
+                    sku
+                    options {
+                        id
+                        quantity
+                        position
+                        is_default
+                        price
+                        price_type
+                        can_change_quantity
+                        label
+                        product {
+                            id
+                            name
+                            sku
+                            __typename
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
