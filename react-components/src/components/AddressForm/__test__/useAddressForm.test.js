@@ -12,11 +12,11 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { MockedProvider } from '@apollo/react-testing';
 import { render, fireEvent } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
 import { useAddressForm } from '../useAddressForm';
-import { MockedProvider } from '@apollo/react-testing';
 import * as actions from '../../../actions/user';
 
 jest.mock('../../../actions/user');
