@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
@@ -22,9 +21,7 @@ import AddressFormContainer from './addressFormContainer';
 import classes from './addressBook.css';
 
 const AddressBook = () => {
-    const [{ addressBookContainerQuerySelector, isSignedIn }] = useUserContext();
-    const container = document.querySelector(addressBookContainerQuerySelector);
-
+    const [{ isSignedIn }] = useUserContext();
     const [t] = useTranslation('account');
 
     const content = isSignedIn ? (
@@ -38,12 +35,11 @@ const AddressBook = () => {
         </div>
     );
 
-    return ReactDOM.createPortal(
+    return (
         <div className={classes.root}>
             <h1 className={classes.title}>{t('account:address-book', 'Address Book')}</h1>
             {content}
-        </div>,
-        container
+        </div>
     );
 };
 

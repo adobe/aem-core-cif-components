@@ -23,6 +23,7 @@ import {
     signOutUser as signOutUserAction,
     deleteAddress as deleteAddressAction
 } from '../actions/user';
+import { useConfigContext } from './ConfigContext';
 
 import MUTATION_DELETE_CUSTOMER_ADDRESS from '../queries/mutation_delete_customer_address.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
@@ -217,12 +218,7 @@ const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
     const isSignedIn = () => !!userCookie;
-    const accountContainerQuerySelector =
-        (props.config && props.config.accountContainerQuerySelector) || '.header__accountTrigger #miniaccount';
-    const addressBookContainerQuerySelector =
-        (props.config && props.config.addressBookContainerQuerySelector) || '#addressbook';
-    const addressBookPath =
-        (props.config && props.config.addressBookPath) || '/content/venia/us/en/my-account/address-book.html';
+    const { pagePaths } = useConfigContext();
 
     const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
@@ -246,10 +242,7 @@ const UserContextProvider = props => {
         createAccountError: null,
         createAccountEmail: null,
         cartId: null,
-        accountDropdownView: 'SIGN_IN',
-        accountContainerQuerySelector,
-        addressBookContainerQuerySelector,
-        addressBookPath
+        accountDropdownView: 'SIGN_IN'
     };
 
     const [userState, dispatch] = useReducer(factory(), initialState);
@@ -321,7 +314,7 @@ const UserContextProvider = props => {
     };
 
     const showAddressBook = () => {
-        window.location.href = userState.addressBookPath;
+        window.location.href = pagePaths.addressBook;
     };
 
     const deleteAddress = async address => {
@@ -355,7 +348,6 @@ const UserContextProvider = props => {
 };
 
 UserContextProvider.propTypes = {
-    config: object,
     reducerFactory: func,
     initialState: object
 };

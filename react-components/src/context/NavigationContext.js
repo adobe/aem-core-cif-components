@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useEventListener } from '../utils/hooks';
 import * as NavigationActions from '../actions/navigation';
+import { useConfigContext } from './ConfigContext';
 
 const ancestors = {
     CREATE_ACCOUNT: 'SIGN_IN',
@@ -47,16 +48,11 @@ const reducerFactory = () => {
 };
 
 const NavigationContextProvider = props => {
-    const authBarContainerQuerySelector =
-        (props.config && props.config.authBarContainerQuerySelector) || 'aside.navigation__root #miniaccount';
-    const addressBookPath =
-        (props.config && props.config.addressBookPath) || '/content/venia/us/en/my-account/address-book.html';
     const initialState = props.initialState || {
-        view: 'MENU',
-        authBarContainerQuerySelector,
-        addressBookPath
+        view: 'MENU'
     };
 
+    const { pagePaths } = useConfigContext();
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
     const { view } = navigationState;
     const [t] = useTranslation('account');
@@ -76,7 +72,7 @@ const NavigationContextProvider = props => {
     const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
 
     const showAddressBook = () => {
-        window.location.href = navigationState.addressBookPath;
+        window.location.href = pagePaths.addressBook;
     };
 
     const showView = view => NavigationActions.showView({ dispatch, t, view });
@@ -122,7 +118,6 @@ const NavigationContextProvider = props => {
 };
 
 NavigationContextProvider.propTypes = {
-    config: object,
     initialState: object
 };
 

@@ -11,18 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as CartTrigger } from './components/CartTrigger';
-export { default as AccountContainer } from './components/AccountContainer';
-export { default as AddressBook } from './components/AddressBook';
-export { default as Portal } from './components/Portal';
+const Portal = props => {
+    const { selector, children } = props;
+    const elem = document.querySelector(selector);
 
-export { default as ConfigContextProvider, useConfigContext} from './context/ConfigContext';
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
+    if (elem) {
+        // Only render children if mounting point is available
+        return ReactDOM.createPortal(children, elem);
+    }
 
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
+    return null;
+};
 
-export { CartProvider, CartInitializer } from './components/Minicart';
+Portal.propTypes = {
+    selector: PropTypes.string.isRequired
+};
+
+export default Portal;
