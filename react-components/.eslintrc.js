@@ -1,7 +1,7 @@
 const headerBlock = [
     '******************************************************************************',
     ' *',
-    ' *    Copyright 2019 Adobe. All rights reserved.',
+    { 'pattern': ' *    Copyright 20\\d{2} Adobe. All rights reserved.' },
     ' *    This file is licensed to you under the Apache License, Version 2.0 (the "License");',
     ' *    you may not use this file except in compliance with the License. You may obtain a copy',
     ' *    of the License at http://www.apache.org/licenses/LICENSE-2.0',
@@ -45,7 +45,7 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', 'header', 'jest'],
     rules: {
-        'no-console': ['warn', {allow: ['error', 'warn']}],
+        'no-console': ['warn', { allow: ['error', 'warn'] }],
         'no-undef': 'error',
         'no-unused-vars': 'warn',
         'header/header': [2, 'block', headerBlock],
@@ -53,7 +53,7 @@ module.exports = {
         'one-var': ['error', 'never'],
         'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
         // override the default which is more restrictive
-        'react/prop-types': ['warn', {ignore: ['children']}],
+        'react/prop-types': ['warn', { ignore: ['children'] }],
         strict: ['error', 'global']
     }
 };
