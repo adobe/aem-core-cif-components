@@ -27,8 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +45,10 @@ import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
 
 @Model(
-    adaptables = SlingHttpServletRequest.class,
+    adaptables = { SlingHttpServletRequest.class, Resource.class },
     adapters = FeaturedCategoryList.class,
-    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
+    resourceType = FeaturedCategoryListImpl.RESOURCE_TYPE,
+    defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
@@ -58,7 +60,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
     @Inject
@@ -67,7 +69,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Inject
     private UrlProvider urlProvider;
 
-    @Self
+    @SlingObject
     private SlingHttpServletRequest request;
 
     private Map<String, Asset> assetOverride;
@@ -76,9 +78,11 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     @PostConstruct
     private void initModel() {
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
-        if (categoryPage == null) {
-            categoryPage = currentPage;
+        if (currentPage != null) {
+            categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            if (categoryPage == null) {
+                categoryPage = currentPage;
+            }
         }
 
         List<String> categoryIds = new ArrayList<>();

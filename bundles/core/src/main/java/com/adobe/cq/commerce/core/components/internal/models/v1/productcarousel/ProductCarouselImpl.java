@@ -29,9 +29,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Optional;
-import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +52,23 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = { SlingHttpServletRequest.class, Resource.class },
+    adapters = ProductCarousel.class,
+    resourceType = ProductCarouselImpl.RESOURCE_TYPE,
+    defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class ProductCarouselImpl implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
 
-    @Self
+    @SlingObject
     private SlingHttpServletRequest request;
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
-    @Inject
-    @Optional
+    @ValueMapValue(name = "product")
     private String[] productSkuList;
 
     @Inject
@@ -87,12 +91,15 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
 
         List<String> productSkus = Arrays.asList(productSkuList);
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
 
-        locale = productPage.getLanguage(false);
+        if (currentPage != null) {
+            productPage = SiteNavigation.getProductPage(currentPage);
+            if (productPage == null) {
+                productPage = currentPage;
+            }
+
+            locale = productPage.getLanguage(false);
+        }
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus

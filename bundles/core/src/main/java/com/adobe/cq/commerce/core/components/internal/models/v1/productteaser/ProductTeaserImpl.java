@@ -25,10 +25,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
-import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
@@ -46,16 +46,20 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.day.cq.wcm.api.Page;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = { SlingHttpServletRequest.class, Resource.class },
+    adapters = ProductTeaser.class,
+    resourceType = ProductTeaserImpl.RESOURCE_TYPE,
+    defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class ProductTeaserImpl implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
 
-    @Self
+    @SlingObject
     private SlingHttpServletRequest request;
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
     @Inject
@@ -64,8 +68,11 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Inject
     private UrlProvider urlProvider;
 
-    @ScriptVariable
-    private ValueMap properties;
+    @ValueMapValue(name = "selection")
+    private String selection;
+
+    @ValueMapValue(name = "cta")
+    private String cta;
 
     private Page productPage;
     private Pair<String, String> combinedSku;
@@ -76,13 +83,14 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     @PostConstruct
     protected void initModel() {
-        locale = currentPage.getLanguage(false);
+        if (currentPage != null) {
+            locale = currentPage.getLanguage(false);
 
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
+            productPage = SiteNavigation.getProductPage(currentPage);
+            if (productPage == null) {
+                productPage = currentPage;
+            }
         }
-        String selection = properties.get(SELECTION_PROPERTY, String.class);
         if (selection != null && !selection.isEmpty()) {
             if (selection.startsWith("/")) {
                 selection = StringUtils.substringAfterLast(selection, "/");
@@ -129,7 +137,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     @Override
     public String getCallToAction() {
-        return properties.get("cta", null);
+        return cta;
     }
 
     @Override
