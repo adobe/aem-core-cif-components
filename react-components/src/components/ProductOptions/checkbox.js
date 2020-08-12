@@ -12,6 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { array, shape, func, bool, number } from 'prop-types';
+import Price from '../Price';
 
 const Checkbox = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
@@ -22,24 +24,42 @@ const Checkbox = props => {
 
         if (checked) {
             newCustomization = customization;
-            const { id, quantity } = sortedOptions.find(o => o.id == value);
-            newCustomization.push({ id, quantity });
+            const { id, quantity, price } = sortedOptions.find(o => o.id == value);
+            newCustomization.push({ id, quantity, price });
         } else {
             newCustomization = customization.filter(c => c.id != value);
-        };
+        }
 
         handleSelectionChange(item.option_id, newCustomization);
-    }
+    };
 
-    return <>
-        {sortedOptions.map(
-            o => <div key={`option-${item.option_id}-${o.id}`}>
-                <label>
-                    <input type="checkbox" checked={customization.findIndex(c => c.id === o.id) > -1} onChange={onChange} value={o.id} /> {o.label}
-                </label>
-            </div>
-        )}
-    </>
-}
+    return (
+        <>
+            {sortedOptions.map(o => (
+                <div key={`option-${item.option_id}-${o.id}`}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={customization.findIndex(c => c.id === o.id) > -1}
+                            onChange={onChange}
+                            value={o.id}
+                        />{' '}
+                        {`${o.quantity} x ${o.label} +`}<b><Price currencyCode={o.currency} value={o.price} /></b>
+                    </label>
+                </div>
+            ))}
+        </>
+    );
+};
 
-export default Checkbox
+Checkbox.propTypes = {
+    item: shape({
+        required: bool.isRequired,
+        option_id: number.isRequired
+    }),
+    customization: array.isRequired,
+    sortedOptions: array.isRequired,
+    handleSelectionChange: func.isRequired
+};
+
+export default Checkbox;

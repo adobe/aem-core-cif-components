@@ -12,7 +12,9 @@
  *
  ******************************************************************************/
 import React from 'react';
-import classes from './bundleProductOptions.css'
+import { array, shape, func, bool, number } from 'prop-types';
+
+import classes from './bundleProductOptions.css';
 
 const Select = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
@@ -20,47 +22,79 @@ const Select = props => {
 
     const onChange = event => {
         const { value } = event.target;
-        const newCustomization = sortedOptions.filter(o => o.id == value).map(o => { return { id: o.id, quantity: o.quantity } });
+        const newCustomization = sortedOptions
+            .filter(o => o.id == value)
+            .map(o => {
+                return { id: o.id, quantity: o.quantity, price: o.price };
+            });
         handleSelectionChange(item.option_id, newCustomization);
-    }
+    };
 
     const onQuantityChange = event => {
-        handleSelectionChange(item.option_id, [{ ...customization[0], quantity: parseInt(event.target.value) }])
-    }
+        handleSelectionChange(item.option_id, [{ ...customization[0], quantity: parseInt(event.target.value) }]);
+    };
 
-    return <>
-        <div className={classes.select_options_root}>
-            <span className="fieldIcons__root">
-                <span className="fieldIcons__input">
-                    <select aria-label={item.title} className="select__input field__input" name={item.id} value={customization[0]?.id} onChange={onChange}>
-                        {!item.required &&
-                            <option value="">
-                                None
-                            </option>
-                        }
-                        {sortedOptions.map(
-                            o => <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                                {o.label}
-                            </option>
-                        )}
-                    </select>
-                </span>
-                <span className="fieldIcons__before"></span>
-                <span className="fieldIcons__after">
-                    <span className="icon__root">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+    return (
+        <>
+            <div className={classes.select_options_root}>
+                <span className="fieldIcons__root">
+                    <span className="fieldIcons__input">
+                        <select
+                            aria-label={item.title}
+                            className="select__input field__input"
+                            name={item.id}
+                            value={customization[0]?.id}
+                            onChange={onChange}>
+                            {!item.required && <option value="">None</option>}
+                            {sortedOptions.map(o => (
+                                <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
+                                    {o.label}
+                                </option>
+                            ))}
+                        </select>
+                    </span>
+                    <span className="fieldIcons__before"></span>
+                    <span className="fieldIcons__after">
+                        <span className="icon__root">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </span>
                     </span>
                 </span>
-            </span>
-        </div>
+            </div>
 
-        <h2 className={classes.option_quantity_title}>
-            <span>Quantity</span>
-        </h2>
-        <input type="number" className={classes.option_quantity_input} disabled={!canChangeQuantity} value={customization[0]?.quantity} onChange={onQuantityChange} />
-    </>
-}
+            <h2 className={classes.option_quantity_title}>
+                <span>Quantity</span>
+            </h2>
+            <input
+                type="number"
+                className={classes.option_quantity_input}
+                disabled={!canChangeQuantity}
+                value={customization[0]?.quantity}
+                onChange={onQuantityChange}
+            />
+        </>
+    );
+};
 
-export default Select
+Select.propTypes = {
+    item: shape({
+        required: bool.isRequired,
+        option_id: number.isRequired
+    }),
+    customization: array.isRequired,
+    sortedOptions: array.isRequired,
+    handleSelectionChange: func.isRequired
+};
+
+export default Select;

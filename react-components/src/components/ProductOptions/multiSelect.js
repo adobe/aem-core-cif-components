@@ -12,24 +12,50 @@
  *
  ******************************************************************************/
 import React from 'react';
-import classes from './bundleProductOptions.css'
+import { array, shape, func, bool, number } from 'prop-types';
+
+import classes from './bundleProductOptions.css';
 
 const MultiSelect = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
 
     const onChange = event => {
-        const values = Array.from(event.target.options).filter(e => e.selected).map(e => e.value);
-        const newCustomization = sortedOptions.filter(o => values.includes(o.id.toString())).map(o => { return { id: o.id, quantity: o.quantity } });
+        const values = Array.from(event.target.options)
+            .filter(e => e.selected)
+            .map(e => e.value);
+        const newCustomization = sortedOptions
+            .filter(o => values.includes(o.id.toString()))
+            .map(o => {
+                return { id: o.id, quantity: o.quantity, price: o.price };
+            });
         handleSelectionChange(item.option_id, newCustomization);
-    }
+    };
 
-    return <select name={item.option_id} multiple="multiple" className={classes.multiselect_options_root} size="5" value={customization.map(c => c.id)} onChange={onChange}>
-        {sortedOptions.map(
-            o => <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                {o.label}
-            </option>
-        )}
-    </select>
-}
+    return (
+        <select
+            name={item.option_id}
+            multiple="multiple"
+            className={classes.multiselect_options_root}
+            size="5"
+            value={customization.map(c => c.id)}
+            onChange={onChange}>
+            {sortedOptions.map(o => (
+                <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
+                    {o.label}
+                </option>
+            ))}
+        </select>
+    );
+};
 
-export default MultiSelect
+MultiSelect.propTypes = {
+    item: shape({
+        required: bool.isRequired,
+        option_id: number.isRequired
+    }),
+    customization: array.isRequired,
+    sortedOptions: array.isRequired,
+    handleSelectionChange: func.isRequired
+};
+
+export default MultiSelect;

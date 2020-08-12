@@ -56,3 +56,11 @@
     width: 75%;
     -webkit-appearance: none;
 }
+
+.customization__info {
+    float: right;
+}
+
+.totalPrice {
+    font-weight: 700;
+}

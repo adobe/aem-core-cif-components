@@ -15,12 +15,8 @@ import React from 'react';
 import BundleProductOptions from './bundleProductOptions';
 
 const ProductOptions = () => {
-
     const productComponent = document.querySelector('[data-cmp-is="product"]');
 
-    return <>
-        {productComponent !== null && <BundleProductOptions container={productComponent} />}
-    </>
-
-}
+    return <>{productComponent !== null && <BundleProductOptions container={productComponent} />}</>;
+};
 export default ProductOptions;

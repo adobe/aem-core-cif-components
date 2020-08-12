@@ -28,10 +28,14 @@ query bundleProduct($sku: String!) {
                         can_change_quantity
                         label
                         product {
-                            id
-                            name
-                            sku
-                            __typename
+                            price_range {
+                                maximum_price {
+                                    final_price {
+                                        currency
+                                        value
+                                    }
+                                }
+                            }
                         }
                     }
                 }
