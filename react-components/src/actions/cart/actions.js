@@ -202,6 +202,7 @@ export const setGuestEmailOnCart = async payload => {
     const { setGuestEmailOnCart, cartId, email, dispatch } = payload;
     try {
         await setGuestEmailOnCart({ variables: { cartId, email } });
+        dispatch({ type: 'setShippingAddressEmail', email });
     } catch (error) {
         dispatch({ type: 'error', error: parseError(error) });
     }

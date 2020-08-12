@@ -85,12 +85,11 @@ const EditableForm = props => {
             dispatch: cartDispatch
         };
         await setShippingAddressesOnCartAction(payload);
-        cartDispatch({ type: 'endLoading' });
-
         if (!isSignedIn) {
             // if user is signed in, the email is set already when click on `checkout` button in cart
-            setGuestEmailOnCartAction({ setGuestEmailOnCart, cartId, email: formValues.email, dispatch: cartDispatch });
+            await setGuestEmailOnCartAction({ setGuestEmailOnCart, cartId, email: formValues.email, dispatch });
         }
+        cartDispatch({ type: 'endLoading' });
     };
 
     const handleSubmitPaymentsForm = async args => {

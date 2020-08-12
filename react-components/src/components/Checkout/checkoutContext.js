@@ -65,6 +65,14 @@ export const checkoutReducer = (state, action) => {
                 shippingAddress: action.shippingAddress,
                 editing: null
             };
+        case 'setShippingAddressEmail':
+            return {
+                ...state,
+                shippingAddress: {
+                    ...state.shippingAddress,
+                    email: action.email
+                }
+            };
         case 'setBillingAddress':
             return {
                 ...state,
