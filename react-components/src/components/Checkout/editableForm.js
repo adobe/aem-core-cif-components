@@ -26,6 +26,7 @@ import {
 import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
+import { useAddressSelect } from '../AddressForm/useAddressSelect';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
@@ -44,10 +45,12 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
+    const { parseInitialAddressSelectValue, handleChangeCheckoutShippingAddressSelect } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
+
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
@@ -193,7 +196,9 @@ const EditableForm = props => {
                     heading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
+                    initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
+                    onAddressSelectValueChange={handleChangeCheckoutShippingAddressSelect}
                     showEmailInput={true}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}

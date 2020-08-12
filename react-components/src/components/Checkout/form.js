@@ -16,26 +16,16 @@ import React, { useEffect } from 'react';
 import Overview from './overview';
 import classes from './form.css';
 import EditableForm from './editableForm';
+import { useAddressForm } from '../AddressForm/useAddressForm';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
-
-const parseAddress = (address, email) => {
-    let result = {
-        ...address,
-        region_code: address.region.code,
-        country: address.country.code
-    };
-    if (email) {
-        result.email = email;
-    }
-    return result;
-};
 
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
  */
 const Form = () => {
+    const { parseAddress } = useAddressForm();
     const [{ cart }] = useCartState();
     const [{ editing, shippingAddress }, dispatch] = useCheckoutState();
     const { shipping_addresses = [], selected_payment_method = undefined, billing_address = undefined, email } = cart;

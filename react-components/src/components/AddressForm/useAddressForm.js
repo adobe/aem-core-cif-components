@@ -79,13 +79,61 @@ export const useAddressForm = () => {
         dispatch({ type: 'closeAddressForm' });
     };
 
+    const parseAddress = (address, email) => {
+        let result = {
+            ...address,
+            region_code: address.region.region_code || address.region.code,
+            country_code: address.country_code || address.country.code
+        };
+        if (email) {
+            result.email = email;
+        }
+        return result;
+    };
+
+    const parseAddressFormValues = address => {
+        const fields = [
+            'city',
+            'default_shipping',
+            'email',
+            'firstname',
+            'lastname',
+            'postcode',
+            'region_code',
+            'region',
+            'street',
+            'telephone'
+        ];
+
+        return fields.reduce((acc, key) => {
+            if (address && key in address) {
+                // Convert street from array to flat strings
+                if (key === 'street') {
+                    address[key].forEach((v, i) => (acc[`street${i}`] = v));
+                    return acc;
+                }
+                // Convert region from object to region_code string, region object returned in different graphql
+                // endpoints has different shape, so we have to check both 'region_code' and 'code' to get the
+                // value of the region code
+                if (key === 'region') {
+                    acc['region_code'] = address[key].region_code || address[key].code;
+                    return acc;
+                }
+                acc[key] = address[key];
+            }
+            return acc;
+        }, {});
+    };
+
     return {
-        inProgress,
         countries,
+        errorMessage,
         getRegionId,
         handleSubmit,
         handleCancel,
-        errorMessage,
+        inProgress,
+        parseAddress,
+        parseAddressFormValues,
         updateAddress: userState.updateAddress
     };
 };

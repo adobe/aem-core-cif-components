@@ -13,10 +13,11 @@
  ******************************************************************************/
 import { useMutation } from '@apollo/react-hooks';
 
+import { useAddressForm } from '../AddressForm/useAddressForm';
+import { useAwaitQuery } from '../../utils/hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
-import { useAwaitQuery } from '../../utils/hooks';
 
 import { setShippingAddressesOnCart as setShippingAddressesOnCartAction } from '../../actions/cart';
 
@@ -24,6 +25,7 @@ import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_set_shipping_a
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
 export default () => {
+    const { parseAddress } = useAddressForm();
     const [{ cartId }, cartDispatch] = useCartState();
     const [{ shippingAddress }, dispatch] = useCheckoutState();
     const [{ currentUser, isSignedIn }] = useUserContext();
@@ -31,27 +33,23 @@ export default () => {
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
 
     const beginCheckout = async () => {
-        if (isSignedIn && !shippingAddress) {
-            // If user is signed in but shipping address is not set, then use default address as initial address for address form
-            const defaultShippingAddress = currentUser.addresses.find(address => address.default_shipping);
-            if (defaultShippingAddress) {
-                defaultShippingAddress.email = currentUser.email; // there is no email field in saved address so use email of current user instead
-                defaultShippingAddress.region_code = defaultShippingAddress.region.region_code; // this is required as in saved address object, region is an object
+        if (isSignedIn && !shippingAddress && currentUser.addresses.length > 0) {
+            // If user is signed in but shipping address is not set, then use default address as initial address for address form if
+            // there is one, otherwise use the first avaialble address
+            const address = currentUser.addresses.find(address => address.default_shipping) || currentUser.addresses[0];
+            const payload = {
+                cartDetailsQuery,
+                setShippingAddressesOnCart,
+                cartId,
+                address: parseAddress(address, currentUser.email),
+                dispatch: cartDispatch
+            };
 
-                const payload = {
-                    cartDetailsQuery,
-                    setShippingAddressesOnCart,
-                    cartId,
-                    address: defaultShippingAddress,
-                    dispatch: cartDispatch
-                };
-
-                cartDispatch({ type: 'beginLoading' });
-                await setShippingAddressesOnCartAction(payload);
-                cartDispatch({ type: 'endLoading' });
-                // TODO: do we need to set guest email here? Guess not cause the user is already signed in at this point?
-                // Do we need to remove the email address field in address form then?
-            }
+            cartDispatch({ type: 'beginLoading' });
+            await setShippingAddressesOnCartAction(payload);
+            cartDispatch({ type: 'endLoading' });
+            // TODO: do we need to set guest email here? Guess not cause the user is already signed in at this point?
+            // Do we need to remove the email address field in address form then?
         }
         dispatch({ type: 'beginCheckout' });
     };

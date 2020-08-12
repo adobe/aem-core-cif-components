@@ -192,7 +192,7 @@ export const setShippingAddressesOnCart = async payload => {
     try {
         await setShippingAddressesOnCart({ variables: { cartId, country_code, ...address } });
         await getCartDetails({ cartDetailsQuery, dispatch, cartId });
-        dispatch({ type: 'setShippingAddress', shippingAddress: address });
+        dispatch({ type: 'setShippingAddress', shippingAddress: { ...address } });
     } catch (error) {
         dispatch({ type: 'error', error: parseError(error) });
     }
