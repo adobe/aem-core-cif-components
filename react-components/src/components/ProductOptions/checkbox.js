@@ -44,7 +44,10 @@ const Checkbox = props => {
                             onChange={onChange}
                             value={o.id}
                         />{' '}
-                        {`${o.quantity} x ${o.label} +`}<b><Price currencyCode={o.currency} value={o.price} /></b>
+                        {`${o.quantity} x ${o.label} +`}
+                        <b>
+                            <Price currencyCode={o.currency} value={o.price} />
+                        </b>
                     </label>
                 </div>
             ))}

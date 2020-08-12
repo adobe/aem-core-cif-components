@@ -61,7 +61,10 @@ const Radio = props => {
                             onChange={onChange}
                             checked={customization.findIndex(c => c.id === o.id) > -1}
                         />{' '}
-                        {`${o.label} +`}<b><Price currencyCode={o.currency} value={o.price} /></b>
+                        {`${o.label} +`}
+                        <b>
+                            <Price currencyCode={o.currency} value={o.price} />
+                        </b>
                     </label>
                 </div>
             ))}
