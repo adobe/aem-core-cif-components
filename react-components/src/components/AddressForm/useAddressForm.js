@@ -34,6 +34,19 @@ export const useAddressForm = () => {
         errorMessage = userState.addressFormError;
     }
 
+    const getNewCheckoutShippingAddress = () => {
+        return {
+            city: '',
+            firstname: '',
+            lastname: '',
+            postcode: '',
+            region_code: '',
+            street0: '',
+            street1: '',
+            telephone: ''
+        };
+    };
+
     const getRegionId = (countries, countryCode, regionCode) => {
         const region =
             countries &&
@@ -128,6 +141,7 @@ export const useAddressForm = () => {
     return {
         countries,
         errorMessage,
+        getNewCheckoutShippingAddress,
         getRegionId,
         handleSubmit,
         handleCancel,

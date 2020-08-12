@@ -68,7 +68,7 @@ const AddressForm = props => {
                 <>
                     <div className={classes.body}>
                         <h2 className={classes.heading}>{formHeading}</h2>
-                        {initialAddressSelectValue && onAddressSelectValueChange && (
+                        {initialAddressSelectValue !== null && onAddressSelectValueChange && (
                             <AddressSelect
                                 initialValue={initialAddressSelectValue}
                                 onValueChange={value => onAddressSelectValueChange(value, formApi)}

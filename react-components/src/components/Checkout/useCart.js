@@ -35,21 +35,19 @@ export default () => {
     const beginCheckout = async () => {
         if (isSignedIn && !shippingAddress && currentUser.addresses.length > 0) {
             // If user is signed in but shipping address is not set, then use default address as initial address for address form if
-            // there is one, otherwise use the first avaialble address
+            // there is one, otherwise use the first one of the saved addresses
             const address = currentUser.addresses.find(address => address.default_shipping) || currentUser.addresses[0];
             const payload = {
                 cartDetailsQuery,
                 setShippingAddressesOnCart,
                 cartId,
-                address: parseAddress(address, currentUser.email),
+                address: parseAddress(address),
                 dispatch: cartDispatch
             };
 
             cartDispatch({ type: 'beginLoading' });
             await setShippingAddressesOnCartAction(payload);
             cartDispatch({ type: 'endLoading' });
-            // TODO: do we need to set guest email here? Guess not cause the user is already signed in at this point?
-            // Do we need to remove the email address field in address form then?
         }
         dispatch({ type: 'beginCheckout' });
     };

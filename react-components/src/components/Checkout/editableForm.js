@@ -198,7 +198,7 @@ const EditableForm = props => {
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
                     onAddressSelectValueChange={handleChangeCheckoutShippingAddressSelect}
-                    showEmailInput={true}
+                    showEmailInput={!isSignedIn}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
                     submitLabel={t('checkout:address-submit', 'Use Address')}

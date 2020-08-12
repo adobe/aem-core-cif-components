@@ -21,12 +21,12 @@ import classes from './addressSelect.css';
 
 const AddressSelect = props => {
     const { initialValue, onValueChange } = props;
-    const { addressesItems } = useAddressSelect();
+    const { addressSelectItems } = useAddressSelect();
 
     return (
         <div className={classes.root}>
             <Select
-                items={addressesItems}
+                items={addressSelectItems}
                 field="address_select"
                 initialValue={initialValue}
                 onValueChange={onValueChange}
