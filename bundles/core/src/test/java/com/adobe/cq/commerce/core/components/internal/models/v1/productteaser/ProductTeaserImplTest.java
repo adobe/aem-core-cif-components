@@ -88,8 +88,8 @@ public class ProductTeaserImplTest {
 
     public void setUp(String resourcePath, boolean deepLink) throws Exception {
         Page page = context.currentPage(PAGE);
-        context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
+        context.currentResource(teaserResource);
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productteaser-result.json");
         product = rootQuery.getProducts().getItems().get(0);
@@ -199,8 +199,8 @@ public class ProductTeaserImplTest {
     @Test
     public void testVirtualProduct() throws IOException {
         Page page = context.currentPage(PAGE);
-        context.currentResource(PRODUCTTEASER_VIRTUAL);
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
+        context.currentResource(teaserResource);
         Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
@@ -214,5 +214,20 @@ public class ProductTeaserImplTest {
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
         Assert.assertTrue(productTeaser.isVirtualProduct());
+    }
+
+    @Test
+    public void testTeaserFromResource() throws IOException {
+        Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VARIANT));
+        context.currentResource(teaserResource);
+        Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+                "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        productTeaser = teaserResource.adaptTo(ProductTeaserImpl.class);
+        Assert.assertEquals("addToCart", productTeaser.getCallToAction());
+        Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
     }
 }

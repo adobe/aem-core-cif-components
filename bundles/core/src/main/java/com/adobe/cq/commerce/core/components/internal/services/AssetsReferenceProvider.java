@@ -25,7 +25,6 @@ import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
-import org.apache.sling.models.factory.ModelFactory;
 import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
@@ -50,9 +49,6 @@ public class AssetsReferenceProvider implements ReferenceProvider {
     private static final String PRODUCTCAROUSEL_RT = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final String FEATUREDCATEGORY_RT = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
 
-    @org.osgi.service.component.annotations.Reference
-    private ModelFactory modelFactory;
-
     public List<Reference> findReferences(Resource resource) {
         return recurse(resource, new ArrayList<Reference>());
     }
@@ -69,14 +65,18 @@ public class AssetsReferenceProvider implements ReferenceProvider {
             return references;
         } else if (resource.isResourceType(PRODUCTCAROUSEL_RT)) {
             ProductCarousel productCarousel = resource.adaptTo(ProductCarousel.class);
-            for (ProductListItem item : productCarousel.getProducts()) {
-                addReference(resource.getResourceResolver(), item.getImageURL(), references);
+            if (productCarousel != null) {
+                for (ProductListItem item : productCarousel.getProducts()) {
+                    addReference(resource.getResourceResolver(), item.getImageURL(), references);
+                }
             }
             return references;
         } else if (resource.isResourceType(FEATUREDCATEGORY_RT)) {
             FeaturedCategoryList featuredCategoryList = resource.adaptTo(FeaturedCategoryList.class);
-            for (CategoryTree item : featuredCategoryList.getCategories()) {
-                addReference(resource.getResourceResolver(), item.getImage(), references);
+            if (featuredCategoryList != null) {
+                for (CategoryTree item : featuredCategoryList.getCategories()) {
+                    addReference(resource.getResourceResolver(), item.getImage(), references);
+                }
             }
             return references;
         }

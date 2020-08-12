@@ -87,11 +87,10 @@ public class ProductCarouselImplTest {
     private List<ProductInterface> products;
     private String[] productSkuArray;
 
-    @Before
-    public void setUp() throws Exception {
+    private void setUp() throws Exception {
         Page page = context.currentPage(PAGE);
-        context.currentResource(PRODUCTCAROUSEL);
         carouselResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTCAROUSEL));
+        context.currentResource(carouselResource);
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productcarousel-result.json");
         products = rootQuery.getProducts().getItems();
@@ -113,7 +112,8 @@ public class ProductCarouselImplTest {
     }
 
     @Test
-    public void getProducts() {
+    public void getProducts() throws Exception {
+        setUp();
 
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
@@ -163,6 +163,21 @@ public class ProductCarouselImplTest {
             }
             idx++;
         }
+    }
+
+    @Test
+    public void testFromResource() throws Exception {
+        carouselResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTCAROUSEL));
+        context.currentResource(carouselResource);
+
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productcarousel-result.json");
+        Mockito.when(carouselResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+                "cq:graphqlClient") != null ? graphqlClient : null);
+
+        productCarousel = carouselResource.adaptTo(ProductCarouselImpl.class);
+        Assert.assertNotNull(productCarousel);
+        Assert.assertNotNull(productCarousel.getProducts());
     }
 
     protected ProductInterface toProductOrVariant(ProductInterface product, Pair<String, String> skus) {

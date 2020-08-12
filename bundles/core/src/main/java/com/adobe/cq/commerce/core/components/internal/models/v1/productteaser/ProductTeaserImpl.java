@@ -55,6 +55,7 @@ public class ProductTeaserImpl implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
+    private static final String CTA_PROPERTY = "cta";
 
     @SlingObject
     private SlingHttpServletRequest request;
@@ -68,10 +69,10 @@ public class ProductTeaserImpl implements ProductTeaser {
     @Inject
     private UrlProvider urlProvider;
 
-    @ValueMapValue(name = "selection")
+    @ValueMapValue(name = SELECTION_PROPERTY)
     private String selection;
 
-    @ValueMapValue(name = "cta")
+    @ValueMapValue(name = CTA_PROPERTY)
     private String cta;
 
     private Page productPage;

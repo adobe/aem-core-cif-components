@@ -14,10 +14,13 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl;
+import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -216,6 +219,17 @@ public class FeaturedCategoryListImplTest {
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
     }
+
+    @Test
+    public void testFromResource() throws IOException {
+        Resource resource = Mockito.spy(contextConfigured.resourceResolver().getResource(COMPONENT_PATH));
+        contextConfigured.currentResource(resource);
+
+        FeaturedCategoryList model = resource.adaptTo(FeaturedCategoryList.class);
+        Assert.assertNotNull(model);
+        Assert.assertNotNull(model.getCategories());
+    }
+
 
     private AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
