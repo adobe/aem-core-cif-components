@@ -29,7 +29,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -173,7 +172,7 @@ public class ProductCarouselImplTest {
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productcarousel-result.json");
         Mockito.when(carouselResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-                "cq:graphqlClient") != null ? graphqlClient : null);
+            "cq:graphqlClient") != null ? graphqlClient : null);
 
         productCarousel = carouselResource.adaptTo(ProductCarouselImpl.class);
         Assert.assertNotNull(productCarousel);

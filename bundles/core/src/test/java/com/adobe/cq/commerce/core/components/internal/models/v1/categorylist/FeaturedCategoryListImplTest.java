@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl;
-import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -35,6 +33,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
@@ -229,7 +228,6 @@ public class FeaturedCategoryListImplTest {
         Assert.assertNotNull(model);
         Assert.assertNotNull(model.getCategories());
     }
-
 
     private AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {

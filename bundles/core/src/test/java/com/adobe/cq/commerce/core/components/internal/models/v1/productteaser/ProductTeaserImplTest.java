@@ -224,7 +224,7 @@ public class ProductTeaserImplTest {
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-                "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         productTeaser = teaserResource.adaptTo(ProductTeaserImpl.class);
         Assert.assertEquals("addToCart", productTeaser.getCallToAction());
