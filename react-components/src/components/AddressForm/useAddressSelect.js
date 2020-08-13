@@ -17,7 +17,7 @@ import { useAddressForm } from './useAddressForm';
 import { useUserContext } from '../../context/UserContext';
 
 export const useAddressSelect = () => {
-    const { getNewCheckoutShippingAddress, parseAddress, parseAddressFormValues } = useAddressForm();
+    const { getNewAddress, parseAddress, parseAddressFormValues } = useAddressForm();
     const [{ currentUser }] = useUserContext();
 
     const [t] = useTranslation('checkout');
@@ -34,11 +34,11 @@ export const useAddressSelect = () => {
     });
     addressSelectItems.unshift(addressSelectNewAddressItem);
 
-    const handleChangeCheckoutShippingAddressSelect = (value, addressFormApi) => {
+    const handleChangeAddressSelect = (value, addressFormApi) => {
         const newAddressItemValue = 0;
         if (newAddressItemValue == value) {
             // clear the values of the form fields if the current select option item is 'New Address'
-            addressFormApi.setValues(getNewCheckoutShippingAddress());
+            addressFormApi.setValues(getNewAddress());
             return;
         }
 
@@ -61,7 +61,7 @@ export const useAddressSelect = () => {
 
     return {
         addressSelectItems,
-        handleChangeCheckoutShippingAddressSelect,
+        handleChangeAddressSelect,
         parseInitialAddressSelectValue
     };
 };
