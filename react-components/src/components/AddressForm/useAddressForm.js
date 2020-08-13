@@ -34,7 +34,7 @@ export const useAddressForm = () => {
         errorMessage = userState.addressFormError;
     }
 
-    const getNewCheckoutShippingAddress = () => {
+    const getNewAddress = () => {
         return {
             city: '',
             firstname: '',
@@ -141,7 +141,7 @@ export const useAddressForm = () => {
     return {
         countries,
         errorMessage,
-        getNewCheckoutShippingAddress,
+        getNewAddress,
         getRegionId,
         handleSubmit,
         handleCancel,
