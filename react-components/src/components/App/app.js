@@ -27,7 +27,7 @@ const App = props => {
     const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
     const client = new ApolloClient({
-        graphqlEndpoint,
+        uri: graphqlEndpoint,
         headers: { Store: storeView },
         request: operation => {
             let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';

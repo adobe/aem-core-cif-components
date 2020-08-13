@@ -12,25 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 import { render } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import CreateAccountSuccess from '../createAccountSuccess';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<CreateAccountSuccess>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider>
-                        <CreateAccountSuccess showSignIn={jest.fn(() => {})} />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <CreateAccountSuccess showSignIn={jest.fn(() => {})} />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );

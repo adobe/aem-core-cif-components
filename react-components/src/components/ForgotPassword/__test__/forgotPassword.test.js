@@ -19,6 +19,7 @@ import ForgotPassword from '../forgotPassword';
 import UserContextProvider from '../../../context/UserContext';
 import { MockedProvider } from '@apollo/react-testing';
 import i18n from '../../../../__mocks__/i18nForTests';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
@@ -29,9 +30,11 @@ describe('ForgotPassword', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <Wrapper />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -47,9 +50,11 @@ describe('ForgotPassword', () => {
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <Wrapper />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );

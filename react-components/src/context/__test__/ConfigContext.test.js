@@ -11,18 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import React from 'react';
+import { render } from '@testing-library/react';
 
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as CartTrigger } from './components/CartTrigger';
-export { default as AccountContainer } from './components/AccountContainer';
-export { default as AddressBook } from './components/AddressBook';
-export { default as Portal } from './components/Portal';
+const { useConfigContext, default: ConfigContextProvider } = require('../ConfigContext');
 
-export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
+describe('ConfigContext', () => {
+    const Consumer = () => {
+        const config = useConfigContext();
 
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
+        return <div data-testid="config">{config.storeView}</div>;
+    };
 
-export { CartProvider, CartInitializer } from './components/Minicart';
+    it('provides the configuration', () => {
+        const { getByTestId } = render(
+            <ConfigContextProvider config={{ storeView: 'my-store', graphqlEndpoint: '/api/graphql' }}>
+                <Consumer />
+            </ConfigContextProvider>
+        );
+
+        expect(getByTestId('config').textContent).toEqual('my-store');
+    });
+});

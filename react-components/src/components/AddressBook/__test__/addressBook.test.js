@@ -20,15 +20,18 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import AddressBook from '../addressBook';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<AddressBook>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider>
-                        <AddressBook />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <AddressBook />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -46,9 +49,11 @@ describe('<AddressBook>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithCurrentUserDetails}>
-                        <AddressBook />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithCurrentUserDetails}>
+                            <AddressBook />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );

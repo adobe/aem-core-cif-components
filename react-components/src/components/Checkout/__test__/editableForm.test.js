@@ -22,6 +22,7 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<EditableForm />', () => {
     it('renders the shipping address form if countries are loaded', async () => {
@@ -49,15 +50,17 @@ describe('<EditableForm />', () => {
         const { queryByText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider mocks={mocks} addTypename={false}>
-                    <UserContextProvider>
-                        <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                            <CheckoutProvider
-                                initialState={{ editing: 'address', flowState: 'form' }}
-                                reducer={state => state}>
-                                <EditableForm />
-                            </CheckoutProvider>
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                                <CheckoutProvider
+                                    initialState={{ editing: 'address', flowState: 'form' }}
+                                    reducer={state => state}>
+                                    <EditableForm />
+                                </CheckoutProvider>
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -85,15 +88,17 @@ describe('<EditableForm />', () => {
 
         const { asFragment } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                        <CheckoutProvider
-                            initialState={{ editing: 'address', flowState: 'form' }}
-                            reducer={state => state}>
-                            <EditableForm />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
+                <ConfigContext.Provider value={{}}>
+                    <UserContextProvider>
+                        <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                            <CheckoutProvider
+                                initialState={{ editing: 'address', flowState: 'form' }}
+                                reducer={state => state}>
+                                <EditableForm />
+                            </CheckoutProvider>
+                        </CartProvider>
+                    </UserContextProvider>
+                </ConfigContext.Provider>
             </MockedProvider>
         );
 

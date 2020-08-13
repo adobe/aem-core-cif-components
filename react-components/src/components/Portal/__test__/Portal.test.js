@@ -11,18 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import React from 'react';
 
-export { default as CommerceApp } from './components/App';
-export { default as AuthBar } from './components/AuthBar';
-export { default as Cart } from './components/Minicart';
-export { default as CartTrigger } from './components/CartTrigger';
-export { default as AccountContainer } from './components/AccountContainer';
-export { default as AddressBook } from './components/AddressBook';
-export { default as Portal } from './components/Portal';
+const { render } = require('@testing-library/react');
 
-export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
-export { default as UserContextProvider, useUserContext } from './context/UserContext';
+import Portal from '../Portal';
 
-export { CheckoutProvider } from './components/Checkout/checkoutContext';
+describe('Portal', () => {
+    it('renders a component in a container', () => {
+        const target = document.createElement('div');
+        target.setAttribute('id', 'target');
+        target.setAttribute('data-testid', 'target');
+        document.body.appendChild(target);
 
-export { CartProvider, CartInitializer } from './components/Minicart';
+        const { getByTestId } = render(<Portal selector="#target">Component</Portal>);
+
+        expect(getByTestId('target').textContent).toEqual('Component');
+    });
+});

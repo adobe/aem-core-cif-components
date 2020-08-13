@@ -21,6 +21,7 @@ import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import AccountDropdown from '../accountDropdown';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<AccountDropdown>', () => {
     it('render the account dropdown when account dropdown is open', () => {
@@ -30,11 +31,13 @@ describe('<AccountDropdown>', () => {
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithAccountDropdownOpen}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithAccountDropdownOpen}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -54,11 +57,13 @@ describe('<AccountDropdown>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithMyAccountView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithMyAccountView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -73,11 +78,13 @@ describe('<AccountDropdown>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithChangePasswordView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithChangePasswordView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -92,11 +99,13 @@ describe('<AccountDropdown>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithForgotPasswordView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithForgotPasswordView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -111,11 +120,13 @@ describe('<AccountDropdown>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithCreateAccountView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithCreateAccountView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -130,11 +141,13 @@ describe('<AccountDropdown>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={stateWithAccountCreatedView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={stateWithAccountCreatedView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );

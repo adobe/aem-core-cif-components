@@ -18,6 +18,7 @@ import { render } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
+import { ConfigContext } from '../../../context/ConfigContext';
 
 import AddressItemsContainer from '../addressItemsContainer';
 
@@ -42,9 +43,11 @@ describe('<AddressItemsContainer>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <AddressItemsContainer />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider initialState={mockInitialState}>
+                            <AddressItemsContainer />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -55,9 +58,11 @@ describe('<AddressItemsContainer>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <UserContextProvider>
-                        <AddressItemsContainer displayType={'list'} />
-                    </UserContextProvider>
+                    <ConfigContext.Provider value={{}}>
+                        <UserContextProvider>
+                            <AddressItemsContainer displayType={'list'} />
+                        </UserContextProvider>
+                    </ConfigContext.Provider>
                 </MockedProvider>
             </I18nextProvider>
         );
