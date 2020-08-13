@@ -132,7 +132,7 @@ describe('useAddressForm', () => {
         expect(handler).toHaveBeenCalledTimes(2);
     });
 
-    it('get the value of the form error state', async () => {
+    it('gets the value of the form error state', async () => {
         const Wrapper = () => {
             const { errorMessage } = useAddressForm();
 
@@ -155,7 +155,7 @@ describe('useAddressForm', () => {
         expect(errorMessage.textContent).toEqual('address form error');
     });
 
-    it('get the correct region id', async () => {
+    it('gets the correct region id', async () => {
         const Wrapper = () => {
             const { getRegionId } = useAddressForm();
             const countries = [
@@ -181,5 +181,116 @@ describe('useAddressForm', () => {
 
         const regionId = getByTestId('region-id');
         expect(regionId.textContent).toEqual('4');
+    });
+
+    it('gets the new address object', async () => {
+        const Wrapper = () => {
+            const { getNewAddress } = useAddressForm();
+            const newAddress = getNewAddress();
+            return (
+                <>
+                    <div data-testid="city">{newAddress.city}</div>
+                    <div data-testid="firstname">{newAddress.firstname}</div>
+                    <div data-testid="lastname">{newAddress.lastname}</div>
+                    <div data-testid="postcode">{newAddress.postcode}</div>
+                    <div data-testid="region_code">{newAddress.region_code}</div>
+                    <div data-testid="street0">{newAddress.street0}</div>
+                    <div data-testid="telephone">{newAddress.telephone}</div>
+                </>
+            );
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const city = getByTestId('city');
+        expect(city.textContent).toEqual('');
+
+        const firstname = getByTestId('firstname');
+        expect(firstname.textContent).toEqual('');
+
+        const lastname = getByTestId('lastname');
+        expect(lastname.textContent).toEqual('');
+
+        const postcode = getByTestId('postcode');
+        expect(postcode.textContent).toEqual('');
+
+        const region_code = getByTestId('region_code');
+        expect(region_code.textContent).toEqual('');
+
+        const street0 = getByTestId('street0');
+        expect(street0.textContent).toEqual('');
+
+        const telephone = getByTestId('telephone');
+        expect(telephone.textContent).toEqual('');
+    });
+
+    it('parses the address', async () => {
+        const Wrapper = () => {
+            const address = {
+                city: 'Calder',
+                country_code: 'US',
+                firstname: 'Veronica',
+                lastname: 'Costello',
+                postcode: '49628-7978',
+                region: {
+                    region_code: 'MI'
+                },
+                telephone: '(555) 229-3326'
+            };
+            const email = 'veronica@example.com';
+            const { parseAddress } = useAddressForm();
+            const parsedAddress = parseAddress(address, email);
+
+            return (
+                <>
+                    <div data-testid="city">{parsedAddress.city}</div>
+                    <div data-testid="country_code">{parsedAddress.country_code}</div>
+                    <div data-testid="email">{parsedAddress.email}</div>
+                    <div data-testid="firstname">{parsedAddress.firstname}</div>
+                    <div data-testid="lastname">{parsedAddress.lastname}</div>
+                    <div data-testid="postcode">{parsedAddress.postcode}</div>
+                    <div data-testid="region_code">{parsedAddress.region_code}</div>
+                    <div data-testid="telephone">{parsedAddress.telephone}</div>
+                </>
+            );
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const city = getByTestId('city');
+        expect(city.textContent).toEqual('Calder');
+
+        const country_code = getByTestId('country_code');
+        expect(country_code.textContent).toEqual('US');
+
+        const email = getByTestId('email');
+        expect(email.textContent).toEqual('veronica@example.com');
+
+        const firstname = getByTestId('firstname');
+        expect(firstname.textContent).toEqual('Veronica');
+
+        const lastname = getByTestId('lastname');
+        expect(lastname.textContent).toEqual('Costello');
+
+        const postcode = getByTestId('postcode');
+        expect(postcode.textContent).toEqual('49628-7978');
+
+        const region_code = getByTestId('region_code');
+        expect(region_code.textContent).toEqual('MI');
+
+        const telephone = getByTestId('telephone');
+        expect(telephone.textContent).toEqual('(555) 229-3326');
     });
 });
