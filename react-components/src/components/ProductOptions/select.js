@@ -13,12 +13,14 @@
  ******************************************************************************/
 import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import classes from './bundleProductOptions.css';
 
 const Select = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
     const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;
+    const [t] = useTranslation('cart');
 
     const onChange = event => {
         const { value } = event.target;
@@ -31,7 +33,16 @@ const Select = props => {
     };
 
     const onQuantityChange = event => {
-        handleSelectionChange(item.option_id, [{ ...customization[0], quantity: parseInt(event.target.value) }]);
+        try {
+            const quantity = parseInt(event.target.value);
+            if (quantity > 0) {
+                handleSelectionChange(item.option_id, [
+                    { ...customization[0], quantity: parseInt(event.target.value) }
+                ]);
+            }
+        } catch {
+            throw new Error('Invalid quantity entered');
+        }
     };
 
     return (
@@ -74,10 +85,11 @@ const Select = props => {
             </div>
 
             <h2 className={classes.option_quantity_title}>
-                <span>Quantity</span>
+                <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
                 type="number"
+                min="1"
                 className={classes.option_quantity_input}
                 disabled={!canChangeQuantity}
                 value={customization[0]?.quantity}

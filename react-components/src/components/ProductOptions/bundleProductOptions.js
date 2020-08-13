@@ -29,7 +29,7 @@ import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
 
 const BundleProductOptions = props => {
-    const [t] = useTranslation('product');
+    const [t] = useTranslation(['product', 'cart']);
     const optionsContainer = props.container.querySelector('#bundle-product-options');
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
 
@@ -158,16 +158,14 @@ const BundleProductOptions = props => {
     const getTotalPrice = () => {
         const { selections, currencyCode } = bundleState;
         const price = selections.reduce((acc, option) => {
-            console.log('option', option);
             return (
                 acc +
                 option.customization.reduce((a, c) => {
-                    console.log('customization', c);
                     return a + c.price * c.quantity;
                 }, 0)
             );
         }, 0);
-        console.log(price);
+
         return <Price currencyCode={currencyCode} value={price} className={classes.totalPrice} />;
     };
 
@@ -194,25 +192,25 @@ const BundleProductOptions = props => {
                         ))}
                         <section className="productFullDetail__section">
                             <h3>
-                                <span className={classes.required_info}>* Required fields</span>
+                                <span className={classes.required_info}>
+                                    * {t('product:required-fields', 'Required fields')}
+                                </span>
                                 <span className={classes.customization__info}>
-                                    Your customization: {getTotalPrice()}
+                                    {t('product:customization-price', 'Your customization')}: {getTotalPrice()}
                                 </span>
                             </h3>
                         </section>
                         <section className="productFullDetail__quantity productFullDetail__section">
                             <h2 className="productFullDetail__quantityTitle option__title">
-                                <span>Quantity</span>
+                                <span>{t('cart:quantity', 'Quantity')}</span>
                             </h2>
-
                             <div className="quantity__root">
                                 <span className={'fieldIcons__root ' + classes.select_icons}>
                                     <span className="fieldIcons__input">
                                         <select
                                             aria-label="product's quantity"
                                             className="select__input field__input"
-                                            name="quantity"
-                                            data-product-sku="VA10">
+                                            name="quantity">
                                             <option value="1">1</option>
                                             <option value="2">2</option>
                                             <option value="3">3</option>
@@ -246,7 +244,7 @@ const BundleProductOptions = props => {
                                 type="button"
                                 disabled="">
                                 <span className="button__content">
-                                    <span>Add to Cart</span>
+                                    <span>{t('product:add-item', 'Add to Cart')}</span>
                                 </span>
                             </button>
                         </section>

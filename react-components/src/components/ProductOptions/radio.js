@@ -13,6 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
+import { useTranslation } from 'react-i18next';
+
 import Price from '../Price';
 
 import classes from './bundleProductOptions.css';
@@ -20,6 +22,7 @@ import classes from './bundleProductOptions.css';
 const Radio = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
     const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;
+    const [t] = useTranslation('cart');
 
     const onChange = event => {
         const { value } = event.target;
@@ -69,10 +72,11 @@ const Radio = props => {
                 </div>
             ))}
             <h2 className={classes.option_quantity_title}>
-                <span>Quantity</span>
+                <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
                 type="number"
+                min="1"
                 className={classes.option_quantity_input}
                 disabled={!canChangeQuantity}
                 value={customization[0]?.quantity}
