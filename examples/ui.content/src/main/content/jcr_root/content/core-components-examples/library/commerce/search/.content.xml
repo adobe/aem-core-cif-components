@@ -88,7 +88,8 @@
                             jcr:lastModified="{Date}2020-05-19T15:15:43.218+02:00"
                             jcr:lastModifiedBy="admin"
                             jcr:primaryType="nt:unstructured"
-                            sling:resourceType="cif-components-examples/components/searchbar"/>
+                            sling:resourceType="cif-components-examples/components/searchbar"
+                            placeholder="Product Search"/>
                     </component>
                     <info
                         jcr:primaryType="nt:unstructured"
