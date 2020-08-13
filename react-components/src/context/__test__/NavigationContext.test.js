@@ -15,7 +15,6 @@ import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 import NavigationContextProvider, { useNavigationContext } from '../NavigationContext';
-import { ConfigContext } from '../ConfigContext';
 
 describe('NavigationContext test', () => {
     const ContextWrapper = () => {
@@ -69,11 +68,9 @@ describe('NavigationContext test', () => {
     it('shows sign in page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 
@@ -92,11 +89,9 @@ describe('NavigationContext test', () => {
     it('shows my account page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 
@@ -115,11 +110,9 @@ describe('NavigationContext test', () => {
     it('shows forgot password page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 
@@ -138,11 +131,9 @@ describe('NavigationContext test', () => {
     it('shows change password page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 
@@ -161,11 +152,9 @@ describe('NavigationContext test', () => {
     it('shows create account page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 
@@ -184,11 +173,9 @@ describe('NavigationContext test', () => {
     it('shows account created page', async () => {
         const { getByText, getByTestId } = render(
             <MockedProvider addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <NavigationContextProvider>
-                        <ContextWrapper />
-                    </NavigationContextProvider>
-                </ConfigContext.Provider>
+                <NavigationContextProvider>
+                    <ContextWrapper />
+                </NavigationContextProvider>
             </MockedProvider>
         );
 

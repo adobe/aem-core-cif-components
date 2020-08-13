@@ -23,7 +23,6 @@ import {
     signOutUser as signOutUserAction,
     deleteAddress as deleteAddressAction
 } from '../actions/user';
-import { useConfigContext } from './ConfigContext';
 
 import MUTATION_DELETE_CUSTOMER_ADDRESS from '../queries/mutation_delete_customer_address.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
@@ -218,7 +217,6 @@ const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
     const isSignedIn = () => !!userCookie;
-    const { pagePaths } = useConfigContext();
 
     const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
@@ -313,10 +311,6 @@ const UserContextProvider = props => {
         dispatch({ type: 'changeAccountDropdownView', view: 'CHANGE_PASSWORD' });
     };
 
-    const showAddressBook = () => {
-        window.location.href = pagePaths.addressBook;
-    };
-
     const deleteAddress = async address => {
         await deleteAddressAction({ deleteCustomerAddress, address, dispatch });
     };
@@ -340,7 +334,6 @@ const UserContextProvider = props => {
             showCreateAccount,
             showAccountCreated,
             showChangePassword,
-            showAddressBook,
             deleteAddress
         }
     ];

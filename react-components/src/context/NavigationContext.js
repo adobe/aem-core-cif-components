@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useEventListener } from '../utils/hooks';
 import * as NavigationActions from '../actions/navigation';
-import { useConfigContext } from './ConfigContext';
 
 const ancestors = {
     CREATE_ACCOUNT: 'SIGN_IN',
@@ -52,7 +51,6 @@ const NavigationContextProvider = props => {
         view: 'MENU'
     };
 
-    const { pagePaths } = useConfigContext();
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
     const { view } = navigationState;
     const [t] = useTranslation('account');
@@ -70,10 +68,6 @@ const NavigationContextProvider = props => {
     const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
 
     const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
-
-    const showAddressBook = () => {
-        window.location.href = pagePaths.addressBook;
-    };
 
     const showView = view => NavigationActions.showView({ dispatch, t, view });
 
@@ -110,8 +104,7 @@ const NavigationContextProvider = props => {
             showChangePassword,
             showForgotPassword,
             showCreateAccount,
-            showAccountCreated,
-            showAddressBook
+            showAccountCreated
         }
     ];
     return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;

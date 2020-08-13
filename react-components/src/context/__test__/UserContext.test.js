@@ -23,7 +23,6 @@ import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 import UserContextProvider, { useUserContext } from '../UserContext';
 import { useAwaitQuery } from '../../utils/hooks';
-import { ConfigContext } from '../ConfigContext';
 
 describe('UserContext test', () => {
     beforeEach(() => {
@@ -118,11 +117,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -150,11 +147,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -183,11 +178,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -223,11 +216,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId, getByText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -260,11 +251,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -304,11 +293,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -344,11 +331,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -376,11 +361,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -408,11 +391,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -440,11 +421,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -510,11 +489,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -636,11 +613,9 @@ describe('UserContext test', () => {
 
         const { getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -756,11 +731,9 @@ describe('UserContext test', () => {
 
         const { getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -831,11 +804,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -878,11 +849,9 @@ describe('UserContext test', () => {
 
         const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -928,11 +897,9 @@ describe('UserContext test', () => {
 
         const { getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ContextWrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 

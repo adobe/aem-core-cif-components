@@ -25,7 +25,6 @@ import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.grap
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 const queryMocks = [
     {
@@ -129,22 +128,20 @@ describe('<CartInitializer />', () => {
 
         const { getByTestId } = render(
             <MockedProvider mocks={[]} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <CartProvider
-                            initialState={{ cartId: null }}
-                            reducerFactory={() => (state, action) => {
-                                if (action.type == 'cartId') {
-                                    return { ...state, cartId: action.cartId };
-                                }
-                                return state;
-                            }}>
-                            <CartInitializer>
-                                <DummyCart />
-                            </CartInitializer>
-                        </CartProvider>
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cartId: null }}
+                        reducerFactory={() => (state, action) => {
+                            if (action.type == 'cartId') {
+                                return { ...state, cartId: action.cartId };
+                            }
+                            return state;
+                        }}>
+                        <CartInitializer>
+                            <DummyCart />
+                        </CartInitializer>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
@@ -181,15 +178,13 @@ describe('<CartInitializer />', () => {
 
         const { getByTestId, getByRole } = render(
             <MockedProvider mocks={queryMocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <CartProvider>
-                            <CartInitializer>
-                                <ResetCartComponent />
-                            </CartInitializer>
-                        </CartProvider>
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <CartProvider>
+                        <CartInitializer>
+                            <ResetCartComponent />
+                        </CartInitializer>
+                    </CartProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
 

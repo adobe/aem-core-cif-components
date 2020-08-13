@@ -18,7 +18,6 @@ import { render, fireEvent } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 import AddAddressButton from '../addAddressButton';
 
@@ -27,11 +26,9 @@ describe('<AddAddressButton>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddAddressButton />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddAddressButton />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -42,11 +39,9 @@ describe('<AddAddressButton>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddAddressButton displayType={'list'} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddAddressButton displayType={'list'} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -59,11 +54,9 @@ describe('<AddAddressButton>', () => {
         const { getByRole } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider reducerFactory={() => handler}>
-                            <AddAddressButton />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider reducerFactory={() => handler}>
+                        <AddAddressButton />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );

@@ -34,7 +34,6 @@ describe('<MyAccount>', () => {
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                                 <MyAccount
                                     showMenu={jest.fn()}
-                                    showAddressBook={jest.fn()}
                                     showAccountInformation={jest.fn()}
                                     showChangePassword={jest.fn()}
                                 />
@@ -58,7 +57,6 @@ describe('<MyAccount>', () => {
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                                 <MyAccount
                                     showMenu={jest.fn()}
-                                    showAddressBook={jest.fn()}
                                     showAccountInformation={jest.fn()}
                                     showChangePassword={jest.fn()}
                                 />
@@ -82,7 +80,6 @@ describe('<MyAccount>', () => {
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                                 <MyAccount
                                     showMenu={showMenu}
-                                    showAddressBook={jest.fn()}
                                     showAccountInformation={jest.fn()}
                                     showChangePassword={jest.fn()}
                                 />

@@ -20,18 +20,15 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import AddressFormContainer from '../addressFormContainer';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<AddressFormContainer>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddressFormContainer />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddressFormContainer />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -42,11 +39,9 @@ describe('<AddressFormContainer>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider initialState={{ isShowAddressForm: true }}>
-                            <AddressFormContainer />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider initialState={{ isShowAddressForm: true }}>
+                        <AddressFormContainer />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );

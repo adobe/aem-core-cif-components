@@ -18,7 +18,6 @@ import UserContextProvider from '../../../context/UserContext';
 import { useAddressForm } from '../useAddressForm';
 import { MockedProvider } from '@apollo/react-testing';
 import * as actions from '../../../actions/user';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 jest.mock('../../../actions/user');
 
@@ -44,11 +43,9 @@ describe('useAddressForm', () => {
 
         const { getByRole } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -69,11 +66,9 @@ describe('useAddressForm', () => {
 
         const { getByRole } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -102,11 +97,9 @@ describe('useAddressForm', () => {
 
         const { getByRole } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState} reducerFactory={() => handler}>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState} reducerFactory={() => handler}>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -129,11 +122,9 @@ describe('useAddressForm', () => {
 
         const { getByRole } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider reducerFactory={() => handler}>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -154,11 +145,9 @@ describe('useAddressForm', () => {
 
         const { getByTestId } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 
@@ -184,11 +173,9 @@ describe('useAddressForm', () => {
 
         const { getByTestId } = render(
             <MockedProvider>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
             </MockedProvider>
         );
 

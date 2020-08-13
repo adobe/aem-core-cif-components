@@ -20,7 +20,6 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import AddressItem from '../addressItem';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<AddressItem>', () => {
     const mockAddress = {
@@ -37,11 +36,9 @@ describe('<AddressItem>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddressItem address={mockAddress} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddressItem address={mockAddress} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -52,11 +49,9 @@ describe('<AddressItem>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddressItem address={mockAddress} displayType={'list'} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddressItem address={mockAddress} displayType={'list'} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -72,11 +67,9 @@ describe('<AddressItem>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <AddressItem address={mockDefaultAddress} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <AddressItem address={mockDefaultAddress} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -88,11 +81,9 @@ describe('<AddressItem>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider initialState={{ deleteAddress: { id: 'my-address-id' } }}>
-                            <AddressItem address={mockAddress} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider initialState={{ deleteAddress: { id: 'my-address-id' } }}>
+                        <AddressItem address={mockAddress} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -106,11 +97,9 @@ describe('<AddressItem>', () => {
         const { getByText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider reducerFactory={() => handler}>
-                            <AddressItem address={mockAddress} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider reducerFactory={() => handler}>
+                        <AddressItem address={mockAddress} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -125,11 +114,9 @@ describe('<AddressItem>', () => {
         const { getByText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider reducerFactory={() => handler}>
-                            <AddressItem address={mockAddress} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider reducerFactory={() => handler}>
+                        <AddressItem address={mockAddress} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );

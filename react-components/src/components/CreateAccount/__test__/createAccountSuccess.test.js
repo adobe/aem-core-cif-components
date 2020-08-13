@@ -20,18 +20,15 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import CreateAccountSuccess from '../createAccountSuccess';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<CreateAccountSuccess>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <CreateAccountSuccess showSignIn={jest.fn(() => {})} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <CreateAccountSuccess showSignIn={jest.fn(() => {})} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );

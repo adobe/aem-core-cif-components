@@ -28,7 +28,6 @@ import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.grap
 import MUTATION_CREATE_CUSTOMER from '../../../queries/mutation_create_customer.graphql';
 import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
 import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<CreateAccount>', () => {
     beforeEach(() => {
@@ -38,15 +37,13 @@ describe('<CreateAccount>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <NavigationContextProvider>
-                                <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                    <CreateAccount showMyAccount={jest.fn()} />
-                                </CartProvider>
-                            </NavigationContextProvider>
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <NavigationContextProvider>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <CreateAccount showMyAccount={jest.fn()} />
+                            </CartProvider>
+                        </NavigationContextProvider>
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -145,15 +142,13 @@ describe('<CreateAccount>', () => {
 
         const { getByLabelText, getByTestId, container } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <NavigationContextProvider>
-                            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                                <ContextWrapper />
-                            </CartProvider>
-                        </NavigationContextProvider>
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                            <ContextWrapper />
+                        </CartProvider>
+                    </NavigationContextProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
         const detailsFromValue = value => {
@@ -233,15 +228,13 @@ describe('<CreateAccount>', () => {
 
         const { getByTestId, getByLabelText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <NavigationContextProvider>
-                            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                                <ContextWrapper />
-                            </CartProvider>
-                        </NavigationContextProvider>
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <NavigationContextProvider>
+                        <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                            <ContextWrapper />
+                        </CartProvider>
+                    </NavigationContextProvider>
+                </UserContextProvider>
             </MockedProvider>
         );
 

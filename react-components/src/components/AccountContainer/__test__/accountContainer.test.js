@@ -21,20 +21,17 @@ import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import AccountContainer from '../accountContainer';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<AccountContainer>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountContainer />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <AccountContainer />
+                        </CartProvider>
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );

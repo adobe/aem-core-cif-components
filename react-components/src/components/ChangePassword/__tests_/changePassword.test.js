@@ -22,18 +22,15 @@ import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<ChangePassword />', () => {
     it('renders the change password form', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <ChangePassword showMyAccount={() => {}} />
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
+                    <UserContextProvider>
+                        <ChangePassword showMyAccount={() => {}} />
+                    </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -63,11 +60,9 @@ describe('<ChangePassword />', () => {
 
         const { getByLabelText, getByText } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
-                <ConfigContext.Provider value={{}}>
-                    <UserContextProvider>
-                        <ChangePassword showMyAccount={() => {}} />
-                    </UserContextProvider>
-                </ConfigContext.Provider>
+                <UserContextProvider>
+                    <ChangePassword showMyAccount={() => {}} />
+                </UserContextProvider>
             </MockedProvider>
         );
 
