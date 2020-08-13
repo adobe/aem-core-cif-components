@@ -45,7 +45,7 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
-    const { parseInitialAddressSelectValue, handleChangeCheckoutShippingAddressSelect } = useAddressSelect();
+    const { parseInitialAddressSelectValue, handleChangeAddressSelect } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
@@ -98,7 +98,7 @@ const EditableForm = props => {
                 cartId: cartId,
                 ...args.billingAddress,
                 country_code: 'US',
-                region: args.billingAddress.region_code
+                region_code: args.billingAddress.region_code
             };
 
             if (!cart.is_virtual && args.billingAddress.sameAsShippingAddress && shippingAddress) {
@@ -106,7 +106,7 @@ const EditableForm = props => {
                     ...billingAddressVariables,
                     ...shippingAddress,
                     country_code: shippingAddress.country_code,
-                    region: shippingAddress.region.code
+                    region_code: shippingAddress.region.code
                 };
             }
 
@@ -197,7 +197,7 @@ const EditableForm = props => {
                     invalidAddressMessage={invalidAddressMessage}
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
-                    onAddressSelectValueChange={handleChangeCheckoutShippingAddressSelect}
+                    onAddressSelectValueChange={handleChangeAddressSelect}
                     showEmailInput={!isSignedIn}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
@@ -208,15 +208,17 @@ const EditableForm = props => {
         case 'paymentMethod': {
             return (
                 <PaymentsForm
-                    cart={cart}
                     allowSame={!cart.is_virtual}
                     cancel={handleCancel}
+                    cart={cart}
                     countries={countries}
+                    initialAddressSelectValue={parseInitialAddressSelectValue(billingAddress)}
+                    initialPaymentMethod={paymentMethod}
                     initialValues={billingAddress}
+                    onAddressSelectValueChange={handleChangeAddressSelect}
+                    paymentMethods={cart.available_payment_methods}
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}
-                    paymentMethods={cart.available_payment_methods}
-                    initialPaymentMethod={paymentMethod}
                 />
             );
         }

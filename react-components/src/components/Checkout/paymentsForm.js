@@ -13,9 +13,10 @@
  ******************************************************************************/
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form } from 'informed';
-import { array, bool, shape, string, func } from 'prop-types';
+import { array, bool, shape, string, func, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
+import AddressSelect from '../AddressForm/addressSelect';
 import Button from '../Button';
 import Select from '../Select';
 import Checkbox from '../Checkbox';
@@ -32,7 +33,17 @@ import combine from '../../utils/combineValidators';
  * the submission state as well as prepare/set initial values.
  */
 const PaymentsForm = props => {
-    const { initialPaymentMethod, initialValues, paymentMethods, cancel, countries, submit, allowSame } = props;
+    const {
+        allowSame,
+        cancel,
+        countries,
+        initialAddressSelectValue,
+        initialPaymentMethod,
+        initialValues,
+        onAddressSelectValueChange,
+        paymentMethods,
+        submit
+    } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [t] = useTranslation(['checkout', 'common']);
 
@@ -85,14 +96,8 @@ const PaymentsForm = props => {
             let billingAddress;
             if (!sameAsShippingAddress) {
                 billingAddress = {
-                    city: formValues['city'],
-                    email: formValues['email'],
-                    firstname: formValues['firstname'],
-                    lastname: formValues['lastname'],
-                    postcode: formValues['postcode'],
-                    region_code: formValues['region_code'],
-                    street: [formValues['street0']],
-                    telephone: formValues['telephone']
+                    ...formValues,
+                    street: [formValues.street0]
                 };
             } else {
                 billingAddress = {
@@ -118,11 +123,6 @@ const PaymentsForm = props => {
             <div className={classes.lastname}>
                 <Field label={t('checkout:address-lastname', 'Last Name')}>
                     <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
-                </Field>
-            </div>
-            <div className={classes.email}>
-                <Field label={t('checkout:address-email', 'E-Mail')}>
-                    <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
                 </Field>
             </div>
             <div className={classes.street0}>
@@ -199,6 +199,12 @@ const PaymentsForm = props => {
                                 />
                             )}
                         </div>
+                        {differentAddress && initialAddressSelectValue !== null && onAddressSelectValueChange && (
+                            <AddressSelect
+                                initialValue={initialAddressSelectValue}
+                                onValueChange={value => onAddressSelectValueChange(value, formApi)}
+                            />
+                        )}
                         {billingAddressFields}
                     </div>
                     <div className={classes.footer}>
@@ -214,8 +220,15 @@ const PaymentsForm = props => {
 };
 
 PaymentsForm.propTypes = {
+    allowSame: bool,
+    cancel: func.isRequired,
     classes: shape({
         root: string
+    }),
+    countries: array,
+    initialAddressSelectValue: number,
+    initialPaymentMethod: shape({
+        code: string
     }),
     initialValues: shape({
         firstname: string,
@@ -227,17 +240,13 @@ PaymentsForm.propTypes = {
         sameAsShippingAddress: bool,
         street0: string
     }),
-    allowSame: bool,
-    cancel: func.isRequired,
-    submit: func.isRequired,
-    initialPaymentMethod: shape({
-        code: string
-    }),
+    onAddressSelectValueChange: func,
     paymentMethods: array.isRequired,
-    countries: array
+    submit: func.isRequired
 };
 
 PaymentsForm.defaultProps = {
+    initialAddressSelectValue: null,
     initialValues: {},
     allowSame: true
 };
