@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Checkbox> renders the component 1`] = `
+<DocumentFragment>
+  <div>
+    <label>
+      <input
+        checked=""
+        type="checkbox"
+        value="1"
+      />
+       1 x Carmina Necklace +
+      <b>
+        <span
+          class=""
+        >
+          common:formattedPrice
+        </span>
+      </b>
+    </label>
+  </div>
+  <div>
+    <label>
+      <input
+        type="checkbox"
+        value="2"
+      />
+       1 x Augusta Necklace +
+      <b>
+        <span
+          class=""
+        >
+          common:formattedPrice
+        </span>
+      </b>
+    </label>
+  </div>
+</DocumentFragment>
+`;

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<BundleProductOptions> renders the component 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section customize"
+  >
+    <button
+      class="root_highPriority"
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Customize
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;

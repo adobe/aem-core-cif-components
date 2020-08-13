@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MultiSelect> renders the component 1`] = `
+<DocumentFragment>
+  <select
+    class="multiselect_options_root"
+    multiple=""
+    name="1"
+    size="5"
+  >
+    <option
+      value="1"
+    >
+      Carmina Necklace
+    </option>
+    <option
+      value="2"
+    >
+      Augusta Necklace
+    </option>
+  </select>
+</DocumentFragment>
+`;
