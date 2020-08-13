@@ -209,7 +209,9 @@ AddressForm.propTypes = {
 };
 
 AddressForm.defaultProps = {
-    initialValues: {}
+    initialAddressSelectValue: null,
+    initialValues: {},
+    showEmailInput: false
 };
 
 export default AddressForm;
