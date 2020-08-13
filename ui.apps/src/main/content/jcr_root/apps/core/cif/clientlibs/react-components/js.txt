@@ -1,2 +1,0 @@
-#base=dist
-index.js
