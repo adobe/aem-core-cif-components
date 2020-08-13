@@ -42,7 +42,6 @@ export const useAddressForm = () => {
             postcode: '',
             region_code: '',
             street0: '',
-            street1: '',
             telephone: ''
         };
     };
