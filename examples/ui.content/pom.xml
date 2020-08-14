@@ -58,54 +58,10 @@
     <!-- B U I L D   D E F I N I T I O N                                        -->
     <!-- ====================================================================== -->
     <build>
-        <sourceDirectory>src/content/jcr_root</sourceDirectory>
-        <resources>
-            <!-- define the resources that will go into the package -->
-            <resource>
-                <!--
-                    we want to keep some of the META-INF files and not configure
-                    everything in the plugin.
-                -->
-                <directory>${basedir}/src/main/content/META-INF</directory>
-                <targetPath>../vault-work/META-INF</targetPath>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/content/jcr_root</directory>
-                <targetPath>.</targetPath>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/.vlt</exclude>
-                    <exclude>**/.vltignore</exclude>
-                    <exclude>**/*.iml</exclude>
-                    <exclude>**/.classpath</exclude>
-                    <exclude>**/.project</exclude>
-                    <exclude>**/.settings/**</exclude>
-                    <exclude>**/.DS_Store</exclude>
-                    <exclude>**/target/**</exclude>
-                    <!-- Exclude un-transpiled JavaScript files -->
-                    <exclude>**/js/**</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/vault-work</outputDirectory>
-                            <attached>false</attached>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.day.jcr.vault</groupId>
-                <artifactId>content-package-maven-plugin</artifactId>
+                <groupId>org.apache.jackrabbit</groupId>
+                <artifactId>filevault-package-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
@@ -114,17 +70,17 @@
                         <description>${project.description}</description>
                         <created>${buildNumber}</created>
                         <createdBy>${vault.package.company}</createdBy>
+                        <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
-                    <filterSource>${basedir}/META-INF/vault/filter.xml</filterSource>
                     <dependencies>
                         <dependency>
-                            <group>adobe/cq60</group>
-                            <name>core.wcm.components.examples.ui.content</name>
+                            <groupId>com.adobe.cq</groupId>
+                            <artifactId>core.wcm.components.examples.ui.content</artifactId>
                             <version>${core.wcm.components.library.version}</version>
                         </dependency>
                         <dependency>
-                            <group>${vault.package.group}</group>
-                            <name>core-cif-components-examples-apps</name>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>core-cif-components-examples-apps</artifactId>
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>
