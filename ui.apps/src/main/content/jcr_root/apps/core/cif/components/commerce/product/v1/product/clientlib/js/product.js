@@ -17,10 +17,11 @@ class Product {
     constructor(config) {
         this._element = config.element;
 
+        const skuElement = this._element.querySelector(Product.selectors.sku);
         // Local state
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: this._element.querySelector(Product.selectors.sku).innerHTML,
+            sku: skuElement && skuElement.innerHTML,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,

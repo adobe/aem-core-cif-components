@@ -36,10 +36,10 @@ import com.adobe.cq.testing.junit.rules.CQAuthorClassRule;
 
 import static org.apache.http.HttpStatus.SC_OK;
 
-public class CatalogPagePropertiesIT {
+public class LandingPagePropertiesIT {
     private static final String PAGE_PROPERTIES_URL = "/mnt/overlay/wcm/core/content/sites/properties.html";
-    private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
-    private final String CATALOG_PAGE_PATH = "/content" + "/test-catalog-page";
+    private static final String LANDING_PAGE_RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
+    private final String LANDING_PAGE_PATH = "/content/test-landing-page";
 
     @ClassRule
     public static final CQAuthorClassRule cqBaseClassRule = new CQAuthorClassRule();
@@ -52,40 +52,34 @@ public class CatalogPagePropertiesIT {
 
     @Before
     public void setUp() throws Exception {
-        // Create catalog page
-        adminAuthor.createNode(CATALOG_PAGE_PATH, "cq:Page");
-        adminAuthor.createNode(CATALOG_PAGE_PATH + "/jcr:content", "cq:PageContent");
+        // Create landing page
+        adminAuthor.createNode(LANDING_PAGE_PATH, "cq:Page");
+        adminAuthor.createNode(LANDING_PAGE_PATH + "/jcr:content", "cq:PageContent");
         List<NameValuePair> props = new ArrayList<>();
-        props.add(new BasicNameValuePair("sling:resourceType", CATALOG_PAGE_RESOURCE_TYPE));
-        props.add(new BasicNameValuePair("jcr:title", "Test Catalog Page"));
-        adminAuthor.setPageProperties(CATALOG_PAGE_PATH, props, SC_OK);
+        props.add(new BasicNameValuePair("sling:resourceType", LANDING_PAGE_RESOURCE_TYPE));
+        props.add(new BasicNameValuePair("jcr:title", "Test Landing Page"));
+        props.add(new BasicNameValuePair("navRoot@TypeHint", "Boolean"));
+        props.add(new BasicNameValuePair("navRoot", "true"));
+        adminAuthor.setPageProperties(LANDING_PAGE_PATH, props, SC_OK);
     }
 
     @Test
-    public void testCatalogPageProperties() throws Exception {
-        SlingHttpResponse response = adminAuthor.doGet(PAGE_PROPERTIES_URL + "?item=" + CATALOG_PAGE_PATH, SC_OK);
+    public void testLandingPageProperties() throws Exception {
+        SlingHttpResponse response = adminAuthor.doGet(PAGE_PROPERTIES_URL + "?item=" + LANDING_PAGE_PATH, SC_OK);
         Document doc = Jsoup.parse(response.getContent());
 
         // Check commerce tab exits
         Elements elements = doc.select("coral-tab:contains(Commerce)");
         Assert.assertEquals(1, elements.size());
 
-        // Check label
-        elements = doc.select("coral-panel h3:contains(Catalog Page)");
-        Assert.assertEquals(1, elements.size());
-
-        // Check checkbox for show catalog page
-        elements = doc.select("coral-panel coral-checkbox coral-checkbox-label:contains(Show catalog page)");
-        Assert.assertEquals(1, elements.size());
-
         // Check that commerce pages section is not displayed
         elements = doc.select("coral-panel h3:contains(Commerce Pages)");
-        Assert.assertEquals(0, elements.size());
+        Assert.assertEquals(1, elements.size());
     }
 
     @After
     public void tearDown() throws Exception {
-        // delete catalog page
-        adminAuthor.deletePath(CATALOG_PAGE_PATH, SC_OK);
+        // delete landing page
+        adminAuthor.deletePath(LANDING_PAGE_PATH, SC_OK);
     }
 }
