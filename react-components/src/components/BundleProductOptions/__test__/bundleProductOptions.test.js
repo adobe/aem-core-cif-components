@@ -28,16 +28,10 @@ describe('<BundleProductOptions>', () => {
     });
 
     it('renders the component', () => {
-        const container = {
-            querySelector: jest.fn(() => {
-                return { dataset: { sku: 'VA24' } };
-            })
-        };
-
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <BundleProductOptions container={container} />
+                    <BundleProductOptions />
                 </MockedProvider>
             </I18nextProvider>
         );
