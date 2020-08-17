@@ -26,15 +26,7 @@ import classes from './accountDropdown.css';
 const AccountDropdown = () => {
     const [
         { isAccountDropdownOpen, accountDropdownView },
-        {
-            showSignIn,
-            showMyAccount,
-            showForgotPassword,
-            showCreateAccount,
-            showAccountCreated,
-            showChangePassword,
-            showAddressBook
-        }
+        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
     const [t] = useTranslation('account');
@@ -54,13 +46,7 @@ const AccountDropdown = () => {
             );
             break;
         case 'MY_ACCOUNT':
-            child = (
-                <MyAccount
-                    showChangePassword={showChangePassword}
-                    showAddressBook={showAddressBook}
-                    showAccountInformation={() => {}}
-                />
-            );
+            child = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
             break;
         case 'CHANGE_PASSWORD':
             child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;

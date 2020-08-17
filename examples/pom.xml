@@ -33,6 +33,7 @@
         <module>bundle</module>
         <module>ui.apps</module>
         <module>ui.content</module>
+        <module>all</module>
     </modules>
 
     <build>

@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import AuthBar from './authBar';
 import AuthModal from '../AuthModal';
@@ -21,13 +20,12 @@ import { useNavigationContext } from '../../context/NavigationContext';
 import classes from './container.css';
 
 const Container = () => {
-    const [{ view, authBarContainerQuerySelector }] = useNavigationContext();
-    const container = document.querySelector(authBarContainerQuerySelector);
+    const [{ view }] = useNavigationContext();
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;
 
-    return ReactDOM.createPortal(
+    return (
         <>
             <div className="navigation__footer">
                 <AuthBar />
@@ -37,8 +35,7 @@ const Container = () => {
                     <AuthModal />
                 </div>
             )}
-        </>,
-        container
+        </>
     );
 };
 

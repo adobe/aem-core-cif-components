@@ -12,18 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
-
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
 const AccountContainer = () => {
-    const [{ currentUser, isSignedIn, accountContainerQuerySelector }] = useUserContext();
-    const container = document.querySelector(accountContainerQuerySelector);
-
+    const [{ currentUser, isSignedIn }] = useUserContext();
     const [t] = useTranslation('account');
 
     const label = isSignedIn ? (
@@ -34,12 +30,11 @@ const AccountContainer = () => {
         t('account:account-icon-text-sign-in', 'Sign In')
     );
 
-    return ReactDOM.createPortal(
+    return (
         <>
             <AccountTrigger label={label} />
             <AccountDropdown />
-        </>,
-        container
+        </>
     );
 };
 
