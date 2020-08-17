@@ -11,31 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-import { useUserContext } from '../../context/UserContext';
-import AccountTrigger from './accountTrigger';
-import AccountDropdown from './accountDropdown';
+const Portal = props => {
+    const { selector, children } = props;
+    const elem = document.querySelector(selector);
 
-const AccountContainer = () => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
-    const [t] = useTranslation('account');
+    if (elem) {
+        // Only render children if mounting point is available
+        return ReactDOM.createPortal(children, elem);
+    }
 
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
-
-    return (
-        <>
-            <AccountTrigger label={label} />
-            <AccountDropdown />
-        </>
-    );
+    return null;
 };
 
-export default AccountContainer;
+Portal.propTypes = {
+    selector: PropTypes.string.isRequired
+};
+
+export default Portal;

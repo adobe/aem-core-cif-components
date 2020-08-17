@@ -13,7 +13,6 @@
  ******************************************************************************/
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 
 import CartCounter from './cartCounter';
 
@@ -21,8 +20,6 @@ import Icon from '../Icon';
 import { ShoppingCart as ShoppingCartIcon } from 'react-feather';
 import classes from './cartTrigger.css';
 import { useCartState } from '../Minicart/cartContext';
-
-const parentEl = document.querySelector('.header__cartTrigger');
 
 const Trigger = () => {
     const [{ cart }, dispatch] = useCartState();
@@ -37,14 +34,12 @@ const Trigger = () => {
         svgAttributes.fill = iconColor;
     }
 
-    const button = (
+    return (
         <button className={classes.root} aria-label="Toggle mini cart" onClick={() => dispatch({ type: 'open' })}>
             <Icon src={ShoppingCartIcon} attrs={svgAttributes} />
             <CartCounter counter={cartQuantity} />
         </button>
     );
-
-    return ReactDOM.createPortal(button, parentEl);
 };
 
 Trigger.propTypes = {

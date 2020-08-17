@@ -917,47 +917,4 @@ describe('UserContext test', () => {
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('false');
     });
-
-    it('sets config prop for account container and address book', async () => {
-        const ContextWrapper = () => {
-            const [
-                { accountContainerQuerySelector, addressBookContainerQuerySelector, addressBookPath }
-            ] = useUserContext();
-
-            const content = (
-                <>
-                    <div data-testid="account-container-query-selector">{accountContainerQuerySelector}</div>;
-                    <div data-testid="address-book-container-query-selector">{addressBookContainerQuerySelector}</div>;
-                    <div data-testid="address-book-path">{addressBookPath}</div>;
-                </>
-            );
-
-            return <div>{content}</div>;
-        };
-
-        const mockConfig = {
-            accountContainerQuerySelector: 'account container query selector',
-            addressBookContainerQuerySelector: 'address book container query selector',
-            addressBookPath: 'address book path'
-        };
-
-        const { getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider config={mockConfig}>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
-
-        expect(getByTestId('account-container-query-selector')).not.toBeUndefined();
-        expect(getByTestId('account-container-query-selector').textContent).toEqual('account container query selector');
-
-        expect(getByTestId('address-book-container-query-selector')).not.toBeUndefined();
-        expect(getByTestId('address-book-container-query-selector').textContent).toEqual(
-            'address book container query selector'
-        );
-
-        expect(getByTestId('address-book-path')).not.toBeUndefined();
-        expect(getByTestId('address-book-path').textContent).toEqual('address book path');
-    });
 });
