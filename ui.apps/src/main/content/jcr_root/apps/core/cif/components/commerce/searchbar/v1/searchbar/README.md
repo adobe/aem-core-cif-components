@@ -24,6 +24,7 @@ The visibility of the component can be toggled using any DOM element with the `s
 
 - Input field with visibility toggle
 - Forwarding to search result page
+- Customizable placeholder via `placeholder` property
 
 ### Use Object
 

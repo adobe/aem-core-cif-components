@@ -12,22 +12,11 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { render, fireEvent } from '@testing-library/react';
 import CartTrigger from '../cartTrigger';
 import { CartProvider } from '../../Minicart/cartContext';
 
 describe('<CartTrigger>', () => {
-    beforeAll(() => {
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
-    });
-
-    afterEach(() => {
-        ReactDOM.createPortal.mockClear();
-    });
-
     const stateWithTwoItems = { cart: { items: [{}, {}], total_quantity: 3 } };
 
     it('renders the icon', () => {
