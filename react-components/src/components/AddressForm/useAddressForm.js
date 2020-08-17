@@ -55,7 +55,7 @@ export const useAddressForm = () => {
             lastname: '',
             postcode: '',
             region_code: '',
-            save_in_address_book: true,
+            save_in_address_book: false,
             street0: '',
             telephone: ''
         };
