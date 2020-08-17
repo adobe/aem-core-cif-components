@@ -17,6 +17,7 @@ import { useState } from 'react';
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
+import { useAddressForm } from '../AddressForm/useAddressForm';
 import { useAwaitQuery } from '../../utils/hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
@@ -27,9 +28,17 @@ export default () => {
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ isSignedIn }, { resetCustomerCart }] = useUserContext();
     const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
+    const { findSavedAddress } = useAddressForm();
 
     const [placeOrder] = useMutation(MUTATION_PLACE_ORDER);
     const [inProgress, setInProgress] = useState(false);
+
+    const editShippingAddress = address => {
+        if (!findSavedAddress(address)) {
+            checkoutDispatch({ type: 'setIsEditingNewAddress', editing: true });
+        }
+        checkoutDispatch({ type: 'setEditing', editing: 'address' });
+    };
 
     const submitOrder = async () => {
         setInProgress(true);
@@ -54,6 +63,6 @@ export default () => {
 
     return [
         { shippingAddress, shippingMethod, paymentMethod, inProgress, cart },
-        { placeOrder: submitOrder, checkoutDispatch }
+        { editShippingAddress, placeOrder: submitOrder, checkoutDispatch }
     ];
 };

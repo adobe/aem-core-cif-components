@@ -14,10 +14,12 @@
 import { useTranslation } from 'react-i18next';
 
 import { useAddressForm } from './useAddressForm';
+import { useCheckoutState } from '../Checkout/checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
 export const useAddressSelect = () => {
-    const { getNewAddress, parseAddress, parseAddressFormValues } = useAddressForm();
+    const { findSavedAddress, getNewAddress, parseAddress, parseAddressFormValues } = useAddressForm();
+    const [, dispatch] = useCheckoutState();
     const [{ currentUser }] = useUserContext();
 
     const [t] = useTranslation('checkout');
@@ -34,11 +36,12 @@ export const useAddressSelect = () => {
     });
     addressSelectItems.unshift(addressSelectNewAddressItem);
 
-    const handleChangeAddressSelect = (value, addressFormApi) => {
+    const handleChangeAddressSelectInCheckout = (value, addressFormApi) => {
         const newAddressItemValue = 0;
         if (newAddressItemValue == value) {
             // clear the values of the form fields if the current select option item is 'New Address'
             addressFormApi.setValues(getNewAddress());
+            dispatch({ type: 'setIsEditingNewAddress', editing: true });
             return;
         }
 
@@ -47,12 +50,13 @@ export const useAddressSelect = () => {
         // update form values by using formApi passed from <AddressForm> component, this is due to the fact that
         // this is the proposed way to update values of fields in 'informed' form library
         addressFormApi.setValues(parseAddressFormValues(parsedAddress));
+        dispatch({ type: 'setIsEditingNewAddress', editing: false });
     };
 
     const parseInitialAddressSelectValue = address => {
         let initialValue = null;
         if (address && currentUser.addresses.length > 0) {
-            const foundAddress = currentUser.addresses.find(item => item.street.join(' ') === address.street.join(' '));
+            const foundAddress = findSavedAddress(address);
             const newAddressItemValue = 0; // this is the value of option item 'New Address' in address select
             initialValue = foundAddress ? foundAddress.id : newAddressItemValue;
         }
@@ -61,7 +65,7 @@ export const useAddressSelect = () => {
 
     return {
         addressSelectItems,
-        handleChangeAddressSelect,
+        handleChangeAddressSelectInCheckout,
         parseInitialAddressSelectValue
     };
 };

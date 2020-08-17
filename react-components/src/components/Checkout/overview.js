@@ -35,7 +35,7 @@ const Overview = props => {
 
     const [
         { shippingAddress, shippingMethod, paymentMethod, cart, inProgress },
-        { placeOrder, checkoutDispatch }
+        { editShippingAddress, placeOrder, checkoutDispatch }
     ] = useOverview();
 
     const ready = (cart.is_virtual && paymentMethod) || (shippingAddress && paymentMethod && shippingMethod);
@@ -53,9 +53,7 @@ const Overview = props => {
                 {!cart.is_virtual && (
                     <Section
                         label={t('checkout:ship-to', 'Ship To')}
-                        onClick={() => {
-                            checkoutDispatch({ type: 'setEditing', editing: 'address' });
-                        }}
+                        onClick={() => editShippingAddress(shippingAddress)}
                         showEditIcon={!!shippingAddress}>
                         <ShippingAddressSummary classes={classes} />
                     </Section>
@@ -72,9 +70,7 @@ const Overview = props => {
                 {!cart.is_virtual && (
                     <Section
                         label={t('checkout:use', 'Use')}
-                        onClick={() => {
-                            checkoutDispatch({ type: 'setEditing', editing: 'shippingMethod' });
-                        }}
+                        onClick={() => checkoutDispatch({ type: 'setEditing', editing: 'shippingMethod' })}
                         showEditIcon={!!shippingMethod}
                         disabled={!shippingAddress}>
                         <ShippingMethodSummary classes={classes} />

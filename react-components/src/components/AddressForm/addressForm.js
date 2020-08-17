@@ -43,6 +43,7 @@ const AddressForm = props => {
         onAddressSelectValueChange,
         showDefaultAddressCheckbox,
         showEmailInput,
+        showSaveInAddressBookCheckbox,
         submit,
         submitLabel
     } = props;
@@ -69,10 +70,14 @@ const AddressForm = props => {
                     <div className={classes.body}>
                         <h2 className={classes.heading}>{formHeading}</h2>
                         {initialAddressSelectValue !== null && onAddressSelectValueChange && (
-                            <AddressSelect
-                                initialValue={initialAddressSelectValue}
-                                onValueChange={value => onAddressSelectValueChange(value, formApi)}
-                            />
+                            <div className={classes.address_select}>
+                                <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
+                                    <AddressSelect
+                                        initialValue={initialAddressSelectValue}
+                                        onValueChange={value => onAddressSelectValueChange(value, formApi)}
+                                    />
+                                </Field>
+                            </div>
                         )}
                         <div className={classes.firstname}>
                             <Field label={t('checkout:address-firstname', 'First Name')}>
@@ -159,6 +164,15 @@ const AddressForm = props => {
                                 />
                             </div>
                         )}
+                        {showSaveInAddressBookCheckbox && (
+                            <div className={classes.save_in_address_book}>
+                                <Checkbox
+                                    id={classes.save_in_address_book}
+                                    label={t('checkout:address-save-in-address-book', 'Save in address book')}
+                                    field="save_in_address_book"
+                                />
+                            </div>
+                        )}
                         <div className={classes.validation}>{validationMessage}</div>
                         <div className={classes.error}>{errorMessage}</div>
                     </div>
@@ -203,6 +217,7 @@ AddressForm.propTypes = {
     onAddressSelectValueChange: func,
     showDefaultAddressCheckbox: bool,
     showEmailInput: bool,
+    showSaveInAddressBookCheckbox: bool,
     submit: func.isRequired,
     submitting: bool,
     submitLabel: string
@@ -211,7 +226,9 @@ AddressForm.propTypes = {
 AddressForm.defaultProps = {
     initialAddressSelectValue: null,
     initialValues: {},
-    showEmailInput: false
+    showDefaultAddressCheckbox: false,
+    showEmailInput: false,
+    showSaveInAddressBookCheckbox: false
 };
 
 export default AddressForm;

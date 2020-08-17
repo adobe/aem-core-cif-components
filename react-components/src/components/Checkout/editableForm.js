@@ -45,11 +45,14 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
-    const { parseInitialAddressSelectValue, handleChangeAddressSelect } = useAddressSelect();
+    const { parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
-    const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
+    const [
+        { editing, shippingAddress, shippingMethod, paymentMethod, billingAddress, isEditingNewAddress },
+        dispatch
+    ] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
-    const [{ isSignedIn }] = useUserContext();
+    const [{ isSignedIn }, { getUserDetails }] = useUserContext();
 
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
@@ -88,6 +91,10 @@ const EditableForm = props => {
         if (!isSignedIn) {
             // if user is signed in, the email is set already when click on `checkout` button in cart
             await setGuestEmailOnCartAction({ setGuestEmailOnCart, cartId, email: formValues.email, dispatch });
+        } else {
+            if (formValues.save_in_address_book === true) {
+                await getUserDetails();
+            }
         }
         cartDispatch({ type: 'endLoading' });
     };
@@ -197,8 +204,9 @@ const EditableForm = props => {
                     invalidAddressMessage={invalidAddressMessage}
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
-                    onAddressSelectValueChange={handleChangeAddressSelect}
+                    onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     showEmailInput={!isSignedIn}
+                    showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
                     submitLabel={t('checkout:address-submit', 'Use Address')}
@@ -215,7 +223,7 @@ const EditableForm = props => {
                     initialAddressSelectValue={parseInitialAddressSelectValue(billingAddress)}
                     initialPaymentMethod={paymentMethod}
                     initialValues={billingAddress}
-                    onAddressSelectValueChange={handleChangeAddressSelect}
+                    onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     paymentMethods={cart.available_payment_methods}
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}

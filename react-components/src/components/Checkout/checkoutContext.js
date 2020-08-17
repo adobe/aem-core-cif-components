@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import React, { createContext, useContext, useReducer } from 'react';
-import { string, func, shape, object } from 'prop-types';
+import { bool, func, object, shape, string } from 'prop-types';
 
 export const initialCheckoutState = {
     flowState: 'cart',
@@ -21,6 +21,7 @@ export const initialCheckoutState = {
     editing: null,
     shippingAddress: null,
     billingAddress: null,
+    isEditingNewAddress: false,
     shippingMethod: null,
     paymentMethod: null,
     braintreeToken: false
@@ -57,13 +58,15 @@ export const checkoutReducer = (state, action) => {
         case 'endEditing':
             return {
                 ...state,
-                editing: null
+                editing: null,
+                isEditingNewAddress: false
             };
         case 'setShippingAddress':
             return {
                 ...state,
                 shippingAddress: action.shippingAddress,
-                editing: null
+                editing: null,
+                isEditingNewAddress: false
             };
         case 'setShippingAddressEmail':
             return {
@@ -78,6 +81,11 @@ export const checkoutReducer = (state, action) => {
                 ...state,
                 billingAddress: action.billingAddress,
                 editing: null
+            };
+        case 'setIsEditingNewAddress':
+            return {
+                ...state,
+                isEditingNewAddress: action.editing
             };
         case 'setShippingMethod':
             return {
@@ -120,6 +128,7 @@ CheckoutProvider.propTypes = {
         editing: object,
         shippingAddress: object,
         billingAddress: object,
+        isEditingNewAddress: bool,
         shippingMethod: object,
         paymentMethod: object
     })

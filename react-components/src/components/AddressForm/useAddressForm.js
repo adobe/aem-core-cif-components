@@ -34,6 +34,20 @@ export const useAddressForm = () => {
         errorMessage = userState.addressFormError;
     }
 
+    const findSavedAddress = address => {
+        return userState.currentUser.addresses.find(
+            item =>
+                item.firstname === address.firstname &&
+                item.lastname === address.lastname &&
+                item.street.join(' ') === address.street.join(' ') &&
+                item.city === address.city &&
+                item.country_code === address.country_code &&
+                item.region.region_code === address.region_code &&
+                item.postcode === address.postcode &&
+                item.telephone === address.telephone
+        );
+    };
+
     const getNewAddress = () => {
         return {
             city: '',
@@ -41,6 +55,7 @@ export const useAddressForm = () => {
             lastname: '',
             postcode: '',
             region_code: '',
+            save_in_address_book: true,
             street0: '',
             telephone: ''
         };
@@ -113,6 +128,7 @@ export const useAddressForm = () => {
             'postcode',
             'region_code',
             'region',
+            'save_in_address_book',
             'street',
             'telephone'
         ];
@@ -140,6 +156,7 @@ export const useAddressForm = () => {
     return {
         countries,
         errorMessage,
+        findSavedAddress,
         getNewAddress,
         getRegionId,
         handleSubmit,
