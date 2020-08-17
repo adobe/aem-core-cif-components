@@ -12,6 +12,7 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { instanceOf } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import Checkbox from './checkbox';
@@ -27,9 +28,9 @@ import classes from './bundleProductOptions.css';
 import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
 
-const BundleProductOptions = props => {
+const BundleProductOptions = () => {
     const [t] = useTranslation(['product', 'cart']);
-    const optionsContainer = props.container.querySelector('#bundle-product-options');
+    const optionsContainer = document.querySelector('#bundle-product-options');
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
 
     const [bundleState, setBundleState] = useState(null);
@@ -170,7 +171,7 @@ const BundleProductOptions = props => {
 
     if (optionsContainer !== null) {
         const { sku } = optionsContainer.dataset;
-        return (
+        return ReactDOM.createPortal(
             <>
                 {bundleState === null ? (
                     <section className={'productFullDetail__section ' + classes.customize}>
@@ -249,7 +250,8 @@ const BundleProductOptions = props => {
                         </section>
                     </>
                 )}
-            </>
+            </>,
+            optionsContainer
         );
     }
 
