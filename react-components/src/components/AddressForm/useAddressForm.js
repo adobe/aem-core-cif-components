@@ -35,17 +35,19 @@ export const useAddressForm = () => {
     }
 
     const findSavedAddress = address => {
-        return userState.currentUser.addresses.find(
-            item =>
-                item.firstname === address.firstname &&
-                item.lastname === address.lastname &&
-                item.street.join(' ') === address.street.join(' ') &&
-                item.city === address.city &&
-                item.country_code === address.country_code &&
-                item.region.region_code === address.region_code &&
-                item.postcode === address.postcode &&
-                item.telephone === address.telephone
-        );
+        return address
+            ? userState.currentUser.addresses.find(
+                  item =>
+                      item.firstname === address.firstname &&
+                      item.lastname === address.lastname &&
+                      item.street.join(' ') === address.street.join(' ') &&
+                      item.city === address.city &&
+                      item.country_code === address.country_code &&
+                      item.region.region_code === address.region_code &&
+                      item.postcode === address.postcode &&
+                      item.telephone === address.telephone
+              )
+            : null;
     };
 
     const getNewAddress = () => {

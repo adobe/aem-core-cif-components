@@ -205,6 +205,7 @@ const EditableForm = props => {
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
+                    showAddressSelect={isSignedIn}
                     showEmailInput={!isSignedIn}
                     showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
                     submit={handleSubmitAddressForm}
@@ -225,6 +226,7 @@ const EditableForm = props => {
                     initialValues={billingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     paymentMethods={cart.available_payment_methods}
+                    showAddressSelect={isSignedIn}
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}
                 />

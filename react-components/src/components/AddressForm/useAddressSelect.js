@@ -54,13 +54,9 @@ export const useAddressSelect = () => {
     };
 
     const parseInitialAddressSelectValue = address => {
-        let initialValue = null;
-        if (address && currentUser.addresses.length > 0) {
-            const foundAddress = findSavedAddress(address);
-            const newAddressItemValue = 0; // this is the value of option item 'New Address' in address select
-            initialValue = foundAddress ? foundAddress.id : newAddressItemValue;
-        }
-        return initialValue;
+        let initialValue = 0; // '0' is the value of option item 'New Address' in address select
+        const foundAddress = findSavedAddress(address);
+        return foundAddress ? foundAddress.id : initialValue;
     };
 
     return {

@@ -74,6 +74,7 @@ describe('<AddressForm />', () => {
                     <UserContextProvider>
                         <CheckoutProvider>
                             <AddressForm
+                                showAddressSelect={true}
                                 initialAddressSelectValue={0}
                                 onAddressSelectValueChange={() => {}}
                                 cancel={() => {}}
@@ -95,6 +96,7 @@ describe('<AddressForm />', () => {
                     <UserContextProvider>
                         <CheckoutProvider>
                             <AddressForm
+                                showAddressSelect={true}
                                 initialAddressSelectValue={0}
                                 onAddressSelectValueChange={onAddressSelectValueChange}
                                 cancel={() => {}}

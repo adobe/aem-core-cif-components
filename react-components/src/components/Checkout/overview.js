@@ -60,9 +60,7 @@ const Overview = props => {
                 )}
                 <Section
                     label={t('checkout:pay-with', 'Pay With')}
-                    onClick={() => {
-                        checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' });
-                    }}
+                    onClick={() => checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' })}
                     showEditIcon={!!paymentMethod}
                     disabled={!cart.is_virtual && !shippingAddress}>
                     <PaymentMethodSummary classes={classes} />

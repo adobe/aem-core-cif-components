@@ -42,6 +42,7 @@ const PaymentsForm = props => {
         initialValues,
         onAddressSelectValueChange,
         paymentMethods,
+        showAddressSelect,
         submit
     } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -199,11 +200,15 @@ const PaymentsForm = props => {
                                 />
                             )}
                         </div>
-                        {differentAddress && initialAddressSelectValue !== null && onAddressSelectValueChange && (
-                            <AddressSelect
-                                initialValue={initialAddressSelectValue}
-                                onValueChange={value => onAddressSelectValueChange(value, formApi)}
-                            />
+                        {differentAddress && showAddressSelect && (
+                            <div className={classes.address_select}>
+                                <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
+                                    <AddressSelect
+                                        initialValue={initialAddressSelectValue}
+                                        onValueChange={value => onAddressSelectValueChange(value, formApi)}
+                                    />
+                                </Field>
+                            </div>
                         )}
                         {billingAddressFields}
                     </div>
@@ -242,13 +247,15 @@ PaymentsForm.propTypes = {
     }),
     onAddressSelectValueChange: func,
     paymentMethods: array.isRequired,
+    showAddressSelect: bool,
     submit: func.isRequired
 };
 
 PaymentsForm.defaultProps = {
+    allowSame: true,
     initialAddressSelectValue: null,
     initialValues: {},
-    allowSame: true
+    showAddressSelect: false
 };
 
 export default PaymentsForm;

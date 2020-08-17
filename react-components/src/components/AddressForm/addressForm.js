@@ -41,6 +41,7 @@ const AddressForm = props => {
         initialAddressSelectValue,
         initialValues,
         onAddressSelectValueChange,
+        showAddressSelect,
         showDefaultAddressCheckbox,
         showEmailInput,
         showSaveInAddressBookCheckbox,
@@ -69,7 +70,7 @@ const AddressForm = props => {
                 <>
                     <div className={classes.body}>
                         <h2 className={classes.heading}>{formHeading}</h2>
-                        {initialAddressSelectValue !== null && onAddressSelectValueChange && (
+                        {showAddressSelect && (
                             <div className={classes.address_select}>
                                 <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
                                     <AddressSelect
@@ -215,6 +216,7 @@ AddressForm.propTypes = {
     initialValues: object,
     isAddressInvalid: bool,
     onAddressSelectValueChange: func,
+    showAddressSelect: bool,
     showDefaultAddressCheckbox: bool,
     showEmailInput: bool,
     showSaveInAddressBookCheckbox: bool,
@@ -226,6 +228,7 @@ AddressForm.propTypes = {
 AddressForm.defaultProps = {
     initialAddressSelectValue: null,
     initialValues: {},
+    showAddressSelect: false,
     showDefaultAddressCheckbox: false,
     showEmailInput: false,
     showSaveInAddressBookCheckbox: false
