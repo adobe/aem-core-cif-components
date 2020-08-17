@@ -23,13 +23,6 @@ import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Minicart>', () => {
-    beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the CartTrigger
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
-    });
-
     it('renders the empty cart', async () => {
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>

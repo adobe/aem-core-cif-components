@@ -15,6 +15,10 @@
      data-sly-use.galleryTpl="gallery.html"
      data-sly-use.actionsTpl="actions.html"
      data-sly-use.quantityTpl="quantity.html"
+     data-sly-use.titleTpl="title.html"
+     data-sly-use.descriptionTpl="description.html"
+     data-sly-use.skuTpl="sku.html"
+     data-sly-use.priceTpl="core/cif/components/commons/v1/price.html"
      data-sly-use.groupedProductsTpl="groupedProducts.html"
      data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
@@ -29,10 +33,10 @@
         <sly data-sly-test.found="${product.found}">
             <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
             <sly data-sly-test.isBundleProduct="${product.isBundleProduct}" />
-            <section class="productFullDetail__title"><h1 class="productFullDetail__productName"><span role="name">${product.name}</span></h1>
-                <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
-                     data-sly-test="${!isGroupedProduct}"
-                     data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
+            <section class="productFullDetail__title">
+                <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
+                <sly data-sly-test="${!isGroupedProduct}"
+                     data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
             </section>
             <section class="productFullDetail__imageCarousel">
                 <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
@@ -52,16 +56,10 @@
                 <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
             </section>
             <section class="productFullDetail__description productFullDetail__section">
-                <h2 class="productFullDetail__descriptionTitle productFullDetail__sectionTitle">
-                    ${'Product Description' @ i18n}
-                </h2>
-                <div class="richText__root" role="description">
-                    ${product.description @ context='html'}
-                </div>
+                <sly data-sly-call="${descriptionTpl.product @ product=product}"></sly>
             </section>
             <section class="productFullDetail__details productFullDetail__section">
-                <h2 class="productFullDetail__detailsTitle productFullDetail__sectionTitle">SKU</h2>
-                <strong role="sku">${product.sku}</strong>
+                <sly data-sly-call="${skuTpl.product @ product=product}"></sly>
             </section>
         </sly>
         <p data-sly-test="${!found}">${'Product not found.' @ i18n}</p>
