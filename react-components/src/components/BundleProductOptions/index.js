@@ -11,12 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import BundleProductOptions from './bundleProductOptions';
-
-const ProductOptions = () => {
-    const productComponent = document.querySelector('[data-cmp-is="product"]');
-
-    return <>{productComponent !== null && <BundleProductOptions container={productComponent} />}</>;
-};
-export default ProductOptions;
+export { default } from './bundleProductOptions';
