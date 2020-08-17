@@ -32,8 +32,7 @@ const AuthModal = () => {
             showForgotPassword,
             showChangePassword,
             showCreateAccount,
-            showAccountCreated,
-            showAddressBook
+            showAccountCreated
         }
     ] = useNavigationContext();
 
@@ -54,7 +53,6 @@ const AuthModal = () => {
                 <MyAccount
                     showMenu={showMenu}
                     showChangePassword={showChangePassword}
-                    showAddressBook={showAddressBook}
                     showAccountInformation={() => {}}
                 />
             );

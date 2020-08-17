@@ -13,7 +13,6 @@
  ******************************************************************************/
 
 import React from 'react';
-import { object, string } from 'prop-types';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
 
@@ -22,12 +21,13 @@ import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
 import NavigationContextProvider from '../../context/NavigationContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
+import { useConfigContext } from '../../context/ConfigContext';
 
 const App = props => {
-    const { config, uri, storeView = 'default' } = props;
+    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
     const client = new ApolloClient({
-        uri,
+        uri: graphqlEndpoint,
         headers: { Store: storeView },
         request: operation => {
             let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
@@ -43,8 +43,8 @@ const App = props => {
 
     return (
         <ApolloProvider client={client}>
-            <UserContextProvider config={config.userContext}>
-                <NavigationContextProvider config={config.navigationContext}>
+            <UserContextProvider>
+                <NavigationContextProvider>
                     <CartProvider>
                         <CartInitializer>
                             <CheckoutProvider>{props.children}</CheckoutProvider>
@@ -54,12 +54,6 @@ const App = props => {
             </UserContextProvider>
         </ApolloProvider>
     );
-};
-
-App.propTypes = {
-    config: object.isRequired,
-    uri: string.isRequired,
-    storeView: string
 };
 
 export default App;

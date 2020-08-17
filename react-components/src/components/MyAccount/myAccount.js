@@ -14,6 +14,7 @@
 import React from 'react';
 import { Book as BookIcon, Lock as PasswordIcon, LogOut as SignOutIcon, Info as InfoIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { func } from 'prop-types';
 
 import AccountLink from './accountLink';
 import LoadingIndicator from '../LoadingIndicator';
@@ -21,12 +22,12 @@ import LoadingIndicator from '../LoadingIndicator';
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
 import { useCartState } from '../Minicart/cartContext';
-
-import { func } from 'prop-types';
+import { useConfigContext } from '../../context/ConfigContext';
 
 const MyAccount = props => {
-    const { showMenu, showChangePassword, showAddressBook, showAccountInformation } = props;
+    const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
+    const { pagePaths } = useConfigContext();
     const [, dispatch] = useCartState();
     const [t] = useTranslation('account');
 
@@ -58,7 +59,10 @@ const MyAccount = props => {
                     <PasswordIcon size={18} />
                     {t('account:change-password', 'Change Password')}
                 </AccountLink>
-                <AccountLink onClick={showAddressBook}>
+                <AccountLink
+                    onClick={() => {
+                        window.location.href = pagePaths.addressBook;
+                    }}>
                     <BookIcon size={18} />
                     {t('account:address-book', 'Address Book')}
                 </AccountLink>
@@ -77,7 +81,6 @@ const MyAccount = props => {
 
 MyAccount.propTypes = {
     showMenu: func,
-    showAddressBook: func.isRequired,
     showAccountInformation: func.isRequired,
     showChangePassword: func.isRequired
 };

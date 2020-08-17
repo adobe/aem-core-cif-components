@@ -12,26 +12,20 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
 
-import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
+const { render } = require('@testing-library/react');
 
-import CreateAccountSuccess from '../createAccountSuccess';
+import Portal from '../Portal';
 
-describe('<CreateAccountSuccess>', () => {
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CreateAccountSuccess showSignIn={jest.fn(() => {})} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-        expect(asFragment()).toMatchSnapshot();
+describe('Portal', () => {
+    it('renders a component in a container', () => {
+        const target = document.createElement('div');
+        target.setAttribute('id', 'target');
+        target.setAttribute('data-testid', 'target');
+        document.body.appendChild(target);
+
+        const { getByTestId } = render(<Portal selector="#target">Component</Portal>);
+
+        expect(getByTestId('target').textContent).toEqual('Component');
     });
 });

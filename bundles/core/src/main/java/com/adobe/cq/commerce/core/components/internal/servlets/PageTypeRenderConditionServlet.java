@@ -22,6 +22,7 @@ import javax.servlet.Servlet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -55,7 +56,9 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final String PRODUCT_PAGE_TYPE = "product";
     private static final String CATEGORY_PAGE_TYPE = "category";
     private static final String CATALOG_PAGE_TYPE = "catalog";
+    private static final String LANDING_PAGE_TYPE = "landing";
     private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
+    private static final String PN_NAV_ROOT = "navRoot";
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
@@ -69,7 +72,8 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
             return false;
         }
 
-        if (!Arrays.asList(new String[] { CATALOG_PAGE_TYPE, CATEGORY_PAGE_TYPE, PRODUCT_PAGE_TYPE }).contains(pageType)) {
+        if (!Arrays.asList(new String[] { CATALOG_PAGE_TYPE, CATEGORY_PAGE_TYPE, PRODUCT_PAGE_TYPE, LANDING_PAGE_TYPE }).contains(
+            pageType)) {
             LOGGER.error("{} property has invalid value at {}: {}", PAGE_TYPE_PROPERTY, slingRequest.getResource().getPath(), pageType);
             return false;
         }
@@ -85,6 +89,11 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
         Page page = pageManager.getPage(pagePath);
         if (page == null) {
             return false;
+        }
+
+        if (LANDING_PAGE_TYPE.equals(pageType)) {
+            ValueMap properties = page.getContentResource().getValueMap();
+            return properties.get(PN_NAV_ROOT, false);
         }
 
         if (CATALOG_PAGE_TYPE.equals(pageType)) {
