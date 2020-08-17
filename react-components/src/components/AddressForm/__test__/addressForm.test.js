@@ -16,6 +16,7 @@ import { MockedProvider } from '@apollo/react-testing';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 
+import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
 
 import AddressForm from '../addressForm';
@@ -71,12 +72,14 @@ describe('<AddressForm />', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <AddressForm
-                            initialAddressSelectValue={0}
-                            onAddressSelectValueChange={() => {}}
-                            cancel={() => {}}
-                            submit={() => {}}
-                        />
+                        <CheckoutProvider>
+                            <AddressForm
+                                initialAddressSelectValue={0}
+                                onAddressSelectValueChange={() => {}}
+                                cancel={() => {}}
+                                submit={() => {}}
+                            />
+                        </CheckoutProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
@@ -90,12 +93,14 @@ describe('<AddressForm />', () => {
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <UserContextProvider>
-                        <AddressForm
-                            initialAddressSelectValue={0}
-                            onAddressSelectValueChange={onAddressSelectValueChange}
-                            cancel={() => {}}
-                            submit={() => {}}
-                        />
+                        <CheckoutProvider>
+                            <AddressForm
+                                initialAddressSelectValue={0}
+                                onAddressSelectValueChange={onAddressSelectValueChange}
+                                cancel={() => {}}
+                                submit={() => {}}
+                            />
+                        </CheckoutProvider>
                     </UserContextProvider>
                 </MockedProvider>
             </I18nextProvider>
