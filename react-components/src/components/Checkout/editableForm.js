@@ -26,6 +26,7 @@ import {
 import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
+import { useAddressForm } from '../AddressForm/useAddressForm';
 import { useAddressSelect } from '../AddressForm/useAddressSelect';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
@@ -45,6 +46,7 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
+    const { parseAddress } = useAddressForm();
     const { parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [
@@ -111,9 +113,7 @@ const EditableForm = props => {
             if (!cart.is_virtual && args.billingAddress.sameAsShippingAddress && shippingAddress) {
                 billingAddressVariables = {
                     ...billingAddressVariables,
-                    ...shippingAddress,
-                    country_code: shippingAddress.country_code,
-                    region_code: shippingAddress.region.code
+                    ...shippingAddress
                 };
             }
 
@@ -132,8 +132,10 @@ const EditableForm = props => {
             dispatch({
                 type: 'setBillingAddress',
                 billingAddress: {
-                    ...billingAddressResult.data.setBillingAddressOnCart.cart.billing_address,
-                    email: args.billingAddress.email
+                    ...parseAddress(
+                        billingAddressResult.data.setBillingAddressOnCart.cart.billing_address,
+                        args.billingAddress.email
+                    )
                 }
             });
 

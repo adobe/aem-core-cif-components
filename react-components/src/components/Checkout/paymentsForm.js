@@ -126,6 +126,11 @@ const PaymentsForm = props => {
                     <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
                 </Field>
             </div>
+            <div className={classes.email}>
+                <Field label={t('checkout:address-email', 'E-Mail')}>
+                    <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
+                </Field>
+            </div>
             <div className={classes.street0}>
                 <Field label={t('checkout:address-street', 'Street')}>
                     <TextInput id={classes.street0} field="street0" validate={isRequired} />
