@@ -1,0 +1,84 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "name": "Beaumont Summit Kit",
+          "image": {
+            "url": "/content/dam/image.jpg"
+          },
+          "url_key": "beaumont-summit-kit",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 42,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "variants": [
+            {
+              "product": {
+                "sku": "MJ01-L-Yellow",
+                "name": "Beaumont Summit Kit-L-Yellow",
+                "image": {
+                  "url": "/content/dam/image.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+             {
+              "product": {
+                "sku": "MJ01-XL-Yellow",
+                "name": "Beaumont Summit Kit-XL-Yellow",
+                "image": {
+                  "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+                },
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 42,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

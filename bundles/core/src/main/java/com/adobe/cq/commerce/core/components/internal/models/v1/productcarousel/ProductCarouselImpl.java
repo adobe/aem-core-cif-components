@@ -59,7 +59,7 @@ import com.day.cq.wcm.api.Page;
     defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class ProductCarouselImpl implements ProductCarousel {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
 
     @SlingObject

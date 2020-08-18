@@ -53,7 +53,7 @@ import com.day.cq.wcm.api.Page;
     defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class ProductTeaserImpl implements ProductTeaser {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
     private static final String CTA_PROPERTY = "cta";
 

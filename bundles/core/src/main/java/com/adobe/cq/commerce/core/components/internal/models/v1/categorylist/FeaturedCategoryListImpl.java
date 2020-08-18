@@ -51,7 +51,7 @@ import com.day.cq.wcm.api.Page;
     defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
 
     private static final String RENDITION_WEB = "web";

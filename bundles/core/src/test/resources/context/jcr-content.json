@@ -12,7 +12,7 @@
         "responsivegrid": {
           "productteaser-simple": {
             "selection": "MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser"
           },
           "productteaser-virtual": {
             "selection": "VVP01",

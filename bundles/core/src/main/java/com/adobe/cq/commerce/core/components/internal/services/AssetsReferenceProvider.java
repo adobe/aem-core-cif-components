@@ -27,11 +27,10 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
 import org.osgi.service.component.annotations.Component;
 
-import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
-import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.core.components.internal.models.v1.AssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.CategoryListAssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselAssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserAssetsProvider;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.reference.Reference;
@@ -45,48 +44,41 @@ import static com.day.cq.commons.jcr.JcrConstants.JCR_LASTMODIFIED;
 @Component(service = { ReferenceProvider.class })
 public class AssetsReferenceProvider implements ReferenceProvider {
 
-    private static final String PRODUCTTEASER_RT = "core/cif/components/commerce/productteaser/v1/productteaser";
-    private static final String PRODUCTCAROUSEL_RT = "core/cif/components/commerce/productcarousel/v1/productcarousel";
-    private static final String FEATUREDCATEGORY_RT = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
+    List<AssetsProvider> assetsProviders = new ArrayList<AssetsProvider>() {
+        {
+            add(new ProductTeaserAssetsProvider());
+            add(new ProductCarouselAssetsProvider());
+            add(new CategoryListAssetsProvider());
+        }
+    };
 
     public List<Reference> findReferences(Resource resource) {
-        return recurse(resource, new ArrayList<Reference>());
+        List<Reference> references = new ArrayList<>();
+        ResourceResolver resourceResolver = resource.getResourceResolver();
+        for (String assetPath : collectAssets(resource, new ArrayList<>())) {
+            addReference(resourceResolver, assetPath, references);
+        }
+        return references;
     }
 
-    private List<Reference> recurse(Resource resource, ArrayList<Reference> references) {
+    private ArrayList<String> collectAssets(Resource resource, ArrayList<String> assets) {
         Node node = resource.adaptTo(Node.class);
         if (node == null)
-            return references;
+            return assets;
 
-        if (resource.isResourceType(PRODUCTTEASER_RT)) {
-            ProductTeaser productTeaser = resource.adaptTo(ProductTeaser.class);
-            String image = productTeaser != null ? productTeaser.getImage() : null;
-            addReference(resource.getResourceResolver(), image, references);
-            return references;
-        } else if (resource.isResourceType(PRODUCTCAROUSEL_RT)) {
-            ProductCarousel productCarousel = resource.adaptTo(ProductCarousel.class);
-            if (productCarousel != null) {
-                for (ProductListItem item : productCarousel.getProducts()) {
-                    addReference(resource.getResourceResolver(), item.getImageURL(), references);
-                }
+        for (AssetsProvider assetsProvider : assetsProviders) {
+            if (assetsProvider.canHandle(resource)) {
+                assetsProvider.addAssetPaths(resource, assets);
+                return assets;
             }
-            return references;
-        } else if (resource.isResourceType(FEATUREDCATEGORY_RT)) {
-            FeaturedCategoryList featuredCategoryList = resource.adaptTo(FeaturedCategoryList.class);
-            if (featuredCategoryList != null) {
-                for (CategoryTree item : featuredCategoryList.getCategories()) {
-                    addReference(resource.getResourceResolver(), item.getImage(), references);
-                }
-            }
-            return references;
         }
 
         Iterator<Resource> it = resource.listChildren();
         while (it.hasNext()) {
-            recurse(it.next(), references);
+            collectAssets(it.next(), assets);
         }
 
-        return references;
+        return assets;
     }
 
     private Asset getAemAsset(Resource imageResource) {
@@ -102,7 +94,7 @@ public class AssetsReferenceProvider implements ReferenceProvider {
         return StringUtils.isNotBlank(imageUri) && imageUri.startsWith("/content");
     }
 
-    private void addReference(ResourceResolver resourceResolver, String imageUri, ArrayList<Reference> references) {
+    private void addReference(ResourceResolver resourceResolver, String imageUri, List<Reference> references) {
         if (!isAemAsset(imageUri))
             return;
 
@@ -113,7 +105,7 @@ public class AssetsReferenceProvider implements ReferenceProvider {
         }
     }
 
-    private void addReference(Resource imageResource, ArrayList<Reference> references) {
+    private void addReference(Resource imageResource, List<Reference> references) {
         final Calendar mod = ResourceUtil.getValueMap(imageResource).get(JCR_LASTMODIFIED, Calendar.class);
         long lastModified = mod != null ? mod.getTimeInMillis() : -1;
         references.add(new Reference("asset", imageResource.getName(), imageResource, lastModified));
