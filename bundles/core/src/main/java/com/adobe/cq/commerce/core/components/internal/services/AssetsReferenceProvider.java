@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.jcr.Node;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.sling.api.resource.NonExistingResource;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -38,9 +37,6 @@ import com.day.cq.wcm.api.reference.ReferenceProvider;
 
 import static com.day.cq.commons.jcr.JcrConstants.JCR_LASTMODIFIED;
 
-/**
- *
- */
 @Component(service = { ReferenceProvider.class })
 public class AssetsReferenceProvider implements ReferenceProvider {
 
@@ -90,14 +86,7 @@ public class AssetsReferenceProvider implements ReferenceProvider {
         return asset;
     }
 
-    private boolean isAemAsset(String imageUri) {
-        return StringUtils.isNotBlank(imageUri) && imageUri.startsWith("/content");
-    }
-
     private void addReference(ResourceResolver resourceResolver, String imageUri, List<Reference> references) {
-        if (!isAemAsset(imageUri))
-            return;
-
         Resource imageResource = resourceResolver.resolve(imageUri);
         if (!(imageResource instanceof NonExistingResource)) {
             Asset asset = getAemAsset(imageResource);

@@ -19,11 +19,11 @@ import javax.annotation.Nonnull;
 
 import org.apache.sling.api.resource.Resource;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.AssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.AbstractAssetsProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 
-public class CategoryListAssetsProvider implements AssetsProvider {
+public class CategoryListAssetsProvider extends AbstractAssetsProvider {
 
     public boolean canHandle(@Nonnull Resource resource) {
         return resource.isResourceType(FeaturedCategoryListImpl.RESOURCE_TYPE);
@@ -33,7 +33,10 @@ public class CategoryListAssetsProvider implements AssetsProvider {
         FeaturedCategoryList featuredCategoryList = canHandle(resource) ? resource.adaptTo(FeaturedCategoryList.class) : null;
         if (featuredCategoryList != null) {
             for (CategoryTree item : featuredCategoryList.getCategories()) {
-                assetPaths.add(item.getImage());
+                String imageUri = item.getImage();
+                if (isAemAsset(imageUri)) {
+                    assetPaths.add(imageUri);
+                }
             }
         }
     }

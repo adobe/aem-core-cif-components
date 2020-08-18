@@ -23,6 +23,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,12 +44,14 @@ import static com.day.cq.commons.jcr.JcrConstants.JCR_LASTMODIFIED;
 
 public class AssetsReferenceProviderTest {
 
+    private static final String ASSET_PATH = "/content/dam/summit-kit-image.jpg";
+    private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
+
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -62,14 +65,11 @@ public class AssetsReferenceProviderTest {
         }, ResourceResolverType.JCR_MOCK);
     }
 
-    private static final String ASSET_PATH = "/content/dam/image.jpg";
-
-    private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
-
-    private AssetsReferenceProvider assetsReferenceProvider;
+    private final AssetsReferenceProvider assetsReferenceProvider = new AssetsReferenceProvider();
 
     private Resource teaserResource;
 
+    @Before
     public void setUp() throws Exception {
         // Mock asset
         Asset asset = Mockito.mock(Asset.class);
@@ -100,22 +100,16 @@ public class AssetsReferenceProviderTest {
         Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-productteaser-with-aem-assets-result.json");
-        Mockito.when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+            "graphql/magento-graphql-productteaser-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
-
-        assetsReferenceProvider = new AssetsReferenceProvider();
     }
 
     @Test
-    public void testProductTeaserWithAemAsset() throws Exception {
-        setUp();
-
+    public void testProductTeaserWithAemAsset() {
         List<Reference> referenceList = assetsReferenceProvider.findReferences(teaserResource);
         Assert.assertNotNull(referenceList);
         Assert.assertEquals(1, referenceList.size());
         Assert.assertEquals(ASSET_PATH, referenceList.get(0).getResource().getPath());
     }
-
 }

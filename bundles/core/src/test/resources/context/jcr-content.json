@@ -16,24 +16,24 @@
           },
           "productteaser-virtual": {
             "selection": "VVP01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser"
           },
           "productteaser-variant": {
             "selection": "MJ01#MJ01-XS-Orange",
-            "sling:resourceType": "venia/components/commerce/productteaser",
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser",
             "cta": "addToCart"
           },
           "productteaser-path": {
             "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser"
           },
           "productteaser-noclient": {
             "selection": "MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
+            "sling:resourceType": "core/cif/components/commerce/productteaser/v1/productteaser"
           },
           "productcarousel": {
             "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01", "MJ01"],
-            "sling:resourceType": "venia/components/commerce/productcarousel"
+            "sling:resourceType": "core/cif/components/commerce/productcarousel/v1/productcarousel"
           },
           "product": {
             "sling:resourceType": "venia/components/commerce/product"
@@ -87,7 +87,7 @@
             }
           },
           "featuredcategorylist": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "sling:resourceType": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist",
             "items": {
               "item0": {
                 "categoryId": "5"

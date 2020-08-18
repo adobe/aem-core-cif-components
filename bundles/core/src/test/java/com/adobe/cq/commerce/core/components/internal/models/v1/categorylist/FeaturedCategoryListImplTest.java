@@ -68,7 +68,7 @@ public class FeaturedCategoryListImplTest {
 
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String TEST_CATEGORY_PAGE_URL = "/content/pageA";
-    private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
+    private static final String TEST_IMAGE_URL = "/content/dam/equipment-image.jpg";
     private static final int TEST_CATEGORY = 5;
     private static final String TEST_CATEGORY_NAME = "Equipment";
     private static final String TEST_ASSET_PATH = "/content/dam/venia/landing_page_image4.jpg";

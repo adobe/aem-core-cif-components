@@ -19,10 +19,10 @@ import javax.annotation.Nonnull;
 
 import org.apache.sling.api.resource.Resource;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.AssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.AbstractAssetsProvider;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 
-public class ProductTeaserAssetsProvider implements AssetsProvider {
+public class ProductTeaserAssetsProvider extends AbstractAssetsProvider {
 
     public boolean canHandle(@Nonnull Resource resource) {
         return resource.isResourceType(ProductTeaserImpl.RESOURCE_TYPE);
@@ -31,7 +31,10 @@ public class ProductTeaserAssetsProvider implements AssetsProvider {
     public void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths) {
         ProductTeaser productTeaser = canHandle(resource) ? resource.adaptTo(ProductTeaser.class) : null;
         if (productTeaser != null) {
-            assetPaths.add(productTeaser.getImage());
+            String imageUri = productTeaser.getImage();
+            if (isAemAsset(imageUri)) {
+                assetPaths.add(imageUri);
+            }
         }
     }
 }

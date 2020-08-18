@@ -6,7 +6,7 @@
           "__typename": "ConfigurableProduct",
           "name": "Beaumont Summit Kit",
           "image": {
-            "url": "https://test-url.magentosite.cloud/media/mj01-yellow_main_6.jpg"
+            "url": "/content/dam/summit-kit-image.jpg"
           },
           "url_key": "beaumont-summit-kit",
           "price_range": {
@@ -31,7 +31,7 @@
                 "sku": "MJ01-XS-Orange",
                 "name": "Beaumont Summit Kit-XS-Orange",
                 "image": {
-                  "url": "https://test-url.magentosite.cloud/media/mj01-orange_main_6.jpg"
+                  "url": "/content/dam/summit-kit-orange-image.jpg"
                 },
                 "price_range": {
                   "minimum_price": {

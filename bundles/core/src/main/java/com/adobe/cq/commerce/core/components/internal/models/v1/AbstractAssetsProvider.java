@@ -13,14 +13,11 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1;
 
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.Nonnull;
+public abstract class AbstractAssetsProvider implements AssetsProvider {
 
-import org.apache.sling.api.resource.Resource;
-
-public interface AssetsProvider {
-    boolean canHandle(@Nonnull Resource resource);
-
-    void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths);
+    protected boolean isAemAsset(String imageUri) {
+        return StringUtils.isNotBlank(imageUri) && imageUri.startsWith("/content");
+    }
 }

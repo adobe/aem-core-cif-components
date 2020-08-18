@@ -8,7 +8,7 @@
           "name": "Endurance Watch",
           "thumbnail": {
             "label": "Endurance Watch",
-            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
+            "url": "/content/dam/watch-image.jpg"
           },
           "url_key": "endurance-watch",
           "price_range": {
@@ -34,7 +34,7 @@
           "name": "Beaumont Summit Kit",
           "thumbnail": {
             "label": "Beaumont Summit Kit",
-            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+            "url": "/content/dam/summit-kit-image.jpg"
           },
           "url_key": "beaumont-summit-kit",
           "price_range": {
@@ -60,7 +60,7 @@
                 "name": "Beaumont Summit Kit-XS-Orange",
                 "thumbnail": {
                   "label": "Beaumont Summit Kit-XS-Orange",
-                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                  "url": "/content/dam/summit-kit-orange-image.jpg"
                 },
                 "price_range": {
                   "minimum_price": {
