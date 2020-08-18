@@ -13,7 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -28,7 +28,7 @@ public class ProductTeaserAssetsProvider extends AbstractAssetsProvider {
         return resource.isResourceType(ProductTeaserImpl.RESOURCE_TYPE);
     }
 
-    public void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths) {
+    public void addAssetPaths(@Nonnull Resource resource, @Nonnull Set<String> assetPaths) {
         ProductTeaser productTeaser = canHandle(resource) ? resource.adaptTo(ProductTeaser.class) : null;
         if (productTeaser != null) {
             String imageUri = productTeaser.getImage();

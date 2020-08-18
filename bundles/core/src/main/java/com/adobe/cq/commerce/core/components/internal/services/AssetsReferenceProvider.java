@@ -13,10 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.jcr.Node;
 
@@ -51,13 +48,13 @@ public class AssetsReferenceProvider implements ReferenceProvider {
     public List<Reference> findReferences(Resource resource) {
         List<Reference> references = new ArrayList<>();
         ResourceResolver resourceResolver = resource.getResourceResolver();
-        for (String assetPath : collectAssets(resource, new ArrayList<>())) {
+        for (String assetPath : collectAssets(resource, new HashSet<String>())) {
             addReference(resourceResolver, assetPath, references);
         }
         return references;
     }
 
-    private ArrayList<String> collectAssets(Resource resource, ArrayList<String> assets) {
+    private Set<String> collectAssets(Resource resource, Set<String> assets) {
         Node node = resource.adaptTo(Node.class);
         if (node == null)
             return assets;

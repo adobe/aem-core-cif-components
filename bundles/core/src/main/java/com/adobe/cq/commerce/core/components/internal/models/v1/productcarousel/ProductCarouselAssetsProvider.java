@@ -13,7 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +29,7 @@ public class ProductCarouselAssetsProvider extends AbstractAssetsProvider {
         return resource.isResourceType(ProductCarouselImpl.RESOURCE_TYPE);
     }
 
-    public void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths) {
+    public void addAssetPaths(@Nonnull Resource resource, @Nonnull Set<String> assetPaths) {
         ProductCarousel productCarousel = canHandle(resource) ? resource.adaptTo(ProductCarousel.class) : null;
         if (productCarousel != null) {
             for (ProductListItem item : productCarousel.getProducts()) {

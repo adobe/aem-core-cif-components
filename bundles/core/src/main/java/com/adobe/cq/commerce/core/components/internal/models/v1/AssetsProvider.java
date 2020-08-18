@@ -13,7 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -22,5 +22,5 @@ import org.apache.sling.api.resource.Resource;
 public interface AssetsProvider {
     boolean canHandle(@Nonnull Resource resource);
 
-    void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths);
+    void addAssetPaths(@Nonnull Resource resource, @Nonnull Set<String> assetPaths);
 }

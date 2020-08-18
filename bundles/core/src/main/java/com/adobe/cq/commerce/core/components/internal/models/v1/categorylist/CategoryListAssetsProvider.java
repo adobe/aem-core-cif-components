@@ -13,7 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +29,7 @@ public class CategoryListAssetsProvider extends AbstractAssetsProvider {
         return resource.isResourceType(FeaturedCategoryListImpl.RESOURCE_TYPE);
     }
 
-    public void addAssetPaths(@Nonnull Resource resource, @Nonnull List<String> assetPaths) {
+    public void addAssetPaths(@Nonnull Resource resource, @Nonnull Set<String> assetPaths) {
         FeaturedCategoryList featuredCategoryList = canHandle(resource) ? resource.adaptTo(FeaturedCategoryList.class) : null;
         if (featuredCategoryList != null) {
             for (CategoryTree item : featuredCategoryList.getCategories()) {

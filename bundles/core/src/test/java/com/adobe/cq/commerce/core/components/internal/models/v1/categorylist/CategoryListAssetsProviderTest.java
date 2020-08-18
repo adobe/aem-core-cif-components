@@ -13,8 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -85,9 +85,9 @@ public class CategoryListAssetsProviderTest {
 
     @Test
     public void testAddAssetPaths() {
-        List<String> assets = new ArrayList<>();
+        Set<String> assets = new HashSet<>();
         categoryListAssetsProvider.addAssetPaths(categoryListResource, assets);
-        Assert.assertEquals("Wrong number of assets returned", 2, assets.size());
-        Assert.assertEquals("Wrong asset path returned", "/content/dam/equipment-image.jpg", assets.get(0));
+        Assert.assertEquals("Wrong number of assets returned", 1, assets.size());
+        Assert.assertEquals("Wrong asset path returned", "/content/dam/equipment-image.jpg", assets.toArray()[0]);
     }
 }

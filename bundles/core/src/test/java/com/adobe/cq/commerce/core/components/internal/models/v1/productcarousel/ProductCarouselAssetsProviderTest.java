@@ -13,8 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -81,7 +81,7 @@ public class ProductCarouselAssetsProviderTest {
 
     @Test
     public void testAddAssetPaths() {
-        List<String> assets = new ArrayList<>();
+        Set<String> assets = new HashSet<>();
         productCarouselAssetsProvider.addAssetPaths(carouselResource, assets);
         Assert.assertEquals("Wrong number of assets returned", 2, assets.size());
         Assert.assertTrue("Wrong asset path returned", assets.contains("/content/dam/watch-image.jpg"));
