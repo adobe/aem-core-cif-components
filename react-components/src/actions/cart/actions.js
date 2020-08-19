@@ -186,32 +186,3 @@ export const updateCartItem = async payload => {
         dispatch({ type: 'error', error: parseError(error) });
     }
 };
-
-export const setBillingAddressesOnCart = async payload => {
-    const { cartDetailsQuery, setBillingAddressOnCart, cartId, country_code, address, dispatch } = payload;
-    try {
-        await setBillingAddressOnCart({ variables: { cartId, country_code, ...address } });
-        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
-    } catch (error) {
-        dispatch({ type: 'error', error: parseError(error) });
-    }
-};
-
-export const setShippingAddressesOnCart = async payload => {
-    const { cartDetailsQuery, setShippingAddressesOnCart, cartId, country_code, address, dispatch } = payload;
-    try {
-        await setShippingAddressesOnCart({ variables: { cartId, country_code, ...address } });
-        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
-    } catch (error) {
-        dispatch({ type: 'error', error: parseError(error) });
-    }
-};
-
-export const setGuestEmailOnCart = async payload => {
-    const { setGuestEmailOnCart, cartId, email, dispatch } = payload;
-    try {
-        await setGuestEmailOnCart({ variables: { cartId, email } });
-    } catch (error) {
-        dispatch({ type: 'error', error: parseError(error) });
-    }
-};

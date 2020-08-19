@@ -35,19 +35,7 @@ export const useAddressForm = () => {
     }
 
     const findSavedAddress = address => {
-        return address
-            ? userState.currentUser.addresses.find(
-                  item =>
-                      item.firstname === address.firstname &&
-                      item.lastname === address.lastname &&
-                      item.street.join(' ') === address.street.join(' ') &&
-                      item.city === address.city &&
-                      item.country_code === address.country_code &&
-                      item.region.region_code === address.region_code &&
-                      item.postcode === address.postcode &&
-                      item.telephone === address.telephone
-              )
-            : null;
+        return address ? userState.currentUser.addresses.find(item => isSameAddress(item, address)) : null;
     };
 
     const getNewAddress = () => {
@@ -74,6 +62,7 @@ export const useAddressForm = () => {
 
     const handleSubmit = async formValues => {
         setInProgress(true);
+
         const variables = {
             country_code: 'US',
             region: {
@@ -83,8 +72,9 @@ export const useAddressForm = () => {
             default_billing: formValues.default_shipping,
             ...formValues
         };
+
         let resetFields;
-        if (formValues.default_shipping === true) {
+        if (formValues.default_shipping) {
             resetFields = {
                 default_shipping: false,
                 default_billing: false
@@ -97,6 +87,7 @@ export const useAddressForm = () => {
         } else {
             createAddress({ createCustomerAddress, variables, resetFields, dispatch });
         }
+
         setInProgress(false);
     };
 
@@ -106,6 +97,19 @@ export const useAddressForm = () => {
             dispatch({ type: 'endEditingAddress' });
         }
         dispatch({ type: 'closeAddressForm' });
+    };
+
+    const isSameAddress = (address1, address2) => {
+        return (
+            address1.firstname === address2.firstname &&
+            address1.lastname === address2.lastname &&
+            address1.street.join(' ') === address2.street.join(' ') &&
+            address1.city === address2.city &&
+            address1.country_code === address2.country_code &&
+            address1.region.region_code === address2.region_code &&
+            address1.postcode === address2.postcode &&
+            address1.telephone === address2.telephone
+        );
     };
 
     const parseAddress = (address, email) => {
@@ -164,6 +168,7 @@ export const useAddressForm = () => {
         handleSubmit,
         handleCancel,
         inProgress,
+        isSameAddress,
         parseAddress,
         parseAddressFormValues,
         updateAddress: userState.updateAddress

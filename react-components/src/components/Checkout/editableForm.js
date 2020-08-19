@@ -17,12 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/react-hooks';
 
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
-import {
-    getCartDetails,
-    setBillingAddressesOnCart as setBillingAddressesOnCartAction,
-    setShippingAddressesOnCart as setShippingAddressesOnCartAction,
-    setGuestEmailOnCart as setGuestEmailOnCartAction
-} from '../../actions/cart';
+import { getCartDetails } from '../../actions/cart';
 
 import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
@@ -88,30 +83,27 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = async formValues => {
         cartDispatch({ type: 'beginLoading' });
-        await setShippingAddressesOnCartAction({
-            cartDetailsQuery,
-            setShippingAddressesOnCart,
-            cartId,
-            country_code: 'US',
-            address: formValues,
-            dispatch: cartDispatch
-        });
-        if (!isSignedIn) {
-            // if user is signed in, the email is set already when click on `checkout` button in cart
-            await setGuestEmailOnCartAction({
-                setGuestEmailOnCart,
-                cartId,
-                email: formValues.email,
-                dispatch: cartDispatch
-            });
-            dispatch({ type: 'setShippingAddressEmail', email: formValues.email });
-        }
+        try {
+            const addressVariables = { variables: { cartId, country_code: 'US', ...formValues } };
+            await setShippingAddressesOnCart(addressVariables);
+            if (billingAddressSameAsShippingAddress) {
+                await setBillingAddressOnCart(addressVariables);
+            }
+            await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });
 
-        if (formValues.save_in_address_book === true) {
-            await getUserDetails();
-        }
+            if (!isSignedIn) {
+                await setGuestEmailOnCart({ variables: { cartId, email: formValues.email } });
+                dispatch({ type: 'setShippingAddressEmail', email: formValues.email });
+            }
 
-        cartDispatch({ type: 'endLoading' });
+            if (formValues.save_in_address_book) {
+                await getUserDetails();
+            }
+        } catch (err) {
+            cartDispatch({ type: 'error', error: err.toString() });
+        } finally {
+            cartDispatch({ type: 'endLoading' });
+        }
     };
 
     const handleSubmitPaymentsForm = async formValues => {
@@ -121,15 +113,10 @@ const EditableForm = props => {
                 !cart.is_virtual && formValues.billingAddress.sameAsShippingAddress && shippingAddress
                     ? { ...shippingAddress }
                     : formValues.billingAddress;
+            const addressVariables = { variables: { cartId, country_code: 'US', ...billingAddressValues } };
+            await setBillingAddressOnCart(addressVariables);
+            await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });
 
-            await setBillingAddressesOnCartAction({
-                cartDetailsQuery,
-                setBillingAddressOnCart,
-                cartId,
-                country_code: 'US',
-                address: billingAddressValues,
-                dispatch: cartDispatch
-            });
             dispatch({
                 type: 'setBillingAddressSameAsShippingAddress',
                 same: formValues.billingAddress.sameAsShippingAddress
@@ -137,12 +124,7 @@ const EditableForm = props => {
 
             // If virtual and guest cart, set email with payment address, since no shipping address set
             if (cart.is_virtual && !isSignedIn) {
-                await setGuestEmailOnCartAction({
-                    setGuestEmailOnCart,
-                    cartId,
-                    email: formValues.billingAddress.email,
-                    dispatch: cartDispatch
-                });
+                await setGuestEmailOnCart({ variables: { cartId, email: formValues.billingAddress.email } });
                 dispatch({ type: 'setBillingAddressEmail', email: formValues.billingAddress.email });
             }
 

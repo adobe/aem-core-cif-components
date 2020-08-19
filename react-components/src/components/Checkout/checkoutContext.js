@@ -21,6 +21,7 @@ export const initialCheckoutState = {
     editing: null,
     shippingAddress: null,
     billingAddress: null,
+    billingAddressSameAsShippingAddress: true,
     isEditingNewAddress: false,
     shippingMethod: null,
     paymentMethod: null,
