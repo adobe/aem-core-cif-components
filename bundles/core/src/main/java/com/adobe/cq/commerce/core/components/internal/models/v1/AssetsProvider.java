@@ -19,8 +19,23 @@ import javax.annotation.Nonnull;
 
 import org.apache.sling.api.resource.Resource;
 
+/**
+ * Interface to implement by modules that need to provide a list of AEM assets used by CIF components
+ */
 public interface AssetsProvider {
+
+    /**
+     * Returns true if the asset provider can handle the provided resource
+     *
+     * @return Boolean
+     */
     boolean canHandle(@Nonnull Resource resource);
 
+    /**
+     * Adds assets path to an existing set
+     *
+     * @param resource the resource for which we retrieve the assets
+     * @param assetPaths the existing set of asset paths
+     */
     void addAssetPaths(@Nonnull Resource resource, @Nonnull Set<String> assetPaths);
 }

@@ -50,19 +50,19 @@
           "relatedproducts": {
             "product": "24-MG01",
             "relationType": "RELATED_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
           },
           "upsellproducts": {
             "relationType": "UPSELL_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
           },
           "crosssellproducts": {
             "relationType": "CROSS_SELL_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
           },
           "relatedproducts-without-relation-type": {
             "product": "24-MG01",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "core/cif/components/commerce/relatedproducts/v1/relatedproducts"
           },
           "commerceteaser": {
             "actionsEnabled": true,

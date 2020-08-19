@@ -25,10 +25,10 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
-import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,19 +46,23 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = { SlingHttpServletRequest.class, Resource.class },
+    adapters = ProductCarousel.class,
+    resourceType = RelatedProductsImpl.RESOURCE_TYPE,
+    defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class RelatedProductsImpl implements ProductCarousel {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
 
     protected static final String PN_PRODUCT = "product";
     protected static final String PN_RELATION_TYPE = "relationType";
 
-    @Self
+    @SlingObject
     private SlingHttpServletRequest request;
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
     @Inject
@@ -67,8 +71,11 @@ public class RelatedProductsImpl implements ProductCarousel {
     @Inject
     private UrlProvider urlProvider;
 
-    @ScriptVariable
-    private ValueMap properties;
+    @ValueMapValue(name = PN_PRODUCT)
+    private String product;
+
+    @ValueMapValue(name = PN_RELATION_TYPE)
+    private String relationType;
 
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -81,14 +88,15 @@ public class RelatedProductsImpl implements ProductCarousel {
             return;
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
+        if (currentPage != null) {
+            productPage = SiteNavigation.getProductPage(currentPage);
+            if (productPage == null) {
+                productPage = currentPage;
+            }
+            locale = productPage.getLanguage(false);
         }
 
-        locale = productPage.getLanguage(false);
-
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
@@ -98,12 +106,10 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @Override
     public boolean isConfigured() {
-        return properties.get(PN_PRODUCT, String.class) != null || request.getRequestPathInfo().getSelectorString() != null;
+        return product != null || (request != null && request.getRequestPathInfo().getSelectorString() != null);
     }
 
     private void configureProductsRetriever() {
-        String relationType = properties.get(PN_RELATION_TYPE, String.class);
-        String product = properties.get(PN_PRODUCT, String.class);
         String skuOrSlug;
         ProductIdentifierType productIdentifierType;
 

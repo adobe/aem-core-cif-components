@@ -15,8 +15,18 @@ package com.adobe.cq.commerce.core.components.internal.models.v1;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Base implementation of AssetsProvider interface
+ */
 public abstract class AbstractAssetsProvider implements AssetsProvider {
 
+    /**
+     * Returns true if the provided asset is hosted in AEM
+     *
+     * @param imageUri the image URI to be checked
+     *
+     * @return boolean
+     */
     protected boolean isAemAsset(String imageUri) {
         return StringUtils.isNotBlank(imageUri) && imageUri.startsWith("/content");
     }

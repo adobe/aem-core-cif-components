@@ -27,6 +27,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.AssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.CategoryListAssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselAssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserAssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsAssetsProvider;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.reference.Reference;
@@ -42,6 +43,7 @@ public class AssetsReferenceProvider implements ReferenceProvider {
             add(new ProductTeaserAssetsProvider());
             add(new ProductCarouselAssetsProvider());
             add(new CategoryListAssetsProvider());
+            add(new RelatedProductsAssetsProvider());
         }
     };
 

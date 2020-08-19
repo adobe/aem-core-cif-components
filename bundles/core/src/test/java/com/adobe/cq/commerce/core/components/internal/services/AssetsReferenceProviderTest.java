@@ -30,6 +30,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.AssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.CategoryListAssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselAssetsProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserAssetsProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsAssetsProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
@@ -67,6 +68,13 @@ public class AssetsReferenceProviderTest {
         }
     };
 
+    private final List<String> RELATED_PRODUCTS_ASSETS = new ArrayList<String>() {
+        {
+            add("/content/dam/related-product-image-1.jpg");
+            add("/content/dam/related-product-image-2.jpg");
+        }
+    };
+
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
@@ -99,6 +107,7 @@ public class AssetsReferenceProviderTest {
                 add(mockAssetsProvider(new ProductTeaserAssetsProvider(), PRODUCT_TEASER_ASSETS));
                 add(mockAssetsProvider(new ProductCarouselAssetsProvider(), PRODUCT_CAROUSEL_ASSETS));
                 add(mockAssetsProvider(new CategoryListAssetsProvider(), CATEGORY_LIST_ASSETS));
+                add(mockAssetsProvider(new RelatedProductsAssetsProvider(), RELATED_PRODUCTS_ASSETS));
             }
         };
         Whitebox.setInternalState(assetsReferenceProvider, "assetsProviders", assetsProviders);
@@ -108,7 +117,7 @@ public class AssetsReferenceProviderTest {
     public void testFindReferences() {
         List<Reference> referenceList = assetsReferenceProvider.findReferences(pageResource);
         Assert.assertNotNull(referenceList);
-        Assert.assertEquals(6, referenceList.size());
+        Assert.assertEquals(8, referenceList.size());
     }
 
     private AssetsProvider mockAssetsProvider(AssetsProvider assetsProvider, List<String> assets) {
