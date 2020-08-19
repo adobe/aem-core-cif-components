@@ -77,9 +77,9 @@ describe('<MyAccount>', () => {
                 <MockedProvider>
                     <ConfigContext.Provider value={{}}>
                         <UserContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => mockReducerFactory}>
                                 <MyAccount
-                                    showMenu={showMenu}
+                                    showMenu={jest.fn()}
                                     showAccountInformation={jest.fn()}
                                     showChangePassword={jest.fn()}
                                 />

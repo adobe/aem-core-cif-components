@@ -25,14 +25,7 @@ import classes from './accountDropdown.css';
 const AccountDropdown = () => {
     const [
         { isAccountDropdownOpen, isSignedIn, accountDropdownView },
-        {
-            showSignIn,
-            showMyAccount,
-            showForgotPassword,
-            showCreateAccount,
-            showAccountCreated,
-            showChangePassword
-        }
+        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
     const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
@@ -72,12 +65,7 @@ const AccountDropdown = () => {
                 break;
             case 'MY_ACCOUNT':
             default:
-                view = (
-                    <MyAccount
-                        showChangePassword={showChangePassword}
-                        showAccountInformation={() => {}}
-                    />
-                );
+                view = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
         }
     }
 
