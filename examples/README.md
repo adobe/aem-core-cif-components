@@ -21,6 +21,18 @@ You can install all 3 artifacts by running `mvn clean install -PautoInstallPacka
 
 _Note that the `ui.apps` examples content package depends on the same version of the `ui.apps` content package of the CIF components. This means that a developer working on the SNAPSHOT version of the library must ensure that the same SNAPSHOT version of the components `ui.apps` library is installed on AEM._
 
+## Installation with 'examples-all' package
+
+This folder also contains an `all` content package that can be used to deploy the CIF components library and most of its dependencies:
+* the CIF Components and bundle
+* the GraphQL client bundle
+* the Magento GraphQL bundle
+* the WCM Core Components library when building with the Maven `-Pinclude-wcm-components-examples` profile
+
+Note that the WCM Core components are not included: they are installed by default in the AEM Cloud SDK, and should be installed separately on a classic AEM instance.
+
+To build and install that content package in a running AEM instance, simply use `mvn clean install content-package:install`.
+
 ## Required configuration
 
 The mock GraphQL server can only serve content via HTTPS because our GraphQL client does not support non-secure connections for security reasons. This means you have to enable HTTPS on your AEM instance if you want to install and use the mock server. To do this, simply follow the [following documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html).

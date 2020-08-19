@@ -12,30 +12,20 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
 
-import { useUserContext } from '../../context/UserContext';
-import AccountTrigger from './accountTrigger';
-import AccountDropdown from './accountDropdown';
+const { render } = require('@testing-library/react');
 
-const AccountContainer = () => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
-    const [t] = useTranslation('account');
+import Portal from '../Portal';
 
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
+describe('Portal', () => {
+    it('renders a component in a container', () => {
+        const target = document.createElement('div');
+        target.setAttribute('id', 'target');
+        target.setAttribute('data-testid', 'target');
+        document.body.appendChild(target);
 
-    return (
-        <>
-            <AccountTrigger label={label} />
-            <AccountDropdown />
-        </>
-    );
-};
+        const { getByTestId } = render(<Portal selector="#target">Component</Portal>);
 
-export default AccountContainer;
+        expect(getByTestId('target').textContent).toEqual('Component');
+    });
+});

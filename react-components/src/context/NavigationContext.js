@@ -47,14 +47,8 @@ const reducerFactory = () => {
 };
 
 const NavigationContextProvider = props => {
-    const authBarContainerQuerySelector =
-        (props.config && props.config.authBarContainerQuerySelector) || 'aside.navigation__root #miniaccount';
-    const addressBookPath =
-        (props.config && props.config.addressBookPath) || '/content/venia/us/en/my-account/address-book.html';
     const initialState = props.initialState || {
-        view: 'MENU',
-        authBarContainerQuerySelector,
-        addressBookPath
+        view: 'MENU'
     };
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
@@ -74,10 +68,6 @@ const NavigationContextProvider = props => {
     const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
 
     const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
-
-    const showAddressBook = () => {
-        window.location.href = navigationState.addressBookPath;
-    };
 
     const showView = view => NavigationActions.showView({ dispatch, t, view });
 
@@ -114,15 +104,13 @@ const NavigationContextProvider = props => {
             showChangePassword,
             showForgotPassword,
             showCreateAccount,
-            showAccountCreated,
-            showAddressBook
+            showAccountCreated
         }
     ];
     return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
 };
 
 NavigationContextProvider.propTypes = {
-    config: object,
     initialState: object
 };
 

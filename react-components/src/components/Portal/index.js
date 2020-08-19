@@ -11,31 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
-
-import { useUserContext } from '../../context/UserContext';
-import AccountTrigger from './accountTrigger';
-import AccountDropdown from './accountDropdown';
-
-const AccountContainer = () => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
-    const [t] = useTranslation('account');
-
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
-
-    return (
-        <>
-            <AccountTrigger label={label} />
-            <AccountDropdown />
-        </>
-    );
-};
-
-export default AccountContainer;
+export { default } from './Portal';

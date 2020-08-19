@@ -12,30 +12,24 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { render } from '@testing-library/react';
 
-import { useUserContext } from '../../context/UserContext';
-import AccountTrigger from './accountTrigger';
-import AccountDropdown from './accountDropdown';
+const { useConfigContext, default: ConfigContextProvider } = require('../ConfigContext');
 
-const AccountContainer = () => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
-    const [t] = useTranslation('account');
+describe('ConfigContext', () => {
+    const Consumer = () => {
+        const config = useConfigContext();
 
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
+        return <div data-testid="config">{config.storeView}</div>;
+    };
 
-    return (
-        <>
-            <AccountTrigger label={label} />
-            <AccountDropdown />
-        </>
-    );
-};
+    it('provides the configuration', () => {
+        const { getByTestId } = render(
+            <ConfigContextProvider config={{ storeView: 'my-store', graphqlEndpoint: '/api/graphql' }}>
+                <Consumer />
+            </ConfigContextProvider>
+        );
 
-export default AccountContainer;
+        expect(getByTestId('config').textContent).toEqual('my-store');
+    });
+});

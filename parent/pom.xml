@@ -105,7 +105,7 @@
 
         <slf4j.version>1.7.6</slf4j.version>
         <jacoco.version>0.7.9</jacoco.version>
-        <graphql.client.version>1.6.0</graphql.client.version>
+        <graphql.client.version>1.6.1</graphql.client.version>
         <magento.graphql.version>6.0.0-magento235</magento.graphql.version>
 
         <core.wcm.components.version>2.9.0</core.wcm.components.version>
@@ -466,13 +466,12 @@
                 <plugin>
                     <groupId>org.apache.jackrabbit</groupId>
                     <artifactId>filevault-package-maven-plugin</artifactId>
-                    <version>1.0.0</version>
+                    <version>1.1.4</version>
                     <extensions>true</extensions>
                     <configuration>
                         <failOnMissingEmbed>true</failOnMissingEmbed>
-                        <!-- temporary, until https://issues.apache.org/jira/browse/JCRVLT-219 is fixed -->
-                        <failOnDependencyErrors>false</failOnDependencyErrors>
                         <showImportPackageReport>false</showImportPackageReport>
+                        <skipValidation>true</skipValidation>
                         <excludes>
                             <!-- exclude .vlt control files in the package -->
                             <exclude>**/.vlt</exclude>
