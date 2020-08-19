@@ -55,12 +55,6 @@ public class RelatedProductsAssetsProviderTest {
         return new AemContext((AemContextCallback) context -> {
             // Load page structure
             context.load().json(contentPath, "/content");
-            /*
-             * UrlProviderImpl urlProvider = new UrlProviderImpl();
-             * urlProvider.activate(new MockUrlProviderConfiguration());
-             * context.registerService(UrlProvider.class, urlProvider);
-             * 
-             */
         }, ResourceResolverType.JCR_MOCK);
     }
 

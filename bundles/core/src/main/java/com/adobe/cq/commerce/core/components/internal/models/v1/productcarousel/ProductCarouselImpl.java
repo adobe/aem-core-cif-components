@@ -90,8 +90,6 @@ public class ProductCarouselImpl implements ProductCarousel {
             return;
         }
 
-        List<String> productSkus = Arrays.asList(productSkuList);
-
         if (currentPage != null) {
             productPage = SiteNavigation.getProductPage(currentPage);
             if (productPage == null) {
@@ -102,6 +100,7 @@ public class ProductCarouselImpl implements ProductCarousel {
         }
 
         // Make sure we use the base product sku for each selected product (can be a variant)
+        List<String> productSkus = Arrays.asList(productSkuList);
         baseProductSkus = productSkus
             .stream()
             .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
