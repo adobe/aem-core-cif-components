@@ -19,34 +19,39 @@ import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
-import { setShippingAddressesOnCart as setShippingAddressesOnCartAction } from '../../actions/cart';
+import { setShippingAddressesOnCart as setShippingAddressesOnCartAction, getCartDetails } from '../../actions/cart';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_set_shipping_address.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
 export default () => {
     const { parseAddress } = useAddressForm();
-    const [{ cartId }, cartDispatch] = useCartState();
+    const [{ cartId, cart }, cartDispatch] = useCartState();
     const [{ shippingAddress }, dispatch] = useCheckoutState();
     const [{ currentUser, isSignedIn }] = useUserContext();
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
 
     const beginCheckout = async () => {
-        if (isSignedIn && !shippingAddress && currentUser.addresses.length > 0) {
-            // If user is signed in but shipping address is not set, then use default address as initial address for address form if
+        if (cart && ((cart.shipping_addresses && cart.shipping_addresses[0]) || cart.billing_address)) {
+            // if shipping address is set previously on cart, fetch cart details to update it
+            cartDispatch({ type: 'beginLoading' });
+            await getCartDetails({ cartDetailsQuery, cartId, dispatch: cartDispatch });
+            cartDispatch({ type: 'endLoading' });
+        } else if (isSignedIn && !shippingAddress && currentUser.addresses.length > 0) {
+            // If user is signed in but shipping address is not currently set via shipping address form nor on cart,
+            // then use default address as initial address for address form if
             // there is one, otherwise use the first one of the saved addresses
             const address = currentUser.addresses.find(address => address.default_shipping) || currentUser.addresses[0];
-            const payload = {
+
+            cartDispatch({ type: 'beginLoading' });
+            await setShippingAddressesOnCartAction({
                 cartDetailsQuery,
                 setShippingAddressesOnCart,
                 cartId,
                 address: parseAddress(address),
                 dispatch: cartDispatch
-            };
-
-            cartDispatch({ type: 'beginLoading' });
-            await setShippingAddressesOnCartAction(payload);
+            });
             cartDispatch({ type: 'endLoading' });
         }
         dispatch({ type: 'beginCheckout' });

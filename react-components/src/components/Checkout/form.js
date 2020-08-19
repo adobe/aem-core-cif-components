@@ -49,7 +49,7 @@ const Form = () => {
         if (billing_address && billing_address.city !== null) {
             dispatch({
                 type: 'setBillingAddress',
-                billingAddress: parseAddress(billing_address)
+                billingAddress: parseAddress(billing_address, email)
             });
         }
     }, [billing_address]);

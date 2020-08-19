@@ -19,6 +19,7 @@ import { useMutation } from '@apollo/react-hooks';
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
 import {
     getCartDetails,
+    setBillingAddressesOnCart as setBillingAddressesOnCartAction,
     setShippingAddressesOnCart as setShippingAddressesOnCartAction,
     setGuestEmailOnCart as setGuestEmailOnCartAction
 } from '../../actions/cart';
@@ -26,7 +27,6 @@ import {
 import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
-import { useAddressForm } from '../AddressForm/useAddressForm';
 import { useAddressSelect } from '../AddressForm/useAddressSelect';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
@@ -46,15 +46,22 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
-    const { parseAddress } = useAddressForm();
     const { parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [
-        { editing, shippingAddress, shippingMethod, paymentMethod, billingAddress, isEditingNewAddress },
+        {
+            editing,
+            shippingAddress,
+            shippingMethod,
+            paymentMethod,
+            billingAddress,
+            billingAddressSameAsShippingAddress,
+            isEditingNewAddress
+        },
         dispatch
     ] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
-    const [{ isSignedIn }, { getUserDetails }] = useUserContext();
+    const [{ isSignedIn, currentUser }, { getUserDetails }] = useUserContext();
 
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
@@ -81,80 +88,84 @@ const EditableForm = props => {
 
     const handleSubmitAddressForm = async formValues => {
         cartDispatch({ type: 'beginLoading' });
-        const payload = {
+        await setShippingAddressesOnCartAction({
             cartDetailsQuery,
             setShippingAddressesOnCart,
             cartId,
             country_code: 'US',
             address: formValues,
             dispatch: cartDispatch
-        };
-        await setShippingAddressesOnCartAction(payload);
+        });
         if (!isSignedIn) {
             // if user is signed in, the email is set already when click on `checkout` button in cart
-            await setGuestEmailOnCartAction({ setGuestEmailOnCart, cartId, email: formValues.email, dispatch });
-        } else {
-            if (formValues.save_in_address_book === true) {
-                await getUserDetails();
-            }
+            await setGuestEmailOnCartAction({
+                setGuestEmailOnCart,
+                cartId,
+                email: formValues.email,
+                dispatch: cartDispatch
+            });
+            dispatch({ type: 'setShippingAddressEmail', email: formValues.email });
         }
+
+        if (formValues.save_in_address_book === true) {
+            await getUserDetails();
+        }
+
         cartDispatch({ type: 'endLoading' });
     };
 
-    const handleSubmitPaymentsForm = async args => {
+    const handleSubmitPaymentsForm = async formValues => {
+        cartDispatch({ type: 'beginLoading' });
         try {
-            let billingAddressVariables = {
-                cartId: cartId,
-                ...args.billingAddress,
-                country_code: 'US',
-                region_code: args.billingAddress.region_code
-            };
+            const billingAddressValues =
+                !cart.is_virtual && formValues.billingAddress.sameAsShippingAddress && shippingAddress
+                    ? { ...shippingAddress }
+                    : formValues.billingAddress;
 
-            if (!cart.is_virtual && args.billingAddress.sameAsShippingAddress && shippingAddress) {
-                billingAddressVariables = {
-                    ...billingAddressVariables,
-                    ...shippingAddress
-                };
-            }
+            await setBillingAddressesOnCartAction({
+                cartDetailsQuery,
+                setBillingAddressOnCart,
+                cartId,
+                country_code: 'US',
+                address: billingAddressValues,
+                dispatch: cartDispatch
+            });
+            dispatch({
+                type: 'setBillingAddressSameAsShippingAddress',
+                same: formValues.billingAddress.sameAsShippingAddress
+            });
 
             // If virtual and guest cart, set email with payment address, since no shipping address set
             if (cart.is_virtual && !isSignedIn) {
-                setGuestEmailOnCartAction({
+                await setGuestEmailOnCartAction({
                     setGuestEmailOnCart,
                     cartId,
-                    email: args.billingAddress.email,
+                    email: formValues.billingAddress.email,
                     dispatch: cartDispatch
                 });
+                dispatch({ type: 'setBillingAddressEmail', email: formValues.billingAddress.email });
             }
 
-            const billingAddressResult = await setBillingAddressOnCart({ variables: billingAddressVariables });
-
-            dispatch({
-                type: 'setBillingAddress',
-                billingAddress: {
-                    ...parseAddress(
-                        billingAddressResult.data.setBillingAddressOnCart.cart.billing_address,
-                        args.billingAddress.email
-                    )
-                }
-            });
+            if (formValues.billingAddress.save_in_address_book) {
+                await getUserDetails();
+            }
 
             let paymentResult;
-            switch (args.paymentMethod.code) {
+            switch (formValues.paymentMethod.code) {
                 case 'braintree':
                 case 'braintree_paypal': {
                     paymentResult = await setBraintreePaymentMethodOnCart({
                         variables: {
                             cartId: cartId,
-                            paymentMethodCode: args.paymentMethod.code,
-                            nonce: args.paymentNonce
+                            paymentMethodCode: formValues.paymentMethod.code,
+                            nonce: formValues.paymentNonce
                         }
                     });
                     break;
                 }
                 default: {
                     paymentResult = await setPaymentMethodOnCart({
-                        variables: { cartId: cartId, paymentMethodCode: args.paymentMethod.code }
+                        variables: { cartId: cartId, paymentMethodCode: formValues.paymentMethod.code }
                     });
                 }
             }
@@ -167,6 +178,8 @@ const EditableForm = props => {
             });
         } catch (err) {
             cartDispatch({ type: 'error', error: err.toString() });
+        } finally {
+            cartDispatch({ type: 'endLoading' });
         }
     };
 
@@ -195,6 +208,12 @@ const EditableForm = props => {
         return null;
     }
 
+    const hasSavedAddresses = currentUser.addresses.length > 0;
+    const newAddressItemValue = 0;
+    const billingAddressSelectInitialValue = billingAddressSameAsShippingAddress
+        ? newAddressItemValue
+        : parseInitialAddressSelectValue(billingAddress);
+
     switch (editing) {
         case 'address': {
             return (
@@ -207,7 +226,7 @@ const EditableForm = props => {
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
                     initialValues={shippingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
-                    showAddressSelect={isSignedIn}
+                    showAddressSelect={isSignedIn && hasSavedAddresses}
                     showEmailInput={!isSignedIn}
                     showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
                     submit={handleSubmitAddressForm}
@@ -220,15 +239,18 @@ const EditableForm = props => {
             return (
                 <PaymentsForm
                     allowSame={!cart.is_virtual}
+                    billingAddressSameAsShippingAddress={billingAddressSameAsShippingAddress}
                     cancel={handleCancel}
                     cart={cart}
                     countries={countries}
-                    initialAddressSelectValue={parseInitialAddressSelectValue(billingAddress)}
+                    initialAddressSelectValue={billingAddressSelectInitialValue}
                     initialPaymentMethod={paymentMethod}
                     initialValues={billingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     paymentMethods={cart.available_payment_methods}
-                    showAddressSelect={isSignedIn}
+                    showAddressSelect={isSignedIn && hasSavedAddresses}
+                    showEmailInput={cart.is_virtual && !isSignedIn}
+                    showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
                     submit={handleSubmitPaymentsForm}
                     submitting={submitting}
                 />

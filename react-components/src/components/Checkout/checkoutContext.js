@@ -80,7 +80,21 @@ export const checkoutReducer = (state, action) => {
             return {
                 ...state,
                 billingAddress: action.billingAddress,
-                editing: null
+                editing: null,
+                isEditingNewAddress: false
+            };
+        case 'setBillingAddressEmail':
+            return {
+                ...state,
+                billingAddress: {
+                    ...state.billingAddress,
+                    email: action.email
+                }
+            };
+        case 'setBillingAddressSameAsShippingAddress':
+            return {
+                ...state,
+                billingAddressSameAsShippingAddress: action.same
             };
         case 'setIsEditingNewAddress':
             return {
@@ -128,6 +142,7 @@ CheckoutProvider.propTypes = {
         editing: object,
         shippingAddress: object,
         billingAddress: object,
+        billingAddressSameAsShippingAddress: bool,
         isEditingNewAddress: bool,
         shippingMethod: object,
         paymentMethod: object

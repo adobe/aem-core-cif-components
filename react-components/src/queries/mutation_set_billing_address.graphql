@@ -12,6 +12,7 @@ mutation(
     $lastname: String!
     $postcode: String
     $region_code: String
+    $save_in_address_book: Boolean
     $street: [String]!
     $telephone: String!
 ) {
@@ -27,9 +28,9 @@ mutation(
                     lastname: $lastname
                     postcode: $postcode
                     region: $region_code
+                    save_in_address_book: $save_in_address_book
                     street: $street
                     telephone: $telephone
-                    save_in_address_book: false
                 }
             }
         }

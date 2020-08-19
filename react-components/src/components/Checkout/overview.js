@@ -34,8 +34,8 @@ const Overview = props => {
     const [t] = useTranslation('checkout');
 
     const [
-        { shippingAddress, shippingMethod, paymentMethod, cart, inProgress },
-        { editShippingAddress, placeOrder, checkoutDispatch }
+        { billingAddress, shippingAddress, shippingMethod, paymentMethod, cart, inProgress },
+        { editShippingAddress, editBillingInformation, placeOrder, checkoutDispatch }
     ] = useOverview();
 
     const ready = (cart.is_virtual && paymentMethod) || (shippingAddress && paymentMethod && shippingMethod);
@@ -60,7 +60,7 @@ const Overview = props => {
                 )}
                 <Section
                     label={t('checkout:pay-with', 'Pay With')}
-                    onClick={() => checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' })}
+                    onClick={() => editBillingInformation(billingAddress)}
                     showEditIcon={!!paymentMethod}
                     disabled={!cart.is_virtual && !shippingAddress}>
                     <PaymentMethodSummary classes={classes} />

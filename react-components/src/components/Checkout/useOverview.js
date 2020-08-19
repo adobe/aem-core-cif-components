@@ -24,7 +24,10 @@ import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
 export default () => {
-    const [{ shippingAddress, shippingMethod, paymentMethod }, checkoutDispatch] = useCheckoutState();
+    const [
+        { shippingAddress, billingAddress, billingAddressSameAsShippingAddress, shippingMethod, paymentMethod },
+        checkoutDispatch
+    ] = useCheckoutState();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ isSignedIn }, { resetCustomerCart }] = useUserContext();
     const fetchCustomerCartQuery = useAwaitQuery(QUERY_CUSTOMER_CART);
@@ -38,6 +41,13 @@ export default () => {
             checkoutDispatch({ type: 'setIsEditingNewAddress', editing: true });
         }
         checkoutDispatch({ type: 'setEditing', editing: 'address' });
+    };
+
+    const editBillingInformation = address => {
+        if (!findSavedAddress(address) || billingAddressSameAsShippingAddress) {
+            checkoutDispatch({ type: 'setIsEditingNewAddress', editing: true });
+        }
+        checkoutDispatch({ type: 'setEditing', editing: 'paymentMethod' });
     };
 
     const submitOrder = async () => {
@@ -62,7 +72,7 @@ export default () => {
     };
 
     return [
-        { shippingAddress, shippingMethod, paymentMethod, inProgress, cart },
-        { editShippingAddress, placeOrder: submitOrder, checkoutDispatch }
+        { shippingAddress, billingAddress, shippingMethod, paymentMethod, inProgress, cart },
+        { editShippingAddress, editBillingInformation, placeOrder: submitOrder, checkoutDispatch }
     ];
 };

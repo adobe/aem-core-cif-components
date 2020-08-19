@@ -35,6 +35,7 @@ import combine from '../../utils/combineValidators';
 const PaymentsForm = props => {
     const {
         allowSame,
+        billingAddressSameAsShippingAddress,
         cancel,
         countries,
         initialAddressSelectValue,
@@ -43,6 +44,8 @@ const PaymentsForm = props => {
         onAddressSelectValueChange,
         paymentMethods,
         showAddressSelect,
+        showEmailInput,
+        showSaveInAddressBookCheckbox,
         submit
     } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +64,7 @@ const PaymentsForm = props => {
     const [paymentMethod] = useState(initialPaymentMethodState);
 
     let initialFormValues;
-    if (allowSame && (!initialValues || initialValues.sameAsShippingAddress)) {
+    if (allowSame && billingAddressSameAsShippingAddress) {
         // If the addresses are the same, don't populate any fields
         // other than the checkbox with an initial value.
         initialFormValues = {
@@ -85,7 +88,6 @@ const PaymentsForm = props => {
             addresses_same: false,
             ...initialValues
         };
-        delete initialFormValues.sameAsShippingAddress;
     }
 
     const [differentAddress, setDifferentAddress] = useState(!initialFormValues.addresses_same);
@@ -94,15 +96,14 @@ const PaymentsForm = props => {
         formValues => {
             setIsSubmitting(true);
             const sameAsShippingAddress = formValues['addresses_same'];
-            let billingAddress;
+            let billingAddress = {
+                sameAsShippingAddress
+            };
             if (!sameAsShippingAddress) {
                 billingAddress = {
+                    ...billingAddress,
                     ...formValues,
                     street: [formValues.street0]
-                };
-            } else {
-                billingAddress = {
-                    sameAsShippingAddress
                 };
             }
             submit({
@@ -126,11 +127,13 @@ const PaymentsForm = props => {
                     <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
                 </Field>
             </div>
-            <div className={classes.email}>
-                <Field label={t('checkout:address-email', 'E-Mail')}>
-                    <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
-                </Field>
-            </div>
+            {showEmailInput && (
+                <div className={classes.email}>
+                    <Field label={t('checkout:address-email', 'E-Mail')}>
+                        <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
+                    </Field>
+                </div>
+            )}
             <div className={classes.street0}>
                 <Field label={t('checkout:address-street', 'Street')}>
                     <TextInput id={classes.street0} field="street0" validate={isRequired} />
@@ -216,6 +219,15 @@ const PaymentsForm = props => {
                             </div>
                         )}
                         {billingAddressFields}
+                        {differentAddress && showSaveInAddressBookCheckbox && (
+                            <div className={classes.save_in_address_book}>
+                                <Checkbox
+                                    id={classes.save_in_address_book}
+                                    label={t('checkout:address-save-in-address-book', 'Save in address book')}
+                                    field="save_in_address_book"
+                                />
+                            </div>
+                        )}
                     </div>
                     <div className={classes.footer}>
                         <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
@@ -231,6 +243,7 @@ const PaymentsForm = props => {
 
 PaymentsForm.propTypes = {
     allowSame: bool,
+    billingAddressSameAsShippingAddress: bool,
     cancel: func.isRequired,
     classes: shape({
         root: string
@@ -247,20 +260,24 @@ PaymentsForm.propTypes = {
         city: string,
         postcode: string,
         region_code: string,
-        sameAsShippingAddress: bool,
         street0: string
     }),
     onAddressSelectValueChange: func,
     paymentMethods: array.isRequired,
     showAddressSelect: bool,
+    showEmailInput: bool,
+    showSaveInAddressBookCheckbox: bool,
     submit: func.isRequired
 };
 
 PaymentsForm.defaultProps = {
     allowSame: true,
+    billingAddressSameAsShippingAddress: true,
     initialAddressSelectValue: null,
     initialValues: {},
-    showAddressSelect: false
+    showAddressSelect: false,
+    showEmailInput: false,
+    showSaveInAddressBookCheckbox: false
 };
 
 export default PaymentsForm;
