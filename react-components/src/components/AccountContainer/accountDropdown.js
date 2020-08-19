@@ -31,8 +31,7 @@ const AccountDropdown = () => {
             showForgotPassword,
             showCreateAccount,
             showAccountCreated,
-            showChangePassword,
-            showAddressBook
+            showChangePassword
         }
     ] = useUserContext();
 
@@ -76,7 +75,6 @@ const AccountDropdown = () => {
                 view = (
                     <MyAccount
                         showChangePassword={showChangePassword}
-                        showAddressBook={showAddressBook}
                         showAccountInformation={() => {}}
                     />
                 );

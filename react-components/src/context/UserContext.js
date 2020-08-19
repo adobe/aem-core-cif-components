@@ -216,12 +216,6 @@ const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
     const isSignedIn = () => !!userCookie;
-    const accountContainerQuerySelector =
-        (props.config && props.config.accountContainerQuerySelector) || '.header__accountTrigger #miniaccount';
-    const addressBookContainerQuerySelector =
-        (props.config && props.config.addressBookContainerQuerySelector) || '#addressbook';
-    const addressBookPath =
-        (props.config && props.config.addressBookPath) || '/content/venia/us/en/my-account/address-book.html';
 
     const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
@@ -245,10 +239,7 @@ const UserContextProvider = props => {
         createAccountError: null,
         createAccountEmail: null,
         cartId: null,
-        accountDropdownView: null,
-        accountContainerQuerySelector,
-        addressBookContainerQuerySelector,
-        addressBookPath
+        accountDropdownView: null
     };
 
     const [userState, dispatch] = useReducer(factory(), initialState);
@@ -319,10 +310,6 @@ const UserContextProvider = props => {
         dispatch({ type: 'changeAccountDropdownView', view: 'CHANGE_PASSWORD' });
     };
 
-    const showAddressBook = () => {
-        window.location.href = userState.addressBookPath;
-    };
-
     const deleteAddress = async address => {
         await deleteAddressAction({ deleteCustomerAddress, address, dispatch });
     };
@@ -346,7 +333,6 @@ const UserContextProvider = props => {
             showCreateAccount,
             showAccountCreated,
             showChangePassword,
-            showAddressBook,
             deleteAddress
         }
     ];
@@ -354,7 +340,6 @@ const UserContextProvider = props => {
 };
 
 UserContextProvider.propTypes = {
-    config: object,
     reducerFactory: func,
     initialState: object
 };

@@ -190,40 +190,4 @@ describe('NavigationContext test', () => {
         const backResult = await waitForElement(() => getByTestId('menu'));
         expect(backResult.textContent).toEqual('Menu page');
     });
-
-    it('sets config prop for auth bar container and address book path', async () => {
-        const ContextWrapper = () => {
-            const [{ authBarContainerQuerySelector, addressBookPath }] = useNavigationContext();
-
-            const content = (
-                <>
-                    <div data-testid="auth-bar-container-query-selector">{authBarContainerQuerySelector}</div>;
-                    <div data-testid="address-book-path">{addressBookPath}</div>;
-                </>
-            );
-
-            return <div>{content}</div>;
-        };
-
-        const mockConfig = {
-            authBarContainerQuerySelector: 'auth bar container query selector',
-            addressBookPath: 'address book path'
-        };
-
-        const { getByTestId } = render(
-            <MockedProvider addTypename={false}>
-                <NavigationContextProvider config={mockConfig}>
-                    <ContextWrapper />
-                </NavigationContextProvider>
-            </MockedProvider>
-        );
-
-        expect(getByTestId('auth-bar-container-query-selector')).not.toBeUndefined();
-        expect(getByTestId('auth-bar-container-query-selector').textContent).toEqual(
-            'auth bar container query selector'
-        );
-
-        expect(getByTestId('address-book-path')).not.toBeUndefined();
-        expect(getByTestId('address-book-path').textContent).toEqual('address book path');
-    });
 });

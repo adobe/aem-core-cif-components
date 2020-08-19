@@ -102,6 +102,13 @@ describe('Product', () => {
             assert.equal(product._state.sku, 'sample-sku');
         });
 
+        it('initializes a product component with no SKU', () => {
+            productRoot.querySelector(Product.selectors.sku).remove();
+            let product = new Product({ element: productRoot });
+            assert.isFalse(product._state.configurable);
+            assert.isNull(product._state.sku);
+        });
+
         it('retrieves prices via GraphQL', () => {
             productRoot.dataset.loadClientPrice = true;
             let product = new Product({ element: productRoot });
