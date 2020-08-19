@@ -25,11 +25,10 @@ const CreateAccountSuccess = props => {
     const { showSignIn } = props;
     const [{ createAccountEmail }, { dispatch }] = useUserContext();
 
-    useEffect(() => {
-        return () => {
-            dispatch({ type: 'cleanupAccountCreated' });
-        };
-    });
+    const handleSignIn = () => {
+        dispatch({ type: 'cleanupAccountCreated' });
+        showSignIn();
+    };
 
     return (
         <div className={classes.root}>
@@ -44,7 +43,7 @@ const CreateAccountSuccess = props => {
                     </Trans>
                 </div>
                 <div className={classes.actions}>
-                    <Trigger action={showSignIn}>
+                    <Trigger action={handleSignIn}>
                         <span className={classes.signin}>{t('account:sign-in', 'Sign In')}</span>
                     </Trigger>
                 </div>
