@@ -27,15 +27,11 @@ import LoadingIndicator from '../LoadingIndicator';
 
 const SignIn = props => {
     const { showMyAccount, showForgotPassword, showCreateAccount } = props;
-    const { errorMessage, isSignedIn, handleSubmit, inProgress } = useSignin();
+    const { errorMessage, handleSubmit, inProgress } = useSignin({ showMyAccount });
     const [t] = useTranslation('account');
 
     if (inProgress) {
         return <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>;
-    }
-
-    if (isSignedIn) {
-        showMyAccount();
     }
 
     return (
