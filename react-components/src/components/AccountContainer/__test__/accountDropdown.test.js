@@ -24,9 +24,9 @@ import { ConfigContext } from '../../../context/ConfigContext';
 import AccountDropdown from '../accountDropdown';
 
 describe('<AccountDropdown>', () => {
-    it('render the account dropdown when account dropdown is open', () => {
+    it('renders the component when account dropdown is open', () => {
         const stateWithAccountDropdownOpen = { isAccountDropdownOpen: true };
-        const accountDropdownOpenClass = 'dropdown_open';
+        const accountDropdownOpenClass = 'root_open';
 
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
@@ -49,6 +49,7 @@ describe('<AccountDropdown>', () => {
                 lastname: '',
                 email: ''
             },
+            isSignedIn: true,
             accountDropdownView: 'MY_ACCOUNT'
         };
 
@@ -70,6 +71,7 @@ describe('<AccountDropdown>', () => {
 
     it('renders the change password component inside account dropdown', () => {
         const stateWithChangePasswordView = {
+            isSignedIn: true,
             accountDropdownView: 'CHANGE_PASSWORD'
         };
 
@@ -89,6 +91,7 @@ describe('<AccountDropdown>', () => {
 
     it('renders the forgot password component inside account dropdown', () => {
         const stateWithForgotPasswordView = {
+            isSignedIn: false,
             accountDropdownView: 'FORGOT_PASSWORD'
         };
 
