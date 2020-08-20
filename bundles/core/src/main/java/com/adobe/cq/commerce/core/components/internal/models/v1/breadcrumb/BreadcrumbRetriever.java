@@ -100,8 +100,13 @@ public class BreadcrumbRetriever extends AbstractRetriever {
 
     @Override
     protected void populate() {
+        if (productIdentifier == null && categoryIdentifier == null) {
+            return;
+        }
+
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
+
         if (productIdentifier != null) {
             ProductInterface product = rootQuery
                 .getProducts()
@@ -110,7 +115,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
 
             productName = product.getName();
             categories = product.getCategories();
-        } else if (categoryIdentifier != null) {
+        } else {
             categories = rootQuery.getCategoryList();
         }
     }
@@ -120,7 +125,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         if (query == null) {
             if (productIdentifier != null) {
                 query = generateProductQuery();
-            } else if (categoryIdentifier != null) {
+            } else {
                 query = generateCategoryQuery();
             }
         }

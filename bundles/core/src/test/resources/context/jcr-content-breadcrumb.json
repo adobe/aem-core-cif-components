@@ -1,0 +1,123 @@
+{
+  "venia": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
+      "cq:cifProductPage": "/content/venia/us/en/products/product-page",
+      "cq:cifCategoryPage": "/content/venia/us/en/products/category-page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store"
+    },
+    "us": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent"
+      },
+      "en": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "root": {
+            "responsivegrid": {
+              "breadcrumb": {
+                "sling:resourceType": "venia/components/commerce/breadcrumb",
+                "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                "startLevel": "3"
+              }
+            }
+          }
+        },
+        "products": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage",
+            "showMainCategories": true
+          },
+          "product-page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "root": {
+                "responsivegrid": {
+                  "breadcrumb": {
+                    "sling:resourceType": "venia/components/commerce/breadcrumb",
+                    "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                    "startLevel": "3",
+                    "structureDepth": "2"
+                  }
+                }
+              }
+            },
+            "product-specific-page": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "tiberius-gym-tank",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "category-page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "root": {
+                "responsivegrid": {
+                  "breadcrumb": {
+                    "sling:resourceType": "venia/components/commerce/breadcrumb",
+                    "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                    "startLevel": "3",
+                    "structureDepth": "2"
+                  }
+                }
+              }
+            },
+            "category-specific-page": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "12",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "another-page": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "root": {
+              "responsivegrid": {
+                  "breadcrumb": {
+                    "sling:resourceType": "venia/components/commerce/breadcrumb",
+                    "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                    "startLevel": "3"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

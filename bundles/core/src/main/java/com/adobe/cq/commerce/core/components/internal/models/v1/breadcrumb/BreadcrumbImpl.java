@@ -134,7 +134,7 @@ public class BreadcrumbImpl implements Breadcrumb {
 
         // A product can be in multiple categories so we select the "primary" category
         CategoryInterface categoryBreadcrumb = categoriesBreadcrumbs.get(0);
-        if (isProductPage && categoriesBreadcrumbs != null) {
+        if (isProductPage) {
             categoriesBreadcrumbs.sort(getCategoryInterfaceComparator());
             categoryBreadcrumb = categoriesBreadcrumbs.get(0);
         }
@@ -213,27 +213,27 @@ public class BreadcrumbImpl implements Breadcrumb {
     }
 
     private List<? extends CategoryInterface> fetchProductBreadcrumbs() {
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
-        retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        retriever.setProductIdentifier(identifier.getLeft(), identifier.getRight());
-
         if (StringUtils.isEmpty(identifier.getRight())) {
             return Collections.emptyList();
         }
+
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        retriever = new BreadcrumbRetriever(magentoGraphqlClient);
+        retriever.setProductIdentifier(identifier.getLeft(), identifier.getRight());
 
         return retriever.fetchCategoriesBreadcrumbs();
     }
 
     private List<? extends CategoryInterface> fetchCategoryBreadcrumbs() {
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
-        retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        retriever.setCategoryIdentifier(identifier.getLeft(), identifier.getRight());
-
         if (StringUtils.isEmpty(identifier.getRight())) {
             return Collections.emptyList();
         }
+
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        retriever = new BreadcrumbRetriever(magentoGraphqlClient);
+        retriever.setCategoryIdentifier(identifier.getLeft(), identifier.getRight());
 
         return retriever.fetchCategoriesBreadcrumbs();
     }
