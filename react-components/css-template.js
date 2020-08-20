@@ -21,6 +21,11 @@ if (!fs.existsSync(distFolder)) {
     return;
 }
 
+const templatesFolder = path.join(distFolder, 'css-api');
+if (!fs.existsSync(templatesFolder)) {
+    fs.mkdirSync(templatesFolder);
+}
+
 const files = fs.readdirSync(distFolder);
 files
     .filter(f => f.endsWith('.css') && !f.endsWith('-template.css'))
@@ -32,7 +37,7 @@ files
         let emptyCss = css.replace(/\{([^{}]*)\}/gm, '{}');
 
         // Store in new file
-        let { dir, name, ext } = path.parse(cssPath);
-        let cssPathNew = path.format({ dir, ext, name: `${name}-template` });
+        let { base } = path.parse(cssPath);
+        let cssPathNew = path.join(templatesFolder, base);
         fs.writeFileSync(cssPathNew, emptyCss);
     });
