@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
@@ -28,8 +27,6 @@ const AccountDropdown = () => {
         { isAccountDropdownOpen, accountDropdownView },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
-
-    const [t] = useTranslation('account');
 
     const className = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
 

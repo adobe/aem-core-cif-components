@@ -24,7 +24,6 @@ const Container = () => {
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;
-    console.log(`Rendering view ${view}`);
     return (
         <>
             <div className="navigation__footer">

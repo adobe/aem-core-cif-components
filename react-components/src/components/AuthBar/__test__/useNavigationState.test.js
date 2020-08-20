@@ -11,6 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import useNavigationState from '../useNavigationState';
 import { render, fireEvent, wait } from '@testing-library/react';
@@ -38,7 +41,7 @@ describe('useNavigationState', () => {
 
     it('renders the default view', () => {
         const Component = () => {
-            const [currentView, api] = useNavigationState();
+            const [currentView] = useNavigationState();
 
             return <div>{currentView}</div>;
         };

@@ -20,8 +20,9 @@ import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
 
 import classes from './myAccountPanel.css';
+import { string, shape, func } from 'prop-types';
 
-const AuthModal = ({ view, api }) => {
+const AuthModal = ({ view = 'MENU', api }) => {
     const {
         showSignIn,
         showMyAccount,
@@ -74,6 +75,20 @@ const AuthModal = ({ view, api }) => {
     }
 
     return <div className={classes.root}>{child}</div>;
+};
+
+AuthModal.propTypes = {
+    view: string,
+    api: shape({
+        showSignIn: func,
+        showMyAccount: func,
+        showMenu: func,
+        showForgotPassword: func,
+        showChangePassword: func,
+        showCreateAccount: func,
+        showAccountCreated: func,
+        handleBack: func
+    })
 };
 
 export default AuthModal;

@@ -39,7 +39,7 @@ import { useUserContext } from '../../context/UserContext';
  * within the form.
  */
 const EditableForm = props => {
-    const { submitShippingMethod, submitting, isAddressInvalid, invalidAddressMessage } = props;
+    const { submitting, isAddressInvalid, invalidAddressMessage } = props;
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();

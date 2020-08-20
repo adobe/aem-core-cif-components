@@ -11,6 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
@@ -30,7 +33,7 @@ jest.mock('../../Minicart/cartContext.js', () => ({
 describe('useCouponItem', () => {
     it('calls the "removeCoupon"', async () => {
         const Consumer = () => {
-            const [data, { removeCouponFromCart }] = useCouponItem();
+            const [, { removeCouponFromCart }] = useCouponItem();
             return (
                 <div>
                     <button onClick={removeCouponFromCart}>Remove</button>

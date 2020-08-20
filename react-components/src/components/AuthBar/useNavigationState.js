@@ -53,7 +53,6 @@ const dispatchNavigationEvent = title => {
 const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
 
 const useNavigationState = (props = { view: 'MENU' }) => {
-    console.log(`Using the state here...`);
     const [currentView, setCurrentView] = useState(props.view);
     const [t] = useTranslation('account');
 
