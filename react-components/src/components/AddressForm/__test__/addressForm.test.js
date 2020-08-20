@@ -88,6 +88,36 @@ describe('<AddressForm />', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
+    it('renders the component with default address checkbox', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm showDefaultAddressCheckbox={true} cancel={() => {}} submit={() => {}} />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with save in address book checkbox', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm showSaveInAddressBookCheckbox={true} cancel={() => {}} submit={() => {}} />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     it('calls the callback function when changing the address select', () => {
         const onAddressSelectValueChange = jest.fn(() => {});
         render(
