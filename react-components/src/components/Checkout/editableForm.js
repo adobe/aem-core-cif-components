@@ -87,6 +87,7 @@ const EditableForm = props => {
             const addressVariables = { variables: { cartId, country_code: 'US', ...formValues } };
             await setShippingAddressesOnCart(addressVariables);
             if (billingAddressSameAsShippingAddress) {
+                addressVariables.variables.save_in_address_book = false;
                 await setBillingAddressOnCart(addressVariables);
             }
             await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });

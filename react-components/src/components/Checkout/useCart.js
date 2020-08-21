@@ -19,7 +19,7 @@ import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
-import { setShippingAddressesOnCart as setShippingAddressesOnCartAction, getCartDetails } from '../../actions/cart';
+import { getCartDetails } from '../../actions/cart';
 
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_set_shipping_address.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
@@ -35,7 +35,10 @@ export default () => {
     const beginCheckout = async () => {
         cartDispatch({ type: 'beginLoading' });
 
-        if (cart && ((cart.shipping_addresses && cart.shipping_addresses[0]) || cart.billing_address)) {
+        if (
+            cart &&
+            ((cart.shipping_addresses && cart.shipping_addresses[0]) || (cart.is_virtual && cart.billing_address))
+        ) {
             await getCartDetails({ cartDetailsQuery, cartId, dispatch: cartDispatch });
 
             const cartShippingAddress = cart.shipping_addresses && cart.shipping_addresses[0];
@@ -43,21 +46,11 @@ export default () => {
             if (cartShippingAddress && cartBillingAddress && !isSameAddress(cartShippingAddress, cartBillingAddress)) {
                 dispatch({ type: 'setBillingAddressSameAsShippingAddress', same: false });
             }
-        } else if (
-            isSignedIn &&
-            currentUser.addresses.length > 0 &&
-            cart &&
-            cart.is_virtual === false &&
-            !shippingAddress
-        ) {
+        } else if (isSignedIn && currentUser.addresses.length > 0 && cart && !cart.is_virtual && !shippingAddress) {
             const address = currentUser.addresses.find(address => address.default_shipping) || currentUser.addresses[0];
-            await setShippingAddressesOnCartAction({
-                cartDetailsQuery,
-                setShippingAddressesOnCart,
-                cartId,
-                address: parseAddress(address),
-                dispatch: cartDispatch
-            });
+            const addressVariables = { variables: { cartId, country_code: 'US', ...parseAddress(address) } };
+            await setShippingAddressesOnCart(addressVariables);
+            await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });
         }
 
         cartDispatch({ type: 'endLoading' });
