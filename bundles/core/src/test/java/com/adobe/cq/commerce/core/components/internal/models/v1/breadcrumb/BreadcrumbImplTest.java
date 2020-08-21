@@ -268,6 +268,33 @@ public class BreadcrumbImplTest {
     }
 
     @Test
+    public void testNoGraphqlClient() throws Exception {
+        prepareModel("/content/venia/us/en/products/product-page");
+        when(breadcrumbResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        Collection<NavigationItem> items = breadcrumbModel.getItems();
+
+        // If we cannot access Magento data, the breadcrumb should at least display the pages
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en");
+    }
+
+    @Test
+    public void testProductNotFound() throws Exception {
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-not-found-result.json");
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        Collection<NavigationItem> items = breadcrumbModel.getItems();
+
+        // If we cannot access Magento data, the breadcrumb should at least display the pages
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en");
+    }
+
+    @Test
     public void testCategoryInterfaceComparator() {
         CategoryTree c1 = new CategoryTree();
         c1.setUrlPath("men");

@@ -108,13 +108,15 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         Query rootQuery = response.getData();
 
         if (productIdentifier != null) {
-            ProductInterface product = rootQuery
+            List<ProductInterface> products = rootQuery
                 .getProducts()
-                .getItems()
-                .get(0);
+                .getItems();
 
-            productName = product.getName();
-            categories = product.getCategories();
+            if (products.size() > 0) {
+                ProductInterface product = products.get(0);
+                productName = product.getName();
+                categories = product.getCategories();
+            }
         } else {
             categories = rootQuery.getCategoryList();
         }

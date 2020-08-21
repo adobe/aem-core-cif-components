@@ -25,6 +25,7 @@ import java.util.function.Function;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -128,7 +129,7 @@ public class BreadcrumbImpl implements Breadcrumb {
             return; // we reached a content page
         }
 
-        if (categoriesBreadcrumbs.isEmpty()) {
+        if (CollectionUtils.isEmpty(categoriesBreadcrumbs)) {
             return;
         }
 
@@ -215,10 +216,14 @@ public class BreadcrumbImpl implements Breadcrumb {
     private List<? extends CategoryInterface> fetchProductBreadcrumbs() {
         Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
         if (StringUtils.isEmpty(identifier.getRight())) {
-            return Collections.emptyList();
+            return null;
         }
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        if (magentoGraphqlClient == null) {
+            return null;
+        }
+
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         retriever.setProductIdentifier(identifier.getLeft(), identifier.getRight());
 
@@ -228,10 +233,14 @@ public class BreadcrumbImpl implements Breadcrumb {
     private List<? extends CategoryInterface> fetchCategoryBreadcrumbs() {
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
         if (StringUtils.isEmpty(identifier.getRight())) {
-            return Collections.emptyList();
+            return null;
         }
 
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        if (magentoGraphqlClient == null) {
+            return null;
+        }
+
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         retriever.setCategoryIdentifier(identifier.getLeft(), identifier.getRight());
 
