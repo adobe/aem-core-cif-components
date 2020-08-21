@@ -38,7 +38,7 @@ exports[`<AccountContainer> renders the component 1`] = `
   </button>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <div
       class="root"

@@ -34,8 +34,8 @@ import useCreateAccount from './useCreateAccount';
 import LoadingIndicator from '../LoadingIndicator';
 
 const CreateAccount = props => {
-    const { showMyAccount, showAccountCreated, handleCancel } = props;
-    const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount({
+    const { showAccountCreated, handleCancel } = props;
+    const [{ createAccountError, inProgress }, { createAccount }] = useCreateAccount({
         showAccountCreated
     });
     const [t] = useTranslation('account');
@@ -49,11 +49,6 @@ const CreateAccount = props => {
     };
 
     const errorMessage = createAccountError ? createAccountError : null;
-
-    if (isSignedIn) {
-        showMyAccount();
-        return null;
-    }
     const classes = mergeClasses(defaultClasses, props.classes);
 
     return (
