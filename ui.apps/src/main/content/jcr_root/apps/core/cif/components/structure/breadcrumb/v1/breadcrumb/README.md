@@ -36,7 +36,7 @@ This component has the same properties defined by the [Breadcrumb component](htt
 
 In addition and similar to the Commerce Navigation component, it defines and uses the `./structureDepth` property to control the maximum depth of categories that should be displayed in the breadcrumb.
 
-Like the Commerce Navigation component, it also indirectly references the `./showMainCategories` property of the [catalog page](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/catalogpage/v1/catalogpage) to control whether the catalog page is displayed or not in the breadcrumb.
+Like the Commerce Navigation component, it also indirectly references the `./showMainCategories` property of the [catalog page](/ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/catalogpage/v1/catalogpage) to control whether the catalog page is displayed or not in the breadcrumb.
 
 ## BEM Description
 
