@@ -95,6 +95,11 @@ public class BreadcrumbImpl implements Breadcrumb {
 
     @Override
     public Collection<NavigationItem> getItems() {
+        // Useful for the template editor
+        if (!currentPage.getPath().startsWith("/content")) {
+            return Collections.emptyList();
+        }
+
         if (items == null) {
             items = new ArrayList<>();
             Collection<NavigationItem> pageItems = breadcrumb.getItems();
@@ -143,8 +148,9 @@ public class BreadcrumbImpl implements Breadcrumb {
         // For products and categories, we display the category path in the breadcrumb
         List<com.adobe.cq.commerce.magento.graphql.Breadcrumb> breadcrumbs = categoryBreadcrumb.getBreadcrumbs();
         if (breadcrumbs != null) {
-            for (com.adobe.cq.commerce.magento.graphql.Breadcrumb breadcrumb : breadcrumbs) {
-                addBreadcrumbItem(breadcrumb, false);
+            int max = Integer.min(structureDepth, breadcrumbs.size());
+            for (int i = 0; i < max; i++) {
+                addBreadcrumbItem(breadcrumbs.get(i), false);
             }
         }
 
@@ -205,6 +211,7 @@ public class BreadcrumbImpl implements Breadcrumb {
      */
     private Function<CategoryInterface, Integer> idKey = c -> c.getId();
 
+    @Override
     public Comparator<CategoryInterface> getCategoryInterfaceComparator() {
         return Comparator
             .comparing(structureDepthKey)
