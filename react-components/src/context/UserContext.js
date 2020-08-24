@@ -175,7 +175,6 @@ const reducerFactory = () => {
                 return {
                     ...state,
                     isSignedIn: false,
-                    isAccountDropdownOpen: false,
                     inProgress: false,
                     token: '',
                     currentUser: {
@@ -185,7 +184,7 @@ const reducerFactory = () => {
                         addresses: []
                     },
                     cartId: '',
-                    accountDropdownView: 'SIGN_IN'
+                    accountDropdownView: null
                 };
             case 'toggleAccountDropdown':
                 return {
@@ -240,7 +239,7 @@ const UserContextProvider = props => {
         createAccountError: null,
         createAccountEmail: null,
         cartId: null,
-        accountDropdownView: 'SIGN_IN'
+        accountDropdownView: null
     };
 
     const [userState, dispatch] = useReducer(factory(), initialState);

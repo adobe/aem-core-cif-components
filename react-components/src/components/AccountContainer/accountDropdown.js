@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
@@ -25,51 +24,54 @@ import classes from './accountDropdown.css';
 
 const AccountDropdown = () => {
     const [
-        { isAccountDropdownOpen, accountDropdownView },
+        { isAccountDropdownOpen, isSignedIn, accountDropdownView },
         { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
     ] = useUserContext();
 
-    const [t] = useTranslation('account');
+    const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
 
-    const className = isAccountDropdownOpen ? classes.dropdown_open : classes.dropdown;
-
-    let child;
-
-    switch (accountDropdownView) {
-        case 'SIGN_IN':
-            child = (
-                <SignIn
-                    showMyAccount={showMyAccount}
-                    showForgotPassword={showForgotPassword}
-                    showCreateAccount={showCreateAccount}
-                />
-            );
-            break;
-        case 'MY_ACCOUNT':
-            child = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
-            break;
-        case 'CHANGE_PASSWORD':
-            child = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
-            break;
-        case 'FORGOT_PASSWORD':
-            child = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
-            break;
-        case 'CREATE_ACCOUNT':
-            child = (
-                <CreateAccount
-                    showMyAccount={showMyAccount}
-                    showAccountCreated={showAccountCreated}
-                    handleCancel={showSignIn}
-                />
-            );
-            break;
-        case 'ACCOUNT_CREATED':
-            child = <CreateAccountSuccess showSignIn={showSignIn} />;
+    let view;
+    if (!isSignedIn) {
+        switch (accountDropdownView) {
+            case 'FORGOT_PASSWORD':
+                view = <ForgotPassword onClose={showSignIn} onCancel={showSignIn} />;
+                break;
+            case 'CREATE_ACCOUNT':
+                view = (
+                    <CreateAccount
+                        showMyAccount={showMyAccount}
+                        showAccountCreated={showAccountCreated}
+                        handleCancel={showSignIn}
+                    />
+                );
+                break;
+            case 'ACCOUNT_CREATED':
+                view = <CreateAccountSuccess showSignIn={showSignIn} />;
+                break;
+            case 'SIGN_IN':
+            default:
+                view = (
+                    <SignIn
+                        showMyAccount={showMyAccount}
+                        showForgotPassword={showForgotPassword}
+                        showCreateAccount={showCreateAccount}
+                    />
+                );
+        }
+    } else {
+        switch (accountDropdownView) {
+            case 'CHANGE_PASSWORD':
+                view = <ChangePassword showMyAccount={showMyAccount} handleCancel={showMyAccount} />;
+                break;
+            case 'MY_ACCOUNT':
+            default:
+                view = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
+        }
     }
 
     return (
-        <div className={className} aria-label="account dropdown">
-            {child}
+        <div className={rootClass} aria-label="account dropdown">
+            {view}
         </div>
     );
 };

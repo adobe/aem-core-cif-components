@@ -122,7 +122,7 @@ exports[`<MyAccount> renders the component 1`] = `
             </svg>
           </span>
           <span>
-            Address Information
+            Account Information
           </span>
         </span>
       </button>
