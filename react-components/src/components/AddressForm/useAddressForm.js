@@ -106,7 +106,8 @@ export const useAddressForm = () => {
             address1.street.join(' ') === address2.street.join(' ') &&
             address1.city === address2.city &&
             address1.country_code === address2.country_code &&
-            address1.region.region_code === address2.region_code &&
+            ((address1.region && (address1.region.region_code || address1.region.code)) || address1.region_code) ===
+                ((address2.region && (address2.region.region_code || address2.region.code)) || address2.region_code) &&
             address1.postcode === address2.postcode &&
             address1.telephone === address2.telephone
         );
