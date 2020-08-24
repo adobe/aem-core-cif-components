@@ -14,6 +14,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useEventListener } from '../../utils/hooks';
+import { useConfigContext } from '../../context/ConfigContext';
 
 // DOM events that are used to talk to the navigation panel
 const events = {
@@ -43,18 +44,21 @@ const stepTitles = {
 const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
 const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
-const navigationPanel = document.querySelector('aside.navigation__root');
-
 const dispatchNavigationEvent = title => {
     const event = new CustomEvent('aem.accmg.step', { detail: { title } });
     dispatchEvent(event);
 };
 
-const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
-
 const useNavigationState = (props = { view: 'MENU' }) => {
     const [currentView, setCurrentView] = useState(props.view);
     const [t] = useTranslation('account');
+
+    const {
+        mountingPoints: { navPanel }
+    } = useConfigContext();
+
+    const navigationPanel = document.querySelector(navPanel);
+    const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
 
     const handleBack = useCallback(() => {
         if (currentView === null) {
