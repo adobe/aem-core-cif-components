@@ -4,7 +4,7 @@ exports[`<AccountDropdown> renders the account created component inside account 
 <DocumentFragment>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <div
       class="root"
@@ -48,7 +48,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
 <DocumentFragment>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <div
       class="root"
@@ -199,7 +199,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
 <DocumentFragment>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <form>
       <p>
@@ -443,7 +443,7 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
 <DocumentFragment>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <div
       class="root"
@@ -524,7 +524,7 @@ exports[`<AccountDropdown> renders the my account component inside account dropd
 <DocumentFragment>
   <div
     aria-label="account dropdown"
-    class="dropdown"
+    class="root"
   >
     <div
       class="root"
@@ -646,7 +646,7 @@ exports[`<AccountDropdown> renders the my account component inside account dropd
               </svg>
             </span>
             <span>
-              Address Information
+              Account Information
             </span>
           </span>
         </button>

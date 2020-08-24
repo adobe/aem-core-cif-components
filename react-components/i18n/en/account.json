@@ -29,7 +29,6 @@
   "account-icon-text-sign-in": "Sign In",
   "account-icon-text-greeting": "Hi, <1>{{name}}</1>",
   "address-book": "Address Book",
-  "address-information": "Address Information",
   "forgot-password-cancel": "Cancel",
   "create-cancel": "Cancel",
   "change-password-cancel": "Cancel",
@@ -42,5 +41,6 @@
   "address-edit": "Edit",
   "address-delete": "Delete",
   "address-default-tag": "Default",
-  "address-form-heading": "Address"
+  "address-form-heading": "Address",
+  "account-information": "Account Information"
 }
