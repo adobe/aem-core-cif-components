@@ -39,7 +39,7 @@ This component has the following properties defined by the Navigation component 
 3. `./skipNavigationRoot` - it should be always `true` or omitted as it defaults to `true`, to include only the descendants of the navigation root and exclude the root itself
 4. `./collectAllPages` - it should be always `false` to honor the `./structureDepth` property and avoid collecting all pages that are descendants of the `./navigationRoot`
 
-Indirectly references the following properties of the [catalog page](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/catalogpage/v1/catalogpage):
+Indirectly references the following properties of the [catalog page](/ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/catalogpage/v1/catalogpage):
 
 1. `./magentoRootCategoryId` - the Magento root category id used as an entry point for the navigation
 2. `./showMainCategories` - show the main top level categories directly or use catalog page as entry point
