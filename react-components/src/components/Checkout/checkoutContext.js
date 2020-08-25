@@ -140,7 +140,7 @@ CheckoutProvider.propTypes = {
     initialState: shape({
         flowState: string.isRequired,
         order: object,
-        editing: object,
+        editing: string,
         shippingAddress: object,
         billingAddress: object,
         billingAddressSameAsShippingAddress: bool,

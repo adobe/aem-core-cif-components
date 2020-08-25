@@ -135,8 +135,6 @@ describe('useAddressSelect', () => {
             return <div data-testid="address-select-initial-value">{initialValue}</div>;
         };
 
-        const handler = jest.fn(state => state);
-
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
