@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { instanceOf } from 'prop-types';
 import { useTranslation } from 'react-i18next';
+import { useConfigContext } from '../../context/ConfigContext';
 import Checkbox from './checkbox';
 import Radio from './radio';
 import Select from './select';
@@ -23,16 +22,17 @@ import MultiSelect from './multiSelect';
 import { useAwaitQuery } from '../../utils/hooks';
 
 import Button from '../Button';
-import classes from './bundleProductOptions.css';
 
 import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
 
 const BundleProductOptions = () => {
     const [t] = useTranslation(['product', 'cart']);
-    const optionsContainer = document.querySelector('#bundle-product-options');
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
-
+    const {
+        mountingPoints: { bundleProductOptionsContainer }
+    } = useConfigContext();
+    const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
     const [bundleState, setBundleState] = useState(null);
 
     const fetchBundleDetails = async sku => {
@@ -166,15 +166,14 @@ const BundleProductOptions = () => {
             );
         }, 0);
 
-        return <Price currencyCode={currencyCode} value={price} className={classes.totalPrice} />;
+        return <Price currencyCode={currencyCode} value={price} className="price" />;
     };
 
-    if (optionsContainer !== null) {
-        const { sku } = optionsContainer.dataset;
-        return ReactDOM.createPortal(
+    if (sku) {
+        return (
             <>
                 {bundleState === null ? (
-                    <section className={'productFullDetail__section ' + classes.customize}>
+                    <section className="productFullDetail__section productFullDetail__customizeBundle">
                         <Button priority="high" onClick={() => fetchBundleDetails(sku)}>
                             <span>{t('product:customize-bundle', 'Customize')}</span>
                         </Button>
@@ -182,20 +181,19 @@ const BundleProductOptions = () => {
                 ) : (
                     <>
                         {bundleState.options.items.map(e => (
-                            <section key={`item-${e.option_id}`} className={'productFullDetail__section '}>
+                            <section
+                                key={`item-${e.option_id}`}
+                                className="productFullDetail__section productFullDetail__bundleProduct">
                                 <h3 className="option__title">
-                                    <span>{e.title}</span>{' '}
-                                    {e.required && <span className={classes.required_info}> *</span>}
+                                    <span>{e.title}</span> {e.required && <span className="required"> *</span>}
                                 </h3>
                                 <div>{renderItemOptions(e)}</div>
                             </section>
                         ))}
-                        <section className="productFullDetail__section">
+                        <section className="productFullDetail__section productFullDetail__bundleProduct">
                             <h3>
-                                <span className={classes.required_info}>
-                                    * {t('product:required-fields', 'Required fields')}
-                                </span>
-                                <span className={classes.customization__info}>
+                                <span className="required">* {t('product:required-fields', 'Required fields')}</span>
+                                <span className="priceInfo">
                                     {t('product:customization-price', 'Your customization')}: {getTotalPrice()}
                                 </span>
                             </h3>
@@ -205,7 +203,7 @@ const BundleProductOptions = () => {
                                 <span>{t('cart:quantity', 'Quantity')}</span>
                             </h2>
                             <div className="quantity__root">
-                                <span className={'fieldIcons__root ' + classes.select_icons}>
+                                <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
                                     <span className="fieldIcons__input">
                                         <select
                                             aria-label="product's quantity"
@@ -250,16 +248,11 @@ const BundleProductOptions = () => {
                         </section>
                     </>
                 )}
-            </>,
-            optionsContainer
+            </>
         );
     }
 
     return <></>;
-};
-
-BundleProductOptions.propTypes = {
-    container: instanceOf(Element).isRequired
 };
 
 export default BundleProductOptions;

@@ -14,8 +14,6 @@
 import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
 
-import classes from './bundleProductOptions.css';
-
 const MultiSelect = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
 
@@ -35,7 +33,7 @@ const MultiSelect = props => {
         <select
             name={item.option_id}
             multiple="multiple"
-            className={classes.multiselect_options_root}
+            className="bundleProduct__option"
             size="5"
             value={customization.map(c => c.id)}
             onChange={onChange}>

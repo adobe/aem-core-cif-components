@@ -41,7 +41,7 @@ const Radio = props => {
     return (
         <>
             {!item.required && (
-                <div>
+                <div className="bundleProduct__option">
                     <label>
                         <input
                             type="radio"
@@ -55,7 +55,7 @@ const Radio = props => {
                 </div>
             )}
             {sortedOptions.map(o => (
-                <div key={`option-${item.option_id}-${o.id}`}>
+                <div key={`option-${item.option_id}-${o.id}`} className="bundleProduct__options">
                     <label>
                         <input
                             type="radio"
@@ -71,13 +71,13 @@ const Radio = props => {
                     </label>
                 </div>
             ))}
-            <h2 className={classes.option_quantity_title}>
+            <h2 className="option__title productFullDetail__quantityTitle">
                 <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
                 type="number"
                 min="1"
-                className={classes.option_quantity_input}
+                className="option__quantity"
                 disabled={!canChangeQuantity}
                 value={customization[0]?.quantity}
                 onChange={onQuantityChange}

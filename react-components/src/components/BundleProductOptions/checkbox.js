@@ -36,7 +36,7 @@ const Checkbox = props => {
     return (
         <>
             {sortedOptions.map(o => (
-                <div key={`option-${item.option_id}-${o.id}`}>
+                <div key={`option-${item.option_id}-${o.id}`} className="bundleProduct__option">
                     <label>
                         <input
                             type="checkbox"

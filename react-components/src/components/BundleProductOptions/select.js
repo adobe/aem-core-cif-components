@@ -15,8 +15,6 @@ import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import classes from './bundleProductOptions.css';
-
 const Select = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
     const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;
@@ -47,12 +45,12 @@ const Select = props => {
 
     return (
         <>
-            <div className={classes.select_options_root}>
+            <div className="bundleOptionSelect__root">
                 <span className="fieldIcons__root">
                     <span className="fieldIcons__input">
                         <select
                             aria-label={item.title}
-                            className="select__input field__input"
+                            className="select__input field__input bundleProduct__option"
                             name={item.id}
                             value={customization[0]?.id}
                             onChange={onChange}>
@@ -84,13 +82,13 @@ const Select = props => {
                 </span>
             </div>
 
-            <h2 className={classes.option_quantity_title}>
+            <h2 className="option__title productFullDetail__quantityTitle">
                 <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
                 type="number"
                 min="1"
-                className={classes.option_quantity_input}
+                className="option__quantity"
                 disabled={!canChangeQuantity}
                 value={customization[0]?.quantity}
                 onChange={onQuantityChange}
