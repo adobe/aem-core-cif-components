@@ -48,7 +48,15 @@ The unit tests are run using the `npm run test` command. To run the tests during
 
 ### Prerequisites
 
-The React components access the Magento backend directly, so the calls have to be proxied in order to avoid CORS issues. For this you have to have the Dispacher proxy configured (see [the dispacher configuration](../dispatcher)) for details) and you have to access AEM through the dispatcher (i.e. use https://localhost instead of http://localhost:4502).
+The React components access the Magento GraphQL endpoint directly, so all calls have to either be served from the same endpoint as AEM or served via a proxy that adds CORS headers.
+
+To start a local proxy server, you can use the following command:
+```
+npx local-cors-proxy --proxyUrl https://my.magento.cloud --port 3002 --proxyPartial ''
+```
+The GraphQL endpoint is then available at `http://localhost:3002/graphql`.
+
+If you develop for AEM on-prem installations, a proxy is included in our sample Dispatcher configuration (see [the dispacher configuration](../dispatcher) for details). You have to access AEM through the dispatcher (i.e. use https://localhost instead of http://localhost:4502).
 
 ### Building
 
