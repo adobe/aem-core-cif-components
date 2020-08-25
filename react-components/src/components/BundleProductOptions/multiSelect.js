@@ -33,7 +33,7 @@ const MultiSelect = props => {
         <select
             name={item.option_id}
             multiple="multiple"
-            className="bundleProduct__option"
+            className="bundleProduct__option field__input"
             size="5"
             value={customization.map(c => c.id)}
             onChange={onChange}>

@@ -166,7 +166,7 @@ const BundleProductOptions = () => {
             );
         }, 0);
 
-        return <Price currencyCode={currencyCode} value={price} className="price" />;
+        return <Price currencyCode={currencyCode} value={price} className="bundlePrice" />;
     };
 
     if (sku) {

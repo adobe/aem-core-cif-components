@@ -82,7 +82,7 @@ const Select = props => {
                 </span>
             </div>
 
-            <h2 className="option__title productFullDetail__quantityTitle">
+            <h2 className="bundleProduct__quantityTitle">
                 <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
