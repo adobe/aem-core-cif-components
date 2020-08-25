@@ -3,7 +3,7 @@
 exports[`<MultiSelect> renders the component 1`] = `
 <DocumentFragment>
   <select
-    class="bundleProduct__option"
+    class="bundleProduct__option field__input"
     multiple=""
     name="1"
     size="5"

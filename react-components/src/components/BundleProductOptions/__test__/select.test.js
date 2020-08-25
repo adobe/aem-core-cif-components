@@ -141,7 +141,7 @@ describe('<Select>', () => {
                 </span>
               </div>
               <h2
-                class="option__title productFullDetail__quantityTitle"
+                class="bundleProduct__quantityTitle"
               >
                 <span>
                   cart:quantity
