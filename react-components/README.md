@@ -48,6 +48,8 @@ The unit tests are run using the `npm run test` command. To run the tests during
 
 ### Prerequisites
 
+For development, please have [node.js](https://nodejs.org/) (v12+) and [npm](https://www.npmjs.com/get-npm) (v6+) installed.
+
 The React components access the Magento GraphQL endpoint directly, so all calls have to either be served from the same endpoint as AEM or served via a proxy that adds CORS headers.
 
 To start a local proxy server, you can use the following command:
