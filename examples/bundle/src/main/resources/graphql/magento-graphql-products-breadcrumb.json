@@ -1,0 +1,29 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "sku": "MH01",
+          "url_key": "chaz-kangeroo-hoodie",
+          "name": "Chaz Kangeroo Hoodie",
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "id": 1,
+              "url_path": "outdoor/collection",
+              "name": "Collection",
+              "breadcrumbs": [
+                {
+                  "category_id": 2,
+                  "category_url_path": "outdoor",
+                  "category_name": "Outdoor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
