@@ -3,7 +3,7 @@
 exports[`<Select> renders the component 1`] = `
 <DocumentFragment>
   <div
-    class="select_options_root"
+    class="bundleOptionSelect__root"
   >
     <span
       class="fieldIcons__root"
@@ -12,7 +12,7 @@ exports[`<Select> renders the component 1`] = `
         class="fieldIcons__input"
       >
         <select
-          class="select__input field__input"
+          class="select__input field__input bundleProduct__option"
         >
           <option
             value="1"
@@ -55,14 +55,14 @@ exports[`<Select> renders the component 1`] = `
     </span>
   </div>
   <h2
-    class="option_quantity_title"
+    class="option__title productFullDetail__quantityTitle"
   >
     <span>
       cart:quantity
     </span>
   </h2>
   <input
-    class="option_quantity_input"
+    class="option__quantity"
     disabled=""
     min="1"
     type="number"

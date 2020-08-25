@@ -12,10 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { I18nextProvider } from 'react-i18next';
 import { MockedProvider } from '@apollo/react-testing';
 import { render } from '@testing-library/react';
+import * as ConfigContext from '../../../context/ConfigContext';
 
 import i18n from '../../../../__mocks__/i18nForTests';
 
@@ -24,10 +24,14 @@ import BundleProductOptions from '../bundleProductOptions';
 describe('<BundleProductOptions>', () => {
     beforeAll(() => {
         // mock createPortal because we don't have the DOM element to render the BundleProductOptions
-        jest.spyOn(ReactDOM, 'createPortal').mockImplementation(element => element);
+        jest.spyOn(ConfigContext, 'useConfigContext').mockImplementation(() => {
+            return {
+                mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' }
+            };
+        });
     });
 
-    it('renders the component', () => {
+    it('renders the component with no sku', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
@@ -37,5 +41,44 @@ describe('<BundleProductOptions>', () => {
         );
 
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with sku', () => {
+        jest.spyOn(document, 'querySelector').mockImplementation(selector => {
+            return {
+                dataset: {
+                    sku: 'VA-42'
+                }
+            };
+        });
+
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <BundleProductOptions />
+                </MockedProvider>
+            </I18nextProvider>
+        );
+
+        expect(asFragment()).toMatchInlineSnapshot(`
+            <DocumentFragment>
+              <section
+                class="productFullDetail__section productFullDetail__customizeBundle"
+              >
+                <button
+                  class="root_highPriority"
+                  type="button"
+                >
+                  <span
+                    class="content"
+                  >
+                    <span>
+                      Customize
+                    </span>
+                  </span>
+                </button>
+              </section>
+            </DocumentFragment>
+        `);
     });
 });

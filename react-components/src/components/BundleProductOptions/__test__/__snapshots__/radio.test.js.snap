@@ -2,7 +2,9 @@
 
 exports[`<Radio> renders the component 1`] = `
 <DocumentFragment>
-  <div>
+  <div
+    class="bundleProduct__options"
+  >
     <label>
       <input
         checked=""
@@ -20,7 +22,9 @@ exports[`<Radio> renders the component 1`] = `
       </b>
     </label>
   </div>
-  <div>
+  <div
+    class="bundleProduct__options"
+  >
     <label>
       <input
         name="1"
@@ -38,14 +42,14 @@ exports[`<Radio> renders the component 1`] = `
     </label>
   </div>
   <h2
-    class="option_quantity_title"
+    class="option__title productFullDetail__quantityTitle"
   >
     <span>
       cart:quantity
     </span>
   </h2>
   <input
-    class="option_quantity_input"
+    class="option__quantity"
     disabled=""
     min="1"
     type="number"

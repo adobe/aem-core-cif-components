@@ -89,7 +89,7 @@ describe('<Select>', () => {
         expect(asFragment()).toMatchInlineSnapshot(`
             <DocumentFragment>
               <div
-                class="select_options_root"
+                class="bundleOptionSelect__root"
               >
                 <span
                   class="fieldIcons__root"
@@ -98,7 +98,7 @@ describe('<Select>', () => {
                     class="fieldIcons__input"
                   >
                     <select
-                      class="select__input field__input"
+                      class="select__input field__input bundleProduct__option"
                     >
                       <option
                         value="1"
@@ -141,14 +141,14 @@ describe('<Select>', () => {
                 </span>
               </div>
               <h2
-                class="option_quantity_title"
+                class="option__title productFullDetail__quantityTitle"
               >
                 <span>
                   cart:quantity
                 </span>
               </h2>
               <input
-                class="option_quantity_input"
+                class="option__quantity"
                 min="1"
                 type="number"
                 value="1"

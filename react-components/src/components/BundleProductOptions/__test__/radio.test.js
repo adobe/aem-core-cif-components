@@ -88,7 +88,9 @@ describe('<Radio>', () => {
 
         expect(asFragment()).toMatchInlineSnapshot(`
             <DocumentFragment>
-              <div>
+              <div
+                class="bundleProduct__options"
+              >
                 <label>
                   <input
                     name="1"
@@ -105,7 +107,9 @@ describe('<Radio>', () => {
                   </b>
                 </label>
               </div>
-              <div>
+              <div
+                class="bundleProduct__options"
+              >
                 <label>
                   <input
                     checked=""
@@ -124,14 +128,14 @@ describe('<Radio>', () => {
                 </label>
               </div>
               <h2
-                class="option_quantity_title"
+                class="option__title productFullDetail__quantityTitle"
               >
                 <span>
                   cart:quantity
                 </span>
               </h2>
               <input
-                class="option_quantity_input"
+                class="option__quantity"
                 min="1"
                 type="number"
                 value="1"
