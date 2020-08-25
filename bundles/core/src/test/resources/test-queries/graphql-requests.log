@@ -30,6 +30,12 @@
 
 {products(currentPage:1,pageSize:6,filter:{category_id:{eq:"6"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}},category(id:6){id,description,name,image,product_count}}
 
+{products(filter:{sku:{eq:"MT10"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+
+{categoryList(filters:{ids:{eq:"12"}}){id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}
+
+{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+
 {category__category_5:category(id:5){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image}}
 
 {category__category_5:category(id:5){id,name,url_path,position,image},category__category_6:category(id:6){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image},category__category_9999:category(id:9999){id,name,url_path,position,image}}

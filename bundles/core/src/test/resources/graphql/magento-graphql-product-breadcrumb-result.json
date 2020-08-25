@@ -1,0 +1,50 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "sku": "MT10",
+          "url_key": "tiberius-gym-tank",
+          "name": "Tiberius Gym Tank",
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "id": 12,
+              "url_path": "men/tops-men",
+              "name": "Tops",
+              "breadcrumbs": [
+                {
+                  "category_id": 11,
+                  "category_url_path": "men",
+                  "category_name": "Men",
+                  "category_level": 2
+                }
+              ]
+            },
+            {
+              "__typename": "CategoryTree",
+              "id": 17,
+              "url_path": "men/tops-men/tanks-men",
+              "name": "Tanks",
+              "breadcrumbs": [
+                {
+                  "category_id": 11,
+                  "category_url_path": "men",
+                  "category_name": "Men",
+                  "category_level": 2
+                },
+                {
+                  "category_id": 12,
+                  "category_url_path": "men/tops-men",
+                  "category_name": "Tops",
+                  "category_level": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
