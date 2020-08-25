@@ -217,6 +217,51 @@ describe('useAddressForm', () => {
         expect(street.textContent).toEqual('saved address street');
     });
 
+    it('gets the region code from an address', async () => {
+        const Wrapper = () => {
+            const { getRegionCode } = useAddressForm();
+            const address1 = {
+                region: {
+                    code: 'AL'
+                }
+            };
+            const address2 = {
+                region: {
+                    region_code: 'MI'
+                }
+            };
+
+            const address3 = {
+                region_code: 'LA'
+            };
+
+            return (
+                <>
+                    <div data-testid="region-code1">{getRegionCode(address1)}</div>
+                    <div data-testid="region-code2">{getRegionCode(address2)}</div>
+                    <div data-testid="region-code3">{getRegionCode(address3)}</div>
+                </>
+            );
+        };
+
+        const { getByTestId } = render(
+            <MockedProvider>
+                <UserContextProvider>
+                    <Wrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const regionCode1 = getByTestId('region-code1');
+        expect(regionCode1.textContent).toEqual('AL');
+
+        const regionCode2 = getByTestId('region-code2');
+        expect(regionCode2.textContent).toEqual('MI');
+
+        const regionCode3 = getByTestId('region-code3');
+        expect(regionCode3.textContent).toEqual('LA');
+    });
+
     it('gets the correct region id', async () => {
         const Wrapper = () => {
             const { getRegionId } = useAddressForm();

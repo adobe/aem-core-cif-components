@@ -51,6 +51,10 @@ export const useAddressForm = () => {
         };
     };
 
+    const getRegionCode = address => {
+        return (address.region && (address.region.region_code || address.region.code)) || address.region_code;
+    };
+
     const getRegionId = (countries, countryCode, regionCode) => {
         const region =
             countries &&
@@ -106,8 +110,7 @@ export const useAddressForm = () => {
             address1.street.join(' ') === address2.street.join(' ') &&
             address1.city === address2.city &&
             address1.country_code === address2.country_code &&
-            ((address1.region && (address1.region.region_code || address1.region.code)) || address1.region_code) ===
-                ((address2.region && (address2.region.region_code || address2.region.code)) || address2.region_code) &&
+            getRegionCode(address1) === getRegionCode(address2) &&
             address1.postcode === address2.postcode &&
             address1.telephone === address2.telephone
         );
@@ -116,7 +119,7 @@ export const useAddressForm = () => {
     const parseAddress = (address, email) => {
         let result = {
             ...address,
-            region_code: address.region.region_code || address.region.code,
+            region_code: getRegionCode(address),
             country_code: address.country_code || address.country.code
         };
         if (email) {
@@ -165,6 +168,7 @@ export const useAddressForm = () => {
         errorMessage,
         findSavedAddress,
         getNewAddress,
+        getRegionCode,
         getRegionId,
         handleSubmit,
         handleCancel,
