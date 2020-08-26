@@ -12,49 +12,150 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 
 import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider, useCartState } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 
 import useCart from '../useCart';
 
+import CART_DETAILS_QUERY from '../../../queries/query_cart_details.graphql';
 import MUTATION_SET_SHIPPING_ADDRESS from '../../../queries/mutation_set_shipping_address.graphql';
 
 describe('useCart', () => {
-    it('begins checkout with billing address same as shipping address set to false', async () => {
-        const MockCmp = () => {
-            const { beginCheckout } = useCart();
-            const { billingAddressSameAsShippingAddress } = useCheckoutState();
+    const mockShippingAddress = {
+        city: 'Calder',
+        country_code: 'US',
+        company: 'shipping address company',
+        firstname: 'Veronica',
+        lastname: 'Costello',
+        postcode: '49628-7978',
+        region_code: 'MI',
+        save_in_address_book: false,
+        street: ['cart shipping address'],
+        telephone: '(555) 229-3326'
+    };
 
-            return (
-                <>
-                    <div data-testid="same-as-shipping-address">
-                        {!billingAddressSameAsShippingAddress ? 'false' : 'true'}
-                    </div>
-                    <button onClick={beginCheckout}>Begin Checkout</button>
-                </>
-            );
+    const mocks = [
+        {
+            request: {
+                query: CART_DETAILS_QUERY,
+                variables: {
+                    cartId: ''
+                }
+            },
+            result: {
+                data: {
+                    cart: {
+                        shipping_addresses: [
+                            {
+                                available_shipping_methods: [
+                                    {
+                                        carrier_code: 'test carrier code',
+                                        carrier_title: 'test carrier title',
+                                        method_code: 'test method code',
+                                        method_title: 'test method title'
+                                    }
+                                ],
+                                city: mockShippingAddress.city,
+                                company: mockShippingAddress.company,
+                                country: {
+                                    code: mockShippingAddress.country_code
+                                },
+                                firstname: mockShippingAddress.firstname,
+                                lastname: mockShippingAddress.lastname,
+                                postcode: mockShippingAddress.postcode,
+                                region: {
+                                    code: mockShippingAddress.region_code
+                                },
+                                street: mockShippingAddress.street,
+                                telephone: mockShippingAddress.telephone
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            request: {
+                query: MUTATION_SET_SHIPPING_ADDRESS,
+                variables: {
+                    cartId: null,
+                    city: mockShippingAddress.city,
+                    company: mockShippingAddress.company,
+                    country_code: mockShippingAddress.country_code,
+                    firstname: mockShippingAddress.firstname,
+                    lastname: mockShippingAddress.lastname,
+                    postcode: mockShippingAddress.postcode,
+                    region_code: mockShippingAddress.region_code,
+                    save_in_address_book: mockShippingAddress.save_in_address_book,
+                    street: mockShippingAddress.street,
+                    telephone: mockShippingAddress.telephone
+                }
+            },
+            result: {
+                data: {
+                    cart: {
+                        shipping_addresses: [
+                            {
+                                available_shipping_methods: [
+                                    {
+                                        carrier_code: 'test carrier code',
+                                        carrier_title: 'test carrier title',
+                                        method_code: 'test method code',
+                                        method_title: 'test method title'
+                                    }
+                                ],
+                                city: mockShippingAddress.city,
+                                company: mockShippingAddress.company,
+                                country: {
+                                    code: mockShippingAddress.country_code
+                                },
+                                firstname: mockShippingAddress.firstname,
+                                lastname: mockShippingAddress.lastname,
+                                postcode: mockShippingAddress.postcode,
+                                region: {
+                                    code: mockShippingAddress.region_code
+                                },
+                                street: mockShippingAddress.street,
+                                telephone: mockShippingAddress.telephone
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ];
+
+    it('begins checkout when shipping address is set on cart', async () => {
+        const Wrapper = () => {
+            const { beginCheckout } = useCart();
+            const [{ isLoading }] = useCartState();
+            const [{ billingAddressSameAsShippingAddress, flowState }] = useCheckoutState();
+
+            let content;
+            if (!isLoading) {
+                content = (
+                    <>
+                        <div data-testid="billing-address-same-as-shipping-address">
+                            {!billingAddressSameAsShippingAddress ? 'false' : 'true'}
+                        </div>
+                        <div data-testid="flow-state">{flowState}</div>
+                        <div data-testid="is-cart-loading">{isLoading ? 'true' : 'false'}</div>
+                    </>
+                );
+            } else {
+                content = <button onClick={beginCheckout}>Begin Checkout</button>;
+            }
+
+            return <div>{content}</div>;
         };
 
         const mockCartState = {
             cart: {
-                shipping_addresses: [
-                    {
-                        city: 'Calder',
-                        country_code: 'US',
-                        firstname: 'Veronica',
-                        lastname: 'Costello',
-                        postcode: '49628-7978',
-                        region: {
-                            code: 'MI'
-                        },
-                        street: ['cart shipping address'],
-                        telephone: '(555) 229-3326'
-                    }
-                ],
+                shipping_addresses: [{ ...mockShippingAddress }],
                 billing_address: {
                     city: 'Calder',
                     country_code: 'US',
@@ -67,17 +168,21 @@ describe('useCart', () => {
                     street: ['cart shipping address'],
                     telephone: '(555) 229-3326'
                 }
-            }
+            },
+            isLoading: true
         };
 
-        const checkoutHandler = jest.fn(state => state);
+        const mockCheckoutState = {
+            flowState: '',
+            billingAddressSameAsShippingAddress: true
+        };
 
-        const { getByTestId, getByRole } = render(
+        const { getByRole, getByTestId } = render(
             <MockedProvider>
                 <UserContextProvider>
                     <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider reducer={checkoutHandler}>
-                            <MockCmp />
+                        <CheckoutProvider initialState={mockCheckoutState}>
+                            <Wrapper />
                         </CheckoutProvider>
                     </CartProvider>
                 </UserContextProvider>
@@ -87,88 +192,127 @@ describe('useCart', () => {
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
 
-        const saveAsShippingAddress = getByTestId('same-as-shipping-address');
-        expect(saveAsShippingAddress.textContent).toEqual('false');
+        const billingAddressSaveAsShippingAddress = await waitForElement(() =>
+            getByTestId('billing-address-same-as-shipping-address')
+        );
+        expect(billingAddressSaveAsShippingAddress).not.toBeUndefined();
+        expect(billingAddressSaveAsShippingAddress.textContent).toEqual('false');
+
+        const flowState = getByTestId('flow-state');
+        expect(flowState).not.toBeUndefined();
+        expect(flowState.textContent).toEqual('form');
+
+        const isCartLoading = getByTestId('is-cart-loading');
+        expect(isCartLoading).not.toBeUndefined();
+        expect(isCartLoading.textContent).toEqual('false');
     });
 
-    it('begins checkout with pre-filled shipping address', async () => {
-        const MockCmp = () => {
+    it('begins checkout when cart is virtual and only billing address is set on cart', async () => {
+        const Wrapper = () => {
             const { beginCheckout } = useCart();
+            const [{ isLoading }] = useCartState();
+            const [{ billingAddressSameAsShippingAddress, flowState }] = useCheckoutState();
 
-            return <button onClick={beginCheckout}>Begin Checkout</button>;
+            let content;
+            if (!isLoading) {
+                content = (
+                    <>
+                        <div data-testid="billing-address-same-as-shipping-address">
+                            {!billingAddressSameAsShippingAddress ? 'false' : 'true'}
+                        </div>
+                        <div data-testid="flow-state">{flowState}</div>
+                        <div data-testid="is-cart-loading">{isLoading ? 'true' : 'false'}</div>
+                    </>
+                );
+            } else {
+                content = <button onClick={beginCheckout}>Begin Checkout</button>;
+            }
+
+            return <div>{content}</div>;
         };
 
-        const mockAddress = {
-            city: 'Calder',
-            country_code: 'US',
-            company: '',
-            firstname: 'Veronica',
-            lastname: 'Costello',
-            postcode: '49628-7978',
-            region_code: 'MI',
-            save_in_address_book: false,
-            street: ['cart shipping address'],
-            telephone: '(555) 229-3326'
-        };
-
-        const mocks = [
-            {
-                request: {
-                    query: MUTATION_SET_SHIPPING_ADDRESS,
-                    variables: {
-                        cartId: '',
-                        city: mockAddress.city,
-                        country_code: mockAddress.country_code,
-                        company: '',
-                        firstname: mockAddress.firstname,
-                        lastname: mockAddress.lastname,
-                        postcode: mockAddress.postcode,
-                        region_code: mockAddress.region_code,
-                        save_in_address_book: false,
-                        street: mockAddress.street,
-                        telephone: mockAddress.telephone
-                    }
-                },
-                result: {
-                    data: {
-                        cart: {
-                            available_shipping_methods: {
-                                carrier_code: '',
-                                carrier_title: '',
-                                method_code: '',
-                                method_title: ''
-                            },
-                            city: mockAddress.city,
-                            company: '',
-                            country: {
-                                code: mockAddress.country_code
-                            },
-                            firstname: mockAddress.firstname,
-                            lastname: mockAddress.lastname,
-                            postcode: mockAddress.postcode,
-                            region: {
-                                code: mockAddress.region_code
-                            },
-                            street: mockAddress.street,
-                            telephone: mockAddress.telephone
-                        }
+        const mockCartState = {
+            cart: {
+                is_virtual: true,
+                billing_address: {
+                    ...mockShippingAddress,
+                    region: {
+                        code: 'LA'
                     }
                 }
+            },
+            isLoading: true
+        };
+
+        const mockCheckoutState = {
+            flowState: '',
+            billingAddressSameAsShippingAddress: true
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider initialState={mockCartState}>
+                        <CheckoutProvider initialState={mockCheckoutState}>
+                            <Wrapper />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+        fireEvent.click(getByRole('button'));
+
+        const billingAddressSaveAsShippingAddress = await waitForElement(() =>
+            getByTestId('billing-address-same-as-shipping-address')
+        );
+        expect(billingAddressSaveAsShippingAddress).not.toBeUndefined();
+        expect(billingAddressSaveAsShippingAddress.textContent).toEqual('true');
+
+        const flowState = getByTestId('flow-state');
+        expect(flowState).not.toBeUndefined();
+        expect(flowState.textContent).toEqual('form');
+
+        const isCartLoading = getByTestId('is-cart-loading');
+        expect(isCartLoading).not.toBeUndefined();
+        expect(isCartLoading.textContent).toEqual('false');
+    });
+
+    it('begins checkout and calls set shipping address on cart with expected variables', async () => {
+        const Wrapper = () => {
+            const { beginCheckout } = useCart();
+            const [{ isLoading }] = useCartState();
+            const [{ flowState }] = useCheckoutState();
+
+            let content;
+            if (!isLoading) {
+                content = (
+                    <>
+                        <div data-testid="flow-state">{flowState}</div>
+                        <div data-testid="is-cart-loading">{isLoading ? 'true' : 'false'}</div>
+                    </>
+                );
+            } else {
+                content = <button onClick={beginCheckout}>Begin Checkout</button>;
             }
-        ];
+
+            return <div>{content}</div>;
+        };
 
         const mockUserState = {
             isSignedIn: true,
             currentUser: {
-                addresses: [mockAddress]
+                addresses: [{ ...mockShippingAddress }]
             }
         };
 
         const mockCartState = {
-            cartId: '',
+            cartId: null,
             cart: {
                 is_virtual: false
-            }
+            },
+            isLoading: true
         };
 
         const mockCheckoutState = {
@@ -176,14 +320,12 @@ describe('useCart', () => {
             shippingAddress: null
         };
 
-        const checkoutHandler = jest.fn(state => state);
-
-        const { getByRole } = render(
+        const { getByRole, getByTestId } = render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <UserContextProvider initialState={mockUserState}>
                     <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider initialState={mockCheckoutState} reducer={checkoutHandler}>
-                            <MockCmp />
+                        <CheckoutProvider initialState={mockCheckoutState}>
+                            <Wrapper />
                         </CheckoutProvider>
                     </CartProvider>
                 </UserContextProvider>
@@ -192,5 +334,70 @@ describe('useCart', () => {
 
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
+
+        const flowState = await waitForElement(() => getByTestId('flow-state'));
+        expect(flowState).not.toBeUndefined();
+        expect(flowState.textContent).toEqual('form');
+
+        const isCartLoading = getByTestId('is-cart-loading');
+        expect(isCartLoading).not.toBeUndefined();
+        expect(isCartLoading.textContent).toEqual('false');
+    });
+
+    it('begins checkout directly if the current user is a guest user', async () => {
+        const Wrapper = () => {
+            const { beginCheckout } = useCart();
+            const [{ isLoading }] = useCartState();
+            const [{ flowState }] = useCheckoutState();
+
+            let content;
+            if (!isLoading) {
+                content = (
+                    <>
+                        <div data-testid="flow-state">{flowState}</div>
+                        <div data-testid="is-cart-loading">{isLoading ? 'true' : 'false'}</div>
+                    </>
+                );
+            } else {
+                content = <button onClick={beginCheckout}>Begin Checkout</button>;
+            }
+
+            return <div>{content}</div>;
+        };
+
+        const mockUserState = {
+            isSignedIn: false
+        };
+
+        const mockCartState = {
+            isLoading: true
+        };
+
+        const mockCheckoutState = {
+            flowState: ''
+        };
+
+        const { getByRole, getByTestId } = render(
+            <MockedProvider>
+                <UserContextProvider initialState={mockUserState}>
+                    <CartProvider initialState={mockCartState}>
+                        <CheckoutProvider initialState={mockCheckoutState}>
+                            <Wrapper />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        expect(getByRole('button')).not.toBeUndefined();
+        fireEvent.click(getByRole('button'));
+
+        const flowState = await waitForElement(() => getByTestId('flow-state'));
+        expect(flowState).not.toBeUndefined();
+        expect(flowState.textContent).toEqual('form');
+
+        const isCartLoading = getByTestId('is-cart-loading');
+        expect(isCartLoading).not.toBeUndefined();
+        expect(isCartLoading.textContent).toEqual('false');
     });
 });
