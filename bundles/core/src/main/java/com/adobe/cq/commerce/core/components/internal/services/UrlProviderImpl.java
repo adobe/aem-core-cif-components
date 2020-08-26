@@ -69,10 +69,10 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template, String selectorFilter) {
-        if (page != null && params.containsKey(selectorFilter)) {
+        if (page != null) {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-            if (deepLink) {
+            if (deepLink && params.containsKey(selectorFilter)) {
                 Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter));
                 if (subPageResource != null) {
                     pageResource = subPageResource;
