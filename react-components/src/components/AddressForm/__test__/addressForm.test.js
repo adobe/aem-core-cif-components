@@ -35,15 +35,32 @@ describe('<AddressForm />', () => {
                     code: 'MI'
                 }
             ]
+        },
+        {
+            id: 'RO',
+            full_name_locale: 'Romania',
+            available_regions: [
+                {
+                    code: 'BT',
+                    name: 'Botosani'
+                }
+            ]
         }
     ];
 
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <AddressForm cancel={() => {}} submit={() => {}} countries={countries} />
+                <AddressForm
+                    cancel={() => {}}
+                    submit={() => {}}
+                    countries={countries}
+                    heading={'Address'}
+                    submitLabel={'Save'}
+                />
             </I18nextProvider>
         );
+
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -54,8 +71,11 @@ describe('<AddressForm />', () => {
                     isAddressInvalid={true}
                     validationMessage={'address validation message'}
                     formErrorMessage={'form error message'}
+                    heading={'Address'}
                     cancel={() => {}}
+                    countries={countries}
                     submit={() => {}}
+                    submitLabel={'Save'}
                 />
             </I18nextProvider>
         );
@@ -92,7 +112,13 @@ describe('<AddressForm />', () => {
 
         const mockSubmit = jest.fn(() => {});
         const { container } = render(
-            <AddressForm cancel={() => {}} submit={mockSubmit} initialValues={initialValues} countries={countries} />
+            <AddressForm
+                cancel={() => {}}
+                submit={mockSubmit}
+                initialValues={initialValues}
+                countries={countries}
+                heading={'Address'}
+            />
         );
 
         // Fill street input
