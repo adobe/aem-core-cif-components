@@ -62,4 +62,24 @@ public class ProductListComponentIT extends CommerceTestBase {
         elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
         Assert.assertEquals(6, elements.size());
     }
+
+    @Test
+    public void testProductListBreadcrumbWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.1.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Component Library > Commerce > Outdoor > Collection
+        Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
+        Assert.assertEquals(4, elements.size());
+    }
+
+    @Test
+    public void testProductListBreadcrumbWithPlaceholderData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Component Library > Commerce
+        Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
+        Assert.assertEquals(2, elements.size());
+    }
 }

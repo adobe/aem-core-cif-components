@@ -405,4 +405,11 @@ public class ProductImplTest {
         Assert.assertFalse("Product is not virtual", productModel.isVirtualProduct());
         Assert.assertNull("The product retriever is not created", productModel.getProductRetriever());
     }
+
+    @Test
+    public void testProductNotFound() throws IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200);
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertFalse("Product is not found", productModel.getFound());
+    }
 }

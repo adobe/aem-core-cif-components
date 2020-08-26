@@ -26,7 +26,7 @@ import { useConfigContext } from '../../context/ConfigContext';
 
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
-    const [{ currentUser, isSignedIn, inProgress }, { signOut }] = useUserContext();
+    const [{ currentUser, inProgress }, { signOut }] = useUserContext();
     const { pagePaths } = useConfigContext();
     const [, dispatch] = useCartState();
     const [t] = useTranslation('account');
@@ -39,13 +39,12 @@ const MyAccount = props => {
         );
     }
 
-    if (!isSignedIn && showMenu) {
-        showMenu();
-    }
-
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
         dispatch({ type: 'reset' });
-        signOut();
+        await signOut();
+        if (showMenu) {
+            showMenu();
+        }
     };
 
     return (
@@ -68,7 +67,7 @@ const MyAccount = props => {
                 </AccountLink>
                 <AccountLink onClick={showAccountInformation}>
                     <InfoIcon size={18} />
-                    {t('account:address-information', 'Address Information')}
+                    {t('account:account-information', 'Account Information')}
                 </AccountLink>
                 <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />
