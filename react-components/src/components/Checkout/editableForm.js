@@ -56,7 +56,7 @@ const EditableForm = props => {
         dispatch
     ] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
-    const [{ isSignedIn, currentUser }, { getUserDetails }] = useUserContext();
+    const [{ isSignedIn, currentUser }] = useUserContext();
 
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
@@ -96,10 +96,6 @@ const EditableForm = props => {
                 await setGuestEmailOnCart({ variables: { cartId, email: formValues.email } });
                 dispatch({ type: 'setShippingAddressEmail', email: formValues.email });
             }
-
-            if (formValues.save_in_address_book) {
-                await getUserDetails();
-            }
         } catch (err) {
             cartDispatch({ type: 'error', error: err.toString() });
         } finally {
@@ -127,10 +123,6 @@ const EditableForm = props => {
             if (cart.is_virtual && !isSignedIn) {
                 await setGuestEmailOnCart({ variables: { cartId, email: formValues.billingAddress.email } });
                 dispatch({ type: 'setBillingAddressEmail', email: formValues.billingAddress.email });
-            }
-
-            if (formValues.billingAddress.save_in_address_book) {
-                await getUserDetails();
             }
 
             let paymentResult;
