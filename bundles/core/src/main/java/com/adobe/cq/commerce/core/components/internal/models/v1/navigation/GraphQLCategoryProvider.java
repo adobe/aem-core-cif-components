@@ -45,6 +45,7 @@ class GraphQLCategoryProvider {
 
     List<CategoryTree> getChildCategories(Integer categoryId, Integer depth) {
         if (magentoGraphqlClient == null || categoryId == null) {
+            LOGGER.debug("No Graphql client present, cannot retrieve top categories");
             return Collections.emptyList();
         }
 

@@ -1,0 +1,55 @@
+.root {
+    padding-top: 1.5rem;
+}
+
+.body {
+    padding: 1.5rem 1rem 1rem;
+}
+
+.header {
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.25rem;
+}
+
+.textBlock {
+    margin: 1.5rem 0 1.5rem;
+    line-height: 1.875rem;
+    font-size: 0.875rem;
+}
+
+.signin {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: auto;
+    text-align: center;
+    white-space: nowrap;
+    background: none;
+    border: 1px solid rgb(var(--color));
+    border-radius: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 2rem;
+    min-width: 7.5rem;
+    padding: 0 1rem;
+    transition-duration: 384ms;
+    transition-property: background-color, color;
+    transition-timing-function: var(--venia-anim-standard);
+    --color: var(--venia-text);
+    color: white;
+    background-color: rgb(var(--color));
+}
+
+.signin:hover {
+    color: white;
+    background-color: rgb(var(--venia-teal));
+}
+
+.actions {
+    display: grid;
+    justify-items: center;
+    margin-top: 1rem;
+}

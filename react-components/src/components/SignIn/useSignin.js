@@ -23,9 +23,13 @@ import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 
-export const useSignin = () => {
+export const useSignin = props => {
+    const { showMyAccount } = props;
     const [{ cartId }, cartDispatch] = useCartState();
-    const [userState, { setToken, getUserDetails, setCustomerCart, setError }] = useUserContext();
+    const [
+        userState,
+        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown }
+    ] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [, setCartCookie] = useCookieValue('cif.cart');
@@ -73,10 +77,13 @@ export const useSignin = () => {
             //4. set the cart id in the cookie
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
+
+            //5. show my account view in account dropdown or navigation side panel after sign in
+            showMyAccount();
         } catch (e) {
             setError(e);
+            setInProgress(false);
         }
-        setInProgress(false);
     };
 
     return {

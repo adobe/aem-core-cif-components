@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.__InputValue;
 import com.adobe.cq.commerce.magento.graphql.__Type;
+import com.adobe.cq.commerce.magento.graphql.__TypeQuery;
 import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
@@ -118,8 +119,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
             .description()
             .inputFields(i -> i
                 .name()
-                .type(t -> t
-                    .name()));
+                .type(__TypeQuery::name));
 
         String query = Operations.query(q -> q.__type("ProductAttributeFilterInput", typeQuery)).toString();
 

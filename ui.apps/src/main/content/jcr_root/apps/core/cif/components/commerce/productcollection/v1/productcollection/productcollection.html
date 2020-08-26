@@ -1,0 +1,43 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~
+  ~ Copyright 2020 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.productCollection="${@ productCollection}"
+          data-sly-use.itemTemplate="item.html"
+          data-sly-use.sortingTemplate="sorting.html"
+          data-sly-use.paginationTemplate="paginationbar.html"
+          data-sly-use.facetSelectorTemplate="facetselector.html">
+
+<sly data-sly-test.hasProducts="${productCollection.products}">
+     <div class="results__count">
+          ${productCollection.searchResultsSet.totalResults} ${productCollection.searchResultsSet.totalResults == 1 ? 'item' : 'items' @ i18n}
+     </div>
+     <section class="gallery__root search__root">
+          <div class="search__filters"
+               data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
+               data-sly-call="${facetSelectorTemplate.facetSelector @ searchResultsSet = productCollection.searchResultsSet}"></div>
+          <div class="gallery__sort"
+               data-sly-test="${productCollection.searchResultsSet.hasSorting}"
+               data-sly-call="${sortingTemplate.sorting @ searchResultsSet = productCollection.searchResultsSet}"></div>
+          <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
+               <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
+          </div>
+     </section>
+</sly>
+<p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
+<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts}"
+     data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
+
+</template>
+
+<sly data-sly-use.productCollectionModel="com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection"
+     data-sly-call="${productCollection @ productCollection = productCollectionModel}"></sly>

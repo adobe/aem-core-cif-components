@@ -11,30 +11,16 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useCartState } from '../../components/Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
-import { useUserContext } from '../../context/UserContext';
-import { useAwaitQuery } from '../../utils/hooks';
-import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 export default () => {
-    const [, cartDispatch] = useCartState();
     const [{ order }, dispatch] = useCheckoutState();
-    const [{ isSignedIn }, { dispatch: userDispatch }] = useUserContext();
-    const fetchCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
 
-    const continueShopping = async () => {
-        // if it's signed in reset the cart
-        if (isSignedIn) {
-            const { data: customerCartData } = await fetchCustomerCart({
-                fetchPolicy: 'network-only'
-            });
-            const customerCartId = customerCartData.customerCart.id;
-            userDispatch({ type: 'setCartId', cartId: customerCartId });
-        }
-        // reset the cart from the cart state and the checkout state
-        cartDispatch({ type: 'reset' });
+    const continueShopping = () => {
+        // Reset checkout state
         dispatch({ type: 'reset' });
     };
-    return [{ orderId: order.order_id }, continueShopping];
+
+    const orderId = order && order.order_id ? order.order_id : null;
+    return [{ orderId }, continueShopping];
 };

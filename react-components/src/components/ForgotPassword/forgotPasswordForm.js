@@ -21,17 +21,17 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 import Button from '../Button';
 
-import defaultClasses from './forgotPassword.css';
+import defaultClasses from './forgotPasswordForm.css';
 
 const ForgotPasswordForm = props => {
-    const { handleFormSubmit } = props;
+    const { handleFormSubmit, handleCancel } = props;
     const [t] = useTranslation('account');
 
     const classes = Object.assign({}, defaultClasses, props.classes || {});
 
     return (
         <Form className={classes.root} onSubmit={handleFormSubmit}>
-            <Field label={t('account:email', 'E-Mail')} required={true}>
+            <Field label={t('account:email', 'Email address')} required={true}>
                 <TextInput
                     autoComplete="email"
                     field="email"
@@ -43,6 +43,11 @@ const ForgotPasswordForm = props => {
                 <Button disabled={false} type="submit" priority="high" aria-label="submit">
                     {t('account:forgot-password-submit', 'Submit')}
                 </Button>
+                {handleCancel && (
+                    <Button disabled={false} type="button" priority="normal" aria-label="cancel" onClick={handleCancel}>
+                        {t('account:forgot-password-cancel', 'Cancel')}
+                    </Button>
+                )}
             </div>
         </Form>
     );
@@ -50,6 +55,7 @@ const ForgotPasswordForm = props => {
 
 ForgotPasswordForm.propTypes = {
     handleFormSubmit: func.isRequired,
+    handleCancel: func,
     classes: shape({
         form: string,
         buttonContainer: string

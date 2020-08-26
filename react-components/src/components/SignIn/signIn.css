@@ -17,6 +17,10 @@
     row-gap: 1rem;
 }
 
+.formTitle {
+    padding: 1rem 0 0.5rem;
+}
+
 .modal {
     visibility: hidden;
     height: 100%;
@@ -38,19 +42,25 @@
 .signInButton {
     align-items: center;
     display: flex;
-    justify-content: center;
     text-align: center;
+}
+
+.createAccountButton,
+.signInButton {
+    justify-content: center;
+}
+
+.createAccountButton button,
+.signInButton button {
+    min-width: 10rem;
+}
+
+.forgotPasswordButton {
+    justify-content: flex-start;
 }
 
 .signInButton {
     margin-top: 1rem;
-}
-
-.signInDivider {
-    border-color: rgb(var(--venia-border));
-    border-style: solid;
-    border-width: 0 0 1px;
-    margin: 1.5rem 1rem;
 }
 
 .signInError {

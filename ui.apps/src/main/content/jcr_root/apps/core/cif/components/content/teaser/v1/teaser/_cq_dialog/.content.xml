@@ -3,13 +3,15 @@
     jcr:primaryType="nt:unstructured"
     jcr:title="Teaser"
     sling:resourceType="cq/gui/components/authoring/dialog"
-    extraClientlibs="[core.wcm.components.teaser.v1.editor,core.cif.components.teaser.v1.editor]"
+    extraClientlibs="[core.wcm.components.teaser.v1.editor,core.cif.components.teaser.v1.editor,cif.shell.picker]"
     helpPath="https://www.adobe.com/go/aem_cmp_teaser_v1"
     trackingFeature="cif-core-components:teaser:v1">
     <content
         granite:class="cmp-teaser__editor"
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
+        <granite:data jcr:primaryType="nt:unstructured"
+            cmp-is="commerceteaser-editor" />
         <items jcr:primaryType="nt:unstructured">
             <tabs
                 jcr:primaryType="nt:unstructured"

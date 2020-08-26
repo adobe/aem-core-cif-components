@@ -19,21 +19,17 @@ import { I18nextProvider } from 'react-i18next';
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
 import { CartProvider } from '../cartContext';
+import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Minicart>', () => {
-    beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the CartTrigger
-        ReactDOM.createPortal = jest.fn(element => {
-            return element;
-        });
-    });
-
     it('renders the empty cart', async () => {
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
                 <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                    <Minicart />
+                    <CheckoutProvider initialState={{}} reducer={state => state}>
+                        <Minicart />
+                    </CheckoutProvider>
                 </CartProvider>
             </I18nextProvider>
         );
@@ -42,7 +38,7 @@ describe('<Minicart>', () => {
         // getByTestId() throws an error if the element will not be available.
         const emptyCartNode = await waitForElement(() => getByTestId('empty-minicart'));
 
-        // compare the snapshow of the element with the stored one.
+        // compare the snapshot of the element with the stored one.
         expect(emptyCartNode).toMatchSnapshot();
     });
 });

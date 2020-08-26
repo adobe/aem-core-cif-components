@@ -16,6 +16,8 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -39,6 +41,9 @@ import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -86,7 +91,13 @@ public class SearchResultsServiceImplTest {
     SearchResultsServiceImpl serviceUnderTest;
 
     private static final String FILTER_ATTRIBUTE_NAME_CODE = "name";
-    private static final String FILTER_ATTRIBUTE_BOOLEAN_CODE = "super_cool_product";
+    private static final String FILTER_ATTRIBUTE_COLOR_CODE = "color";
+    private static final String FILTER_ATTRIBUTE_PRICE1_CODE = "price1";
+    private static final String FILTER_ATTRIBUTE_PRICE2_CODE = "price2";
+    private static final String FILTER_ATTRIBUTE_PRICE3_CODE = "price3";
+    private static final String FILTER_ATTRIBUTE_PRICE4_CODE = "price4";
+    private static final String FILTER_ATTRIBUTE_PRICE5_CODE = "price5";
+    private static final String FILTER_ATTRIBUTE_BOOLEAN_CODE = "is_new";
 
     private static final String SEARCH_QUERY = "pants";
 
@@ -97,7 +108,13 @@ public class SearchResultsServiceImplTest {
 
         when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),
-            createEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE)));
+            createStringEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_COLOR_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE1_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE2_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE3_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE4_CODE),
+            createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE5_CODE),
+            createBooleanEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE)));
 
         when(products.getTotalCount()).thenReturn(0);
         when(products.getItems()).thenReturn(new ArrayList<>());
@@ -126,17 +143,45 @@ public class SearchResultsServiceImplTest {
         searchOptions.setSearchQuery(SEARCH_QUERY);
         searchOptions.setCurrentPage(1);
 
-        final SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+        Map<String, String> filters = new HashMap<>();
+        filters.put(FILTER_ATTRIBUTE_NAME_CODE, "sport");
+        filters.put(FILTER_ATTRIBUTE_COLOR_CODE, "red");
+
+        // To avoid having 5 tests for the price range, we introduce 5 price parameters
+        filters.put(FILTER_ATTRIBUTE_PRICE1_CODE, "20_30");
+        filters.put(FILTER_ATTRIBUTE_PRICE2_CODE, "40_*");
+        filters.put(FILTER_ATTRIBUTE_PRICE3_CODE, "*_50");
+        filters.put(FILTER_ATTRIBUTE_PRICE4_CODE, "60");
+        filters.put(FILTER_ATTRIBUTE_PRICE5_CODE, "*"); // invalid
+
+        filters.put(FILTER_ATTRIBUTE_BOOLEAN_CODE, "1");
+        searchOptions.setAttributeFilters(filters);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
             searchOptions,
             resource,
             productPage,
             request);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
 
         verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any());
         assertThat(searchResultsSet).isNotNull();
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).isEmpty();
+
+        String query = captor.getValue();
+        assertThat(query).contains("search:\"pants\"");
+        assertThat(query).contains("name:{match:\"sport\"}");
+        assertThat(query).contains("color:{eq:\"red\"}");
+        assertThat(query).contains("price1:{from:\"20\",to:\"30\"}");
+        assertThat(query).contains("price2:{from:\"40\"}");
+        assertThat(query).contains("price3:{to:\"50\"}");
+        assertThat(query).contains("price4:{from:\"60\",to:\"60\"}");
+        assertThat(query).doesNotContain("price5:");
+        assertThat(query).contains("is_new:{eq:\"1\"}");
     }
 
     @Test
@@ -155,42 +200,44 @@ public class SearchResultsServiceImplTest {
             p -> p.createdAt()
                 .addCustomSimpleField("is_returnable"));
 
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
-
-        String expectedQuery = "{products(search:\"pants\",currentPage:1,pageSize:6,filter:{}){total_count,items{__typename,id,sku,name,"
-            + "small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},"
-            + "discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},"
-            + "final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable},"
-            + "aggregations{options{count,label,value},attribute_code,count,label}}}";
-        assertThat(expectedQuery).isEqualTo(captor.getValue());
+        assertThat(captor.getValue()).contains("created_at,is_returnable_custom_:is_returnable");
     }
 
-    private FilterAttributeMetadata createMatchFilterAttributeMetadata(final String attributeCode) {
-
-        final String FILTER_ATTRIBUTE_NAME_INPUT_TYPE = "text";
-        final String FILTER_ATTRIBUTE_NAME_ATTRIBUTE_TYPE = "String";
-        final String FILTER_ATTRIBUTE_NAME_FILTER_TYPE = "FilterMatchTypeInput";
-
+    private FilterAttributeMetadata createMatchFilterAttributeMetadata(String attributeCode) {
         FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
         newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FILTER_ATTRIBUTE_NAME_FILTER_TYPE);
-        newFilterAttributeMetadata.setAttributeType(FILTER_ATTRIBUTE_NAME_ATTRIBUTE_TYPE);
-        newFilterAttributeMetadata.setAttributeInputType(FILTER_ATTRIBUTE_NAME_INPUT_TYPE);
+        newFilterAttributeMetadata.setFilterInputType(FilterMatchTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("String");
+        newFilterAttributeMetadata.setAttributeInputType("text");
         return newFilterAttributeMetadata;
     }
 
-    private FilterAttributeMetadata createEqualFilterAttributeMetadata(final String attributeCode) {
-
-        final String FILTER_ATTRIBUTE_BOOLEAN_FILTER_TYPE = "FilterEqualTypeInput";
-        final String FILTER_ATTRIBUTE_BOOLEAN_INPUT_TYPE = "boolean";
-        final String FILTER_ATTRIBUTE_BOOLEAN_ATTRIBUTE_TYPE = "Int";
-
+    private FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
         FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
         newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FILTER_ATTRIBUTE_BOOLEAN_FILTER_TYPE);
-        newFilterAttributeMetadata.setAttributeType(FILTER_ATTRIBUTE_BOOLEAN_ATTRIBUTE_TYPE);
-        newFilterAttributeMetadata.setAttributeInputType(FILTER_ATTRIBUTE_BOOLEAN_INPUT_TYPE);
+        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("String");
+        newFilterAttributeMetadata.setAttributeInputType("text");
+        return newFilterAttributeMetadata;
+    }
+
+    private FilterAttributeMetadata createBooleanEqualFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("Int");
+        newFilterAttributeMetadata.setAttributeInputType("boolean");
+        return newFilterAttributeMetadata;
+    }
+
+    private FilterAttributeMetadata createRangeFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterRangeTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("Float");
+        newFilterAttributeMetadata.setAttributeInputType("price");
         return newFilterAttributeMetadata;
     }
 

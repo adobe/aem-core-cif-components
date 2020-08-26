@@ -130,6 +130,14 @@
                 "categoryId": "7"
               }
             }
+          },
+          "productcollection": {
+            "sling:resourceType": "venia/components/commerce/productcollection"
+          },
+          "productcollection2": {
+            "loadClientPrice": false,
+            "pageSize": 8,
+            "sling:resourceType": "venia/components/commerce/productcollection"
           }
         }
       }
@@ -175,6 +183,13 @@
       "jcr:primaryType": "cq:PageContent",
       "magentoStore": "my-store",
       "cq:magentoStore": "old-store"
+    }
+  },
+  "pageH": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:conf": "/conf/testing"
     }
   },
   "product-page": {

@@ -1,0 +1,128 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "GroupedProduct",
+          "sku": "24-WG085_Group",
+          "name": "Set of Sprite Yoga Straps",
+          "description": {
+            "html": "<p>Great set of Sprite Yoga Straps for every stretch and hold you need. There are three straps in this set: 6', 8' and 10'.</p>\n<ul>\n<li> 100% soft and durable cotton.\n<li> Plastic cinch buckle is easy to use.\n<li> Choice of three natural colors made from phthalate and heavy metal free dyes.\n</ul>"
+          },
+          "image": {
+            "label": "Set of Sprite Yoga Straps",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/yoga-strap/luma-yoga-strap-set.jpg"
+          },
+          "thumbnail": {
+            "label": "Set of Sprite Yoga Straps",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/yoga-strap/luma-yoga-strap-set.jpg"
+          },
+          "url_key": "set-of-sprite-yoga-straps",
+          "stock_status": "IN_STOCK",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 14,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 14,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "media_gallery": [
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/yoga-strap/luma-yoga-strap-set.jpg",
+              "label": "Image",
+              "position": 1
+            }
+          ],
+          "items": [
+            {
+              "position": 0,
+              "qty": 1,
+              "product": {
+                "__typename": "SimpleProduct",
+                "sku": "24-WG085",
+                "name": "Sprite Yoga Strap 6 foot",
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 14,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 14,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "position": 1,
+              "qty": 1,
+              "product": {
+                "__typename": "SimpleProduct",
+                "sku": "24-WG086",
+                "name": "Sprite Yoga Strap 8 foot",
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 17,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 17,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "position": 2,
+              "qty": 1,
+              "product": {
+                "__typename": "SimpleProduct",
+                "sku": "24-WG087",
+                "name": "Sprite Yoga Strap 10 foot",
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 21,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 21,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

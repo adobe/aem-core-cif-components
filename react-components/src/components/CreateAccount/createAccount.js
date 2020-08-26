@@ -34,8 +34,10 @@ import useCreateAccount from './useCreateAccount';
 import LoadingIndicator from '../LoadingIndicator';
 
 const CreateAccount = props => {
-    const { showMyAccount } = props;
-    const [{ createAccountError, isSignedIn, inProgress }, { createAccount }] = useCreateAccount();
+    const { showAccountCreated, handleCancel } = props;
+    const [{ createAccountError, inProgress }, { createAccount }] = useCreateAccount({
+        showAccountCreated
+    });
     const [t] = useTranslation('account');
 
     if (inProgress) {
@@ -47,11 +49,6 @@ const CreateAccount = props => {
     };
 
     const errorMessage = createAccountError ? createAccountError : null;
-
-    if (isSignedIn) {
-        showMyAccount();
-        return null;
-    }
     const classes = mergeClasses(defaultClasses, props.classes);
 
     return (
@@ -80,7 +77,7 @@ const CreateAccount = props => {
                     aria-label="lastname"
                 />
             </Field>
-            <Field label={t('account:email', 'E-Mail')} required={true}>
+            <Field label={t('account:email', 'Email address')} required={true}>
                 <TextInput
                     field="customer.email"
                     autoComplete="email"
@@ -120,6 +117,16 @@ const CreateAccount = props => {
                 <Button disabled={inProgress} type="submit" priority="high" aria-label="submit">
                     {t('account:create-submit', 'Submit')}
                 </Button>
+                {handleCancel && (
+                    <Button
+                        disabled={inProgress}
+                        type="button"
+                        priority="normal"
+                        aria-label="cancel"
+                        onClick={handleCancel}>
+                        {t('account:create-cancel', 'Cancel')}
+                    </Button>
+                )}
             </div>
         </Form>
     );
@@ -133,7 +140,9 @@ CreateAccount.propTypes = {
         root: string,
         subscribe: string
     }),
-    showMyAccount: func.isRequired
+    showMyAccount: func.isRequired,
+    showAccountCreated: func.isRequired,
+    handleCancel: func
 };
 
 export default CreateAccount;

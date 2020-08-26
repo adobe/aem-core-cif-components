@@ -49,6 +49,7 @@ import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -57,7 +58,8 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
-import com.adobe.cq.commerce.magento.graphql.MediaGalleryEntry;
+import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
@@ -78,8 +80,6 @@ public class ProductImpl implements Product {
     protected static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
-    private static final String PRODUCT_IMAGE_FOLDER = "catalog/product";
-
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
 
     @Self
@@ -109,6 +109,7 @@ public class ProductImpl implements Product {
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
+    private Boolean isBundleProduct;
     private Boolean loadClientPrice;
 
     private AbstractProductRetriever productRetriever;
@@ -193,7 +194,7 @@ public class ProductImpl implements Product {
     @Override
     public Boolean isGroupedProduct() {
         if (isGroupedProduct == null) {
-            isGroupedProduct = productRetriever.fetchProduct() instanceof GroupedProduct;
+            isGroupedProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GroupedProduct;
         }
         return isGroupedProduct;
     }
@@ -201,9 +202,17 @@ public class ProductImpl implements Product {
     @Override
     public Boolean isVirtualProduct() {
         if (isVirtualProduct == null) {
-            isVirtualProduct = productRetriever.fetchProduct() instanceof VirtualProduct;
+            isVirtualProduct = productRetriever != null && productRetriever.fetchProduct() instanceof VirtualProduct;
         }
         return isVirtualProduct;
+    }
+
+    @Override
+    public Boolean isBundleProduct() {
+        if (isBundleProduct == null) {
+            isBundleProduct = productRetriever != null && productRetriever.fetchProduct() instanceof BundleProduct;
+        }
+        return isBundleProduct;
     }
 
     @Override
@@ -245,7 +254,7 @@ public class ProductImpl implements Product {
 
     @Override
     public List<Asset> getAssets() {
-        return filterAndSortAssets(productRetriever.fetchProduct().getMediaGalleryEntries());
+        return filterAndSortAssets(productRetriever.fetchProduct().getMediaGallery());
     }
 
     @Override
@@ -308,7 +317,7 @@ public class ProductImpl implements Product {
             productVariant.getVariantAttributes().put(option.getCode(), option.getValueIndex());
         }
 
-        List<Asset> assets = filterAndSortAssets(product.getMediaGalleryEntries());
+        List<Asset> assets = filterAndSortAssets(product.getMediaGallery());
         productVariant.setAssets(assets);
 
         return productVariant;
@@ -327,24 +336,20 @@ public class ProductImpl implements Product {
         return groupedProductItem;
     }
 
-    private List<Asset> filterAndSortAssets(List<MediaGalleryEntry> assets) {
+    private List<Asset> filterAndSortAssets(List<MediaGalleryInterface> assets) {
         return assets.parallelStream()
-            .filter(e -> !e.getDisabled() && e.getMediaType().equals("image"))
+            .filter(e -> !e.getDisabled() && e instanceof ProductImage)
             .map(this::mapAsset)
             .sorted(Comparator.comparing(Asset::getPosition))
             .collect(Collectors.toList());
     }
 
-    private Asset mapAsset(MediaGalleryEntry entry) {
+    private Asset mapAsset(MediaGalleryInterface entry) {
         AssetImpl asset = new AssetImpl();
         asset.setLabel(entry.getLabel());
         asset.setPosition(entry.getPosition());
-        asset.setType(entry.getMediaType());
-
-        // TODO WORKAROUND
-        // Magento media gallery only provides that file path but not a full image url yet, we need the mediaBaseUrl
-        // from the storeConfig to construct the full image url
-        asset.setPath(productRetriever.fetchMediaBaseUrl() + PRODUCT_IMAGE_FOLDER + entry.getFile());
+        asset.setType((entry instanceof ProductImage) ? "image" : "video");
+        asset.setPath(entry.getUrl());
 
         return asset;
     }

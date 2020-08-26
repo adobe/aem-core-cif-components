@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +26,9 @@ import java.util.Map;
 import javax.servlet.ServletException;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.models.spi.ImplementationPicker;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
@@ -42,11 +45,14 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -54,7 +60,14 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
@@ -64,6 +77,7 @@ import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -75,6 +89,11 @@ public class GraphqlServletTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store"));
+
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -89,6 +108,8 @@ public class GraphqlServletTest {
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -104,6 +125,8 @@ public class GraphqlServletTest {
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
+
+    private static final String CIF_DAM_ROOT = "/content/dam/core-components-examples/library/cif-sample-assets/";
 
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
@@ -168,10 +191,8 @@ public class GraphqlServletTest {
 
         Resource pageContent = Mockito.spy(page.getContentResource());
         when(page.getContentResource()).thenReturn(pageContent);
-        when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
-        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -203,20 +224,55 @@ public class GraphqlServletTest {
         requestPathInfo.setSelectorString("beaumont-summit-kit");
 
         Product productModel = context.request().adaptTo(Product.class);
-        Assert.assertEquals("MJ01", productModel.getSku());
+        Assert.assertEquals("MH01", productModel.getSku());
         Assert.assertEquals(15, productModel.getVariants().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+        for (Variant variant : productModel.getVariants()) {
+            for (Asset asset : variant.getAssets()) {
+                Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+            }
+        }
+    }
+
+    @Test
+    public void testGroupedProductModel() throws ServletException {
+        prepareModel(PRODUCT_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG085_Group", productModel.getSku());
+        Assert.assertTrue(productModel.isGroupedProduct());
+        Assert.assertEquals(3, productModel.getGroupedProductItems().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
     public void testProductListModel() throws ServletException {
         prepareModel(PRODUCT_LIST_RESOURCE);
 
+        // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("2");
-
+        requestPathInfo.setSelectorString("1");
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertEquals("Default Category", productListModel.getTitle());
+        Assert.assertEquals("Outdoor Collection", productListModel.getTitle());
+
+        // The products are coming from magento-graphql-category-products.json
         Assert.assertEquals(6, productListModel.getProducts().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productListModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -228,15 +284,23 @@ public class GraphqlServletTest {
         slingBindings.put("productSkuList", productSkuList);
 
         ProductCarousel productCarouselModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, productCarouselModel.getProducts().size());
-        Assert.assertEquals("24-MG01", productCarouselModel.getProducts().get(0).getSKU());
+        Assert.assertEquals(4, productCarouselModel.getProducts().size());
+        Assert.assertEquals("24-MB02", productCarouselModel.getProducts().get(0).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : productCarouselModel.getProducts()) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
     public void testProductTeaserModel() throws ServletException {
         prepareModel(PRODUCT_TEASER_RESOURCE);
         ProductTeaser productTeaserModel = context.request().adaptTo(ProductTeaser.class);
-        Assert.assertEquals("Beaumont Summit Kit", productTeaserModel.getName());
+        Assert.assertEquals("Summit Watch", productTeaserModel.getName());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        Assert.assertTrue(productTeaserModel.getImage().startsWith(CIF_DAM_ROOT));
     }
 
     @Test
@@ -251,8 +315,17 @@ public class GraphqlServletTest {
     public void testUpsellProductsModel() throws ServletException {
         prepareModel(UPSELL_PRODUCTS_RESOURCE);
         ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
-        Assert.assertEquals(3, relatedProductsModel.getProducts().size());
-        Assert.assertEquals("24-MB01", relatedProductsModel.getProducts().get(0).getSKU());
+
+        // We test the SKUs to make sure we return the right response for UPSELL_PRODUCTS
+        List<ProductListItem> products = relatedProductsModel.getProducts();
+        Assert.assertEquals(2, products.size());
+        Assert.assertEquals("24-MG03", products.get(0).getSKU());
+        Assert.assertEquals("24-WG01", products.get(1).getSKU());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -268,9 +341,13 @@ public class GraphqlServletTest {
         prepareModel(SEARCH_RESULTS_RESOURCE);
         context.request().setParameterMap(Collections.singletonMap("search_query", "beaumont"));
         SearchResults searchResultsModel = context.request().adaptTo(SearchResults.class);
+
         Collection<ProductListItem> products = searchResultsModel.getProducts();
-        Assert.assertEquals(1, products.size());
-        Assert.assertEquals("Beaumont Summit Kit", products.iterator().next().getTitle());
+        Assert.assertEquals(6, products.size());
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (ProductListItem product : products) {
+            Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+        }
     }
 
     @Test
@@ -278,12 +355,11 @@ public class GraphqlServletTest {
         prepareModel(FEATURED_CATEGORY_LIST_RESOURCE);
         FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
         List<CategoryTree> categories = featureCategoryListModel.getCategories();
-        Assert.assertEquals(3, categories.size());
+        Assert.assertEquals(2, categories.size());
 
-        // Test that the Servlet didn't return 3 times the catalog category tree
-        Assert.assertEquals(4, categories.get(0).getId().intValue());
-        Assert.assertEquals(5, categories.get(1).getId().intValue());
-        Assert.assertEquals(6, categories.get(2).getId().intValue());
+        // Test that the Servlet didn't return 2 times the catalog category tree
+        Assert.assertEquals(15, categories.get(0).getId().intValue());
+        Assert.assertEquals(24, categories.get(1).getId().intValue());
     }
 
     @Test
@@ -296,5 +372,71 @@ public class GraphqlServletTest {
 
         Navigation navigationModel = context.request().adaptTo(Navigation.class);
         Assert.assertEquals(7, navigationModel.getItems().size()); // Our test catalog has 7 top-level categories
+    }
+
+    @Test
+    public void testPriceLoadingQueryForProductPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("MH01");
+    }
+
+    @Test
+    public void testPriceLoadingQueryForGroupedProductPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("24-WG085_Group");
+    }
+
+    @Test
+    public void testPriceLoadingQueryForCollectionPage() throws ServletException, IOException {
+        testPriceLoadingQueryFor("24-MB02", "24-MG03", "24-WG01", "MH01", "MH03", "WJ04");
+    }
+
+    private void testPriceLoadingQueryFor(String... skus) throws ServletException, IOException {
+
+        // This is the price query sent client-side by the components, it is defined in
+        // the file CommerceGraphqlApi.js in the components "common" clientlib
+
+        ProductInterfaceQueryDefinition priceQuery = q -> q
+            .sku()
+            .priceRange(r -> r
+                .minimumPrice(generatePriceQuery()))
+            .onConfigurableProduct(cp -> cp
+                .priceRange(r -> r
+                    .maximumPrice(generatePriceQuery())))
+            .onGroupedProduct(g -> g
+                .items(i -> i
+                    .product(p -> p
+                        .sku()
+                        .priceRange(r -> r
+                            .minimumPrice(generatePriceQuery())))));
+
+        FilterEqualTypeInput in = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(in);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        String query = Operations.query(q -> q.products(searchArgs, p -> p.items(priceQuery))).toString();
+
+        request.setParameterMap(Collections.singletonMap("query", query));
+        graphqlServlet.doGet(request, response);
+        String output = response.getOutputAsString();
+
+        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
+        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
+        Products products = graphqlResponse.getData().getProducts();
+
+        Assert.assertEquals(skus.length, products.getItems().size());
+        for (int i = 0, l = skus.length; i < l; i++) {
+            Assert.assertEquals(skus[i], products.getItems().get(i).getSku());
+        }
+    }
+
+    private ProductPriceQueryDefinition generatePriceQuery() {
+        return q -> q
+            .regularPrice(r -> r
+                .value()
+                .currency())
+            .finalPrice(f -> f
+                .value()
+                .currency())
+            .discount(d -> d
+                .amountOff()
+                .percentOff());
     }
 }

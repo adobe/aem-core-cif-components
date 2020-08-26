@@ -28,10 +28,26 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     private IdentifierLocation categoryIdentifierLocation;
     private ProductIdentifierType productIdentifierType;
     private CategoryIdentifierType categoryIdentifierType;
+    private boolean useOldSyntax = false;
+
+    private String productUrlTemplate;
+    private String categoryUrlTemplate;
+
+    public MockUrlProviderConfiguration() {}
+
+    public MockUrlProviderConfiguration(boolean useOldSyntax) {
+        this.useOldSyntax = useOldSyntax;
+    }
 
     @Override
     public String productUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
+        if (productUrlTemplate != null) {
+            return productUrlTemplate;
+        } else if (useOldSyntax) {
+            return UrlProviderConfiguration.OLD_PRODUCT_URL_TEMPLATE;
+        } else {
+            return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
+        }
     }
 
     @Override
@@ -46,7 +62,13 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public String categoryUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
+        if (categoryUrlTemplate != null) {
+            return categoryUrlTemplate;
+        } else if (useOldSyntax) {
+            return UrlProviderConfiguration.OLD_CATEGORY_URL_TEMPLATE;
+        } else {
+            return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
+        }
     }
 
     @Override
@@ -78,5 +100,13 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     public void setCategoryIdentifierType(CategoryIdentifierType categoryIdentifierType) {
         this.categoryIdentifierType = categoryIdentifierType;
+    }
+
+    public void setProductUrlTemplate(String productUrlTemplate) {
+        this.productUrlTemplate = productUrlTemplate;
+    }
+
+    public void setCategoryUrlTemplate(String categoryUrlTemplate) {
+        this.categoryUrlTemplate = categoryUrlTemplate;
     }
 }

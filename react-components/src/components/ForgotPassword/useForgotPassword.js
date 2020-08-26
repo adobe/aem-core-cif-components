@@ -16,7 +16,7 @@ import { useState, useCallback } from 'react';
 import { useUserContext } from '../../context/UserContext';
 
 const useForgotPasswordForm = props => {
-    const { onClose } = props;
+    const { onClose, onCancel } = props;
     const [, { resetPassword }] = useUserContext();
 
     const [submitting, setSubmitting] = useState(false);
@@ -31,6 +31,13 @@ const useForgotPasswordForm = props => {
         [resetPassword]
     );
 
+    const handleCancel = useCallback(() => {
+        if (onCancel) {
+            setSubmitting(false);
+            onCancel();
+        }
+    }, [onCancel]);
+
     const handleContinue = useCallback(() => {
         setSubmitting(false);
         onClose();
@@ -40,6 +47,7 @@ const useForgotPasswordForm = props => {
         { submitting, email: formEmail },
         {
             handleFormSubmit,
+            handleCancel,
             handleContinue
         }
     ];

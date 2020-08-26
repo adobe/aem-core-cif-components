@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AddressDeleteModal> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="cancel"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Cancel
+        </span>
+      </button>
+    </div>
+    <div
+      class="delete"
+    >
+      <button
+        class="root_highPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Delete
+        </span>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;

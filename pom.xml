@@ -14,28 +14,26 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- ====================================================================== -->
-    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
-    <!-- ====================================================================== -->
-    <groupId>com.adobe.commerce.cif</groupId>
-    <artifactId>core-cif-components-reactor</artifactId>
-    <packaging>pom</packaging>
-    <version>0.10.2-SNAPSHOT</version>
-
-    <name>AEM CIF Core Components Reactor</name>
-    <description>Reactor POM for AEM CIF Core Components</description>
-    <url>https://github.com/adobe/aem-core-cif-components</url>
-
+    
     <!-- ====================================================================== -->
     <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
     <!-- ====================================================================== -->
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.10.2-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
+
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
+    <!-- ====================================================================== -->
+    <artifactId>core-cif-components-reactor</artifactId>
+    <packaging>pom</packaging>
+
+    <name>AEM CIF Core Components Reactor</name>
+    <description>Reactor POM for AEM CIF Core Components</description>
+    <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <!-- ====================================================================== -->
     <!-- M O D U L E S                                                          -->
@@ -45,21 +43,21 @@
         <module>react-components</module>
         <module>ui.apps</module>
         <module>bundles/core</module>
+        <module>examples</module>
         <module>all</module>
     </modules>
 
-    <!-- We have a dedicated profile for the CIF components examples library -->
-    <!-- They are included by default unless we perform a release -->
+    <!-- Integration tests are included unless we perform a release -->
     <profiles>
         <profile>
-            <id>examples-library</id>
+            <id>integration-tests</id>
             <activation>
                 <property>
-                    <name>!skip-examples</name>
+                    <name>!skip-it</name>
                 </property>
             </activation>
             <modules>
-                <module>examples/bundle</module>
+                <module>it/http</module>
             </modules>
         </profile>
     </profiles>

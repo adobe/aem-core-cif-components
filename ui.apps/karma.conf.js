@@ -30,12 +30,12 @@ module.exports = function(config) {
     files: [
       'node_modules/@babel/polyfill/dist/polyfill.js',
       'src/main/content/jcr_root/apps/core/cif/components/commerce/product/**/js/*.js',
-      'src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/**/js/*.js',
       'src/main/content/jcr_root/apps/core/cif/components/structure/navigation/**/js/*.js',
+      'src/main/content/jcr_root/apps/core/cif/components/content/teaser/**/js/*.js',
 
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js',
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js',
-      
+
       'test/**/*Test.js'
     ],
 
@@ -75,8 +75,8 @@ module.exports = function(config) {
     // optionally, configure the reporter
     coverageReporter: {
       includeAllSources: true,
-      type : 'lcov',
-      dir : './coverage/',
+      type: 'lcov',
+      dir: './coverage/',
       check: {
         global: {
           statements: 90,

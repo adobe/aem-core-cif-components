@@ -1,60 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
-          jcr:primaryType="nt:unstructured"
-          jcr:title="Product Teaser"
-          sling:resourceType="cq/gui/components/authoring/dialog"
-          trackingFeature="cif-core-components:productteaser:v1">
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Product Teaser"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[cif.shell.picker]"
+    trackingFeature="cif-core-components:productteaser:v1">
     <content
-            jcr:primaryType="nt:unstructured"
-            sling:resourceType="granite/ui/components/coral/foundation/container">
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
         <items jcr:primaryType="nt:unstructured">
             <tabs
-                    jcr:primaryType="nt:unstructured"
-                    sling:resourceType="granite/ui/components/coral/foundation/tabs"
-                    maximized="{Boolean}true">
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                maximized="{Boolean}true">
                 <items jcr:primaryType="nt:unstructured">
                     <properties
-                            jcr:primaryType="nt:unstructured"
-                            jcr:title="Properties"
-                            sling:resourceType="granite/ui/components/coral/foundation/container"
-                            margin="{Boolean}true">
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Properties"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
                         <items jcr:primaryType="nt:unstructured">
                             <columns
-                                    jcr:primaryType="nt:unstructured"
-                                    sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
-                                    margin="{Boolean}true">
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                margin="{Boolean}true">
                                 <items jcr:primaryType="nt:unstructured">
                                     <column
-                                            jcr:primaryType="nt:unstructured"
-                                            sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/container">
                                         <items jcr:primaryType="nt:unstructured">
                                             <product
-                                                    jcr:primaryType="nt:unstructured"
-                                                    sling:resourceType="commerce/gui/components/common/cifproductfield"
-                                                    fieldDescription="The product or product variant displayed by the teaser"
-                                                    fieldLabel="Select Product"
-                                                    filter="folderOrProductOrVariant"
-                                                    name="./selection"
-                                                    selectionId="combinedSku"/>
-
-                                            <call-to-action jcr:primaryType="nt:unstructured"
-                                                            sling:resourceType="granite/ui/components/coral/foundation/form/select"
-                                                            fieldLabel="Call to action"
-                                                            fieldDescription="The call to action to include in the teaser, if any. Note the the 'Add to cart' option only works for simple/variant products"
-                                                            name="./cta">
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="commerce/gui/components/common/cifproductfield"
+                                                fieldDescription="The product or product variant displayed by the teaser"
+                                                fieldLabel="Select Product"
+                                                filter="folderOrProductOrVariant"
+                                                name="./selection"
+                                                selectionId="combinedSku"/>
+                                            <call-to-action
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                fieldDescription="The call to action to include in the teaser, if any. Note the the 'Add to cart' option only works for simple/variant products"
+                                                fieldLabel="Call to action"
+                                                name="./cta">
                                                 <items jcr:primaryType="nt:unstructured">
-                                                    <none jcr:primaryType="nt:unstructured"
-                                                          selected="{Boolean}true"
-                                                          text="None"
-                                                          value=""/>
-                                                    <add-to-cart jcr:primaryType="nt:unstructured"
-                                                                 text="Add to cart"
-                                                                 value="add-to-cart"/>
-                                                    <details jcr:primaryType="nt:unstructured"
-                                                             text="See more details"
-                                                             value="details"/>
+                                                    <none
+                                                        jcr:primaryType="nt:unstructured"
+                                                        selected="{Boolean}true"
+                                                        text="None"
+                                                        value=""/>
+                                                    <add-to-cart
+                                                        jcr:primaryType="nt:unstructured"
+                                                        text="Add to cart"
+                                                        value="add-to-cart"/>
+                                                    <details
+                                                        jcr:primaryType="nt:unstructured"
+                                                        text="See more details"
+                                                        value="details"/>
                                                 </items>
                                             </call-to-action>
+                                            <ctaText
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldDescription="The text displayed by the call-to-action button"
+                                                fieldLabel="Call to action text"
+                                                name="./ctaText"/>
                                         </items>
                                     </column>
                                 </items>

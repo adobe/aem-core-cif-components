@@ -14,16 +14,12 @@
 
 package com.adobe.cq.commerce.core.components.models.productlist;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
-public interface ProductList {
+public interface ProductList extends ProductCollection {
 
     /**
      * Name of the boolean resource property indicating if the product list should render the category title.
@@ -34,24 +30,6 @@ public interface ProductList {
      * Name of the boolean resource property indicating if the product list should render the category image.
      */
     String PN_SHOW_IMAGE = "showImage";
-
-    /**
-     * Name of the String resource property indicating number of products to render on front-end.
-     */
-    String PN_PAGE_SIZE = "pageSize";
-
-    /**
-     * Name of the boolean resource property indicating if the product list should load prices on the client-side.
-     */
-    String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
-
-    /**
-     * Returns the product list's items collection, as {@link ProductListItem}s elements.
-     *
-     * @return {@link Collection} of {@link ProductListItem}s
-     */
-    @Nonnull
-    Collection<ProductListItem> getProducts();
 
     /**
      * Returns {@code true} if the category / product list title should be rendered.
@@ -71,10 +49,6 @@ public interface ProductList {
     String getImage();
 
     boolean showImage();
-
-    boolean loadClientPrice();
-
-    SearchResultsSet getSearchResultsSet();
 
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.

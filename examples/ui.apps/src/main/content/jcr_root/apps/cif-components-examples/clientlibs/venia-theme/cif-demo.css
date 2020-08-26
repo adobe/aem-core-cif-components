@@ -1,0 +1,27 @@
+
+.cif-demo .productteaser {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.cif-demo .productteaser .item__image {
+    border: none !important;
+}
+
+.cif-demo .productcarousel__container {
+    max-width: 50%;
+}
+
+.cif-demo .searchBar__root {
+    display: block !important;
+}
+
+.cif-demo .navigation__root {
+    position: absolute;
+    min-height: 450px;
+    z-index: 1500;
+}
+
+.cif-demo .navigation__mask {
+    z-index: 1400;
+}

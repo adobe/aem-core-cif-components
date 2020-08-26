@@ -13,11 +13,13 @@
  ******************************************************************************/
 import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/react-hooks';
 
-import { useCountries } from '../../utils/hooks';
+import { useCountries, useAwaitQuery } from '../../utils/hooks';
+import { getCartDetails } from '../../actions/cart';
 
-import AddressForm from './addressForm';
+import AddressForm from '../AddressForm';
 import PaymentsForm from './paymentsForm';
 import ShippingForm from './shippingForm';
 import { useCartState } from '../Minicart/cartContext';
@@ -28,6 +30,7 @@ import MUTATION_SET_BRAINTREE_PAYMENT_METHOD from '../../queries/mutation_set_br
 import MUTATION_SET_BILLING_ADDRESS from '../../queries/mutation_set_billing_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../queries/mutation_set_shipping_method.graphql';
 import MUTATION_SET_EMAIL from '../../queries/mutation_set_email_on_cart.graphql';
+import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
@@ -41,6 +44,7 @@ const EditableForm = props => {
     const [{ editing, shippingAddress, shippingMethod, paymentMethod, billingAddress }, dispatch] = useCheckoutState();
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn }] = useUserContext();
+    const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
     const [setShippingAddressesOnCart, { data, error }] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
 
     const [setBraintreePaymentMethodOnCart] = useMutation(MUTATION_SET_BRAINTREE_PAYMENT_METHOD);
@@ -52,6 +56,8 @@ const EditableForm = props => {
     );
 
     const [setGuestEmailOnCart, { data: guestEmailResult, error: guestEmailError }] = useMutation(MUTATION_SET_EMAIL);
+
+    const [t] = useTranslation(['checkout']);
 
     if (error || shippingMethodsError || guestEmailError || countriesError) {
         let errorObj = error || shippingMethodsError || guestEmailError || countriesError;
@@ -137,12 +143,17 @@ const EditableForm = props => {
         }
     };
 
-    const handleSubmitShippingForm = useCallback(
-        formValues => {
-            setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } });
-        },
-        [dispatch, submitShippingMethod]
-    );
+    const handleSubmitShippingForm = async formValues => {
+        cartDispatch({ type: 'beginLoading' });
+        try {
+            await setShippingMethodsOnCart({ variables: { cartId: cartId, ...formValues.shippingMethod } });
+            await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });
+        } catch (err) {
+            cartDispatch({ type: 'error', error: err.toString() });
+        } finally {
+            cartDispatch({ type: 'endLoading' });
+        }
+    };
 
     if (data && (isSignedIn || guestEmailResult)) {
         const guestEmail = guestEmailResult ? { email: guestEmailResult.setGuestEmailOnCart.cart.email } : {};
@@ -177,11 +188,14 @@ const EditableForm = props => {
                 <AddressForm
                     cancel={handleCancel}
                     countries={countries}
+                    heading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
                     initialValues={shippingAddress}
+                    showEmailInput={true}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
+                    submitLabel={t('checkout:address-submit', 'Use Address')}
                 />
             );
         }

@@ -20,14 +20,13 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>0.10.2-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
     <!-- P R O J E C T  D E S C R I P T I O N                                   -->
     <!-- ====================================================================== -->
     <artifactId>core-cif-components-apps</artifactId>
-    <version>0.10.2-SNAPSHOT</version>
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
@@ -63,76 +62,32 @@
     <!-- B U I L D   D E F I N I T I O N                                        -->
     <!-- ====================================================================== -->
     <build>
-        <resources>
-            <resource>
-                <!--
-                            keep some of the META-INF files and not configure
-                            everything in the plugin.
-                        -->
-                <directory>${basedir}/src/main/content/META-INF</directory>
-                <targetPath>../vault-work/META-INF</targetPath>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/content/jcr_root</directory>
-                <targetPath>.</targetPath>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/.vlt</exclude>
-                    <exclude>**/.vltignore</exclude>
-                    <exclude>**/*.iml</exclude>
-                    <exclude>**/.classpath</exclude>
-                    <exclude>**/.project</exclude>
-                    <exclude>**/.settings/**</exclude>
-                    <exclude>**/.DS_Store</exclude>
-                    <exclude>**/target/**</exclude>
-                    <!-- Exclude un-transpiled JavaScript files -->
-                    <exclude>**/js/**</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
         <plugins>
-            <!-- we don't want the remote resources copied to target/classes
-                       (attached) this would add them below the jcr_root, too.
-                  -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/vault-work</outputDirectory>
-                            <attached>false</attached>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.day.jcr.vault</groupId>
-                <artifactId>content-package-maven-plugin</artifactId>
+                <groupId>org.apache.jackrabbit</groupId>
+                <artifactId>filevault-package-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-                    <requiresRoot>true</requiresRoot>
 
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
                         <created>${buildNumber}</created>
                         <createdBy>${vault.package.company}</createdBy>
+                        <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
-
-                    <filterSource>${basedir}/META-INF/vault/filter.xml</filterSource>
 
                     <dependencies>
                         <dependency>
                             <group>day/cq60/product</group>
                             <name>cq-ui-wcm-editor-content</name>
                             <version>(1.0.138,)</version>
+                        </dependency>
+                        <dependency>
+                            <group>adobe/cq60</group>
+                            <name>core.wcm.components.content</name>
+                            <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
                     
@@ -141,7 +96,6 @@
                         <embedded>
                             <groupId>org.apache.commons</groupId>
                             <artifactId>commons-text</artifactId>
-                            <filter>true</filter>
                         </embedded>
                     </embeddeds>
                 </configuration>
@@ -197,84 +151,14 @@
                             <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>npm-install-react-components</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-link-react-components</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>link @adobe/aem-core-cif-react-components</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-webpack-development-react-components</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.prod}</skip>
-                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>run webpack:dev</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-webpack-production-react-components</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.dev}</skip>
-                            <workingDirectory>${basedir}/src/main/javascript/react-components/</workingDirectory>
-                            <arguments>run webpack:prod</arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-react-translations</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang/en-US</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/javascript/react-components/node_modules/@adobe/aem-core-cif-react-components/i18n/en</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
                         <fileset>
                             <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/common/dist</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/resources/lang</directory>
                         </fileset>
                     </filesets>
                 </configuration>
@@ -286,6 +170,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.cq</groupId>
+            <artifactId>core.wcm.components.content</artifactId>
+            <version>${core.wcm.components.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

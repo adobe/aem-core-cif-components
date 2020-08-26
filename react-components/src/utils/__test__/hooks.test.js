@@ -31,16 +31,16 @@ const mocks = [
                         id: 'RO',
                         full_name_locale: 'Romania',
                         available_regions: [
-                            { code: 'AB', name: 'Alba' },
-                            { code: 'AR', name: 'Arad' }
+                            { id: 835, code: 'AB', name: 'Alba' },
+                            { id: 838, code: 'AR', name: 'Arad' }
                         ]
                     },
                     {
                         id: 'US',
                         full_name_locale: 'United States',
                         available_regions: [
-                            { code: 'AL', name: 'Alabama' },
-                            { code: 'AK', name: 'Alaska' }
+                            { id: 4, code: 'AL', name: 'Alabama' },
+                            { id: 7, code: 'AK', name: 'Alaska' }
                         ]
                     }
                 ]

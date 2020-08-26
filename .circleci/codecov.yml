@@ -5,19 +5,19 @@ coverage:
       unittests:
         enabled: true
         target: 80%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: unittests
       karma:
         enabled: true
         target: 90%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: karma
       jest:
         enabled: true
         target: 36%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: jest
     patch:
@@ -25,19 +25,19 @@ coverage:
       unittests:
         enabled: true
         target: 80%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: unittests
       karma:
         enabled: true
         target: 90%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: karma
       jest:
         enabled: true
         target: 50%
-        threshold: null
+        threshold: 10%
         base: auto
         flags: jest
 flags:

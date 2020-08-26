@@ -1,0 +1,9 @@
+.root {
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
+
+.title {
+    margin-bottom: 1.5rem;
+}

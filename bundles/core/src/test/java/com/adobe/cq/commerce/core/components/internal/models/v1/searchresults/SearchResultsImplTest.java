@@ -18,12 +18,15 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
@@ -39,11 +42,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -53,10 +60,13 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -77,6 +87,8 @@ public class SearchResultsImplTest {
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -84,8 +96,14 @@ public class SearchResultsImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
     private SearchResultsImpl searchResultsModel;
     private Resource pageResource;
+    private GraphqlClient graphqlClient;
 
     @Mock
     HttpClient httpClient;
@@ -96,7 +114,7 @@ public class SearchResultsImplTest {
         context.currentResource(SEARCHRESULTS);
         Resource searchResultsResource = context.resourceResolver().getResource(SEARCHRESULTS);
 
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
@@ -108,10 +126,8 @@ public class SearchResultsImplTest {
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
-
-        Function<Resource, GraphqlClient> adapter = r -> r.getPath().equals(PAGE) ? graphqlClient : null;
-        context.registerAdapter(Resource.class, GraphqlClient.class, adapter);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -144,9 +160,20 @@ public class SearchResultsImplTest {
         Assert.assertEquals(products, searchResultsSet.getProductListItems());
         Assert.assertEquals(0, searchResultsSet.getAppliedAggregations().size());
         Assert.assertEquals(8, searchResultsSet.getSearchAggregations().size());
-        Assert.assertEquals(7, searchResultsSet.getAvailableAggregations().size()); // category_id is removed
+        Assert.assertEquals(8, searchResultsSet.getAvailableAggregations().size());
         Assert.assertEquals(1, searchResultsSet.getAppliedQueryParameters().size()); // only search_query
         Assert.assertEquals(4, searchResultsSet.getTotalResults().intValue());
+
+        List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
+        Assert.assertEquals(8, searchAggregations.size());
+
+        // We want to make sure all price ranges are properly processed
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        Assert.assertEquals(3, priceAggregation.getOptions().size());
+        Assert.assertEquals(3, priceAggregation.getOptionCount());
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
     }
 
     @Test
@@ -154,7 +181,11 @@ public class SearchResultsImplTest {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
         Collection<ProductListItem> products = searchResultsModel.getProducts();
+
+        // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertTrue("Products list is empty", products.isEmpty());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
+        Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -171,30 +202,12 @@ public class SearchResultsImplTest {
     @Test
     public void testCreateFilterMap() {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-        Map<String, String[]> queryParameters;
-        Map<String, String> filterMap;
 
-        queryParameters = new HashMap<>();
+        Map<String, String[]> queryParameters = new HashMap<>();
         queryParameters.put("search_query", new String[] { "ok" });
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
+        Map<String, String> filterMap = searchResultsModel.createFilterMap(queryParameters);
+
         Assert.assertEquals("filters query string parameter out correctly", 0, filterMap.size());
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] {});
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
-        Assert.assertEquals("filters out query parameters without values", 0, filterMap.size());
-
-        queryParameters = new HashMap<>();
-        queryParameters.put("color", new String[] { "123" });
-        filterMap = searchResultsModel.createFilterMap(queryParameters);
-        Assert.assertEquals("retails valid query filters", 1, filterMap.size());
-    }
-
-    @Test
-    public void testCalculateCurrentPageCursor() {
-        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
-        Assert.assertEquals("negative page indexes are not allowed", 1, searchResultsModel.calculateCurrentPageCursor("-1").intValue());
-        Assert.assertEquals("null value is dealt with", 1, searchResultsModel.calculateCurrentPageCursor(null).intValue());
     }
 
     @Test
@@ -215,5 +228,53 @@ public class SearchResultsImplTest {
 
         SearchResultsSet searchResultsSet = searchResultsModel.getSearchResultsSet();
         Assert.assertEquals(0, searchResultsSet.getAvailableAggregations().size());
+    }
+
+    @Test
+    public void testSorting() {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        SearchResultsSet resultSet = searchResultsModel.getSearchResultsSet();
+        Assert.assertNotNull(resultSet);
+        Assert.assertTrue(resultSet.hasSorting());
+        Sorter sorter = resultSet.getSorter();
+        Assert.assertNotNull(sorter);
+
+        SorterKey currentKey = sorter.getCurrentKey();
+        Assert.assertNotNull(currentKey);
+        Assert.assertEquals("relevance", currentKey.getName());
+        Assert.assertEquals("Relevance", currentKey.getLabel());
+        Assert.assertEquals(Sorter.Order.DESC, currentKey.getOrder());
+        Assert.assertTrue(currentKey.isSelected());
+
+        Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
+        Assert.assertNotNull(currentOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        Assert.assertEquals("relevance", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("desc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
+        Assert.assertNotNull(oppositeOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        Assert.assertEquals("relevance", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("asc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        List<SorterKey> keys = sorter.getKeys();
+        Assert.assertNotNull(keys);
+        Assert.assertEquals(3, keys.size());
+        SorterKey defaultKey = keys.get(0);
+        Assert.assertEquals(currentKey.getName(), defaultKey.getName());
+
+        SorterKey otherKey = keys.get(1);
+        Assert.assertEquals("price", otherKey.getName());
+        Assert.assertEquals("Price", otherKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
+
+        otherKey = keys.get(2);
+        Assert.assertEquals("name", otherKey.getName());
+        Assert.assertEquals("Product Name", otherKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
     }
 }

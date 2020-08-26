@@ -11,11 +11,11 @@
           },
           "image": {
             "label": "Venia Stylist Consultation",
-            "url": "https://adobe-starter.dummycachetest.com/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
+            "url": "https://test-url.magentosite.cloud/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
           },
           "thumbnail": {
             "label": "Venia Stylist Consultation",
-            "url": "https://adobe-starter.dummycachetest.com/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
+            "url": "https://test-url.magentosite.cloud/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg"
           },
           "url_key": "venia-stylist-consultation",
           "stock_status": "IN_STOCK",
@@ -27,20 +27,17 @@
               }
             }
           },
-          "media_gallery_entries": [
+          "media_gallery": [
             {
+              "__typename": "ProductImage",
               "disabled": false,
-              "file": "/v/v/vvp01_main.jpg",
+              "url": "https://test-url.magentosite.cloud/media/catalog/product/cache/387e562b5d1dd11cf13a3c10eb68c908/v/v/vvp01_main.jpg",
               "label": "Image",
-              "position": 1,
-              "media_type": "image"
+              "position": 1
             }
           ]
         }
       ]
-    },
-    "storeConfig": {
-      "secure_base_media_url": "https://test-url.magentosite.cloud/pub/media/"
     }
   }
 }

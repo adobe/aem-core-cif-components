@@ -13,20 +13,21 @@
  ******************************************************************************/
 
 import React from 'react';
-import { string } from 'prop-types';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
+import NavigationContextProvider from '../../context/NavigationContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
+import { useConfigContext } from '../../context/ConfigContext';
 
 const App = props => {
-    const { uri, storeView = 'default' } = props;
+    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
     const client = new ApolloClient({
-        uri,
+        uri: graphqlEndpoint,
         headers: { Store: storeView },
         request: operation => {
             let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
@@ -43,19 +44,16 @@ const App = props => {
     return (
         <ApolloProvider client={client}>
             <UserContextProvider>
-                <CartProvider>
-                    <CartInitializer>
-                        <CheckoutProvider>{props.children}</CheckoutProvider>
-                    </CartInitializer>
-                </CartProvider>
+                <NavigationContextProvider>
+                    <CartProvider>
+                        <CartInitializer>
+                            <CheckoutProvider>{props.children}</CheckoutProvider>
+                        </CartInitializer>
+                    </CartProvider>
+                </NavigationContextProvider>
             </UserContextProvider>
         </ApolloProvider>
     );
-};
-
-App.propTypes = {
-    uri: string.isRequired,
-    storeView: string
 };
 
 export default App;

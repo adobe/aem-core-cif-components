@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/core-components-examples/settings/cloudconfigs/commerce"/>
+    <filter root="/conf/core-components-examples/settings/wcm/policies/core-components-examples/components/page/policy_212634895490169" mode="update"/>
+    <filter root="/conf/core-components-examples/settings/wcm/templates/content-page/structure/jcr:content/root/sidebar/accordion/" mode="update"/>
+    <filter root="/conf/core-components-examples/settings/wcm/templates/content-page/structure/jcr:content/root/sidebar/accordion/item_1579021109269"/>
+    <filter root="/content/core-components-examples/library/jcr:content/root/responsivegrid/container_1589240807"/>
+    <filter root="/content/core-components-examples/library/commerce"/>
+    <filter root="/content/dam/core-components-examples/library/cif-sample-assets/"/>
+    <filter root="/content/dam/core-components-examples/library/cif-components"/>
+</workspaceFilter>

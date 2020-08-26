@@ -1,0 +1,189 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MyAccount> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="user"
+    >
+      <h2
+        class="title"
+      >
+         
+      </h2>
+      <span
+        class="subtitle"
+      />
+    </div>
+    <div
+      class="actions"
+    >
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                height="11"
+                rx="2"
+                ry="2"
+                width="18"
+                x="3"
+                y="11"
+              />
+              <path
+                d="M7 11V7a5 5 0 0 1 10 0v4"
+              />
+            </svg>
+          </span>
+          <span>
+            Change Password
+          </span>
+        </span>
+      </button>
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+              />
+              <path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+              />
+            </svg>
+          </span>
+          <span>
+            Address Book
+          </span>
+        </span>
+      </button>
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="16"
+                y2="12"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="8"
+                y2="8"
+              />
+            </svg>
+          </span>
+          <span>
+            Account Information
+          </span>
+        </span>
+      </button>
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+              />
+              <polyline
+                points="16 17 21 12 16 7"
+              />
+              <line
+                x1="21"
+                x2="9"
+                y1="12"
+                y2="12"
+              />
+            </svg>
+          </span>
+          <span>
+            Sign Out
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<MyAccount> renders the loading indicator when inProgress is true 1`] = `
+<DocumentFragment>
+  <div
+    class="modal_active"
+  >
+    <div
+      class="root"
+    >
+      <span
+        class="indicator loader-img"
+      />
+      <span
+        class="message"
+      >
+        Signing In
+      </span>
+    </div>
+  </div>
+</DocumentFragment>
+`;

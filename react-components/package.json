@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aem-core-cif-react-components",
-  "version": "0.10.1",
+  "version": "1.2.0",
   "description": "A collection of React components used in the AEM CIF Core Components project",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
@@ -9,6 +9,10 @@
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
   "module": "dist/index.js",
+  "files": [
+    "dist",
+    "i18n"
+  ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
@@ -53,7 +57,7 @@
     "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
-    "informed": "^2.11.17",
+    "informed": "^3.9.0",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
     "jest-transform-graphql": "^2.1.0",

@@ -69,10 +69,10 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template, String selectorFilter) {
-        if (page != null && params.containsKey(selectorFilter)) {
+        if (page != null) {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-            if (deepLink) {
+            if (deepLink && params.containsKey(selectorFilter)) {
                 Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter));
                 if (subPageResource != null) {
                     pageResource = subPageResource;
@@ -82,9 +82,21 @@ public class UrlProviderImpl implements UrlProvider {
             params.put(PAGE_PARAM, pageResource.getPath());
         }
 
-        StringSubstitutor sub = new StringSubstitutor(params);
+        String prefix = "${", suffix = "}"; // variables have the format ${var}
+        if (template.contains("{{")) {
+            prefix = "{{";
+            suffix = "}}"; // variables have the format {{var}}
+        }
+
+        StringSubstitutor sub = new StringSubstitutor(params, prefix, suffix);
         String url = sub.replace(template);
-        return StringUtils.substringBeforeLast(url, "#${"); // remove anchor if it hasn't been substituted
+        url = StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
+
+        if (url.contains(prefix)) {
+            LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
+        }
+
+        return url;
     }
 
     /**

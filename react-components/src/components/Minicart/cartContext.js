@@ -25,9 +25,7 @@ export const initialState = {
     cartId: null,
     cart: null,
     errorMessage: null,
-    couponError: null,
-    addItem: () => {},
-    removeItem: () => {}
+    couponError: null
 };
 
 export const reducerFactory = setCartCookie => {
@@ -68,15 +66,13 @@ export const reducerFactory = setCartCookie => {
             case 'cartId':
                 return {
                     ...state,
-                    cartId: action.cartId,
-                    ...action.methods
+                    cartId: action.cartId
                 };
             case 'reset':
                 setCartCookie('', 0);
                 return {
                     ...state,
                     cartId: null,
-                    isOpen: false,
                     errorMessage: null,
                     couponError: null,
                     cart: null

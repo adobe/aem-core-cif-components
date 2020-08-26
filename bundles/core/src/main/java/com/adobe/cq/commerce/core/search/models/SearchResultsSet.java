@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.search.models;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
@@ -46,14 +45,6 @@ public interface SearchResultsSet {
      */
     @Nonnull
     Integer getTotalResults();
-
-    /**
-     * Get the search query used to provide this result set.
-     *
-     * @return the search query string used if any
-     */
-    @Nonnull
-    Optional<String> getSearchQuery();
 
     /**
      * Get a map of the applied search query string parameters.
@@ -103,4 +94,24 @@ public interface SearchResultsSet {
     @Nonnull
     Pager getPager();
 
+    /**
+     * Returns the sorter model, responsible for handling the sorting of search results.
+     */
+    @Nonnull
+    Sorter getSorter();
+
+    /**
+     * @return {@code true} if the result set provides search aggregations for faceted search support, {@code false} otherwise
+     */
+    boolean hasAggregations();
+
+    /**
+     * @return {@code true} if the result set provides pagination, {@code false} otherwise
+     */
+    boolean hasPagination();
+
+    /**
+     * @return {@code true} if the result set provides support for sorting of the results, {@code false} otherwise
+     */
+    boolean hasSorting();
 }
