@@ -14,12 +14,14 @@
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { MockedProvider } from '@apollo/react-testing';
-import { render } from '@testing-library/react';
+import { render, fireEvent, waitForDomChange } from '@testing-library/react';
 import * as ConfigContext from '../../../context/ConfigContext';
+import * as hooks from '../../../utils/hooks';
 
 import i18n from '../../../../__mocks__/i18nForTests';
 
 import BundleProductOptions from '../bundleProductOptions';
+import mockResponse from './graphQlMockReponse';
 
 describe('<BundleProductOptions>', () => {
     beforeAll(() => {
@@ -40,13 +42,13 @@ describe('<BundleProductOptions>', () => {
             </I18nextProvider>
         );
 
-        expect(asFragment()).toMatchSnapshot();
+        expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
     });
 
     it('renders the component with sku', () => {
-        const container = document.createElement('div');
-        container.dataset.sku = 'VA-42';
-        container.id = 'bundle-product-options';
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.id = 'bundle-product-options';
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
@@ -54,7 +56,7 @@ describe('<BundleProductOptions>', () => {
                 </MockedProvider>
             </I18nextProvider>,
             {
-                container: document.body.appendChild(container)
+                container: document.body.appendChild(bundleProductOptionsContainer)
             }
         );
 
@@ -78,5 +80,37 @@ describe('<BundleProductOptions>', () => {
               </section>
             </DocumentFragment>
         `);
+    });
+
+    it('renders the component with full options', async () => {
+        // mock useState to return the state for a full rendering
+        jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
+            return jest.fn().mockImplementation(async () => {
+                return {
+                    data: mockResponse,
+                    error: null
+                };
+            });
+        });
+
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.id = 'bundle-product-options';
+
+        const { container, getByRole } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <BundleProductOptions />
+                </MockedProvider>
+            </I18nextProvider>,
+            {
+                container: document.body.appendChild(bundleProductOptionsContainer)
+            }
+        );
+
+        fireEvent.click(getByRole('button', { name: 'Customize' }));
+
+        await waitForDomChange({ container });
+        expect(container).toMatchSnapshot();
     });
 });
