@@ -22,18 +22,19 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NavigationComponentIT extends CommerceTestBase {
+public class BreadcrumbComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String NAVIGATION_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .navigation ";
+    private static final String BREADCRUMB_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .breadcrumb ";
+    protected static final String BREADCRUMB_ITEM_SELECTOR = BREADCRUMB_SELECTOR + ".cmp-breadcrumb__item";
 
     @Test
-    public void testNavigationWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/navigation.html", 200);
+    public void testProductBreadcrumbWithPlaceholderData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/breadcrumb.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Check the number of elements in the navigation menu
-        Elements elements = doc.select(NAVIGATION_SELECTOR + ".categoryTree__root > .categoryTree__tree > .cmp-navigation__item");
-        Assert.assertEquals(10, elements.size());
+        // Component Library > Commerce > Breadcrumb
+        Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
+        Assert.assertEquals(3, elements.size());
     }
 }

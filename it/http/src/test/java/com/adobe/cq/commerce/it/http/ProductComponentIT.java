@@ -62,4 +62,24 @@ public class ProductComponentIT extends CommerceTestBase {
         Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
         Assert.assertEquals("Product name", elements.first().html());
     }
+
+    @Test
+    public void testProductBreadcrumbWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.chaz-kangeroo-hoodie.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Component Library > Commerce > Outdoor > Collection > Chaz Kangeroo Hoodie
+        Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
+        Assert.assertEquals(5, elements.size());
+    }
+
+    @Test
+    public void testProductBreadcrumbWithPlaceholderData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Component Library > Commerce
+        Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
+        Assert.assertEquals(2, elements.size());
+    }
 }

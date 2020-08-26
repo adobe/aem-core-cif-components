@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,6 +108,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
+    private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
+    private static final String CATEGORYLIST_BREADCRUMB_JSON = "magento-graphql-categorylist-breadcrumb.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -314,6 +317,9 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     case "category": {
                         return readCategoryResponse(env);
                     }
+                    case "categoryList": {
+                        return readCategoryListResponse(env);
+                    }
                     case "customAttributeMetadata": {
                         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(ATTRIBUTES_JSON);
                         return graphqlResponse.getData().getCustomAttributeMetadata();
@@ -329,6 +335,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
+            .type("Query", builder -> builder.dataFetcher("categoryList", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))
             .build();
     }
@@ -351,6 +358,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             return readProductsFrom(UPSELL_PRODUCTS_JSON);
         } else if (selectionSet.contains("items/crosssell_products")) {
             return readProductsFrom(CROSSSELL_PRODUCTS_JSON);
+        } else if (selectionSet.contains("items/categories/breadcrumbs")) {
+            return readProductsFrom(PRODUCTS_BREADCRUMB_JSON);
         }
 
         Map<String, Object> args = env.getArguments();
@@ -429,5 +438,20 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
         return graphqlResponse.getData().getCategory();
+    }
+
+    /**
+     * Based on the GraphQL query, this method returns a list of Magento <code>CategoryTree</code> objects
+     * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
+     * specific JSON response. Luckily, each GraphQL query sent by each component is different so
+     * we can "detect" what response should be returned.
+     * 
+     * @param env The metadata of the GraphQL query.
+     * @return A list of Magento <code>CategoryTree</code> objects.
+     */
+    private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
+        // For now, only the breadcrumb component queries 'CategoryList'
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+        return graphqlResponse.getData().getCategoryList();
     }
 }
