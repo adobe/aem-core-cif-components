@@ -17,7 +17,7 @@ exports[`<Radio> renders the component 1`] = `
         <span
           class=""
         >
-          common:formattedPrice
+          $12.00
         </span>
       </b>
     </label>
@@ -36,7 +36,7 @@ exports[`<Radio> renders the component 1`] = `
         <span
           class=""
         >
-          common:formattedPrice
+          $13.00
         </span>
       </b>
     </label>
@@ -45,12 +45,11 @@ exports[`<Radio> renders the component 1`] = `
     class="option__title productFullDetail__quantityTitle"
   >
     <span>
-      cart:quantity
+      Quantity
     </span>
   </h2>
   <input
     class="option__quantity"
-    disabled=""
     min="1"
     type="number"
     value="1"

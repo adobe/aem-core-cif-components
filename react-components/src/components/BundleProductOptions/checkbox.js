@@ -23,7 +23,7 @@ const Checkbox = props => {
         let newCustomization;
 
         if (checked) {
-            newCustomization = customization;
+            newCustomization = [...customization];
             const { id, quantity, price } = sortedOptions.find(o => o.id == value);
             newCustomization.push({ id, quantity, price });
         } else {

@@ -17,8 +17,6 @@ import { useTranslation } from 'react-i18next';
 
 import Price from '../Price';
 
-import classes from './bundleProductOptions.css';
-
 const Radio = props => {
     const { item, customization, sortedOptions, handleSelectionChange } = props;
     const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;

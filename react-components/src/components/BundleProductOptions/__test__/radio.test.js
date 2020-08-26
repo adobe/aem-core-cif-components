@@ -13,7 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import Radio from '../radio';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Radio>', () => {
     const requiredItem = {
@@ -25,32 +28,25 @@ describe('<Radio>', () => {
         {
             id: 1,
             quantity: 1,
-            position: 1,
-            is_default: true,
-            price: 0,
-            price_type: 'FIXED',
-            can_change_quantity: false,
-            label: 'Carmina Necklace',
-            product: { id: 1355, name: 'Carmina Necklace', sku: 'VA13-GO-NA', __typename: 'SimpleProduct' },
-            __typename: 'BundleItemOption'
+            price: 12,
+            currency: 'USD',
+            can_change_quantity: true,
+            label: 'Carmina Necklace'
         },
         {
             id: 2,
             quantity: 1,
-            position: 2,
-            is_default: false,
-            price: 0,
-            price_type: 'FIXED',
-            can_change_quantity: true,
-            label: 'Augusta Necklace',
-            product: { id: 1356, name: 'Augusta Necklace', sku: 'VA14-SI-NA', __typename: 'SimpleProduct' },
-            __typename: 'BundleItemOption'
+            price: 13,
+            currency: 'USD',
+            can_change_quantity: false,
+            label: 'Augusta Necklace'
         }
     ];
 
     const customization = [
         {
             id: 1,
+            price: 12,
             quantity: 1
         }
     ];
@@ -59,31 +55,62 @@ describe('<Radio>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <Radio
-                item={requiredItem}
-                sortedOptions={sortedOptions}
-                customization={customization}
-                handleSelectionChange={handleSelectionChange}
-            />
+            <I18nextProvider i18n={i18n}>
+                <Radio
+                    item={requiredItem}
+                    sortedOptions={sortedOptions}
+                    customization={customization}
+                    handleSelectionChange={handleSelectionChange}
+                />
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('tests selection change', () => {
+        const { getByRole } = render(
+            <I18nextProvider i18n={i18n}>
+                <Radio
+                    item={requiredItem}
+                    sortedOptions={sortedOptions}
+                    customization={customization}
+                    handleSelectionChange={handleSelectionChange}
+                />
+            </I18nextProvider>
+        );
+
+        fireEvent.click(getByRole('radio', { name: 'Augusta Necklace + $13.00' }));
+
+        const newCustomization = [
+            {
+                id: 2,
+                price: 13,
+                quantity: 1
+            }
+        ];
+
+        expect(handleSelectionChange).toHaveBeenCalledTimes(1);
+        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, newCustomization);
     });
 
     it('disables quantity change', async () => {
         const quantityDisableCustomization = [
             {
                 id: 2,
+                price: 13,
                 quantity: 1
             }
         ];
         const { asFragment } = render(
-            <Radio
-                item={requiredItem}
-                sortedOptions={sortedOptions}
-                customization={quantityDisableCustomization}
-                handleSelectionChange={handleSelectionChange}
-            />
+            <I18nextProvider i18n={i18n}>
+                <Radio
+                    item={requiredItem}
+                    sortedOptions={sortedOptions}
+                    customization={quantityDisableCustomization}
+                    handleSelectionChange={handleSelectionChange}
+                />
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchInlineSnapshot(`
@@ -102,7 +129,7 @@ describe('<Radio>', () => {
                     <span
                       class=""
                     >
-                      common:formattedPrice
+                      $12.00
                     </span>
                   </b>
                 </label>
@@ -122,7 +149,7 @@ describe('<Radio>', () => {
                     <span
                       class=""
                     >
-                      common:formattedPrice
+                      $13.00
                     </span>
                   </b>
                 </label>
@@ -131,11 +158,12 @@ describe('<Radio>', () => {
                 class="option__title productFullDetail__quantityTitle"
               >
                 <span>
-                  cart:quantity
+                  Quantity
                 </span>
               </h2>
               <input
                 class="option__quantity"
+                disabled=""
                 min="1"
                 type="number"
                 value="1"

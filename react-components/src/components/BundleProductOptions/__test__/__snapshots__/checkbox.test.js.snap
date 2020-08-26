@@ -16,7 +16,7 @@ exports[`<Checkbox> renders the component 1`] = `
         <span
           class=""
         >
-          common:formattedPrice
+          $12.00
         </span>
       </b>
     </label>
@@ -34,7 +34,7 @@ exports[`<Checkbox> renders the component 1`] = `
         <span
           class=""
         >
-          common:formattedPrice
+          $13.00
         </span>
       </b>
     </label>

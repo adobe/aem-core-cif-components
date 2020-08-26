@@ -58,12 +58,11 @@ exports[`<Select> renders the component 1`] = `
     class="bundleProduct__quantityTitle"
   >
     <span>
-      cart:quantity
+      Quantity
     </span>
   </h2>
   <input
     class="option__quantity"
-    disabled=""
     min="1"
     type="number"
     value="1"

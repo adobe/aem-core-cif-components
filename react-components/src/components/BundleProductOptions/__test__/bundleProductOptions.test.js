@@ -23,7 +23,7 @@ import BundleProductOptions from '../bundleProductOptions';
 
 describe('<BundleProductOptions>', () => {
     beforeAll(() => {
-        // mock createPortal because we don't have the DOM element to render the BundleProductOptions
+        // mock useConfigContext to return the necessary node selector
         jest.spyOn(ConfigContext, 'useConfigContext').mockImplementation(() => {
             return {
                 mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' }
@@ -44,20 +44,18 @@ describe('<BundleProductOptions>', () => {
     });
 
     it('renders the component with sku', () => {
-        jest.spyOn(document, 'querySelector').mockImplementation(selector => {
-            return {
-                dataset: {
-                    sku: 'VA-42'
-                }
-            };
-        });
-
+        const container = document.createElement('div');
+        container.dataset.sku = 'VA-42';
+        container.id = 'bundle-product-options';
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <BundleProductOptions />
                 </MockedProvider>
-            </I18nextProvider>
+            </I18nextProvider>,
+            {
+                container: document.body.appendChild(container)
+            }
         );
 
         expect(asFragment()).toMatchInlineSnapshot(`

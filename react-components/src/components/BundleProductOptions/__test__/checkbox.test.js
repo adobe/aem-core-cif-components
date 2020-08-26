@@ -13,7 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import Checkbox from '../checkbox';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Checkbox>', () => {
     const requiredItem = {
@@ -25,32 +28,25 @@ describe('<Checkbox>', () => {
         {
             id: 1,
             quantity: 1,
-            position: 1,
-            is_default: true,
-            price: 0,
-            price_type: 'FIXED',
+            price: 12,
+            currency: 'USD',
             can_change_quantity: false,
-            label: 'Carmina Necklace',
-            product: { id: 1355, name: 'Carmina Necklace', sku: 'VA13-GO-NA', __typename: 'SimpleProduct' },
-            __typename: 'BundleItemOption'
+            label: 'Carmina Necklace'
         },
         {
             id: 2,
             quantity: 1,
-            position: 2,
-            is_default: false,
-            price: 0,
-            price_type: 'FIXED',
+            price: 13,
+            currency: 'USD',
             can_change_quantity: true,
-            label: 'Augusta Necklace',
-            product: { id: 1356, name: 'Augusta Necklace', sku: 'VA14-SI-NA', __typename: 'SimpleProduct' },
-            __typename: 'BundleItemOption'
+            label: 'Augusta Necklace'
         }
     ];
 
     const customization = [
         {
             id: 1,
+            price: 12,
             quantity: 1
         }
     ];
@@ -59,14 +55,47 @@ describe('<Checkbox>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <Checkbox
-                item={requiredItem}
-                sortedOptions={sortedOptions}
-                customization={customization}
-                handleSelectionChange={handleSelectionChange}
-            />
+            <I18nextProvider i18n={i18n}>
+                <Checkbox
+                    item={requiredItem}
+                    sortedOptions={sortedOptions}
+                    customization={customization}
+                    handleSelectionChange={handleSelectionChange}
+                />
+            </I18nextProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('tests selection change', () => {
+        const { getByRole } = render(
+            <I18nextProvider i18n={i18n}>
+                <Checkbox
+                    item={requiredItem}
+                    sortedOptions={sortedOptions}
+                    customization={customization}
+                    handleSelectionChange={handleSelectionChange}
+                />
+            </I18nextProvider>
+        );
+
+        fireEvent.click(getByRole('checkbox', { name: '1 x Augusta Necklace + $13.00' }));
+
+        const newCustomization = [
+            {
+                id: 1,
+                price: 12,
+                quantity: 1
+            },
+            {
+                id: 2,
+                price: 13,
+                quantity: 1
+            }
+        ];
+
+        expect(handleSelectionChange).toHaveBeenCalledTimes(1);
+        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, newCustomization);
     });
 });
