@@ -33,7 +33,16 @@ const Radio = props => {
     };
 
     const onQuantityChange = event => {
-        handleSelectionChange(item.option_id, [{ ...customization[0], quantity: parseInt(event.target.value) }]);
+        try {
+            const quantity = parseInt(event.target.value);
+            if (quantity > 0) {
+                handleSelectionChange(item.option_id, [
+                    { ...customization[0], quantity: parseInt(event.target.value) }
+                ]);
+            }
+        } catch {
+            throw new Error('Invalid quantity entered');
+        }
     };
 
     return (
