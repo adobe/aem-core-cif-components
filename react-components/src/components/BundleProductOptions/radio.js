@@ -18,22 +18,34 @@ import { useTranslation } from 'react-i18next';
 import Price from '../Price';
 
 const Radio = props => {
-    const { item, customization, sortedOptions, handleSelectionChange } = props;
-    const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;
+    const { item, customization, options, handleSelectionChange } = props;
+    const { quantity } = item;
+    const { can_change_quantity } = options.find(o => o.id === customization[0].id);
     const [t] = useTranslation('cart');
 
     const onChange = event => {
         const { value } = event.target;
-        const newCustomization = sortedOptions
+        let newQuantity = 1;
+        const newCustomization = options
             .filter(o => o.id == value)
             .map(o => {
-                return { id: o.id, quantity: o.quantity, price: o.price };
+                newQuantity = o.quantity;
+                return { id: o.id, quantity: newQuantity, price: o.price };
             });
-        handleSelectionChange(item.option_id, newCustomization);
+
+        handleSelectionChange(item.option_id, newQuantity, newCustomization);
     };
 
     const onQuantityChange = event => {
-        handleSelectionChange(item.option_id, [{ ...customization[0], quantity: parseInt(event.target.value) }]);
+        try {
+            const newQuantity = parseInt(event.target.value);
+            console.log('newQuantity', newQuantity);
+            if (newQuantity > 0) {
+                handleSelectionChange(item.option_id, newQuantity, customization);
+            }
+        } catch {
+            throw new Error('Invalid quantity entered');
+        }
     };
 
     return (
@@ -52,7 +64,7 @@ const Radio = props => {
                     </label>
                 </div>
             )}
-            {sortedOptions.map(o => (
+            {options.map(o => (
                 <div key={`option-${item.option_id}-${o.id}`} className="bundleProduct__options">
                     <label>
                         <input
@@ -76,8 +88,8 @@ const Radio = props => {
                 type="number"
                 min="1"
                 className="option__quantity"
-                disabled={!canChangeQuantity}
-                value={customization[0]?.quantity}
+                disabled={!can_change_quantity}
+                value={quantity}
                 onChange={onQuantityChange}
             />
         </>
@@ -87,10 +99,11 @@ const Radio = props => {
 Radio.propTypes = {
     item: shape({
         required: bool.isRequired,
-        option_id: number.isRequired
+        option_id: number.isRequired,
+        quantity: number.isRequired
     }),
     customization: array.isRequired,
-    sortedOptions: array.isRequired,
+    options: array.isRequired,
     handleSelectionChange: func.isRequired
 };
 

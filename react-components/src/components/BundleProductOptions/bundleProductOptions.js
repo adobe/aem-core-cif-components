@@ -44,8 +44,39 @@ const BundleProductOptions = () => {
         let currencyCode;
         const bundleOptions = data.products.items[0];
         const selections = bundleOptions.items.map(item => {
+            console.log(item);
             return {
                 option_id: item.option_id,
+                required: item.required,
+                title: item.title,
+                type: item.type,
+                quantity: ['checkbox', 'multi'].includes(item.type) ? 1 : item.options.find(o => o.is_default).quantity,
+                options: item.options
+                    .sort((a, b) => a.position - b.position)
+                    .map(option => {
+                        const {
+                            id,
+                            can_change_quantity,
+                            quantity,
+                            label,
+                            product: {
+                                price_range: {
+                                    maximum_price: {
+                                        final_price: { currency, value }
+                                    }
+                                }
+                            }
+                        } = option;
+
+                        return {
+                            id,
+                            can_change_quantity,
+                            quantity,
+                            label,
+                            currency,
+                            price: value
+                        };
+                    }),
                 customization: item.options
                     .filter(o => o.is_default)
                     .map(o => {
@@ -71,52 +102,33 @@ const BundleProductOptions = () => {
                     })
             };
         });
-        setBundleState({ options: bundleOptions, selections, currencyCode });
+        setBundleState({ selections, currencyCode, quantity: 1 });
     };
 
-    const handleSelectionChange = (option_id, customization) => {
+    const handleSelectionChange = (option_id, quantity, customization) => {
         const { selections } = bundleState;
         const selectionIndex = selections.findIndex(s => s.option_id === option_id);
-        selections.splice(selectionIndex, 1, { option_id, customization });
+        const selection = selections[selectionIndex];
+        selections.splice(selectionIndex, 1, { ...selection, quantity, customization });
 
-        setBundleState({ ...bundleState, selections });
+        setBundleState({ ...bundleState, selections: [...selections] });
     };
 
-    const renderItemOptions = item => {
-        const { customization } = bundleState.selections.find(s => s.option_id === item.option_id);
-        const sortedOptions = item.options
-            .sort((a, b) => a.position - b.position)
-            .map(option => {
-                const {
-                    id,
-                    quantity,
-                    can_change_quantity,
-                    label,
-                    product: {
-                        price_range: {
-                            maximum_price: {
-                                final_price: { currency, value }
-                            }
-                        }
-                    }
-                } = option;
+    const changeBundleQuantity = (e) => {
+        const { value } = e.target;
+        setBundleState({ ...bundleState, quantity: value });
+    }
 
-                return {
-                    id,
-                    quantity,
-                    can_change_quantity,
-                    label,
-                    currency,
-                    price: value
-                };
-            });
-        const { option_id, required } = item;
-        switch (item.type) {
+    const renderItemOptions = item => {
+        console.log(item);
+        const { option_id, required, quantity, options, type, customization } = item;
+
+        switch (type) {
             case 'checkbox': {
                 return (
                     <Checkbox
                         item={{ option_id, required }}
-                        sortedOptions={sortedOptions}
+                        options={options}
                         customization={customization}
                         handleSelectionChange={handleSelectionChange}
                     />
@@ -125,8 +137,8 @@ const BundleProductOptions = () => {
             case 'radio': {
                 return (
                     <Radio
-                        item={{ option_id, required }}
-                        sortedOptions={sortedOptions}
+                        item={{ option_id, required, quantity }}
+                        options={options}
                         customization={customization}
                         handleSelectionChange={handleSelectionChange}
                     />
@@ -135,8 +147,8 @@ const BundleProductOptions = () => {
             case 'select': {
                 return (
                     <Select
-                        item={{ option_id, required }}
-                        sortedOptions={sortedOptions}
+                        item={{ option_id, required, quantity }}
+                        options={options}
                         customization={customization}
                         handleSelectionChange={handleSelectionChange}
                     />
@@ -146,7 +158,7 @@ const BundleProductOptions = () => {
                 return (
                     <MultiSelect
                         item={{ option_id, required }}
-                        sortedOptions={sortedOptions}
+                        options={options}
                         customization={customization}
                         handleSelectionChange={handleSelectionChange}
                     />
@@ -155,13 +167,37 @@ const BundleProductOptions = () => {
         }
     };
 
+    const canAddToCart = () => {
+        const { selections } = bundleState;
+        return selections.reduce((acc, selection) => {
+            return acc && (selection.required ? selection.customization.length > 0 : true);
+        }, true);
+    }
+
+    const addToCart = () => {
+        const { selections, quantity } = bundleState;
+
+        const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            detail: [{
+                sku,
+                virtual: false,
+                bundle: true,
+                quantity: quantity,
+                options: selections
+            }]
+        });
+        console.log(customEvent);
+        //document.dispatchEvent(customEvent);
+    }
+
     const getTotalPrice = () => {
         const { selections, currencyCode } = bundleState;
-        const price = selections.reduce((acc, option) => {
+        console.log(selections);
+        const price = selections.reduce((acc, selection) => {
             return (
                 acc +
-                option.customization.reduce((a, c) => {
-                    return a + c.price * c.quantity;
+                selection.quantity * selection.customization.reduce((a, c) => {
+                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1)
                 }, 0)
             );
         }, 0);
@@ -183,7 +219,7 @@ const BundleProductOptions = () => {
 
     return (
         <>
-            {bundleState.options.items.map(e => (
+            {bundleState.selections.map(e => (
                 <section
                     key={`item-${e.option_id}`}
                     className="productFullDetail__section productFullDetail__bundleProduct">
@@ -211,7 +247,9 @@ const BundleProductOptions = () => {
                             <select
                                 aria-label="product's quantity"
                                 className="select__input field__input"
-                                name="quantity">
+                                name="quantity"
+                                value={bundleState.quantity}
+                                onChange={changeBundleQuantity}>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -243,7 +281,8 @@ const BundleProductOptions = () => {
                 <button
                     className="button__root_highPriority button__root clickable__root button__filled"
                     type="button"
-                    disabled="">
+                    disabled={!canAddToCart()}
+                    onClick={addToCart}>
                     <span className="button__content">
                         <span>{t('product:add-item', 'Add to Cart')}</span>
                     </span>
