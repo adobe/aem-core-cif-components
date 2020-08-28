@@ -2,8 +2,8 @@
   "page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "cq:cifProductPage": "/content/product-page",
-      "cq:cifCategoryPage": "/content/category-page",
+      "cq:cifProductPage": "/content/page/catalogpage/product-page",
+      "cq:cifCategoryPage": "/content/page/catalogpage/category-page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "root": {
@@ -70,19 +70,31 @@
         "magentoRootCategoryId": "2",
         "showMainCategories": true,
         "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
+      },
+      "product-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:language": "en_US",
+          "breadcrumb": {
+            "sling:resourceType": "core/cif/components/structure/breadcrumb/v1/breadcrumb",
+            "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+            "startLevel": "1",
+            "structureDepth": "2"
+          }
+        }
+      },
+      "category-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:language": "en_US",
+          "breadcrumb": {
+            "sling:resourceType": "core/cif/components/structure/breadcrumb/v1/breadcrumb",
+            "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+            "startLevel": "1",
+            "structureDepth": "2"
+          }
+        }
       }
-    }
-  },
-  "product-page": {
-    "jcr:primaryType": "cq:Page",
-    "jcr:content": {
-      "jcr:language": "en_US"
-    }
-  },
-  "category-page": {
-    "jcr:primaryType": "cq:Page",
-    "jcr:content": {
-      "jcr:language": "en_US"
     }
   }
 }
