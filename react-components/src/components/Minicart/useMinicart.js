@@ -21,6 +21,7 @@ export default ({ queries }) => {
         addToCartMutation,
         cartDetailsQuery,
         addVirtualItemMutation,
+        addBundleItemMutation,
         addSimpleAndVirtualItemMutation
     } = queries;
 
@@ -46,8 +47,23 @@ export default ({ queries }) => {
             };
         };
 
+        const bundleMapper = item => {
+            let bundleData = mapper(item);
+            bundleData = {
+                ...bundleData,
+                bundle_options: item.options.map(o => {
+                    return {
+                        id: o.option_id,
+                        quantity: o.quantity,
+
+                    }
+                })
+            }
+        }
+
         let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
         let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
+        let bundleCartItems = event.detail.filter(item => item.bundle).map(mapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
