@@ -24,6 +24,7 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
 describe('<EditableForm />', () => {
+    console.log('Hi');
     it('renders the shipping address form if countries are loaded', async () => {
         const mocks = [
             {
