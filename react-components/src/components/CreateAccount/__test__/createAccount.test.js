@@ -40,7 +40,7 @@ describe('<CreateAccount>', () => {
                     <UserContextProvider>
                         <NavigationContextProvider>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <CreateAccount showMyAccount={jest.fn()} />
+                                <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />
                             </CartProvider>
                         </NavigationContextProvider>
                     </UserContextProvider>

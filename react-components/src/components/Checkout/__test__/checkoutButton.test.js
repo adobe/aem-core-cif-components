@@ -37,3 +37,4 @@ describe('<CheckoutButton />', () => {
         expect(mockOnClick.mock.calls.length).toBeGreaterThan(0);
     });
 });
+displays;

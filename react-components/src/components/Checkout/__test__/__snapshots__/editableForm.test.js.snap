@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<EditableForm /> does not render the shipping address form if countries could not be loaded 1`] = `<DocumentFragment />`;
+
+exports[`<EditableForm /> should render the payments form if user is editing payments 1`] = `<DocumentFragment />`;
