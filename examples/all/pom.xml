@@ -56,7 +56,6 @@
             <plugin>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>filevault-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <group>cif-components-library</group>
                     <showImportPackageReport>false</showImportPackageReport>
