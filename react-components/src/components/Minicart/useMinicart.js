@@ -48,28 +48,23 @@ export default ({ queries }) => {
         };
 
         const bundleMapper = item => {
-            let bundleData = mapper(item);
-            bundleData = {
-                ...bundleData,
-                bundle_options: item.options.map(o => {
-                    return {
-                        id: o.option_id,
-                        quantity: o.quantity,
-
-                    }
-                })
-            }
-        }
+            return {
+                ...mapper(item),
+                bundle_options: item.options
+            };
+        };
 
         let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
         let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
-        let bundleCartItems = event.detail.filter(item => item.bundle).map(mapper);
+        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundleMapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
 
         let addItemFn = addToCartMutation;
-        if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
+        if (bundleCartItems.length > 0) {
+            addItemFn = addBundleItemMutation;
+        } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
             addItemFn = addSimpleAndVirtualItemMutation;
         } else if (virtualCartItems.length > 0) {
             addItemFn = addVirtualItemMutation;
@@ -83,7 +78,8 @@ export default ({ queries }) => {
             cartId,
             dispatch,
             physicalCartItems,
-            virtualCartItems
+            virtualCartItems,
+            bundleCartItems
         });
         dispatch({ type: 'endLoading' });
     };
