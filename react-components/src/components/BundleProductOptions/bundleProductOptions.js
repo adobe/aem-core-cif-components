@@ -44,7 +44,6 @@ const BundleProductOptions = () => {
         let currencyCode;
         const bundleOptions = data.products.items[0];
         const selections = bundleOptions.items.map(item => {
-            console.log(item);
             return {
                 option_id: item.option_id,
                 required: item.required,
@@ -114,13 +113,12 @@ const BundleProductOptions = () => {
         setBundleState({ ...bundleState, selections: [...selections] });
     };
 
-    const changeBundleQuantity = (e) => {
+    const changeBundleQuantity = e => {
         const { value } = e.target;
         setBundleState({ ...bundleState, quantity: value });
-    }
+    };
 
     const renderItemOptions = item => {
-        console.log(item);
         const { option_id, required, quantity, options, type, customization } = item;
 
         switch (type) {
@@ -172,33 +170,40 @@ const BundleProductOptions = () => {
         return selections.reduce((acc, selection) => {
             return acc && (selection.required ? selection.customization.length > 0 : true);
         }, true);
-    }
+    };
 
     const addToCart = () => {
         const { selections, quantity } = bundleState;
 
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [{
-                sku,
-                virtual: false,
-                bundle: true,
-                quantity: quantity,
-                options: selections
-            }]
+            detail: [
+                {
+                    sku,
+                    virtual: false,
+                    bundle: true,
+                    quantity: quantity,
+                    options: selections.map(s => {
+                        return {
+                            id: s.option_id,
+                            quantity: s.quantity,
+                            value: s.customization.map(c => c.id.toString())
+                        };
+                    })
+                }
+            ]
         });
-        console.log(customEvent);
-        //document.dispatchEvent(customEvent);
-    }
+        document.dispatchEvent(customEvent);
+    };
 
     const getTotalPrice = () => {
         const { selections, currencyCode } = bundleState;
-        console.log(selections);
         const price = selections.reduce((acc, selection) => {
             return (
                 acc +
-                selection.quantity * selection.customization.reduce((a, c) => {
-                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1)
-                }, 0)
+                selection.quantity *
+                    selection.customization.reduce((a, c) => {
+                        return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
+                    }, 0)
             );
         }, 0);
 

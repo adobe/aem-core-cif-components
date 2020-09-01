@@ -39,7 +39,6 @@ const Radio = props => {
     const onQuantityChange = event => {
         try {
             const newQuantity = parseInt(event.target.value);
-            console.log('newQuantity', newQuantity);
             if (newQuantity > 0) {
                 handleSelectionChange(item.option_id, newQuantity, customization);
             }
