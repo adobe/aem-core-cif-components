@@ -34,6 +34,27 @@ export const useAddressForm = () => {
         errorMessage = userState.addressFormError;
     }
 
+    const findSavedAddress = address => {
+        return address ? userState.currentUser.addresses.find(item => isSameAddress(item, address)) : null;
+    };
+
+    const getNewAddress = () => {
+        return {
+            city: '',
+            firstname: '',
+            lastname: '',
+            postcode: '',
+            region_code: '',
+            save_in_address_book: false,
+            street0: '',
+            telephone: ''
+        };
+    };
+
+    const getRegionCode = address => {
+        return (address.region && (address.region.region_code || address.region.code)) || address.region_code;
+    };
+
     const getRegionId = (countries, countryCode, regionCode) => {
         const region =
             countries &&
@@ -45,6 +66,7 @@ export const useAddressForm = () => {
 
     const handleSubmit = async formValues => {
         setInProgress(true);
+
         const variables = {
             country_code: 'US',
             region: {
@@ -54,8 +76,9 @@ export const useAddressForm = () => {
             default_billing: formValues.default_shipping,
             ...formValues
         };
+
         let resetFields;
-        if (formValues.default_shipping === true) {
+        if (formValues.default_shipping) {
             resetFields = {
                 default_shipping: false,
                 default_billing: false
@@ -68,6 +91,7 @@ export const useAddressForm = () => {
         } else {
             createAddress({ createCustomerAddress, variables, resetFields, dispatch });
         }
+
         setInProgress(false);
     };
 
@@ -79,13 +103,79 @@ export const useAddressForm = () => {
         dispatch({ type: 'closeAddressForm' });
     };
 
+    const isSameAddress = (address1, address2) => {
+        return (
+            address1.firstname === address2.firstname &&
+            address1.lastname === address2.lastname &&
+            address1.street.join(' ') === address2.street.join(' ') &&
+            address1.city === address2.city &&
+            address1.country_code === address2.country_code &&
+            getRegionCode(address1) === getRegionCode(address2) &&
+            address1.postcode === address2.postcode &&
+            address1.telephone === address2.telephone
+        );
+    };
+
+    const parseAddress = (address, email) => {
+        let result = {
+            ...address,
+            region_code: getRegionCode(address),
+            country_code: address.country_code || address.country.code
+        };
+        if (email) {
+            result.email = email;
+        }
+        return result;
+    };
+
+    const parseAddressFormValues = address => {
+        const fields = [
+            'city',
+            'default_shipping',
+            'email',
+            'firstname',
+            'lastname',
+            'postcode',
+            'region_code',
+            'region',
+            'save_in_address_book',
+            'street',
+            'telephone'
+        ];
+
+        return fields.reduce((acc, key) => {
+            if (address && key in address) {
+                // Convert street from array to flat strings
+                if (key === 'street') {
+                    address[key].forEach((v, i) => (acc[`street${i}`] = v));
+                    return acc;
+                }
+                // Convert region from object to region_code string, region object returned in different graphql
+                // endpoints has different shape, so we have to check both 'region_code' and 'code' to get the
+                // value of the region code
+                if (key === 'region') {
+                    acc['region_code'] = address[key].region_code || address[key].code;
+                    return acc;
+                }
+                acc[key] = address[key];
+            }
+            return acc;
+        }, {});
+    };
+
     return {
-        inProgress,
         countries,
+        errorMessage,
+        findSavedAddress,
+        getNewAddress,
+        getRegionCode,
         getRegionId,
         handleSubmit,
         handleCancel,
-        errorMessage,
+        inProgress,
+        isSameAddress,
+        parseAddress,
+        parseAddressFormValues,
         updateAddress: userState.updateAddress
     };
 };

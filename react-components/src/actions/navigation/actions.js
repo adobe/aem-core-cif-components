@@ -54,7 +54,7 @@ export const showSignIn = ({ dispatch, t }) => {
     dispatch({ type: 'changeView', view });
 };
 
-export const showMenu = ({ dispatch, t }) => {
+export const showMenu = ({ dispatch }) => {
     dispatch({ type: 'changeView', view: 'MENU' });
     dispatchEvent(exitAccMgEvent);
 };
