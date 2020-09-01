@@ -93,6 +93,10 @@ describe('<BundleProductOptions>', () => {
             });
         });
 
+        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+            return event.detail;
+        });
+
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
@@ -112,5 +116,30 @@ describe('<BundleProductOptions>', () => {
 
         await waitForDomChange({ container });
         expect(container).toMatchSnapshot();
+
+        fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
+
+        // Remove a required item to disable Add to Cart
+        fireEvent.click(getByRole('checkbox', { name: '1 x Carmina Necklace + $78.00' }));
+        fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
+
+        // Add to cart should be called just once since the second click was on a disabled button
+        expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+
+        // The mock dispatchEvent function returns the CustomEvent detail
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                bundle: true,
+                options: [
+                    { id: 1, quantity: 1, value: ['1'] },
+                    { id: 2, quantity: 1, value: ['3'] },
+                    { id: 3, quantity: 1, value: ['5'] },
+                    { id: 4, quantity: 1, value: ['7', '8'] }
+                ],
+                quantity: 1,
+                sku: 'VA24',
+                virtual: false
+            }
+        ]);
     });
 });
