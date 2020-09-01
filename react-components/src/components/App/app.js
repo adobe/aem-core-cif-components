@@ -15,6 +15,9 @@
 import React from 'react';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import introspectionQueryResultData from '../../../fragmentTypes.json';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
@@ -25,8 +28,13 @@ import { useConfigContext } from '../../context/ConfigContext';
 
 const App = props => {
     const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
+    const fragmentMatcher = new IntrospectionFragmentMatcher({
+        introspectionQueryResultData
+    });
+    const cache = new InMemoryCache({ fragmentMatcher });
 
     const client = new ApolloClient({
+        cache,
         uri: graphqlEndpoint,
         headers: { Store: storeView },
         request: operation => {
