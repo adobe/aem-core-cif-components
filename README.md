@@ -10,7 +10,7 @@ The AEM CIF Core Components project serves as accelerator to get started with pr
 
 This project is intended to be used in conjunction with the [AEM Sites Core Components](https://github.com/adobe/aem-core-wcm-components). AEM CIF Core Components use the AEM Sites Core Components as a foundation where possible and extending them.
 
-For starting a new project please have a look at our [CIF archetype](https://github.com/adobe/aem-cif-project-archetype) project. There you will also find a complete sample project that uses the WCM and CIF core components to deliver a stunning store-front experience.
+For starting a new project please have a look at our [archetype](https://github.com/adobe/aem-project-archetype) project. Also have a look at our [Venia sample project](https://github.com/adobe/aem-cif-guides-venia) that uses the WCM and CIF core components to deliver a stunning store-front experience.
 
 ## Documentation
 
@@ -45,7 +45,7 @@ For a list of requirements for previous versions, see [Historical System Require
 
 ### AEM Commerce connector for Magento
 
-This project uses the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed separately as part of the customer project.
+For AEM on-prem installations, this project requires the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed separately as part of the customer project.
 
 ### AEM Sites Core Components
 
