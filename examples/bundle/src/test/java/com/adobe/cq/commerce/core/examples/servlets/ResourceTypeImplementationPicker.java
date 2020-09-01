@@ -41,6 +41,18 @@ public class ResourceTypeImplementationPicker implements ImplementationPicker {
             return implementationsTypes[0];
         }
 
+        // This is a special case only for the breadcrumb component to support @Via with ForcedResourceType
+        if (!(adaptable instanceof MockSlingHttpServletRequest)) {
+            for (int i = 0, l = implementationsTypes.length; i < l; i++) {
+                Class<?> implementationsType = implementationsTypes[i];
+                LOGGER.debug("... with " + implementationsType.getCanonicalName());
+                if (implementationsType.getCanonicalName().contains("wcm")) {
+                    LOGGER.debug("--> Returning " + implementationsType.getCanonicalName());
+                    return implementationsType;
+                }
+            }
+        }
+
         MockSlingHttpServletRequest request = (MockSlingHttpServletRequest) adaptable;
         String componentName = StringUtils.substringAfterLast(request.getResource().getResourceType(), "/");
 

@@ -2,13 +2,13 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
     jcr:primaryType="cq:Page">
     <jcr:content
-        cq:lastModified="{Date}2020-07-15T13:25:39.732+02:00"
+        cq:lastModified="{Date}2020-08-24T14:03:02.160+02:00"
         cq:lastModifiedBy="admin"
         cq:tags="[]"
         cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
-        jcr:description="Display commerce product data"
+        jcr:description="Display the site and commerce breadcrumb"
         jcr:primaryType="cq:PageContent"
-        jcr:title="Product"
+        jcr:title="Breadcrumb"
         sling:resourceType="cif-components-examples/components/page">
         <root
             jcr:primaryType="nt:unstructured"
@@ -20,21 +20,21 @@
                     cq:styleIds="[1644862132301]"
                     jcr:created="{Date}2019-02-15T19:05:53.032+01:00"
                     jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
+                    jcr:lastModified="{Date}2020-06-03T15:11:11.696+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;h1>Product&lt;sub>v1&lt;/sub>&lt;/h1>"
+                    text="&lt;h1>Commerce Breadcrumb&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text
                     cq:styleIds="[1544762734201]"
                     jcr:created="{Date}2018-12-06T19:11:23.947+01:00"
                     jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2020-07-15T13:25:39.729+02:00"
+                    jcr:lastModified="{Date}2020-08-24T13:55:29.574+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>The product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Magento via GraphQL using the product identifier provided in the URL selector.&lt;/p>&#xd;&#xa;&lt;p>On an author instance, when the page URL does not contain any selector, like for example when the page is edited in the AEM Sites editor, the component displays some placeholder data. On a publish instance, not setting any selector displays a &amp;quot;Product not found&amp;quot; message.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;&lt;p>Note that when a selector is set, this example page always displays the same product data based on some sample data. Try different options:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.chaz-kangeroo-hoodie.html&quot;>Showing sample data (selector is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.set-of-sprite-yoga-straps.html&quot;>Showing sample data for a grouped product (only for this particular selector in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html&quot;>Showing placeholder data on author instance (no selector in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;&lt;div>For the two examples with sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the product prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;br>&#xd;&#xa;&lt;/div>&#xd;&#xa;"
+                    text="&lt;p style=&quot;margin-top: 0.0px; margin-bottom: 16.0px; color: rgb(36,41,46); font-size: 16.0px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-indent: 0.0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0.0px;&quot;>The Commerce Breadcrumb component is a server-side component written in HTL, rendering a combined AEM page and commerce catalog breadcrumb. The commerce elements of the breadcrumb (i.e. categories and product) are retrieved from Magento via GraphQL. The main usage of this component would be as part of all page templates which include a breadcrumb.&lt;/p>&#xd;&#xa;&lt;p style=&quot;margin-top: 0.0px; margin-bottom: 16.0px; color: rgb(36,41,46); font-size: 16.0px; font-style: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-indent: 0.0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0.0px;&quot;>This component is based on the &lt;a href=&quot;https://github.com/adobe/aem-core-wcm-components/tree/master/content/src/content/jcr_root/apps/core/wcm/components/breadcrumb/v2/breadcrumb&quot;>Breadcrumb component&lt;/a>&lt;span> &lt;/span>of the AEM Core Components library.&lt;/p>&#xd;&#xa;"
                     textIsRich="true"/>
                 <teaser
                     cq:styleIds="[1550165685463]"
@@ -49,7 +49,7 @@
                     actionsEnabled="false"
                     descriptionFromPage="false"
                     fileReference="/content/dam/core-components-examples/library/github-logo.svg"
-                    linkURL="https://github.com/adobe/aem-core-cif-components/tree/master/ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product"
+                    linkURL="https://github.com/adobe/aem-core-cif-components/tree/master/ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/breadcrumb/v1/breadcrumb"
                     textIsRich="true"
                     titleFromPage="false"/>
                 <title_865328580
@@ -75,11 +75,11 @@
                 <text_1337506761
                     jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
                     jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                    jcr:lastModified="{Date}2020-08-24T14:03:02.155+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>The component, simply displaying placeholder data.&lt;/p>"
+                    text="&lt;p>The component is configured to display all the AEM pages under the &amp;quot;root&amp;quot; of the library. In addition to displaying content pages, the component will display commerce data when used on a product or category page. Check the examples at the bottom of the following pages:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.chaz-kangeroo-hoodie.html&quot;>Product page with sample data.&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/productlist.1.html&quot;>Category page with sample data.&lt;/a>&lt;br>&#xd;&#xa;&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;"
                     textIsRich="true"/>
                 <demo
                     jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
@@ -91,54 +91,7 @@
                     <component
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="core-components-examples/components/demo/component">
-                        <product
-                            jcr:created="{Date}2019-03-06T14:11:01.819+01:00"
-                            jcr:createdBy="admin"
-                            jcr:lastModified="{Date}2019-05-21T18:59:35.605+03:00"
-                            jcr:lastModifiedBy="admin"
-                            jcr:primaryType="nt:unstructured"
-                            sling:resourceType="cif-components-examples/components/product"
-                            loadClientPrice="{Boolean}true"/>
-                    </component>
-                    <info
-                        jcr:primaryType="nt:unstructured"
-                        sling:resourceType="core-components-examples/components/tabs">
-                        <properties
-                            cq:panelTitle="Properties"
-                            jcr:primaryType="nt:unstructured"
-                            sling:resourceType="core-components-examples/components/demo/properties"
-                            reference="../../component"/>
-                        <markup
-                            cq:panelTitle="Markup"
-                            jcr:primaryType="nt:unstructured"
-                            sling:resourceType="core-components-examples/components/demo/markup"
-                            reference="../../component"/>
-                    </info>
-                </demo>
-                <text_1337506762
-                    jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
-                    jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
-                    jcr:lastModifiedBy="admin"
-                    jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>In addition to the product component, this demonstrates the breadcrumb component displaying page content and commerce data up to the product page.&lt;/p>"
-                    textIsRich="true"/>
-                <breadcrumb-demo
-                    jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
-                    jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
-                    jcr:lastModifiedBy="admin"
-                    jcr:primaryType="nt:unstructured"
-                    sling:resourceType="cif-components-examples/components/demo">
-                    <component
-                        jcr:primaryType="nt:unstructured"
-                        sling:resourceType="core-components-examples/components/demo/component">
                         <breadcrumb
-                            jcr:created="{Date}2020-08-17T16:22:56.378+02:00"
-                            jcr:createdBy="admin"
-                            jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00"
-                            jcr:lastModifiedBy="admin"
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="cif-components-examples/components/breadcrumb"
                             startLevel="2"
@@ -158,7 +111,7 @@
                             sling:resourceType="core-components-examples/components/demo/markup"
                             reference="../../component"/>
                     </info>
-                </breadcrumb-demo>
+                </demo>
             </responsivegrid>
         </root>
     </jcr:content>
