@@ -14,6 +14,9 @@
 
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
+import { MockedProvider } from '@apollo/react-testing';
+
+import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider } from '../checkoutContext';
 
@@ -29,11 +32,17 @@ afterEach(cleanup);
 describe('<Flow>', () => {
     it('it disables checkout button for empty cart', () => {
         const { getByRole } = render(
-            <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
-                    <Flow />
-                </CheckoutProvider>
-            </CartProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cart: dummyCart, cartId: '123ABC' }}
+                        reducerFactory={() => state => state}>
+                        <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                            <Flow />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
         );
 
         // there are no items in the initial cart, button should be disabled
@@ -45,11 +54,17 @@ describe('<Flow>', () => {
 
         // we rerender the component with the new cart, button should be enabled
         const { getByRole } = render(
-            <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
-                    <Flow />
-                </CheckoutProvider>
-            </CartProvider>
+            <MockedProvider>
+                <UserContextProvider>
+                    <CartProvider
+                        initialState={{ cart: newCart, cartId: '456DEF' }}
+                        reducerFactory={() => state => state}>
+                        <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                            <Flow />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
         );
         expect(getByRole('button').disabled).toBe(false);
     });

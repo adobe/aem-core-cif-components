@@ -1,5 +1,7 @@
 # AEM Dispatcher with Magento Proxy
 
+***Only for on-prem installations. Do not use with AEMaaCS.**
+
 ## Installation via Docker
 
 1. Update Magento configuration

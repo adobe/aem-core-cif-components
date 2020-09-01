@@ -21,34 +21,34 @@ import { CheckoutProvider } from '../checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
+import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
 describe('<EditableForm />', () => {
-    it('renders the shipping address form if countries are loaded', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: QUERY_COUNTRIES
-                },
-                result: {
-                    data: {
-                        countries: [
-                            {
-                                id: 'US',
-                                available_regions: [
-                                    { id: 4, code: 'AL', name: 'Alabama' },
-                                    { id: 7, code: 'AK', name: 'Alaska' }
-                                ]
-                            }
-                        ]
-                    }
+    const mocksQueryCountries = [
+        {
+            request: {
+                query: QUERY_COUNTRIES
+            },
+            result: {
+                data: {
+                    countries: [
+                        {
+                            id: 'US',
+                            available_regions: [
+                                { id: 4, code: 'AL', name: 'Alabama' },
+                                { id: 7, code: 'AK', name: 'Alaska' }
+                            ]
+                        }
+                    ]
                 }
             }
-        ];
-
+        }
+    ];
+    it('renders the shipping address form if countries are loaded', async () => {
         const { queryByText } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={mocks} addTypename={false}>
+                <MockedProvider mocks={mocksQueryCountries} addTypename={false}>
                     <UserContextProvider>
                         <CartProvider initialState={{}} reducerFactory={() => state => state}>
                             <CheckoutProvider
@@ -64,6 +64,80 @@ describe('<EditableForm />', () => {
 
         const result = await waitForElement(() => {
             return queryByText('Shipping Address');
+        });
+
+        expect(result).not.toBeNull();
+    });
+
+    it('renders the payments form if countries are loaded', async () => {
+        const mocksPaymentsForm = [
+            ...mocksQueryCountries,
+            {
+                request: {
+                    query: CREATE_BRAINTREE_CLIENT_TOKEN
+                },
+                result: {
+                    data: {
+                        createBraintreeClientToken: 'my-sample-token'
+                    }
+                }
+            }
+        ];
+
+        const mockCartState = {
+            cart: {
+                available_payment_methods: [
+                    {
+                        code: 'braintree',
+                        title: 'Credit Card (Braintree)'
+                    },
+                    {
+                        code: 'checkmo',
+                        title: 'Check / Money order'
+                    }
+                ],
+                is_virtual: false
+            }
+        };
+
+        const { queryByText } = render(
+            <MockedProvider mocks={mocksPaymentsForm} addTypename={false}>
+                <UserContextProvider>
+                    <CartProvider initialState={mockCartState} reducerFactory={() => state => state}>
+                        <CheckoutProvider
+                            initialState={{ editing: 'paymentMethod', flowState: 'form' }}
+                            reducer={state => state}>
+                            <EditableForm />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const result = await waitForElement(() => {
+            return queryByText('Billing Information');
+        });
+
+        expect(result).not.toBeNull();
+    });
+
+    it('renders the shipping method form if countries are loaded', async () => {
+        const { queryByText } = render(
+            <MockedProvider mocks={mocksQueryCountries} addTypename={false}>
+                <UserContextProvider>
+                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                        <CheckoutProvider
+                            initialState={{ editing: 'shippingMethod', flowState: 'form' }}
+                            reducer={state => state}>
+                            <EditableForm />
+                        </CheckoutProvider>
+                    </CartProvider>
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        const result = await waitForElement(() => {
+            return queryByText('Shipping Information');
         });
 
         expect(result).not.toBeNull();

@@ -12,32 +12,32 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { bool, shape, string } from 'prop-types';
+import { func, number } from 'prop-types';
 
-import useCart from './useCart';
+import { useAddressSelect } from './useAddressSelect';
+import Select from '../Select';
 
-import CheckoutButton from './checkoutButton';
-import classes from './cart.css';
+import classes from './addressSelect.css';
 
-const Cart = props => {
-    const { ready, submitting } = props;
-    const { beginCheckout } = useCart();
-
-    const disabled = submitting || !ready;
+const AddressSelect = props => {
+    const { initialValue, onValueChange } = props;
+    const { addressSelectItems } = useAddressSelect();
 
     return (
         <div className={classes.root}>
-            <CheckoutButton disabled={disabled} onClick={beginCheckout} />
+            <Select
+                items={addressSelectItems}
+                field="address_select"
+                initialValue={initialValue}
+                onValueChange={onValueChange}
+            />
         </div>
     );
 };
 
-Cart.propTypes = {
-    classes: shape({
-        root: string
-    }),
-    ready: bool.isRequired,
-    submitting: bool.isRequired
+AddressSelect.propTypes = {
+    initialValue: number,
+    onValueChange: func
 };
 
-export default Cart;
+export default AddressSelect;

@@ -30,7 +30,7 @@ jest.mock('../../Minicart/cartContext.js', () => ({
 describe('useCouponItem', () => {
     it('calls the "removeCoupon"', async () => {
         const Consumer = () => {
-            const [data, { removeCouponFromCart }] = useCouponItem();
+            const [, { removeCouponFromCart }] = useCouponItem();
             return (
                 <div>
                     <button onClick={removeCouponFromCart}>Remove</button>
