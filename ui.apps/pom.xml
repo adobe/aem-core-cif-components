@@ -69,7 +69,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
