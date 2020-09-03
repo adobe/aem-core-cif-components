@@ -12,8 +12,12 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { MockedProvider } from '@apollo/react-testing';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
+
+import { CheckoutProvider } from '../../Checkout/checkoutContext';
+import UserContextProvider from '../../../context/UserContext';
 
 import AddressForm from '../addressForm';
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -34,7 +38,11 @@ describe('<AddressForm />', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <AddressForm cancel={() => {}} submit={() => {}} />
+                <MockedProvider>
+                    <UserContextProvider>
+                        <AddressForm cancel={() => {}} submit={() => {}} />
+                    </UserContextProvider>
+                </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -43,16 +51,96 @@ describe('<AddressForm />', () => {
     it('renders the component with address validation message and form error message', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <AddressForm
-                    isAddressInvalid={true}
-                    validationMessage={'address validation message'}
-                    formErrorMessage={'form error message'}
-                    cancel={() => {}}
-                    submit={() => {}}
-                />
+                <MockedProvider>
+                    <UserContextProvider>
+                        <AddressForm
+                            isAddressInvalid={true}
+                            validationMessage={'address validation message'}
+                            formErrorMessage={'form error message'}
+                            cancel={() => {}}
+                            submit={() => {}}
+                        />
+                    </UserContextProvider>
+                </MockedProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with address select', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm
+                                showAddressSelect={true}
+                                initialAddressSelectValue={0}
+                                onAddressSelectValueChange={() => {}}
+                                cancel={() => {}}
+                                submit={() => {}}
+                            />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with default address checkbox', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm showDefaultAddressCheckbox={true} cancel={() => {}} submit={() => {}} />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with save in address book checkbox', () => {
+        const { asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm showSaveInAddressBookCheckbox={true} cancel={() => {}} submit={() => {}} />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('calls the callback function when changing the address select', () => {
+        const onAddressSelectValueChange = jest.fn(() => {});
+        render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider>
+                    <UserContextProvider>
+                        <CheckoutProvider>
+                            <AddressForm
+                                showAddressSelect={true}
+                                initialAddressSelectValue={0}
+                                onAddressSelectValueChange={onAddressSelectValueChange}
+                                cancel={() => {}}
+                                submit={() => {}}
+                            />
+                        </CheckoutProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+        const addressSelect = screen.getByDisplayValue('New Address');
+        expect(addressSelect).not.toBeUndefined();
+        fireEvent.change(addressSelect, { target: { value: '1' } });
+        expect(onAddressSelectValueChange).toHaveBeenCalledTimes(1);
     });
 
     it('fills the street0 field with a given street array value', () => {
@@ -60,7 +148,13 @@ describe('<AddressForm />', () => {
             street: ['street A', 'street B']
         };
 
-        const { container } = render(<AddressForm cancel={() => {}} submit={() => {}} initialValues={initialValues} />);
+        const { container } = render(
+            <MockedProvider>
+                <UserContextProvider>
+                    <AddressForm cancel={() => {}} submit={() => {}} initialValues={initialValues} />
+                </UserContextProvider>
+            </MockedProvider>
+        );
 
         const streetField = container.querySelector('#street0');
         expect(streetField.value).toEqual('street A');
@@ -83,7 +177,16 @@ describe('<AddressForm />', () => {
 
         const mockSubmit = jest.fn(() => {});
         const { container } = render(
-            <AddressForm cancel={() => {}} submit={mockSubmit} initialValues={initialValues} countries={countries} />
+            <MockedProvider>
+                <UserContextProvider>
+                    <AddressForm
+                        cancel={() => {}}
+                        submit={mockSubmit}
+                        initialValues={initialValues}
+                        countries={countries}
+                    />
+                </UserContextProvider>
+            </MockedProvider>
         );
 
         // Fill street input

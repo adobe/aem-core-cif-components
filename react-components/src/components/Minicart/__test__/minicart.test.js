@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { render } from 'test-utils';
 import { I18nextProvider } from 'react-i18next';
 
