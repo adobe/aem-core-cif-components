@@ -10,9 +10,6 @@
   },
   "module": "dist/index.js",
   "files": [
-    
-    
-  
     "dist",
     "i18n"
   ],
