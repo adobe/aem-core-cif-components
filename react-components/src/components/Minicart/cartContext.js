@@ -29,7 +29,6 @@ export const initialState = {
 };
 
 export const reducerFactory = setCartCookie => {
-    console.log('USECARTSTATE');
     return (state, action) => {
         switch (action.type) {
             case 'close':

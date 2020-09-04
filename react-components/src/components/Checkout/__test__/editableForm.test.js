@@ -27,31 +27,29 @@ import CART_DETAILS_QUERY from '../../../queries/query_cart_details.graphql';
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 
 describe('<EditableForm />', () => {
-    it('renders the shipping address form if countries are loaded', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: QUERY_COUNTRIES
-                },
-                result: {
-                    data: {
-                        countries: [
-                            {
-                                id: 'US',
-                                available_regions: [
-                                    { id: 4, code: 'AL', name: 'Alabama' },
-                                    { id: 7, code: 'AK', name: 'Alaska' }
-                                ]
-                            }
+    const mocksQueryCountries = {
+        request: {
+            query: QUERY_COUNTRIES
+        },
+        result: {
+            data: {
+                countries: [
+                    {
+                        id: 'US',
+                        available_regions: [
+                            { id: 4, code: 'AL', name: 'Alabama' },
+                            { id: 7, code: 'AK', name: 'Alaska' }
                         ]
                     }
-                }
+                ]
             }
-        ];
+        }
+    };
 
+    it('renders the shipping address form if countries are loaded', async () => {
         const { queryByText, asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={mocks} addTypename={false}>
+                <MockedProvider mocks={[mocksQueryCountries]} addTypename={false}>
                     <UserContextProvider>
                         <CartProvider initialState={{}} reducerFactory={() => state => state}>
                             <CheckoutProvider
@@ -174,24 +172,7 @@ describe('<EditableForm />', () => {
             __typename: 'Cart'
         };
         const mocks = [
-            {
-                request: {
-                    query: QUERY_COUNTRIES
-                },
-                result: {
-                    data: {
-                        countries: [
-                            {
-                                id: 'US',
-                                available_regions: [
-                                    { id: 4, code: 'AL', name: 'Alabama' },
-                                    { id: 7, code: 'AK', name: 'Alaska' }
-                                ]
-                            }
-                        ]
-                    }
-                }
-            },
+            mocksQueryCountries,
             {
                 request: {
                     query: CREATE_BRAINTREE_CLIENT_TOKEN,
@@ -247,30 +228,9 @@ describe('<EditableForm />', () => {
     });
 
     it('should render ShippingForm if user is entering shipping information', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: QUERY_COUNTRIES
-                },
-                result: {
-                    data: {
-                        countries: [
-                            {
-                                id: 'US',
-                                available_regions: [
-                                    { id: 4, code: 'AL', name: 'Alabama' },
-                                    { id: 7, code: 'AK', name: 'Alaska' }
-                                ]
-                            }
-                        ]
-                    }
-                }
-            }
-        ];
-
         const { queryByText, asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={mocks} addTypename={false}>
+                <MockedProvider mocks={[mocksQueryCountries]} addTypename={false}>
                     <UserContextProvider>
                         <CartProvider initialState={{}} reducerFactory={() => state => state}>
                             <CheckoutProvider
