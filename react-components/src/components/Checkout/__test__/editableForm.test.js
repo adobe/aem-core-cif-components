@@ -13,16 +13,18 @@
  ******************************************************************************/
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitForElement, getByText } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider } from '../checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
+import { act } from '@testing-library/react-hooks';
 
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 import CART_DETAILS_QUERY from '../../../queries/query_cart_details.graphql';
+import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 
 describe('<EditableForm />', () => {
     it('renders the shipping address form if countries are loaded', async () => {
@@ -47,7 +49,7 @@ describe('<EditableForm />', () => {
             }
         ];
 
-        const { queryByText } = render(
+        const { queryByText, asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider mocks={mocks} addTypename={false}>
                     <UserContextProvider>
@@ -67,6 +69,7 @@ describe('<EditableForm />', () => {
             return queryByText('Shipping Address');
         });
 
+        expect(asFragment()).toMatchSnapshot();
         expect(result).not.toBeNull();
     });
 
@@ -102,82 +105,127 @@ describe('<EditableForm />', () => {
     });
 
     it('should render the payments form if user is editing payments', async () => {
+        // Overrides Braintree jest error in tests
+        act(() => {
+            Element.prototype.scrollIntoView = jest.fn();
+        });
+        const mockCart = {
+            is_virtual: false,
+            shipping_addresses: [
+                {
+                    city: 'asdf',
+                    company: null,
+                    country: { code: 'US', __typename: 'CartAddressCountry' },
+                    firstname: 'Alex',
+                    lastname: 'Kim',
+                    postcode: '55057',
+                    region: { code: 'CA', __typename: 'CartAddressRegion' },
+                    street: ['1231'],
+                    telephone: '123412341234',
+                    available_shipping_methods: [
+                        {
+                            method_code: 'flatrate',
+                            method_title: 'Fixed',
+                            carrier_code: 'flatrate',
+                            carrier_title: 'Flat Rate',
+                            __typename: 'AvailableShippingMethod'
+                        }
+                    ],
+                    selected_shipping_method: null,
+                    __typename: 'ShippingCartAddress'
+                }
+            ],
+            available_payment_methods: [
+                {
+                    code: 'braintree_paypal',
+                    title: 'PayPal (Braintree)',
+                    __typename: 'AvailablePaymentMethod'
+                },
+                {
+                    code: 'braintree',
+                    title: 'Credit Card (Braintree)',
+                    __typename: 'AvailablePaymentMethod'
+                },
+                {
+                    code: 'cashondelivery',
+                    title: 'Cash On Delivery',
+                    __typename: 'AvailablePaymentMethod'
+                },
+                {
+                    code: 'banktransfer',
+                    title: 'Bank Transfer Payment',
+                    __typename: 'AvailablePaymentMethod'
+                },
+                { code: 'checkmo', title: 'Check / Money order', __typename: 'AvailablePaymentMethod' }
+            ],
+            selected_payment_method: { code: '', title: '', __typename: 'SelectedPaymentMethod' },
+            billing_address: {
+                city: 'asdf',
+                country: { code: 'US', __typename: 'CartAddressCountry' },
+                lastname: 'Kim',
+                firstname: 'Alex',
+                region: { code: 'CA', __typename: 'CartAddressRegion' },
+                street: ['1231'],
+                postcode: '55057',
+                telephone: '123412341324',
+                __typename: 'BillingCartAddress'
+            },
+
+            __typename: 'Cart'
+        };
         const mocks = [
+            {
+                request: {
+                    query: QUERY_COUNTRIES
+                },
+                result: {
+                    data: {
+                        countries: [
+                            {
+                                id: 'US',
+                                available_regions: [
+                                    { id: 4, code: 'AL', name: 'Alabama' },
+                                    { id: 7, code: 'AK', name: 'Alaska' }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                request: {
+                    query: CREATE_BRAINTREE_CLIENT_TOKEN,
+                    variables: {
+                        createBraintreeClientToken: () => {}
+                    }
+                },
+                result: {
+                    data: {
+                        createBraintreeClientToken: () => {}
+                    }
+                }
+            },
             {
                 request: {
                     query: CART_DETAILS_QUERY
                 },
                 result: {
                     data: {
-                        countries: [],
-                        is_virtual: false,
-                        shipping_addresses: [
-                            {
-                                city: 'asdf',
-                                company: null,
-                                country: { code: 'US', __typename: 'CartAddressCountry' },
-                                firstname: 'Alex',
-                                lastname: 'Kim',
-                                postcode: '55057',
-                                region: { code: 'CA', __typename: 'CartAddressRegion' },
-                                street: ['1231'],
-                                telephone: '123412341234',
-                                available_shipping_methods: [
-                                    {
-                                        method_code: 'flatrate',
-                                        method_title: 'Fixed',
-                                        carrier_code: 'flatrate',
-                                        carrier_title: 'Flat Rate',
-                                        __typename: 'AvailableShippingMethod'
-                                    }
-                                ],
-                                selected_shipping_method: null,
-                                __typename: 'ShippingCartAddress'
-                            }
-                        ],
-                        available_payment_methods: [
-                            {
-                                code: 'braintree_paypal',
-                                title: 'PayPal (Braintree)',
-                                __typename: 'AvailablePaymentMethod'
-                            },
-                            {
-                                code: 'braintree',
-                                title: 'Credit Card (Braintree)',
-                                __typename: 'AvailablePaymentMethod'
-                            },
-                            { code: 'cashondelivery', title: 'Cash On Delivery', __typename: 'AvailablePaymentMethod' },
-                            {
-                                code: 'banktransfer',
-                                title: 'Bank Transfer Payment',
-                                __typename: 'AvailablePaymentMethod'
-                            },
-                            { code: 'checkmo', title: 'Check / Money order', __typename: 'AvailablePaymentMethod' }
-                        ],
-                        selected_payment_method: { code: '', title: '', __typename: 'SelectedPaymentMethod' },
-                        billing_address: {
-                            city: 'asdf',
-                            country: { code: 'US', __typename: 'CartAddressCountry' },
-                            lastname: 'Kim',
-                            firstname: 'Alex',
-                            region: { code: 'CA', __typename: 'CartAddressRegion' },
-                            street: ['1231'],
-                            postcode: '55057',
-                            telephone: '123412341324',
-                            __typename: 'BillingCartAddress'
-                        },
-
-                        __typename: 'Cart'
+                        cart: mockCart
                     }
                 }
             }
         ];
 
-        const { queryByText } = render(
+        const { queryByText, asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider mocks={mocks} addTypename={false}>
                     <UserContextProvider>
-                        <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                        <CartProvider
+                            initialState={{
+                                cart: mockCart
+                            }}
+                            reducerFactory={() => state => state}>
                             <CheckoutProvider
                                 initialState={{ editing: 'paymentMethod', flowState: 'form' }}
                                 reducer={state => state}>
@@ -189,8 +237,57 @@ describe('<EditableForm />', () => {
             </I18nextProvider>
         );
 
+        expect(asFragment()).toMatchSnapshot();
+
         const result = await waitForElement(() => {
             return queryByText('Billing Information');
+        });
+
+        expect(result).not.toBeNull();
+    });
+
+    it('should render ShippingForm if user is entering shipping information', async () => {
+        const mocks = [
+            {
+                request: {
+                    query: QUERY_COUNTRIES
+                },
+                result: {
+                    data: {
+                        countries: [
+                            {
+                                id: 'US',
+                                available_regions: [
+                                    { id: 4, code: 'AL', name: 'Alabama' },
+                                    { id: 7, code: 'AK', name: 'Alaska' }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ];
+
+        const { queryByText, asFragment } = render(
+            <I18nextProvider i18n={i18n}>
+                <MockedProvider mocks={mocks} addTypename={false}>
+                    <UserContextProvider>
+                        <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                            <CheckoutProvider
+                                initialState={{ editing: 'shippingMethod', flowState: 'form', shippingAddress: {} }}
+                                reducer={state => state}>
+                                <EditableForm />
+                            </CheckoutProvider>
+                        </CartProvider>
+                    </UserContextProvider>
+                </MockedProvider>
+            </I18nextProvider>
+        );
+
+        expect(asFragment()).toMatchSnapshot();
+
+        const result = await waitForElement(() => {
+            return queryByText('Shipping Information');
         });
 
         expect(result).not.toBeNull();

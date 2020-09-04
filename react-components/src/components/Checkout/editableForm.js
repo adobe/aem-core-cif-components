@@ -224,6 +224,7 @@ const EditableForm = props => {
                 shippingAddress && shippingAddress.available_shipping_methods
                     ? shippingAddress.available_shipping_methods
                     : [];
+
             return (
                 <ShippingForm
                     availableShippingMethods={availableShippingMethods}
