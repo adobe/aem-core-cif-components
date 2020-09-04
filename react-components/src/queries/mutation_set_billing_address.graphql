@@ -7,11 +7,12 @@ mutation(
     $cartId: String!
     $city: String!
     $company: String
-    $countryCode: String!
+    $country_code: String!
     $firstname: String!
     $lastname: String!
     $postcode: String
-    $region: String
+    $region_code: String
+    $save_in_address_book: Boolean
     $street: [String]!
     $telephone: String!
 ) {
@@ -22,14 +23,14 @@ mutation(
                 address: {
                     city: $city
                     company: $company
-                    country_code: $countryCode
+                    country_code: $country_code
                     firstname: $firstname
                     lastname: $lastname
                     postcode: $postcode
-                    region: $region
+                    region: $region_code
+                    save_in_address_book: $save_in_address_book
                     street: $street
                     telephone: $telephone
-                    save_in_address_book: false
                 }
             }
         }

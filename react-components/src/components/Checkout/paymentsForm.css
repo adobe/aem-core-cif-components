@@ -45,8 +45,10 @@
 }
 
 .address_check,
+.address_select,
 .email,
 .braintree,
+.save_in_address_book,
 .street0 {
     grid-column-end: span 2;
 }
