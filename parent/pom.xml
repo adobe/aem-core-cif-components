@@ -488,7 +488,7 @@
                         <validatorsSettings>
                             <jackrabbit-filter>
                                 <options>
-                                    <validRoots>/,/libs,/libs/core/wcm,/apps,/apps/core/cif,/etc,/var,/tmp,/content</validRoots>
+                                    <validRoots>/,/libs,/libs/core/wcm,/apps,/apps/core/cif,/apps/cif-components-examples,/etc,/var,/tmp,/content</validRoots>
                                 </options>
                             </jackrabbit-filter>
                         </validatorsSettings>
