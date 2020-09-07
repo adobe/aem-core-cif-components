@@ -44,7 +44,7 @@ try {
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
             --bundle com.adobe.commerce.cif:magento-graphql:6.0.0-magento235:jar \
-            --bundle org.apache.commons:commons-text:1.8.0:jar \
+            --bundle org.apache.commons:commons-text:1.8:jar \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:2.9.0:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:2.9.0:zip \
             ${extras} \
