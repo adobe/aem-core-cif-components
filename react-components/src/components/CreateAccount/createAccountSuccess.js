@@ -18,7 +18,6 @@ import { useTranslation, Trans } from 'react-i18next';
 import Trigger from '../Trigger';
 import { useUserContext } from '../../context/UserContext';
 import classes from './createAccountSuccess.css';
-import { useEffect } from 'react';
 
 const CreateAccountSuccess = props => {
     const [t] = useTranslation('account');

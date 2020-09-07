@@ -35,14 +35,16 @@ To build and install that content package in a running AEM instance, simply use 
 
 ## Required configuration
 
-The mock GraphQL server can only serve content via HTTPS because our GraphQL client does not support non-secure connections for security reasons. This means you have to enable HTTPS on your AEM instance if you want to install and use the mock server. To do this, simply follow the [following documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html).
+Starting with version `1.6.1`, the GraphQL client does no longer enforce HTTPS: the support for HTTP can be enabled in the client OSGi configuration, but this should NOT be done on production systems!
+
+If you still want to use HTTPS, simply follow [this documentation](https://docs.adobe.com/content/help/en/experience-manager-65/administering/security/ssl-by-default.html) to enable HTTPS in your AEM instance.
 If the self-signed certificate gets rejected by the browser, try adding it to the OS keychain and mark it as trusted.
 
-You must also enable anonymous access to the mock GraphQL server which will by defaut receive its requests on `/apps/cif-components-examples/graphql`. To do that, do the following:
+On an author instance you must also enable anonymous access to the mock GraphQL server which will by defaut receive its requests on `/apps/cif-components-examples/graphql`. To do that, do the following:
 * In the AEM system configuration console, look for `Apache Sling Authentication Service`
 * Add the following line at the bottom of the "Authentication Requirements" property: `-/apps/cif-components-examples/graphql`
 
-The GraphQL client used by the examples is configured by default with the URL set to `$[env:CIF_MOCK_GRAPHQL_ENDPOINT]`, which means that it would use the environment variable `CIF_MOCK_GRAPHQL_ENDPOINT` (for local development, this is only supported by the Cloud SDK). For local development, if you do not want or cannot set that variable, just override that OSGi configuration manually and set it to `https://localhost:8443/apps/cif-components-examples/graphql`.
+The GraphQL client used by the examples is configured by default with the URL set to `$[env:CIF_MOCK_GRAPHQL_ENDPOINT]`, which means that it would use the environment variable `CIF_MOCK_GRAPHQL_ENDPOINT` (for local development, this is only supported by the Cloud SDK). For local development, if you do not want or cannot set that variable, just override that OSGi configuration manually and set it to `https://localhost:8443/apps/cif-components-examples/graphql` for HTTPS or `http://localhost:4502/apps/cif-components-examples/graphql` for HTTP on an author instance with default port 4502.
 
 ## How does it work?
 

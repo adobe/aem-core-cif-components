@@ -88,12 +88,14 @@
     grid-column-end: span 1;
 }
 
+.address_select,
 .email,
 .street0 {
     grid-column-end: span 2;
 }
 
-.default_shipping {
+.default_shipping,
+.save_in_address_book {
     grid-column-end: span 2;
     text-align: left;
 }

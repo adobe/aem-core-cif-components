@@ -35,7 +35,7 @@ export const useCookieValue = cookieName => {
     }
     let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
     const setCookieValue = (value, age) => {
-        const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
+        const cookieSettings = `path=/; domain=${window.location.hostname};Max-Age=${age !== undefined ? age : 3600}`;
         document.cookie = `${cookieName}=${value};${cookieSettings}`;
     };
 
