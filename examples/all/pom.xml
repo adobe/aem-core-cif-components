@@ -73,6 +73,12 @@
                             <target>/apps/core/cif/install</target>
                         </embedded>
                         <embedded>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-text</artifactId>
+                            <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
+                        </embedded>
+                        <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-core</artifactId>
                             <filter>true</filter>
@@ -198,6 +204,10 @@
             <artifactId>core-cif-components-config</artifactId>
             <type>zip</type>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
 
         <!-- CIF Components Library -->
