@@ -44,11 +44,6 @@ const stepTitles = {
 const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
 const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
-const dispatchNavigationEvent = title => {
-    const event = new CustomEvent('aem.accmg.step', { detail: { title } });
-    dispatchEvent(event);
-};
-
 const useNavigationState = (props = { view: 'MENU' }) => {
     const [currentView, setCurrentView] = useState(props.view);
     const [t] = useTranslation('account');
@@ -58,7 +53,13 @@ const useNavigationState = (props = { view: 'MENU' }) => {
     } = useConfigContext();
 
     const navigationPanel = document.querySelector(navPanel);
-    const dispatchEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
+
+    const triggerNavigationEvent = title => {
+        const event = new CustomEvent('aem.accmg.step', { detail: { title } });
+        triggerEvent(event);
+    };
+
+    const triggerEvent = event => navigationPanel && navigationPanel.dispatchEvent(event);
 
     const handleBack = useCallback(() => {
         if (currentView === null) {
@@ -83,7 +84,7 @@ const useNavigationState = (props = { view: 'MENU' }) => {
     useEventListener(document, 'aem.navigation.back', handleBack);
 
     const switchTo = view => {
-        dispatchNavigationEvent(stepTitles[view](t));
+        triggerNavigationEvent(stepTitles[view](t));
         setCurrentView(view);
     };
 
