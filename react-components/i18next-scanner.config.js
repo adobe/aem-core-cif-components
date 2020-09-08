@@ -38,7 +38,7 @@ module.exports = {
             }
         },
         lngs: ['en'],
-        ns: ['cart', 'checkout', 'account', 'common'],
+        ns: ['cart', 'checkout', 'account', 'common', 'product'],
         defaultLng: 'en',
         defaultNs: 'common',
         defaultValue: '__STRING_NOT_TRANSLATED__',
