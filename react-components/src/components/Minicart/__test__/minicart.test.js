@@ -11,6 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import { render } from 'test-utils';
 import { I18nextProvider } from 'react-i18next';

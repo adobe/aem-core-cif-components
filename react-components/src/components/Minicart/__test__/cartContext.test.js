@@ -11,6 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+/* eslint-disable react/prop-types */
+
 import React from 'react';
 import { CartProvider, useCartState } from '../cartContext';
 import { render, fireEvent } from '@testing-library/react';

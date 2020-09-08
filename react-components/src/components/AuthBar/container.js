@@ -14,25 +14,24 @@
 import React from 'react';
 
 import AuthBar from './authBar';
-import AuthModal from '../AuthModal';
-import { useNavigationContext } from '../../context/NavigationContext';
+import MyAccountPanel from './myAccountPanel';
 
 import classes from './container.css';
+import useNavigationState from './useNavigationState';
 
 const Container = () => {
-    const [{ view }] = useNavigationContext();
+    const [view, api] = useNavigationState();
 
     const hasModal = view !== 'MENU';
     const modalClassName = hasModal ? classes.modal_open : classes.modal;
-
     return (
         <>
             <div className="navigation__footer">
-                <AuthBar />
+                <AuthBar showSignIn={api.showSignIn} showMyAccount={api.showMyAccount} />
             </div>
             {view !== null && (
                 <div className={modalClassName}>
-                    <AuthModal />
+                    <MyAccountPanel view={view} api={api} />
                 </div>
             )}
         </>

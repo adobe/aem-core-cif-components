@@ -18,23 +18,21 @@ import MyAccount from '../MyAccount';
 import ForgotPassword from '../ForgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import ChangePassword from '../ChangePassword';
-import { useNavigationContext } from '../../context/NavigationContext';
 
-import classes from './authModal.css';
+import classes from './myAccountPanel.css';
+import { string, shape, func } from 'prop-types';
 
-const AuthModal = () => {
-    const [
-        { view },
-        {
-            showSignIn,
-            showMyAccount,
-            showMenu,
-            showForgotPassword,
-            showChangePassword,
-            showCreateAccount,
-            showAccountCreated
-        }
-    ] = useNavigationContext();
+const AuthModal = ({ view = 'MENU', api }) => {
+    const {
+        showSignIn,
+        showMyAccount,
+        showMenu,
+        showForgotPassword,
+        showChangePassword,
+        showCreateAccount,
+        showAccountCreated,
+        handleBack
+    } = api;
 
     let child;
 
@@ -58,19 +56,39 @@ const AuthModal = () => {
             );
             break;
         case 'CHANGE_PASSWORD':
-            child = <ChangePassword showMyAccount={showMyAccount} />;
+            child = <ChangePassword showMyAccount={showMyAccount} handleCancel={handleBack} />;
             break;
         case 'FORGOT_PASSWORD':
-            child = <ForgotPassword onClose={showMenu} />;
+            child = <ForgotPassword onClose={showMenu} handleCancel={handleBack} />;
             break;
         case 'CREATE_ACCOUNT':
-            child = <CreateAccount showMyAccount={showMyAccount} showAccountCreated={showAccountCreated} />;
+            child = (
+                <CreateAccount
+                    showMyAccount={showMyAccount}
+                    showAccountCreated={showAccountCreated}
+                    handleCancel={handleBack}
+                />
+            );
             break;
         case 'ACCOUNT_CREATED':
             child = <CreateAccountSuccess showSignIn={showSignIn} />;
     }
 
     return <div className={classes.root}>{child}</div>;
+};
+
+AuthModal.propTypes = {
+    view: string,
+    api: shape({
+        showSignIn: func,
+        showMyAccount: func,
+        showMenu: func,
+        showForgotPassword: func,
+        showChangePassword: func,
+        showCreateAccount: func,
+        showAccountCreated: func,
+        handleBack: func
+    })
 };
 
 export default AuthModal;
