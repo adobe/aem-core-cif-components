@@ -89,11 +89,11 @@ const useNavigationState = (props = { view: 'MENU' }) => {
     };
 
     const showSignIn = () => {
-        dispatchEvent(startAccMgEvent);
+        triggerEvent(startAccMgEvent);
         switchTo('SIGN_IN');
     };
     const showMenu = () => {
-        dispatchEvent(exitAccMgEvent);
+        triggerEvent(exitAccMgEvent);
         setCurrentView('MENU');
     };
     const showMyAccount = () => {
