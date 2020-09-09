@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,18 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.core.components.models.datalayer;
 
-package com.adobe.cq.commerce.core.components.models.searchbar;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.annotation.Nullable;
+public interface ProductData extends ComponentData {
 
-import com.adobe.cq.wcm.core.components.models.Component;
+    @JsonProperty("xdm:SKU")
+    default String getSKU() {
+        throw new UnsupportedOperationException();
+    }
 
-/**
- * Sling Model API for the Searchbar component
- */
-public interface Searchbar extends Component {
+    @JsonProperty("xdm:listPrice")
+    default Double getPrice() {
+        throw new UnsupportedOperationException();
+    }
 
-    @Nullable
-    String getSearchResultsPageUrl();
+    @JsonProperty("xdm:currencyCode")
+    default String getCurrency() {
+        throw new UnsupportedOperationException();
+    }
 }

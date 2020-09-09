@@ -17,12 +17,16 @@ package com.adobe.cq.commerce.core.search.internal.converters;
 import java.util.Locale;
 import java.util.function.Function;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -58,6 +62,13 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
             Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
             final ProductImage smallImage = product.getSmallImage();
 
+            Resource resource = productPage.getContentResource();
+            String resourceType = resource.getResourceType();
+            String prefix = StringUtils.substringAfterLast(resourceType, "/");
+            String path = resource.getPath();
+            String parentId = StringUtils.join(prefix, DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(path),
+                0, 10));
+
             ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
                 product.getUrlKey(),
                 product.getName(),
@@ -66,7 +77,8 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
                 productPage,
                 null, // search results aren't targeting specific variant
                 request,
-                urlProvider);
+                urlProvider,
+                parentId);
 
             return productListItem;
         } catch (Exception e) {

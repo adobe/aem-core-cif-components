@@ -15,7 +15,11 @@
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
      data-sly-use.productTpl="productcard.html" />
 
-<div data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}" data-comp-is="productcarousel" class="productcarousel__container">
+<div data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}"
+     id="${carousel.id}"
+     data-comp-is="productcarousel"
+     data-cmp-data-layer="${carousel.data.json}"
+     class="productcarousel__container">
     <h2 data-sly-test="${properties.jcr:title}" class="productcarousel__title">${properties.jcr:title}</h2>
     <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button" style="display: none;"></button>
     <div class="productcarousel__root">

@@ -20,13 +20,16 @@ import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerListItem;
+import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
-public class ProductListItemImpl implements ProductListItem {
+public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
     private final String sku;
     private final String slug;
@@ -39,7 +42,8 @@ public class ProductListItemImpl implements ProductListItem {
     private final UrlProvider urlProvider;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider) {
+                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId) {
+        super(parentId, productPage.getContentResource());
         this.sku = sku;
         this.slug = slug;
         this.name = name;
@@ -107,4 +111,32 @@ public class ProductListItemImpl implements ProductListItem {
     public Price getPriceRange() {
         return price;
     }
+
+    // DataLayer methods
+
+    @Override
+    protected ComponentData getComponentData() {
+        return new ProductDataImpl(this, this.productPage.getContentResource());
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return this.getTitle();
+    }
+
+    @Override
+    public String getDataLayerSKU() {
+        return this.getSKU();
+    }
+
+    @Override
+    public Double getDataLayerPrice() {
+        return this.getPrice();
+    }
+
+    @Override
+    public String getDataLayerCurrency() {
+        return this.getCurrency();
+    }
+
 }

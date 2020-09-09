@@ -33,12 +33,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.CategoryListDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
+import com.adobe.cq.commerce.core.components.models.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
@@ -47,7 +51,7 @@ import com.day.cq.wcm.api.Page;
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
-public class FeaturedCategoryListImpl implements FeaturedCategoryList {
+public class FeaturedCategoryListImpl extends DataLayerComponent implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
@@ -57,9 +61,6 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     private static final String CATEGORY_ID_PROP = "categoryId";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
-
-    @Inject
-    private Resource resource;
 
     @Inject
     private Page currentPage;
@@ -73,6 +74,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
+    private List<CategoryTree> categories;
 
     @PostConstruct
     private void initModel() {
@@ -125,24 +127,27 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         if (categoriesRetriever == null) {
             return Collections.emptyList();
         }
-        List<CategoryTree> categories = categoriesRetriever.fetchCategories();
-        for (CategoryTree category : categories) {
-            Map<String, String> params = new ParamsBuilder()
-                .id(category.getId().toString())
-                .urlPath(category.getUrlPath())
-                .map();
-            category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
-            // Replace image if there is an asset override
-            String id = category.getId().toString();
-            if (assetOverride.containsKey(id)) {
-                Asset asset = assetOverride.get(id);
-                Rendition rendition = asset.getRendition(RENDITION_WEB);
-                if (rendition == null) {
-                    rendition = asset.getRendition(RENDITION_ORIGINAL);
-                }
-                if (rendition != null) {
-                    category.setImage(rendition.getPath());
+        if (categories == null) {
+            categories = categoriesRetriever.fetchCategories();
+            for (CategoryTree category : categories) {
+                Map<String, String> params = new ParamsBuilder()
+                    .id(category.getId().toString())
+                    .urlPath(category.getUrlPath())
+                    .map();
+                category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
+
+                // Replace image if there is an asset override
+                String id = category.getId().toString();
+                if (assetOverride.containsKey(id)) {
+                    Asset asset = assetOverride.get(id);
+                    Rendition rendition = asset.getRendition(RENDITION_WEB);
+                    if (rendition == null) {
+                        rendition = asset.getRendition(RENDITION_ORIGINAL);
+                    }
+                    if (rendition != null) {
+                        category.setImage(rendition.getPath());
+                    }
                 }
             }
         }
@@ -157,5 +162,19 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Override
     public AbstractCategoriesRetriever getCategoriesRetriever() {
         return this.categoriesRetriever;
+    }
+
+    // DataLayer methods
+
+    @Override
+    protected ComponentData getComponentData() {
+        return new CategoryListDataImpl(this, resource);
+    }
+
+    @Override
+    public CategoryData[] getDataLayerCategories() {
+        return getCategories().stream()
+            .map(c -> new CategoryListDataImpl.CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .toArray(CategoryData[]::new);
     }
 }

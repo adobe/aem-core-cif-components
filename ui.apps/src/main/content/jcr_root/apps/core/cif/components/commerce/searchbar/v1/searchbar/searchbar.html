@@ -13,7 +13,10 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-use.searchbar="${'com.adobe.cq.commerce.core.components.models.searchbar.Searchbar'}" />
 
-<div class="searchBar__root" role="search">
+<div class="searchBar__root"
+     id="${searchbar.id}"
+     data-cmp-data-layer="${searchbar.data.json}"
+     role="search">
     <div class="searchBar__searchInner">
         <form class="searchBar__form" autocomplete="off" _lpchecked="1" action="${searchbar.searchResultsPageUrl}">
             <span class="fieldIcons__root" style="--iconsBefore:1; --iconsAfter:0;">

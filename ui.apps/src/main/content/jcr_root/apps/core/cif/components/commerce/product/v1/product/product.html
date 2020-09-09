@@ -24,11 +24,13 @@
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page">
 
     <form class="productFullDetail__root"
+          id="${product.id}"
           data-configurable="${product.configurable}"
           data-grouped="${product.groupedProduct}"
           data-virtual="${product.virtualProduct}"
           data-cmp-is="product"
           data-locale="${page.language}"
+          data-cmp-data-layer="${product.data.json}"
           data-load-client-price="${product.loadClientPrice}">
         <sly data-sly-test.found="${product.found}">
             <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />

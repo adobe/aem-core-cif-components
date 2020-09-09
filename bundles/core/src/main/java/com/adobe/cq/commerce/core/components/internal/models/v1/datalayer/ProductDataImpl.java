@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,18 +11,30 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.core.components.internal.models.v1.datalayer;
 
-package com.adobe.cq.commerce.core.components.models.searchbar;
+import org.apache.sling.api.resource.Resource;
 
-import javax.annotation.Nullable;
+import com.adobe.cq.commerce.core.components.models.datalayer.ProductData;
 
-import com.adobe.cq.wcm.core.components.models.Component;
+public class ProductDataImpl extends ComponentDataImpl implements ProductData {
+    public ProductDataImpl(DataLayerComponent component, Resource resource) {
+        super(component, resource);
+    }
 
-/**
- * Sling Model API for the Searchbar component
- */
-public interface Searchbar extends Component {
+    @Override
+    public String getSKU() {
+        return component.getDataLayerSKU();
+    }
 
-    @Nullable
-    String getSearchResultsPageUrl();
+    @Override
+    public Double getPrice() {
+        return component.getDataLayerPrice();
+    }
+
+    @Override
+    public String getCurrency() {
+        return component.getDataLayerCurrency();
+    }
+
 }
