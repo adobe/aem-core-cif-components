@@ -113,7 +113,7 @@ public class ProductImplAssetsTest {
         Assert.assertEquals("a1", assets.get(0).getLabel());
         Assert.assertEquals("a2", assets.get(1).getLabel());
 
-        // order asset with missing position to the end
+        // order asset without position to the end
         Assert.assertEquals("a4", assets.get(2).getLabel());
     }
 
