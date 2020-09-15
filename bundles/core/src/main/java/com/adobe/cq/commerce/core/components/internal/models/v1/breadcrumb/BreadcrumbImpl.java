@@ -109,7 +109,9 @@ public class BreadcrumbImpl implements Breadcrumb {
     }
 
     private void populateItems(NavigationItem item) {
-        Page page = item.getPage();
+
+        // We build the breadcrumb based on the production version of the page structure
+        Page page = SiteNavigation.toLaunchProductionPage(item.getPage());
         Resource contentResource = page.getContentResource();
 
         // If we encounter the catalog page and it's configured to show the main categories, we skip that page
@@ -258,14 +260,18 @@ public class BreadcrumbImpl implements Breadcrumb {
         if (productPage == null) {
             productPage = SiteNavigation.getProductPage(currentPage);
         }
-        return productPage != null ? page.getPath().equals(productPage.getPath()) : false;
+        // The product page might be in a Launch so we use 'endsWith' to compare the paths, for example
+        // - product page: /content/launches/2020/09/15/mylaunch/content/venia/us/en/products/category-page
+        // - current page: /content/venia/us/en/products/category-page
+        return productPage != null ? productPage.getPath().endsWith(page.getPath()) : false;
     }
 
     private boolean isCategoryPage(Page page) {
         if (categoryPage == null) {
             categoryPage = SiteNavigation.getCategoryPage(currentPage);
         }
-        return categoryPage != null ? page.getPath().equals(categoryPage.getPath()) : false;
+        // See comment above
+        return categoryPage != null ? categoryPage.getPath().endsWith(page.getPath()) : false;
     }
 
     private boolean isSpecificPage(Page page) {
