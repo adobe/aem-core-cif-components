@@ -388,7 +388,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     // DataLayer methods
 
     @Override
-    public ComponentData getData() {
+    public ComponentData getComponentData() {
         return new ProductDataImpl(this, resource);
     }
 

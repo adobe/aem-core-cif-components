@@ -18,6 +18,8 @@ import javax.inject.Inject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 
 import com.adobe.cq.commerce.core.components.models.datalayer.CategoryData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -30,20 +32,21 @@ public abstract class DataLayerComponent {
     protected Resource resource;
 
     private String id;
-    private Boolean dataLayerEnabled = true;
+    private Boolean dataLayerEnabled;
     private ComponentData componentData;
 
     private boolean isDataLayerEnabled() {
-        // if (dataLayerEnabled == null) {
-        // dataLayerEnabled = false;
-        // if (resource != null) {
-        // ConfigurationBuilder builder = resource.adaptTo(ConfigurationBuilder.class);
-        // if (builder != null) {
-        // DataLayerConfig dataLayerConfig = builder.as(DataLayerConfig.class);
-        // dataLayerEnabled = dataLayerConfig.enabled();
-        // }
-        // }
-        // }
+        if (dataLayerEnabled == null) {
+            dataLayerEnabled = false;
+            if (resource != null) {
+                ConfigurationBuilder builder = resource.adaptTo(ConfigurationBuilder.class);
+                if (builder != null) {
+                    ValueMap dataLayerConfig = builder
+                        .name("com.adobe.cq.wcm.core.components.internal.DataLayerConfig").asValueMap();
+                    dataLayerEnabled = dataLayerConfig.get("enabled", false);
+                }
+            }
+        }
 
         return dataLayerEnabled;
     }
