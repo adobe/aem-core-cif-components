@@ -55,7 +55,7 @@ coverage:
           - jest
       integration:
         enabled: true
-        target: 80%
+        target: 40%
         threshold: 10%
         base: auto
         flags:
