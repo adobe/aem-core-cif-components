@@ -13,6 +13,9 @@
  ******************************************************************************/
 'use strict';
 
+const dataLayerEnabled = document.body.hasAttribute("data-cmp-data-layer-enabled");
+const dataLayer = (dataLayerEnabled) ? window.adobeDataLayer = window.adobeDataLayer || [] : undefined;
+
 /**
  * Add to cart button component.
  */
@@ -108,6 +111,15 @@ class AddToCart {
                 detail: items
             });
             document.dispatchEvent(customEvent);
+
+            if (dataLayerEnabled) {
+                dataLayer.push({
+                    event: "addToCart",
+                    eventInfo: {
+                        items: items
+                    }
+                });
+            }
         }
     }
 }
