@@ -1,0 +1,46 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "sku": "incomplete_asset",
+          "name": "Incomplete asset product",
+          "description": {
+            "html": "<p>This product has incomplete asset data</p>"
+          },
+          "url_key": "incomplete-asset",
+          "stock_status": "IN_STOCK",
+          "media_gallery": [
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+              "label": "a2",
+              "position": 2
+            },
+            {
+              "__typename": "ProductImage",
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+              "label": "a4"
+            },
+            {
+              "disabled": true,
+              "__typename": "ProductImage",
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+              "label": "a3",
+              "position": 3
+            },
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+              "label": "a1",
+              "position": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
