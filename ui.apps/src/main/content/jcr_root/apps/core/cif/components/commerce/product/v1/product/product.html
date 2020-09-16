@@ -34,6 +34,7 @@
           data-load-client-price="${product.loadClientPrice}">
         <sly data-sly-test.found="${product.found}">
             <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
+            <sly data-sly-test.isBundleProduct="${product.isBundleProduct}" />
             <section class="productFullDetail__title">
                 <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
                 <sly data-sly-test="${!isGroupedProduct}"
@@ -48,11 +49,12 @@
             <section data-sly-test="${isGroupedProduct}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
-            <section data-sly-test="${!isGroupedProduct}" class="productFullDetail__quantity productFullDetail__section">
+            <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}"></div>
+            <section data-sly-test="${!isGroupedProduct && !isBundleProduct}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
             </section>
-            <section class="productFullDetail__cartActions productFullDetail__section">
+            <section data-sly-test="${!isBundleProduct}" class="productFullDetail__cartActions productFullDetail__section">
                 <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
             </section>
             <section class="productFullDetail__description productFullDetail__section">

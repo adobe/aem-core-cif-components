@@ -7,19 +7,29 @@ coverage:
         target: 80%
         threshold: 10%
         base: auto
-        flags: unittests
+        flags:
+          - unittests
       karma:
         enabled: true
         target: 90%
         threshold: 10%
         base: auto
-        flags: karma
+        flags:
+          - karma
       jest:
         enabled: true
         target: 36%
         threshold: 10%
         base: auto
-        flags: jest
+        flags:
+          - jest
+      integration:
+        enabled: true
+        target: 65%
+        threshold: 10%
+        base: auto
+        flags:
+          - integration
     patch:
       default: off
       unittests:
@@ -27,20 +37,34 @@ coverage:
         target: 80%
         threshold: 10%
         base: auto
-        flags: unittests
+        flags: 
+          - unittests
       karma:
         enabled: true
         target: 90%
         threshold: 10%
         base: auto
-        flags: karma
+        flags:
+          - karma
       jest:
         enabled: true
         target: 50%
         threshold: 10%
         base: auto
-        flags: jest
+        flags:
+          - jest
+      integration:
+        enabled: true
+        target: 40%
+        threshold: 10%
+        base: auto
+        flags:
+          - integration
 flags:
+  integration:
+    paths:
+      - bundles/core/
+      - examples/bundle/
   unittests:
     paths:
       - bundles/core/

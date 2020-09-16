@@ -336,11 +336,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     private List<Asset> filterAndSortAssets(List<MediaGalleryInterface> assets) {
-        return assets.parallelStream()
-            .filter(e -> !e.getDisabled() && e instanceof ProductImage)
-            .map(this::mapAsset)
-            .sorted(Comparator.comparing(Asset::getPosition))
-            .collect(Collectors.toList());
+        return assets == null ? Collections.emptyList()
+            : assets.parallelStream()
+                .filter(a -> (a.getDisabled() == null || !a.getDisabled()) && a instanceof ProductImage)
+                .map(this::mapAsset)
+                .sorted(Comparator.comparing(a -> a.getPosition() == null ? Integer.MAX_VALUE : a.getPosition()))
+                .collect(Collectors.toList());
     }
 
     private Asset mapAsset(MediaGalleryInterface entry) {
