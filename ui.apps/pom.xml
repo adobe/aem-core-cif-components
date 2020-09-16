@@ -91,12 +91,6 @@
                     </dependencies>
                     
                     <embeddedTarget>/apps/bundles/install</embeddedTarget>
-                    <embeddeds> 
-                        <embedded>
-                            <groupId>org.apache.commons</groupId>
-                            <artifactId>commons-text</artifactId>
-                        </embedded>
-                    </embeddeds>
                 </configuration>
             </plugin>
 
@@ -166,10 +160,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.content</artifactId>
