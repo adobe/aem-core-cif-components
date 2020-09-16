@@ -19,101 +19,101 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Select>', () => {
-    const requiredItem = {
-        option_id: 1,
-        required: true,
+  const requiredItem = {
+    option_id: 1,
+    required: true,
+    quantity: 1
+  };
+
+  const sortedOptions = [
+    {
+      id: 1,
+      quantity: 1,
+      price: 12,
+      currency: 'USD',
+      can_change_quantity: true,
+      label: 'Carmina Necklace'
+    },
+    {
+      id: 2,
+      quantity: 1,
+      price: 13,
+      currency: 'USD',
+      can_change_quantity: false,
+      label: 'Augusta Necklace'
+    }
+  ];
+
+  const customization = [
+    {
+      id: 1,
+      quantity: 1
+    }
+  ];
+
+  const handleSelectionChange = jest.fn();
+
+  it('renders the component', () => {
+    const { asFragment } = render(
+      <I18nextProvider i18n={i18n}>
+        <Select
+          item={requiredItem}
+          options={sortedOptions}
+          customization={customization}
+          handleSelectionChange={handleSelectionChange}
+        />
+      </I18nextProvider>
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('tests selection change', () => {
+    const { getByRole } = render(
+      <I18nextProvider i18n={i18n}>
+        <Select
+          item={requiredItem}
+          options={sortedOptions}
+          customization={customization}
+          handleSelectionChange={handleSelectionChange}
+        />
+      </I18nextProvider>
+    );
+
+    fireEvent.change(getByRole('combobox'), { target: { value: 2 } });
+
+    const newCustomization = [
+      {
+        id: 2,
+        price: 13,
         quantity: 1
-    };
-
-    const sortedOptions = [
-        {
-            id: 1,
-            quantity: 1,
-            price: 12,
-            currency: 'USD',
-            can_change_quantity: true,
-            label: 'Carmina Necklace'
-        },
-        {
-            id: 2,
-            quantity: 1,
-            price: 13,
-            currency: 'USD',
-            can_change_quantity: false,
-            label: 'Augusta Necklace'
-        }
+      }
     ];
 
-    const customization = [
-        {
-            id: 1,
-            quantity: 1
-        }
+    expect(handleSelectionChange).toHaveBeenCalledTimes(1);
+    expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
+  });
+
+  it('disables quantity change', async () => {
+    const quantityDisableCustomization = [
+      {
+        id: 2,
+        price: 13,
+        quantity: 1
+      }
     ];
+    const { asFragment } = render(
+      <I18nextProvider i18n={i18n}>
+        <Select
+          item={requiredItem}
+          options={sortedOptions}
+          customization={quantityDisableCustomization}
+          handleSelectionChange={handleSelectionChange}
+        />
+      </I18nextProvider>
+    );
 
-    const handleSelectionChange = jest.fn();
-
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
-        );
-
-        expect(asFragment()).toMatchSnapshot();
-    });
-
-    it('tests selection change', () => {
-        const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
-        );
-
-        fireEvent.change(getByRole('combobox'), { target: { value: 2 } });
-
-        const newCustomization = [
-            {
-                id: 2,
-                price: 13,
-                quantity: 1
-            }
-        ];
-
-        expect(handleSelectionChange).toHaveBeenCalledTimes(1);
-        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
-    });
-
-    it('disables quantity change', async () => {
-        const quantityDisableCustomization = [
-            {
-                id: 2,
-                price: 13,
-                quantity: 1
-            }
-        ];
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={quantityDisableCustomization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
-        );
-
-        expect(asFragment()).toMatchInlineSnapshot(`
+    expect(asFragment()).toMatchInlineSnapshot(`
             <DocumentFragment>
               <div
                 class="bundleOptionSelect__root"
@@ -183,5 +183,5 @@ describe('<Select>', () => {
               />
             </DocumentFragment>
         `);
-    });
+  });
 });

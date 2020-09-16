@@ -1,0 +1,48 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "sku": "no_asset",
+          "name": "No asset product",
+          "description": {
+            "html": "<p>This product has no assets</p>"
+          },
+          "url_key": "no-asset",
+          "stock_status": "IN_STOCK",
+          "price_range": {
+            "maximum_price": {
+              "regular_price": {
+                "value": 62,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 62,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "minimum_price": {
+              "regular_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -22,7 +22,6 @@ import introspectionQueryResultData from '../../../fragmentTypes.json';
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
-import NavigationContextProvider from '../../context/NavigationContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 import { useConfigContext } from '../../context/ConfigContext';
 
@@ -52,13 +51,11 @@ const App = props => {
     return (
         <ApolloProvider client={client}>
             <UserContextProvider>
-                <NavigationContextProvider>
-                    <CartProvider>
-                        <CartInitializer>
-                            <CheckoutProvider>{props.children}</CheckoutProvider>
-                        </CartInitializer>
-                    </CartProvider>
-                </NavigationContextProvider>
+                <CartProvider>
+                    <CartInitializer>
+                        <CheckoutProvider>{props.children}</CheckoutProvider>
+                    </CartInitializer>
+                </CartProvider>
             </UserContextProvider>
         </ApolloProvider>
     );

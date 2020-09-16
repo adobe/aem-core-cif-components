@@ -31,7 +31,6 @@ describe.each([
     });
 
     expect(files.length).toBeGreaterThan(0); // Ensures we read the right folder
-    console.log(`Validating ${files.length} GraphQL requests against Magento schema ${version}`);
     let schema = buildClientSchema(magentoSchema.data);
 
     it.each(files)('validates the GraphQL request from %s', file => {
