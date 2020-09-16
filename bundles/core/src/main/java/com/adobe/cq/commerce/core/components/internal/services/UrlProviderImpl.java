@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.text.StringSubstitutor;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Activate;
@@ -160,6 +159,26 @@ public class UrlProviderImpl implements UrlProvider {
             return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
         } else {
             throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
+        }
+    }
+
+    static class StringSubstitutor {
+
+        private final String[] searchList;
+        private final String[] replacementList;
+
+        public StringSubstitutor(Map<String, String> params, String prefix, String suffix) {
+            replacementList = params.values().toArray(new String[0]);
+            searchList = params.keySet().toArray(new String[0]);
+            if (StringUtils.isNotBlank(prefix) && StringUtils.isNotBlank(suffix)) {
+                for (int i = 0; i < searchList.length; ++i) {
+                    searchList[i] = prefix + searchList[i] + suffix;
+                }
+            }
+        }
+
+        public String replace(String source) {
+            return StringUtils.replaceEach(source, searchList, replacementList);
         }
     }
 }
