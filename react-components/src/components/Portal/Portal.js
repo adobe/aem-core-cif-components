@@ -13,6 +13,21 @@
  ******************************************************************************/
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import React, { Suspense } from 'react';
+
+import LoadingIndicator from '../LoadingIndicator';
+
+const withSuspense = Component => {
+    let WithSuspense = props => {
+        return (
+            <Suspense fallback={<LoadingIndicator />}>
+                <Component {...props} />
+            </Suspense>
+        );
+    };
+    WithSuspense.displayName = `withSuspense(${Component.displayName || Component.name})`;
+    return WithSuspense;
+};
 
 const Portal = props => {
     const { selector, children } = props;
@@ -30,4 +45,4 @@ Portal.propTypes = {
     selector: PropTypes.string.isRequired
 };
 
-export default Portal;
+export default withSuspense(Portal);
