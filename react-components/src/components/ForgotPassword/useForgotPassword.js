@@ -13,22 +13,24 @@
  ******************************************************************************/
 
 import { useState, useCallback } from 'react';
-import { useUserContext } from '../../context/UserContext';
+import { useMutation } from '@apollo/react-hooks';
+
+import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../queries/mutation_request_password_reset_email.graphql';
 
 const useForgotPasswordForm = props => {
     const { onClose, onCancel } = props;
-    const [, { resetPassword }] = useUserContext();
 
     const [submitting, setSubmitting] = useState(false);
     const [formEmail, setFormEmail] = useState(null);
+    const [requestPasswordResetEmail] = useMutation(MUTATION_REQUEST_PASSWORD_RESET_EMAIL);
 
     const handleFormSubmit = useCallback(
         async ({ email }) => {
             setSubmitting(true);
             setFormEmail(email);
-            await resetPassword(email);
+            await requestPasswordResetEmail({ variables: { email } });
         },
-        [resetPassword]
+        [requestPasswordResetEmail]
     );
 
     const handleCancel = useCallback(() => {
