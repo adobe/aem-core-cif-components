@@ -81,12 +81,6 @@
                             <filter>true</filter>
                             <target>/apps/core/cif/install</target>
                         </embedded>
-                        <embedded>
-                            <groupId>org.apache.commons</groupId>
-                            <artifactId>commons-text</artifactId>
-                            <filter>true</filter>
-                            <target>/apps/core/cif/install</target>
-                        </embedded>
                     </embeddeds>
                     <subPackages>
                         <subPackage>
@@ -135,10 +129,6 @@
             <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
         </dependency>
     </dependencies>
 
