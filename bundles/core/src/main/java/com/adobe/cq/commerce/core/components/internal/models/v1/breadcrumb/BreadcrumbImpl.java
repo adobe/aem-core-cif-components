@@ -123,11 +123,11 @@ public class BreadcrumbImpl implements Breadcrumb {
 
         // For product and category pages, we fetch the breadcrumbs
         boolean isProductPage = isProductPage(page);
-        boolean isCategoyPage = isCategoryPage(page);
+        boolean isCategoryPage = isCategoryPage(page);
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
         if (isProductPage) {
             categoriesBreadcrumbs = fetchProductBreadcrumbs();
-        } else if (isCategoyPage) {
+        } else if (isCategoryPage) {
             categoriesBreadcrumbs = fetchCategoryBreadcrumbs();
         } else if (isSpecificPage(page)) {
             return; // it's a specific product or category page, it has already been processed by the generic product or category page
@@ -157,7 +157,7 @@ public class BreadcrumbImpl implements Breadcrumb {
         }
 
         // The category itself is not included by Magento in the breadcrumb, so we also add it
-        addCategoryItem(categoryBreadcrumb, isCategoyPage);
+        addCategoryItem(categoryBreadcrumb, isCategoryPage);
 
         // We finally add the product if it's a product page
         if (isProductPage) {
@@ -275,7 +275,11 @@ public class BreadcrumbImpl implements Breadcrumb {
     }
 
     private boolean isSpecificPage(Page page) {
+        // The product or category page might be in a Launch so we first extract the paths of the production versions
+        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+
         String path = page.getPath();
-        return (path.startsWith(productPage.getPath() + "/") || path.startsWith(categoryPage.getPath() + "/"));
+        return (path.contains(productPagePath + "/") || path.contains(categoryPagePath + "/"));
     }
 }
