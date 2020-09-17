@@ -471,7 +471,6 @@
                     <configuration>
                         <failOnMissingEmbed>true</failOnMissingEmbed>
                         <showImportPackageReport>false</showImportPackageReport>
-                        <skipValidation>true</skipValidation>
                         <excludes>
                             <!-- exclude .vlt control files in the package -->
                             <exclude>**/.vlt</exclude>
@@ -486,6 +485,13 @@
                             <exclude>**/pom.xml</exclude>
                         </excludes>
                         <group>${vault.package.group}</group>
+                        <validatorsSettings>
+                            <jackrabbit-filter>
+                                <options>
+                                    <validRoots>/,/libs,/libs/core/wcm,/apps,/apps/core/cif,/apps/cif-components-examples,/etc,/var,/tmp,/content</validRoots>
+                                </options>
+                            </jackrabbit-filter>
+                        </validatorsSettings>
                     </configuration>
                 </plugin>
                 <!-- Apache Felix Bundle Plugin -->
