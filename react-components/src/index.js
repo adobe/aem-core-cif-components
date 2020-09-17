@@ -26,3 +26,4 @@ export { default as UserContextProvider, useUserContext } from './context/UserCo
 export { CheckoutProvider } from './components/Checkout/checkoutContext';
 
 export { CartProvider, CartInitializer } from './components/Minicart';
+export { default as AccountDetails } from './components/AccountDetails';
