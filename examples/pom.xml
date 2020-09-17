@@ -32,6 +32,7 @@
     <modules>
         <module>bundle</module>
         <module>ui.apps</module>
+        <module>ui.config</module>
         <module>ui.content</module>
         <module>all</module>
     </modules>

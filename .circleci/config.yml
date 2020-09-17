@@ -67,8 +67,10 @@ jobs:
             - configuration.json
             - bundles/core/target/*.jar
             - ui.apps/target/*.zip
+            - ui.config/target/*.zip
             - examples/bundle/target/*.jar
             - examples/ui.apps/target/*.zip
+            - examples/ui.config/target/*.zip
             - examples/ui.content/target/*.zip
       - store_test_results:
           path: test-results

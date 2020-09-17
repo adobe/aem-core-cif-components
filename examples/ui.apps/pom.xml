@@ -64,6 +64,7 @@
                 <artifactId>filevault-package-maven-plugin</artifactId>
                 <configuration>
                     <group>${vault.package.group}</group>
+                    <packageType>application</packageType>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
@@ -71,11 +72,6 @@
                         <createdBy>${vault.package.company}</createdBy>
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
-                    <validatorsSettings>
-                        <jackrabbit-nodetypes>
-                            <isDisabled>true</isDisabled>
-                        </jackrabbit-nodetypes>
-                    </validatorsSettings>
                     <dependencies>
                         <dependency>
                             <groupId>com.adobe.cq</groupId>
