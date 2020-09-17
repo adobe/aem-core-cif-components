@@ -12,12 +12,11 @@
  *
  ******************************************************************************/
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ApolloProvider } from '@apollo/react-hooks';
 import ApolloClient from 'apollo-boost';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
-import introspectionQueryResultData from '../../../fragmentTypes.json';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
@@ -25,15 +24,21 @@ import UserContextProvider from '../../context/UserContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 import { useConfigContext } from '../../context/ConfigContext';
 
-const App = props => {
-    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
+const generateCacheData = introspectionQueryResultData => {
     const fragmentMatcher = new IntrospectionFragmentMatcher({
         introspectionQueryResultData
     });
-    const cache = new InMemoryCache({ fragmentMatcher });
+    return new InMemoryCache({ fragmentMatcher });
+};
 
-    const client = new ApolloClient({
-        cache,
+const sessionStorage = window.sessionStorage;
+let graphQlFragmentTypes = sessionStorage.getItem('graphQlFragmentTypes');
+
+const App = props => {
+    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
+
+    const clientConfig = {
+        cache: graphQlFragmentTypes !== null ? generateCacheData(JSON.parse(graphQlFragmentTypes)) : undefined,
         uri: graphqlEndpoint,
         headers: { Store: storeView },
         request: operation => {
@@ -45,6 +50,51 @@ const App = props => {
                     }
                 });
             }
+        }
+    };
+
+    const [client, setClient] = useState(new ApolloClient(clientConfig));
+
+    useEffect(() => {
+        if (graphQlFragmentTypes === null) {
+            fetch(graphqlEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    variables: {},
+                    query: `
+                        {
+                            __schema {
+                                types {
+                                kind
+                                name
+                                possibleTypes {
+                                    name
+                                }
+                                }
+                            }
+                        }
+                    `
+                })
+            })
+                .then(result => result.json())
+                .then(result => {
+                    // here we're filtering out any type information unrelated to unions or interfaces
+                    const filteredData = result.data.__schema.types.filter(type => type.possibleTypes !== null);
+                    result.data.__schema.types = filteredData;
+
+                    console.log(sessionStorage);
+
+                    graphQlFragmentTypes = JSON.stringify(result.data);
+                    sessionStorage.setItem('graphQlFragmentTypes', graphQlFragmentTypes);
+
+                    setClient(
+                        new ApolloClient({
+                            ...clientConfig,
+                            cache: generateCacheData(result.data)
+                        })
+                    );
+                });
         }
     });
 

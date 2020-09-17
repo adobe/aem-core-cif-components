@@ -120,47 +120,20 @@ const BundleProductOptions = () => {
 
     const renderItemOptions = item => {
         const { option_id, required, quantity, options, type, customization } = item;
+        const otherProps = { options, customization, handleSelectionChange };
 
         switch (type) {
             case 'checkbox': {
-                return (
-                    <Checkbox
-                        item={{ option_id, required }}
-                        options={options}
-                        customization={customization}
-                        handleSelectionChange={handleSelectionChange}
-                    />
-                );
+                return <Checkbox item={{ option_id, required }} {...otherProps} />;
             }
             case 'radio': {
-                return (
-                    <Radio
-                        item={{ option_id, required, quantity }}
-                        options={options}
-                        customization={customization}
-                        handleSelectionChange={handleSelectionChange}
-                    />
-                );
+                return <Radio item={{ option_id, required, quantity }} {...otherProps} />;
             }
             case 'select': {
-                return (
-                    <Select
-                        item={{ option_id, required, quantity }}
-                        options={options}
-                        customization={customization}
-                        handleSelectionChange={handleSelectionChange}
-                    />
-                );
+                return <Select item={{ option_id, required, quantity }} {...otherProps} />;
             }
             case 'multi': {
-                return (
-                    <MultiSelect
-                        item={{ option_id, required }}
-                        options={options}
-                        customization={customization}
-                        handleSelectionChange={handleSelectionChange}
-                    />
-                );
+                return <MultiSelect item={{ option_id, required }} {...otherProps} />;
             }
         }
     };
@@ -201,9 +174,9 @@ const BundleProductOptions = () => {
             return (
                 acc +
                 selection.quantity *
-                selection.customization.reduce((a, c) => {
-                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
-                }, 0)
+                    selection.customization.reduce((a, c) => {
+                        return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
+                    }, 0)
             );
         }, 0);
 
