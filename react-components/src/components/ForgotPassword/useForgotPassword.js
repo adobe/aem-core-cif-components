@@ -17,40 +17,29 @@ import { useMutation } from '@apollo/react-hooks';
 
 import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../queries/mutation_request_password_reset_email.graphql';
 
-const useForgotPasswordForm = props => {
-    const { onClose, onCancel } = props;
+const useForgotPasswordForm = () => {
+    const [state, setState] = useState({ loading: false, submitted: false, email: null });
 
-    const [submitting, setSubmitting] = useState(false);
-    const [formEmail, setFormEmail] = useState(null);
     const [requestPasswordResetEmail] = useMutation(MUTATION_REQUEST_PASSWORD_RESET_EMAIL);
 
     const handleFormSubmit = useCallback(
         async ({ email }) => {
-            setSubmitting(true);
-            setFormEmail(email);
-            await requestPasswordResetEmail({ variables: { email } });
+            setState({ ...state, loading: true });
+            try {
+                await requestPasswordResetEmail({ variables: { email } });
+            } catch (err) {
+                // Do not output any errors which might indicate if the user email actually exists or not
+            } finally {
+                setState({ ...state, loading: false, submitted: true, email });
+            }
         },
         [requestPasswordResetEmail]
     );
 
-    const handleCancel = useCallback(() => {
-        if (onCancel) {
-            setSubmitting(false);
-            onCancel();
-        }
-    }, [onCancel]);
-
-    const handleContinue = useCallback(() => {
-        setSubmitting(false);
-        onClose();
-    }, [onClose]);
-
     return [
-        { submitting, email: formEmail },
+        state,
         {
-            handleFormSubmit,
-            handleCancel,
-            handleContinue
+            handleFormSubmit
         }
     ];
 };

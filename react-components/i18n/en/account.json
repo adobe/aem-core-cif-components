@@ -42,5 +42,6 @@
   "address-delete": "Delete",
   "address-default-tag": "Default",
   "address-form-heading": "Address",
-  "account-information": "Account Information"
+  "account-information": "Account Information",
+  "reset-password-instructions": "Enter your email below to receive a password reset link."
 }

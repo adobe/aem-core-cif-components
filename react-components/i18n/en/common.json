@@ -2,5 +2,6 @@
   "cancel": "Cancel",
   "close": "Close",
   "formattedPrice": "{{price, price}}",
-  "back": "Back"
+  "back": "Back",
+  "loading": "Loading"
 }
