@@ -65,6 +65,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
+                    <packageType>content</packageType>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
