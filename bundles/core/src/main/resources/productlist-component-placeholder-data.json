@@ -3,7 +3,7 @@
     "id": 6,
     "name": "Category name",
     "product_count": 12,
-    "image": "category-image.svg",
+    "image": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/category-image.svg",
     "products": {
       "items": [
         {
@@ -12,7 +12,7 @@
           "sku": "sku-1",
           "name": "Product #1",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-1",
           "price_range": {
@@ -38,7 +38,7 @@
           "sku": "sku-2",
           "name": "Product #2",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-2",
           "price_range": {
@@ -64,7 +64,7 @@
           "sku": "sku-3",
           "name": "Product #3",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-3",
           "price_range": {
@@ -90,7 +90,7 @@
           "sku": "sku-4",
           "name": "Product #4",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-4",
           "price_range": {
@@ -116,7 +116,7 @@
           "sku": "sku-5",
           "name": "Product #5",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-5",
           "price_range": {
@@ -142,7 +142,7 @@
           "sku": "sku-6",
           "name": "Product #6",
           "small_image": {
-            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/clientlibs/resources/images/catalog/category/product-thumbnail.png"
+            "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
           },
           "url_key": "product-6",
           "price_range": {
