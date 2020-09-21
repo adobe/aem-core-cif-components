@@ -30,7 +30,7 @@
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
-    <description>Content Package with Components, Templates, Policies and Clientlibs for AEM CIF Core Components</description>
+    <description>Content Package with Components for AEM CIF Core Components</description>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <scm>
@@ -69,6 +69,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
+                    <packageType>application</packageType>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
@@ -76,7 +77,6 @@
                         <createdBy>${vault.package.company}</createdBy>
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
-
                     <dependencies>
                         <dependency>
                             <group>day/cq60/product</group>
@@ -89,14 +89,6 @@
                             <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
-                    
-                    <embeddedTarget>/apps/bundles/install</embeddedTarget>
-                    <embeddeds> 
-                        <embedded>
-                            <groupId>org.apache.commons</groupId>
-                            <artifactId>commons-text</artifactId>
-                        </embedded>
-                    </embeddeds>
                 </configuration>
             </plugin>
 
@@ -167,8 +159,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.adobe.cq</groupId>
