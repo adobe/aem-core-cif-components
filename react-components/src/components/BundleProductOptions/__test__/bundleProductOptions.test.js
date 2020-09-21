@@ -30,8 +30,7 @@ describe('<BundleProductOptions>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext
-                        config={config}>
+                    <ConfigContext config={config}>
                         <BundleProductOptions />
                     </ConfigContext>
                 </MockedProvider>
@@ -48,8 +47,7 @@ describe('<BundleProductOptions>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext
-                        config={config}>
+                    <ConfigContext config={config}>
                         <BundleProductOptions />
                     </ConfigContext>
                 </MockedProvider>
@@ -103,8 +101,7 @@ describe('<BundleProductOptions>', () => {
         const { container, getByRole } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <ConfigContext
-                        config={config}>
+                    <ConfigContext config={config}>
                         <BundleProductOptions />
                     </ConfigContext>
                 </MockedProvider>
