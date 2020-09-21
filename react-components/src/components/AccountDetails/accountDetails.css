@@ -2,6 +2,9 @@
     display: grid;
     padding: 2.5rem 3rem;
     row-gap: 2rem;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
 }
 .lineItems {
     display: grid;

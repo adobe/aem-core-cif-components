@@ -7,6 +7,7 @@
   "current-password": "Current Password",
   "new-password": "New Password",
   "confirm-new-password": "Confirm New Password",
+  "name":"Name",
   "firstname": "First Name",
   "lastname": "Last Name",
   "email": "Email address",

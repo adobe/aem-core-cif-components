@@ -12,14 +12,47 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
-
+import { render, screen, waitForElement } from '@testing-library/react';
+import { MockedProvider } from '@apollo/react-testing';
 import AccountDetails from '../';
+import UserContextProvider from '../../../context/UserContext';
+
+import getDetailsQuery from '../query_get_customer_information.graphql';
 
 describe('<AccountDetails>', () => {
-    it('renders the Account Details form', () => {
-        const { asFragment } = render(<AccountDetails />);
+    const withContext = (Component, userContext = {}, mocks = []) => {
+        return (
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <UserContextProvider initialState={userContext}>
+                    <Component />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+    };
 
-        expect(asFragment).toMatchSnapshot();
+    it('renders the Account Details data for an unauthenticated user', () => {
+        const { findByText } = render(withContext(AccountDetails, { isSignedIn: false }));
+
+        expect(findByText('Please Sign in to see the account details.')).not.toBeUndefined();
+    });
+
+    it('renders the Account Details data for an authenticated user', async () => {
+        const mocks = [
+            {
+                request: {
+                    query: getDetailsQuery
+                },
+                result: {
+                    data: { customer: { id: 1, firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } }
+                }
+            }
+        ];
+        render(withContext(AccountDetails, { isSignedIn: true }, mocks));
+
+        await waitForElement(() => screen.getByLabelText('name'));
+
+        expect(screen.findByText('Jane')).not.toBeUndefined();
+        expect(screen.findByText('Doe')).not.toBeUndefined();
+        expect(screen.findByText('jdoe@gmail.com')).not.toBeUndefined();
     });
 });

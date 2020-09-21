@@ -14,6 +14,7 @@
 import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '../LoadingIndicator';
+import Button from '../Button';
 
 import useAccountDetails from './useAccountDetails';
 import GET_CUSTOMER_INFORMATION from './query_get_customer_information.graphql';
@@ -39,10 +40,21 @@ const AccountDetails = () => {
     return (
         <div className={classes.accountDetails}>
             <div className={classes.lineItems}>
-                <span className={classes.lineItemLabel}>{'Name'}</span>
-                <span className={classes.lineItemValue}>{customer.firstname}</span>
-                <span className={classes.lineItemLabel}>{'Email'}</span>
-                <span className={classes.lineItemValue}>{customer.email}</span>
+                <span className={classes.lineItemLabel}>{t('account', 'Name')}</span>
+                <span className={classes.lineItemValue} aria-label="name">
+                    {`${customer.firstname} ${customer.lastname}`}
+                </span>
+                <span className={classes.lineItemLabel}>{t('account', 'Email')}</span>
+                <span className={classes.lineItemValue} aria-label="email">
+                    {customer.email}
+                </span>
+                <span className={classes.lineItemLabel}>{t('account', 'Passsword')}</span>
+                <span className={classes.lineItemValue} aria-label="password">
+                    {`*******`}
+                </span>
+                <span className={classes.lineItemButton}>
+                    <Button className={classes.editInformationButton}>{t('common', 'Edit')}</Button>
+                </span>
             </div>
         </div>
     );
