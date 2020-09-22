@@ -53,7 +53,7 @@ const ForgotPassword = props => {
 
 ForgotPassword.propTypes = {
     onClose: func.isRequired,
-    onCancel: func
+    onCancel: func.isRequired
 };
 
 export default ForgotPassword;

@@ -59,7 +59,7 @@ const AuthModal = ({ view = 'MENU', api }) => {
             child = <ChangePassword showMyAccount={showMyAccount} handleCancel={handleBack} />;
             break;
         case 'FORGOT_PASSWORD':
-            child = <ForgotPassword onClose={showMenu} handleCancel={handleBack} />;
+            child = <ForgotPassword onClose={showMenu} onCancel={handleBack} />;
             break;
         case 'CREATE_ACCOUNT':
             child = (
