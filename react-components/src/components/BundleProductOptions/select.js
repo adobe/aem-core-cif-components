@@ -18,7 +18,8 @@ import { useTranslation } from 'react-i18next';
 const Select = props => {
     const { item, customization, options, handleSelectionChange } = props;
     const { quantity } = item;
-    const { can_change_quantity } = customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
+    const { can_change_quantity } =
+        customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
     const [t] = useTranslation('cart');
 
     const onChange = event => {
