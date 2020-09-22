@@ -154,7 +154,8 @@ public class UrlProviderImpl implements UrlProvider {
      */
     private String parseIdentifier(IdentifierLocation identifierLocation, SlingHttpServletRequest request) {
         if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSelectorString();
+            String[] selectors = request.getRequestPathInfo().getSelectors();
+            return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
             return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
         } else {

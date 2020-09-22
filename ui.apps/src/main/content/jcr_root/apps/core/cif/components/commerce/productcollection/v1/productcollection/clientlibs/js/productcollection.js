@@ -22,6 +22,11 @@ class ProductCollection {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
 
+        let loadMoreButton = document.querySelector(ProductCollection.selectors.loadMore);
+        if (loadMoreButton) {
+            loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
+        }
+
         // Local state
         this._state = {
             // List of skus currently displayed in the list
@@ -154,13 +159,45 @@ class ProductCollection {
     _applySortKey(sortKeySelect) {
         window.location = sortKeySelect.options[sortKeySelect.selectedIndex].value;
     }
+    
+    async _loadMore(loadMoreButton) {
+        let url = loadMoreButton.dataset.loadMore;
+        console.log('Loading more from ' + url);
+        let response = await fetch(url);
+        if (!response.ok || response.errors) {
+            let message = await response.text();
+            throw new Error(message);
+        }
+        
+        // Delete load more button
+        loadMoreButton.parentNode.removeChild(loadMoreButton);
+        
+        // Parse response and only select product items
+        let text = await response.text();
+        let domParser = new DOMParser();
+        let more = domParser.parseFromString(text, "text/html");
+        let moreItems = more.querySelectorAll(ProductCollection.selectors.item);
+        
+        // Append new product items to existing product gallery
+        let galleryItems = document.querySelector(ProductCollection.selectors.galleryItems);
+        galleryItems.append(...moreItems);
+        
+        // If any, append the new "load more" button
+        let newloadMoreButton = more.querySelector(ProductCollection.selectors.loadMore);
+        if (newloadMoreButton) {
+            galleryItems.parentNode.insertBefore(newloadMoreButton, galleryItems.nextSibling);
+            newloadMoreButton.addEventListener('click', () => this._loadMore(newloadMoreButton));
+        }
+    }
 }
 
 ProductCollection.selectors = {
     self: '[data-cmp-is=productcollection]',
     price: '.price',
     item: '.item__root[role=product]',
-    sortKey: '.sort__fields .sort__key'
+    sortKey: '.sort__fields .sort__key',
+    galleryItems: '.gallery__items',
+    loadMore: '.productcollection__loadmore'
 };
 
 (function(document) {

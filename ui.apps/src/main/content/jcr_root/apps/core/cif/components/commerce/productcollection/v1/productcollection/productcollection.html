@@ -15,7 +15,8 @@
           data-sly-use.itemTemplate="item.html"
           data-sly-use.sortingTemplate="sorting.html"
           data-sly-use.paginationTemplate="paginationbar.html"
-          data-sly-use.facetSelectorTemplate="facetselector.html">
+          data-sly-use.facetSelectorTemplate="facetselector.html"
+          data-sly-use.loadMoreTemplate="loadmore.html">
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
      <div class="results__count">
@@ -31,6 +32,7 @@
           <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
                <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
           </div>
+          <sly data-sly-call="${loadMoreTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
      </section>
 </sly>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
@@ -38,6 +40,3 @@
      data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
 
 </template>
-
-<sly data-sly-use.productCollectionModel="com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection"
-     data-sly-call="${productCollection @ productCollection = productCollectionModel}"></sly>
