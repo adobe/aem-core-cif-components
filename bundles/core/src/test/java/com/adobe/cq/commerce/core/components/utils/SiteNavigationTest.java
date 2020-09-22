@@ -20,10 +20,17 @@ import java.util.Map;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
+import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
+import com.google.common.base.Function;
+import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,5 +76,43 @@ public class SiteNavigationTest {
         when(contentResource.getValueMap()).thenReturn(properties);
         when(page.getContentResource()).thenReturn(contentResource);
         return page;
+    }
+
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content-breadcrumb.json");
+
+    private static AemContext createContext(String contentPath) {
+        return new AemContext(
+            (AemContextCallback) context -> {
+                context.load().json(contentPath, "/content");
+                context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    @Test
+    public void testNavigationWithLaunchAndLandingPage() {
+        String launchPagePath = "/content/launches/2020/09/14/mylaunch/content/venia/us/en";
+        Page page = context.pageManager().getPage(launchPagePath);
+
+        // The cq:cifProductPage property is configured on the Launch page itself
+        Page productPage = SiteNavigation.getProductPage(page);
+        Assert.assertEquals(launchPagePath + "/products/product-page", productPage.getPath());
+
+        // The cq:cifProductPage property is configured on the production page and has a corresponding page in the Launch
+        Page categoryPage = SiteNavigation.getCategoryPage(page);
+        Assert.assertEquals(launchPagePath + "/products/category-page", categoryPage.getPath());
+
+        // The cq:cifSearchResultsPage property is configured on the production page and does not have a corresponding page in the Launch
+        Page searchPage = SiteNavigation.getSearchResultsPage(page);
+        Assert.assertEquals("/content/venia/us/en/products/search-page", searchPage.getPath());
+
+        // That property is missing
+        Page propertyNotFound = SiteNavigation.getGenericPage("cq:unknown", page);
+        Assert.assertNull(propertyNotFound);
+
+        // The page does not exist
+        Page pageNotFound = SiteNavigation.getGenericPage("cq:notfound", page);
+        Assert.assertNull(pageNotFound);
     }
 }

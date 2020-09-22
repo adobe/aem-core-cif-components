@@ -104,13 +104,17 @@ public class ProductImplTest {
     private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
 
     private Resource productResource;
+    private Resource pageResource;
     private ProductImpl productModel;
     private ProductInterface product;
     private HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
+        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+
         httpClient = mock(HttpClient.class);
 
         context.currentResource(PRODUCT);
@@ -397,6 +401,7 @@ public class ProductImplTest {
     @Test
     public void testProductNoGraphqlClient() {
         when(productResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         productModel = context.request().adaptTo(ProductImpl.class);
 
         Assert.assertFalse("Product is not found", productModel.getFound());
