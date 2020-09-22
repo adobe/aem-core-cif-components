@@ -52,6 +52,7 @@ describe('Cart actions', () => {
     it('handles the "addToCart" action and updates state', async () => {
         const physicalCartItems = [];
         const virtualCartItems = [];
+        const bundleCartItems = [];
         const cart = { cartId: 'guest123' };
 
         await addItemToCart({
@@ -61,6 +62,7 @@ describe('Cart actions', () => {
             dispatch,
             physicalCartItems,
             virtualCartItems,
+            bundleCartItems,
             cartId: cart.cartId
         });
 
@@ -79,6 +81,7 @@ describe('Cart actions', () => {
         const dispatch = jest.fn();
         const physicalCartItems = [];
         const virtualCartItems = [];
+        const bundleCartItems = [];
         const cart = {};
 
         await addItemToCart({
@@ -88,6 +91,7 @@ describe('Cart actions', () => {
             dispatch,
             physicalCartItems,
             virtualCartItems,
+            bundleCartItems,
             cart
         });
 

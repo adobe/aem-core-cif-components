@@ -109,7 +109,9 @@ public class BreadcrumbImpl implements Breadcrumb {
     }
 
     private void populateItems(NavigationItem item) {
-        Page page = item.getPage();
+
+        // We build the breadcrumb based on the production version of the page structure
+        Page page = SiteNavigation.toLaunchProductionPage(item.getPage());
         Resource contentResource = page.getContentResource();
 
         // If we encounter the catalog page and it's configured to show the main categories, we skip that page
@@ -121,11 +123,11 @@ public class BreadcrumbImpl implements Breadcrumb {
 
         // For product and category pages, we fetch the breadcrumbs
         boolean isProductPage = isProductPage(page);
-        boolean isCategoyPage = isCategoryPage(page);
+        boolean isCategoryPage = isCategoryPage(page);
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
         if (isProductPage) {
             categoriesBreadcrumbs = fetchProductBreadcrumbs();
-        } else if (isCategoyPage) {
+        } else if (isCategoryPage) {
             categoriesBreadcrumbs = fetchCategoryBreadcrumbs();
         } else if (isSpecificPage(page)) {
             return; // it's a specific product or category page, it has already been processed by the generic product or category page
@@ -155,7 +157,7 @@ public class BreadcrumbImpl implements Breadcrumb {
         }
 
         // The category itself is not included by Magento in the breadcrumb, so we also add it
-        addCategoryItem(categoryBreadcrumb, isCategoyPage);
+        addCategoryItem(categoryBreadcrumb, isCategoryPage);
 
         // We finally add the product if it's a product page
         if (isProductPage) {
@@ -258,18 +260,26 @@ public class BreadcrumbImpl implements Breadcrumb {
         if (productPage == null) {
             productPage = SiteNavigation.getProductPage(currentPage);
         }
-        return productPage != null ? page.getPath().equals(productPage.getPath()) : false;
+        // The product page might be in a Launch so we use 'endsWith' to compare the paths, for example
+        // - product page: /content/launches/2020/09/15/mylaunch/content/venia/us/en/products/category-page
+        // - current page: /content/venia/us/en/products/category-page
+        return productPage != null ? productPage.getPath().endsWith(page.getPath()) : false;
     }
 
     private boolean isCategoryPage(Page page) {
         if (categoryPage == null) {
             categoryPage = SiteNavigation.getCategoryPage(currentPage);
         }
-        return categoryPage != null ? page.getPath().equals(categoryPage.getPath()) : false;
+        // See comment above
+        return categoryPage != null ? categoryPage.getPath().endsWith(page.getPath()) : false;
     }
 
     private boolean isSpecificPage(Page page) {
+        // The product or category page might be in a Launch so we first extract the paths of the production versions
+        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+
         String path = page.getPath();
-        return (path.startsWith(productPage.getPath() + "/") || path.startsWith(categoryPage.getPath() + "/"));
+        return (path.contains(productPagePath + "/") || path.contains(categoryPagePath + "/"));
     }
 }

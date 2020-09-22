@@ -21,7 +21,8 @@ import i18n from '../../../../__mocks__/i18nForTests';
 describe('<Select>', () => {
     const requiredItem = {
         option_id: 1,
-        required: true
+        required: true,
+        quantity: 1
     };
 
     const sortedOptions = [
@@ -57,7 +58,7 @@ describe('<Select>', () => {
             <I18nextProvider i18n={i18n}>
                 <Select
                     item={requiredItem}
-                    sortedOptions={sortedOptions}
+                    options={sortedOptions}
                     customization={customization}
                     handleSelectionChange={handleSelectionChange}
                 />
@@ -72,7 +73,7 @@ describe('<Select>', () => {
             <I18nextProvider i18n={i18n}>
                 <Select
                     item={requiredItem}
-                    sortedOptions={sortedOptions}
+                    options={sortedOptions}
                     customization={customization}
                     handleSelectionChange={handleSelectionChange}
                 />
@@ -90,7 +91,7 @@ describe('<Select>', () => {
         ];
 
         expect(handleSelectionChange).toHaveBeenCalledTimes(1);
-        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, newCustomization);
+        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
     });
 
     it('disables quantity change', async () => {
@@ -105,7 +106,7 @@ describe('<Select>', () => {
             <I18nextProvider i18n={i18n}>
                 <Select
                     item={requiredItem}
-                    sortedOptions={sortedOptions}
+                    options={sortedOptions}
                     customization={quantityDisableCustomization}
                     handleSelectionChange={handleSelectionChange}
                 />

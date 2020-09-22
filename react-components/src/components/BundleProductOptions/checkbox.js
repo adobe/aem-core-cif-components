@@ -16,7 +16,7 @@ import { array, shape, func, bool, number } from 'prop-types';
 import Price from '../Price';
 
 const Checkbox = props => {
-    const { item, customization, sortedOptions, handleSelectionChange } = props;
+    const { item, customization, options, handleSelectionChange } = props;
 
     const onChange = event => {
         const { checked, value } = event.target;
@@ -24,18 +24,18 @@ const Checkbox = props => {
 
         if (checked) {
             newCustomization = [...customization];
-            const { id, quantity, price } = sortedOptions.find(o => o.id == value);
-            newCustomization.push({ id, quantity, price });
+            const { id, price, quantity } = options.find(o => o.id == value);
+            newCustomization.push({ id, price, quantity });
         } else {
             newCustomization = customization.filter(c => c.id != value);
         }
 
-        handleSelectionChange(item.option_id, newCustomization);
+        handleSelectionChange(item.option_id, 1, newCustomization);
     };
 
     return (
         <>
-            {sortedOptions.map(o => (
+            {options.map(o => (
                 <div key={`option-${item.option_id}-${o.id}`} className="bundleProduct__option">
                     <label>
                         <input
@@ -61,7 +61,7 @@ Checkbox.propTypes = {
         option_id: number.isRequired
     }),
     customization: array.isRequired,
-    sortedOptions: array.isRequired,
+    options: array.isRequired,
     handleSelectionChange: func.isRequired
 };
 
