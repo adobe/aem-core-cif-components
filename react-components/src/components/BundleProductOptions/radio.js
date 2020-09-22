@@ -20,7 +20,7 @@ import Price from '../Price';
 const Radio = props => {
     const { item, customization, options, handleSelectionChange } = props;
     const { quantity } = item;
-    const { can_change_quantity } = options.find(o => o.id === customization[0].id);
+    const { can_change_quantity } = customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
     const [t] = useTranslation('cart');
 
     const onChange = event => {

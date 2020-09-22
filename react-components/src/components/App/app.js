@@ -83,8 +83,6 @@ const App = props => {
                     const filteredData = result.data.__schema.types.filter(type => type.possibleTypes !== null);
                     result.data.__schema.types = filteredData;
 
-                    console.log(sessionStorage);
-
                     graphQlFragmentTypes = JSON.stringify(result.data);
                     sessionStorage.setItem('graphQlFragmentTypes', graphQlFragmentTypes);
 
