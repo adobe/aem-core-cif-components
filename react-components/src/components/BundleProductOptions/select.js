@@ -16,27 +16,30 @@ import { array, shape, func, bool, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const Select = props => {
-    const { item, customization, sortedOptions, handleSelectionChange } = props;
-    const canChangeQuantity = sortedOptions.find(o => o.id === customization[0].id).can_change_quantity;
+    const { item, customization, options, handleSelectionChange } = props;
+    const { quantity } = item;
+    const { can_change_quantity } =
+        customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
     const [t] = useTranslation('cart');
 
     const onChange = event => {
         const { value } = event.target;
-        const newCustomization = sortedOptions
+        let newQuantity = 1;
+        const newCustomization = options
             .filter(o => o.id == value)
             .map(o => {
-                return { id: o.id, quantity: o.quantity, price: o.price };
+                newQuantity = o.quantity;
+                return { id: o.id, quantity: newQuantity, price: o.price };
             });
-        handleSelectionChange(item.option_id, newCustomization);
+
+        handleSelectionChange(item.option_id, newQuantity, newCustomization);
     };
 
     const onQuantityChange = event => {
         try {
-            const quantity = parseInt(event.target.value);
-            if (quantity > 0) {
-                handleSelectionChange(item.option_id, [
-                    { ...customization[0], quantity: parseInt(event.target.value) }
-                ]);
+            const newQuantity = parseInt(event.target.value);
+            if (newQuantity > 0) {
+                handleSelectionChange(item.option_id, newQuantity, customization);
             }
         } catch {
             throw new Error('Invalid quantity entered');
@@ -55,7 +58,7 @@ const Select = props => {
                             value={customization[0]?.id}
                             onChange={onChange}>
                             {!item.required && <option value="">None</option>}
-                            {sortedOptions.map(o => (
+                            {options.map(o => (
                                 <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
                                     {o.label}
                                 </option>
@@ -89,8 +92,8 @@ const Select = props => {
                 type="number"
                 min="1"
                 className="option__quantity"
-                disabled={!canChangeQuantity}
-                value={customization[0]?.quantity}
+                disabled={!can_change_quantity}
+                value={quantity}
                 onChange={onQuantityChange}
             />
         </>
@@ -100,10 +103,11 @@ const Select = props => {
 Select.propTypes = {
     item: shape({
         required: bool.isRequired,
-        option_id: number.isRequired
+        option_id: number.isRequired,
+        quantity: number.isRequired
     }),
     customization: array.isRequired,
-    sortedOptions: array.isRequired,
+    options: array.isRequired,
     handleSelectionChange: func.isRequired
 };
 

@@ -32,8 +32,8 @@ const Product = props => {
     const { item } = props;
     const [t] = useTranslation('cart');
 
-    const { product = {}, quantity = 0, id = '', prices } = item;
-    const { thumbnail, name } = product;
+    const { product = {}, quantity = 0, id = '', prices, bundle_options = [] } = item;
+    const { thumbnail, name, __typename } = product;
     const [, { removeItem, editItem }] = useProduct({ item });
 
     let { price, row_total } = prices;
@@ -54,18 +54,29 @@ const Product = props => {
         <li className={classes.root} data-testid="cart-item">
             {productImage}
             <div className={classes.name}>{name}</div>
+            {__typename === 'BundleProduct' && (
+                <div className={classes.bundleOptions}>
+                    {bundle_options.map(o => (
+                        <div key={`${o.id}`}>
+                            <p className={classes.bundleOptionTitle}>{o.label}:</p>
+                            {o.values.map(v => (
+                                <p key={`${o.id}-${v.id}`} className={classes.bundleOptionValue}>
+                                    {`${v.quantity} x ${v.label} `}
+                                    <Price currencyCode={price.currency} value={v.price} />
+                                </p>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )}
             <div className={classes.quantity}>
                 <div className={classes.quantityRow}>
                     <span>{quantity}</span>
                     <span className={classes.quantityOperator}>{'×'}</span>
-                    <span className={classes.price}>
-                        <Price currencyCode={price.currency} value={price.value} />
-                    </span>
+                    <Price className={classes.price} currencyCode={price.currency} value={price.value} />
                 </div>
                 <div className={classes.rowTotalRow}>
-                    <span className={classes.rowTotal}>
-                        <Price currencyCode={row_total.currency} value={row_total.value} />
-                    </span>
+                    <Price className={classes.rowTotal} currencyCode={row_total.currency} value={row_total.value} />
                 </div>
             </div>
             <Kebab>

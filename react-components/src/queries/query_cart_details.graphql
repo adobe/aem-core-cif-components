@@ -95,6 +95,19 @@ query cartDetails($cartId: String!) {
                     url
                 }
             }
+            ... on BundleCartItem {
+                bundle_options {
+                    id
+                    label
+                    type
+                    values {
+                        id
+                        label
+                        price
+                        quantity
+                    }
+                }
+            }
         }
     }
 }

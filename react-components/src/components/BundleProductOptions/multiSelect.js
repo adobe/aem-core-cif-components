@@ -15,18 +15,18 @@ import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
 
 const MultiSelect = props => {
-    const { item, customization, sortedOptions, handleSelectionChange } = props;
+    const { item, customization, options, handleSelectionChange } = props;
 
     const onChange = event => {
         const values = Array.from(event.target.options)
             .filter(e => e.selected)
             .map(e => e.value);
-        const newCustomization = sortedOptions
+        const newCustomization = options
             .filter(o => values.includes(o.id.toString()))
             .map(o => {
                 return { id: o.id, quantity: o.quantity, price: o.price };
             });
-        handleSelectionChange(item.option_id, newCustomization);
+        handleSelectionChange(item.option_id, 1, newCustomization);
     };
 
     return (
@@ -37,7 +37,7 @@ const MultiSelect = props => {
             size="5"
             value={customization.map(c => c.id)}
             onChange={onChange}>
-            {sortedOptions.map(o => (
+            {options.map(o => (
                 <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
                     {o.label}
                 </option>
@@ -52,7 +52,7 @@ MultiSelect.propTypes = {
         option_id: number.isRequired
     }),
     customization: array.isRequired,
-    sortedOptions: array.isRequired,
+    options: array.isRequired,
     handleSelectionChange: func.isRequired
 };
 
