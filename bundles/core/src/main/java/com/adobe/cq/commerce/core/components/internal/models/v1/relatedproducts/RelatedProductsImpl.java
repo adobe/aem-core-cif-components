@@ -78,7 +78,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
             return;
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;

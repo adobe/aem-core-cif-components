@@ -15,7 +15,7 @@ import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, fireEvent, waitForDomChange } from '@testing-library/react';
-import * as ConfigContext from '../../../context/ConfigContext';
+import ConfigContext from '../../../context/ConfigContext';
 import * as hooks from '../../../utils/hooks';
 
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -23,21 +23,16 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
 
-describe('<BundleProductOptions>', () => {
-    beforeAll(() => {
-        // mock useConfigContext to return the necessary node selector
-        jest.spyOn(ConfigContext, 'useConfigContext').mockImplementation(() => {
-            return {
-                mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' }
-            };
-        });
-    });
+const config = { mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' } };
 
+describe('<BundleProductOptions>', () => {
     it('renders the component with no sku', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <BundleProductOptions />
+                    <ConfigContext config={config}>
+                        <BundleProductOptions />
+                    </ConfigContext>
                 </MockedProvider>
             </I18nextProvider>
         );
@@ -52,7 +47,9 @@ describe('<BundleProductOptions>', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <BundleProductOptions />
+                    <ConfigContext config={config}>
+                        <BundleProductOptions />
+                    </ConfigContext>
                 </MockedProvider>
             </I18nextProvider>,
             {
@@ -93,6 +90,10 @@ describe('<BundleProductOptions>', () => {
             });
         });
 
+        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+            return event.detail;
+        });
+
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
@@ -100,7 +101,9 @@ describe('<BundleProductOptions>', () => {
         const { container, getByRole } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
-                    <BundleProductOptions />
+                    <ConfigContext config={config}>
+                        <BundleProductOptions />
+                    </ConfigContext>
                 </MockedProvider>
             </I18nextProvider>,
             {
@@ -112,5 +115,30 @@ describe('<BundleProductOptions>', () => {
 
         await waitForDomChange({ container });
         expect(container).toMatchSnapshot();
+
+        fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
+
+        // Remove a required item to disable Add to Cart
+        fireEvent.click(getByRole('checkbox', { name: '1 x Carmina Necklace + $78.00' }));
+        fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
+
+        // Add to cart should be called just once since the second click was on a disabled button
+        expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+
+        // The mock dispatchEvent function returns the CustomEvent detail
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                bundle: true,
+                options: [
+                    { id: 1, quantity: 1, value: ['1'] },
+                    { id: 2, quantity: 1, value: ['3'] },
+                    { id: 3, quantity: 1, value: ['5'] },
+                    { id: 4, quantity: 1, value: ['7', '8'] }
+                ],
+                quantity: 1,
+                sku: 'VA24',
+                virtual: false
+            }
+        ]);
     });
 });

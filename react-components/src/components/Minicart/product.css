@@ -64,6 +64,21 @@
     float: right;
 }
 
+.bundleOptions {
+    padding: 3px 0 7px;
+}
+
+.bundleOptionTitle {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 7px 0 3px;
+}
+
+.bundleOptionValue {
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+}
+
 .mask {
     position: absolute;
     left: -24px;
