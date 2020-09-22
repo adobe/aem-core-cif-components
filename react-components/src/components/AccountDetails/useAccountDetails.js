@@ -11,13 +11,33 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useMemo } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
 const useAccountDetails = props => {
     const { getCustomerInformation } = props;
     const [{ isSignedIn }] = useUserContext();
+
+    const [isUpdateMode, setIsUpdateMode] = useState(false);
+    const [showNewPassword, setShowNewPasword] = useState(false);
+
+    const showEditForm = useCallback(() => {
+        setIsUpdateMode(true);
+    }, [setIsUpdateMode]);
+
+    const handleCancel = useCallback(() => {
+        setIsUpdateMode(false);
+        setShowNewPasword(false);
+    }, [setIsUpdateMode, setShowNewPasword]);
+
+    const showNewPasswordFields = useCallback(() => {
+        setShowNewPasword(true);
+    }, [setShowNewPasword]);
+
+    const handleChangePassword = () => {
+        console.log(`Change password mutation goes here`);
+    };
 
     const { data: accountInformationData, loading: accountInformationLoading } = useQuery(getCustomerInformation, {
         skip: !isSignedIn,
@@ -33,7 +53,15 @@ const useAccountDetails = props => {
         }
     }, [accountInformationData]);
 
-    return { initialValues, isSignedIn };
+    return {
+        initialValues,
+        isSignedIn,
+        isUpdateMode,
+        showEditForm,
+        handleCancel,
+        showNewPassword,
+        showNewPasswordFields
+    };
 };
 
 export default useAccountDetails;

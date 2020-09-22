@@ -11,4 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './AccountDetails';
+
+import React from 'react';
+import { render } from '@testing-library/react';
+
+import EditForm from '../editForm';
+
+describe('<EditForm>', () => {
+    it('renders a form with the "Change password" button', () => {
+        const { asFragment } = render(<EditForm />);
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders a form without the "Change password" button', () => {
+        const { asFragment } = render(<EditForm shouldShowNewPassword={true} />);
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+});
