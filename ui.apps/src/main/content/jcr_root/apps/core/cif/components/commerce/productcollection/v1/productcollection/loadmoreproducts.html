@@ -13,13 +13,13 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.productCollection="${@ productCollection}"
           data-sly-use.itemTemplate="item.html"
-          data-sly-use.loadMoreTemplate="loadmore.html">
+          data-sly-use.loadMoreButtonTemplate="loadmorebutton.html">
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
     <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
         <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
     </div>
-    <sly data-sly-call="${loadMoreTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
+    <sly data-sly-call="${loadMoreButtonTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
 </sly>
 
 </template>

@@ -16,7 +16,7 @@
           data-sly-use.sortingTemplate="sorting.html"
           data-sly-use.paginationTemplate="paginationbar.html"
           data-sly-use.facetSelectorTemplate="facetselector.html"
-          data-sly-use.loadMoreTemplate="loadmore.html">
+          data-sly-use.loadMoreButtonTemplate="loadmorebutton.html">
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
      <div class="results__count">
@@ -32,11 +32,12 @@
           <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
                <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
           </div>
-          <sly data-sly-call="${loadMoreTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
      </section>
+     <sly data-sly-test="${productCollection.paginationType == 'loadmorebutton'}"
+          data-sly-call="${loadMoreButtonTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
 </sly>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
-<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts}"
+<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts && productCollection.paginationType == 'paginationbar'}"
      data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
 
 </template>

@@ -137,6 +137,7 @@
           "productcollection2": {
             "loadClientPrice": false,
             "pageSize": 8,
+            "paginationType": "loadmorebutton",
             "sling:resourceType": "venia/components/commerce/productcollection"
           }
         }

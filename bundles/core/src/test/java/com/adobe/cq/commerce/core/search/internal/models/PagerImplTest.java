@@ -37,6 +37,8 @@ public class PagerImplTest {
         PagerImpl pager = new PagerImpl(Collections.singletonMap(PARAMETER_KEY, PARAMETER_VALUE), TOTAL_PAGES, CURRENT_PAGE);
         final List<PagerPage> pagerPages = pager.getPages();
 
+        assertThat(pager.getCurrentPage()).isEqualTo(CURRENT_PAGE);
+        assertThat(pager.getTotalPages()).isEqualTo(TOTAL_PAGES);
         assertThat(pagerPages.get(0).getParameters().size()).isEqualTo(2);
         assertThat(pagerPages.get(0).getParameters()).containsKey("page");
         assertThat(pagerPages.get(0).getParameters()).containsKey(PARAMETER_KEY);

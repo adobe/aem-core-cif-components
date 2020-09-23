@@ -185,7 +185,8 @@ class ProductCollection {
         // If any, append the new "load more" button
         let newloadMoreButton = more.querySelector(ProductCollection.selectors.loadMore);
         if (newloadMoreButton) {
-            galleryItems.parentNode.insertBefore(newloadMoreButton, galleryItems.nextSibling);
+            let galleryRoot = document.querySelector(ProductCollection.selectors.galleryRoot);
+            galleryRoot.parentNode.insertBefore(newloadMoreButton, galleryRoot.nextSibling);
             newloadMoreButton.addEventListener('click', () => this._loadMore(newloadMoreButton));
         }
     }
@@ -196,6 +197,7 @@ ProductCollection.selectors = {
     price: '.price',
     item: '.item__root[role=product]',
     sortKey: '.sort__fields .sort__key',
+    galleryRoot: '.gallery__root',
     galleryItems: '.gallery__items',
     loadMore: '.productcollection__loadmore'
 };
