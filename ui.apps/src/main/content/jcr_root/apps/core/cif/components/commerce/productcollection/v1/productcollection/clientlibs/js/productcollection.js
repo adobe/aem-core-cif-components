@@ -22,7 +22,7 @@ class ProductCollection {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
 
-        let loadMoreButton = document.querySelector(ProductCollection.selectors.loadMore);
+        let loadMoreButton = document.querySelector(ProductCollection.selectors.loadMoreButton);
         if (loadMoreButton) {
             loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
         }
@@ -161,16 +161,25 @@ class ProductCollection {
     }
     
     async _loadMore(loadMoreButton) {
+        
+        // Hide load more button and show spinner
+        loadMoreButton.style.display = 'none';
+        let spinner = document.querySelector(ProductCollection.selectors.loadMoreSpinner);
+        spinner.style.display = 'block';
+        
         let url = loadMoreButton.dataset.loadMore;
         console.log('Loading more from ' + url);
         let response = await fetch(url);
         if (!response.ok || response.errors) {
+            // The query failed, we show the button again
+            loadMoreButton.style.display = 'block';
             let message = await response.text();
             throw new Error(message);
         }
         
-        // Delete load more button
+        // Delete load more button and hide spinner
         loadMoreButton.parentNode.removeChild(loadMoreButton);
+        spinner.style.display = 'none';
         
         // Parse response and only select product items
         let text = await response.text();
@@ -183,10 +192,9 @@ class ProductCollection {
         galleryItems.append(...moreItems);
         
         // If any, append the new "load more" button
-        let newloadMoreButton = more.querySelector(ProductCollection.selectors.loadMore);
+        let newloadMoreButton = more.querySelector(ProductCollection.selectors.loadMoreButton);
         if (newloadMoreButton) {
-            let galleryRoot = document.querySelector(ProductCollection.selectors.galleryRoot);
-            galleryRoot.parentNode.insertBefore(newloadMoreButton, galleryRoot.nextSibling);
+            spinner.parentNode.insertBefore(newloadMoreButton, spinner);
             newloadMoreButton.addEventListener('click', () => this._loadMore(newloadMoreButton));
         }
     }
@@ -197,9 +205,9 @@ ProductCollection.selectors = {
     price: '.price',
     item: '.item__root[role=product]',
     sortKey: '.sort__fields .sort__key',
-    galleryRoot: '.gallery__root',
     galleryItems: '.gallery__items',
-    loadMore: '.productcollection__loadmore'
+    loadMoreButton: '.loadmore__button',
+    loadMoreSpinner: '.loadmore__spinner'
 };
 
 (function(document) {
