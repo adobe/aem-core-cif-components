@@ -114,7 +114,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       class="changePasswordButtonContainer"
     >
       <button
-        classes="changePasswordButton"
+        classes="[object Object]"
         type="button"
       >
         <span>

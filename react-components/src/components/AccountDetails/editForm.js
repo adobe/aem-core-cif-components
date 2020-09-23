@@ -16,7 +16,7 @@ import React, { Fragment } from 'react';
 import { bool, func } from 'prop-types';
 
 import Field from '../Field';
-import Button from '../Button';
+import LinkButton from '../LinkButton';
 import TextInput from '../TextInput';
 import { isRequired } from '../../utils/formValidators';
 import { useTranslation } from 'react-i18next';
@@ -28,9 +28,9 @@ const EditForm = props => {
     const [t] = useTranslation('account');
     const maybeShowChangePasswordButton = !shouldShowNewPassword && (
         <div className={classes.changePasswordButtonContainer}>
-            <Button type="button" classes={classes.changePasswordButton} onClick={handleChangePassword}>
+            <LinkButton type="button" classes={classes.changePasswordButton} onClick={handleChangePassword}>
                 {t('account:change-password', 'Change Password')}
-            </Button>
+            </LinkButton>
         </div>
     );
 
