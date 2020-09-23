@@ -35,7 +35,8 @@ ConfigContextProvider.propTypes = {
             bundleProductOptionsContainer: PropTypes.string
         }),
         pagePaths: PropTypes.shape({
-            addressBook: PropTypes.string
+            addressBook: PropTypes.string,
+            baseUrl: PropTypes.string
         })
     }).isRequired
 };

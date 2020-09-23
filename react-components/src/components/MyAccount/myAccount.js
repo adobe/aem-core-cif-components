@@ -27,7 +27,7 @@ import { useConfigContext } from '../../context/ConfigContext';
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, inProgress }, { signOut }] = useUserContext();
-    const { pagePaths } = useConfigContext();
+    const { pagePaths, storeView } = useConfigContext();
     const [, dispatch] = useCartState();
     const [t] = useTranslation('account');
 
@@ -45,6 +45,7 @@ const MyAccount = props => {
         if (showMenu) {
             showMenu();
         }
+        window.location.href = pagePaths.baseUrl;
     };
 
     return (
