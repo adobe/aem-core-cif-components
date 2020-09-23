@@ -16,7 +16,8 @@ import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, waitForElement } from '@testing-library/react';
 
-import { useCountries } from '../hooks';
+import { useCountries, useQueryParams } from '../hooks';
+
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
 
 const mocks = [
@@ -71,6 +72,17 @@ describe('Custom hooks', () => {
             const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
             expect(count.textContent).toEqual('2');
             expect(result.textContent).toEqual('US');
+        });
+    });
+
+    describe('useQueryParams', () => {
+        it('returns a URLSearchParams object', () => {
+            delete window.location;
+            window.location = new URL('http://localhost?token=my-token&page=5');
+
+            const queryParams = useQueryParams();
+            expect(queryParams.get('token')).toEqual('my-token');
+            expect(queryParams.get('page')).toEqual('5');
         });
     });
 });
