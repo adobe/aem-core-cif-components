@@ -55,7 +55,7 @@ const Dialog = props => {
     return (
         <Portal selector={rootContainerSelector}>
             <aside className={rootClass}>
-                <Form className={classes.form} {...formProps} onSubmit={onConfirm}>
+                <Form className={classes.form} initialValues={formProps} onSubmit={onConfirm}>
                     {/* The Mask. */}
                     <button className={classes.mask} disabled={isMaskDisabled} onClick={onCancel} type="reset" />
                     {/* The Dialog. */}

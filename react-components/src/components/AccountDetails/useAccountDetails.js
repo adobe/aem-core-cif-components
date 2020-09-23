@@ -12,15 +12,20 @@
  *
  ******************************************************************************/
 import { useMemo, useCallback, useState } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
 const useAccountDetails = props => {
-    const { getCustomerInformation } = props;
+    const { getCustomerInformationQuery, setCustomerInformationMutation } = props;
     const [{ isSignedIn }] = useUserContext();
 
     const [isUpdateMode, setIsUpdateMode] = useState(false);
-    const [showNewPassword, setShowNewPasword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+
+    const [
+        setCustomerInformation,
+        { data: updateCustomerInformationData, loading: isUpdatingCustomer, error: customerInformationUpdateError }
+    ] = useMutation(setCustomerInformationMutation);
 
     const showEditForm = useCallback(() => {
         setIsUpdateMode(true);
@@ -28,18 +33,39 @@ const useAccountDetails = props => {
 
     const handleCancel = useCallback(() => {
         setIsUpdateMode(false);
-        setShowNewPasword(false);
-    }, [setIsUpdateMode, setShowNewPasword]);
+        setShowNewPassword(false);
+    }, [setIsUpdateMode, setShowNewPassword]);
 
     const showNewPasswordFields = useCallback(() => {
-        setShowNewPasword(true);
-    }, [setShowNewPasword]);
+        setShowNewPassword(true);
+    }, [setShowNewPassword]);
 
-    const handleChangePassword = () => {
-        console.log(`Change password mutation goes here`);
+    const handleSubmit = async values => {
+        console.log(`Got some values`, values);
+        const { firstname, lastname, email, password } = values;
+        try {
+            if (
+                initialValues.firstname !== firstname ||
+                initialValues.lastname !== lastname ||
+                initialValues.email !== email
+            ) {
+                await setCustomerInformation({
+                    variables: {
+                        firstname,
+                        lastname,
+                        email,
+                        password
+                    }
+                });
+
+                handleCancel();
+            }
+        } catch {
+            return;
+        }
     };
 
-    const { data: accountInformationData, loading: accountInformationLoading } = useQuery(getCustomerInformation, {
+    const { data: accountInformationData, loading: accountInformationLoading } = useQuery(getCustomerInformationQuery, {
         skip: !isSignedIn,
         fetchPolicy: 'cache-and-network',
         nextFetchPolicy: 'cache-first'
@@ -55,10 +81,13 @@ const useAccountDetails = props => {
 
     return {
         initialValues,
+        formErrors: [customerInformationUpdateError],
         isSignedIn,
         isUpdateMode,
+        isDisabled: isUpdatingCustomer,
         showEditForm,
         handleCancel,
+        handleSubmit,
         showNewPassword,
         showNewPasswordFields
     };

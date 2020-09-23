@@ -15,23 +15,36 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Dialog from '../Dialog';
+import FormError from '../FormError';
+
 import EditForm from './editForm';
 
 const EditModal = props => {
-    const { initialValues, isOpen, onCancel, onConfirm, isDisabled, onChangePassword, shouldShowNewPassword } = props;
+    const {
+        initialValues,
+        isOpen,
+        onCancel,
+        onSubmit,
+        isDisabled,
+        onChangePassword,
+        shouldShowNewPassword,
+        formErrors
+    } = props;
     const [t] = useTranslation('account');
+    console.log(`Got initial values `, initialValues);
     return (
         <Dialog
             confirmText="Save"
             formProps={initialValues}
             isOpen={isOpen}
             onCancel={onCancel}
-            onConfirm={onConfirm}
+            onConfirm={onSubmit}
             shouldDisableAllButtons={isDisabled}
             shouldDisableConfirmButton={isDisabled}
             title={t('account:edit-account-info', 'Edit account information')}
             rootContainerSelector="#accountdetails"
             isModal={true}>
+            <FormError errors={formErrors} />
             <EditForm handleChangePassword={onChangePassword} shouldShowNewPassword={shouldShowNewPassword} />
         </Dialog>
     );

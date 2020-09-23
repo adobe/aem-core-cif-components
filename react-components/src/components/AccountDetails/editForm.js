@@ -18,6 +18,8 @@ import { bool, func } from 'prop-types';
 import Field from '../Field';
 import LinkButton from '../LinkButton';
 import TextInput from '../TextInput';
+import Password from '../Password';
+
 import { isRequired } from '../../utils/formValidators';
 import { useTranslation } from 'react-i18next';
 
@@ -34,6 +36,18 @@ const EditForm = props => {
         </div>
     );
 
+    const maybeShowNewPasswordField = shouldShowNewPassword ? (
+        <div className={classes.newPassword}>
+            <Password
+                fieldName="newPassword"
+                label={t('account:new-password', 'New Password')}
+                isToggleButtonHidden={false}
+            />
+        </div>
+    ) : null;
+    const passwordLabel = shouldShowNewPassword
+        ? t('account:current-password', 'Current Password')
+        : t('account:password', 'Password');
     return (
         <Fragment>
             <div className={classes.root}>
@@ -52,8 +66,18 @@ const EditForm = props => {
                         <TextInput field="email" validate={isRequired} />
                     </Field>
                 </div>
+                <div className={classes.password}>
+                    <Password
+                        fieldName="password"
+                        label={passwordLabel}
+                        validate={isRequired}
+                        autoComplete="current-password"
+                        isToggleButtonHidden={false}
+                    />
+                </div>
                 {maybeShowChangePasswordButton}
             </div>
+            {maybeShowNewPasswordField}
         </Fragment>
     );
 };

@@ -11,13 +11,14 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Fragment } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import LoadingIndicator from '../LoadingIndicator';
 import Button from '../Button';
 
 import useAccountDetails from './useAccountDetails';
 import GET_CUSTOMER_INFORMATION from './query_get_customer_information.graphql';
+import UPDATE_CUSTOMER_INFORMATION from './mutation_update_customer_information.graphql';
 import classes from './accountDetails.css';
 import EditModal from './editModal';
 
@@ -31,10 +32,12 @@ const AccountDetails = () => {
         handleCancel,
         showNewPassword,
         showNewPasswordFields,
-        handleChangePassword,
-        isDisabled = false
+        handleSubmit,
+        isDisabled,
+        formErrors
     } = useAccountDetails({
-        getCustomerInformation: GET_CUSTOMER_INFORMATION
+        getCustomerInformationQuery: GET_CUSTOMER_INFORMATION,
+        setCustomerInformationMutation: UPDATE_CUSTOMER_INFORMATION
     });
 
     if (!isSignedIn) {
@@ -72,12 +75,13 @@ const AccountDetails = () => {
                 </span>
             </div>
             <EditModal
+                formErrors={formErrors}
                 initialValues={customer}
                 isDisabled={isDisabled}
                 isOpen={isUpdateMode}
                 onCancel={handleCancel}
                 onChangePassword={showNewPasswordFields}
-                onSubmit={handleChangePassword}
+                onSubmit={handleSubmit}
                 shouldShowNewPassword={showNewPassword}
             />
         </div>
