@@ -154,6 +154,7 @@ public class UrlProviderImpl implements UrlProvider {
      */
     private String parseIdentifier(IdentifierLocation identifierLocation, SlingHttpServletRequest request) {
         if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
+            // In case there are multiple selectors, the id is the last like in 'productlist.lazy.1.html`
             String[] selectors = request.getRequestPathInfo().getSelectors();
             return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
