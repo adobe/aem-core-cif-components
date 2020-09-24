@@ -11,11 +11,11 @@
   ~ governing permissions and limitations under the License.
   ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.pager="${@ pager}">
+<template data-sly-template.pager="${@ pager, addLazy}">
 
 <button data-sly-test="${pager.currentPage < pager.totalPages}" class="loadmore__button" 
      data-load-more="${resource.path @
-         selectors=['lazy', request.requestPathInfo.selectorString],
+         selectors=addLazy ? ['lazy', request.requestPathInfo.selectorString] : request.requestPathInfo.selectorString,
          extension='html',
          context='uri',
          query=pager.nextPageParameters}">${'Load more' @ i18n}</button>

@@ -34,7 +34,7 @@
           </div>
      </section>
      <sly data-sly-test="${productCollection.paginationType == 'loadmorebutton'}"
-          data-sly-call="${loadMoreButtonTemplate.pager @ pager = productCollection.searchResultsSet.pager}"></sly>
+          data-sly-call="${loadMoreButtonTemplate.pager @ pager = productCollection.searchResultsSet.pager, addLazy = true}"></sly>
 </sly>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
 <sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts && productCollection.paginationType == 'paginationbar'}"
