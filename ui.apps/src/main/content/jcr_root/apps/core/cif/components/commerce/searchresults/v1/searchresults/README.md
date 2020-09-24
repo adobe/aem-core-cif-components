@@ -38,6 +38,18 @@ This component is targeted for a search result display page showing the product 
 2. `page` parameter containing the current result page
 3. additional dynamic parameters based on search filter selection
 
+### Component Policy Configuration Properties
+The following configuration properties are used:
+
+1. `./loadClientPrice` - enables client-side price fetching
+2. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
+
+### Edit Dialog Properties
+
+The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
+
+1. `./pageSize` - the number of products shown on one page
+
 ## BEM Description
 
 ```
