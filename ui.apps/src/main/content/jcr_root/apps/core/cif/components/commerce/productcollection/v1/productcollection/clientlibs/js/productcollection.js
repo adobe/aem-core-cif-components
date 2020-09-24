@@ -199,6 +199,12 @@ class ProductCollection {
             spinner.parentNode.insertBefore(newloadMoreButton, spinner);
             newloadMoreButton.addEventListener('click', () => this._loadMore(newloadMoreButton));
         }
+
+        // Fetch prices
+        if (this._state.loadPrices) {
+            this._state.skus = Array.from(moreItems, item => item.dataset.sku);
+            this._fetchPrices();
+        }
     }
 }
 

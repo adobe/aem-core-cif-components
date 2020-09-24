@@ -245,6 +245,7 @@ describe('Productcollection', () => {
             `<button class="loadmore__button" data-load-more="http://more.products">Load more</button>
             <div class="loadmore__spinner"></div>`
         );
+        listRoot.dataset.loadClientPrice = true;
 
         let response = `
             <div class="item__root" data-sku="sku-e" role="product">
@@ -262,6 +263,10 @@ describe('Productcollection', () => {
         });
 
         let list = new ProductCollection({ element: listRoot });
+
+        // Check the skus before we load more products
+        assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
+
         list._fetchMoreProducts = sinon.stub().resolves(mockResponse);
         let loadMoreButton = listRoot.querySelector('.loadmore__button');
 
@@ -273,6 +278,10 @@ describe('Productcollection', () => {
 
             // Verify that the first load more button was replaced with the new button
             assert.equal(listRoot.querySelector('.loadmore__button').dataset.loadMore, 'http://more.products2');
+
+            // Check the skus after we load more products and check that the price loading function was called twice
+            assert.deepEqual(list._state.skus, ['sku-e']);
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.calledTwice);
         });
     });
 
