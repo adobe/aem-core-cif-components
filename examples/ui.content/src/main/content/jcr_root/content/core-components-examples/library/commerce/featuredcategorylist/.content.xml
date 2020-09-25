@@ -8,7 +8,7 @@
         cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
         jcr:description="Display a list of categories"
         jcr:primaryType="cq:PageContent"
-        jcr:title="Featured Category List"
+        jcr:title="Category Carousel"
         sling:resourceType="cif-components-examples/components/page">
         <root
             jcr:primaryType="nt:unstructured"
@@ -24,7 +24,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;h1>Featured Category List&lt;sub>v1&lt;/sub>&lt;/h1>"
+                    text="&lt;h1>Category Carousel&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text
                     cq:styleIds="[1544762734201]"
@@ -34,7 +34,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>The Featured Category List is a server side component written in HTL, allowing to display a list of categories. Authors can configure multiple categories via&amp;nbsp;Multifield&amp;nbsp;and&amp;nbsp;Category Picker&amp;nbsp;and use them on pages for displaying featured categories. The image displayed for each category is obtained from the commerce system or can be manually selected by the author.&lt;/p>&#xa;&lt;p>Note: due to the limited amount of sample data available, the link to the category pages will always display the same sample category data.&lt;/p>&#xa;"
+                    text="&lt;p>The Category Carousel is a server side component written in HTL, allowing to display a list of categories. Authors can configure multiple categories via&amp;nbsp;Multifield&amp;nbsp;and&amp;nbsp;Category Picker&amp;nbsp;and use them on pages for displaying featured categories. The image displayed for each category is obtained from the commerce system or can be manually selected by the author.&lt;/p>&#xa;&lt;p>Note: due to the limited amount of sample data available, the link to the category pages will always display the same sample category data.&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser
                     cq:styleIds="[1550165685463]"

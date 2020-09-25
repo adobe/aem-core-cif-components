@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-# Featured category list (v1)
+# Category Carousel (v1)
 
-Featured category list is a component for displaying list of categories. Authors can configure multiple categories via `Multifield` and `Category Picker` and use them on pages for displaying featured categories.
+Category Carousel is a component for displaying list of categories. Authors can configure multiple categories via `Multifield` and `Category Picker` and use them on pages for displaying featured categories.
 
 ## Features
 
@@ -27,7 +27,7 @@ Featured category list is a component for displaying list of categories. Authors
 
 ## API
 
-Featured Category List component uses graphql query to fetch categories to display image and name of the category .
+Category Carousel component uses graphql query to fetch categories to display image and name of the category .
 
 ### Dependencies
 
@@ -39,7 +39,7 @@ Make sure you have dispatcher running with Magento url configured. See `dispatch
 
 ### Use Object
 
-The Featured category list component uses the `com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList` Sling model as its Use-object.
+The Category Carousel component uses the `com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList` Sling model as its Use-object.
 
 ### Edit Dialog Properties
 
@@ -53,12 +53,19 @@ The following properties are written to JCR for this component and are expected 
 The component is styled using CSS classes. The CSS class structure is the following:
 
 ```
-BLOCK .cmp-categorylist 
-    ELEMENT cmp-categorylist__content
-    ELEMENT cmp-categorylist__anchor
+BLOCK .cmp-categorylist           
+    ELEMENT cmp-categorylist__anchor  
+    ELEMENT cmp-categorylist__btn 
+    ELEMENT cmp-categorylist__btn--next
+    ELEMENT cmp-categorylist__btn--prev
+    ELEMENT cmp-categorylist__card
+    ELEMENT cmp-categorylist__cardsroot
+    ELEMENT cmp-categorylist__content        
+    ELEMENT cmp-categorylist__header
     ELEMENT cmp-categorylist__imagewrapper
     ELEMENT cmp-categorylist__image
     ELEMENT cmp-categorylist__name
+    ELEMENT cmp-categorylist__parent
     ELEMENT cmp-categorylist__title 
 ```
 

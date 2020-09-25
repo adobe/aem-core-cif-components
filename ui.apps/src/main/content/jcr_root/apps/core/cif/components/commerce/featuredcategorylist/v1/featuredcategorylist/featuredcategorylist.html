@@ -15,21 +15,22 @@
 */-->
 
 <sly data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList"
-     data-sly-use.templates="core/wcm/components/commons/v1/templates.html" />
+     data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
+     data-sly-use.categorycardTpl="categorycard.html"/>
 
 <div data-sly-test.hasCategories="${category.categories.size}" class="cmp-categorylist">
     <div data-sly-test="${properties.jcr:title}" class="cmp-categorylist__header">
         <h2 class="cmp-categorylist__title">${properties.jcr:title}</h2>
     </div>
-    <div data-sly-list="${category.categories}" class="cmp-categorylist__content">
-        <a class="cmp-categorylist__anchor" href="${item.path}">
-            <span data-sly-test.hasImage=${item.image} class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});">
-                <img class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
-            </span>
-            <span data-sly-test=${!hasImage} class="cmp-categorylist__imagewrapper"></span>
-            <span class="cmp-categorylist__name">${item.name}</span>
-        </a>
+    <button data-carousel-action='prev' class="cmp-categorylist__btn cmp-categorylist__btn--prev" type="button" style="display: none;"></button>
+    <div class="cmp-categorylist__cardsroot">
+        <div class="cmp-categorylist__parent">
+            <div data-sly-list.category="${category.categories}" class="cmp-categorylist__content">
+                <sly data-sly-call="${categorycardTpl.categorycard @ category = category}" />
+            </div>
+        </div>
     </div>
+    <button data-carousel-action='next' class="cmp-categorylist__btn cmp-categorylist__btn--next" type="button" style="display: none;"></button>
 </div>
 
 <sly data-sly-call="${templates.placeholder @ isEmpty = !category.isConfigured}" />
