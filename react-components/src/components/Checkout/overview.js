@@ -24,6 +24,7 @@ import LoadingIndicator from '../LoadingIndicator';
 import Section from './section';
 import Button from '../Button';
 import useOverview from './useOverview';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -45,6 +46,7 @@ const Overview = props => {
     }
     const submitOrder = async () => {
         await placeOrder(cart.id);
+        dataLayerUtils.pushEvent("cif:placeOrder", cart);
     };
 
     return (

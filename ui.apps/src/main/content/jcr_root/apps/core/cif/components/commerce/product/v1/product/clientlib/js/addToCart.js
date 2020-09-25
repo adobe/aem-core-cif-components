@@ -114,7 +114,7 @@ class AddToCart {
 
             if (dataLayerEnabled) {
                 dataLayer.push({
-                    event: "addToCart",
+                    event: "cif:addToCart",
                     eventInfo: {
                         items: items
                     }

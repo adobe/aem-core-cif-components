@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConfigContext } from '../../context/ConfigContext';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 import Checkbox from './checkbox';
 import Radio from './radio';
 import Select from './select';
@@ -147,25 +148,26 @@ const BundleProductOptions = () => {
 
     const addToCart = () => {
         const { selections, quantity } = bundleState;
-
+        const productData = {
+            sku,
+            virtual: false,
+            bundle: true,
+            quantity: quantity,
+            options: selections.map(s => {
+                return {
+                    id: s.option_id,
+                    quantity: s.quantity,
+                    value: s.customization.map(c => c.id.toString())
+                };
+            })
+        }
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [
-                {
-                    sku,
-                    virtual: false,
-                    bundle: true,
-                    quantity: quantity,
-                    options: selections.map(s => {
-                        return {
-                            id: s.option_id,
-                            quantity: s.quantity,
-                            value: s.customization.map(c => c.id.toString())
-                        };
-                    })
-                }
+                productData
             ]
         });
         document.dispatchEvent(customEvent);
+        dataLayerUtils.pushEvent("cif:addToCart", productData);
     };
 
     const getTotalPrice = () => {
@@ -174,9 +176,9 @@ const BundleProductOptions = () => {
             return (
                 acc +
                 selection.quantity *
-                    selection.customization.reduce((a, c) => {
-                        return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
-                    }, 0)
+                selection.customization.reduce((a, c) => {
+                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
+                }, 0)
             );
         }, 0);
 
