@@ -72,3 +72,11 @@ export const useAwaitQuery = query => {
         [apolloClient, query]
     );
 };
+
+/**
+ * This hook makes the query parameters of the URL available.
+ */
+export const useQueryParams = () => {
+    // Better to use useLocation from react router here, but this doesn't work because of dependency mess up.
+    return new URLSearchParams(window.location.search);
+};
