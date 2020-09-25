@@ -16,16 +16,35 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import { useUserContext } from '../../context/UserContext';
 
 const useAccountDetails = props => {
-    const { getCustomerInformationQuery, setCustomerInformationMutation } = props;
+    const { getCustomerInformationQuery, setCustomerInformationMutation, changeCustomerPasswordMutation } = props;
     const [{ isSignedIn }] = useUserContext();
 
     const [isUpdateMode, setIsUpdateMode] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [shouldShowNewPasswordField, setShowNewPassword] = useState(false);
+
+    const { data: accountInformationData } = useQuery(getCustomerInformationQuery, {
+        skip: !isSignedIn,
+        fetchPolicy: 'cache-and-network',
+        nextFetchPolicy: 'cache-first'
+    });
 
     const [
         setCustomerInformation,
         { data: updateCustomerInformationData, loading: isUpdatingCustomer, error: customerInformationUpdateError }
-    ] = useMutation(setCustomerInformationMutation);
+    ] = useMutation(setCustomerInformationMutation, { refetchQueries: ['GetCustomerInformation'] });
+
+    const [
+        changeCustomerPassword,
+        { data: changeCustomerPasswordData, loading: isChangingCustomerPassword, error: changePasswordError }
+    ] = useMutation(changeCustomerPasswordMutation);
+
+    const initialValues = useMemo(() => {
+        if (accountInformationData) {
+            return {
+                customer: accountInformationData.customer
+            };
+        }
+    }, [accountInformationData]);
 
     const showEditForm = useCallback(() => {
         setIsUpdateMode(true);
@@ -36,60 +55,59 @@ const useAccountDetails = props => {
         setShowNewPassword(false);
     }, [setIsUpdateMode, setShowNewPassword]);
 
-    const showNewPasswordFields = useCallback(() => {
+    const handleShowNewPasswordField = useCallback(() => {
         setShowNewPassword(true);
     }, [setShowNewPassword]);
 
-    const handleSubmit = async values => {
-        console.log(`Got some values`, values);
-        const { firstname, lastname, email, password } = values;
-        try {
-            if (
-                initialValues.firstname !== firstname ||
-                initialValues.lastname !== lastname ||
-                initialValues.email !== email
-            ) {
-                await setCustomerInformation({
-                    variables: {
-                        firstname,
-                        lastname,
-                        email,
-                        password
+    const handleSubmit = useCallback(
+        async values => {
+            const { firstname, lastname, email, password, newPassword } = values;
+            try {
+                if (
+                    initialValues.firstname !== firstname ||
+                    initialValues.lastname !== lastname ||
+                    initialValues.email !== email
+                ) {
+                    // we have to send the password when we change the email address
+                    await setCustomerInformation({
+                        variables: {
+                            firstname,
+                            lastname,
+                            email,
+                            password
+                        }
+                    });
+
+                    // if we have a "new password" value we must change the password as well
+                    if (password && newPassword) {
+                        await changeCustomerPassword({
+                            variables: {
+                                currentPassword: password,
+                                newPassword
+                            }
+                        });
                     }
-                });
 
-                handleCancel();
+                    handleCancel();
+                }
+            } catch {
+                return;
             }
-        } catch {
-            return;
-        }
-    };
-
-    const { data: accountInformationData, loading: accountInformationLoading } = useQuery(getCustomerInformationQuery, {
-        skip: !isSignedIn,
-        fetchPolicy: 'cache-and-network',
-        nextFetchPolicy: 'cache-first'
-    });
-
-    const initialValues = useMemo(() => {
-        if (accountInformationData) {
-            return {
-                customer: accountInformationData.customer
-            };
-        }
-    }, [accountInformationData]);
+        },
+        [setCustomerInformation, handleCancel, changeCustomerPassword, initialValues]
+    );
 
     return {
         initialValues,
-        formErrors: [customerInformationUpdateError],
+        formErrors: [customerInformationUpdateError, changePasswordError],
         isSignedIn,
         isUpdateMode,
-        isDisabled: isUpdatingCustomer,
+        isDisabled: isUpdatingCustomer || isChangingCustomerPassword,
         showEditForm,
         handleCancel,
         handleSubmit,
-        showNewPassword,
-        showNewPasswordFields
+        shouldShowNewPasswordField,
+        handleShowNewPasswordField
     };
 };
 

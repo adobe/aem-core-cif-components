@@ -26,11 +26,12 @@ import { useTranslation } from 'react-i18next';
 import classes from './editForm.css';
 
 const EditForm = props => {
-    const { shouldShowNewPassword, handleChangePassword } = props;
+    const { shouldShowNewPassword, handleShowNewPasswordField } = props;
     const [t] = useTranslation('account');
+
     const maybeShowChangePasswordButton = !shouldShowNewPassword && (
         <div className={classes.changePasswordButtonContainer}>
-            <LinkButton type="button" classes={classes.changePasswordButton} onClick={handleChangePassword}>
+            <LinkButton type="button" classes={classes.changePasswordButton} onClick={handleShowNewPasswordField}>
                 {t('account:change-password', 'Change Password')}
             </LinkButton>
         </div>
@@ -86,5 +87,5 @@ export default EditForm;
 
 EditForm.propTypes = {
     shouldShowNewPassword: bool,
-    handleChangePassword: func
+    handleShowNewPasswordField: func
 };

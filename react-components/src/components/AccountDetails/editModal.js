@@ -13,6 +13,7 @@
  ******************************************************************************/
 
 import React from 'react';
+import { object, bool, func } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import Dialog from '../Dialog';
 import FormError from '../FormError';
@@ -31,7 +32,6 @@ const EditModal = props => {
         formErrors
     } = props;
     const [t] = useTranslation('account');
-    console.log(`Got initial values `, initialValues);
     return (
         <Dialog
             confirmText="Save"
@@ -45,9 +45,20 @@ const EditModal = props => {
             rootContainerSelector="#accountdetails"
             isModal={true}>
             <FormError errors={formErrors} />
-            <EditForm handleChangePassword={onChangePassword} shouldShowNewPassword={shouldShowNewPassword} />
+            <EditForm handleShowNewPasswordField={onChangePassword} shouldShowNewPassword={shouldShowNewPassword} />
         </Dialog>
     );
 };
 
 export default EditModal;
+
+EditModal.propTypes = {
+    initialValues: object.isRequired,
+    isOpen: bool,
+    onCancel: func.isRequired,
+    onSubmit: func.isRequired,
+    isDisabled: bool,
+    onChangePassword: func.isRequired,
+    shouldShowNewPassword: bool,
+    formErrors: object
+};

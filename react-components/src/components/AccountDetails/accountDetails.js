@@ -19,6 +19,8 @@ import Button from '../Button';
 import useAccountDetails from './useAccountDetails';
 import GET_CUSTOMER_INFORMATION from './query_get_customer_information.graphql';
 import UPDATE_CUSTOMER_INFORMATION from './mutation_update_customer_information.graphql';
+import CHANGE_CUSTOMER_PASSWORD from '../../queries/mutation_change_password.graphql';
+
 import classes from './accountDetails.css';
 import EditModal from './editModal';
 
@@ -30,14 +32,15 @@ const AccountDetails = () => {
         isUpdateMode,
         showEditForm,
         handleCancel,
-        showNewPassword,
-        showNewPasswordFields,
+        shouldShowNewPasswordField,
+        handleShowNewPasswordField,
         handleSubmit,
         isDisabled,
         formErrors
     } = useAccountDetails({
         getCustomerInformationQuery: GET_CUSTOMER_INFORMATION,
-        setCustomerInformationMutation: UPDATE_CUSTOMER_INFORMATION
+        setCustomerInformationMutation: UPDATE_CUSTOMER_INFORMATION,
+        changeCustomerPasswordMutation: CHANGE_CUSTOMER_PASSWORD
     });
 
     if (!isSignedIn) {
@@ -69,7 +72,7 @@ const AccountDetails = () => {
                     {`*******`}
                 </span>
                 <span className={classes.lineItemButton}>
-                    <Button className={classes.editInformationButton} onClick={() => showEditForm()}>
+                    <Button className={classes.editInformationButton} onClick={showEditForm}>
                         {t('common', 'Edit')}
                     </Button>
                 </span>
@@ -80,9 +83,9 @@ const AccountDetails = () => {
                 isDisabled={isDisabled}
                 isOpen={isUpdateMode}
                 onCancel={handleCancel}
-                onChangePassword={showNewPasswordFields}
+                onChangePassword={handleShowNewPasswordField}
                 onSubmit={handleSubmit}
-                shouldShowNewPassword={showNewPassword}
+                shouldShowNewPassword={shouldShowNewPasswordField}
             />
         </div>
     );
