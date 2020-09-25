@@ -160,14 +160,12 @@ const BundleProductOptions = () => {
                     value: s.customization.map(c => c.id.toString())
                 };
             })
-        }
+        };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [
-                productData
-            ]
+            detail: [productData]
         });
         document.dispatchEvent(customEvent);
-        dataLayerUtils.pushEvent("cif:addToCart", productData);
+        dataLayerUtils.pushEvent('cif:addToCart', productData);
     };
 
     const getTotalPrice = () => {
@@ -176,9 +174,9 @@ const BundleProductOptions = () => {
             return (
                 acc +
                 selection.quantity *
-                selection.customization.reduce((a, c) => {
-                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
-                }, 0)
+                    selection.customization.reduce((a, c) => {
+                        return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
+                    }, 0)
             );
         }, 0);
 

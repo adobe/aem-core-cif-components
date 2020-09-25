@@ -46,7 +46,7 @@ const Overview = props => {
     }
     const submitOrder = async () => {
         await placeOrder(cart.id);
-        dataLayerUtils.pushEvent("cif:placeOrder", cart);
+        dataLayerUtils.pushEvent('cif:placeOrder', cart);
     };
 
     return (

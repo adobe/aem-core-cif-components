@@ -11,25 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const dataLayerEnabled = document.body.hasAttribute("data-cmp-data-layer-enabled");
-const dataLayer = (dataLayerEnabled) ? window.adobeDataLayer = window.adobeDataLayer || [] : undefined;
+const dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
+const dataLayer = dataLayerEnabled ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
 export const pushData = data => {
     if (dataLayerEnabled) {
         dataLayer.push(data);
     }
-}
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
 export const pushEvent = (eventName, eventData) => {
     if (dataLayerEnabled) {
         dataLayer.push({
-            "event": eventName,
-            "eventInfo": eventData
+            event: eventName,
+            eventInfo: eventData
         });
     }
-}
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#getstate
 export const getState = reference => {
@@ -37,18 +37,18 @@ export const getState = reference => {
         return dataLayer.getState(reference);
     }
     return null;
-}
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#addeventlistener
 export const addEventListener = (eventName, handler) => {
     if (dataLayerEnabled) {
         dataLayer.addEventListener(eventName, handler);
     }
-}
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#removeeventlistener
 export const removeEventListener = (eventName, handler) => {
     if (dataLayerEnabled) {
         dataLayer.removeEventListener(eventName, handler);
     }
-}
+};
