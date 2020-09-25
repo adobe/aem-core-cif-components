@@ -13,8 +13,8 @@
  ******************************************************************************/
 'use strict';
 
-const dataLayerEnabled = document.body.hasAttribute("data-cmp-data-layer-enabled");
-const dataLayer = (dataLayerEnabled) ? window.adobeDataLayer = window.adobeDataLayer || [] : undefined;
+const dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
+const dataLayer = dataLayerEnabled ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
 
 /**
  * Add to cart button component.
@@ -114,7 +114,7 @@ class AddToCart {
 
             if (dataLayerEnabled) {
                 dataLayer.push({
-                    event: "cif:addToCart",
+                    event: 'cif:addToCart',
                     eventInfo: {
                         items: items
                     }
