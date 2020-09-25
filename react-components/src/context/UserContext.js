@@ -269,10 +269,6 @@ const UserContextProvider = props => {
         await resetCustomerCartAction({ fetchCustomerCartQuery, dispatch });
     };
 
-    const resetPassword = async email => {
-        await Promise.resolve(email);
-    };
-
     const getUserDetails = useCallback(async () => {
         try {
             const { data: customerData } = await fetchCustomerDetails({ fetchPolicy: 'no-cache' });
@@ -322,7 +318,6 @@ const UserContextProvider = props => {
             setToken,
             setError,
             signOut,
-            resetPassword,
             setCustomerCart,
             getUserDetails,
             resetCustomerCart,

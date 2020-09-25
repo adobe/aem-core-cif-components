@@ -16,7 +16,8 @@ import { func, shape, string } from 'prop-types';
 import { Form } from 'informed';
 import { useTranslation } from 'react-i18next';
 
-import { isRequired } from '../../utils/formValidators';
+import combine from '../../utils/combineValidators';
+import { isRequired, validateEmail } from '../../utils/formValidators';
 import Field from '../Field';
 import TextInput from '../TextInput';
 import Button from '../Button';
@@ -35,7 +36,7 @@ const ForgotPasswordForm = props => {
                 <TextInput
                     autoComplete="email"
                     field="email"
-                    validate={isRequired}
+                    validate={combine([isRequired, validateEmail])}
                     validateOnBlur
                     aria-label="email"></TextInput>
             </Field>
