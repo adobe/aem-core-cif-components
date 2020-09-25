@@ -15,33 +15,27 @@
 import { useState, useCallback } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 
-import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../queries/mutation_request_password_reset_email.graphql';
+import MUTATION_RESET_PASSWORD from '../../queries/mutation_reset_password.graphql';
 
-const useForgotPasswordForm = () => {
-    const [state, setState] = useState({ loading: false, submitted: false, email: null });
+const useResetPassword = () => {
+    const [status, setStatus] = useState('new');
 
-    const [requestPasswordResetEmail] = useMutation(MUTATION_REQUEST_PASSWORD_RESET_EMAIL);
+    const [resetPassword] = useMutation(MUTATION_RESET_PASSWORD);
 
     const handleFormSubmit = useCallback(
-        async ({ email }) => {
-            setState({ ...state, loading: true });
+        async ({ email, token, password }) => {
+            setStatus('loading');
             try {
-                await requestPasswordResetEmail({ variables: { email } });
+                await resetPassword({ variables: { email, resetPasswordToken: token, newPassword: password } });
+                setStatus('done');
             } catch (err) {
-                // Do not output any errors which might indicate if the user email actually exists or not
-            } finally {
-                setState({ ...state, loading: false, submitted: true, email });
+                setStatus('error');
             }
         },
-        [requestPasswordResetEmail]
+        [resetPassword]
     );
 
-    return [
-        state,
-        {
-            handleFormSubmit
-        }
-    ];
+    return [status, { handleFormSubmit }];
 };
 
-export default useForgotPasswordForm;
+export default useResetPassword;
