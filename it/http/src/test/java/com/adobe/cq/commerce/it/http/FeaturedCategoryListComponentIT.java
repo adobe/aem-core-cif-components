@@ -37,7 +37,8 @@ public class FeaturedCategoryListComponentIT extends CommerceTestBase {
         Assert.assertEquals("Jackets for men and women!", elements.first().html());
 
         // Check that the components displays 2 categories
-        elements = doc.select(FEATUREDCATEGORYLIST_SELECTOR + ".cmp-categorylist__content > .cmp-categorylist__anchor");
+        elements = doc.select(FEATUREDCATEGORYLIST_SELECTOR
+            + ".cmp-categorylist__content > .cmp-categorylist__card > .cmp-categorylist__anchor");
         Assert.assertEquals(2, elements.size());
     }
 }
