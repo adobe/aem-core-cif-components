@@ -21,7 +21,8 @@ import i18n from '../../../../__mocks__/i18nForTests';
 describe('<Checkbox>', () => {
     const requiredItem = {
         option_id: 1,
-        required: true
+        required: true,
+        quantity: 1
     };
 
     const sortedOptions = [
@@ -58,7 +59,7 @@ describe('<Checkbox>', () => {
             <I18nextProvider i18n={i18n}>
                 <Checkbox
                     item={requiredItem}
-                    sortedOptions={sortedOptions}
+                    options={sortedOptions}
                     customization={customization}
                     handleSelectionChange={handleSelectionChange}
                 />
@@ -73,7 +74,7 @@ describe('<Checkbox>', () => {
             <I18nextProvider i18n={i18n}>
                 <Checkbox
                     item={requiredItem}
-                    sortedOptions={sortedOptions}
+                    options={sortedOptions}
                     customization={customization}
                     handleSelectionChange={handleSelectionChange}
                 />
@@ -96,6 +97,6 @@ describe('<Checkbox>', () => {
         ];
 
         expect(handleSelectionChange).toHaveBeenCalledTimes(1);
-        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, newCustomization);
+        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
     });
 });

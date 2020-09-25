@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -40,6 +41,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
@@ -160,6 +162,35 @@ public class BreadcrumbImplTest {
 
         NavigationItem product = items.get(3);
         assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page/product-specific-page.tiberius-gym-tank.html");
+        assertThat(product.isActive()).isTrue();
+    }
+
+    @Test
+    public void testProductSpecificPageOnLaunch() throws Exception {
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+        context.request().setContextPath("");
+
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-breadcrumb-result.json");
+        String launchPage = "/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page/product-specific-page";
+        prepareModel(launchPage);
+
+        // We set the EDIT mode to see the page specific URL
+        context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
+
+        // Check that all the paths are pointing to pages in the Launch
+        for (NavigationItem item : items) {
+            assertThat(item.getURL()).startsWith("/content/launches/2020/09/14/mylaunch/content/venia");
+        }
+
+        NavigationItem product = items.get(3);
+        assertThat(product.getURL()).isEqualTo(launchPage + ".tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
