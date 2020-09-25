@@ -12,31 +12,41 @@
  *
  ******************************************************************************/
 import React from 'react';
-import ForgotPasswordForm from './forgotPasswordForm';
+import { func } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
-import classes from './forgotPassword.css';
+import ForgotPasswordForm from './forgotPasswordForm';
 import FormSubmissionSuccessful from './formSubmissionSuccessful';
 import useForgotPassword from './useForgotPassword';
-import { func } from 'prop-types';
+import LoadingIndicator from '../LoadingIndicator';
 
-const INSTRUCTIONS = 'Enter your email below to receive a password reset link.';
+import classes from './forgotPassword.css';
 
 const ForgotPassword = props => {
     const { onClose, onCancel } = props;
 
-    const [{ submitting, email }, { handleContinue, handleFormSubmit, handleCancel }] = useForgotPassword({
-        onClose,
-        onCancel
-    });
+    const [{ loading, submitted, email }, { handleFormSubmit }] = useForgotPassword();
+    const [t] = useTranslation('account', 'common');
 
-    const content = submitting ? (
-        <FormSubmissionSuccessful email={email} onContinue={handleContinue}></FormSubmissionSuccessful>
-    ) : (
-        <>
-            <p className={classes.instructions}>{INSTRUCTIONS}</p>
-            <ForgotPasswordForm handleFormSubmit={handleFormSubmit} handleCancel={handleCancel} />
-        </>
-    );
+    let content;
+
+    if (loading) {
+        content = <LoadingIndicator>{t('common:loading', 'Loading')}</LoadingIndicator>;
+    } else if (submitted) {
+        content = <FormSubmissionSuccessful email={email} onContinue={onClose} />;
+    } else {
+        content = (
+            <>
+                <p className={classes.instructions}>
+                    {t(
+                        'account:reset-password-instructions',
+                        'Enter your email below to receive a password reset link.'
+                    )}
+                </p>
+                <ForgotPasswordForm handleFormSubmit={handleFormSubmit} handleCancel={onCancel} />
+            </>
+        );
+    }
 
     return <div className={classes.root}>{content}</div>;
 };
