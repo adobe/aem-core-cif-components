@@ -42,13 +42,16 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductToProductListItemConverter.class);
 
+    private final Resource parentResource;
     private final Page productPage;
     private final Locale locale;
     private final UrlProvider urlProvider;
 
     private final SlingHttpServletRequest request;
 
-    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider) {
+    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
+                                             Resource parentResource) {
+        this.parentResource = parentResource;
         this.productPage = productPage;
         this.locale = productPage.getLanguage(false);
         this.request = request;
@@ -62,10 +65,9 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
             Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
             final ProductImage smallImage = product.getSmallImage();
 
-            Resource resource = productPage.getContentResource();
-            String resourceType = resource.getResourceType();
+            String resourceType = parentResource.getResourceType();
             String prefix = StringUtils.substringAfterLast(resourceType, "/");
-            String path = resource.getPath();
+            String path = parentResource.getPath();
             String parentId = StringUtils.join(prefix, DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(path),
                 0, 10));
 

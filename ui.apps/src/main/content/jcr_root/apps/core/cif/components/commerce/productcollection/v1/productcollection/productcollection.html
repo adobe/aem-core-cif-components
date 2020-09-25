@@ -21,7 +21,7 @@
      <div class="results__count">
           ${productCollection.searchResultsSet.totalResults} ${productCollection.searchResultsSet.totalResults == 1 ? 'item' : 'items' @ i18n}
      </div>
-     <section class="gallery__root search__root">
+     <section class="gallery__root search__root" id="${productCollection.id}" data-cmp-data-layer="${productCollection.data.json}">
           <div class="search__filters"
                data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
                data-sly-call="${facetSelectorTemplate.facetSelector @ searchResultsSet = productCollection.searchResultsSet}"></div>

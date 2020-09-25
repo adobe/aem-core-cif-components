@@ -19,7 +19,7 @@ import org.apache.sling.api.resource.Resource;
 
 public abstract class DataLayerListItem extends DataLayerComponent {
 
-    private static final String ITEM_ID_PREFIX = "item";
+    public static final String ITEM_ID_PREFIX = "item";
 
     protected String parentId;
     protected String path;

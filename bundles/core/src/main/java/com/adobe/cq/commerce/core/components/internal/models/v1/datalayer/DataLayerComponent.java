@@ -85,6 +85,11 @@ public abstract class DataLayerComponent {
     }
 
     @JsonIgnore
+    public String getDataLayerType() {
+        return null;
+    }
+
+    @JsonIgnore
     public String getDataLayerTitle() {
         return null;
     }

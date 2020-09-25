@@ -18,6 +18,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerListItem;
@@ -117,6 +119,17 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     protected ComponentData getComponentData() {
         return new ProductDataImpl(this, this.productPage.getContentResource());
+    }
+
+    @Override
+    public String getId() {
+        String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSlug()), 0, 10));
+    }
+
+    @Override
+    public String getDataLayerType() {
+        return "core/cif/components/commerce/productListItem";
     }
 
     @Override
