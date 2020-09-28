@@ -17,8 +17,8 @@ import LoadingIndicator from '../LoadingIndicator';
 import Button from '../Button';
 
 import useAccountDetails from './useAccountDetails';
-import GET_CUSTOMER_INFORMATION from './query_get_customer_information.graphql';
-import UPDATE_CUSTOMER_INFORMATION from './mutation_update_customer_information.graphql';
+import GET_CUSTOMER_INFORMATION from '../../queries/query_get_customer_information.graphql';
+import UPDATE_CUSTOMER_INFORMATION from '../../queries/mutation_update_customer_information.graphql';
 import CHANGE_CUSTOMER_PASSWORD from '../../queries/mutation_change_password.graphql';
 
 import classes from './accountDetails.css';

@@ -33,8 +33,9 @@ const EditModal = props => {
         formErrors
     } = props;
     const [t] = useTranslation('account');
+
     const {
-        mountingPoints: { accountDetails }
+        mountingPoints: { accountDetails: rootSelector }
     } = useConfigContext();
 
     const dialogFormProps = { initialValues };
@@ -49,7 +50,7 @@ const EditModal = props => {
             shouldDisableAllButtons={isDisabled}
             shouldDisableConfirmButton={isDisabled}
             title={t('account:edit-account-info', 'Edit account information')}
-            rootContainerSelector={accountDetails}
+            rootContainerSelector={rootSelector}
             isModal={true}>
             <FormError errors={formErrors} />
             <EditForm handleShowNewPasswordField={onChangePassword} shouldShowNewPassword={shouldShowNewPassword} />
