@@ -11,4 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default as AccountDetails } from './AccountDetails';
+export { default as AccountDetails } from './accountDetails';
