@@ -18,13 +18,14 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
@@ -41,8 +42,6 @@ public class StoreConfigExporterTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
-    private ConfigurationBuilder configurationBuilder;
-
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
@@ -58,6 +57,15 @@ public class StoreConfigExporterTest {
     @Test
     public void testStoreView() {
         setupWithPage("/content/pageH");
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+    }
+
+    @Test
+    public void testStoreViewOnLaunchPage() {
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+
+        setupWithPage("/content/launches/2020/09/14/mylaunch/content/pageH");
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
     }
