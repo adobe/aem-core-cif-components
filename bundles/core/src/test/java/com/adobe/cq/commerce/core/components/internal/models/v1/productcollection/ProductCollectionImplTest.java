@@ -139,6 +139,7 @@ public class ProductCollectionImplTest {
         productCollectionModel = context.request().adaptTo(ProductCollectionImpl.class);
         Assert.assertEquals(ProductCollectionImpl.LOAD_CLIENT_PRICE_DEFAULT, productCollectionModel.loadClientPrice());
         Assert.assertEquals(SearchOptionsImpl.PAGE_SIZE_DEFAULT.intValue(), productCollectionModel.navPageSize);
+        Assert.assertEquals(ProductCollectionImpl.PAGINATION_TYPE_DEFAULT, productCollectionModel.getPaginationType());
     }
 
     @Test
@@ -147,6 +148,7 @@ public class ProductCollectionImplTest {
         productCollectionModel = context.request().adaptTo(ProductCollectionImpl.class);
         Assert.assertFalse(productCollectionModel.loadClientPrice());
         Assert.assertEquals(8, productCollectionModel.navPageSize);
+        Assert.assertEquals("loadmorebutton", productCollectionModel.getPaginationType());
     }
 
     @Test

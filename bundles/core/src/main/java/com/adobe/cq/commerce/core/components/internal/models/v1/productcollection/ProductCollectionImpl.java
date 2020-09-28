@@ -47,11 +47,16 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
     adapters = ProductCollection.class,
     resourceType = ProductCollectionImpl.RESOURCE_TYPE)
 public class ProductCollectionImpl implements ProductCollection {
+
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+    protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
+
     protected Page productPage;
     protected boolean loadClientPrice;
     protected int navPageSize;
+    protected String paginationType;
+
     @Self
     protected SlingHttpServletRequest request;
     @ScriptVariable
@@ -66,6 +71,7 @@ public class ProductCollectionImpl implements ProductCollection {
     protected SearchResultsService searchResultsService;
     @Inject
     protected UrlProvider urlProvider;
+
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
 
@@ -73,6 +79,8 @@ public class ProductCollectionImpl implements ProductCollection {
     private void baseInitModel() {
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
@@ -96,6 +104,11 @@ public class ProductCollectionImpl implements ProductCollection {
     @Override
     public boolean loadClientPrice() {
         return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
+    }
+
+    @Override
+    public String getPaginationType() {
+        return paginationType;
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
