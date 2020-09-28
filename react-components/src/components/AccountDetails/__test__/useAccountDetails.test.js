@@ -121,6 +121,22 @@ describe('useAccountDetails', () => {
         });
     });
 
+    it('does not call the mutation if there are no changes in the fields', async () => {
+        const mockVariables = {
+            firstname: 'Jane',
+            lastname: 'Doe',
+            email: 'jdoe@gmail.com'
+        };
+        const { getByRole, queryByText } = render(<TestComponent {...mockVariables} />);
+        const button = getByRole('button');
+        fireEvent.click(button);
+
+        // wait for the DOM element to show up because the function might not be executed
+        // until we assert on it.
+        await waitForElement(() => queryByText('Done'));
+        expect(mockSetCustomerInformation).not.toHaveBeenCalled();
+    });
+
     it('opens the edit form', () => {
         const Component = () => {
             const { showEditForm, isUpdateMode, handleCancel } = useAccountDetails(mockProps);

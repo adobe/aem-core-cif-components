@@ -63,9 +63,9 @@ const useAccountDetails = props => {
             const { firstname, lastname, email, password, newPassword } = values;
             try {
                 if (
-                    initialValues.firstname !== firstname ||
-                    initialValues.lastname !== lastname ||
-                    initialValues.email !== email
+                    initialValues.customer.firstname !== firstname ||
+                    initialValues.customer.lastname !== lastname ||
+                    initialValues.customer.email !== email
                 ) {
                     // we have to send the password when we change the email address
                     await setCustomerInformation({
