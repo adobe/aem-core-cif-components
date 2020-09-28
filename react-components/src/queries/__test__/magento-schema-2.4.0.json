@@ -42,6 +42,49 @@
                             "deprecationReason": null
                         },
                         {
+                            "name": "categories",
+                            "description": null,
+                            "args": [
+                                {
+                                    "name": "filters",
+                                    "description": "Identifies which Category filter inputs to search for and return.",
+                                    "type": {
+                                        "kind": "INPUT_OBJECT",
+                                        "name": "CategoryFilterInput",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "pageSize",
+                                    "description": "Specifies the maximum number of results to return at once. This attribute is optional.",
+                                    "type": {
+                                        "kind": "SCALAR",
+                                        "name": "Int",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": "20"
+                                },
+                                {
+                                    "name": "currentPage",
+                                    "description": "Specifies which page of results to return. The default value is 1.",
+                                    "type": {
+                                        "kind": "SCALAR",
+                                        "name": "Int",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": "1"
+                                }
+                            ],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "CategoryResult",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "category",
                             "description": "The category query searches for categories that match the criteria specified in the search and filter attributes.",
                             "args": [
@@ -393,6 +436,69 @@
                             "type": {
                                 "kind": "OBJECT",
                                 "name": "IsEmailAvailableOutput",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "pickupLocations",
+                            "description": "The pickup locations query searches for locations that match the search request requirements.",
+                            "args": [
+                                {
+                                    "name": "area",
+                                    "description": "Perform search by location using radius and search term.",
+                                    "type": {
+                                        "kind": "INPUT_OBJECT",
+                                        "name": "AreaInput",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "filters",
+                                    "description": "Apply filters by attributes.",
+                                    "type": {
+                                        "kind": "INPUT_OBJECT",
+                                        "name": "PickupLocationFilterInput",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "sort",
+                                    "description": "Specifies which attribute to sort on, and whether to return the results in ascending or descending order.",
+                                    "type": {
+                                        "kind": "INPUT_OBJECT",
+                                        "name": "PickupLocationSortInput",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "pageSize",
+                                    "description": "The maximum number of pickup locations to return at once. The attribute is optional.",
+                                    "type": {
+                                        "kind": "SCALAR",
+                                        "name": "Int",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": "20"
+                                },
+                                {
+                                    "name": "currentPage",
+                                    "description": "Specifies which page of results to return. The default value is 1.",
+                                    "type": {
+                                        "kind": "SCALAR",
+                                        "name": "Int",
+                                        "ofType": null
+                                    },
+                                    "defaultValue": "1"
+                                }
+                            ],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "PickupLocations",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -1161,13 +1267,9 @@
                             "description": null,
                             "args": [],
                             "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
                             },
                             "isDeprecated": false,
                             "deprecationReason": null
@@ -1177,13 +1279,21 @@
                             "description": null,
                             "args": [],
                             "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "region_id",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
                             },
                             "isDeprecated": false,
                             "deprecationReason": null
@@ -1191,6 +1301,16 @@
                     ],
                     "inputFields": null,
                     "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "description": "The `Int` scalar type represents non-fractional signed whole numeric\nvalues. Int can represent values between -(2^31) and 2^31 - 1. ",
+                    "fields": null,
+                    "inputFields": null,
+                    "interfaces": null,
                     "enumValues": null,
                     "possibleTypes": null
                 },
@@ -1563,7 +1683,7 @@
                             "deprecationReason": ""
                         },
                         {
-                            "name": "BYR",
+                            "name": "BYN",
                             "description": "",
                             "isDeprecated": false,
                             "deprecationReason": ""
@@ -3160,16 +3280,6 @@
                     ]
                 },
                 {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "description": "The `Int` scalar type represents non-fractional signed whole numeric\nvalues. Int can represent values between -(2^31) and 2^31 - 1. ",
-                    "fields": null,
-                    "inputFields": null,
-                    "interfaces": null,
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
                     "kind": "INTERFACE",
                     "name": "CategoryInterface",
                     "description": "CategoryInterface contains the full set of attributes that can be returned in a category search.",
@@ -3472,7 +3582,7 @@
                         },
                         {
                             "name": "product_count",
-                            "description": "The number of products in the category.",
+                            "description": "The number of products in the category that are marked as visible. By default, in complex products, parent products are visible, but their child products are not.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -3812,7 +3922,7 @@
                         },
                         {
                             "name": "total_count",
-                            "description": "The number of products returned.",
+                            "description": "The number of products in the category that are marked as visible. By default, in complex products, parent products are visible, but their child products are not.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -3908,12 +4018,36 @@
                     "description": "Product image information. Contains the image URL and label.",
                     "fields": [
                         {
+                            "name": "disabled",
+                            "description": "Whether the image is hidden from view.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "label",
                             "description": "The label of the product image or video.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "position",
+                            "description": "The media item's position after it has been sorted.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -3949,12 +4083,36 @@
                     "description": "Contains basic information about a product image or video.",
                     "fields": [
                         {
+                            "name": "disabled",
+                            "description": "Whether the image is hidden from view.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "label",
                             "description": "The label of the product image or video.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "position",
+                            "description": "The media item's position after it has been sorted.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -4008,7 +4166,7 @@
                         },
                         {
                             "name": "disabled",
-                            "description": "Whether the image is hidden from vie.",
+                            "description": "Whether the image is hidden from view.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -5384,6 +5542,18 @@
                             "deprecationReason": null
                         },
                         {
+                            "name": "pickup_location_code",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "postcode",
                             "description": null,
                             "args": [],
@@ -5769,6 +5939,164 @@
                     "possibleTypes": null
                 },
                 {
+                    "kind": "INPUT_OBJECT",
+                    "name": "CategoryFilterInput",
+                    "description": "CategoryFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "ids",
+                            "description": "Filter by category ID that uniquely identifies the category.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterEqualTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "name",
+                            "description": "Filter by the display name of the category.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterMatchTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "url_key",
+                            "description": "Filter by the part of the URL that identifies the category.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterEqualTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "url_path",
+                            "description": "Filter by the URL path for the category.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterEqualTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
+                    "name": "FilterEqualTypeInput",
+                    "description": "Defines a filter that matches the input exactly.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "eq",
+                            "description": "A string to filter on",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "in",
+                            "description": "An array of values to filter on",
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
+                    "name": "FilterMatchTypeInput",
+                    "description": "Defines a filter that performs a fuzzy search.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "match",
+                            "description": "One or more words to filter on",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "CategoryResult",
+                    "description": "A collection of CategoryTree objects and pagination information.",
+                    "fields": [
+                        {
+                            "name": "items",
+                            "description": "A list of categories that match the filter criteria.",
+                            "args": [],
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "OBJECT",
+                                    "name": "CategoryTree",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "page_info",
+                            "description": "An object that includes the page_info and currentPage values specified in the query.",
+                            "args": [],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "SearchResultPageInfo",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "total_count",
+                            "description": "The total number of categories that match the criteria.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
                     "kind": "OBJECT",
                     "name": "CategoryTree",
                     "description": "Category Tree implementation.",
@@ -6087,7 +6415,7 @@
                         },
                         {
                             "name": "product_count",
-                            "description": "The number of products in the category.",
+                            "description": "The number of products in the category that are marked as visible. By default, in complex products, parent products are visible, but their child products are not.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -6197,103 +6525,6 @@
                             "ofType": null
                         }
                     ],
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INPUT_OBJECT",
-                    "name": "CategoryFilterInput",
-                    "description": "CategoryFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.",
-                    "fields": null,
-                    "inputFields": [
-                        {
-                            "name": "ids",
-                            "description": "Filter by category ID that uniquely identifies the category.",
-                            "type": {
-                                "kind": "INPUT_OBJECT",
-                                "name": "FilterEqualTypeInput",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "name",
-                            "description": "Filter by the display name of the category.",
-                            "type": {
-                                "kind": "INPUT_OBJECT",
-                                "name": "FilterMatchTypeInput",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "url_key",
-                            "description": "Filter by the part of the URL that identifies the category",
-                            "type": {
-                                "kind": "INPUT_OBJECT",
-                                "name": "FilterEqualTypeInput",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        }
-                    ],
-                    "interfaces": null,
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INPUT_OBJECT",
-                    "name": "FilterEqualTypeInput",
-                    "description": "Defines a filter that matches the input exactly.",
-                    "fields": null,
-                    "inputFields": [
-                        {
-                            "name": "eq",
-                            "description": "A string to filter on",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "in",
-                            "description": "An array of values to filter on",
-                            "type": {
-                                "kind": "LIST",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        }
-                    ],
-                    "interfaces": null,
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INPUT_OBJECT",
-                    "name": "FilterMatchTypeInput",
-                    "description": "Defines a filter that performs a fuzzy search.",
-                    "fields": null,
-                    "inputFields": [
-                        {
-                            "name": "match",
-                            "description": "One or more words to filter on",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        }
-                    ],
-                    "interfaces": null,
                     "enumValues": null,
                     "possibleTypes": null
                 },
@@ -7491,15 +7722,15 @@
                         },
                         {
                             "name": "region_id",
-                            "description": null,
+                            "description": "The unique ID for a pre-defined region",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "Int",
                                 "ofType": null
                             },
-                            "isDeprecated": true,
-                            "deprecationReason": "Region ID is excessive on storefront and region code should suffice for all scenarios"
+                            "isDeprecated": false,
+                            "deprecationReason": null
                         },
                         {
                             "name": "street",
@@ -9106,15 +9337,15 @@
                         },
                         {
                             "name": "region_id",
-                            "description": null,
+                            "description": "The unique ID for a pre-defined region",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "Int",
                                 "ofType": null
                             },
-                            "isDeprecated": true,
-                            "deprecationReason": "Region ID is excessive on storefront and region code should suffice for all scenarios"
+                            "isDeprecated": false,
+                            "deprecationReason": null
                         }
                     ],
                     "inputFields": null,
@@ -9785,6 +10016,722 @@
                 },
                 {
                     "kind": "INPUT_OBJECT",
+                    "name": "AreaInput",
+                    "description": "AreaInput defines the parameters which will be used for filter by specified location.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "radius",
+                            "description": "The radius for the search in KM.",
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "Int",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "search_term",
+                            "description": "The country code where search must be performed. Required parameter together with region, city or postcode.",
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
+                    "name": "PickupLocationFilterInput",
+                    "description": "PickupLocationFilterInput defines the list of attributes and filters for the search.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "city",
+                            "description": "Filter by city.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "country_id",
+                            "description": "Filter by country.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "name",
+                            "description": "Filter by pickup location name.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "pickup_location_code",
+                            "description": "Filter by pickup location code.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "postcode",
+                            "description": "Filter by postcode.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "region",
+                            "description": "Filter by region.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "region_id",
+                            "description": "Filter by region id.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "street",
+                            "description": "Filter by street.",
+                            "type": {
+                                "kind": "INPUT_OBJECT",
+                                "name": "FilterTypeInput",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
+                    "name": "FilterTypeInput",
+                    "description": "FilterTypeInput specifies which action will be performed in a query ",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "eq",
+                            "description": "Equals",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "finset",
+                            "description": "",
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "from",
+                            "description": "From. Must be used with 'to'",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "gt",
+                            "description": "Greater than",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "gteq",
+                            "description": "Greater than or equal to",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "in",
+                            "description": "In. The value can contain a set of comma-separated values",
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "like",
+                            "description": "Like. The specified value can contain % (percent signs) to allow matching of 0 or more characters",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "lt",
+                            "description": "Less than",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "lteq",
+                            "description": "Less than or equal to",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "moreq",
+                            "description": "More than or equal to",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "neq",
+                            "description": "Not equal to",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "nin",
+                            "description": "Not in. The value can contain a set of comma-separated values",
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "notnull",
+                            "description": "Not null",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "null",
+                            "description": "Is null",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "to",
+                            "description": "To. Must be used with 'from'",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
+                    "name": "PickupLocationSortInput",
+                    "description": "PickupLocationSortInput specifies attribute to use for sorting search results and indicates whether the results are sorted in ascending or descending order.",
+                    "fields": null,
+                    "inputFields": [
+                        {
+                            "name": "city",
+                            "description": "City where pickup location is placed.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "contact_name",
+                            "description": "Name of the contact person.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "country_id",
+                            "description": "Id of the country in two letters.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "description",
+                            "description": "Description of the pickup location.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "distance",
+                            "description": "Distance to the address, requested by distance filter. Applicable only with distance filter. If distance sort order is present, all other sort orders will be ignored.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "email",
+                            "description": "Contact email of the pickup location.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "fax",
+                            "description": "Contact fax of the pickup location.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "latitude",
+                            "description": "Geographic latitude where pickup location is placed.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "longitude",
+                            "description": "Geographic longitude where pickup location is placed.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "name",
+                            "description": "The pickup location name. Customer use this to identify the pickup location.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "phone",
+                            "description": "Contact phone number of the pickup location.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "pickup_location_code",
+                            "description": "A code assigned to pickup location to identify the source.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "postcode",
+                            "description": "Postcode where pickup location is placed.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "region",
+                            "description": "Name of the region.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "region_id",
+                            "description": "Id of the region.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "street",
+                            "description": "Street where pickup location is placed.",
+                            "type": {
+                                "kind": "ENUM",
+                                "name": "SortEnum",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "PickupLocations",
+                    "description": "Top level object returned in a pickup locations search.",
+                    "fields": [
+                        {
+                            "name": "items",
+                            "description": "An array of pickup locations that match the specific search request.",
+                            "args": [],
+                            "type": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "OBJECT",
+                                    "name": "PickupLocation",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "page_info",
+                            "description": "An object that includes the page_info and currentPage values specified in the query.",
+                            "args": [],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "SearchResultPageInfo",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "total_count",
+                            "description": "The number of products returned.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "PickupLocation",
+                    "description": "Defines Pickup Location information.",
+                    "fields": [
+                        {
+                            "name": "city",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "contact_name",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "country_id",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "description",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "email",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "fax",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "latitude",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Float",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "longitude",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Float",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "name",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "phone",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "pickup_location_code",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "postcode",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "region",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "region_id",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "street",
+                            "description": null,
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "INPUT_OBJECT",
                     "name": "ProductAttributeFilterInput",
                     "description": "ProductAttributeFilterInput defines the filters to be used in the search. A filter contains at least one attribute, a comparison operator, and the value that is being searched for.",
                     "fields": null,
@@ -9974,7 +10921,7 @@
                         },
                         {
                             "name": "total_count",
-                            "description": "The number of products returned.",
+                            "description": "The number of products that are marked as visible. By default, in complex products, parent products are visible, but their child products are not.",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -10384,6 +11331,18 @@
                             "deprecationReason": null
                         },
                         {
+                            "name": "autocomplete_on_storefront",
+                            "description": "Enable autocomplete on login and forgot password forms",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "base_currency_code",
                             "description": "Base currency code",
                             "args": [],
@@ -10768,6 +11727,18 @@
                             "deprecationReason": null
                         },
                         {
+                            "name": "minimum_password_length",
+                            "description": "The minimum number of characters required for a valid password.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "no_route",
                             "description": "Default No-route URL",
                             "args": [],
@@ -10794,6 +11765,18 @@
                         {
                             "name": "product_url_suffix",
                             "description": "Product URL Suffix.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "required_character_classes_number",
+                            "description": "The number of different character classes required in a password (lowercase, uppercase, digits, special characters).",
                             "args": [],
                             "type": {
                                 "kind": "SCALAR",
@@ -10870,6 +11853,18 @@
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "send_friend",
+                            "description": "Email to a Friend configuration.",
+                            "args": [],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "SendFriendConfiguration",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -11028,6 +12023,49 @@
                             "deprecationReason": ""
                         }
                     ],
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "SendFriendConfiguration",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "enabled_for_customers",
+                            "description": "Indicates whether the Email to a Friend feature is enabled.",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "Boolean",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "enabled_for_guests",
+                            "description": "Indicates whether the Email to a Friend feature is enabled for guests.",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "Boolean",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
                     "possibleTypes": null
                 },
                 {
@@ -11767,6 +12805,115 @@
                             "type": {
                                 "kind": "OBJECT",
                                 "name": "RemoveItemFromCartOutput",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "reorderItems",
+                            "description": "Adds all products from a customer's previous order to the cart.",
+                            "args": [
+                                {
+                                    "name": "orderNumber",
+                                    "description": "",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "String",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                }
+                            ],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "ReorderItemsOutput",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "requestPasswordResetEmail",
+                            "description": "Request an email with a reset password token for the registered customer identified by the specified email.",
+                            "args": [
+                                {
+                                    "name": "email",
+                                    "description": "",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "String",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                }
+                            ],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "resetPassword",
+                            "description": "Reset a customer's password using the reset password token that the customer received in an email after requesting it using requestPasswordResetEmail.",
+                            "args": [
+                                {
+                                    "name": "email",
+                                    "description": "",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "String",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "resetPasswordToken",
+                                    "description": "",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "String",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                },
+                                {
+                                    "name": "newPassword",
+                                    "description": "",
+                                    "type": {
+                                        "kind": "NON_NULL",
+                                        "name": null,
+                                        "ofType": {
+                                            "kind": "SCALAR",
+                                            "name": "String",
+                                            "ofType": null
+                                        }
+                                    },
+                                    "defaultValue": null
+                                }
+                            ],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
                                 "ofType": null
                             },
                             "isDeprecated": false,
@@ -13285,7 +14432,7 @@
                         },
                         {
                             "name": "region_id",
-                            "description": "region_id is deprecated. Region ID is excessive on storefront and region code should suffice for all scenarios",
+                            "description": "The unique ID for a pre-defined region",
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "Int",
@@ -14039,6 +15186,157 @@
                 },
                 {
                     "kind": "OBJECT",
+                    "name": "ReorderItemsOutput",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "cart",
+                            "description": "Contains detailed information about the customer's cart.",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "OBJECT",
+                                    "name": "Cart",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "userInputErrors",
+                            "description": "An array of reordering errors.",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "LIST",
+                                    "name": null,
+                                    "ofType": {
+                                        "kind": "OBJECT",
+                                        "name": "CheckoutUserInputError",
+                                        "ofType": null
+                                    }
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "CheckoutUserInputError",
+                    "description": "An error encountered while adding an item the the cart.",
+                    "fields": [
+                        {
+                            "name": "code",
+                            "description": "Checkout-specific error code",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "ENUM",
+                                    "name": "CheckoutUserInputErrorCodes",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "message",
+                            "description": "Localized error message",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "SCALAR",
+                                    "name": "String",
+                                    "ofType": null
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "path",
+                            "description": "Path to the input field that caused an error. See the GraphQL specification about path errors for details: http:\/\/spec.graphql.org\/draft\/#sec-Errors",
+                            "args": [],
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "LIST",
+                                    "name": null,
+                                    "ofType": {
+                                        "kind": "SCALAR",
+                                        "name": "String",
+                                        "ofType": null
+                                    }
+                                }
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "ENUM",
+                    "name": "CheckoutUserInputErrorCodes",
+                    "description": "",
+                    "fields": null,
+                    "inputFields": null,
+                    "interfaces": null,
+                    "enumValues": [
+                        {
+                            "name": "REORDER_NOT_AVAILABLE",
+                            "description": "",
+                            "isDeprecated": false,
+                            "deprecationReason": ""
+                        },
+                        {
+                            "name": "PRODUCT_NOT_FOUND",
+                            "description": "",
+                            "isDeprecated": false,
+                            "deprecationReason": ""
+                        },
+                        {
+                            "name": "NOT_SALABLE",
+                            "description": "",
+                            "isDeprecated": false,
+                            "deprecationReason": ""
+                        },
+                        {
+                            "name": "INSUFFICIENT_STOCK",
+                            "description": "",
+                            "isDeprecated": false,
+                            "deprecationReason": ""
+                        },
+                        {
+                            "name": "UNDEFINED",
+                            "description": "",
+                            "isDeprecated": false,
+                            "deprecationReason": ""
+                        }
+                    ],
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
                     "name": "RevokeCustomerTokenOutput",
                     "description": "",
                     "fields": [
@@ -14537,8 +15835,18 @@
                             "defaultValue": null
                         },
                         {
-                            "name": "save_in_address_book",
+                            "name": "region_id",
                             "description": "",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "save_in_address_book",
+                            "description": "Determines whether to save the address in the customer's address book. The default value is true",
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "Boolean",
@@ -14722,16 +16030,6 @@
                     "fields": null,
                     "inputFields": [
                         {
-                            "name": "authorizenet_acceptjs",
-                            "description": "Defines the required attributes for Authorize.Net payments",
-                            "type": {
-                                "kind": "INPUT_OBJECT",
-                                "name": "AuthorizenetInput",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
                             "name": "braintree",
                             "description": "",
                             "type": {
@@ -14822,59 +16120,6 @@
                                 "kind": "SCALAR",
                                 "name": "String",
                                 "ofType": null
-                            },
-                            "defaultValue": null
-                        }
-                    ],
-                    "interfaces": null,
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INPUT_OBJECT",
-                    "name": "AuthorizenetInput",
-                    "description": "",
-                    "fields": null,
-                    "inputFields": [
-                        {
-                            "name": "cc_last_4",
-                            "description": "The last four digits of the credit or debit card",
-                            "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "Int",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "opaque_data_descriptor",
-                            "description": "Authorize.Net's description of the transaction request",
-                            "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "opaque_data_value",
-                            "description": "The nonce returned by Authorize.Net",
-                            "type": {
-                                "kind": "NON_NULL",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
                             },
                             "defaultValue": null
                         }
@@ -15367,6 +16612,16 @@
                         {
                             "name": "customer_notes",
                             "description": "",
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "pickup_location_code",
+                            "description": "The code of Pickup Location which will be used for In-Store Pickup.",
                             "type": {
                                 "kind": "SCALAR",
                                 "name": "String",
@@ -16470,179 +17725,6 @@
                             "deprecationReason": null
                         }
                     ],
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "INPUT_OBJECT",
-                    "name": "FilterTypeInput",
-                    "description": "FilterTypeInput specifies which action will be performed in a query ",
-                    "fields": null,
-                    "inputFields": [
-                        {
-                            "name": "eq",
-                            "description": "Equals",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "finset",
-                            "description": "",
-                            "type": {
-                                "kind": "LIST",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "from",
-                            "description": "From. Must be used with 'to'",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "gt",
-                            "description": "Greater than",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "gteq",
-                            "description": "Greater than or equal to",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "in",
-                            "description": "In. The value can contain a set of comma-separated values",
-                            "type": {
-                                "kind": "LIST",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "like",
-                            "description": "Like. The specified value can contain % (percent signs) to allow matching of 0 or more characters",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "lt",
-                            "description": "Less than",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "lteq",
-                            "description": "Less than or equal to",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "moreq",
-                            "description": "More than or equal to",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "neq",
-                            "description": "Not equal to",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "nin",
-                            "description": "Not in. The value can contain a set of comma-separated values",
-                            "type": {
-                                "kind": "LIST",
-                                "name": null,
-                                "ofType": {
-                                    "kind": "SCALAR",
-                                    "name": "String",
-                                    "ofType": null
-                                }
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "notnull",
-                            "description": "Not null",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "null",
-                            "description": "Is null",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        },
-                        {
-                            "name": "to",
-                            "description": "To. Must be used with 'from'",
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "defaultValue": null
-                        }
-                    ],
-                    "interfaces": null,
-                    "enumValues": null,
                     "possibleTypes": null
                 },
                 {
@@ -17824,6 +18906,83 @@
                     ],
                     "inputFields": null,
                     "interfaces": [],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "ProductVideo",
+                    "description": "Contains information about a product video.",
+                    "fields": [
+                        {
+                            "name": "disabled",
+                            "description": "Whether the image is hidden from view.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "label",
+                            "description": "The label of the product image or video.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "position",
+                            "description": "The media item's position after it has been sorted.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "url",
+                            "description": "The URL of the product image or video.",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "video_content",
+                            "description": "Contains a ProductMediaGalleryEntriesVideoContent object.",
+                            "args": [],
+                            "type": {
+                                "kind": "OBJECT",
+                                "name": "ProductMediaGalleryEntriesVideoContent",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [
+                        {
+                            "kind": "INTERFACE",
+                            "name": "MediaGalleryInterface",
+                            "ofType": null
+                        }
+                    ],
                     "enumValues": null,
                     "possibleTypes": null
                 },
@@ -20290,59 +21449,6 @@
                         {
                             "kind": "INTERFACE",
                             "name": "LayerFilterItemInterface",
-                            "ofType": null
-                        }
-                    ],
-                    "enumValues": null,
-                    "possibleTypes": null
-                },
-                {
-                    "kind": "OBJECT",
-                    "name": "ProductVideo",
-                    "description": "Contains information about a product video.",
-                    "fields": [
-                        {
-                            "name": "label",
-                            "description": "The label of the product image or video.",
-                            "args": [],
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "isDeprecated": false,
-                            "deprecationReason": null
-                        },
-                        {
-                            "name": "url",
-                            "description": "The URL of the product image or video.",
-                            "args": [],
-                            "type": {
-                                "kind": "SCALAR",
-                                "name": "String",
-                                "ofType": null
-                            },
-                            "isDeprecated": false,
-                            "deprecationReason": null
-                        },
-                        {
-                            "name": "video_content",
-                            "description": "Contains a ProductMediaGalleryEntriesVideoContent object.",
-                            "args": [],
-                            "type": {
-                                "kind": "OBJECT",
-                                "name": "ProductMediaGalleryEntriesVideoContent",
-                                "ofType": null
-                            },
-                            "isDeprecated": false,
-                            "deprecationReason": null
-                        }
-                    ],
-                    "inputFields": null,
-                    "interfaces": [
-                        {
-                            "kind": "INTERFACE",
-                            "name": "MediaGalleryInterface",
                             "ofType": null
                         }
                     ],
@@ -24634,6 +25740,18 @@
                                 "name": "String",
                                 "ofType": null
                             },
+                            "isDeprecated": true,
+                            "deprecationReason": "Use attribute_id_v2 instead"
+                        },
+                        {
+                            "name": "attribute_id_v2",
+                            "description": "The ID assigned to the attribute",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
                             "isDeprecated": false,
                             "deprecationReason": null
                         },
@@ -24761,6 +25879,18 @@
                             "deprecationReason": null
                         },
                         {
+                            "name": "swatch_data",
+                            "description": "Swatch data for configurable product option",
+                            "args": [],
+                            "type": {
+                                "kind": "INTERFACE",
+                                "name": "SwatchDataInterface",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
                             "name": "use_default_value",
                             "description": "Indicates whether to use the default_label",
                             "args": [],
@@ -24789,6 +25919,45 @@
                     "interfaces": [],
                     "enumValues": null,
                     "possibleTypes": null
+                },
+                {
+                    "kind": "INTERFACE",
+                    "name": "SwatchDataInterface",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "value",
+                            "description": "Value of swatch item (HEX color code, image link or textual value)",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": null,
+                    "enumValues": null,
+                    "possibleTypes": [
+                        {
+                            "kind": "OBJECT",
+                            "name": "ImageSwatchData",
+                            "ofType": null
+                        },
+                        {
+                            "kind": "OBJECT",
+                            "name": "TextSwatchData",
+                            "ofType": null
+                        },
+                        {
+                            "kind": "OBJECT",
+                            "name": "ColorSwatchData",
+                            "ofType": null
+                        }
+                    ]
                 },
                 {
                     "kind": "OBJECT",
@@ -25196,6 +26365,105 @@
                         {
                             "kind": "INTERFACE",
                             "name": "SwatchLayerFilterItemInterface",
+                            "ofType": null
+                        }
+                    ],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "ImageSwatchData",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "thumbnail",
+                            "description": "Thumbnail swatch image URL",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        },
+                        {
+                            "name": "value",
+                            "description": "Value of swatch item (HEX color code, image link or textual value)",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [
+                        {
+                            "kind": "INTERFACE",
+                            "name": "SwatchDataInterface",
+                            "ofType": null
+                        }
+                    ],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "TextSwatchData",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "value",
+                            "description": "Value of swatch item (HEX color code, image link or textual value)",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [
+                        {
+                            "kind": "INTERFACE",
+                            "name": "SwatchDataInterface",
+                            "ofType": null
+                        }
+                    ],
+                    "enumValues": null,
+                    "possibleTypes": null
+                },
+                {
+                    "kind": "OBJECT",
+                    "name": "ColorSwatchData",
+                    "description": "",
+                    "fields": [
+                        {
+                            "name": "value",
+                            "description": "Value of swatch item (HEX color code, image link or textual value)",
+                            "args": [],
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            },
+                            "isDeprecated": false,
+                            "deprecationReason": null
+                        }
+                    ],
+                    "inputFields": null,
+                    "interfaces": [
+                        {
+                            "kind": "INTERFACE",
+                            "name": "SwatchDataInterface",
                             "ofType": null
                         }
                     ],

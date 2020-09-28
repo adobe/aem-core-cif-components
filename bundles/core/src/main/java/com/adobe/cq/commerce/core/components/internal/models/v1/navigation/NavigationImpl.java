@@ -119,6 +119,10 @@ public class NavigationImpl implements Navigation {
     private void addItems(PageManager pageManager, AbstractNavigationItem parent,
         com.adobe.cq.wcm.core.components.models.NavigationItem currentWcmItem, List<NavigationItem> itemList) {
         Page page = pageManager.getPage(currentWcmItem.getPath());
+
+        // Go to production version to get the configuration of the navigation panel
+        page = SiteNavigation.toLaunchProductionPage(page);
+
         if (shouldExpandCatalogRoot(page)) {
             expandCatalogRoot(page, itemList);
         } else {

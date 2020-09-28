@@ -210,5 +210,36 @@
     "jcr:content": {
       "jcr:language": "en_US"
     }
+  },
+  "launches": {
+    "2020": {
+      "09": {
+        "14": {
+          "mylaunch": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+              "sling:resourceType": "wcm/launches/components/launch",
+              "sourceRootResource": "/content/pageA",
+              "liveDate": "2020-12-01T09:00:00.000+01:00"
+            },
+            "content": {
+              "jcr:primaryType": "cq:Page",
+              "pageA": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:content": {
+                  "root": {
+                    "responsivegrid": {
+                      "product": {
+                        "sling:resourceType": "venia/components/commerce/product"
+                      }
+                    }
+                  }
+                } 
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
