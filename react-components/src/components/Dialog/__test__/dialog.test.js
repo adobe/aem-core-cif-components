@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import Dialog from '../dialog';
 
 jest.mock('../../Portal', () => ({
@@ -33,10 +33,48 @@ describe('<Dialog>', () => {
         const container = document.getElementById(CONTAINER_ID);
         container.parentElement.removeChild(container);
     });
-    it.skip('renders an empty dialog', () => {
-        const { asFragment, debug } = render(<Dialog rootContainerSelector={`#${CONTAINER_ID}`} />);
+    it('renders an empty dialog', () => {
+        const { asFragment } = render(<Dialog rootContainerSelector={`#${CONTAINER_ID}`} />);
 
-        debug();
         expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the dialog with disabled buttons', () => {
+        const { asFragment } = render(
+            <Dialog rootContainerSelector={`#${CONTAINER_ID}`} shouldDisableAllButtons={true} />
+        );
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+    it('renders the dialog with disabled confirm button', () => {
+        const { asFragment } = render(
+            <Dialog rootContainerSelector={`#${CONTAINER_ID}`} shouldDisableConfirmButton={true} />
+        );
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('calls the "Confirm" handler', () => {
+        const confirmFn = jest.fn();
+        const { container } = render(
+            <Dialog rootContainerSelector={`#${CONTAINER_ID}`} confirmText={'Save'} onConfirm={confirmFn} />
+        );
+
+        let submit = container.querySelector('button[type=submit]');
+        fireEvent.click(submit);
+
+        expect(confirmFn).toHaveBeenCalled();
+    });
+
+    it('calls the "Cancel" handler', () => {
+        const cancelFn = jest.fn();
+        const { container } = render(
+            <Dialog rootContainerSelector={`#${CONTAINER_ID}`} confirmText={'Save'} onCancel={cancelFn} />
+        );
+
+        let reset = container.querySelector('button[type=reset]');
+        fireEvent.click(reset);
+
+        expect(cancelFn).toHaveBeenCalled();
     });
 });

@@ -79,7 +79,7 @@ const AccountDetails = () => {
             </div>
             <EditModal
                 formErrors={formErrors}
-                initialValues={customer}
+                initialValues={{ ...customer }}
                 isDisabled={isDisabled}
                 isOpen={isUpdateMode}
                 onCancel={handleCancel}

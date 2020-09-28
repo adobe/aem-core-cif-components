@@ -72,7 +72,7 @@ describe('useAccountDetails', () => {
         jest.clearAllMocks();
     });
 
-    it('calls the mutation to update the customer data', () => {
+    it('calls the mutation to update the customer data', async () => {
         const mockVariables = {
             firstname: 'Jenny',
             lastname: 'Cole',
@@ -80,11 +80,13 @@ describe('useAccountDetails', () => {
             password: '12345'
         };
 
-        const { getByRole } = render(<TestComponent {...mockVariables} />);
+        const { getByRole, queryByText } = render(<TestComponent {...mockVariables} />);
         const button = getByRole('button');
 
         fireEvent.click(button);
-
+        // wait for the DOM element to show up because the function might not be executed
+        // until we assert on it.
+        await waitForElement(() => queryByText('Done'));
         expect(mockSetCustomerInformation).toHaveBeenCalled();
         expect(mockChangeCustomerPassword).not.toHaveBeenCalled();
         expect(mockSetCustomerInformation.mock.calls[0][0]).toEqual({

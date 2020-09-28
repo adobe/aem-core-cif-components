@@ -5,6 +5,7 @@
     width: 100%;
     text-align: center;
     padding: 1rem;
+    margin-top: 3rem;
 }
 .lineItems {
     display: grid;
@@ -32,6 +33,7 @@
         display: grid;
         gap: 1rem;
         grid-template-columns: 1fr 1fr 1fr;
+        margin: 3rem 1rem;
     }
 }
 

@@ -17,7 +17,7 @@ import { X as CloseIcon } from 'react-feather';
 import { string, shape, func, bool, object } from 'prop-types';
 import { Form } from 'informed';
 
-import Portal from '../Portal';
+import { Portal } from '../Portal';
 import Button from '../Button';
 
 import classes from './dialog.css';
@@ -55,7 +55,7 @@ const Dialog = props => {
     return (
         <Portal selector={rootContainerSelector}>
             <aside className={rootClass}>
-                <Form className={classes.form} initialValues={formProps} onSubmit={onConfirm}>
+                <Form className={classes.form} onSubmit={onConfirm} {...formProps}>
                     {/* The Mask. */}
                     <button className={classes.mask} disabled={isMaskDisabled} onClick={onCancel} type="reset" />
                     {/* The Dialog. */}
@@ -76,7 +76,7 @@ const Dialog = props => {
                                 </Button>
                                 <Button
                                     classes={confirmButtonClasses}
-                                    disabled={confirmButtonDisabled}
+                                    disabled={shouldDisableAllButtons || confirmButtonDisabled}
                                     priority="high"
                                     type="submit">
                                     {confirmText}

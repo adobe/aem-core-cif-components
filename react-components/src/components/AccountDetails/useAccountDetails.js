@@ -30,13 +30,12 @@ const useAccountDetails = props => {
 
     const [
         setCustomerInformation,
-        { data: updateCustomerInformationData, loading: isUpdatingCustomer, error: customerInformationUpdateError }
+        { loading: isUpdatingCustomer, error: customerInformationUpdateError }
     ] = useMutation(setCustomerInformationMutation, { refetchQueries: ['GetCustomerInformation'] });
 
-    const [
-        changeCustomerPassword,
-        { data: changeCustomerPasswordData, loading: isChangingCustomerPassword, error: changePasswordError }
-    ] = useMutation(changeCustomerPasswordMutation);
+    const [changeCustomerPassword, { loading: isChangingCustomerPassword, error: changePasswordError }] = useMutation(
+        changeCustomerPasswordMutation
+    );
 
     const initialValues = useMemo(() => {
         if (accountInformationData) {

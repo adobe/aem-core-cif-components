@@ -13,8 +13,9 @@
  ******************************************************************************/
 
 import React from 'react';
-import { object, bool, func } from 'prop-types';
+import { object, bool, func, array } from 'prop-types';
 import { useTranslation } from 'react-i18next';
+import { useConfigContext } from '../../context/ConfigContext';
 import Dialog from '../Dialog';
 import FormError from '../FormError';
 
@@ -32,17 +33,23 @@ const EditModal = props => {
         formErrors
     } = props;
     const [t] = useTranslation('account');
+    const {
+        mountingPoints: { accountDetails }
+    } = useConfigContext();
+
+    const dialogFormProps = { initialValues };
+
     return (
         <Dialog
             confirmText="Save"
-            formProps={initialValues}
+            formProps={dialogFormProps}
             isOpen={isOpen}
             onCancel={onCancel}
             onConfirm={onSubmit}
             shouldDisableAllButtons={isDisabled}
             shouldDisableConfirmButton={isDisabled}
             title={t('account:edit-account-info', 'Edit account information')}
-            rootContainerSelector="#accountdetails"
+            rootContainerSelector={accountDetails}
             isModal={true}>
             <FormError errors={formErrors} />
             <EditForm handleShowNewPasswordField={onChangePassword} shouldShowNewPassword={shouldShowNewPassword} />
@@ -60,5 +67,5 @@ EditModal.propTypes = {
     isDisabled: bool,
     onChangePassword: func.isRequired,
     shouldShowNewPassword: bool,
-    formErrors: object
+    formErrors: array
 };

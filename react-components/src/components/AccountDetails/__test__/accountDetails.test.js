@@ -14,26 +14,29 @@
 import React from 'react';
 import { render, screen, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+
 import AccountDetails from '../';
 import UserContextProvider from '../../../context/UserContext';
-
 import getDetailsQuery from '../query_get_customer_information.graphql';
+import ConfigContextProvider from '../../../context/ConfigContext';
 
 describe('<AccountDetails>', () => {
     const withContext = (Component, userContext = {}, mocks = []) => {
         return (
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={userContext}>
-                    <Component />
-                </UserContextProvider>
-            </MockedProvider>
+            <ConfigContextProvider config={{ mountingPoints: { accountdetails: 'mock' } }}>
+                <MockedProvider mocks={mocks} addTypename={false}>
+                    <UserContextProvider initialState={userContext}>
+                        <Component />
+                    </UserContextProvider>
+                </MockedProvider>
+            </ConfigContextProvider>
         );
     };
 
     it('renders the Account Details data for an unauthenticated user', () => {
-        const { findByText } = render(withContext(AccountDetails, { isSignedIn: false }));
+        const { queryByText } = render(withContext(AccountDetails, { isSignedIn: false }));
 
-        expect(findByText('Please Sign in to see the account details.')).not.toBeUndefined();
+        expect(queryByText('Please Sign in to see the account details.')).not.toBeUndefined();
     });
 
     it('renders the Account Details data for an authenticated user', async () => {
@@ -47,12 +50,12 @@ describe('<AccountDetails>', () => {
                 }
             }
         ];
-        render(withContext(AccountDetails, { isSignedIn: true }, mocks));
+        const { queryByText } = render(withContext(AccountDetails, { isSignedIn: true }, mocks));
 
         await waitForElement(() => screen.getByLabelText('name'));
 
-        expect(screen.findByText('Jane')).not.toBeUndefined();
-        expect(screen.findByText('Doe')).not.toBeUndefined();
-        expect(screen.findByText('jdoe@gmail.com')).not.toBeUndefined();
+        expect(queryByText('Jane')).not.toBeUndefined();
+        expect(queryByText('Doe')).not.toBeUndefined();
+        expect(queryByText('jdoe@gmail.com')).not.toBeUndefined();
     });
 });

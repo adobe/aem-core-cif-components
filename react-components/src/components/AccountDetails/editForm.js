@@ -19,8 +19,8 @@ import Field from '../Field';
 import LinkButton from '../LinkButton';
 import TextInput from '../TextInput';
 import Password from '../Password';
-
-import { isRequired } from '../../utils/formValidators';
+import combine from '../../utils/combineValidators';
+import { isRequired, validatePassword, hasLengthAtLeast, isNotEqualToField } from '../../utils/formValidators';
 import { useTranslation } from 'react-i18next';
 
 import classes from './editForm.css';
@@ -42,6 +42,12 @@ const EditForm = props => {
             <Password
                 fieldName="newPassword"
                 label={t('account:new-password', 'New Password')}
+                validate={combine([
+                    isRequired,
+                    [hasLengthAtLeast, 8],
+                    validatePassword,
+                    [isNotEqualToField, 'password']
+                ])}
                 isToggleButtonHidden={false}
             />
         </div>
