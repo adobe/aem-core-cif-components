@@ -214,7 +214,7 @@ public class MagentoGraphqlClientTest {
         headers.add(new BasicHeader("Store", "my-store"));
         headers.add(new BasicHeader("Preview-Version", "1606809600")); // Tuesday, 1 December 2020 09:00:00 GMT+01:00
 
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, HttpMethod.POST);
         Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 

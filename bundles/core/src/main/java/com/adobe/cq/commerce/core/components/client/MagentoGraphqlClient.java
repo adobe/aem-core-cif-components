@@ -166,6 +166,9 @@ public class MagentoGraphqlClient {
                 OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(liveDate.toInstant(), timeZone.toZoneId());
                 Long previewVersion = offsetDateTime.toEpochSecond();
                 headers.add(new BasicHeader("Preview-Version", String.valueOf(previewVersion)));
+
+                // We use POST to ensure that Magento doesn't return a cached response
+                requestOptions.withHttpMethod(HttpMethod.POST);
             }
         }
 
