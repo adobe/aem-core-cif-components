@@ -383,4 +383,13 @@ public class ProductListImplTest {
         Assert.assertEquals("Product Name", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
     }
+
+    @Test
+    public void testClientLoadingIsDisabledOnLaunchPage() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertTrue(productListModel.loadClientPrice());
+        Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
+        Whitebox.setInternalState(productListModel, "currentPage", launch);
+        Assert.assertFalse(productListModel.loadClientPrice());
+    }
 }
