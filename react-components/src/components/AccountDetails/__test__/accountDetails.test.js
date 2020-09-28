@@ -15,7 +15,7 @@ import React from 'react';
 import { render, screen, waitForElement } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 
-import AccountDetails from '../';
+import AccountDetails from '../accountDetails';
 import UserContextProvider from '../../../context/UserContext';
 import getDetailsQuery from '../query_get_customer_information.graphql';
 import ConfigContextProvider from '../../../context/ConfigContext';
