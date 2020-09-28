@@ -36,6 +36,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -102,7 +103,7 @@ public class ProductCollectionImpl implements ProductCollection {
 
     @Override
     public boolean loadClientPrice() {
-        return loadClientPrice;
+        return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
     }
 
     @Override
