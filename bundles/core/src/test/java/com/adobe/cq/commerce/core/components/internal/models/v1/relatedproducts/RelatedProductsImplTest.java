@@ -145,7 +145,7 @@ public class RelatedProductsImplTest {
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
-        slingBindings.put("currentStyle", style);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         relatedProducts = context.request().adaptTo(RelatedProductsImpl.class);
     }

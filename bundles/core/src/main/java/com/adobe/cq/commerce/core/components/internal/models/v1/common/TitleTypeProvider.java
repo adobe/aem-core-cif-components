@@ -20,10 +20,9 @@ import com.day.cq.wcm.api.designer.Style;
 
 /**
  * Simple class to avoid re-implementing the same method in all the Sling models with a title property
- * for which the HTML tag can be configured. Sling models cannot simply extend a base class
- * because Sling only supports the empty constructor, so we use an abtract class.
+ * for which the HTML tag can be configured.
  */
-public abstract class TitleTypeProvider {
+public class TitleTypeProvider {
 
     private String titleType;
 
@@ -47,11 +46,4 @@ public abstract class TitleTypeProvider {
         }
         return titleType;
     }
-
-    /**
-     * Should return the HTML tag type. Simply implement this method by calling {@link #getTitleType(Style, ValueMap)}
-     * 
-     * @return The HTML tag type that should be used to display the component title.
-     */
-    public abstract String getTitleType();
 }

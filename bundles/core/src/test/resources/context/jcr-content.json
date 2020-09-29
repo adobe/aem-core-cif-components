@@ -90,6 +90,7 @@
           },
           "featuredcategorylist": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "titleType": "h2",
             "items": {
               "item0": {
                 "categoryId": "5"

@@ -113,11 +113,10 @@ public class ProductCarouselImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(carouselResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, carouselResource.getValueMap());
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
-        slingBindings.put("currentStyle", style);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         productSkuArray = (String[]) carouselResource.getValueMap().get("product"); // The HTL script uses an alias here
         slingBindings.put("productSkuList", productSkuArray);

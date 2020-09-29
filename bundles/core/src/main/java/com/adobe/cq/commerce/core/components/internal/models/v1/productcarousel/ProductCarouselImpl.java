@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Optional;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -76,9 +75,6 @@ public class ProductCarouselImpl extends TitleTypeProvider implements ProductCar
 
     @Inject
     private UrlProvider urlProvider;
-
-    @ScriptVariable
-    protected ValueMap properties;
 
     @ScriptVariable
     protected Style currentStyle;
@@ -193,6 +189,6 @@ public class ProductCarouselImpl extends TitleTypeProvider implements ProductCar
 
     @Override
     public String getTitleType() {
-        return getTitleType(currentStyle, properties);
+        return getTitleType(currentStyle, resource.getValueMap());
     }
 }

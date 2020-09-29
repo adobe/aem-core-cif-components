@@ -28,11 +28,13 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -42,12 +44,13 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
-public class FeaturedCategoryListImpl implements FeaturedCategoryList {
+public class FeaturedCategoryListImpl extends TitleTypeProvider implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
@@ -69,6 +72,9 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     @Self
     private SlingHttpServletRequest request;
+
+    @ScriptVariable
+    protected Style currentStyle;
 
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
@@ -157,5 +163,10 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Override
     public AbstractCategoriesRetriever getCategoriesRetriever() {
         return this.categoriesRetriever;
+    }
+
+    @Override
+    public String getTitleType() {
+        return getTitleType(currentStyle, resource.getValueMap());
     }
 }

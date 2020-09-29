@@ -74,7 +74,6 @@ public class ProductCarouselImplEmptyTest {
         slingBindings.setResource(carouselResource);
         Page page = context.currentPage(PAGE);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, carouselResource.getValueMap());
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
