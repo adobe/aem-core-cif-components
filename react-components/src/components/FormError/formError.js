@@ -12,11 +12,10 @@
  *
  ******************************************************************************/
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { arrayOf, bool, instanceOf, shape, string } from 'prop-types';
 
 import defaultClasses from './formError.css';
-import { useScrollIntoView } from '../../utils/hooks/useScrollIntoView';
 import mergeClasses from '../../utils/mergeClasses';
 import { deriveErrorMessage } from '../../utils/deriveErrorMessage';
 
@@ -26,8 +25,11 @@ const FormError = props => {
     const errorMessage = deriveErrorMessage(errors);
 
     const errorRef = useRef(null);
-
-    useScrollIntoView(errorRef, scrollOnError && errorMessage);
+    useEffect(() => {
+        if (scrollOnError && errorMessage) {
+            errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [errorRef, scrollOnError, errorMessage]);
 
     const classes = mergeClasses(defaultClasses, propClasses);
 
