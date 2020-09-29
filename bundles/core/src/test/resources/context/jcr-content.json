@@ -51,7 +51,8 @@
           "relatedproducts": {
             "product": "24-MG01",
             "relationType": "RELATED_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "venia/components/commerce/relatedproducts",
+            "titleType": "h2"
           },
           "upsellproducts": {
             "relationType": "UPSELL_PRODUCTS",

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -45,9 +46,10 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentif
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
-public class RelatedProductsImpl implements ProductCarousel {
+public class RelatedProductsImpl extends TitleTypeProvider implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
@@ -69,6 +71,9 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @ScriptVariable
     private ValueMap properties;
+
+    @ScriptVariable
+    protected Style currentStyle;
 
     private Page productPage;
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -156,6 +161,11 @@ public class RelatedProductsImpl implements ProductCarousel {
     @Override
     public AbstractProductsRetriever getProductsRetriever() {
         return productsRetriever;
+    }
+
+    @Override
+    public String getTitleType() {
+        return getTitleType(currentStyle, properties);
     }
 
 }
