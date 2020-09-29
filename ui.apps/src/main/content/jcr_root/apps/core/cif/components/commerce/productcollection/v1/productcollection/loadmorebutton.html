@@ -1,0 +1,24 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~
+  ~ Copyright 2020 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.pager="${@ pager, addLazy}">
+
+<button data-sly-test="${pager.currentPage < pager.totalPages}" class="loadmore__button" 
+     data-load-more="${resource.path @
+         selectors=addLazy ? ['lazy', request.requestPathInfo.selectorString] : request.requestPathInfo.selectorString,
+         extension='html',
+         context='uri',
+         query=pager.nextPageParameters}">${'Load more' @ i18n}</button>
+<div class="loadmore__spinner"></div>
+
+</template>

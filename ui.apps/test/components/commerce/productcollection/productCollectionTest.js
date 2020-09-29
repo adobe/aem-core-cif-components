@@ -169,24 +169,27 @@ describe('Productcollection', () => {
         listRoot.dataset.locale = 'en-US'; // enforce the locale for prices
         listRoot.insertAdjacentHTML(
             'afterbegin',
-            `<div class="item__root" data-sku="sku-a" role="product">
-                <div class="price">
-                    <span>123</span>
+            `
+            <div class="gallery__items">
+                <div class="item__root" data-sku="sku-a" role="product">
+                    <div class="price">
+                        <span>123</span>
+                    </div>
                 </div>
-            </div>
-            <div class="item__root" data-sku="sku-b" role="product">
-                <div class="price">
-                    <span>456</span>
+                <div class="item__root" data-sku="sku-b" role="product">
+                    <div class="price">
+                        <span>456</span>
+                    </div>
                 </div>
-            </div>
-            <div class="item__root" data-sku="sku-c" role="product">
-                <div class="price">
-                    <span>789</span>
+                <div class="item__root" data-sku="sku-c" role="product">
+                    <div class="price">
+                        <span>789</span>
+                    </div>
                 </div>
-            </div>
-            <div class="item__root" data-sku="sku-d" role="product">
-                <div class="price">
-                    <span>101112</span>
+                <div class="item__root" data-sku="sku-d" role="product">
+                    <div class="price">
+                        <span>101112</span>
+                    </div>
                 </div>
             </div>`
         );
@@ -234,5 +237,81 @@ describe('Productcollection', () => {
     it('skips retrieving of prices via GraphQL when data attribute is not set', () => {
         let list = new ProductCollection({ element: listRoot });
         assert.isFalse(list._state.loadPrices);
+    });
+
+    it('lazy loads products', () => {
+        listRoot.insertAdjacentHTML(
+            'beforeend',
+            `<button class="loadmore__button" data-load-more="http://more.products">Load more</button>
+            <div class="loadmore__spinner"></div>`
+        );
+        listRoot.dataset.loadClientPrice = true;
+
+        let response = `
+            <div class="item__root" data-sku="sku-e" role="product">
+                <div class="price">
+                    <span>123</span>
+                </div>
+            </div>
+            <button class="loadmore__button" data-load-more="http://more.products2">Load more</button>`;
+
+        let mockResponse = new window.Response(response, {
+            status: 200,
+            headers: {
+                'Content-type': 'text/html'
+            }
+        });
+
+        let list = new ProductCollection({ element: listRoot });
+
+        // Check the skus before we load more products
+        assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
+
+        list._fetchMoreProducts = sinon.stub().resolves(mockResponse);
+        let loadMoreButton = listRoot.querySelector('.loadmore__button');
+
+        return list._loadMore(loadMoreButton).then(() => {
+            assert.isTrue(list._fetchMoreProducts.called);
+
+            // Verify that the product has been added to the HTML
+            assert.equal(listRoot.querySelectorAll('.item__root').length, 5);
+
+            // Verify that the first load more button was replaced with the new button
+            assert.equal(listRoot.querySelector('.loadmore__button').dataset.loadMore, 'http://more.products2');
+
+            // Check the skus after we load more products and check that the price loading function was called twice
+            assert.deepEqual(list._state.skus, ['sku-e']);
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.calledTwice);
+        });
+    });
+
+    it('lazy loads products with HTTP error', () => {
+        listRoot.insertAdjacentHTML(
+            'beforeend',
+            `<button class="loadmore__button" data-load-more="http://more.products">Load more</button>
+            <div class="loadmore__spinner"></div>`
+        );
+
+        let mockResponse = new window.Response('Internal server error', {
+            status: 500,
+            headers: {
+                'Content-type': 'text/html'
+            }
+        });
+
+        let list = new ProductCollection({ element: listRoot });
+        list._fetchMoreProducts = sinon.stub().resolves(mockResponse);
+        let loadMoreButton = listRoot.querySelector('.loadmore__button');
+
+        return list._loadMore(loadMoreButton).catch(error => {
+            assert.isTrue(list._fetchMoreProducts.called);
+            assert.equal(error.message, 'Internal server error');
+
+            // Verify that the product has NOT been added to the HTML
+            assert.equal(listRoot.querySelectorAll('.item__root').length, 4);
+
+            // Verify that the first load more button is still there
+            assert.equal(listRoot.querySelector('.loadmore__button').dataset.loadMore, 'http://more.products');
+        });
     });
 });

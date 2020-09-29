@@ -166,7 +166,10 @@ public class UrlProviderImplTest {
     @Test
     public void testProductIdentifierParsingInSelector() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+
+        // For example for lazy loading, we have two selectors and the id is in the last position
+        requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
+
         Pair<ProductIdentifierType, String> id = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals(ProductIdentifierType.URL_KEY, id.getLeft());
         Assert.assertEquals("beaumont-summit-kit", id.getRight());

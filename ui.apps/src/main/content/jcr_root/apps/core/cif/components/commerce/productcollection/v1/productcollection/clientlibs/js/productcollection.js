@@ -22,6 +22,11 @@ class ProductCollection {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
 
+        let loadMoreButton = this._element.querySelector(ProductCollection.selectors.loadMoreButton);
+        if (loadMoreButton) {
+            loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
+        }
+
         // Local state
         this._state = {
             // List of skus currently displayed in the list
@@ -154,13 +159,63 @@ class ProductCollection {
     _applySortKey(sortKeySelect) {
         window.location = sortKeySelect.options[sortKeySelect.selectedIndex].value;
     }
+
+    async _fetchMoreProducts(loadMoreButton) {
+        let url = loadMoreButton.dataset.loadMore;
+        return fetch(url);
+    }
+
+    async _loadMore(loadMoreButton) {
+        // Hide load more button and show spinner
+        loadMoreButton.style.display = 'none';
+        let spinner = this._element.querySelector(ProductCollection.selectors.loadMoreSpinner);
+        spinner.style.display = 'block';
+
+        let response = await this._fetchMoreProducts(loadMoreButton);
+        if (!response.ok || response.errors) {
+            // The query failed, we show the button again
+            loadMoreButton.style.display = 'block';
+            let message = await response.text();
+            throw new Error(message);
+        }
+
+        // Delete load more button and hide spinner
+        loadMoreButton.parentNode.removeChild(loadMoreButton);
+        spinner.style.display = 'none';
+
+        // Parse response and only select product items
+        let text = await response.text();
+        let domParser = new DOMParser();
+        let more = domParser.parseFromString(text, 'text/html');
+        let moreItems = more.querySelectorAll(ProductCollection.selectors.item);
+
+        // Append new product items to existing product gallery
+        let galleryItems = this._element.querySelector(ProductCollection.selectors.galleryItems);
+        galleryItems.append(...moreItems);
+
+        // If any, append the new "load more" button
+        let newloadMoreButton = more.querySelector(ProductCollection.selectors.loadMoreButton);
+        if (newloadMoreButton) {
+            spinner.parentNode.insertBefore(newloadMoreButton, spinner);
+            newloadMoreButton.addEventListener('click', () => this._loadMore(newloadMoreButton));
+        }
+
+        // Fetch prices
+        if (this._state.loadPrices) {
+            this._state.skus = Array.from(moreItems, item => item.dataset.sku);
+            this._fetchPrices();
+        }
+    }
 }
 
 ProductCollection.selectors = {
     self: '[data-cmp-is=productcollection]',
     price: '.price',
     item: '.item__root[role=product]',
-    sortKey: '.sort__fields .sort__key'
+    sortKey: '.sort__fields .sort__key',
+    galleryItems: '.gallery__items',
+    loadMoreButton: '.loadmore__button',
+    loadMoreSpinner: '.loadmore__spinner'
 };
 
 (function(document) {

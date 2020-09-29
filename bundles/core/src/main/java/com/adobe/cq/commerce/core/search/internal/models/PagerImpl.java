@@ -54,6 +54,11 @@ public class PagerImpl implements Pager {
         return currentPageIndex;
     }
 
+    @Override
+    public int getTotalPages() {
+        return totalPages;
+    }
+
     @Nonnull
     @Override
     public List<PagerPage> getPages() {
