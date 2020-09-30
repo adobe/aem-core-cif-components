@@ -50,7 +50,7 @@ import com.day.cq.wcm.api.designer.Style;
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
-public class FeaturedCategoryListImpl extends TitleTypeProvider implements FeaturedCategoryList {
+public class FeaturedCategoryListImpl implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
@@ -167,6 +167,6 @@ public class FeaturedCategoryListImpl extends TitleTypeProvider implements Featu
 
     @Override
     public String getTitleType() {
-        return getTitleType(currentStyle, resource.getValueMap());
+        return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 }

@@ -55,7 +55,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
-public class ProductCarouselImpl extends TitleTypeProvider implements ProductCarousel {
+public class ProductCarouselImpl implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
@@ -189,6 +189,6 @@ public class ProductCarouselImpl extends TitleTypeProvider implements ProductCar
 
     @Override
     public String getTitleType() {
-        return getTitleType(currentStyle, resource.getValueMap());
+        return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 }

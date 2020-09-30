@@ -24,8 +24,6 @@ import com.day.cq.wcm.api.designer.Style;
  */
 public class TitleTypeProvider {
 
-    private String titleType;
-
     /**
      * The component itself uses the <code>titleType</code> property but the policy uses the
      * <code>type</code> property so we can reuse the
@@ -40,10 +38,7 @@ public class TitleTypeProvider {
      * @param properties The properties of the component.
      * @return The HTML tag type that should be used to display the component title.
      */
-    protected String getTitleType(Style currentStyle, ValueMap properties) {
-        if (titleType == null) {
-            titleType = properties.get(PN_TITLE_TYPE, currentStyle.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class));
-        }
-        return titleType;
+    public static String getTitleType(Style currentStyle, ValueMap properties) {
+        return properties.get(PN_TITLE_TYPE, currentStyle.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class));
     }
 }

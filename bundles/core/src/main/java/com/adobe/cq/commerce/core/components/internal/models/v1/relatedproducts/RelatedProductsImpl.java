@@ -49,7 +49,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
-public class RelatedProductsImpl extends TitleTypeProvider implements ProductCarousel {
+public class RelatedProductsImpl implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
@@ -165,7 +165,7 @@ public class RelatedProductsImpl extends TitleTypeProvider implements ProductCar
 
     @Override
     public String getTitleType() {
-        return getTitleType(currentStyle, properties);
+        return TitleTypeProvider.getTitleType(currentStyle, properties);
     }
 
 }
