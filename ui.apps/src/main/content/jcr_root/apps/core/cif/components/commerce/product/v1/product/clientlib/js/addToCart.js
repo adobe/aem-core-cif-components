@@ -28,7 +28,6 @@ class AddToCart {
         let virtual = config.product.dataset.virtual !== undefined;
         let grouped = config.product.dataset.grouped !== undefined;
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
-        let id = config.product.id;
 
         this._state = {
             id,
@@ -73,6 +72,7 @@ class AddToCart {
 
         // Update sku attribute in select element
         document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-sku', variant.sku);
+        document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-id', variant.id);
 
         // Update internal state
         this._state.sku = variant.sku;
@@ -95,11 +95,11 @@ class AddToCart {
         // To support grouped products where multiple products can be put in the cart in one single click,
         // the sku of each product is now read from the 'data-product-sku' attribute of each select element
 
-        const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity));
-        let items = selections
+        const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity))
             .filter(selection => {
                 return parseInt(selection.value) > 0;
-            })
+            });
+        let items = selections
             .map(selection => {
                 return {
                     sku: selection.dataset.productSku,
@@ -113,16 +113,16 @@ class AddToCart {
                 detail: items
             });
             document.dispatchEvent(customEvent);
-            const rootProductId = this._state.id;
+
             if (dataLayerEnabled) {
-                items.forEach(function(item) {
+                selections.forEach(function(selection) {
                     // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
                     dataLayer.push({
                         event: 'cif:addToCart',
                         eventInfo: {
-                            "@id": rootProductId,
-                            "xdm:SKU": item.sku,
-                            "xdm:quantity": item.quantity
+                            "@id": selection.dataset.productId,
+                            "xdm:SKU": selection.dataset.productSku,
+                            "xdm:quantity": selection.value
                         }
                     });
                 })

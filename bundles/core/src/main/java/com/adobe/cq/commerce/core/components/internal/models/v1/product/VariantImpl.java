@@ -24,6 +24,8 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 
 public class VariantImpl implements Variant {
 
+    private String id;
+
     private String name;
 
     private String description;
@@ -45,6 +47,15 @@ public class VariantImpl implements Variant {
     private Map<String, Integer> variantAttributes = new HashMap<>();
 
     private Price priceRange;
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @Override
     public String getName() {

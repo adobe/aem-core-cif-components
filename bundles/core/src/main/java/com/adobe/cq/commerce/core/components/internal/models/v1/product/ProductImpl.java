@@ -305,6 +305,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
+        productVariant.setId(product.getId().toString());
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
