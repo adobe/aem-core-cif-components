@@ -21,11 +21,20 @@ import ForgotPassword from '../ForgotPassword/forgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 
 import classes from './accountDropdown.css';
+import Mask from '../Mask';
 
 const AccountDropdown = () => {
     const [
         { isAccountDropdownOpen, isSignedIn, accountDropdownView },
-        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
+        {
+            showSignIn,
+            showMyAccount,
+            showForgotPassword,
+            showCreateAccount,
+            showAccountCreated,
+            showChangePassword,
+            toggleAccountDropdown
+        }
     ] = useUserContext();
 
     const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
@@ -70,9 +79,17 @@ const AccountDropdown = () => {
     }
 
     return (
-        <div className={rootClass} aria-label="account dropdown">
-            {view}
-        </div>
+        <>
+            <Mask
+                isOpen={isAccountDropdownOpen}
+                onClickHandler={() => toggleAccountDropdown(!isAccountDropdownOpen)}
+                customClasses={{ root_active: classes.mask_active }}
+            />
+
+            <div className={rootClass} aria-label="account dropdown">
+                {view}
+            </div>
+        </>
     );
 };
 
