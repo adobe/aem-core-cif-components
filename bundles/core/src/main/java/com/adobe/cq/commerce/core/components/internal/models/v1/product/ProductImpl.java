@@ -394,6 +394,11 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
+    protected String generateId() {
+        return StringUtils.join("product", ID_SEPARATOR, productRetriever.fetchProduct().getId());
+    }
+
+    @Override
     public String getDataLayerTitle() {
         return this.getName();
     }

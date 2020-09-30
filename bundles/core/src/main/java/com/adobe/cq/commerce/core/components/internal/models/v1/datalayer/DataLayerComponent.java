@@ -65,7 +65,7 @@ public abstract class DataLayerComponent {
         return new ComponentDataImpl(this, resource);
     }
 
-    private String generateId() {
+    protected String generateId() {
         String resourceType = resource.getResourceType();
         String prefix = StringUtils.substringAfterLast(resourceType, "/");
         String path = resource.getPath();

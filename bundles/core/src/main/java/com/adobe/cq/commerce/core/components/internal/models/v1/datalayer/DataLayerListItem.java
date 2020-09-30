@@ -22,17 +22,15 @@ public abstract class DataLayerListItem extends DataLayerComponent {
     public static final String ITEM_ID_PREFIX = "item";
 
     protected String parentId;
-    protected String path;
 
     protected DataLayerListItem(String parentId, Resource resource) {
         this.parentId = parentId;
-        this.path = resource.getPath();
         this.resource = resource;
     }
 
     @Override
-    public String getId() {
+    protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(path), 0, 10));
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(resource.getPath()), 0, 10));
     }
 }

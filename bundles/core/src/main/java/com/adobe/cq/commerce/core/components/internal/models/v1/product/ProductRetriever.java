@@ -57,6 +57,7 @@ class ProductRetriever extends AbstractProductRetriever {
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
         return q -> {
             q.sku()
+                .id()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
@@ -83,6 +84,7 @@ class ProductRetriever extends AbstractProductRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> {
             q.sku()
+                .id()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
