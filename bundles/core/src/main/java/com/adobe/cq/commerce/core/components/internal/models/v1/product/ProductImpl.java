@@ -67,6 +67,7 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -286,7 +287,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Boolean loadClientPrice() {
-        return loadClientPrice;
+        return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
     }
 
     @Override

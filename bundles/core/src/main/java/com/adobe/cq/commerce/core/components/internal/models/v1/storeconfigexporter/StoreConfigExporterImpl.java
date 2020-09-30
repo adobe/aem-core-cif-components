@@ -18,10 +18,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -43,7 +45,13 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @PostConstruct
     void initModel() {
-        ComponentsConfiguration properties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
+        Resource pageContent = currentPage.getContentResource();
+        ComponentsConfiguration properties = null;
+        if (LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
+            properties = LaunchUtils.getTargetResource(pageContent, null).adaptTo(ComponentsConfiguration.class);
+        } else {
+            properties = pageContent.adaptTo(ComponentsConfiguration.class);
+        }
 
         storeView = properties.get(STORE_CODE_PROPERTY, "default");
         graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, "/magento/graphql");

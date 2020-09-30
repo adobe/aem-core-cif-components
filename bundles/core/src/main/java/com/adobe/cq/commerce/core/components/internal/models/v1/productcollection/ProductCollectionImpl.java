@@ -37,6 +37,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -49,9 +50,13 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+    protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
+
     protected Page productPage;
     protected boolean loadClientPrice;
     protected int navPageSize;
+    protected String paginationType;
+
     @Self
     protected SlingHttpServletRequest request;
     @ScriptVariable
@@ -59,13 +64,12 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     @ScriptVariable
     protected Style currentStyle;
     @Inject
-    protected Resource resource;
-    @Inject
     protected Page currentPage;
     @Inject
     protected SearchResultsService searchResultsService;
     @Inject
     protected UrlProvider urlProvider;
+
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
 
@@ -73,6 +77,8 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     private void baseInitModel() {
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
@@ -95,7 +101,12 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     @Override
     public boolean loadClientPrice() {
-        return loadClientPrice;
+        return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
+    }
+
+    @Override
+    public String getPaginationType() {
+        return paginationType;
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {

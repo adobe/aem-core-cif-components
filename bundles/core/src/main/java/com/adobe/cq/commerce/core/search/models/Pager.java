@@ -57,6 +57,13 @@ public interface Pager {
     int getCurrentPage();
 
     /**
+     * Get the total number of pages.
+     *
+     * @return the total number of pages
+     */
+    int getTotalPages();
+
+    /**
      * Whether there are additional pages in pagination set than are displayable currently at the start of the page list.
      *
      * @return true if more pages before current starting page

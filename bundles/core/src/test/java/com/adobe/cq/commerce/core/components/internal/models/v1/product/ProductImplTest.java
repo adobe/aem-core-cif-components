@@ -417,4 +417,13 @@ public class ProductImplTest {
         productModel = context.request().adaptTo(ProductImpl.class);
         Assert.assertFalse("Product is not found", productModel.getFound());
     }
+
+    @Test
+    public void testClientLoadingIsDisabledOnLaunchPage() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        Assert.assertTrue(productModel.loadClientPrice());
+        Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
+        Whitebox.setInternalState(productModel, "currentPage", launch);
+        Assert.assertFalse(productModel.loadClientPrice());
+    }
 }
