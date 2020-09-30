@@ -36,6 +36,9 @@ exports[`<AccountContainer> renders the component 1`] = `
       Sign In
     </span>
   </button>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
