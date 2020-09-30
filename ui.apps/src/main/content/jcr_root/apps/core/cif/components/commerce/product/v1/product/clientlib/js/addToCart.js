@@ -28,8 +28,10 @@ class AddToCart {
         let virtual = config.product.dataset.virtual !== undefined;
         let grouped = config.product.dataset.grouped !== undefined;
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
+        let id = config.product.id;
 
         this._state = {
+            id,
             sku,
             attributes: {},
             configurable,
@@ -111,14 +113,19 @@ class AddToCart {
                 detail: items
             });
             document.dispatchEvent(customEvent);
-
+            const rootProductId = this._state.id;
             if (dataLayerEnabled) {
-                dataLayer.push({
-                    event: 'cif:addToCart',
-                    eventInfo: {
-                        items: items
-                    }
-                });
+                items.forEach(function(item) {
+                    // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
+                    dataLayer.push({
+                        event: 'cif:addToCart',
+                        eventInfo: {
+                            "@id": rootProductId,
+                            "xdm:SKU": item.sku,
+                            "xdm:quantity": item.quantity
+                        }
+                    });
+                })
             }
         }
     }

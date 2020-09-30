@@ -34,6 +34,7 @@ const BundleProductOptions = () => {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
     const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
+    const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
 
     const fetchBundleDetails = async sku => {
@@ -165,7 +166,13 @@ const BundleProductOptions = () => {
             detail: [productData]
         });
         document.dispatchEvent(customEvent);
-        dataLayerUtils.pushEvent('cif:addToCart', productData);
+        // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
+        dataLayerUtils.pushEvent('cif:addToCart', {
+            '@id': productId,
+            'xdm:SKU': productData.sku,
+            'xdm:quantity': productData.quantity,
+            bundle: true
+        });
     };
 
     const getTotalPrice = () => {
