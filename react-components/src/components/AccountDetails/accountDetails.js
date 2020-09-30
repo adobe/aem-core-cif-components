@@ -46,7 +46,7 @@ const AccountDetails = () => {
     if (!isSignedIn) {
         return (
             <div className={classes.messageText}>
-                {t('account:address-book-sign-in-text', 'Please Sign in to see the account details.')}
+                {t('account:account-details-sign-in-text', 'Please sign in to see the account details.')}
             </div>
         );
     }
@@ -63,11 +63,11 @@ const AccountDetails = () => {
                 <span className={classes.lineItemValue} aria-label="name">
                     {`${customer.firstname} ${customer.lastname}`}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:email', 'Email')}</span>
+                <span className={classes.lineItemLabel}>{t('account:email', 'Email address')}</span>
                 <span className={classes.lineItemValue} aria-label="email">
                     {customer.email}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:password', 'Passsword')}</span>
+                <span className={classes.lineItemLabel}>{t('account:password', 'Password')}</span>
                 <span className={classes.lineItemValue} aria-label="password">
                     {`*******`}
                 </span>
