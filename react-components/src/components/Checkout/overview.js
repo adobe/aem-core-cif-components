@@ -45,25 +45,38 @@ const Overview = props => {
         return <LoadingIndicator message="Placing order"></LoadingIndicator>;
     }
     const submitOrder = async () => {
-        const { placeOrder: { order: { order_id } } } = await placeOrder(cart.id);
-        const { prices: { grand_total: { currency, value } }, selected_payment_method: { code }, items } = cart;
+        const {
+            placeOrder: {
+                order: { order_id }
+            }
+        } = await placeOrder(cart.id);
+        const {
+            prices: {
+                grand_total: { currency, value }
+            },
+            selected_payment_method: { code },
+            items
+        } = cart;
         dataLayerUtils.pushEvent('cif:placeOrder', {
-            "xdm:purchaseOrderNumber": order_id,
-            "xdm:currencyCode": currency,
-            "xdm:priceTotal": value,
-            "xdm:payments": [
+            'xdm:purchaseOrderNumber': order_id,
+            'xdm:currencyCode': currency,
+            'xdm:priceTotal': value,
+            'xdm:payments': [
                 {
-                    "xdm:paymentAmount": value,
-                    "xdm:paymentType": code,
-                    "xdm:currencyCode": currency
+                    'xdm:paymentAmount': value,
+                    'xdm:paymentType': code,
+                    'xdm:currencyCode': currency
                 }
             ],
-            "xdm:products": items.map(item => {
-                const { product: { id, sku }, quantity } = item;
+            'xdm:products': items.map(item => {
+                const {
+                    product: { id, sku },
+                    quantity
+                } = item;
                 return {
-                    "@id": `product-${id}`,
-                    "xdm:SKU": sku,
-                    "xdm:quantity": quantity
+                    '@id': `product-${id}`,
+                    'xdm:SKU': sku,
+                    'xdm:quantity': quantity
                 };
             })
         });

@@ -95,18 +95,16 @@ class AddToCart {
         // To support grouped products where multiple products can be put in the cart in one single click,
         // the sku of each product is now read from the 'data-product-sku' attribute of each select element
 
-        const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity))
-            .filter(selection => {
-                return parseInt(selection.value) > 0;
-            });
-        let items = selections
-            .map(selection => {
-                return {
-                    sku: selection.dataset.productSku,
-                    virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
-                    quantity: selection.value
-                };
-            });
+        const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity)).filter(selection => {
+            return parseInt(selection.value) > 0;
+        });
+        let items = selections.map(selection => {
+            return {
+                sku: selection.dataset.productSku,
+                virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
+                quantity: selection.value
+            };
+        });
 
         if (items.length > 0 && window.CIF) {
             const customEvent = new CustomEvent(AddToCart.events.addToCart, {
@@ -120,12 +118,12 @@ class AddToCart {
                     dataLayer.push({
                         event: 'cif:addToCart',
                         eventInfo: {
-                            "@id": selection.dataset.productId,
-                            "xdm:SKU": selection.dataset.productSku,
-                            "xdm:quantity": selection.value
+                            '@id': selection.dataset.productId,
+                            'xdm:SKU': selection.dataset.productSku,
+                            'xdm:quantity': selection.value
                         }
                     });
-                })
+                });
             }
         }
     }

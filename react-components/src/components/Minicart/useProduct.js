@@ -41,7 +41,7 @@ export default props => {
             '@id': `product-${item.product.id}`,
             'xdm:SKU': item.product.sku,
             'xdm:quantity': item.quantity
-        })
+        });
     };
 
     return [{}, { removeItem, editItem }];
