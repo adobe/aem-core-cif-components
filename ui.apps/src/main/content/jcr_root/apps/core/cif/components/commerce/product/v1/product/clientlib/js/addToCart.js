@@ -71,7 +71,7 @@ class AddToCart {
 
         // Update sku attribute in select element
         document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-sku', variant.sku);
-        document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-id', variant.id);
+        document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-id', 'product-' + variant.id);
 
         // Update internal state
         this._state.sku = variant.sku;
