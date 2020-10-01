@@ -69,8 +69,7 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category(id:5){id,description,name,image,product_count,children_count,level_custom_:level}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
+        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level}}"));
     }
 
 }

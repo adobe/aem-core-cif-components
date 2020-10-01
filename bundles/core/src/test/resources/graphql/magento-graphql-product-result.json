@@ -19,6 +19,9 @@
           },
           "url_key": "beaumont-summit-kit",
           "stock_status": "IN_STOCK",
+          "meta_description": "Some meta description",
+          "meta_keyword": "Some meta keywords",
+          "meta_title": "Some meta title",
           "price_range": {
             "maximum_price": {
               "regular_price": {

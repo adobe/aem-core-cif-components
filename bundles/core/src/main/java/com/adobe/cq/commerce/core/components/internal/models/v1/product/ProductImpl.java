@@ -74,7 +74,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE)
+    resourceType = ProductImpl.RESOURCE_TYPE,
+    cache = true)
 public class ProductImpl implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
@@ -385,6 +386,21 @@ public class ProductImpl implements Product {
 
         // Filter HTML
         return xssApi.filterHTML(description.getHtml());
+    }
+
+    @Override
+    public String getMetaDescription() {
+        return productRetriever.fetchProduct().getMetaDescription();
+    }
+
+    @Override
+    public String getMetaKeywords() {
+        return productRetriever.fetchProduct().getMetaKeyword();
+    }
+
+    @Override
+    public String getMetaTitle() {
+        return StringUtils.defaultString(productRetriever.fetchProduct().getMetaTitle(), getName());
     }
 
 }

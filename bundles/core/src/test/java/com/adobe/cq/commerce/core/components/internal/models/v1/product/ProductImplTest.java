@@ -163,6 +163,11 @@ public class ProductImplTest {
     public void testProduct() {
         productModel = context.request().adaptTo(ProductImpl.class);
         testProduct(product, true);
+
+        // We don't return these fields for the EDIT placeholder data
+        Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
+        Assert.assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
+        Assert.assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {

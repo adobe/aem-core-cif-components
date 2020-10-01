@@ -49,7 +49,11 @@ import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = ProductList.class,
+    resourceType = ProductListImpl.RESOURCE_TYPE,
+    cache = true)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
@@ -201,5 +205,20 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
         return categoryRetriever;
+    }
+
+    @Override
+    public String getMetaDescription() {
+        return getCategory().getMetaDescription();
+    }
+
+    @Override
+    public String getMetaKeywords() {
+        return getCategory().getMetaKeywords();
+    }
+
+    @Override
+    public String getMetaTitle() {
+        return StringUtils.defaultString(getCategory().getMetaTitle(), getTitle());
     }
 }
