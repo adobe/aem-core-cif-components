@@ -3,5 +3,7 @@
   "close": "Close",
   "formattedPrice": "{{price, price}}",
   "back": "Back",
-  "loading": "Loading"
+  "edit": "Edit",
+  "loading": "Loading",
+  "common": "Edit"
 }

@@ -31,9 +31,13 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProductCarouselImplEmptyTest {
 
@@ -70,6 +74,10 @@ public class ProductCarouselImplEmptyTest {
         slingBindings.setResource(carouselResource);
         Page page = context.currentPage(PAGE);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put("currentStyle", style);
     }
 
     @Test

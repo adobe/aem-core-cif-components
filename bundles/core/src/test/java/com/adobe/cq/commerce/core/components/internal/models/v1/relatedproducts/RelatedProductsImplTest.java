@@ -48,15 +48,19 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.wcm.core.components.models.Title;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RelatedProductsImplTest {
 
@@ -136,7 +140,12 @@ public class RelatedProductsImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(relatedProductsResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-        slingBindings.put("properties", relatedProductsResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, relatedProductsResource.getValueMap());
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         relatedProducts = context.request().adaptTo(RelatedProductsImpl.class);
     }
@@ -145,6 +154,7 @@ public class RelatedProductsImplTest {
     public void testRelatedProducts() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
+        Assert.assertEquals("h2", relatedProducts.getTitleType()); // titleType is coming from resource
     }
 
     @Test
@@ -157,6 +167,7 @@ public class RelatedProductsImplTest {
     public void testUpsellProducts() throws Exception {
         setUp(RelationType.UPSELL_PRODUCTS, "graphql/magento-graphql-upsellproducts-result.json", true);
         assertProducts();
+        Assert.assertEquals("h3", relatedProducts.getTitleType()); // titleType is coming from currentStyle
     }
 
     @Test

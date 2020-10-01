@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 
+import { useConfigContext } from '../../context/ConfigContext';
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
 import MyAccount from '../MyAccount/myAccount';
@@ -36,7 +37,7 @@ const AccountDropdown = () => {
             toggleAccountDropdown
         }
     ] = useUserContext();
-
+    const { pagePaths } = useConfigContext();
     const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
 
     let view;
@@ -74,7 +75,14 @@ const AccountDropdown = () => {
                 break;
             case 'MY_ACCOUNT':
             default:
-                view = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
+                view = (
+                    <MyAccount
+                        showChangePassword={showChangePassword}
+                        showAccountInformation={() => {
+                            window.location.href = pagePaths.accountDetails;
+                        }}
+                    />
+                );
         }
     }
 
