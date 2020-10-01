@@ -19,8 +19,14 @@ const useAccountDetails = props => {
     const { getCustomerInformationQuery, setCustomerInformationMutation, changeCustomerPasswordMutation } = props;
     const [{ isSignedIn }] = useUserContext();
 
+    // control the whether the edit form is shown or not
     const [isUpdateMode, setIsUpdateMode] = useState(false);
+
+    // control whether we show the "new password" field
     const [shouldShowNewPasswordField, setShowNewPassword] = useState(false);
+
+    // control whether we show the error or not.
+    const [displayError, setDisplayError] = useState(false);
 
     const { data: accountInformationData } = useQuery(getCustomerInformationQuery, {
         skip: !isSignedIn,
@@ -47,6 +53,8 @@ const useAccountDetails = props => {
 
     const showEditForm = useCallback(() => {
         setIsUpdateMode(true);
+        // hide the previous error message, if any
+        setDisplayError(false);
     }, [setIsUpdateMode]);
 
     const handleCancel = useCallback(() => {
@@ -76,29 +84,30 @@ const useAccountDetails = props => {
                             password
                         }
                     });
-
-                    // if we have a "new password" value we must change the password as well
-                    if (password && newPassword) {
-                        await changeCustomerPassword({
-                            variables: {
-                                currentPassword: password,
-                                newPassword
-                            }
-                        });
-                    }
-
-                    handleCancel();
                 }
+                // if we have a "new password" value we must change the password as well
+                if (password && newPassword) {
+                    await changeCustomerPassword({
+                        variables: {
+                            currentPassword: password,
+                            newPassword
+                        }
+                    });
+                }
+                handleCancel();
             } catch {
+                setDisplayError(true);
                 return;
             }
         },
         [setCustomerInformation, handleCancel, changeCustomerPassword, initialValues]
     );
 
+    const errors = displayError ? [customerInformationUpdateError, changePasswordError] : [];
+
     return {
         initialValues,
-        formErrors: [customerInformationUpdateError, changePasswordError],
+        formErrors: errors,
         isSignedIn,
         isUpdateMode,
         isDisabled: isUpdatingCustomer || isChangingCustomerPassword,

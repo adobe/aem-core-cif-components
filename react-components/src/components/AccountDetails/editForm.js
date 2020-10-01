@@ -12,8 +12,10 @@
  *
  ******************************************************************************/
 
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { bool, func } from 'prop-types';
+import { useTranslation } from 'react-i18next';
+import { useFormApi, useFormState } from 'informed';
 
 import Field from '../Field';
 import LinkButton from '../LinkButton';
@@ -21,7 +23,6 @@ import TextInput from '../TextInput';
 import Password from '../Password';
 import combine from '../../utils/combineValidators';
 import { isRequired, validatePassword, hasLengthAtLeast, isNotEqualToField } from '../../utils/formValidators';
-import { useTranslation } from 'react-i18next';
 
 import classes from './editForm.css';
 
@@ -55,6 +56,18 @@ const EditForm = props => {
     const passwordLabel = shouldShowNewPassword
         ? t('account:current-password', 'Current Password')
         : t('account:password', 'Password');
+
+    const formState = useFormState();
+    const formApi = useFormApi();
+    const { submits, invalid } = formState;
+
+    useEffect(() => {
+        if (!invalid) {
+            // clear the password field on a successful submit
+            formApi.setValue('password', '');
+        }
+    }, [submits, invalid]);
+
     return (
         <Fragment>
             <div className={classes.root}>
