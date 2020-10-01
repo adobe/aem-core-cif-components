@@ -11,4 +11,5 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default as Portal } from './Portal';
+
+export { default } from './linkButton';
