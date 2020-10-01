@@ -19,7 +19,6 @@ import mergeClasses from '../../utils/mergeClasses';
 
 const Mask = ({ onClickHandler, isOpen, customClasses }) => {
     const classes = mergeClasses(defaultClasses, customClasses);
-    console.log(`Got classes? `, classes);
     const className = isOpen ? classes.root_active : classes.root;
 
     return <button data-role="mask" className={className} onClick={onClickHandler} />;
