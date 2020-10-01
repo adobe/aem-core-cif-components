@@ -44,4 +44,11 @@ public interface ProductCarousel {
      * @return true or false
      */
     boolean isConfigured();
+
+    /**
+     * Should return the HTML tag type for the component title.
+     * 
+     * @return The HTML tag type that should be used to display the component title.
+     */
+    String getTitleType();
 }

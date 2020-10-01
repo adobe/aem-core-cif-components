@@ -40,6 +40,8 @@ import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -119,7 +121,11 @@ public class FeaturedCategoryListImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
         slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(context.request()));
-        slingBindings.put("currentPage", page);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         featuredCategoryList = context.request().adaptTo(FeaturedCategoryListImpl.class);
     }
@@ -130,6 +136,7 @@ public class FeaturedCategoryListImplTest {
 
         Assert.assertNotNull(featuredCategoryList);
         Assert.assertTrue(featuredCategoryList.isConfigured());
+        Assert.assertEquals("h2", featuredCategoryList.getTitleType());
         List<CategoryTree> list = featuredCategoryList.getCategories();
         Assert.assertNotNull(list);
         Assert.assertEquals(list.size(), 3);
