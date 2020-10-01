@@ -29,6 +29,11 @@ The products are retrieved from Magento via GraphQL. This component can be used 
 
 The Related Products component uses the `com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel` Sling model as its Use-object. However, the implementation of the Sling Model is different.
 
+### Component Policy Configuration Properties
+The following configuration properties are used:
+
+1. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
+
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
@@ -36,6 +41,8 @@ The following properties are written to JCR for this component and are expected 
 1. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
 2. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
 3. `./jcr:title` - Optional title text
+4. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
+to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
 
 ## BEM Description
 

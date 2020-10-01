@@ -92,3 +92,7 @@ export const validatePassword = value => {
 export const validateConfirmPassword = (value, values, passwordKey = 'password') => {
     return value === values[passwordKey] ? SUCCESS : 'Passwords must match.';
 };
+
+export const isNotEqualToField = (value, values, otherField) => {
+    return value !== values[otherField] ? SUCCESS : `${otherField} must be different`;
+};

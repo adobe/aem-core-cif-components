@@ -1,0 +1,9 @@
+mutation UpdateCustomerInformation($firstname: String, $lastname: String, $email: String, $password: String) {
+    updateCustomer(input: { firstname: $firstname, lastname: $lastname, email: $email, password: $password }) {
+        customer {
+            firstname
+            lastname
+            email
+        }
+    }
+}
