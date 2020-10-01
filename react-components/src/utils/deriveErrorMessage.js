@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,4 +11,29 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default as Portal } from './Portal';
+
+/**
+ * Maps an error to a string message
+ *
+ * @param {Error} error the error to map
+ * @return {String} error message
+ */
+const toString = error => {
+    const { graphQLErrors, message } = error;
+
+    return graphQLErrors && graphQLErrors.length ? graphQLErrors.map(({ message }) => message).join(', ') : message;
+};
+
+/**
+ * A function to derive an error string from an array of errors.
+ */
+export const deriveErrorMessage = errors => {
+    const errorCollection = [];
+    for (const error of errors) {
+        if (error) {
+            errorCollection.push(toString(error));
+        }
+    }
+
+    return errorCollection.join(', ');
+};

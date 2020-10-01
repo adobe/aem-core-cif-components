@@ -11,4 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default as Portal } from './Portal';
+
+const { deriveErrorMessage } = require('../deriveErrorMessage');
+
+describe('deriveErrorMessage', () => {
+    it('correctly builds an error message from an array of errors', () => {
+        const errors = [
+            {
+                graphQLErrors: [{ message: 'Cannot query field X on type Y' }],
+                message: 'This is an error'
+            },
+            {
+                message: 'This is not a graphql error'
+            }
+        ];
+
+        const fullMessage = deriveErrorMessage(errors);
+
+        expect(fullMessage).toEqual('Cannot query field X on type Y, This is not a graphql error');
+    });
+});
