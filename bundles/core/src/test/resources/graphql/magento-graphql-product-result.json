@@ -4,6 +4,7 @@
       "items": [
         {
           "__typename": "ConfigurableProduct",
+          "id": "1111",
           "sku": "MJ01",
           "name": "Beaumont Summit Kit",
           "description": {
@@ -131,6 +132,7 @@
                 }
               ],
               "product": {
+                "id": "1112",
                 "sku": "MJ01-XS-Orange",
                 "name": "Beaumont Summit Kit-XS-Orange",
                 "description": {
@@ -186,6 +188,7 @@
                 }
               ],
               "product": {
+                "id": "1113",
                 "sku": "MJ01-XS-Red",
                 "name": "Beaumont Summit Kit-XS-Red",
                 "description": {
@@ -241,6 +244,7 @@
                 }
               ],
               "product": {
+                "id": "1114",
                 "sku": "MJ01-XS-Yellow",
                 "name": "Beaumont Summit Kit-XS-Yellow",
                 "description": {
@@ -310,6 +314,7 @@
                 }
               ],
               "product": {
+                "id": "1115",
                 "sku": "MJ01-S-Orange",
                 "name": "Beaumont Summit Kit-S-Orange",
                 "description": {
@@ -365,6 +370,7 @@
                 }
               ],
               "product": {
+                "id": "1116",
                 "sku": "MJ01-S-Red",
                 "name": "Beaumont Summit Kit-S-Red",
                 "description": {
@@ -420,6 +426,7 @@
                 }
               ],
               "product": {
+                "id": "1117",
                 "sku": "MJ01-S-Yellow",
                 "name": "Beaumont Summit Kit-S-Yellow",
                 "description": {
@@ -489,6 +496,7 @@
                 }
               ],
               "product": {
+                "id": "1118",
                 "sku": "MJ01-M-Orange",
                 "name": "Beaumont Summit Kit-M-Orange",
                 "description": {
@@ -544,6 +552,7 @@
                 }
               ],
               "product": {
+                "id": "1119",
                 "sku": "MJ01-M-Red",
                 "name": "Beaumont Summit Kit-M-Red",
                 "description": {
@@ -599,6 +608,7 @@
                 }
               ],
               "product": {
+                "id": "1120",
                 "sku": "MJ01-M-Yellow",
                 "name": "Beaumont Summit Kit-M-Yellow",
                 "description": {
@@ -668,6 +678,7 @@
                 }
               ],
               "product": {
+                "id": "1121",
                 "sku": "MJ01-L-Orange",
                 "name": "Beaumont Summit Kit-L-Orange",
                 "description": {
@@ -723,6 +734,7 @@
                 }
               ],
               "product": {
+                "id": "1122",
                 "sku": "MJ01-L-Red",
                 "name": "Beaumont Summit Kit-L-Red",
                 "description": {
@@ -778,6 +790,7 @@
                 }
               ],
               "product": {
+                "id": "1123",
                 "sku": "MJ01-L-Yellow",
                 "name": "Beaumont Summit Kit-L-Yellow",
                 "description": {
@@ -847,6 +860,7 @@
                 }
               ],
               "product": {
+                "id": "1124",
                 "sku": "MJ01-XL-Orange",
                 "name": "Beaumont Summit Kit-XL-Orange",
                 "description": {
@@ -902,6 +916,7 @@
                 }
               ],
               "product": {
+                "id": "1125",
                 "sku": "MJ01-XL-Red",
                 "name": "Beaumont Summit Kit-XL-Red",
                 "description": {
@@ -957,6 +972,7 @@
                 }
               ],
               "product": {
+                "id": "1126",
                 "sku": "MJ01-XL-Yellow",
                 "name": "Beaumont Summit Kit-XL-Yellow",
                 "description": {
