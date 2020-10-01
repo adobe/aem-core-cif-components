@@ -12,7 +12,7 @@ The MiniCart is a client-side component written in React which renders the shopp
 
 ## Implementation
 
-This AEM component only renders a container `div` for the [React component](/react-components/src/components/minicart).
+This AEM component only renders a container `div` for the [React component](/react-components/src/components/Minicart).
 
 ## Using the MiniCart
 
