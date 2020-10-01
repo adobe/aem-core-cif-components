@@ -12,7 +12,7 @@
     transition-property: opacity, transform, visibility;
     transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
     visibility: hidden;
-    z-index: 1;
+    z-index: 4;
 }
 
 .root_open {
@@ -21,4 +21,9 @@
     transition-duration: 224ms;
     transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
     visibility: visible;
+}
+
+.mask_active {
+    composes: root_active from '../Mask/mask.css';
+    opacity: 0;
 }
