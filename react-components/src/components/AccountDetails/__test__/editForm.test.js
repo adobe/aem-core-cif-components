@@ -14,10 +14,26 @@
 
 import React from 'react';
 import { render } from '@testing-library/react';
-
 import EditForm from '../editForm';
 
+jest.mock('informed', () => {
+    const informed = jest.requireActual('informed');
+
+    return {
+        ...informed,
+        useFormApi: () => {
+            return {
+                setValue: () => {}
+            };
+        }
+    };
+});
+
 describe('<EditForm>', () => {
+    afterAll(() => {
+        jest.clearAllMocks();
+    });
+
     it('renders a form with the "Change password" button', () => {
         const { asFragment } = render(<EditForm />);
         expect(asFragment()).toMatchSnapshot();
