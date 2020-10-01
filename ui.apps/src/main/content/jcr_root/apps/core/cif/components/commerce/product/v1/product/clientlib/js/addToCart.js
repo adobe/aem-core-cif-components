@@ -30,7 +30,6 @@ class AddToCart {
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
 
         this._state = {
-            id,
             sku,
             attributes: {},
             configurable,
