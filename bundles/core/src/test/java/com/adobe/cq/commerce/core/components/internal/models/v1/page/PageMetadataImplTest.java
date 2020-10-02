@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
@@ -41,6 +42,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -57,6 +59,7 @@ public class PageMetadataImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content-breadcrumb.json");
+
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
         ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
 
@@ -76,6 +79,7 @@ public class PageMetadataImplTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
+                context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -109,12 +113,21 @@ public class PageMetadataImplTest {
 
     @Test
     public void testPageMetadataModelOnProductPage() throws Exception {
+        testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page");
+    }
+
+    @Test
+    public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
+        testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
+    }
+
+    private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
         graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
 
-        prepareModel("/content/venia/us/en/products/product-page");
+        prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
 
         Assert.assertEquals("Some product meta description", pageMetadataModel.getMetaDescription());
@@ -124,6 +137,15 @@ public class PageMetadataImplTest {
 
     @Test
     public void testPageMetadataModelOnCategoryPage() throws Exception {
+        testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page");
+    }
+
+    @Test
+    public void testPageMetadataModelOnCategoryPageOnLaunch() throws Exception {
+        testPageMetadataModelOnCategoryPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/category-page");
+    }
+
+    private void testPageMetadataModelOnCategoryPage(String pagePath) throws Exception {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
@@ -137,7 +159,7 @@ public class PageMetadataImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
 
-        prepareModel("/content/venia/us/en/products/category-page");
+        prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
 
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());

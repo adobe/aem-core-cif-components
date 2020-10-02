@@ -179,7 +179,10 @@
                         }
                       },
                       "category-page": {
-                        "jcr:primaryType": "cq:Page"
+                        "jcr:primaryType": "cq:Page",
+                        "jcr:content": {
+                          "jcr:primaryType": "cq:PageContent"
+                        }
                       }
                     }
                   }
