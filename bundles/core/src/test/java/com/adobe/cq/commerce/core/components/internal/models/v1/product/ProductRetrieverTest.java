@@ -70,7 +70,7 @@ public class ProductRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith(",created_at,is_returnable_custom_:is_returnable}}}"));
+        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable}}}"));
     }
 
     @Test
