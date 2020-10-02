@@ -209,16 +209,16 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getMetaDescription() {
-        return getCategory().getMetaDescription();
+        return getCategory() != null ? getCategory().getMetaDescription() : null;
     }
 
     @Override
     public String getMetaKeywords() {
-        return getCategory().getMetaKeywords();
+        return getCategory() != null ? getCategory().getMetaKeywords() : null;
     }
 
     @Override
     public String getMetaTitle() {
-        return StringUtils.defaultString(getCategory().getMetaTitle(), getTitle());
+        return StringUtils.defaultString(getCategory() != null ? getCategory().getMetaTitle() : null, getTitle());
     }
 }
