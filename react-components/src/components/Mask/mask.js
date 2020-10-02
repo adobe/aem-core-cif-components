@@ -12,30 +12,28 @@
  *
  ******************************************************************************/
 import React from 'react';
-import PropTypes from 'prop-types';
+import { shape, string, func, bool } from 'prop-types';
 
-import classes from './mask.css';
-import { useCartState } from '../Minicart/cartContext';
+import defaultClasses from './mask.css';
+import mergeClasses from '../../utils/mergeClasses';
 
-const Mask = () => {
-    const [{ isOpen }, dispatch] = useCartState();
+const Mask = ({ onClickHandler, isOpen, customClasses }) => {
+    const classes = mergeClasses(defaultClasses, customClasses);
     const className = isOpen ? classes.root_active : classes.root;
 
-    return (
-        <button
-            data-role="mask"
-            className={className}
-            onClick={() => {
-                dispatch({ type: 'close' });
-            }}
-        />
-    );
+    return <button data-role="mask" className={className} onClick={onClickHandler} />;
 };
 
 Mask.propTypes = {
-    classes: PropTypes.shape({
-        root: PropTypes.string,
-        root_active: PropTypes.string
+    classes: shape({
+        root: string,
+        root_active: string
+    }),
+    onClickHandler: func.isRequired,
+    isOpen: bool,
+    customClasses: shape({
+        root: string,
+        root_active: string
     })
 };
 
