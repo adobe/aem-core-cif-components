@@ -38,7 +38,8 @@ import com.day.cq.wcm.api.WCMMode;
     property = {
         "sling.filter.scope=REQUEST",
         "sling.filter.methods=GET",
-        "sling.filter.extensions=html"
+        "sling.filter.extensions=html",
+        "service.ranking:Integer=" + Integer.MIN_VALUE
     })
 @Designate(ocd = SpecificPageFilterConfiguration.class, factory = true)
 public class SpecificPageFilterFactory implements Filter {

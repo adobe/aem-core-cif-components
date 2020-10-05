@@ -11,4 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './Portal';
+export { default as Portal } from './Portal';

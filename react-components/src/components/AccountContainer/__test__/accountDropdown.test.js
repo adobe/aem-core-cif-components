@@ -19,8 +19,7 @@ import { render } from '@testing-library/react';
 import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';
-import { ConfigContext } from '../../../context/ConfigContext';
-
+import ConfigContextProvider from '../../../context/ConfigContext';
 import AccountDropdown from '../accountDropdown';
 
 describe('<AccountDropdown>', () => {
@@ -30,13 +29,15 @@ describe('<AccountDropdown>', () => {
 
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={stateWithAccountDropdownOpen}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
+                        <UserContextProvider initialState={stateWithAccountDropdownOpen}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(getByLabelText('account dropdown').getAttribute('class')).toEqual(accountDropdownOpenClass);
@@ -55,15 +56,15 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
                         <UserContextProvider initialState={stateWithMyAccountView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
                                 <AccountDropdown />
                             </CartProvider>
                         </UserContextProvider>
-                    </ConfigContext.Provider>
-                </MockedProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -77,13 +78,15 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={stateWithChangePasswordView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
+                        <UserContextProvider initialState={stateWithChangePasswordView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -97,13 +100,15 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={stateWithForgotPasswordView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
+                        <UserContextProvider initialState={stateWithForgotPasswordView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -116,13 +121,15 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={stateWithCreateAccountView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
+                        <UserContextProvider initialState={stateWithCreateAccountView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -135,13 +142,15 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={stateWithAccountCreatedView}>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountDropdown />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                    <MockedProvider>
+                        <UserContextProvider initialState={stateWithAccountCreatedView}>
+                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                                <AccountDropdown />
+                            </CartProvider>
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();

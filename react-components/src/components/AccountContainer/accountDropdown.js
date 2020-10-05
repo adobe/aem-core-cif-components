@@ -13,6 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 
+import { useConfigContext } from '../../context/ConfigContext';
 import { useUserContext } from '../../context/UserContext';
 import SignIn from '../SignIn/signIn';
 import MyAccount from '../MyAccount/myAccount';
@@ -21,13 +22,22 @@ import ForgotPassword from '../ForgotPassword/forgotPassword';
 import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 
 import classes from './accountDropdown.css';
+import Mask from '../Mask';
 
 const AccountDropdown = () => {
     const [
         { isAccountDropdownOpen, isSignedIn, accountDropdownView },
-        { showSignIn, showMyAccount, showForgotPassword, showCreateAccount, showAccountCreated, showChangePassword }
+        {
+            showSignIn,
+            showMyAccount,
+            showForgotPassword,
+            showCreateAccount,
+            showAccountCreated,
+            showChangePassword,
+            toggleAccountDropdown
+        }
     ] = useUserContext();
-
+    const { pagePaths } = useConfigContext();
     const rootClass = isAccountDropdownOpen ? classes.root_open : classes.root;
 
     let view;
@@ -65,14 +75,29 @@ const AccountDropdown = () => {
                 break;
             case 'MY_ACCOUNT':
             default:
-                view = <MyAccount showChangePassword={showChangePassword} showAccountInformation={() => {}} />;
+                view = (
+                    <MyAccount
+                        showChangePassword={showChangePassword}
+                        showAccountInformation={() => {
+                            window.location.href = pagePaths.accountDetails;
+                        }}
+                    />
+                );
         }
     }
 
     return (
-        <div className={rootClass} aria-label="account dropdown">
-            {view}
-        </div>
+        <>
+            <Mask
+                isOpen={isAccountDropdownOpen}
+                onClickHandler={() => toggleAccountDropdown(!isAccountDropdownOpen)}
+                customClasses={{ root_active: classes.mask_active }}
+            />
+
+            <div className={rootClass} aria-label="account dropdown">
+                {view}
+            </div>
+        </>
     );
 };
 

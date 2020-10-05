@@ -21,6 +21,15 @@
                         fieldLabel="Title" 
                         name="./jcr:title" 
                         value="Shop by category" />
+                    <titleType granite:class="core-title-sizes"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                        fieldLabel="The HTML tag used to display the title."
+                        name="./titleType">
+                        <datasource
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core/wcm/components/commons/datasources/allowedheadingelements/v1"/>
+                    </titleType>
                     <content granite:class="cmp-cif-featuredcategorylist__editor" 
                         jcr:primaryType="nt:unstructured" 
                         sling:resourceType="granite/ui/components/coral/foundation/form/multifield" 
