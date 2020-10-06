@@ -22,9 +22,11 @@ const ProductList = props => {
 
     return (
         <ul className={classes.root}>
-            {cartItems.map(item => <Product key={item.id} item={item} />)}
+            {cartItems.map(item => (
+                <Product key={item.id} item={item} />
+            ))}
         </ul>
-    )
+    );
 };
 
 ProductList.propTypes = {
