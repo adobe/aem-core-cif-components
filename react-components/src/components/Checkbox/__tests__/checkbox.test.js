@@ -35,7 +35,6 @@ describe('<Checkbox>', () => {
     });
 
     it('applies `props.id` to both label and input', () => {
-
         const { container, getByRole } = render(
             <Form>
                 <Checkbox {...props} id={id} />
@@ -47,7 +46,7 @@ describe('<Checkbox>', () => {
 
         expect(checkboxInstance.id).toBe(id);
         expect(labelInstance.htmlFor).toBe(id);
-        expect(labelInstance.id).toBe("");
+        expect(labelInstance.id).toBe('');
     });
 
     it('applies `checked` based on `initialValue`', () => {
