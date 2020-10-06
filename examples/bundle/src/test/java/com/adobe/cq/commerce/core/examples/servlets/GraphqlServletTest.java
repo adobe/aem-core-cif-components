@@ -72,6 +72,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Breadcrumb;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -111,6 +112,8 @@ public class GraphqlServletTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -246,6 +249,11 @@ public class GraphqlServletTest {
                 Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
             }
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Chaz Kangeroo Hoodie", productModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Chaz Kangeroo Hoodie", productModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Chaz Kangeroo Hoodie", productModel.getMetaTitle());
     }
 
     @Test
@@ -283,6 +291,11 @@ public class GraphqlServletTest {
         for (ProductListItem product : productListModel.getProducts()) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Outdoor Collection", productListModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Outdoor Collection", productListModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Outdoor Collection", productListModel.getMetaTitle());
     }
 
     @Test
@@ -397,7 +410,7 @@ public class GraphqlServletTest {
 
     @Test
     public void testCategoryPageBreadcrumbModel() throws ServletException {
-        prepareModel(PRODUCTPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
+        prepareModel(CATEGORYPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("1");
