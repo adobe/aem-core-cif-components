@@ -221,4 +221,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public String getMetaTitle() {
         return StringUtils.defaultString(getCategory() != null ? getCategory().getMetaTitle() : null, getTitle());
     }
+
+    @Override
+    public String getCanonicalUrl() {
+        String path = request.getRequestURI();
+        if (!wcmMode.isDisabled()) {
+            return externalizer.authorLink(resource.getResourceResolver(), path);
+        } else {
+            return externalizer.publishLink(resource.getResourceResolver(), path);
+        }
+    }
 }

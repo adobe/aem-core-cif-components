@@ -77,6 +77,11 @@ public class PageMetadataImpl implements PageMetadata {
         return metaTitle != null ? metaTitle : currentPage.getTitle();
     }
 
+    @Override
+    public String getCanonicalUrl() {
+        return provider != null ? provider.getCanonicalUrl() : null;
+    }
+
     private boolean isProductPage() {
         Page productPage = SiteNavigation.getProductPage(currentPage);
 

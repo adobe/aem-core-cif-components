@@ -34,4 +34,9 @@ public interface PageMetadata {
      * @return The content for the title tag of the HTML page.
      */
     String getMetaTitle();
+
+    /**
+     * @return The fully-qualified canonical url, to set the canonical link element of the HTML page.
+     */
+    String getCanonicalUrl();
 }

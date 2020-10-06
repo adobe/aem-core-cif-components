@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -56,6 +57,7 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -89,6 +91,8 @@ public class SearchResultsImplTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, new MockExternalizer());
             },
             ResourceResolverType.JCR_MOCK);
     }

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -44,6 +45,7 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -80,6 +82,8 @@ public class PageMetadataImplTest {
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
                 context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+
+                context.registerService(Externalizer.class, new MockExternalizer());
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -126,6 +130,7 @@ public class PageMetadataImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
+        context.request().setServletPath(pagePath + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -133,6 +138,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some product meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some product meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some product meta title", pageMetadataModel.getMetaTitle());
+        Assert.assertEquals("https://author" + pagePath + ".beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
@@ -158,6 +164,7 @@ public class PageMetadataImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
+        context.request().setServletPath(pagePath + ".6.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -165,6 +172,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some category meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some category meta title", pageMetadataModel.getMetaTitle());
+        Assert.assertEquals("https://author" + pagePath + ".6.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
@@ -173,7 +181,8 @@ public class PageMetadataImplTest {
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
 
         Assert.assertEquals("The Venia page", pageMetadataModel.getMetaDescription());
-        Assert.assertNull(null, pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Venia", pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
     }
 }

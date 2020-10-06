@@ -66,6 +66,7 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -107,6 +108,9 @@ public class ProductImpl implements Product {
 
     @Inject
     private XSSAPI xssApi;
+
+    @Inject
+    private Externalizer externalizer;
 
     private Boolean configurable;
     private Boolean isGroupedProduct;
@@ -403,4 +407,13 @@ public class ProductImpl implements Product {
         return StringUtils.defaultString(productRetriever.fetchProduct().getMetaTitle(), getName());
     }
 
+    @Override
+    public String getCanonicalUrl() {
+        String path = request.getRequestURI();
+        if (!wcmMode.isDisabled()) {
+            return externalizer.authorLink(resource.getResourceResolver(), path);
+        } else {
+            return externalizer.publishLink(resource.getResourceResolver(), path);
+        }
+    }
 }
