@@ -28,6 +28,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.CategoryListDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
@@ -46,6 +48,7 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -70,6 +73,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     @Self
     private SlingHttpServletRequest request;
+
+    @ScriptVariable
+    protected Style currentStyle;
 
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
@@ -176,5 +182,10 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         return getCategories().stream()
             .map(c -> new CategoryListDataImpl.CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
+    }
+    
+    @Override
+    public String getTitleType() {
+        return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 }

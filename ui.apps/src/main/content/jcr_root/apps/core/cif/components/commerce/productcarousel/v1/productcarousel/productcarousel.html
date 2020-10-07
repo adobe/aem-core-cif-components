@@ -20,7 +20,7 @@
      data-comp-is="productcarousel"
      data-cmp-data-layer="${carousel.data.json}"
      class="productcarousel__container">
-    <h2 data-sly-test="${properties.jcr:title}" class="productcarousel__title">${properties.jcr:title}</h2>
+    <h2 data-sly-element="${carousel.titleType}" data-sly-test="${properties.jcr:title}" class="productcarousel__title">${properties.jcr:title}</h2>
     <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button" style="display: none;"></button>
     <div class="productcarousel__root">
         <div class="productcarousel__parent">

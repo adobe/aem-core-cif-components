@@ -64,7 +64,7 @@ const MiniCart = () => {
 
     return (
         <>
-            <Mask />
+            <Mask isOpen={isOpen} onClickHandler={() => dispatch({ type: 'close' })} />
             <aside className={rootClass}>
                 <Suspense fallback={<LoadingIndicator />}>
                     <Header />

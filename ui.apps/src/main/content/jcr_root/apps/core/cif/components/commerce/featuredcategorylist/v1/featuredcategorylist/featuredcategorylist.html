@@ -22,7 +22,7 @@
      data-cmp-data-layer="${category.data.json}"
      class="cmp-categorylist">
     <div data-sly-test="${properties.jcr:title}" class="cmp-categorylist__header">
-        <h2 class="cmp-categorylist__title">${properties.jcr:title}</h2>
+        <h2 data-sly-element="${category.titleType}" class="cmp-categorylist__title">${properties.jcr:title}</h2>
     </div>
     <div data-sly-list="${category.categories}" class="cmp-categorylist__content">
         <a class="cmp-categorylist__anchor" href="${item.path}">

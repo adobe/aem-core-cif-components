@@ -2,6 +2,9 @@
 
 exports[`<AccountDropdown> renders the account created component inside account dropdown 1`] = `
 <DocumentFragment>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
@@ -46,6 +49,9 @@ exports[`<AccountDropdown> renders the account created component inside account 
 
 exports[`<AccountDropdown> renders the change password component inside account dropdown 1`] = `
 <DocumentFragment>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
@@ -197,6 +203,9 @@ exports[`<AccountDropdown> renders the change password component inside account 
 
 exports[`<AccountDropdown> renders the create account component inside account dropdown 1`] = `
 <DocumentFragment>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
@@ -441,6 +450,9 @@ exports[`<AccountDropdown> renders the create account component inside account d
 
 exports[`<AccountDropdown> renders the forgot password component inside account dropdown 1`] = `
 <DocumentFragment>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
@@ -522,6 +534,9 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
 
 exports[`<AccountDropdown> renders the my account component inside account dropdown 1`] = `
 <DocumentFragment>
+  <button
+    data-role="mask"
+  />
   <div
     aria-label="account dropdown"
     class="root"
@@ -639,7 +654,7 @@ exports[`<AccountDropdown> renders the my account component inside account dropd
                 />
                 <line
                   x1="12"
-                  x2="12"
+                  x2="12.01"
                   y1="8"
                   y2="8"
                 />
