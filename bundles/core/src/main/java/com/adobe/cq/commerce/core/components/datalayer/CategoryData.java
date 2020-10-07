@@ -11,26 +11,19 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.datalayer;
+package com.adobe.cq.commerce.core.components.datalayer;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
+public interface CategoryData {
 
-public abstract class DataLayerListItem extends DataLayerComponent {
-
-    public static final String ITEM_ID_PREFIX = "item";
-
-    protected String parentId;
-
-    protected DataLayerListItem(String parentId, Resource resource) {
-        this.parentId = parentId;
-        this.resource = resource;
+    default String getId() {
+        throw new UnsupportedOperationException();
     }
 
-    @Override
-    protected String generateId() {
-        String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(resource.getPath()), 0, 10));
+    default String getName() {
+        throw new UnsupportedOperationException();
+    }
+
+    default String getImage() {
+        throw new UnsupportedOperationException();
     }
 }

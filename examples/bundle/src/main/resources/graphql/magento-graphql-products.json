@@ -4,7 +4,6 @@
       "items": [
         {
           "__typename": "ConfigurableProduct",
-          "id": "1000",
           "sku": "MH01",
           "name": "Chaz Kangeroo Hoodie",
           "description": {
@@ -132,7 +131,6 @@
                 }
               ],
               "product": {
-                "id": "1001",
                 "sku": "MH01-XS-Black",
                 "name": "Chaz Kangeroo Hoodie-XS-Black",
                 "description": {
@@ -188,7 +186,6 @@
                 }
               ],
               "product": {
-                "id": "1002",
                 "sku": "MH01-XS-Gray",
                 "name": "Chaz Kangeroo Hoodie-XS-Gray",
                 "description": {
@@ -258,7 +255,6 @@
                 }
               ],
               "product": {
-                "id": "1003",
                 "sku": "MH01-XS-Orange",
                 "name": "Chaz Kangeroo Hoodie-XS-Orange",
                 "description": {
@@ -314,7 +310,6 @@
                 }
               ],
               "product": {
-                "id": "1004",
                 "sku": "MH01-S-Black",
                 "name": "Chaz Kangeroo Hoodie-S-Black",
                 "description": {
@@ -370,7 +365,6 @@
                 }
               ],
               "product": {
-                "id": "1005",
                 "sku": "MH01-S-Gray",
                 "name": "Chaz Kangeroo Hoodie-S-Gray",
                 "description": {
@@ -440,7 +434,6 @@
                 }
               ],
               "product": {
-                "id": "1006",
                 "sku": "MH01-S-Orange",
                 "name": "Chaz Kangeroo Hoodie-S-Orange",
                 "description": {
@@ -496,7 +489,6 @@
                 }
               ],
               "product": {
-                "id": "1007",
                 "sku": "MH01-M-Black",
                 "name": "Chaz Kangeroo Hoodie-M-Black",
                 "description": {
@@ -552,7 +544,6 @@
                 }
               ],
               "product": {
-                "id": "1008",
                 "sku": "MH01-M-Gray",
                 "name": "Chaz Kangeroo Hoodie-M-Gray",
                 "description": {
@@ -622,7 +613,6 @@
                 }
               ],
               "product": {
-                "id": "1009",
                 "sku": "MH01-M-Orange",
                 "name": "Chaz Kangeroo Hoodie-M-Orange",
                 "description": {
@@ -678,7 +668,6 @@
                 }
               ],
               "product": {
-                "id": "1010",
                 "sku": "MH01-L-Black",
                 "name": "Chaz Kangeroo Hoodie-L-Black",
                 "description": {
@@ -734,7 +723,6 @@
                 }
               ],
               "product": {
-                "id": "1011",
                 "sku": "MH01-L-Gray",
                 "name": "Chaz Kangeroo Hoodie-L-Gray",
                 "description": {
@@ -804,7 +792,6 @@
                 }
               ],
               "product": {
-                "id": "1012",
                 "sku": "MH01-L-Orange",
                 "name": "Chaz Kangeroo Hoodie-L-Orange",
                 "description": {
@@ -860,7 +847,6 @@
                 }
               ],
               "product": {
-                "id": "1013",
                 "sku": "MH01-XL-Black",
                 "name": "Chaz Kangeroo Hoodie-XL-Black",
                 "description": {
@@ -916,7 +902,6 @@
                 }
               ],
               "product": {
-                "id": "1014",
                 "sku": "MH01-XL-Gray",
                 "name": "Chaz Kangeroo Hoodie-XL-Gray",
                 "description": {
@@ -986,7 +971,6 @@
                 }
               ],
               "product": {
-                "id": "1015",
                 "sku": "MH01-XL-Orange",
                 "name": "Chaz Kangeroo Hoodie-XL-Orange",
                 "description": {

@@ -11,12 +11,12 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.datalayer;
+package com.adobe.cq.commerce.core.components.internal.datalayer;
 
 import org.apache.sling.api.resource.Resource;
 
-import com.adobe.cq.commerce.core.components.models.datalayer.CategoryData;
-import com.adobe.cq.commerce.core.components.models.datalayer.CategoryListData;
+import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.datalayer.CategoryListData;
 
 public class CategoryListDataImpl extends ComponentDataImpl implements CategoryListData {
 

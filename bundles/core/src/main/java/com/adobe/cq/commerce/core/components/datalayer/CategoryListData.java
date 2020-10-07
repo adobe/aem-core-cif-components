@@ -11,12 +11,13 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.models.datalayer;
+package com.adobe.cq.commerce.core.components.datalayer;
 
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
-public interface DataLayer {
-    default ComponentData getData() {
-        return null;
+public interface CategoryListData extends ComponentData {
+
+    default CategoryData[] getCategories() {
+        throw new UnsupportedOperationException();
     }
 }

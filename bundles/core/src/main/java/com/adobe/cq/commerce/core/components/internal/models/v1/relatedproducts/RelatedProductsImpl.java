@@ -32,9 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -100,7 +100,8 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
 
     @Override
     public boolean isConfigured() {
-        return properties.get(PN_PRODUCT, String.class) != null || request.getRequestPathInfo().getSelectorString() != null;
+        return properties.get(PN_PRODUCT, String.class) != null
+            || request.getRequestPathInfo().getSelectorString() != null;
     }
 
     private void configureProductsRetriever() {
@@ -138,17 +139,9 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         for (ProductInterface product : products) {
             try {
                 Price price = new PriceImpl(product.getPriceRange(), locale);
-                carouselProductList.add(new ProductListItemImpl(
-                    product.getSku(),
-                    product.getUrlKey(),
-                    product.getName(),
-                    price,
-                    product.getThumbnail().getUrl(),
-                    productPage,
-                    null,
-                    request,
-                    urlProvider,
-                    this.getId()));
+                carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
+                    product.getName(), price, product.getThumbnail().getUrl(), productPage, null, request,
+                    urlProvider, this.getId()));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }

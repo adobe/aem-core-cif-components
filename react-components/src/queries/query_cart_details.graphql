@@ -90,7 +90,6 @@ query cartDetails($cartId: String!) {
                 }
             }
             product {
-                id
                 name
                 sku
                 thumbnail {

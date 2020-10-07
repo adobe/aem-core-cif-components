@@ -22,8 +22,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerListItem;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -122,14 +122,14 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     }
 
     @Override
-    public String getId() {
+    protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSlug()), 0, 10));
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSKU()), 0, 10));
     }
 
     @Override
     public String getDataLayerType() {
-        return "core/cif/components/commerce/productListItem";
+        return "core/cif/components/commerce/productlistitem";
     }
 
     @Override

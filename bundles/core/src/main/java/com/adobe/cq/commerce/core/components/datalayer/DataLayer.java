@@ -11,30 +11,12 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.datalayer;
+package com.adobe.cq.commerce.core.components.datalayer;
 
-import org.apache.sling.api.resource.Resource;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
-import com.adobe.cq.commerce.core.components.models.datalayer.ProductData;
-
-public class ProductDataImpl extends ComponentDataImpl implements ProductData {
-    public ProductDataImpl(DataLayerComponent component, Resource resource) {
-        super(component, resource);
+public interface DataLayer {
+    default ComponentData getData() {
+        return null;
     }
-
-    @Override
-    public String getSKU() {
-        return component.getDataLayerSKU();
-    }
-
-    @Override
-    public Double getPrice() {
-        return component.getDataLayerPrice();
-    }
-
-    @Override
-    public String getCurrency() {
-        return component.getDataLayerCurrency();
-    }
-
 }

@@ -23,7 +23,6 @@ import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 
 public class VariantImpl implements Variant {
-
     private String id;
 
     private String name;

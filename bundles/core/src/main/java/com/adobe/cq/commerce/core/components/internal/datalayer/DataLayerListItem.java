@@ -11,25 +11,26 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.models.datalayer;
+package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.Resource;
 
-public interface ProductData extends ComponentData {
+public abstract class DataLayerListItem extends DataLayerComponent {
 
-    @JsonProperty("xdm:SKU")
-    default String getSKU() {
-        throw new UnsupportedOperationException();
+    public static final String ITEM_ID_PREFIX = "item";
+
+    protected String parentId;
+
+    protected DataLayerListItem(String parentId, Resource resource) {
+        this.parentId = parentId;
+        this.resource = resource;
     }
 
-    @JsonProperty("xdm:listPrice")
-    default Double getPrice() {
-        throw new UnsupportedOperationException();
-    }
-
-    @JsonProperty("xdm:currencyCode")
-    default String getCurrency() {
-        throw new UnsupportedOperationException();
+    @Override
+    protected String generateId() {
+        String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(resource.getPath()), 0, 10));
     }
 }

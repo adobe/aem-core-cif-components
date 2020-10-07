@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -37,9 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
@@ -305,7 +306,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
-        productVariant.setId(product.getId().toString());
+        productVariant.setId(
+            StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(product.getSku()), 0, 10)));
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
@@ -396,7 +398,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     protected String generateId() {
-        return StringUtils.join("product", ID_SEPARATOR, productRetriever.fetchProduct().getId());
+        return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
     }
 
     @Override

@@ -34,11 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.CategoryListDataImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryListDataImpl;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
-import com.adobe.cq.commerce.core.components.models.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
@@ -80,7 +80,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
-    private List<CategoryTree> categories;
 
     @PostConstruct
     private void initModel() {
@@ -118,7 +117,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryId, overrideAsset);
             }
 
-            if (categoryIds.size() > 0) {
+            if (!categoryIds.isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
@@ -134,26 +133,24 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             return Collections.emptyList();
         }
 
-        if (categories == null) {
-            categories = categoriesRetriever.fetchCategories();
-            for (CategoryTree category : categories) {
-                Map<String, String> params = new ParamsBuilder()
-                    .id(category.getId().toString())
-                    .urlPath(category.getUrlPath())
-                    .map();
-                category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
+        List<CategoryTree> categories = categoriesRetriever.fetchCategories();
+        for (CategoryTree category : categories) {
+            Map<String, String> params = new ParamsBuilder()
+                .id(category.getId().toString())
+                .urlPath(category.getUrlPath())
+                .map();
+            category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
-                // Replace image if there is an asset override
-                String id = category.getId().toString();
-                if (assetOverride.containsKey(id)) {
-                    Asset asset = assetOverride.get(id);
-                    Rendition rendition = asset.getRendition(RENDITION_WEB);
-                    if (rendition == null) {
-                        rendition = asset.getRendition(RENDITION_ORIGINAL);
-                    }
-                    if (rendition != null) {
-                        category.setImage(rendition.getPath());
-                    }
+            // Replace image if there is an asset override
+            String id = category.getId().toString();
+            if (assetOverride.containsKey(id)) {
+                Asset asset = assetOverride.get(id);
+                Rendition rendition = asset.getRendition(RENDITION_WEB);
+                if (rendition == null) {
+                    rendition = asset.getRendition(RENDITION_ORIGINAL);
+                }
+                if (rendition != null) {
+                    category.setImage(rendition.getPath());
                 }
             }
         }
@@ -183,7 +180,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             .map(c -> new CategoryListDataImpl.CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
-    
+
     @Override
     public String getTitleType() {
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());

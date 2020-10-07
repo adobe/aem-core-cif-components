@@ -11,13 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.models.datalayer;
+package com.adobe.cq.commerce.core.components.datalayer;
 
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public interface CategoryListData extends ComponentData {
+public interface ProductData extends ComponentData {
 
-    default CategoryData[] getCategories() {
+    @JsonProperty("xdm:SKU")
+    default String getSKU() {
+        throw new UnsupportedOperationException();
+    }
+
+    @JsonProperty("xdm:listPrice")
+    default Double getPrice() {
+        throw new UnsupportedOperationException();
+    }
+
+    @JsonProperty("xdm:currencyCode")
+    default String getCurrency() {
         throw new UnsupportedOperationException();
     }
 }
