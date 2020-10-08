@@ -21,12 +21,11 @@ import { I18nextProvider } from 'react-i18next';
 import Minicart from '../minicart';
 import { waitForElement } from '@testing-library/dom';
 import { CartProvider } from '../cartContext';
-import { CheckoutProvider } from '../../Checkout/checkoutContext';
+import { CheckoutProvider } from '../../Checkout';
 import i18n from '../../../../__mocks__/i18nForTests';
 
-// avoid console errors and warnings logged during testing
+// avoid console errors logged during testing
 console.error = jest.fn();
-console.warn = jest.fn();
 
 describe('<Minicart>', () => {
     it('renders the empty cart', async () => {

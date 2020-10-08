@@ -38,7 +38,7 @@ describe('<CreateAccount>', () => {
                 <MockedProvider>
                     <UserContextProvider>
                         <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />
+                            <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />
                         </CartProvider>
                     </UserContextProvider>
                 </MockedProvider>
@@ -131,7 +131,7 @@ describe('<CreateAccount>', () => {
             if (createAccountEmail !== null) {
                 content = <div data-testid="success">{createAccountEmail}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;
@@ -215,7 +215,7 @@ describe('<CreateAccount>', () => {
             if (createAccountError) {
                 content = <div data-testid="success">{createAccountError}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;

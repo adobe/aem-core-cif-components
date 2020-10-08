@@ -11,9 +11,6 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-// avoid console errors and warnings logged during testing
-console.error = jest.fn();
-console.warn = jest.fn();
 
 import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react';
@@ -27,6 +24,9 @@ import { CartProvider } from '../../Minicart';
 import MyAccount from '../myAccount';
 import i18n from '../../../../__mocks__/i18nForTests';
 import { ConfigContext } from '../../../context/ConfigContext';
+
+// avoid console errors logged during testing
+console.error = jest.fn();
 
 describe('<MyAccount>', () => {
     it('renders the component', async () => {

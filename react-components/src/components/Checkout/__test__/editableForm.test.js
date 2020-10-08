@@ -11,9 +11,6 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-// avoid console warnings logged during testing
-console.warn = jest.fn();
-
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { render, wait } from '@testing-library/react';

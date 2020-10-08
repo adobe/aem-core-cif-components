@@ -12,9 +12,6 @@
  *
  ******************************************************************************/
 
-// avoid console warnings logged during testing
-console.warn = jest.fn();
-
 import React from 'react';
 import Product from '../product';
 import { render } from '@testing-library/react';
