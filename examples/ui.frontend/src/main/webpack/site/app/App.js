@@ -25,8 +25,6 @@ import {
 import i18n from './i18n';
 import partialConfig from './config';
 
-import '../../site/main.scss';
-
 const App = () => {
     const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
     const { mountingPoints } = partialConfig;

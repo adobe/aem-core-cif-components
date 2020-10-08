@@ -23,7 +23,7 @@ i18n.use(Backend)
     .use(initReactI18next)
 
     .init({
-        fallbackLng: 'en-US',
+        fallbackLng: 'en',
         debug: true,
 
         load: 'currentOnly',
@@ -51,7 +51,7 @@ i18n.use(Backend)
         },
 
         backend: {
-            loadPath: '/etc.clientlibs/venia/clientlibs/clientlib-site/resources/i18n/{{lng}}/{{ns}}.json',
+            loadPath: '/etc.clientlibs/cif-components-examples/clientlibs/cif-examples-react/resources/i18n/{{lng}}/{{ns}}.json',
             allowMultiLoading: false,
             withCredentials: true
         }
