@@ -95,10 +95,6 @@ module.exports = {
         }),
         new CopyWebpackPlugin([
             {
-                from: path.resolve(__dirname, SOURCE_ROOT + '/resources'),
-                to: './cif-examples-react/'
-            },
-            {
                 from: path.resolve(__dirname, 'node_modules/@adobe/aem-core-cif-react-components/i18n'),
                 to: './cif-examples-react/i18n'
             }

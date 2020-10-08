@@ -60,16 +60,33 @@ When everything is correctly installed, you should be able to open the library p
 
 **Note**: This is only useful for the developers of this components library.
 
-The layout/design of the examples is currently "borrowed" from the [Venia theme](https://github.com/adobe/aem-cif-project-archetype/tree/master/src/main/archetype/ui.apps/src/main/content/jcr_root/apps/__appsFolderName__/clientlibs/theme) available in the CIF archetype. To avoid having any project dependency on the venia sample data, we generate the [venia.css](ui.apps/src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.css) file "offline", based on the css files of the archetype sample data. This is done in 3 steps:
+The layout/design of the examples is currently "borrowed" from the [Venia project](https://github.com/adobe/aem-cif-guides-venia). To avoid having any project dependency on the venia sample data, we generate the [venia.css](ui.apps/src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.css) file "offline", based on the [ui.frontend](https://github.com/adobe/aem-cif-guides-venia/tree/main/ui.frontend) sub-project of the Venia demo.
 
-The `css.txt` file of the Venia theme is converted into a (css) `less` master file:
+To generate the `venia.css` file, simply do the following:
 
-`sed "s/^#.*//;/^$/d;s/^.*$/@import (less) \"&\";/" css.txt`
+Build the Venia `ui.frontend` project, go to `node_modules/@adobe/aem-core-cif-react-components/dist` and run the following command to fix some issues when processing the SCSS file:
 
-The output of that command is copied into the placeholder in [venia.less.template](ui.apps/src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.less.template) that you can save into a file called `venia.less`.
+```
+sed "s/rgb(/RGB(/" main.css > main.scss
+```
 
-With the less compiler (install it with `npm install -g less`), execute the following command:
+Go to `ui.frontend/src/main/site` and edit the [main.scss](https://github.com/adobe/aem-cif-guides-venia/blob/main/ui.frontend/src/main/site/main.scss) file to "scope/nest" all css directives inside the `.cif.demo` class: this class is set on the container element of all the CIF components demonstrated in the CIF components library. At the time of writing this documentation, the file is simply transformed to:
 
-`lessc --verbose --math=strict venia.less venia.css`
+```
+@import url('https://fonts.googleapis.com/css?family=Muli');
+@import 'variables';
 
-This generates the `venia.css` file that we use for the layout/design of the examples.
+.cif-demo {
+
+@import 'base';
+@import '../../../node_modules/@adobe/aem-core-cif-react-components/dist/main.scss'; // Don't miss this change !
+@import '../styles/**/*.scss';
+@import './styles/*.scss';
+
+}
+```
+Rebuild the Venia `ui.frontend` project and copy the generated css file `dist/clientlib-site/site.css` to `ui.apps/src/main/content/jcr_root/apps/cif-components-examples/clientlibs/venia-theme/venia.css`.
+
+Discard all the changes you did in the Venia project.
+
+
