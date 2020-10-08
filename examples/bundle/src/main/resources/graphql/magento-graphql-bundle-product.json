@@ -1,0 +1,65 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "BundleProduct",
+          "sku": "24-WG080",
+          "name": "Sprite Yoga Companion Kit",
+          "description": {
+            "html": "<p>A well-rounded yoga workout takes more than a mat. The Sprite Yoga Companion Kit helps stock your studio with the basics you need for a full-range workout. The kit is composed of four best-selling Luma Sprite accessories in one easy bundle: statis ball, foam block, yoga strap, and foam roller. Choose sizes and colors and leave the rest to us. The kit includes:</p>\n<ul>\n<li> Sprite Statis Ball\n<li> Sprite Foam Yoga Brick\n<li> Sprite Yoga Strap\n<li> Sprite Foam Roller\n</ul>"
+          },
+          "image": {
+            "label": "Sprite Yoga Companion Kit",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/sprite-yoga-companion-kit/luma-yoga-kit-2.jpg"
+          },
+          "thumbnail": {
+            "label": "Sprite Yoga Companion Kit",
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/sprite-yoga-companion-kit/luma-yoga-kit-2.jpg"
+          },
+          "url_key": "sprite-yoga-companion-kit",
+          "stock_status": "IN_STOCK",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 61,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 61,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "maximum_price": {
+              "regular_price": {
+                "value": 77,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 77,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "media_gallery": [
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/sprite-yoga-companion-kit/luma-yoga-kit-2.jpg",
+              "label": "Image",
+              "position": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
