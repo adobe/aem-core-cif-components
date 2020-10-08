@@ -11,21 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+// avoid console errors and warnings logged during testing
+console.error = jest.fn();
+console.warn = jest.fn();
+
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, wait } from '@testing-library/react';
 
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider } from '../../Minicart';
 
 import MyAccount from '../myAccount';
 import i18n from '../../../../__mocks__/i18nForTests';
 import { ConfigContext } from '../../../context/ConfigContext';
 
 describe('<MyAccount>', () => {
-    it('renders the component', () => {
+    it('renders the component', async () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
@@ -43,10 +47,12 @@ describe('<MyAccount>', () => {
                 </MockedProvider>
             </I18nextProvider>
         );
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('renders the loading indicator when inProgress is true', () => {
+    it('renders the loading indicator when inProgress is true', async () => {
         const stateWithInProgress = { inProgress: true };
 
         const { asFragment } = render(
@@ -66,10 +72,12 @@ describe('<MyAccount>', () => {
                 </MockedProvider>
             </I18nextProvider>
         );
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('call the callback function when sign out button is clicked', () => {
+    it('call the callback function when sign out button is clicked', async () => {
         const mockReducerFactory = jest.fn(state => state);
 
         const { getByText } = render(
@@ -90,9 +98,11 @@ describe('<MyAccount>', () => {
             </I18nextProvider>
         );
 
-        expect(getByText('Sign Out')).not.toBeUndefined();
-        fireEvent.click(getByText('Sign Out'));
+        await wait(() => {
+            expect(getByText('Sign Out')).not.toBeUndefined();
+            fireEvent.click(getByText('Sign Out'));
 
-        expect(mockReducerFactory).toHaveBeenCalledTimes(1);
+            expect(mockReducerFactory).toHaveBeenCalledTimes(1);
+        });
     });
 });

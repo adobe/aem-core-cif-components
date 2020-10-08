@@ -11,12 +11,15 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+// avoid console warnings logged during testing
+console.warn = jest.fn();
+
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import EditableForm from '../editableForm';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -62,11 +65,9 @@ describe('<EditableForm />', () => {
             </I18nextProvider>
         );
 
-        const result = await waitForElement(() => {
-            return queryByText('Shipping Address');
+        await wait(() => {
+            expect(queryByText('Shipping Address')).not.toBeNull();
         });
-
-        expect(result).not.toBeNull();
     });
 
     it('renders the payments form if countries are loaded', async () => {
@@ -100,13 +101,14 @@ describe('<EditableForm />', () => {
             }
         };
 
+        let mockReducer = jest.fn(state => state);
         const { queryByText } = render(
             <MockedProvider mocks={mocksPaymentsForm} addTypename={false}>
                 <UserContextProvider>
                     <CartProvider initialState={mockCartState} reducerFactory={() => state => state}>
                         <CheckoutProvider
                             initialState={{ editing: 'paymentMethod', flowState: 'form' }}
-                            reducer={state => state}>
+                            reducer={mockReducer}>
                             <EditableForm />
                         </CheckoutProvider>
                     </CartProvider>
@@ -114,11 +116,10 @@ describe('<EditableForm />', () => {
             </MockedProvider>
         );
 
-        const result = await waitForElement(() => {
-            return queryByText('Billing Information');
+        await wait(() => {
+            expect(queryByText('Billing Information')).not.toBeNull();
+            expect(mockReducer.mock.calls.length).toBe(1);
         });
-
-        expect(result).not.toBeNull();
     });
 
     it('renders the shipping method form if countries are loaded', async () => {
@@ -136,11 +137,9 @@ describe('<EditableForm />', () => {
             </MockedProvider>
         );
 
-        const result = await waitForElement(() => {
-            return queryByText('Shipping Information');
+        await wait(() => {
+            expect(queryByText('Shipping Information')).not.toBeNull();
         });
-
-        expect(result).not.toBeNull();
     });
 
     it('does not render the shipping address form if countries could not be loaded', async () => {
@@ -171,6 +170,8 @@ describe('<EditableForm />', () => {
             </MockedProvider>
         );
 
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 });

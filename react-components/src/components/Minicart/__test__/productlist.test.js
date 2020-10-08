@@ -15,6 +15,8 @@ import React from 'react';
 import ProductList from '../productList';
 import { render } from 'test-utils';
 import { CartProvider } from '../cartContext';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<ProductList>', () => {
     const mockCartItems = [
@@ -62,9 +64,11 @@ describe('<ProductList>', () => {
 
     it('renders a list of products', () => {
         const { getAllByTestId } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <ProductList cartItems={mockCartItems} removeItemFromCart={jest.fn()} />
-            </CartProvider>
+            <I18nextProvider i18n={i18n}>
+                <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                    <ProductList cartItems={mockCartItems} removeItemFromCart={jest.fn()} />
+                </CartProvider>
+            </I18nextProvider>
         );
 
         const productItems = getAllByTestId('cart-item');

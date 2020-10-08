@@ -22,6 +22,14 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import ConfigContextProvider from '../../../context/ConfigContext';
 import AccountDropdown from '../accountDropdown';
 
+const config = {
+    graphqlEndpoint: 'endpoint',
+    storeView: 'default',
+    pagePaths: {
+        accountDetails: '/accountDetails'
+    }
+};
+
 describe('<AccountDropdown>', () => {
     it('renders the component when account dropdown is open', () => {
         const stateWithAccountDropdownOpen = { isAccountDropdownOpen: true };
@@ -29,7 +37,7 @@ describe('<AccountDropdown>', () => {
 
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithAccountDropdownOpen}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
@@ -56,7 +64,7 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithMyAccountView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
@@ -78,7 +86,7 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithChangePasswordView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
@@ -100,7 +108,7 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithForgotPasswordView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
@@ -121,7 +129,7 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithCreateAccountView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
@@ -142,7 +150,7 @@ describe('<AccountDropdown>', () => {
 
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider initialState={stateWithAccountCreatedView}>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>

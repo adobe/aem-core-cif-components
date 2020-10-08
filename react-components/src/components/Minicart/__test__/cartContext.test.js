@@ -12,11 +12,12 @@
  *
  ******************************************************************************/
 
-/* eslint-disable react/prop-types */
-
 import React from 'react';
 import { CartProvider, useCartState } from '../cartContext';
 import { render, fireEvent } from '@testing-library/react';
+
+// avoid console errors logged during testing
+console.error = jest.fn();
 
 describe('CartContext', () => {
     const MockConsumer = ({ action }) => {

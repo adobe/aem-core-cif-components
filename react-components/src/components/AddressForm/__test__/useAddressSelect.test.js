@@ -14,7 +14,7 @@
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, wait } from '@testing-library/react';
 
 import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
@@ -66,11 +66,13 @@ describe('useAddressSelect', () => {
             </I18nextProvider>
         );
 
-        const newAddressLabel = getByTestId('new-address-label');
-        expect(newAddressLabel.textContent).toEqual('New Address');
+        await wait(() => {
+            const newAddressLabel = getByTestId('new-address-label');
+            expect(newAddressLabel.textContent).toEqual('New Address');
 
-        const savedAddressLabel = getByTestId('saved-address-label');
-        expect(savedAddressLabel.textContent).toEqual('saved address street');
+            const savedAddressLabel = getByTestId('saved-address-label');
+            expect(savedAddressLabel.textContent).toEqual('saved address street');
+        });
     });
 
     it('calls the "handleChangeAddressSelectInCheckout" callback function', async () => {
@@ -110,12 +112,16 @@ describe('useAddressSelect', () => {
         );
 
         fireEvent.click(getByTestId('change-to-new-address-item'));
-        expect(setValues).toHaveBeenCalledTimes(1);
-        expect(handler).toHaveBeenCalledTimes(1);
+        await wait(() => {
+            expect(setValues).toHaveBeenCalledTimes(1);
+            expect(handler).toHaveBeenCalledTimes(1);
+        });
 
         fireEvent.click(getByTestId('change-to-saved-address-item'));
-        expect(setValues).toHaveBeenCalledTimes(2);
-        expect(handler).toHaveBeenCalledTimes(2);
+        await wait(() => {
+            expect(setValues).toHaveBeenCalledTimes(2);
+            expect(handler).toHaveBeenCalledTimes(2);
+        });
     });
 
     it('calls the "parseInitialAddressSelectValue" function', async () => {
@@ -147,7 +153,9 @@ describe('useAddressSelect', () => {
             </I18nextProvider>
         );
 
-        const initialValue = getByTestId('address-select-initial-value');
-        expect(initialValue.textContent).toEqual('1');
+        await wait(() => {
+            const initialValue = getByTestId('address-select-initial-value');
+            expect(initialValue.textContent).toEqual('1');
+        });
     });
 });

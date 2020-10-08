@@ -97,32 +97,34 @@ describe('useCart', () => {
             },
             result: {
                 data: {
-                    cart: {
-                        shipping_addresses: [
-                            {
-                                available_shipping_methods: [
-                                    {
-                                        carrier_code: 'test carrier code',
-                                        carrier_title: 'test carrier title',
-                                        method_code: 'test method code',
-                                        method_title: 'test method title'
-                                    }
-                                ],
-                                city: mockShippingAddress.city,
-                                company: mockShippingAddress.company,
-                                country: {
-                                    code: mockShippingAddress.country_code
-                                },
-                                firstname: mockShippingAddress.firstname,
-                                lastname: mockShippingAddress.lastname,
-                                postcode: mockShippingAddress.postcode,
-                                region: {
-                                    code: mockShippingAddress.region_code
-                                },
-                                street: mockShippingAddress.street,
-                                telephone: mockShippingAddress.telephone
-                            }
-                        ]
+                    setShippingAddressesOnCart: {
+                        cart: {
+                            shipping_addresses: [
+                                {
+                                    available_shipping_methods: [
+                                        {
+                                            carrier_code: 'test carrier code',
+                                            carrier_title: 'test carrier title',
+                                            method_code: 'test method code',
+                                            method_title: 'test method title'
+                                        }
+                                    ],
+                                    city: mockShippingAddress.city,
+                                    company: mockShippingAddress.company,
+                                    country: {
+                                        code: mockShippingAddress.country_code
+                                    },
+                                    firstname: mockShippingAddress.firstname,
+                                    lastname: mockShippingAddress.lastname,
+                                    postcode: mockShippingAddress.postcode,
+                                    region: {
+                                        code: mockShippingAddress.region_code
+                                    },
+                                    street: mockShippingAddress.street,
+                                    telephone: mockShippingAddress.telephone
+                                }
+                            ]
+                        }
                     }
                 }
             }

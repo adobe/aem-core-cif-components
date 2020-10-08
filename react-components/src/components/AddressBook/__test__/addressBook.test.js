@@ -14,7 +14,7 @@
 import React from 'react';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -22,7 +22,7 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import AddressBook from '../addressBook';
 
 describe('<AddressBook>', () => {
-    it('renders the component', () => {
+    it('renders the component', async () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
@@ -32,10 +32,12 @@ describe('<AddressBook>', () => {
                 </MockedProvider>
             </I18nextProvider>
         );
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('renders the component with signed in user', () => {
+    it('renders the component with signed in user', async () => {
         const stateWithCurrentUserDetails = {
             isSignedIn: true,
             currentUser: {
@@ -52,6 +54,8 @@ describe('<AddressBook>', () => {
                 </MockedProvider>
             </I18nextProvider>
         );
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 });

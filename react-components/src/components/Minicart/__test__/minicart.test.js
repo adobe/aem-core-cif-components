@@ -24,12 +24,16 @@ import { CartProvider } from '../cartContext';
 import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import i18n from '../../../../__mocks__/i18nForTests';
 
+// avoid console errors and warnings logged during testing
+console.error = jest.fn();
+console.warn = jest.fn();
+
 describe('<Minicart>', () => {
     it('renders the empty cart', async () => {
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
                 <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                    <CheckoutProvider initialState={{}} reducer={state => state}>
+                    <CheckoutProvider initialState={{ flowState: 'minicart' }} reducer={state => state}>
                         <Minicart />
                     </CheckoutProvider>
                 </CartProvider>

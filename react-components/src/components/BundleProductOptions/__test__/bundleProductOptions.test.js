@@ -23,7 +23,13 @@ import i18n from '../../../../__mocks__/i18nForTests';
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
 
-const config = { mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' } };
+const config = {
+    storeView: 'default',
+    graphqlEndpoint: 'endpoint',
+    mountingPoints: {
+        bundleProductOptionsContainer: '#bundle-product-options'
+    }
+};
 
 describe('<BundleProductOptions>', () => {
     it('renders the component with no sku', () => {

@@ -19,18 +19,26 @@ import AccountDetails from '../accountDetails';
 import UserContextProvider from '../../../context/UserContext';
 import getDetailsQuery from '../../../queries/query_get_customer_information.graphql';
 import ConfigContextProvider from '../../../context/ConfigContext';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<AccountDetails>', () => {
     const withContext = (Component, userContext = {}, mocks = []) => {
         return (
-            <ConfigContextProvider
-                config={{ storeView: 'default', graphqlEndpoint: 'none', mountingPoints: { accountDetails: 'mock' } }}>
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <UserContextProvider initialState={userContext}>
-                        <Component />
-                    </UserContextProvider>
-                </MockedProvider>
-            </ConfigContextProvider>
+            <I18nextProvider i18n={i18n}>
+                <ConfigContextProvider
+                    config={{
+                        storeView: 'default',
+                        graphqlEndpoint: 'none',
+                        mountingPoints: { accountDetails: 'mock' }
+                    }}>
+                    <MockedProvider mocks={mocks} addTypename={false}>
+                        <UserContextProvider initialState={userContext}>
+                            <Component />
+                        </UserContextProvider>
+                    </MockedProvider>
+                </ConfigContextProvider>
+            </I18nextProvider>
         );
     };
 

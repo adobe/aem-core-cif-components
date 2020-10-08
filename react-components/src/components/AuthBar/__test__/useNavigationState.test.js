@@ -18,13 +18,17 @@ import React from 'react';
 import useNavigationState from '../useNavigationState';
 import { render, fireEvent, wait } from '@testing-library/react';
 import ConfigContextProvider from '../../../context/ConfigContext';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('useNavigationState', () => {
     const renderWithContext = (Component, props) =>
         render(
-            <ConfigContextProvider config={configObject}>
-                <Component {...props} />
-            </ConfigContextProvider>
+            <I18nextProvider i18n={i18n}>
+                <ConfigContextProvider config={configObject}>
+                    <Component {...props} />
+                </ConfigContextProvider>
+            </I18nextProvider>
         );
 
     const configObject = {

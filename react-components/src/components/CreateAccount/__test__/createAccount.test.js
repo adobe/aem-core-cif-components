@@ -18,7 +18,7 @@ import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider } from '../../Minicart';
 import CreateAccount from '../createAccount';
 import i18n from '../../../../__mocks__/i18nForTests';
 
@@ -131,7 +131,7 @@ describe('<CreateAccount>', () => {
             if (createAccountEmail !== null) {
                 content = <div data-testid="success">{createAccountEmail}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />;
             }
 
             return content;

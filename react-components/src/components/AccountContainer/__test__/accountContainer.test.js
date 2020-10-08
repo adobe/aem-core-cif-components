@@ -25,9 +25,17 @@ import ConfigContextProvider from '../../../context/ConfigContext';
 
 describe('<AccountContainer>', () => {
     it('renders the component', () => {
+        const config = {
+            graphqlEndpoint: 'endpoint',
+            storeView: 'default',
+            pagePaths: {
+                accountDetails: '/accountDetails'
+            }
+        };
+
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
+                <ConfigContextProvider config={config}>
                     <MockedProvider>
                         <UserContextProvider>
                             <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>

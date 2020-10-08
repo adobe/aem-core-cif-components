@@ -52,7 +52,7 @@ describe('ForgotPassword', () => {
         const { getByLabelText } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider mocks={mocks} addTypename={false}>
-                    <ForgotPassword onClose={jest.fn()} />
+                    <ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />
                 </MockedProvider>
             </I18nextProvider>
         );
