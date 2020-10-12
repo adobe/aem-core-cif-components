@@ -1,0 +1,19 @@
+{
+  "testresource-970b5df37f-item-b22082e149": {
+    "categories": [
+      {
+        "id": "cat1",
+        "name": "Category 1",
+        "image": "/url/to/img1"
+      },
+      {
+        "id": "cat2",
+        "name": "Category 2",
+        "image": "/url/to/img2"
+      }
+    ],
+    "dc:title": "Test item",
+    "repo:modifyDate": "2020-10-12T10:20:34Z",
+    "@type": "venia/components/commerce/testitemresource"
+  }
+}
