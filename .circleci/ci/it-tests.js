@@ -30,7 +30,7 @@ try {
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
 
         // We install the graphql-client by default except with the CIF Add-On
-        let extras = '--bundle com.adobe.commerce.cif:graphql-client:1.6.1:jar';
+        let extras = '--bundle com.adobe.commerce.cif:graphql-client:1.7.0:jar';
         if (process.env.AEM == 'classic') {
         	// The core components are already installed in the Cloud SDK
         	extras += ' --bundle com.adobe.cq:core.wcm.components.all:2.9.0:zip';
