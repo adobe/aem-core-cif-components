@@ -35,7 +35,7 @@ const sessionStorage = window.sessionStorage;
 let graphQlFragmentTypes = sessionStorage.getItem('graphQlFragmentTypes');
 
 const App = props => {
-    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
+    const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
 
     const clientConfig = {
         cache: graphQlFragmentTypes !== null ? generateCacheData(JSON.parse(graphQlFragmentTypes)) : undefined,

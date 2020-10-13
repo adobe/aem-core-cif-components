@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConfigContext provides the configuration 1`] = `
+<DocumentFragment>
+  <div>
+    <span
+      data-testid="storeView"
+    >
+      my-store
+    </span>
+    <span
+      data-testid="graphqlEndpoint"
+    >
+      /api/graphql
+    </span>
+    <span
+      data-testid="graphqlMethod"
+    >
+      GET
+    </span>
+  </div>
+</DocumentFragment>
+`;
