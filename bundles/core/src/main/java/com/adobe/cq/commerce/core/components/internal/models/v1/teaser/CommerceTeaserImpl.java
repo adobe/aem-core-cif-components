@@ -28,8 +28,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
@@ -45,8 +43,6 @@ import com.day.cq.wcm.api.Page;
 public class CommerceTeaserImpl implements CommerceTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/content/teaser/v1/teaser";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
     private Page productPage;
     private Page categoryPage;
