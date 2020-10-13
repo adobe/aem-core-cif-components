@@ -15,6 +15,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.List;
 
+import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -110,12 +111,11 @@ public class CommerceTeaserImplTest {
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
-        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
     }
 
     @Test
     public void verifyActions() {
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
         List<ListItem> actionItems = commerceTeaser.getActions();
 
         Assert.assertTrue(commerceTeaser.isActionsEnabled());
@@ -136,5 +136,14 @@ public class CommerceTeaserImplTest {
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
         Assert.assertEquals("Some text", actionItems.get(3).getTitle());
+    }
+
+    @Test
+    public void verifyNoActionsConfigured() throws PersistenceException {
+        context.resourceResolver().delete(commerceTeaserResource.getChild("actions"));
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+
+        List<ListItem> actionItems = commerceTeaser.getActions();
+        Assert.assertTrue(actionItems.isEmpty());
     }
 }
