@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.datalayer;
 import java.io.IOException;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -43,9 +42,7 @@ public class DataLayerComponentTest {
     private static final String PAGE = "/content/venia/us/en";
     private static final String RESOURCE_RELATIVE_PATH = "/jcr:content/root/responsivegrid/test";
     private static final String ITEM_RESOURCE_RELATIVE_PATH = "/jcr:content/root/responsivegrid/test-item";
-    public static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("enabled", true));
     private TestSimpleComponent testComponent;
     private Resource testResource;
     private ConfigurationBuilder mockConfigBuilder;
@@ -127,9 +124,7 @@ public class DataLayerComponentTest {
 
     @Before
     public void setup() {
-        mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-        Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
-        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(MOCK_CONFIGURATION);
+        mockConfigBuilder = Utils.getDataLayerConfig(true);
 
         context.currentPage(PAGE);
         context.currentResource(PAGE + RESOURCE_RELATIVE_PATH);
@@ -164,7 +159,7 @@ public class DataLayerComponentTest {
         Mockito.when(testItemResource.adaptTo(ConfigurationBuilder.class)).thenReturn(mockConfigBuilder);
 
         TestListItemComponent testItemComponent = new TestListItemComponent(testComponent.getId(), testItemResource);
-        String expected = Utils.getResource("results/result-datalayer-itemcomponent.json");
+        String expected = Utils.getResource("results/result-datalayer-item-component.json");
         String jsonResult = testItemComponent.getData().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }

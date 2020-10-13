@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponentTest;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -101,10 +100,7 @@ public class ProductImplTest {
                     (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
                         : ComponentsConfiguration.EMPTY);
 
-                ValueMap datalayerConfig = new ValueMapDecorator(ImmutableMap.of("enabled", true));
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Mockito.when(mockConfigBuilder.name(DataLayerComponentTest.DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
-                Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerConfig);
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
