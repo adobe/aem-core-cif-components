@@ -43,7 +43,7 @@ public class DataLayerComponentTest {
     private static final String PAGE = "/content/venia/us/en";
     private static final String RESOURCE_RELATIVE_PATH = "/jcr:content/root/responsivegrid/test";
     private static final String ITEM_RESOURCE_RELATIVE_PATH = "/jcr:content/root/responsivegrid/test-item";
-    private static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
+    public static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("enabled", true));
     private TestSimpleComponent testComponent;
@@ -151,7 +151,7 @@ public class DataLayerComponentTest {
     public void testJsonRender() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         TestProductComponent testProductComponent = new TestProductComponent(testResource);
-        String expected = Utils.getResource("results/result-datalayer-productcomponent.json");
+        String expected = Utils.getResource("results/result-datalayer-test-resource.json");
         String jsonResult = testProductComponent.getData().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
