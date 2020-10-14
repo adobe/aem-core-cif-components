@@ -13,55 +13,53 @@
  ******************************************************************************/
 import React from 'react';
 import { Form } from 'informed';
-import { createTestInstance } from '@magento/peregrine';
+import { render } from '@testing-library/react';
 
 import Checkbox from '../checkbox';
 
 const field = 'a';
 const label = 'b';
-const classes = ['icon', 'input', 'label', 'message', 'root'].reduce((acc, key) => ({ ...acc, [key]: key }), {});
+const id = 'c';
 
-const props = { classes, field, label };
+const props = { field, label };
 
 describe('<Checkbox>', () => {
     it('renders the correct tree', () => {
-        const tree = createTestInstance(
-            <Form>
-                <Checkbox {...props} />
-            </Form>
-        ).toJSON();
-
-        expect(tree).toMatchSnapshot();
-    });
-
-    it('applies `props.id` to both label and input', () => {
-        const id = 'c';
-
-        const { root } = createTestInstance(
+        const { asFragment } = render(
             <Form>
                 <Checkbox {...props} id={id} />
             </Form>
         );
 
-        const labelInstance = root.findByType('label');
-        const checkboxInstance = root.findByProps({ className: 'input' });
+        expect(asFragment()).toMatchSnapshot();
+    });
 
-        expect(checkboxInstance.props.id).toBe(id);
-        expect(labelInstance.props.htmlFor).toBe(id);
-        expect(labelInstance.props.id).toBeUndefined();
+    it('applies `props.id` to both label and input', () => {
+        const { container, getByRole } = render(
+            <Form>
+                <Checkbox {...props} id={id} />
+            </Form>
+        );
+
+        const labelInstance = container.querySelector('label');
+        const checkboxInstance = getByRole('checkbox');
+
+        expect(checkboxInstance.id).toBe(id);
+        expect(labelInstance.htmlFor).toBe(id);
+        expect(labelInstance.id).toBe('');
     });
 
     it('applies `checked` based on `initialValue`', () => {
-        const { root } = createTestInstance(
+        const { getAllByRole } = render(
             <Form>
                 <Checkbox {...props} field={'a.x'} initialValue={true} />
                 <Checkbox {...props} field={'a.y'} initialValue={false} />
             </Form>
         );
 
-        const [x, y] = root.findAllByType('input');
+        const [x, y] = getAllByRole('checkbox');
 
-        expect(x.props.checked).toBe(true);
-        expect(y.props.checked).toBe(false);
+        expect(x.checked).toBe(true);
+        expect(y.checked).toBe(false);
     });
 });

@@ -14,7 +14,7 @@
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
 
-import { Price } from '@magento/peregrine';
+import Price from '../Price';
 import { useTranslation } from 'react-i18next';
 
 import PaymentMethodSummary from './paymentMethodSummary';
