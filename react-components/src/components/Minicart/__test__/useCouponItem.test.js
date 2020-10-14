@@ -18,7 +18,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
 import useCouponItem from '../useCouponItem';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import * as actions from '../../../actions/cart';
 
 // mock the actions because we don't need them

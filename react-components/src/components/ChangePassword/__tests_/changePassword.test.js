@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import { I18nextProvider } from 'react-i18next';
 
 import ChangePassword from '../changePassword';

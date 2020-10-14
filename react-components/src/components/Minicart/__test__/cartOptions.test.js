@@ -18,7 +18,7 @@ import { I18nextProvider } from 'react-i18next';
 import CartOptions from '../cartOptions';
 import { CartProvider } from '../cartContext';
 import UserContextProvider from '../../../context/UserContext';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<CartOptions>', () => {

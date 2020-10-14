@@ -13,7 +13,7 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import { useCountries } from '../../utils/hooks';
 import { createAddress, updateAddress } from '../../actions/user';

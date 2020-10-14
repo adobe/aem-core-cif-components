@@ -12,11 +12,8 @@
  *
  ******************************************************************************/
 
-import React, { useState, useEffect } from 'react';
-import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient from 'apollo-boost';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import React from 'react';
+import { ApolloClient, ApolloLink, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
@@ -24,77 +21,31 @@ import UserContextProvider from '../../context/UserContext';
 import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 import { useConfigContext } from '../../context/ConfigContext';
 
-const generateCacheData = introspectionQueryResultData => {
-    const fragmentMatcher = new IntrospectionFragmentMatcher({
-        introspectionQueryResultData
-    });
-    return new InMemoryCache({ fragmentMatcher });
-};
-
-const sessionStorage = window.sessionStorage;
-let graphQlFragmentTypes = sessionStorage.getItem('graphQlFragmentTypes');
-
 const App = props => {
     const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
-    const clientConfig = {
-        cache: graphQlFragmentTypes !== null ? generateCacheData(JSON.parse(graphQlFragmentTypes)) : undefined,
-        uri: graphqlEndpoint,
-        headers: { Store: storeView },
-        request: operation => {
-            let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
-            if (token.length > 0) {
-                operation.setContext({
-                    headers: {
-                        authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                    }
-                });
-            }
+    const authLink = new ApolloLink((operation, forward) => {
+        let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+        if (token.length > 0) {
+            operation.setContext(({ headers }) => ({
+                headers: {
+                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`,
+                    ...headers
+                }
+            }));
         }
+
+        return forward(operation);
+    });
+
+    const link = from([authLink, new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]);
+
+    const clientConfig = {
+        link,
+        cache: new InMemoryCache()
     };
 
-    const [client, setClient] = useState(new ApolloClient(clientConfig));
-
-    useEffect(() => {
-        if (graphQlFragmentTypes === null) {
-            fetch(graphqlEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    variables: {},
-                    query: `
-                        {
-                            __schema {
-                                types {
-                                kind
-                                name
-                                possibleTypes {
-                                    name
-                                }
-                                }
-                            }
-                        }
-                    `
-                })
-            })
-                .then(result => result.json())
-                .then(result => {
-                    // here we're filtering out any type information unrelated to unions or interfaces
-                    const filteredData = result.data.__schema.types.filter(type => type.possibleTypes !== null);
-                    result.data.__schema.types = filteredData;
-
-                    graphQlFragmentTypes = JSON.stringify(result.data);
-                    sessionStorage.setItem('graphQlFragmentTypes', graphQlFragmentTypes);
-
-                    setClient(
-                        new ApolloClient({
-                            ...clientConfig,
-                            cache: generateCacheData(result.data)
-                        })
-                    );
-                });
-        }
-    });
+    const client = new ApolloClient(clientConfig);
 
     return (
         <ApolloProvider client={client}>

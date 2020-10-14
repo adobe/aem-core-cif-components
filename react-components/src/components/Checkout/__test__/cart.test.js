@@ -12,8 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { render } from 'test-utils';
 
 import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
@@ -24,30 +23,26 @@ import Cart from '../cart';
 describe('<Cart />', () => {
     it('renders the disabled checkout button', () => {
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider>
-                        <CheckoutProvider initialState={{}} reducer={state => state}>
-                            <Cart ready={false} submitting={false} />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <CartProvider>
+                    <CheckoutProvider initialState={{}} reducer={state => state}>
+                        <Cart ready={false} submitting={false} />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
         expect(getByRole('button').disabled).toEqual(true);
     });
 
     it('renders the active checkout button', () => {
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider>
-                        <CheckoutProvider initialState={{}} reducer={state => state}>
-                            <Cart ready={true} submitting={false} />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <CartProvider>
+                    <CheckoutProvider initialState={{}} reducer={state => state}>
+                        <Cart ready={true} submitting={false} />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
         expect(getByRole('button').disabled).toEqual(false);
     });

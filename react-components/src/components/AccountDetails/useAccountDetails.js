@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import { useMemo, useCallback, useState } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/client';
 import { useUserContext } from '../../context/UserContext';
 
 const useAccountDetails = props => {

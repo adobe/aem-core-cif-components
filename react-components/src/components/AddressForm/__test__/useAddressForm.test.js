@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { act, render, fireEvent } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 
+import { render } from 'test-utils';
 import UserContextProvider from '../../../context/UserContext';
 import { useAddressForm } from '../useAddressForm';
 import * as actions from '../../../actions/user';
@@ -43,11 +43,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider initialState={mockInitialState}>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockInitialState}>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         act(() => {
@@ -69,11 +67,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         act(() => {
@@ -103,11 +99,9 @@ describe('useAddressForm', () => {
         const handler = jest.fn(state => state);
 
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider initialState={mockInitialState} reducerFactory={() => handler}>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockInitialState} reducerFactory={() => handler}>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         act(() => {
@@ -131,11 +125,9 @@ describe('useAddressForm', () => {
         const handler = jest.fn(state => state);
 
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider reducerFactory={() => handler}>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         act(() => {
@@ -157,11 +149,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider initialState={mockInitialState}>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockInitialState}>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const errorMessage = getByTestId('error');
@@ -206,11 +196,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider initialState={mockInitialState}>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockInitialState}>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const street = getByTestId('street');
@@ -245,11 +233,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const regionCode1 = getByTestId('region-code1');
@@ -279,11 +265,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const regionId = getByTestId('region-id');
@@ -308,11 +292,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const city = getByTestId('city');
@@ -369,11 +351,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const city = getByTestId('city');
@@ -434,11 +414,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const city = getByTestId('city');
@@ -503,11 +481,9 @@ describe('useAddressForm', () => {
         };
 
         const { getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <Wrapper />
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider>
+                <Wrapper />
+            </UserContextProvider>
         );
 
         const city = getByTestId('city');
