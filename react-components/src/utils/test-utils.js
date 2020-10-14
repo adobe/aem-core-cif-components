@@ -15,103 +15,34 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../__mocks__/i18nForTests';
+import ConfigContextProvider from '../context/ConfigContext';
+import UserContextProvider from '../context/UserContext';
 
-import QUERY_CART_DETAILS from '../queries/query_cart_details.graphql';
+const defaultConfig = {
+    storeView: 'default',
+    graphqlEndpoint: 'none'
+};
 
-const emptyCartId = 'empty';
-const mockCartId = '123ABC';
-
-const mocks = [
-    {
-        request: {
-            query: QUERY_CART_DETAILS,
-            variables: {
-                cartId: emptyCartId
-            }
-        },
-        result: {
-            data: {
-                cart: {
-                    email: null,
-                    shipping_addresses: [],
-                    prices: {
-                        grand_total: {
-                            currency: 'USD',
-                            value: 0
-                        }
-                    },
-                    selected_payment_method: {
-                        code: '',
-                        title: ''
-                    },
-                    billing_address: {
-                        city: null,
-                        country: {
-                            code: null
-                        },
-                        lastname: null,
-                        firstname: null,
-                        region: {
-                            code: null
-                        },
-                        street: [''],
-                        postcode: null,
-                        telephone: null
-                    },
-                    available_payment_methods: [
-                        {
-                            code: 'cashondelivery',
-                            title: 'Cash On Delivery'
-                        },
-                        {
-                            code: 'banktransfer',
-                            title: 'Bank Transfer Payment'
-                        },
-                        {
-                            code: 'checkmo',
-                            title: 'Check / Money order'
-                        },
-                        {
-                            code: 'free',
-                            title: 'No Payment Information Required'
-                        }
-                    ],
-                    items: []
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CART_DETAILS,
-            variables: {
-                cartId: mockCartId
-            }
-        },
-        result: {
-            data: {
-                prices: {
-                    grand_total: {
-                        currency: 'USD',
-                        value: 0
-                    }
-                },
-                items: []
-            }
-        }
-    }
-];
-
-const AllProviders = ({ children }) => {
+// eslint-disable-next-line react/display-name
+const allProviders = (config, userContext, mocks) => ({ children }) => {
     return (
         <MockedProvider mocks={mocks} addTypename={false}>
-            {children}
+            <ConfigContextProvider config={config || defaultConfig}>
+                <UserContextProvider initialState={userContext}>
+                    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+                </UserContextProvider>
+            </ConfigContextProvider>
         </MockedProvider>
     );
 };
 
 /* Wrap all the React components tested with the library in a mocked Apollo provider */
-const customRender = (ui, options) => render(ui, { wrapper: AllProviders, ...options });
+const customRender = (ui, options = {}) => {
+    const { config, userContext, mocks, ...renderOptions } = options;
+    return render(ui, { wrapper: allProviders(config, userContext, mocks), ...renderOptions });
+};
 
 export * from '@testing-library/react';
 export { customRender as render };

@@ -13,17 +13,10 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, fireEvent, wait } from '@testing-library/react';
-
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-
-import UserContextProvider from '../../../context/UserContext';
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import { CartProvider } from '../../Minicart';
-
 import MyAccount from '../myAccount';
-import i18n from '../../../../__mocks__/i18nForTests';
-import { ConfigContext } from '../../../context/ConfigContext';
 
 // avoid console errors logged during testing
 console.error = jest.fn();
@@ -31,21 +24,9 @@ console.error = jest.fn();
 describe('<MyAccount>', () => {
     it('renders the component', async () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <MyAccount
-                                    showMenu={jest.fn()}
-                                    showAccountInformation={jest.fn()}
-                                    showChangePassword={jest.fn()}
-                                />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <MyAccount showMenu={jest.fn()} showAccountInformation={jest.fn()} showChangePassword={jest.fn()} />
+            </CartProvider>
         );
         await wait(() => {
             expect(asFragment()).toMatchSnapshot();
@@ -56,21 +37,10 @@ describe('<MyAccount>', () => {
         const stateWithInProgress = { inProgress: true };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider initialState={stateWithInProgress}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <MyAccount
-                                    showMenu={jest.fn()}
-                                    showAccountInformation={jest.fn()}
-                                    showChangePassword={jest.fn()}
-                                />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <MyAccount showMenu={jest.fn()} showAccountInformation={jest.fn()} showChangePassword={jest.fn()} />
+            </CartProvider>,
+            { userContext: stateWithInProgress }
         );
         await wait(() => {
             expect(asFragment()).toMatchSnapshot();
@@ -81,21 +51,9 @@ describe('<MyAccount>', () => {
         const mockReducerFactory = jest.fn(state => state);
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext.Provider value={{}}>
-                        <UserContextProvider>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => mockReducerFactory}>
-                                <MyAccount
-                                    showMenu={jest.fn()}
-                                    showAccountInformation={jest.fn()}
-                                    showChangePassword={jest.fn()}
-                                />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </ConfigContext.Provider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => mockReducerFactory}>
+                <MyAccount showMenu={jest.fn()} showAccountInformation={jest.fn()} showChangePassword={jest.fn()} />
+            </CartProvider>
         );
 
         await wait(() => {

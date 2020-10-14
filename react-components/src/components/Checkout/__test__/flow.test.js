@@ -13,40 +13,31 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-
-import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { cleanup, wait } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
+import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
-
 import Flow from '../flow';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../../../__mocks__/i18nForTests';
+
 const dummyCart = {
     items: []
 };
+
 const dummyItem = {
     id: 3,
     quantity: 3
 };
+
 afterEach(cleanup);
+
 describe('<Flow>', () => {
     it('it disables checkout button for empty cart', async () => {
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider
-                            initialState={{ cart: dummyCart, cartId: '123ABC' }}
-                            reducerFactory={() => state => state}>
-                            <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
-                                <Flow />
-                            </CheckoutProvider>
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Flow />
+                </CheckoutProvider>
+            </CartProvider>
         );
 
         // there are no items in the initial cart, button should be disabled
@@ -60,17 +51,11 @@ describe('<Flow>', () => {
 
         // we rerender the component with the new cart, button should be enabled
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider
-                        initialState={{ cart: newCart, cartId: '456DEF' }}
-                        reducerFactory={() => state => state}>
-                        <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
-                            <Flow />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cart: newCart, cartId: '456DEF' }} reducerFactory={() => state => state}>
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Flow />
+                </CheckoutProvider>
+            </CartProvider>
         );
         await wait(() => {
             expect(getByRole('button').disabled).toBe(false);

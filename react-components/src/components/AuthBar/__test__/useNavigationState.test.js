@@ -16,29 +16,18 @@
 
 import React from 'react';
 import useNavigationState from '../useNavigationState';
-import { render, fireEvent, wait } from '@testing-library/react';
-import ConfigContextProvider from '../../../context/ConfigContext';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../../../__mocks__/i18nForTests';
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
+
+const config = {
+    storeView: 'default',
+    graphqlEndpoint: 'http//does/not/matter',
+    mountingPoints: {
+        navPanel: 'none'
+    }
+};
 
 describe('useNavigationState', () => {
-    const renderWithContext = (Component, props) =>
-        render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={configObject}>
-                    <Component {...props} />
-                </ConfigContextProvider>
-            </I18nextProvider>
-        );
-
-    const configObject = {
-        storeView: 'default',
-        graphqlEndpoint: 'http//does/not/matter',
-        mountingPoints: {
-            navPanel: 'none'
-        }
-    };
-
     const GenericComponent = ({ view }) => {
         const [currentView, { switchTo }] = useNavigationState();
         return (
@@ -60,13 +49,13 @@ describe('useNavigationState', () => {
     };
 
     it('renders the default view', () => {
-        const { getByText } = renderWithContext(GenericComponent);
+        const { getByText } = render(<GenericComponent />, { config: config });
 
         expect(getByText('MENU')).not.toBeUndefined();
     });
 
     it('renders the Sign In view', async () => {
-        const { getByTestId, getByRole } = renderWithContext(GenericComponent, { view: 'SIGN_IN' });
+        const { getByTestId, getByRole } = render(<GenericComponent view={'SIGN_IN'} />, { config: config });
 
         fireEvent.click(getByRole('button'));
         await wait(() => {
@@ -76,7 +65,7 @@ describe('useNavigationState', () => {
     });
 
     it('renders a generic view view', async () => {
-        const { getByTestId, getByRole } = renderWithContext(GenericComponent, { view: 'MY_ACCOUNT' });
+        const { getByTestId, getByRole } = render(<GenericComponent view={'MY_ACCOUNT'} />, { config: config });
 
         fireEvent.click(getByRole('button'));
         await wait(() => {
@@ -86,7 +75,7 @@ describe('useNavigationState', () => {
     });
 
     it('goes back to the "MENU" view', async () => {
-        const { getByTestId, getByRole } = renderWithContext(ComponentWithBackNavigation, { view: 'SIGN_IN' });
+        const { getByTestId, getByRole } = render(<ComponentWithBackNavigation view={'SIGN_IN'} />, { config: config });
 
         fireEvent.click(getByRole('button'));
         await wait(() => {
@@ -96,7 +85,9 @@ describe('useNavigationState', () => {
     });
 
     it('goes back to the previous view', async () => {
-        const { getByTestId, getByRole } = renderWithContext(ComponentWithBackNavigation, { view: 'FORGOT_PASSWORD' });
+        const { getByTestId, getByRole } = render(<ComponentWithBackNavigation view={'FORGOT_PASSWORD'} />, {
+            config: config
+        });
 
         fireEvent.click(getByRole('button'));
         await wait(() => {

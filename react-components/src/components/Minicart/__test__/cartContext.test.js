@@ -16,7 +16,8 @@
 
 import React from 'react';
 import { CartProvider, useCartState } from '../cartContext';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 
 // avoid console errors logged during testing
 console.error = jest.fn();

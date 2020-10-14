@@ -13,10 +13,8 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import EditForm from '../editForm';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 jest.mock('informed', () => {
     const informed = jest.requireActual('informed');
@@ -37,21 +35,12 @@ describe('<EditForm>', () => {
     });
 
     it('renders a form with the "Change password" button', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <EditForm />
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<EditForm />);
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders a form without the "Change password" button', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <EditForm shouldShowNewPassword={true} />
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<EditForm shouldShowNewPassword={true} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

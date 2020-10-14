@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import { CheckoutProvider } from '../checkoutContext';
 import useReceipt from '../useReceipt';
 

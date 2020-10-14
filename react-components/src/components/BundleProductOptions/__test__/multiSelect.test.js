@@ -13,10 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import MultiSelect from '../multiSelect';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
-import i18n from '../../../../__mocks__/i18nForTests';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 
 describe('<MultiSelect>', () => {
     const requiredItem = {
@@ -56,14 +54,12 @@ describe('<MultiSelect>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MultiSelect
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <MultiSelect
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -71,14 +67,12 @@ describe('<MultiSelect>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <MultiSelect
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <MultiSelect
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         getByRole('option', { name: 'Augusta Necklace' }).selected = true;

@@ -14,12 +14,8 @@
 
 import React from 'react';
 import Product from '../product';
-import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
-
+import { render } from '../../../utils/test-utils';
 import { CartProvider } from '../cartContext';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 const mockCartItem = {
     product: {
@@ -48,17 +44,13 @@ describe('<Product />', () => {
         const mockBeginEditItem = jest.fn();
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                    <MockedProvider mocks={[]}>
-                        <Product
-                            beginEditItem={mockBeginEditItem}
-                            removeItemFromCart={mockRemoveItemFromCart}
-                            item={mockCartItem}
-                        />
-                    </MockedProvider>
-                </CartProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                <Product
+                    beginEditItem={mockBeginEditItem}
+                    removeItemFromCart={mockRemoveItemFromCart}
+                    item={mockCartItem}
+                />
+            </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });

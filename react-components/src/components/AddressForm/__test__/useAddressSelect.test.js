@@ -12,14 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent, wait } from '@testing-library/react';
-
-import { CheckoutProvider } from '../../Checkout/checkoutContext';
-import UserContextProvider from '../../../context/UserContext';
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
+import { CheckoutProvider } from '../../Checkout';
 import { useAddressSelect } from '../useAddressSelect';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('useAddressSelect', () => {
     const mockInitialState = {
@@ -55,15 +51,10 @@ describe('useAddressSelect', () => {
         };
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
         await wait(() => {
@@ -100,15 +91,10 @@ describe('useAddressSelect', () => {
         const handler = jest.fn(state => state);
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider reducer={handler}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider reducer={handler}>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
         fireEvent.click(getByTestId('change-to-new-address-item'));
@@ -142,15 +128,10 @@ describe('useAddressSelect', () => {
         };
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
         await wait(() => {
