@@ -70,11 +70,11 @@ const Overview = props => {
             ],
             'xdm:products': items.map(item => {
                 const {
-                    product: { id, sku },
+                    product: { sku },
                     quantity
                 } = item;
                 return {
-                    '@id': `product-${id}`,
+                    '@id': `product-${sku}`,
                     'xdm:SKU': sku,
                     'xdm:quantity': quantity
                 };
