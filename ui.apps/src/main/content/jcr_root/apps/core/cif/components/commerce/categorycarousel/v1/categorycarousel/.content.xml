@@ -4,6 +4,5 @@
     xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
     jcr:primaryType="cq:Component" 
     jcr:title="Category Carousel"
-    cq:icon="collection"
     sling:resourceSuperType="core/cif/components/commerce/carousel/v1/carousel"
     componentGroup="CIF Core Components" />
