@@ -72,6 +72,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
+    private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
@@ -91,6 +92,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
+
+        if (!wcmMode.isDisabled()) {
+            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+        } else {
+            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+        }
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
@@ -224,11 +231,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getCanonicalUrl() {
-        String path = request.getRequestURI();
-        if (!wcmMode.isDisabled()) {
-            return externalizer.authorLink(resource.getResourceResolver(), path);
-        } else {
-            return externalizer.publishLink(resource.getResourceResolver(), path);
-        }
+        return canonicalUrl;
     }
 }

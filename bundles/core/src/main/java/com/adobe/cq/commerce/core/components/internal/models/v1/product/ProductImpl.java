@@ -117,6 +117,7 @@ public class ProductImpl implements Product {
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
+    private String canonicalUrl;
 
     private AbstractProductRetriever productRetriever;
 
@@ -146,6 +147,12 @@ public class ProductImpl implements Product {
                 }
                 loadClientPrice = false;
             }
+        }
+
+        if (!wcmMode.isDisabled()) {
+            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+        } else {
+            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
         }
     }
 
@@ -409,11 +416,6 @@ public class ProductImpl implements Product {
 
     @Override
     public String getCanonicalUrl() {
-        String path = request.getRequestURI();
-        if (!wcmMode.isDisabled()) {
-            return externalizer.authorLink(resource.getResourceResolver(), path);
-        } else {
-            return externalizer.publishLink(resource.getResourceResolver(), path);
-        }
+        return canonicalUrl;
     }
 }
