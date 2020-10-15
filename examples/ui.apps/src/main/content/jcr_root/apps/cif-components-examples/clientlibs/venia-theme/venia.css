@@ -3484,3 +3484,159 @@ fieldset[disabled] .cif-demo .btn-link:focus {
     font-size: 10px;
   }
 }
+
+.cif-demo .carousel__container {
+    position: relative;
+    margin: 25px auto;
+    width: 240px;
+    max-width: 50%;
+}
+
+.cif-demo .carousel__cardsroot {
+    overflow: hidden;
+}
+
+.cif-demo .carousel__cardsroot  .price {
+    font-size: 0.875rem;
+    line-height: 1rem;
+    margin: 0.5rem 0;
+    min-height: 1rem;
+}
+
+.cif-demo .carousel__cardsroot .price .regularPrice {
+    text-decoration: line-through;
+    font-size: 0.8rem;
+}
+
+
+.cif-demo .carousel__cardsroot .price .discountedPrice {
+    font-weight: bold;
+    color: $venia-teal;
+    font-size: 1.2rem;
+}
+
+.cif-demo .carousel__cardsroot:before,
+.cif-demo .carousel__cardsroot:after {
+    content: "";
+    display: table;
+}
+
+.cif-demo .carousel__cardsroot:after {
+    clear: both;
+}
+
+.cif-demo .carousel__title {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.cif-demo .product__image {
+    max-width: 240px;
+    max-height: 240px;
+}
+
+@media screen and (min-width: 790px) {
+    .cif-demo .carousel__container {
+        width: 720px;
+    }
+}
+
+@media screen and (min-width: 1090px) {
+    .cif-demo .carousel__container {
+        width: 960px;
+    }
+}
+
+@media screen and (min-width: 1380px) {
+    .cif-demo .carousel__container {
+        width: 1200px;
+    }
+}
+
+@media screen and (min-width: 1650px) {
+    .cif-demo .carousel__container {
+        width: 1440px;
+    }
+}
+
+.cif-demo .carousel__cardscontainer {
+    margin: auto;
+}
+
+.cif-demo .carousel__cardscontainer:before,
+.cif-demo .carousel__cardscontainer:after {
+    content: "";
+    display: table;
+}
+
+.cif-demo .carousel__cardscontainer:after {
+    clear: both;
+}
+
+.cif-demo .carousel__btn {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: none;
+    cursor: pointer;
+    height: 20px;
+    margin-top: -25px;
+    position: absolute;
+    top: 50%;
+    width: 20px;
+}
+
+.cif-demo .carousel__btn--next {
+    border-bottom: 8px solid #aaa;
+    border-right: 8px solid #aaa;
+    right: 0;
+    -moz-transform: rotate(315deg);
+    -webkit-transform: rotate(315deg);
+    transform: rotate(315deg);
+}
+
+.cif-demo .carousel__btn--prev {
+    border-bottom: 8px solid #aaa;
+    border-left: 8px solid #aaa;
+    left: 0;
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+@media screen and (max-width: 769px) {
+    .cif-demo .carousel__btn--next {
+        right: 8%;
+    }
+
+    .cif-demo .carousel__btn--prev {
+        left: 8%;
+    }
+}
+
+.cif-demo .categorycarousel__anchor {
+    display: inline-block;
+    line-height: 1rem;
+    text-align: center;
+}
+
+.cif-demo .categorycarousel__imagewrapper {
+    background-position: 50% 50%;
+    background-size: cover;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px;
+    display: block;
+    height: 7rem;
+    margin: 0 auto 1rem auto;
+    width: 7rem;
+}
+
+.cif-demo .categorycarousel__image {
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+.cif-demo .cmp-categorylist__name {
+    display: block;
+}
