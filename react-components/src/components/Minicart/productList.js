@@ -12,7 +12,6 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { List } from '@magento/peregrine';
 import { array, shape, string } from 'prop-types';
 
 import Product from './product';
@@ -22,14 +21,11 @@ const ProductList = props => {
     const { cartItems } = props;
 
     return (
-        <List
-            classes={classes}
-            render="ul"
-            items={cartItems}
-            getItemKey={item => item.id}
-            renderItem={itemProps => {
-                return <Product item={itemProps.item} />;
-            }}></List>
+        <ul className={classes.root}>
+            {cartItems.map(item => (
+                <Product key={item.id} item={item} />
+            ))}
+        </ul>
     );
 };
 
