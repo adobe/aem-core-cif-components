@@ -2,8 +2,15 @@
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType":"cq:PageContent",
-      "cq:cifSearchResultsPage": "/content/pageB"
+      "jcr:primaryType": "cq:PageContent",
+      "cq:cifSearchResultsPage": "/content/pageB",
+      "root": {
+        "responsivegrid": {
+          "searchbar": {
+            "sling:resourceType": "venia/components/commerce/searchbar"
+          }
+        }
+      }
     }
   },
   "pageB": {

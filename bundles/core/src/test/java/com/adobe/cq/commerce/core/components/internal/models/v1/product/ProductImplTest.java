@@ -25,6 +25,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -65,11 +66,13 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,6 +99,9 @@ public class ProductImplTest {
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
                         : ComponentsConfiguration.EMPTY);
+
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -425,5 +431,14 @@ public class ProductImplTest {
         Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
         Whitebox.setInternalState(productModel, "currentPage", launch);
         Assert.assertFalse(productModel.loadClientPrice());
+    }
+
+    @Test
+    public void testJsonRender() throws IOException {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("results/result-datalayer-product-component.json");
+        String jsonResult = productModel.getData().getJson();
+        assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 }

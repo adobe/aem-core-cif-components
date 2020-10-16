@@ -1,0 +1,10 @@
+{
+  "testresource-970b5df37f": {
+    "xdm:SKU": "test-sku",
+    "xdm:listPrice": 10.2,
+    "xdm:currencyCode": "USD",
+    "dc:title": "Test title",
+    "repo:modifyDate": "2020-10-12T10:20:34Z",
+    "@type": "venia/components/commerce/testresource"
+  }
+}
