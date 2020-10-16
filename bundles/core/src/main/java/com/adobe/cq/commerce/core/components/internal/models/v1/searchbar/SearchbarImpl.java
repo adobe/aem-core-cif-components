@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
@@ -32,7 +33,7 @@ import com.day.cq.wcm.api.Page;
     adaptables = SlingHttpServletRequest.class,
     adapters = Searchbar.class,
     resourceType = SearchbarImpl.RESOURCE_TYPE)
-public class SearchbarImpl implements Searchbar {
+public class SearchbarImpl extends DataLayerComponent implements Searchbar {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchbar/v1/searchbar";
 
     @Inject

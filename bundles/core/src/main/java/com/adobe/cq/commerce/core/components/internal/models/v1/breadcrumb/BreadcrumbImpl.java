@@ -38,6 +38,7 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -56,7 +57,7 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     adaptables = SlingHttpServletRequest.class,
     adapters = com.adobe.cq.wcm.core.components.models.Breadcrumb.class,
     resourceType = BreadcrumbImpl.RESOURCE_TYPE)
-public class BreadcrumbImpl implements Breadcrumb {
+public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/breadcrumb/v1/breadcrumb";
 

@@ -22,12 +22,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -46,8 +46,7 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
     adaptables = SlingHttpServletRequest.class,
     adapters = ProductCollection.class,
     resourceType = ProductCollectionImpl.RESOURCE_TYPE)
-public class ProductCollectionImpl implements ProductCollection {
-
+public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
@@ -63,8 +62,6 @@ public class ProductCollectionImpl implements ProductCollection {
     protected ValueMap properties;
     @ScriptVariable
     protected Style currentStyle;
-    @Inject
-    protected Resource resource;
     @Inject
     protected Page currentPage;
     @Inject
