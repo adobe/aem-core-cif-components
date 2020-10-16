@@ -17,7 +17,10 @@
 <sly data-sly-use.category="com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList"
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html" />
 
-<div data-sly-test.hasCategories="${category.categories.size}" class="cmp-categorylist">
+<div data-sly-test.hasCategories="${category.categories.size}"
+     id="${category.id}"
+     data-cmp-data-layer="${category.data.json}"
+     class="cmp-categorylist">
     <div data-sly-test="${properties.jcr:title}" class="cmp-categorylist__header">
         <h2 data-sly-element="${category.titleType}" class="cmp-categorylist__title">${properties.jcr:title}</h2>
     </div>

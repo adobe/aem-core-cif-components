@@ -36,7 +36,6 @@
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@babel/runtime": "^7.8.7",
-    "@magento/peregrine": "^3.0.0",
     "@testing-library/react": "^9.5.0",
     "acorn": "^6.3.0",
     "apollo-boost": "^0.4.7",
@@ -79,8 +78,7 @@
   },
   "peerDependencies": {
     "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "@magento/peregrine": "^3.0.0"
+    "react-dom": "^16.11.0"
   },
   "engines": {
     "node": ">=12",
