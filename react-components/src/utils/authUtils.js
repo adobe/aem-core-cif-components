@@ -15,17 +15,17 @@ import { ApolloLink } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
 
 const authLink = new ApolloLink((operation, forward) => {
-  let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
-  if (token.length > 0) {
-    operation.setContext(({ headers }) => ({
-      headers: {
-        authorization: `Bearer ${token && token.length > 0 ? token : ''}`,
-        ...headers
-      }
-    }));
-  }
+    let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+    if (token.length > 0) {
+        operation.setContext(({ headers }) => ({
+            headers: {
+                authorization: `Bearer ${token && token.length > 0 ? token : ''}`,
+                ...headers
+            }
+        }));
+    }
 
-  return forward(operation);
+    return forward(operation);
 });
 
-export { authLink as graphqlAuthLink }
+export { authLink as graphqlAuthLink };
