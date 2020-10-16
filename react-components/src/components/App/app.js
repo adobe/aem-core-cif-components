@@ -11,37 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 import React from 'react';
-import { ApolloClient, ApolloLink, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
-import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 import { useConfigContext } from '../../context/ConfigContext';
+import { graphqlAuthLink } from '../../utils/authUtils';
 
 const App = props => {
     const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
-    const authLink = new ApolloLink((operation, forward) => {
-        let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
-        if (token.length > 0) {
-            operation.setContext(({ headers }) => ({
-                headers: {
-                    authorization: `Bearer ${token && token.length > 0 ? token : ''}`,
-                    ...headers
-                }
-            }));
-        }
-
-        return forward(operation);
-    });
-
-    const link = from([authLink, new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]);
-
     const clientConfig = {
-        link,
+        link: from([
+            graphqlAuthLink,
+            new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]
+        ),
         cache: new InMemoryCache()
     };
 
