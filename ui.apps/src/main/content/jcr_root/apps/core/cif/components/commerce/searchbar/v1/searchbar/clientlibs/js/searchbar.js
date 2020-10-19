@@ -31,6 +31,10 @@
             };
 
             this._searchBarRoot = document.querySelector(Searchbar.selectors.searchBarRoot);
+            if (!this._searchBarRoot) {
+                return;
+            }
+
             this._searchBox = this._searchBarRoot.querySelector(Searchbar.selectors.searchBox);
 
             let stateObject = {};

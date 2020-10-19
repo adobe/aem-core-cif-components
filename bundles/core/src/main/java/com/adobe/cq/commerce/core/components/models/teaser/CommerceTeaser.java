@@ -29,5 +29,4 @@ public interface CommerceTeaser extends Teaser {
      *
      */
     String PN_ACTION_CATEGORY_ID = "categoryId";
-
 }
