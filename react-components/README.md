@@ -34,6 +34,26 @@ A context provider for user operations - sign in / sign-out, create user
 
 A convenience wrapper for React components, encapsulating all the required contexts to run the app
 
+## graphqlAuthLink
+
+An ApolloLink instance that handles authorization on certain graphql requests (e.g.: cart mutations). 
+This is intended to be used when creating a new ApolloClient instance:
+
+```javascript
+import { ApolloClient, from, HttpLink, InMemoryCache } from '@apollo/client';
+import {
+    graphqlAuthLink
+} from '@adobe/aem-core-cif-react-components';
+
+const client = new ApolloClient({
+    link: from([
+        graphqlAuthLink,
+        new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]
+    ),
+    cache: new InMemoryCache()
+});
+```
+
 ## Building the project
 
 The project is built using the command `npm run build`. The build process bundles all the code into one client library which is placed in `../ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/react-components/dist`.
@@ -59,12 +79,6 @@ npx local-cors-proxy --proxyUrl https://my.magento.cloud --port 3002 --proxyPart
 The GraphQL endpoint is then available at `http://localhost:3002/graphql`.
 
 If you develop for AEM on-prem installations, a proxy is included in our sample Dispatcher configuration (see [the dispacher configuration](../dispatcher) for details). You have to access AEM through the dispatcher (i.e. use https://localhost instead of http://localhost:4502).
-
-```
-npm run generate-fragments <GRAPHQL_ENDPOINT>
-```
-
-This will be necessary with each new version of Magento GraphQL API release
 
 ### Building
 
