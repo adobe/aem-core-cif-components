@@ -73,7 +73,8 @@ import graphql.schema.idl.WiringFactory;
     property = {
         "sling.servlet.paths=/apps/cif-components-examples/graphql",
         "sling.servlet.methods=" + HttpConstants.METHOD_GET,
-        "sling.servlet.methods=" + HttpConstants.METHOD_POST
+        "sling.servlet.methods=" + HttpConstants.METHOD_POST,
+        "sling.servlet.methods=" + HttpConstants.METHOD_OPTIONS
     })
 public class GraphqlServlet extends SlingAllMethodsServlet {
 
@@ -167,6 +168,24 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         writeResponse(executionResult, response);
     }
 
+    @Override
+    protected void doOptions(SlingHttpServletRequest request, SlingHttpServletResponse response)
+        throws ServletException, IOException {
+        setCorsHeaders(response);
+        super.doOptions(request, response);
+    }
+
+    /**
+     * Adds CORS headers to the response.
+     * 
+     * @param response The Servlet response.
+     */
+    private void setCorsHeaders(SlingHttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Store, Authorization, Preview-Version");
+    }
+
     /**
      * Executes the given GraphQL <code>query</code> with the optional <code>operationName</code> and <code>variables</code> parameters.
      * 
@@ -196,6 +215,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     private void writeResponse(ExecutionResult executionResult, SlingHttpServletResponse response) throws IOException {
         response.setContentType("application/json");
+        setCorsHeaders(response);
         Map<String, Object> spec = executionResult.toSpecification();
         String json = gson.toJson(spec);
         IOUtils.write(json, response.getOutputStream(), StandardCharsets.UTF_8);

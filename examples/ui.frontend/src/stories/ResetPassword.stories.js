@@ -37,21 +37,21 @@ export default {
     }
 };
 
-const Template = () => (
-    <Suspense fallback={<p>Loading...</p>}>
+const Template = (args, context) => {
+    return (
         <I18nextProvider i18n={i18n} defaultNS="common">
             <ConfigContextProvider
                 config={{
-                    storeView: 'default',
-                    graphqlEndpoint: '/api/graphql'
+                    storeView: context.parameters.cifConfig.storeView,
+                    graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint
                 }}>
                 <CommerceApp>
                     <ResetPassword />
                 </CommerceApp>
             </ConfigContextProvider>
         </I18nextProvider>
-    </Suspense>
-);
+    );
+};
 
 export const WithToken = Template.bind({});
 WithToken.parameters = {
