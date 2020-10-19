@@ -34,6 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryListDataImpl;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
@@ -41,6 +44,7 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
@@ -50,7 +54,7 @@ import com.day.cq.wcm.api.designer.Style;
     adaptables = SlingHttpServletRequest.class,
     adapters = FeaturedCategoryList.class,
     resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
-public class FeaturedCategoryListImpl implements FeaturedCategoryList {
+public class FeaturedCategoryListImpl extends DataLayerComponent implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
@@ -60,9 +64,6 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     private static final String CATEGORY_ID_PROP = "categoryId";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
-
-    @Inject
-    private Resource resource;
 
     @Inject
     private Page currentPage;
@@ -116,7 +117,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
                 assetOverride.put(categoryId, overrideAsset);
             }
 
-            if (categoryIds.size() > 0) {
+            if (!categoryIds.isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
@@ -131,6 +132,7 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
         if (categoriesRetriever == null) {
             return Collections.emptyList();
         }
+
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             Map<String, String> params = new ParamsBuilder()
@@ -163,6 +165,20 @@ public class FeaturedCategoryListImpl implements FeaturedCategoryList {
     @Override
     public AbstractCategoriesRetriever getCategoriesRetriever() {
         return this.categoriesRetriever;
+    }
+
+    // DataLayer methods
+
+    @Override
+    protected ComponentData getComponentData() {
+        return new CategoryListDataImpl(this, resource);
+    }
+
+    @Override
+    public CategoryData[] getDataLayerCategories() {
+        return getCategories().stream()
+            .map(c -> new CategoryListDataImpl.CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .toArray(CategoryData[]::new);
     }
 
     @Override

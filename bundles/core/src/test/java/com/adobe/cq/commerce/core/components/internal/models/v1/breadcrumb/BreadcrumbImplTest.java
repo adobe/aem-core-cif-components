@@ -23,9 +23,11 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,6 +50,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -77,6 +80,9 @@ public class BreadcrumbImplTest {
                 context.registerService(UrlProvider.class, urlProvider);
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
+
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -360,5 +366,15 @@ public class BreadcrumbImplTest {
         categories.sort(breadcrumb.getCategoryInterfaceComparator());
         // [men/tops/tanks, men/tops, women/tops, men]
         assertThat(categories).containsExactly(c3, c2, c4, c1);
+    }
+
+    @Test
+    public void testJsonRender() throws Exception {
+        prepareModel("/content/venia/us/en/products/product-page");
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("results/result-datalayer-breadcrumb-component.json");
+        String jsonResult = breadcrumbModel.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 }

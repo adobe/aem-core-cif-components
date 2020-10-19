@@ -18,15 +18,20 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
-public class ProductListItemImpl implements ProductListItem {
+public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
     private final String sku;
     private final String slug;
@@ -39,7 +44,8 @@ public class ProductListItemImpl implements ProductListItem {
     private final UrlProvider urlProvider;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider) {
+                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId) {
+        super(parentId, productPage.getContentResource());
         this.sku = sku;
         this.slug = slug;
         this.name = name;
@@ -107,4 +113,43 @@ public class ProductListItemImpl implements ProductListItem {
     public Price getPriceRange() {
         return price;
     }
+
+    // DataLayer methods
+
+    @Override
+    protected ComponentData getComponentData() {
+        return new ProductDataImpl(this, this.productPage.getContentResource());
+    }
+
+    @Override
+    protected String generateId() {
+        String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSKU()), 0, 10));
+    }
+
+    @Override
+    public String getDataLayerType() {
+        return "core/cif/components/commerce/productlistitem";
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return this.getTitle();
+    }
+
+    @Override
+    public String getDataLayerSKU() {
+        return this.getSKU();
+    }
+
+    @Override
+    public Double getDataLayerPrice() {
+        return this.getPrice();
+    }
+
+    @Override
+    public String getDataLayerCurrency() {
+        return this.getCurrency();
+    }
+
 }

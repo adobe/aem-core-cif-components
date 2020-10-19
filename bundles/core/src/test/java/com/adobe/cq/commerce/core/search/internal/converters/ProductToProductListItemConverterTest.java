@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.search.internal.converters;
 import java.util.Locale;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,9 @@ public class ProductToProductListItemConverterTest {
 
     @Mock
     private SlingHttpServletRequest request;
+
+    @Mock
+    private Resource resource;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ProductInterface productInterface;
@@ -76,6 +80,10 @@ public class ProductToProductListItemConverterTest {
         when(priceRange.getMinimumPrice().getFinalPrice()).thenReturn(money);
 
         when(productPage.getLanguage(false)).thenReturn(PAGE_LOCALE);
+        when(productPage.getContentResource()).thenReturn(resource);
+
+        when(resource.getResourceType()).thenReturn("commerce/mock");
+        when(resource.getPath()).thenReturn("/mock/resource/path");
 
     }
 

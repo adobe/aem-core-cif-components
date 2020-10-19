@@ -63,6 +63,7 @@ export default () => {
                 resetCustomerCart(fetchCustomerCartQuery);
             }
             cartDispatch({ type: 'reset' });
+            return data;
         } catch (error) {
             console.error(error);
             cartDispatch({ type: 'error', error: error.toString() });

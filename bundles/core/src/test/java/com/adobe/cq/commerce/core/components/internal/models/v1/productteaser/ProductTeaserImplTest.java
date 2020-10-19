@@ -23,6 +23,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -44,6 +45,7 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -69,6 +71,8 @@ public class ProductTeaserImplTest {
             UrlProviderImpl urlProvider = new UrlProviderImpl();
             urlProvider.activate(new MockUrlProviderConfiguration());
             context.registerService(UrlProvider.class, urlProvider);
+            ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
         }, ResourceResolverType.JCR_MOCK);
     }
 
@@ -223,5 +227,14 @@ public class ProductTeaserImplTest {
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
         Assert.assertTrue(productTeaser.isVirtualProduct());
+    }
+
+    @Test
+    public void testJsonRender() throws Exception {
+        setUp(PRODUCTTEASER_SIMPLE, true);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("results/result-datalayer-productteaser-component.json");
+        String jsonResult = productTeaser.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 }

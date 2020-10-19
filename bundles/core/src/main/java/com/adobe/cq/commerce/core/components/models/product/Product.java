@@ -18,11 +18,12 @@ import java.util.List;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.wcm.core.components.models.Component;
 
 /**
  * Product is the sling model interface for the CIF core product component.
  */
-public interface Product {
+public interface Product extends Component {
 
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.

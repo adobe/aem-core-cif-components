@@ -20,10 +20,12 @@ import java.util.Map;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 
 /**
- * Variant is a view model interface representing a product variant that contains
- * properties specific to a variant in comparison to its base product.
+ * Variant is a view model interface representing a product variant that
+ * contains properties specific to a variant in comparison to its base product.
  */
 public interface Variant {
+    String getId();
+
     String getName();
 
     String getDescription();

@@ -59,6 +59,7 @@ import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceI
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -470,5 +471,44 @@ public class GraphqlServletTest {
             .discount(d -> d
                 .amountOff()
                 .percentOff());
+    }
+
+    @Test
+    public void testBundleProductItemsQuery() throws ServletException, IOException {
+
+        // This is a simplified version of the query sent by the React BundleProductOptions component
+
+        ProductInterfaceQueryDefinition priceQuery = q -> q
+            .sku()
+            .onBundleProduct(b -> b
+                .dynamicSku()
+                .dynamicPrice()
+                .dynamicWeight()
+                .priceView()
+                .shipBundleItems()
+                .items(i -> i
+                    .optionId()
+                    .options(o -> o
+                        .id()
+                        .product(p -> p
+                            .priceRange(r -> r
+                                .maximumPrice(generatePriceQuery()))))));
+
+        FilterEqualTypeInput in = new FilterEqualTypeInput().setEq("24-WG080");
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(in);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        String query = Operations.query(q -> q.products(searchArgs, p -> p.items(priceQuery))).toString();
+
+        request.setParameterMap(Collections.singletonMap("query", query));
+        graphqlServlet.doGet(request, response);
+        String output = response.getOutputAsString();
+
+        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
+        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
+        Products products = graphqlResponse.getData().getProducts();
+
+        BundleProduct bundleProduct = (BundleProduct) products.getItems().get(0);
+        Assert.assertEquals("24-WG080", bundleProduct.getSku());
+        Assert.assertEquals(4, bundleProduct.getItems().size());
     }
 }
