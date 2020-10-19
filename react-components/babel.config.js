@@ -44,5 +44,5 @@ module.exports = function(api) {
         }
     };
 
-    return envConfigs[api.env() || 'development'];
+    return envConfigs[Object.keys(envConfigs).indexOf(api.env()) !== -1 ? api.env() : 'development'];
 };
