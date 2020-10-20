@@ -1,0 +1,42 @@
+.github-teaser {
+    display: inline-grid;
+    grid-template-columns: 4rem auto;
+    grid-template-rows: auto auto;
+    vertical-align: top;
+    width: 16.25rem;
+    height: 4rem;
+    margin-bottom: 1.25rem;
+    border: .0625rem solid #d3d3d3;
+    border-radius: .25rem;
+    background-color: #ffffff;
+    color: #323232;
+
+   &:hover {
+        border-color: #959595;
+    }
+
+    .image {
+        grid-column: 1 / 1;
+        grid-row: 1 / 3;
+        background-color: #fafafa;
+        justify-self: stretch;
+        padding: 1.25rem 0 0 1.25rem;
+    }
+
+    .headline {
+        grid-column: 2 / 2;
+        grid-row: 1 / 1;
+        font-size: .8rem;
+        font-weight: 700;
+        padding-left: .75rem;
+        align-self: end;
+    }
+    .description {
+        grid-column: 2 / 2;
+        grid-row: 2 / 2;
+        font-size: .6rem;
+        padding-left: .75rem;
+        align-self: start;
+        margin-top: -.3rem;
+    }
+}
