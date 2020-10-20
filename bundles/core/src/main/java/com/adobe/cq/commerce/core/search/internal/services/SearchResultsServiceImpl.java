@@ -159,7 +159,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<ProductListItem> productListItems = extractProductsFromResponse(
             response.getData().getProducts().getItems(),
             productPage,
-            request);
+            request,
+            resource);
         final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
             .getAggregations(),
             searchOptions.getAllFilters(), availableFilters);
@@ -402,11 +403,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      */
     @Nonnull
     private List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage,
-        final SlingHttpServletRequest request) {
+        final SlingHttpServletRequest request, Resource resource) {
 
         LOGGER.debug("Found {} products for search term", products.size());
 
-        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider);
+        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, resource);
 
         return products.stream()
             .map(converter)
