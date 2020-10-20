@@ -36,13 +36,13 @@ function generateBaseConfig() {
             // files matching the given glob expression.
             [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
             [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
+            [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),
             [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
             [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
             [LIB.PRODUCTTEASER]:glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`),
-            [LIB.CONTENTTEASER_EDITOR]:glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`),
-            [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js')
+            [LIB.CONTENTTEASER_EDITOR]:glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`)
         },
         output: {
             path: path.resolve(__dirname, "src/main/content/jcr_root"),

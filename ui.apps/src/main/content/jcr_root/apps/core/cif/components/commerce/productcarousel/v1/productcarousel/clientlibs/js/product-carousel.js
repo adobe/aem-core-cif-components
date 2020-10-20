@@ -11,8 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
-import Carousel from '../../../../../carousel/v1/carousel/clientlibs/js/carousel';
+'use strict';
 
 (function() {
     const selectors = {
