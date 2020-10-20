@@ -24,7 +24,14 @@ const App = props => {
     const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
 
     const clientConfig = {
-        link: from([graphqlAuthLink, new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]),
+        link: from([
+            graphqlAuthLink,
+            new HttpLink({
+                uri: graphqlEndpoint,
+                headers: { Store: storeView },
+                useGETForQueries: graphqlMethod === 'GET'
+            })
+        ]),
         cache: new InMemoryCache()
     };
 
