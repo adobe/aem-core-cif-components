@@ -11,15 +11,15 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.carousel="${@ carousel, items, titleType, componentType}" data-sly-use.cardTpl="card.html">
+<template data-sly-template.carousel="${@ carousel, items, componentType}" data-sly-use.cardTpl="card.html">
 <sly data-sly-test.type="${componentType ? componentType : 'carousel'}" />
 <div id="${carousel.id}" data-comp-is="${type}" class="${type}__container" data-cmp-data-layer="${carousel.data.json}">
-    <h2 data-sly-element="${titleType}" data-sly-test="${properties.jcr:title}" class="${type}__title">${properties.jcr:title}</h2>
+    <h2 data-sly-element="${carousel.titleType}" data-sly-test="${properties.jcr:title}" class="${type}__title">${properties.jcr:title}</h2>
     <button data-carousel-action='prev' class="${type}__btn ${type}__btn--prev" type="button" style="display: none;"></button>
     <div class="${type == 'carousel' ? '{0}__cardsroot' : '{0}__root' @ format=[type]}">
         <div class="${type}__parent">
-            <div class="${type}__cardscontainer" data-sly-list.item=${items}>
-                <sly data-sly-call="${cardTpl.card @ item=item}"></sly>
+            <div class="${type}__cardscontainer" data-sly-list.item="${items ? items : carousel.items}">
+                <sly data-sly-call="${cardTpl.card @ item=item}"/>
             </div>
         </div>
     </div>

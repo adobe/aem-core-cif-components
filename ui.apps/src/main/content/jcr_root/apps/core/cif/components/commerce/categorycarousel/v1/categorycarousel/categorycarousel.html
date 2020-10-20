@@ -17,7 +17,7 @@
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
      data-sly-use.carouselTpl="carousel.html"/>
 
-<sly data-sly-test.hasCategories="${categoryList.categories.size}" data-sly-call="${carouselTpl.carousel @ carousel = categoryList, items = categoryList.categories, titleType = categoryList.titleType}"></sly>
+<sly data-sly-test.hasCategories="${categoryList.categories.size}" data-sly-call="${carouselTpl.carousel @ carousel = categoryList, items = categoryList.categories}"></sly>
 
 <sly data-sly-call="${templates.placeholder @ isEmpty = !categoryList.isConfigured}" />
 <sly data-sly-call="${templates.placeholder @ isEmpty = categoryList.isConfigured && !hasCategories, emptyTextAppend = 'Configured, no categories were loaded'}" />

@@ -38,7 +38,20 @@ Two carousel implementaions are provided based on this component:
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 - `jcr:title` - optional title text
-- `titleType` - the HTML heading element type used for rendering the title text. If missing, the component falls back to the type defined in the component policy of the specific carousel implementation 
+- `titleType` - the HTML heading element type used for rendering the title text. If missing, the component falls back to the type defined in the component policy of the specific carousel implementation
+
+### Parameters
+
+The Carousel component provides an HTL template with the following parameters:
+
+- `carousel` - an object of type `com.adobe.cq.wcm.core.components.models.Component` 
+               with the extra properties: `titleType` and `items`. 
+               The `titleType`specifies the HTML element used to render the carousel title 
+               and falls back to `h2` if missing.
+               The `items` property holds the carousel items to display if the `items` 
+               template parameter is missing. 
+- `items` - the collection of items to display. If missing, `carousel.items` is used.
+- `componentType` - a prefix for the HTML classes used in the component with default value `carousel`  
 
 
 ## BEM Description
