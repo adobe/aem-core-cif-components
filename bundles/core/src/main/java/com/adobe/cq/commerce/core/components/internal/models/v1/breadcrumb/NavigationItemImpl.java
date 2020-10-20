@@ -46,4 +46,21 @@ public class NavigationItemImpl extends DataLayerListItem implements NavigationI
     public boolean isActive() {
         return isActive;
     }
+
+    // DataLayer methods
+
+    @Override
+    protected String getIdentifier() {
+        return getURL();
+    }
+
+    @Override
+    public String getDataLayerLinkUrl() {
+        return getURL();
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return getTitle();
+    }
 }

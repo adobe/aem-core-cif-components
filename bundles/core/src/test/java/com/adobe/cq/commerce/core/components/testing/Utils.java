@@ -44,6 +44,7 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.wcm.core.components.internal.DataLayerConfig;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -205,10 +206,15 @@ public class Utils {
     }
 
     static public ConfigurationBuilder getDataLayerConfig(boolean enabled) {
-        ValueMap datalayerConfig = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+        ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+
+        DataLayerConfig dataLayerConfig = Mockito.mock(DataLayerConfig.class);
+        Mockito.when(dataLayerConfig.enabled()).thenReturn(true);
+
         ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
         Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
-        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerConfig);
+        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerVm);
+        Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(dataLayerConfig);
 
         return mockConfigBuilder;
     }

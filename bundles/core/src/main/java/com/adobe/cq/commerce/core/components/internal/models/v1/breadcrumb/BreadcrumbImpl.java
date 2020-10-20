@@ -150,12 +150,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         if (breadcrumbs != null) {
             int max = Integer.min(structureDepth, breadcrumbs.size());
             for (int i = 0; i < max; i++) {
-                addBreadcrumbItem(breadcrumbs.get(i), false, contentResource);
+                addBreadcrumbItem(breadcrumbs.get(i), false);
             }
         }
 
         // The category itself is not included by Magento in the breadcrumb, so we also add it
-        addCategoryItem(categoryBreadcrumb, isCategoryPage, contentResource);
+        addCategoryItem(categoryBreadcrumb, isCategoryPage);
 
         // We finally add the product if it's a product page
         if (isProductPage) {
@@ -168,21 +168,22 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             }
 
             String url = urlProvider.toProductUrl(request, productPage, paramsBuilder.map());
-            NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true, this.getId(), contentResource);
+            NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true, this.getId(),
+                productPage.getContentResource());
             items.add(productItem);
             return;
         }
     }
 
-    private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive, Resource contentResource) {
-        addCategoryItem(b.getCategoryId(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(), isActive, contentResource);
+    private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive) {
+        addCategoryItem(b.getCategoryId(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(), isActive);
     }
 
-    private void addCategoryItem(CategoryInterface category, boolean isActive, Resource contentResource) {
-        addCategoryItem(category.getId(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive, contentResource);
+    private void addCategoryItem(CategoryInterface category, boolean isActive) {
+        addCategoryItem(category.getId(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
     }
 
-    private void addCategoryItem(Integer id, String urlKey, String urlPath, String name, boolean isActive, Resource contentResource) {
+    private void addCategoryItem(Integer id, String urlKey, String urlPath, String name, boolean isActive) {
         Map<String, String> params = new ParamsBuilder()
             .id(id.toString())
             .urlKey(urlKey)
@@ -190,7 +191,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), contentResource);
+        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
         items.add(categoryItem);
     }
 

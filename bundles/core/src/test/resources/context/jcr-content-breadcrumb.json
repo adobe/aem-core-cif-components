@@ -14,12 +14,14 @@
     "us": {
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
-        "jcr:primaryType": "cq:PageContent"
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "venia/components/page"
       },
       "en": {
         "jcr:primaryType": "cq:Page",
         "jcr:content": {
           "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "venia/components/page",
           "root": {
             "responsivegrid": {
               "breadcrumb": {
@@ -41,6 +43,7 @@
             "jcr:primaryType": "cq:Page",
             "jcr:content": {
               "jcr:primaryType": "cq:PageContent",
+              "sling:resourceType": "venia/components/page",
               "root": {
                 "responsivegrid": {
                   "breadcrumb": {
@@ -57,6 +60,7 @@
               "jcr:content": {
                 "jcr:primaryType": "cq:PageContent",
                 "selectorFilter": "tiberius-gym-tank",
+                "sling:resourceType": "venia/components/page",
                 "root": {
                   "responsivegrid": {
                     "breadcrumb": {
@@ -74,6 +78,7 @@
             "jcr:primaryType": "cq:Page",
             "jcr:content": {
               "jcr:primaryType": "cq:PageContent",
+              "sling:resourceType": "venia/components/page",
               "root": {
                 "responsivegrid": {
                   "breadcrumb": {
@@ -90,6 +95,7 @@
               "jcr:content": {
                 "jcr:primaryType": "cq:PageContent",
                 "selectorFilter": "12",
+                "sling:resourceType": "venia/components/page",
                 "root": {
                   "responsivegrid": {
                     "breadcrumb": {
@@ -111,6 +117,7 @@
           "jcr:primaryType": "cq:Page",
           "jcr:content": {
             "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "venia/components/page",
             "root": {
               "responsivegrid": {
                   "breadcrumb": {
@@ -146,22 +153,26 @@
                     "jcr:primaryType": "cq:Page",
                     "jcr:content": {
                       "jcr:primaryType": "cq:PageContent",
+                      "sling:resourceType": "venia/components/page",
                       "cq:cifProductPage": "/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page"
                     },
                     "products": {
                       "jcr:primaryType": "cq:Page",
                       "jcr:content": {
-                        "jcr:primaryType": "cq:PageContent"
+                        "jcr:primaryType": "cq:PageContent",
+                        "sling:resourceType": "venia/components/page"
                       },
                       "product-page": {
                         "jcr:primaryType": "cq:Page",
                         "jcr:content": {
-                          "jcr:primaryType": "cq:PageContent"
+                          "jcr:primaryType": "cq:PageContent",
+                          "sling:resourceType": "venia/components/page"
                         },
                         "product-specific-page": {
                           "jcr:primaryType": "cq:Page",
                           "jcr:content": {
                             "jcr:primaryType": "cq:PageContent",
+                            "sling:resourceType": "venia/components/page",
                             "selectorFilter": "tiberius-gym-tank",
                             "root": {
                               "responsivegrid": {
