@@ -11,31 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import { ApolloLink } from '@apollo/client';
+import { checkCookie, cookieValue } from './cookieUtils';
 
-import { useState, useCallback } from 'react';
-import { useMutation } from '@apollo/client';
-
-import MUTATION_RESET_PASSWORD from '../../queries/mutation_reset_password.graphql';
-
-const useResetPassword = () => {
-    const [status, setStatus] = useState('new');
-
-    const [resetPassword] = useMutation(MUTATION_RESET_PASSWORD);
-
-    const handleFormSubmit = useCallback(
-        async ({ email, token, password }) => {
-            setStatus('loading');
-            try {
-                await resetPassword({ variables: { email, resetPasswordToken: token, newPassword: password } });
-                setStatus('done');
-            } catch (err) {
-                setStatus('error');
+const authLink = new ApolloLink((operation, forward) => {
+    let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+    if (token.length > 0) {
+        operation.setContext(({ headers }) => ({
+            headers: {
+                authorization: `Bearer ${token && token.length > 0 ? token : ''}`,
+                ...headers
             }
-        },
-        [resetPassword]
-    );
+        }));
+    }
 
-    return [status, { handleFormSubmit }];
-};
+    return forward(operation);
+});
 
-export default useResetPassword;
+export { authLink as graphqlAuthLink };

@@ -25,7 +25,7 @@ jest.mock('../../../context/UserContext.js', () => {
     return { useUserContext };
 });
 
-jest.mock('@apollo/react-hooks', () => ({
+jest.mock('@apollo/client', () => ({
     useMutation: jest.fn().mockImplementation(mutation => {
         if (mutation === 'setCustomerInformationMutation') {
             return [mockSetCustomerInformation, { loading: false }];

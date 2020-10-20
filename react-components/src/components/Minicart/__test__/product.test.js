@@ -15,7 +15,7 @@ import React from 'react';
 import Product from '../product';
 import { render } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 
 import { CartProvider } from '../cartContext';
 import i18n from '../../../../__mocks__/i18nForTests';

@@ -12,10 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 
+import { render } from 'test-utils';
 import { CheckoutProvider } from '../../Checkout/checkoutContext';
 import UserContextProvider from '../../../context/UserContext';
 import { useAddressSelect } from '../useAddressSelect';
@@ -56,13 +56,11 @@ describe('useAddressSelect', () => {
 
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <CheckoutProvider>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </UserContextProvider>
             </I18nextProvider>
         );
 
@@ -99,13 +97,11 @@ describe('useAddressSelect', () => {
 
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider reducer={handler}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <CheckoutProvider reducer={handler}>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </UserContextProvider>
             </I18nextProvider>
         );
 
@@ -137,13 +133,11 @@ describe('useAddressSelect', () => {
 
         const { getByTestId } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
+                <UserContextProvider initialState={mockInitialState}>
+                    <CheckoutProvider>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </UserContextProvider>
             </I18nextProvider>
         );
 

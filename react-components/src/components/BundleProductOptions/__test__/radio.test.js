@@ -114,62 +114,6 @@ describe('<Radio>', () => {
             </I18nextProvider>
         );
 
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <div
-                class="bundleProduct__options"
-              >
-                <label>
-                  <input
-                    name="1"
-                    type="radio"
-                    value="1"
-                  />
-                   Carmina Necklace +
-                  <b>
-                    <span
-                      class=""
-                    >
-                      $12.00
-                    </span>
-                  </b>
-                </label>
-              </div>
-              <div
-                class="bundleProduct__options"
-              >
-                <label>
-                  <input
-                    checked=""
-                    name="1"
-                    type="radio"
-                    value="2"
-                  />
-                   Augusta Necklace +
-                  <b>
-                    <span
-                      class=""
-                    >
-                      $13.00
-                    </span>
-                  </b>
-                </label>
-              </div>
-              <h2
-                class="option__title productFullDetail__quantityTitle"
-              >
-                <span>
-                  Quantity
-                </span>
-              </h2>
-              <input
-                class="option__quantity"
-                disabled=""
-                min="1"
-                type="number"
-                value="1"
-              />
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchSnapshot();
     });
 });

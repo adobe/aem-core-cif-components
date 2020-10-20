@@ -12,17 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
 
 import UserContextProvider from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 
 import useOverview from '../useOverview';
-
-import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-import MUTATION_PLACE_ORDER from '../../../queries/mutation_place_order.graphql';
 
 describe('useOverview', () => {
     const mockShippingAddress = {
@@ -37,36 +34,6 @@ describe('useOverview', () => {
         street: ['cart shipping address'],
         telephone: '(555) 229-3326'
     };
-
-    const mocks = [
-        {
-            request: {
-                query: QUERY_CUSTOMER_CART
-            },
-            result: {
-                data: {
-                    customerCart: {
-                        id: 'customercart'
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: MUTATION_PLACE_ORDER,
-                variables: {
-                    cartId: ''
-                }
-            },
-            result: {
-                data: {
-                    order: {
-                        order_id: 'orderid'
-                    }
-                }
-            }
-        }
-    ];
 
     it('edits new shipping address', async () => {
         const Wrapper = () => {
@@ -102,15 +69,13 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockUserState}>
+                <CartProvider>
+                    <CheckoutProvider initialState={mockCheckoutState}>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -159,15 +124,13 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockUserState}>
+                <CartProvider>
+                    <CheckoutProvider initialState={mockCheckoutState}>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -217,15 +180,13 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockUserState}>
+                <CartProvider>
+                    <CheckoutProvider initialState={mockCheckoutState}>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -275,15 +236,13 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <UserContextProvider initialState={mockUserState}>
+                <CartProvider>
+                    <CheckoutProvider initialState={mockCheckoutState}>
+                        <Wrapper />
+                    </CheckoutProvider>
+                </CartProvider>
+            </UserContextProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();

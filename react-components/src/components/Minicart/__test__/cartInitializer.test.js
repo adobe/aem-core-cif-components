@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import { render, waitForElement, fireEvent } from '@testing-library/react';
 
 import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.graphql';

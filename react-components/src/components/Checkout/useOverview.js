@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 
 import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';

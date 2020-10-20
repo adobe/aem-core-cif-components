@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 import { useEffect, useCallback } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
-import { useApolloClient } from '@apollo/react-hooks';
+import { useApolloClient } from '@apollo/client';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 

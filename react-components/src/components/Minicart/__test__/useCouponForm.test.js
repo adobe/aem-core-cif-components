@@ -16,7 +16,7 @@ import { render, fireEvent } from '@testing-library/react';
 
 import * as actions from '../../../actions/cart';
 import useCouponForm from '../useCouponForm';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 
 // mock the actions because we don't need them
 jest.mock('../../../actions/cart');

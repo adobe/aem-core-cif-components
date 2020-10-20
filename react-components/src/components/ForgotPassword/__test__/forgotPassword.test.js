@@ -14,7 +14,7 @@
 import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 
 import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../../queries/mutation_request_password_reset_email.graphql';
 

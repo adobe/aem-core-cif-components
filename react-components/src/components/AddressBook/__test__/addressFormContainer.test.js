@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
+import { render } from 'test-utils';
 
 import UserContextProvider from '../../../context/UserContext';
 import i18n from '../../../../__mocks__/i18nForTests';
@@ -25,11 +24,9 @@ describe('<AddressFormContainer>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressFormContainer />
-                    </UserContextProvider>
-                </MockedProvider>
+                <UserContextProvider>
+                    <AddressFormContainer />
+                </UserContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
@@ -38,11 +35,9 @@ describe('<AddressFormContainer>', () => {
     it('renders the component with address form shown', () => {
         const { asFragment } = render(
             <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={{ isShowAddressForm: true }}>
-                        <AddressFormContainer />
-                    </UserContextProvider>
-                </MockedProvider>
+                <UserContextProvider initialState={{ isShowAddressForm: true }}>
+                    <AddressFormContainer />
+                </UserContextProvider>
             </I18nextProvider>
         );
         expect(asFragment()).toMatchSnapshot();

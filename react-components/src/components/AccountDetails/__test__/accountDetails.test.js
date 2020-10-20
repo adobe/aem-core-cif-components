@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { render, screen, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 
 import AccountDetails from '../accountDetails';
 import UserContextProvider from '../../../context/UserContext';

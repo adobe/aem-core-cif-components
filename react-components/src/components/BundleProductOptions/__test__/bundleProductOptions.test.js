@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import { render, fireEvent, waitForDomChange } from '@testing-library/react';
 import ConfigContext from '../../../context/ConfigContext';
 import * as hooks from '../../../utils/hooks';
@@ -37,7 +37,7 @@ describe('<BundleProductOptions>', () => {
             </I18nextProvider>
         );
 
-        expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with sku', () => {
@@ -57,26 +57,7 @@ describe('<BundleProductOptions>', () => {
             }
         );
 
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <section
-                class="productFullDetail__section productFullDetail__customizeBundle"
-              >
-                <button
-                  class="root_highPriority"
-                  type="button"
-                >
-                  <span
-                    class="content"
-                  >
-                    <span>
-                      Customize
-                    </span>
-                  </span>
-                </button>
-              </section>
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with full options', async () => {
@@ -98,7 +79,7 @@ describe('<BundleProductOptions>', () => {
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
-        const { container, getByRole } = render(
+        const { asFragment, container, getByRole } = render(
             <I18nextProvider i18n={i18n}>
                 <MockedProvider>
                     <ConfigContext config={config}>
@@ -114,7 +95,7 @@ describe('<BundleProductOptions>', () => {
         fireEvent.click(getByRole('button', { name: 'Customize' }));
 
         await waitForDomChange({ container });
-        expect(container).toMatchSnapshot();
+        expect(asFragment()).toMatchSnapshot();
 
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 

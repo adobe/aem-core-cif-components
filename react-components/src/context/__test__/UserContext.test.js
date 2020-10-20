@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
