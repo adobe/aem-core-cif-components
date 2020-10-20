@@ -14,15 +14,19 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 
+import org.apache.sling.api.resource.Resource;
+
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 
-public class NavigationItemImpl implements NavigationItem {
+public class NavigationItemImpl extends DataLayerListItem implements NavigationItem {
 
     protected String title;
     protected String url;
     protected boolean isActive;
 
-    public NavigationItemImpl(String title, String url, boolean isActive) {
+    public NavigationItemImpl(String title, String url, boolean isActive, String parentId, Resource resource) {
+        super(parentId, resource);
         this.title = title;
         this.url = url;
         this.isActive = isActive;
