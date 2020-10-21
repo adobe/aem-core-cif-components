@@ -53,7 +53,7 @@ class CommerceGraphqlApi {
         };
 
         let url = this.endpoint;
-        if (ignoreCache) {
+        if (params.method === 'POST') {
             // For un-cached POST request, add query to body
             params.body = JSON.stringify(query);
         } else {
