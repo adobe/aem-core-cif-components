@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import EditForm from '../editForm';
 
 jest.mock('informed', () => {
@@ -41,7 +41,6 @@ describe('<EditForm>', () => {
 
     it('renders a form without the "Change password" button', () => {
         const { asFragment } = render(<EditForm shouldShowNewPassword={true} />);
-
         expect(asFragment()).toMatchSnapshot();
     });
 });
