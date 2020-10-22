@@ -24,13 +24,14 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
@@ -44,19 +45,17 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
-public class ProductTeaserImpl implements ProductTeaser {
+public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
 
     @Self
     private SlingHttpServletRequest request;
-
-    @Inject
-    private Resource resource;
 
     @Inject
     private Page currentPage;
@@ -186,4 +185,30 @@ public class ProductTeaserImpl implements ProductTeaser {
         return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
     }
 
+    // DataLayer methods
+
+    @Override
+    protected ComponentData getComponentData() {
+        return new ProductDataImpl(this, resource);
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return this.getName();
+    }
+
+    @Override
+    public String getDataLayerSKU() {
+        return this.getSku();
+    }
+
+    @Override
+    public Double getDataLayerPrice() {
+        return (new PriceImpl(getProduct().getPriceRange(), locale)).getFinalPrice();
+    }
+
+    @Override
+    public String getDataLayerCurrency() {
+        return (new PriceImpl(getProduct().getPriceRange(), locale)).getCurrency();
+    }
 }

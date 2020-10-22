@@ -1,0 +1,43 @@
+{
+  "venia": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:allowedTemplates": "/conf/venia/settings/wcm/templates/(?!xf-).*",
+      "cq:conf": "/conf/venia",
+      "cq:template": "/conf/venia/settings/wcm/templates/root-page",
+      "jcr:created": "2020-09-17T19:12:07.988+03:00",
+      "jcr:createdBy": "admin",
+      "jcr:primaryType": "cq:PageContent",
+      "jcr:title": "Venia Demo Store",
+      "redirectTarget": "/content/venia/us/en",
+      "sling:configRef": "/conf/venia",
+      "sling:redirect": "true",
+      "sling:redirectStatus": "302",
+      "sling:resourceType": "foundation/components/redirect"
+    },
+    "us": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent"
+      },
+      "en": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "root": {
+            "responsivegrid": {
+              "test": {
+                "sling:resourceType": "venia/components/commerce/testresource",
+                "jcr:lastModified": "Mon Oct 12 2020 12:20:34 GMT+0200"
+              },
+              "test-item": {
+                "sling:resourceType": "venia/components/commerce/testitemresource",
+                "jcr:lastModified": "Mon Oct 12 2020 12:20:34 GMT+0200"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

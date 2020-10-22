@@ -88,13 +88,16 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCTS_SEARCH_ARG = "search";
     private static final String CATEGORY_ID_ARG = "id";
 
-    private static final String SKU_EQ_REGEX = "\\{sku=\\{eq=.+\\}\\}";
     private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
     private static final Pattern SKU_IN_PATTERN = Pattern.compile("\\{sku=\\{in=\\[(.+)\\]\\}\\}");
+    private static final Pattern SKU_EQ_PATTERN = Pattern.compile("\\{sku=\\{eq=(.+)\\}\\}");
     private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
 
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
     private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
+
+    private static final String BUNDLE_PRODUCT_URL_KEY = "sprite-yoga-companion-kit";
+    private static final String BUNDLE_PRODUCT_SKU = "24-WG080";
 
     private static final String ATTRIBUTES_JSON = "magento-graphql-attributes.json";
     private static final String RELATED_PRODUCTS_JSON = "magento-graphql-relatedproducts.json";
@@ -110,6 +113,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
     private static final String CATEGORYLIST_BREADCRUMB_JSON = "magento-graphql-categorylist-breadcrumb.json";
+    private static final String BUNDLE_PRODUCT_JSON = "magento-graphql-bundle-product.json";
+    private static final String BUNDLE_PRODUCT_ITEMS_JSON = "magento-graphql-bundle-product-items.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -368,6 +373,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         if (productsFilter != null) {
             String filter = productsFilter.toString();
             Matcher skuInMatcher = SKU_IN_PATTERN.matcher(filter);
+            Matcher skuEqMatcher = SKU_EQ_PATTERN.matcher(filter);
             Matcher urlKeyEqPattern = URL_KEY_EQ_PATTERN.matcher(filter);
 
             if (skuInMatcher.matches()) {
@@ -378,18 +384,28 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 if (skus.length == 1) {
                     if (GROUPED_PRODUCT_SKU.equals(skus[0])) {
                         return readProductsFrom(GROUPED_PRODUCT_JSON);
+                    } else if (BUNDLE_PRODUCT_SKU.equals(skus[0])) {
+                        return readProductsFrom(BUNDLE_PRODUCT_JSON);
                     }
                     return readProductsFrom(PRODUCTS_JSON);
                 } else if (skus.length == 6) {
                     return readProductsFrom(PRODUCTS_COLLECTION_JSON);
                 }
                 return readProductsFrom(PRODUCT_CAROUSEL_JSON);
-            } else if (filter.matches(SKU_EQ_REGEX)) {
-                return readProductsFrom(PRODUCT_TEASER_JSON);
+            } else if (skuEqMatcher.matches()) {
+                if (skuEqMatcher.group(1).equals(BUNDLE_PRODUCT_SKU)) {
+                    return readProductsFrom(BUNDLE_PRODUCT_ITEMS_JSON);
+                } else {
+                    return readProductsFrom(PRODUCT_TEASER_JSON);
+                }
             } else if (filter.matches(CATEGORY_ID_REGEX)) {
                 return readProductsFrom(PRODUCTS_COLLECTION_JSON);
-            } else if (urlKeyEqPattern.matches() && GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
-                return readProductsFrom(GROUPED_PRODUCT_JSON);
+            } else if (urlKeyEqPattern.matches()) {
+                if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(GROUPED_PRODUCT_JSON);
+                } else if (BUNDLE_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                }
             }
         }
 
