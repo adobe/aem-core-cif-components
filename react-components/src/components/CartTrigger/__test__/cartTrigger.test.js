@@ -12,9 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import CartTrigger from '../cartTrigger';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider } from '../../Minicart';
 
 describe('<CartTrigger>', () => {
     const stateWithTwoItems = { cart: { items: [{}, {}], total_quantity: 3 } };

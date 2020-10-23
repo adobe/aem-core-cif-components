@@ -12,13 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-
-import UserContextProvider from '../../../context/UserContext';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import { CartProvider, useCartState } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
-
 import useCart from '../useCart';
 
 import CART_DETAILS_QUERY from '../../../queries/query_cart_details.graphql';
@@ -97,32 +94,34 @@ describe('useCart', () => {
             },
             result: {
                 data: {
-                    cart: {
-                        shipping_addresses: [
-                            {
-                                available_shipping_methods: [
-                                    {
-                                        carrier_code: 'test carrier code',
-                                        carrier_title: 'test carrier title',
-                                        method_code: 'test method code',
-                                        method_title: 'test method title'
-                                    }
-                                ],
-                                city: mockShippingAddress.city,
-                                company: mockShippingAddress.company,
-                                country: {
-                                    code: mockShippingAddress.country_code
-                                },
-                                firstname: mockShippingAddress.firstname,
-                                lastname: mockShippingAddress.lastname,
-                                postcode: mockShippingAddress.postcode,
-                                region: {
-                                    code: mockShippingAddress.region_code
-                                },
-                                street: mockShippingAddress.street,
-                                telephone: mockShippingAddress.telephone
-                            }
-                        ]
+                    setShippingAddressesOnCart: {
+                        cart: {
+                            shipping_addresses: [
+                                {
+                                    available_shipping_methods: [
+                                        {
+                                            carrier_code: 'test carrier code',
+                                            carrier_title: 'test carrier title',
+                                            method_code: 'test method code',
+                                            method_title: 'test method title'
+                                        }
+                                    ],
+                                    city: mockShippingAddress.city,
+                                    company: mockShippingAddress.company,
+                                    country: {
+                                        code: mockShippingAddress.country_code
+                                    },
+                                    firstname: mockShippingAddress.firstname,
+                                    lastname: mockShippingAddress.lastname,
+                                    postcode: mockShippingAddress.postcode,
+                                    region: {
+                                        code: mockShippingAddress.region_code
+                                    },
+                                    street: mockShippingAddress.street,
+                                    telephone: mockShippingAddress.telephone
+                                }
+                            ]
+                        }
                     }
                 }
             }
@@ -178,15 +177,11 @@ describe('useCart', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={mockCartState}>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -250,15 +245,11 @@ describe('useCart', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={mockCartState}>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -321,15 +312,12 @@ describe('useCart', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={mockCartState}>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState, mocks: mocks }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -378,15 +366,12 @@ describe('useCart', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <UserContextProvider initialState={mockUserState}>
-                    <CartProvider initialState={mockCartState}>
-                        <CheckoutProvider initialState={mockCheckoutState}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={mockCartState}>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();

@@ -12,7 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import Dialog from '../dialog';
 
 jest.mock('../../Portal', () => ({

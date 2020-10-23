@@ -12,15 +12,17 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
-
-import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-import ConfigContextProvider from '../../../context/ConfigContext';
+import { render } from '../../../utils/test-utils';
+import { CartProvider } from '../../Minicart';
 import AccountDropdown from '../accountDropdown';
+
+const config = {
+    graphqlEndpoint: 'endpoint',
+    storeView: 'default',
+    pagePaths: {
+        accountDetails: '/accountDetails'
+    }
+};
 
 describe('<AccountDropdown>', () => {
     it('renders the component when account dropdown is open', () => {
@@ -28,17 +30,10 @@ describe('<AccountDropdown>', () => {
         const accountDropdownOpenClass = 'root_open';
 
         const { getByLabelText } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithAccountDropdownOpen}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithAccountDropdownOpen }
         );
         expect(getByLabelText('account dropdown').getAttribute('class')).toEqual(accountDropdownOpenClass);
     });
@@ -55,17 +50,10 @@ describe('<AccountDropdown>', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithMyAccountView}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithMyAccountView }
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -77,17 +65,10 @@ describe('<AccountDropdown>', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithChangePasswordView}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithChangePasswordView }
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -99,17 +80,10 @@ describe('<AccountDropdown>', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithForgotPasswordView}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithForgotPasswordView }
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -120,17 +94,10 @@ describe('<AccountDropdown>', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithCreateAccountView}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithCreateAccountView }
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -141,17 +108,10 @@ describe('<AccountDropdown>', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ConfigContextProvider config={{ pagePaths: { accountDetails: '/accountDetails' } }}>
-                    <MockedProvider>
-                        <UserContextProvider initialState={stateWithAccountCreatedView}>
-                            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                                <AccountDropdown />
-                            </CartProvider>
-                        </UserContextProvider>
-                    </MockedProvider>
-                </ConfigContextProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountDropdown />
+            </CartProvider>,
+            { config: config, userContext: stateWithAccountCreatedView }
         );
         expect(asFragment()).toMatchSnapshot();
     });

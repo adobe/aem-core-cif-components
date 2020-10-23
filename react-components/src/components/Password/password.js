@@ -39,18 +39,18 @@ const Password = props => {
     const { visible, togglePasswordVisibility } = talonProps;
     const classes = mergeClasses(defaultClasses, propClasses);
 
-    const passwordButton = (
+    const passwordButton = !isToggleButtonHidden ? (
         <Button className={classes.passwordButton} onClick={togglePasswordVisibility} type="button">
             {visible ? <Eye /> : <EyeOff />}
         </Button>
-    );
+    ) : null;
 
     const fieldType = visible ? 'text' : 'password';
 
     return (
         <Field label={label} classes={{ root: classes.root }}>
             <TextInput
-                after={!isToggleButtonHidden && passwordButton}
+                after={passwordButton}
                 autoComplete={autoComplete}
                 field={fieldName}
                 type={fieldType}
