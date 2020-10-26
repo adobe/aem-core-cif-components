@@ -15,7 +15,8 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import { act } from 'react-dom/test-utils';
 import useMinicart from '../useMinicart';
 import { CartProvider } from '../cartContext';

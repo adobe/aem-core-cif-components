@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -38,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
@@ -65,6 +67,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
@@ -77,7 +80,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     adapters = Product.class,
     resourceType = ProductImpl.RESOURCE_TYPE,
     cache = true)
-public class ProductImpl implements Product {
+public class ProductImpl extends DataLayerComponent implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     protected static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
@@ -87,9 +90,6 @@ public class ProductImpl implements Product {
 
     @Self
     private SlingHttpServletRequest request;
-
-    @Inject
-    private Resource resource;
 
     @Inject
     private Page currentPage;
@@ -318,6 +318,8 @@ public class ProductImpl implements Product {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
+        productVariant.setId(
+            StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(product.getSku()), 0, 10)));
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
@@ -417,5 +419,42 @@ public class ProductImpl implements Product {
     @Override
     public String getCanonicalUrl() {
         return canonicalUrl;
+    }
+
+    // DataLayer methods
+
+    @Override
+    public ComponentData getComponentData() {
+        return new ProductDataImpl(this, resource);
+    }
+
+    @Override
+    protected String generateId() {
+        return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return this.getName();
+    }
+
+    @Override
+    public String getDataLayerSKU() {
+        return this.getSku();
+    }
+
+    @Override
+    public Double getDataLayerPrice() {
+        return this.getPrice();
+    }
+
+    @Override
+    public String getDataLayerCurrency() {
+        return this.getCurrency();
+    }
+
+    @Override
+    public String getDataLayerDescription() {
+        return this.getDescription();
     }
 }

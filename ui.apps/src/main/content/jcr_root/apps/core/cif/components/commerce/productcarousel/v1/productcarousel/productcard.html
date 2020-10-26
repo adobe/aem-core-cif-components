@@ -12,7 +12,10 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
   <template data-sly-template.productcard="${@ product}">
-    <div role="displaycard" class="card product__card">
+    <div role="displaycard"
+         id="${product.id}"
+         data-cmp-data-layer="${product.data.json}"
+         class="card product__card">
         <a href="${product.URL}">
             <div class="product__card__image">
                 <img class="product__image" src="${product.imageURL}" data-gallery-role="currentimage" />

@@ -29,6 +29,9 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -41,10 +44,13 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class Utils {
+
+    public static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
 
     /**
      * This method prepares the mock http response with either the content of the <code>filename</code>
@@ -196,5 +202,14 @@ public class Utils {
             }
         }
 
+    }
+
+    static public ConfigurationBuilder getDataLayerConfig(boolean enabled) {
+        ValueMap datalayerConfig = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+        ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+        Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
+        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerConfig);
+
+        return mockConfigBuilder;
     }
 }

@@ -1,0 +1,229 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "sku": "24-WG080",
+          "__typename": "BundleProduct",
+          "id": 46,
+          "name": "Sprite Yoga Companion Kit",
+          "dynamic_sku": true,
+          "dynamic_price": true,
+          "dynamic_weight": true,
+          "price_view": "PRICE_RANGE",
+          "ship_bundle_items": "TOGETHER",
+          "items": [
+            {
+              "option_id": 1,
+              "title": "Sprite Stasis Ball",
+              "required": true,
+              "type": "radio",
+              "position": 1,
+              "sku": "24-WG080",
+              "options": [
+                {
+                  "id": 1,
+                  "quantity": 1,
+                  "position": 1,
+                  "is_default": true,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Stasis Ball 55 cm",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 23
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": 2,
+                  "quantity": 1,
+                  "position": 2,
+                  "is_default": false,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Stasis Ball 65 cm",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 27
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": 3,
+                  "quantity": 1,
+                  "position": 3,
+                  "is_default": false,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Stasis Ball 75 cm",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 32
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "option_id": 2,
+              "title": "Sprite Foam Yoga Brick",
+              "required": true,
+              "type": "radio",
+              "position": 2,
+              "sku": "24-WG080",
+              "options": [
+                {
+                  "id": 4,
+                  "quantity": 1,
+                  "position": 1,
+                  "is_default": true,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Foam Yoga Brick",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 5
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "option_id": 3,
+              "title": "Sprite Yoga Strap",
+              "required": true,
+              "type": "radio",
+              "position": 3,
+              "sku": "24-WG080",
+              "options": [
+                {
+                  "id": 5,
+                  "quantity": 1,
+                  "position": 1,
+                  "is_default": true,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Yoga Strap 6 foot",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 14
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": 6,
+                  "quantity": 1,
+                  "position": 2,
+                  "is_default": false,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Yoga Strap 8 foot",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 17
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": 7,
+                  "quantity": 1,
+                  "position": 3,
+                  "is_default": false,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Yoga Strap 10 foot",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 21
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "option_id": 4,
+              "title": "Sprite Foam Roller",
+              "required": true,
+              "type": "radio",
+              "position": 4,
+              "sku": "24-WG080",
+              "options": [
+                {
+                  "id": 8,
+                  "quantity": 1,
+                  "position": 1,
+                  "is_default": true,
+                  "price": 0,
+                  "price_type": "FIXED",
+                  "can_change_quantity": true,
+                  "label": "Sprite Foam Roller",
+                  "product": {
+                    "__typename": "SimpleProduct",
+                    "price_range": {
+                      "maximum_price": {
+                        "final_price": {
+                          "currency": "USD",
+                          "value": 19
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

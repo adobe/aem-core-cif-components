@@ -24,7 +24,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -33,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
@@ -49,7 +49,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
-public class RelatedProductsImpl implements ProductCarousel {
+public class RelatedProductsImpl extends DataLayerComponent implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
@@ -59,9 +59,6 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @Self
     private SlingHttpServletRequest request;
-
-    @Inject
-    private Resource resource;
 
     @Inject
     private Page currentPage;
@@ -103,7 +100,8 @@ public class RelatedProductsImpl implements ProductCarousel {
 
     @Override
     public boolean isConfigured() {
-        return properties.get(PN_PRODUCT, String.class) != null || request.getRequestPathInfo().getSelectorString() != null;
+        return properties.get(PN_PRODUCT, String.class) != null
+            || request.getRequestPathInfo().getSelectorString() != null;
     }
 
     private void configureProductsRetriever() {
@@ -141,16 +139,9 @@ public class RelatedProductsImpl implements ProductCarousel {
         for (ProductInterface product : products) {
             try {
                 Price price = new PriceImpl(product.getPriceRange(), locale);
-                carouselProductList.add(new ProductListItemImpl(
-                    product.getSku(),
-                    product.getUrlKey(),
-                    product.getName(),
-                    price,
-                    product.getThumbnail().getUrl(),
-                    productPage,
-                    null,
-                    request,
-                    urlProvider));
+                carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
+                    product.getName(), price, product.getThumbnail().getUrl(), productPage, null, request,
+                    urlProvider, this.getId()));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }

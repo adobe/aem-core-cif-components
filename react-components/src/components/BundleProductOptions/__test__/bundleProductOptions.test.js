@@ -12,31 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
-import { render, fireEvent, waitForDomChange } from '@testing-library/react';
-import ConfigContext from '../../../context/ConfigContext';
+import { fireEvent, waitForDomChange } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import * as hooks from '../../../utils/hooks';
-
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
 
-const config = { mountingPoints: { bundleProductOptionsContainer: '#bundle-product-options' } };
+const config = {
+    storeView: 'default',
+    graphqlEndpoint: 'endpoint',
+    mountingPoints: {
+        bundleProductOptionsContainer: '#bundle-product-options'
+    }
+};
 
 describe('<BundleProductOptions>', () => {
     it('renders the component with no sku', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext config={config}>
-                        <BundleProductOptions />
-                    </ConfigContext>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<BundleProductOptions />, { config: config });
         expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
     });
 
@@ -44,18 +36,10 @@ describe('<BundleProductOptions>', () => {
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext config={config}>
-                        <BundleProductOptions />
-                    </ConfigContext>
-                </MockedProvider>
-            </I18nextProvider>,
-            {
-                container: document.body.appendChild(bundleProductOptionsContainer)
-            }
-        );
+        const { asFragment } = render(<BundleProductOptions />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer)
+        });
 
         expect(asFragment()).toMatchInlineSnapshot(`
             <DocumentFragment>
@@ -98,18 +82,10 @@ describe('<BundleProductOptions>', () => {
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
-        const { container, getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ConfigContext config={config}>
-                        <BundleProductOptions />
-                    </ConfigContext>
-                </MockedProvider>
-            </I18nextProvider>,
-            {
-                container: document.body.appendChild(bundleProductOptionsContainer)
-            }
-        );
+        const { container, getByRole } = render(<BundleProductOptions />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer)
+        });
 
         fireEvent.click(getByRole('button', { name: 'Customize' }));
 

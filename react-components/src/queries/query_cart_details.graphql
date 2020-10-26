@@ -91,6 +91,7 @@ query cartDetails($cartId: String!) {
             }
             product {
                 name
+                sku
                 thumbnail {
                     url
                 }

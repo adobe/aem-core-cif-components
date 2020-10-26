@@ -32,7 +32,10 @@ const EditForm = props => {
 
     const maybeShowChangePasswordButton = !shouldShowNewPassword && (
         <div className={classes.changePasswordButtonContainer}>
-            <LinkButton type="button" classes={classes.changePasswordButton} onClick={handleShowNewPasswordField}>
+            <LinkButton
+                type="button"
+                classes={{ root: classes.changePasswordButton }}
+                onClick={handleShowNewPasswordField}>
                 {t('account:change-password', 'Change Password')}
             </LinkButton>
         </div>
