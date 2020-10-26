@@ -28,5 +28,3 @@ export { CheckoutProvider } from './components/Checkout/checkoutContext';
 
 export { CartProvider, CartInitializer } from './components/Minicart';
 export { AccountDetails } from './components/AccountDetails';
-
-export { graphqlAuthLink } from './utils/authUtils';
