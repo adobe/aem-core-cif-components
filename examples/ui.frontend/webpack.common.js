@@ -7,19 +7,11 @@ const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-const SOURCE_ROOT = __dirname + '/src/main/webpack';
+const SOURCE_ROOT = `${__dirname}/src/main`;
 
 module.exports = {
-    resolve: {
-        extensions: ['.js', '.ts'],
-        plugins: [
-            new TSConfigPathsPlugin({
-                configFile: './tsconfig.json',
-            }),
-        ],
-    },
     entry: {
-        site: SOURCE_ROOT + '/site/main.ts',
+        site: `${SOURCE_ROOT}/site/index.js`,
     },
     output: {
         filename: 'cif-examples-react/[name].js',
@@ -27,27 +19,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.tsx?$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        options: {
-                            eslintPath: require.resolve('eslint'),
-                        },
-                        loader: require.resolve('eslint-loader'),
-                    },
-                    {
-                        loader: 'ts-loader',
-                    },
-                    {
-                        loader: 'webpack-import-glob-loader',
-                        options: {
-                            url: false,
-                        },
-                    },
-                ],
-            },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
@@ -89,7 +60,6 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin(),
-        new webpack.NoEmitOnErrorsPlugin(),
         new MiniCssExtractPlugin({
             filename: 'cif-examples-react/[name].css',
         }),
@@ -103,6 +73,9 @@ module.exports = {
             },
         ]),
     ],
+    optimization: {
+        noEmitOnErrors: true,
+    },
     stats: {
         assetsSort: 'chunks',
         builtAt: true,

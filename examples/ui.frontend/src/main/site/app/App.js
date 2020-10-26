@@ -13,32 +13,33 @@
  ******************************************************************************/
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { I18nextProvider } from 'react-i18next';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import {I18nextProvider} from 'react-i18next';
+import {BrowserRouter as Router} from 'react-router-dom';
 import {
     CommerceApp,
     Portal,
     ConfigContextProvider,
-    BundleProductOptions
+    BundleProductOptions,
 } from '@adobe/aem-core-cif-react-components';
 
 import i18n from './i18n';
 import partialConfig from './config';
 
 const App = () => {
-    const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
-    const { mountingPoints } = partialConfig;
+    const {storeView, graphqlEndpoint} = document.querySelector('body').dataset;
+    const {mountingPoints} = partialConfig;
     const config = {
         ...partialConfig,
         storeView,
-        graphqlEndpoint
+        graphqlEndpoint,
     };
 
     return (
         <I18nextProvider i18n={i18n} defaultNS="common">
             <ConfigContextProvider config={config}>
-                <CommerceApp>         
-                    <Portal selector={mountingPoints.bundleProductOptionsContainer}>
+                <CommerceApp>
+                    <Portal
+                        selector={mountingPoints.bundleProductOptionsContainer}>
                         <BundleProductOptions />
                     </Portal>
                 </CommerceApp>

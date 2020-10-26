@@ -1,16 +1,19 @@
 module.exports = {
-    parser: '@typescript-eslint/parser', // Specifies the ESLint parser
-    extends: [
-        'plugin:@typescript-eslint/recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
-    ],
+    extends: ['eslint:recommended', 'plugin:react/recommended'],
     parserOptions: {
         ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
         sourceType: 'module', // Allows for the use of imports
     },
+    env: {
+        browser: true,
+    },
+    settings: {
+        react: {
+            version: 'detect',
+        },
+    },
     rules: {
         curly: 1,
-        '@typescript-eslint/explicit-function-return-type': [0],
-        '@typescript-eslint/no-explicit-any': [0],
         'ordered-imports': [0],
         'object-literal-sort-keys': [0],
         'new-parens': 1,
