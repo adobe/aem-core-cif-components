@@ -131,6 +131,7 @@ public class GraphqlServletTest {
     private static final String UPSELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/upsellproducts";
     private static final String CROSS_SELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/crosssellproducts";
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
+    private static final String CATEGORY_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/categorycarousel";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
     private static final String PRODUCTPAGE_BREADCRUMB_RESOURCE = PRODUCT_PAGE + "/jcr:content/breadcrumb";
@@ -372,6 +373,20 @@ public class GraphqlServletTest {
         for (ProductListItem product : products) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
         }
+    }
+
+    @Test
+    public void testCategoryCarouselModel() throws ServletException {
+        prepareModel(CATEGORY_CAROUSEL_RESOURCE);
+        FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
+        List<CategoryTree> categories = featureCategoryListModel.getCategories();
+        Assert.assertEquals(4, categories.size());
+
+        // Test that the servlet returns the expected categories in the correct order
+        Assert.assertEquals(15, categories.get(0).getId().intValue());
+        Assert.assertEquals(24, categories.get(1).getId().intValue());
+        Assert.assertEquals(28, categories.get(2).getId().intValue());
+        Assert.assertEquals(32, categories.get(3).getId().intValue());
     }
 
     @Test

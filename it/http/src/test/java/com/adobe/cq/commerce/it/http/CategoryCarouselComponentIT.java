@@ -22,18 +22,22 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NavigationComponentIT extends CommerceTestBase {
+public class CategoryCarouselComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String NAVIGATION_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .navigation ";
+    private static final String CATEGORYCAROUSEL_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .categorycarousel ";
 
     @Test
-    public void testNavigationWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/navigation.html", 200);
+    public void testCategoryCarouselWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/categorycarousel.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Check the number of elements in the navigation menu
-        Elements elements = doc.select(NAVIGATION_SELECTOR + ".categoryTree__root > .categoryTree__tree > .cmp-navigation__item");
-        Assert.assertEquals(11, elements.size());
+        // Check title
+        Elements elements = doc.select(CATEGORYCAROUSEL_SELECTOR + ".carousel__title");
+        Assert.assertEquals("Trending product categories", elements.first().html());
+
+        // Check that the components displays 4 categories
+        elements = doc.select(CATEGORYCAROUSEL_SELECTOR + ".carousel__cardscontainer > .categorycarousel__card");
+        Assert.assertEquals(4, elements.size());
     }
 }
