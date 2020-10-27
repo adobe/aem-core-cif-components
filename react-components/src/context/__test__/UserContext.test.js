@@ -12,17 +12,16 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from '../../utils/test-utils';
+import { useUserContext } from '../UserContext';
+import { useAwaitQuery } from '../../utils/hooks';
 
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
 import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
-
-import UserContextProvider, { useUserContext } from '../UserContext';
-import { useAwaitQuery } from '../../utils/hooks';
 
 describe('UserContext test', () => {
     beforeEach(() => {
@@ -115,13 +114,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -145,13 +138,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -176,13 +163,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
@@ -214,13 +195,7 @@ describe('UserContext test', () => {
             value: 'cif.userToken=token123;'
         });
 
-        const { getByRole, getByTestId, getByText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId, getByText } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByText('Signed in')).not.toBeUndefined();
 
@@ -249,13 +224,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -291,13 +260,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -329,13 +292,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -359,13 +316,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -389,13 +340,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -419,13 +364,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -487,13 +426,7 @@ describe('UserContext test', () => {
             isShowAddressForm: true
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockInitialState}>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -611,13 +544,7 @@ describe('UserContext test', () => {
             isShowAddressForm: false
         };
 
-        const { getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockInitialState}>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
 
         expect(getByTestId('begin-editing-address-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('begin-editing-address-button'));
@@ -729,13 +656,7 @@ describe('UserContext test', () => {
             deleteAddressError: 'delete address error'
         };
 
-        const { getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider initialState={mockInitialState}>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
 
         expect(getByTestId('begin-deleting-address-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('begin-deleting-address-button'));
@@ -802,13 +723,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -847,13 +762,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
@@ -895,13 +804,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByTestId } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ContextWrapper />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByTestId } = render(<ContextWrapper />, { mocks: mocks });
 
         expect(getByTestId('open-address-form-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('open-address-form-button'));

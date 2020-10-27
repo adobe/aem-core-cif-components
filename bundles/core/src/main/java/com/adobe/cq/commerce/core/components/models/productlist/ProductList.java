@@ -16,10 +16,11 @@ package com.adobe.cq.commerce.core.components.models.productlist;
 
 import javax.annotation.Nullable;
 
+import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 
-public interface ProductList extends ProductCollection {
+public interface ProductList extends ProductCollection, PageMetadata {
 
     /**
      * Name of the boolean resource property indicating if the product list should render the category title.

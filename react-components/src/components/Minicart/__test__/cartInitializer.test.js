@@ -13,18 +13,17 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement, fireEvent } from '@testing-library/react';
+import { waitForElement, fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
+import { useCartState, CartProvider } from '../cartContext';
+import CartInitializer from '../cartInitializer';
+import { useUserContext } from '../../..';
 
 import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.graphql';
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
-
-import { useCartState, CartProvider } from '../cartContext';
-import CartInitializer from '../cartInitializer';
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
 
 const queryMocks = [
     {
@@ -127,22 +126,18 @@ describe('<CartInitializer />', () => {
         });
 
         const { getByTestId } = render(
-            <MockedProvider mocks={[]} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider
-                        initialState={{ cartId: null }}
-                        reducerFactory={() => (state, action) => {
-                            if (action.type == 'cartId') {
-                                return { ...state, cartId: action.cartId };
-                            }
-                            return state;
-                        }}>
-                        <CartInitializer>
-                            <DummyCart />
-                        </CartInitializer>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider
+                initialState={{ cartId: null }}
+                reducerFactory={() => (state, action) => {
+                    if (action.type === 'cartId') {
+                        return { ...state, cartId: action.cartId };
+                    }
+                    return state;
+                }}>
+                <CartInitializer>
+                    <DummyCart />
+                </CartInitializer>
+            </CartProvider>
         );
         const cartIdNode = await waitForElement(() => getByTestId('cart-details'));
 
@@ -177,15 +172,12 @@ describe('<CartInitializer />', () => {
         };
 
         const { getByTestId, getByRole } = render(
-            <MockedProvider mocks={queryMocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider>
-                        <CartInitializer>
-                            <ResetCartComponent />
-                        </CartInitializer>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider>
+                <CartInitializer>
+                    <ResetCartComponent />
+                </CartInitializer>
+            </CartProvider>,
+            { mocks: queryMocks }
         );
 
         fireEvent.click(getByRole('button'));

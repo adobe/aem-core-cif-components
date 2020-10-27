@@ -13,7 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import { LogOut as SignOutIcon } from 'react-feather';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 
 import AccountLink from '../accountLink';
 

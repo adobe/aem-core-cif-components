@@ -13,14 +13,11 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
+import { useUserContext } from '../../..';
+import { CartProvider } from '../../Minicart';
 import CreateAccount from '../createAccount';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
 import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
@@ -34,15 +31,9 @@ describe('<CreateAccount>', () => {
     });
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />
+            </CartProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -131,20 +122,17 @@ describe('<CreateAccount>', () => {
             if (createAccountEmail !== null) {
                 content = <div data-testid="success">{createAccountEmail}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;
         };
 
         const { getByLabelText, getByTestId, container } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                <ContextWrapper />
+            </CartProvider>,
+            { mocks: mocks }
         );
         const detailsFromValue = value => {
             return {
@@ -215,20 +203,17 @@ describe('<CreateAccount>', () => {
             if (createAccountError) {
                 content = <div data-testid="success">{createAccountError}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;
         };
 
         const { getByTestId, getByLabelText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                <ContextWrapper />
+            </CartProvider>,
+            { mocks: mocks }
         );
 
         const detailsFromValue = value => {

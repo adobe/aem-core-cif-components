@@ -14,7 +14,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:firstname
+          First Name
         </span>
         <span
           class="root"
@@ -49,7 +49,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:lastname
+          Last Name
         </span>
         <span
           class="root"
@@ -84,7 +84,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:email
+          Email address
         </span>
         <span
           class="root"
@@ -119,7 +119,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:password
+          Password
         </span>
         <span
           class="root"
@@ -181,11 +181,12 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       class="changePasswordButtonContainer"
     >
       <button
+        class="changePasswordButton"
         classes="[object Object]"
         type="button"
       >
         <span>
-          account:change-password
+          Change Password
         </span>
       </button>
     </div>
@@ -207,7 +208,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:firstname
+          First Name
         </span>
         <span
           class="root"
@@ -242,7 +243,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:lastname
+          Last Name
         </span>
         <span
           class="root"
@@ -277,7 +278,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:email
+          Email address
         </span>
         <span
           class="root"
@@ -312,7 +313,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         <span
           class="label"
         >
-          account:current-password
+          Current Password
         </span>
         <span
           class="root"
@@ -380,7 +381,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       <span
         class="label"
       >
-        account:new-password
+        New Password
       </span>
       <span
         class="root"

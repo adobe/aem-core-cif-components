@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
+import { render, fireEvent, wait } from '@testing-library/react';
 import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
@@ -114,14 +114,15 @@ describe('<SignIn>', () => {
 
         expect(asFragment()).toMatchSnapshot();
     });
+
     it('switch the view then the "Sign In" is successful', async () => {
         // To simulate an almost real use case of the sign in component we create a wrapper around it
         // which displays a "success" message when the user is signed in
         const SignInWrapper = () => {
-            const [{ isSignedIn }] = useUserContext();
+            const [{ isSignedIn, cartId }] = useUserContext();
 
             let content;
-            if (isSignedIn) {
+            if (isSignedIn && cartId) {
                 content = <div data-testid="success">Done</div>;
             } else {
                 content = (
@@ -145,10 +146,9 @@ describe('<SignIn>', () => {
         fireEvent.change(getByLabelText(/email/i), { target: { value: 'chuck@example.com' } });
         fireEvent.change(getByLabelText(/password/i), { target: { value: 'norris' } });
         fireEvent.click(getByLabelText('submit'));
-
-        const result = await waitForElement(() => getByTestId('success'));
-
-        expect(result.textContent).not.toBeUndefined();
+        await wait(() => {
+            expect(getByTestId('success').textContent).not.toBeUndefined();
+        });
     });
 
     it('shows an error when the sign in is not successful', async () => {
@@ -193,8 +193,8 @@ describe('<SignIn>', () => {
         fireEvent.change(getByLabelText(/password/i), { target: { value: 'wrongpassword' } });
         fireEvent.click(getByLabelText('submit'));
 
-        const result = await waitForElement(() => getByText('Error'));
-
-        expect(result).not.toBeUndefined();
+        await wait(() => {
+            expect(getByText('Error')).not.toBeUndefined();
+        });
     });
 });

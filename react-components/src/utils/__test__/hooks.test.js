@@ -13,9 +13,8 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement } from '@testing-library/react';
-
+import { waitForElement } from '@testing-library/react';
+import { render } from '../test-utils';
 import { useCountries, useQueryParams } from '../hooks';
 
 import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
@@ -64,11 +63,7 @@ describe('Custom hooks', () => {
                 );
             };
 
-            const { getByTestId } = render(
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <HookWrapper />
-                </MockedProvider>
-            );
+            const { getByTestId } = render(<HookWrapper />, { mocks: mocks });
             const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
             expect(count.textContent).toEqual('2');
             expect(result.textContent).toEqual('US');
