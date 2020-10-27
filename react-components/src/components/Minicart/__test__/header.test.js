@@ -12,21 +12,17 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import { CartProvider } from '../cartContext';
-import { I18nextProvider } from 'react-i18next';
-
 import Header from '../header';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<Header>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
-                    <Header />
-                </CartProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: 'empty' }} reducerFactory={() => state => state}>
+                <Header />
+            </CartProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();

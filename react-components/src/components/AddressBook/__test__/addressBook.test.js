@@ -12,27 +12,19 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { I18nextProvider } from 'react-i18next';
+import { wait } from '@testing-library/react';
 import { render } from 'test-utils';
-
-import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import AddressBook from '../addressBook';
 
 describe('<AddressBook>', () => {
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <UserContextProvider>
-                    <AddressBook />
-                </UserContextProvider>
-            </I18nextProvider>
-        );
-        expect(asFragment()).toMatchSnapshot();
+    it('renders the component', async () => {
+        const { asFragment } = render(<AddressBook />);
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('renders the component with signed in user', () => {
+    it('renders the component with signed in user', async () => {
         const stateWithCurrentUserDetails = {
             isSignedIn: true,
             currentUser: {
@@ -40,13 +32,9 @@ describe('<AddressBook>', () => {
             }
         };
 
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <UserContextProvider initialState={stateWithCurrentUserDetails}>
-                    <AddressBook />
-                </UserContextProvider>
-            </I18nextProvider>
-        );
-        expect(asFragment()).toMatchSnapshot();
+        const { asFragment } = render(<AddressBook />, { userContext: stateWithCurrentUserDetails });
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 });

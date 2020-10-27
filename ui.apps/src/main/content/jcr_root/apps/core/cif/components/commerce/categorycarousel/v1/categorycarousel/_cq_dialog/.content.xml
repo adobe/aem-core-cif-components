@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0" 
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0" 
+    jcr:primaryType="nt:unstructured" 
+    jcr:title="Category Carousel"
+    extraClientlibs="[core.cif.components.categorycarousel.v1.editor,cif.shell.picker]"
+    trackingFeature="cif-core-components:categorycarousel:v1">
+    <content jcr:primaryType="nt:unstructured">
+        <items jcr:primaryType="nt:unstructured">
+            <column jcr:primaryType="nt:unstructured">
+                <items jcr:primaryType="nt:unstructured">
+                    <title jcr:primaryType="nt:unstructured"
+                        value="Shop by category" />
+                    <content granite:class="cmp-cif-categorycarousel__editor"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield" 
+                        composite="{Boolean}true" 
+                        fieldLabel="Categories">
+                        <field granite:class="cmp-cif-categorycarousel__editor-item-multifield-composite-item coral-Well"
+                            jcr:primaryType="nt:unstructured" 
+                            sling:resourceType="granite/ui/components/coral/foundation/container" 
+                            name="./items">
+                            <items jcr:primaryType="nt:unstructured">
+                                <category jcr:primaryType="nt:unstructured" 
+                                    sling:resourceType="commerce/gui/components/common/cifcategoryfield" 
+                                    fieldLabel="Category" 
+                                    multiple="{Boolean}false" 
+                                    name="./categoryId" 
+                                    selectionId="id" />
+                                <asset jcr:primaryType="nt:unstructured" 
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/pathfield" 
+                                    fieldDescription="If set, the category image is replaced by the selected asset." 
+                                    fieldLabel="Override Asset" 
+                                    filter="hierarchy" 
+                                    multiple="{Boolean}false" 
+                                    name="./asset" 
+                                    rootPath="/content/dam" />
+                            </items>
+                        </field>
+                    </content>
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>

@@ -373,8 +373,6 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
 </DocumentFragment>
 `;
 
-exports[`<BundleProductOptions> renders the component with no sku 1`] = `<DocumentFragment />`;
-
 exports[`<BundleProductOptions> renders the component with sku 1`] = `
 <DocumentFragment>
   <section

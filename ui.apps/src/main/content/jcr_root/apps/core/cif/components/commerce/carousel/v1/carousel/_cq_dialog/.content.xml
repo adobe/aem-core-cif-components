@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0" 
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0" 
+    jcr:primaryType="nt:unstructured" 
+    jcr:title="Carousel"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    trackingFeature="cif-core-components:carousel:v1">
+    <content jcr:primaryType="nt:unstructured" 
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <column jcr:primaryType="nt:unstructured" 
+                sling:resourceType="granite/ui/components/coral/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <title jcr:primaryType="nt:unstructured" 
+                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield" 
+                        fieldDescription="Optional title text. Leave empty to hide the title." 
+                        fieldLabel="Title" 
+                        name="./jcr:title"/>
+                    <titleType granite:class="core-title-sizes"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                        fieldLabel="The HTML tag used to display the title."
+                        name="./titleType">
+                        <datasource
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core/wcm/components/commons/datasources/allowedheadingelements/v1"/>
+                    </titleType>
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>

@@ -20,7 +20,22 @@ export default {
     },
     result: {
         data: {
-            countries: []
+            countries: [
+                {
+                    id: 'RO',
+                    available_regions: [
+                        { id: 835, code: 'AB', name: 'Alba' },
+                        { id: 838, code: 'AR', name: 'Arad' }
+                    ]
+                },
+                {
+                    id: 'US',
+                    available_regions: [
+                        { id: 4, code: 'AL', name: 'Alabama' },
+                        { id: 7, code: 'AK', name: 'Alaska' }
+                    ]
+                }
+            ]
         }
     }
 };
