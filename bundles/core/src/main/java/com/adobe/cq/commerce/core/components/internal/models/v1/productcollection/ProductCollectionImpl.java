@@ -37,6 +37,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -68,6 +69,8 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected SearchResultsService searchResultsService;
     @Inject
     protected UrlProvider urlProvider;
+    @Inject
+    protected Externalizer externalizer;
 
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
