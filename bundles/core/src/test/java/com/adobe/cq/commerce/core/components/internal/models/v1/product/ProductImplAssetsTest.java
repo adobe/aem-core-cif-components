@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
@@ -44,6 +45,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -77,6 +79,8 @@ public class ProductImplAssetsTest {
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
                         : ComponentsConfiguration.EMPTY);
+
+                context.registerService(Externalizer.class, new MockExternalizer());
             },
             ResourceResolverType.JCR_MOCK);
     }
