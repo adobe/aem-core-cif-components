@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { fireEvent } from '@testing-library/react';
 import { CartProvider } from '../cartContext';
 import CouponItem from '../couponItem';

@@ -16,7 +16,7 @@
 
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import useCouponItem from '../useCouponItem';
 import * as actions from '../../../actions/cart';
 

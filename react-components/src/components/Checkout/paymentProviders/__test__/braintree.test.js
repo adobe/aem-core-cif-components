@@ -21,7 +21,7 @@ jest.mock('informed', () => ({
 
 import React from 'react';
 import { render, act, wait } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import dropIn from 'braintree-web-drop-in';
 import { useFieldApi } from 'informed';
 

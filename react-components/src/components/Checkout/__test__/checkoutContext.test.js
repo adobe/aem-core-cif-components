@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 
 describe('checkoutContext', () => {

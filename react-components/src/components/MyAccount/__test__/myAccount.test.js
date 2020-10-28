@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CartProvider } from '../../Minicart';
 import MyAccount from '../myAccount';
 

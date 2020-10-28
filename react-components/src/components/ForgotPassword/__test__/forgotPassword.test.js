@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import ForgotPassword from '../forgotPassword';
 
 import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../../queries/mutation_request_password_reset_email.graphql';

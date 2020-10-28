@@ -1,10 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<BundleProductOptions> renders the component with full options 1`] = `
-<div
-  data-sku="VA24"
-  id="bundle-product-options"
->
+<DocumentFragment>
   <section
     class="productFullDetail__section productFullDetail__bundleProduct"
   >
@@ -31,8 +28,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
             type="checkbox"
             value="1"
           />
-           
-          1 x Carmina Necklace +
+           1 x Carmina Necklace +
           <b>
             <span
               class=""
@@ -50,8 +46,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
             type="checkbox"
             value="2"
           />
-           
-          1 x Augusta Necklace +
+           1 x Augusta Necklace +
           <b>
             <span
               class=""
@@ -174,8 +169,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
             type="radio"
             value="5"
           />
-           
-          Gold Sol Earrings +
+           Gold Sol Earrings +
           <b>
             <span
               class=""
@@ -194,8 +188,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
             type="radio"
             value="6"
           />
-           
-          Silver Sol Earrings +
+           Silver Sol Earrings +
           <b>
             <span
               class=""
@@ -269,14 +262,12 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span
         class="required"
       >
-        * 
-        Required fields
+        * Required fields
       </span>
       <span
         class="priceInfo"
       >
-        Your customization
-        : 
+        Your customization: 
         <span
           class="bundlePrice"
         >
@@ -379,5 +370,26 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       </span>
     </button>
   </section>
-</div>
+</DocumentFragment>
+`;
+
+exports[`<BundleProductOptions> renders the component with sku 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__customizeBundle"
+  >
+    <button
+      class="root_highPriority"
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Customize
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
 `;

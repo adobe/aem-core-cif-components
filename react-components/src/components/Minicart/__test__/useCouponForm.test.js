@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import * as actions from '../../../actions/cart';
 import useCouponForm from '../useCouponForm';
 

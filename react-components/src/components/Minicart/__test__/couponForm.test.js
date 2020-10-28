@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CartProvider } from '../cartContext';
 import CouponForm from '../couponForm';
 import useCouponForm from '../useCouponForm.js';

@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';

@@ -13,13 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CartProvider, useCartState } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 import useCart from '../useCart';
-
-import CART_DETAILS_QUERY from '../../../queries/query_cart_details.graphql';
-import MUTATION_SET_SHIPPING_ADDRESS from '../../../queries/mutation_set_shipping_address.graphql';
 
 describe('useCart', () => {
     const mockShippingAddress = {
@@ -34,99 +31,6 @@ describe('useCart', () => {
         street: ['cart shipping address'],
         telephone: '(555) 229-3326'
     };
-
-    const mocks = [
-        {
-            request: {
-                query: CART_DETAILS_QUERY,
-                variables: {
-                    cartId: ''
-                }
-            },
-            result: {
-                data: {
-                    cart: {
-                        shipping_addresses: [
-                            {
-                                available_shipping_methods: [
-                                    {
-                                        carrier_code: 'test carrier code',
-                                        carrier_title: 'test carrier title',
-                                        method_code: 'test method code',
-                                        method_title: 'test method title'
-                                    }
-                                ],
-                                city: mockShippingAddress.city,
-                                company: mockShippingAddress.company,
-                                country: {
-                                    code: mockShippingAddress.country_code
-                                },
-                                firstname: mockShippingAddress.firstname,
-                                lastname: mockShippingAddress.lastname,
-                                postcode: mockShippingAddress.postcode,
-                                region: {
-                                    code: mockShippingAddress.region_code
-                                },
-                                street: mockShippingAddress.street,
-                                telephone: mockShippingAddress.telephone
-                            }
-                        ]
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: MUTATION_SET_SHIPPING_ADDRESS,
-                variables: {
-                    cartId: null,
-                    city: mockShippingAddress.city,
-                    company: mockShippingAddress.company,
-                    country_code: mockShippingAddress.country_code,
-                    firstname: mockShippingAddress.firstname,
-                    lastname: mockShippingAddress.lastname,
-                    postcode: mockShippingAddress.postcode,
-                    region_code: mockShippingAddress.region_code,
-                    save_in_address_book: mockShippingAddress.save_in_address_book,
-                    street: mockShippingAddress.street,
-                    telephone: mockShippingAddress.telephone
-                }
-            },
-            result: {
-                data: {
-                    setShippingAddressesOnCart: {
-                        cart: {
-                            shipping_addresses: [
-                                {
-                                    available_shipping_methods: [
-                                        {
-                                            carrier_code: 'test carrier code',
-                                            carrier_title: 'test carrier title',
-                                            method_code: 'test method code',
-                                            method_title: 'test method title'
-                                        }
-                                    ],
-                                    city: mockShippingAddress.city,
-                                    company: mockShippingAddress.company,
-                                    country: {
-                                        code: mockShippingAddress.country_code
-                                    },
-                                    firstname: mockShippingAddress.firstname,
-                                    lastname: mockShippingAddress.lastname,
-                                    postcode: mockShippingAddress.postcode,
-                                    region: {
-                                        code: mockShippingAddress.region_code
-                                    },
-                                    street: mockShippingAddress.street,
-                                    telephone: mockShippingAddress.telephone
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-    ];
 
     it('begins checkout when shipping address is set on cart', async () => {
         const Wrapper = () => {
@@ -317,7 +221,7 @@ describe('useCart', () => {
                     <Wrapper />
                 </CheckoutProvider>
             </CartProvider>,
-            { userContext: mockUserState, mocks: mocks }
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
