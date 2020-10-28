@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-@Version("1.5.0")
+@Version("1.6.0")
 package com.adobe.cq.commerce.core.components.client;
 
 import org.osgi.annotation.versioning.Version;

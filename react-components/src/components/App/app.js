@@ -19,6 +19,7 @@ import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
 import { useConfigContext } from '../../context/ConfigContext';
 import { graphqlAuthLink } from '../../utils/authUtils';
+import compressQueryFetch from '../../utils/compressQueryFetch';
 
 const App = props => {
     const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
