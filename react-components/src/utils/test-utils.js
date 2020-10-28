@@ -11,14 +11,52 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 import React from 'react';
 import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import { I18nextProvider } from 'react-i18next';
+
 import i18n from '../../__mocks__/i18nForTests';
 import ConfigContextProvider from '../context/ConfigContext';
 import UserContextProvider from '../context/UserContext';
+
+import mutationChangePassword from './mocks/mutationChangePassword';
+import mutationCreateCustomer from './mocks/mutationCreateCustomer';
+import mutationCreateDuplicateCustomer from './mocks/mutationCreateCustomerDuplicate';
+import mutationDeleteCustomerAddress from './mocks/mutationDeleteCustomerAddress';
+import mutationGenerateToken from './mocks/mutationGenerateToken';
+import mutationGenerateTokenWrongPassword from './mocks/mutationGenerateTokenWrongPassword';
+import mutationMergeCarts from './mocks/mutationMergeCarts';
+import mutationPlaceOrder from './mocks/mutationPlaceOrder';
+import mutationRevokeToken from './mocks/mutationRevokeToken';
+import mutationShippingAddress from './mocks/mutationShippingAddress';
+import queryCart from './mocks/queryCart';
+import queryCountries from './mocks/queryCountries';
+import queryCustomerCart from './mocks/queryCustomerCart';
+import queryCustomerDetails from './mocks/queryCustomerDetails';
+import queryCustomerInformation from './mocks/queryCustomerInformation';
+import queryEmptyCart from './mocks/queryEmptyCart';
+import queryNewCart from './mocks/queryNewCart';
+
+const defaultMocks = [
+    mutationChangePassword,
+    mutationCreateCustomer,
+    mutationCreateDuplicateCustomer,
+    mutationDeleteCustomerAddress,
+    mutationGenerateToken,
+    mutationGenerateTokenWrongPassword,
+    mutationMergeCarts,
+    mutationPlaceOrder,
+    mutationRevokeToken,
+    mutationShippingAddress,
+    queryCart,
+    queryCountries,
+    queryCustomerCart,
+    queryCustomerDetails,
+    queryCustomerInformation,
+    queryEmptyCart,
+    queryNewCart
+];
 
 const defaultConfig = {
     storeView: 'default',
@@ -40,7 +78,7 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
 
 /* Wrap all the React components tested with the library in a mocked Apollo provider */
 const customRender = (ui, options = {}) => {
-    const { config, userContext, mocks, ...renderOptions } = options;
+    const { config, userContext, mocks = defaultMocks, ...renderOptions } = options;
     return render(ui, { wrapper: allProviders(config, userContext, mocks), ...renderOptions });
 };
 
