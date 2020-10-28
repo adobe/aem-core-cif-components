@@ -27,7 +27,11 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.via.ResourceSuperType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
@@ -37,16 +41,16 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.models.Teaser;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = CommerceTeaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Model(adaptables = SlingHttpServletRequest.class, adapters = Teaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
 public class CommerceTeaserImpl implements CommerceTeaser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
     protected static final String RESOURCE_TYPE = "core/cif/components/content/teaser/v1/teaser";
 
-    private Page productPage;
-    private Page categoryPage;
-    private boolean actionsEnabled = false;
     private List<ListItem> actions = new ArrayList<>();
 
     @Inject
@@ -61,20 +65,15 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Self
     private SlingHttpServletRequest request;
 
+    @Self
+    @Via(type = ResourceSuperType.class)
+    private Teaser wcmTeaser;
+
     @PostConstruct
     void initModel() {
-        setActionsEnabled();
-        productPage = SiteNavigation.getProductPage(currentPage);
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
-
-        if (actionsEnabled) {
+        if (isActionsEnabled()) {
             populateActions();
         }
-    }
-
-    void setActionsEnabled() {
-        ValueMap properties = resource.getValueMap();
-        actionsEnabled = properties.get(CommerceTeaser.PN_ACTIONS_ENABLED, actionsEnabled);
     }
 
     void populateActions() {
@@ -97,6 +96,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 }
             }
 
+            Page productPage = SiteNavigation.getProductPage(currentPage);
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+
             // build teaser action items for all configured actions
             for (Resource action : configuredActions) {
                 ValueMap properties = action.getValueMap();
@@ -107,10 +109,14 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 if (categoryId != null) {
                     ParamsBuilder params = new ParamsBuilder().id(categoryId);
                     if (categoriesRetriever != null) {
-                        Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                            .filter(c -> c.getId() == Integer.valueOf(categoryId)).findAny();
-                        if (cat.isPresent()) {
-                            params.urlPath(cat.get().getUrlPath());
+                        try {
+                            Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
+                                .filter(c -> c.getId() == Integer.valueOf(categoryId)).findAny();
+                            if (cat.isPresent()) {
+                                params.urlPath(cat.get().getUrlPath());
+                            }
+                        } catch (RuntimeException x) {
+                            LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
@@ -128,12 +134,67 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     }
 
     @Override
-    public boolean isActionsEnabled() {
-        return actionsEnabled;
+    public List<ListItem> getActions() {
+        return actions;
     }
 
     @Override
-    public List<ListItem> getActions() {
-        return actions;
+    public boolean isActionsEnabled() {
+        return wcmTeaser.isActionsEnabled();
+    }
+
+    @Override
+    public String getLinkURL() {
+        return wcmTeaser.getLinkURL();
+    }
+
+    @Override
+    public Resource getImageResource() {
+        return wcmTeaser.getImageResource();
+    }
+
+    @Override
+    public boolean isImageLinkHidden() {
+        return wcmTeaser.isImageLinkHidden();
+    }
+
+    @Override
+    public String getPretitle() {
+        return wcmTeaser.getPretitle();
+    }
+
+    @Override
+    public String getTitle() {
+        return wcmTeaser.getTitle();
+    }
+
+    @Override
+    public boolean isTitleLinkHidden() {
+        return wcmTeaser.isTitleLinkHidden();
+    }
+
+    @Override
+    public String getDescription() {
+        return wcmTeaser.getDescription();
+    }
+
+    @Override
+    public String getTitleType() {
+        return wcmTeaser.getTitleType();
+    }
+
+    @Override
+    public String getExportedType() {
+        return wcmTeaser.getExportedType();
+    }
+
+    @Override
+    public String getId() {
+        return wcmTeaser.getId();
+    }
+
+    @Override
+    public ComponentData getData() {
+        return wcmTeaser.getData();
     }
 }
