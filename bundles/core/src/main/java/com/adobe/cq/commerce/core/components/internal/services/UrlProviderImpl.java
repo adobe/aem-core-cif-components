@@ -174,7 +174,7 @@ public class UrlProviderImpl implements UrlProvider {
 
                 // The currentUrlPath being processed is either coming from:
                 // 1) the ProductList model when a category page is being rendered
-                // 2) the params map when the Navigation model renders the category links in the navigation menu
+                // 2) the params map when the any model renders a category link
 
                 if (currentUrlPath == null) {
                     if (params != null && params.containsKey(UrlProvider.URL_PATH_PARAM)) {

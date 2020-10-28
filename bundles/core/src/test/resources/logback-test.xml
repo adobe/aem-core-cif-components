@@ -50,7 +50,7 @@
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.productlist" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel" level="OFF"/>
-  <logger name="com.adobe.cq.commerce.core.search.internal.converters" level="off"/>
+  <logger name="com.adobe.cq.commerce.core.search.internal.converters" level="OFF"/>
 
   <root level="INFO">          
     <appender-ref ref="STDOUT" />
