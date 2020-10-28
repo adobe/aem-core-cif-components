@@ -341,6 +341,7 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getMetaTitle().isEmpty());
         Assert.assertNull(productListModel.getMetaDescription());
         Assert.assertNull(productListModel.getMetaKeywords());
+        Assert.assertNull(productListModel.getUrlPath());
     }
 
     @Test
