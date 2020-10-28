@@ -218,7 +218,6 @@
                                     <arguments>link @adobe/aem-core-cif-react-components</arguments>
                                 </configuration>
                             </execution>
-
                             <execution>
                                 <id>npm run dev</id>
                                 <phase>generate-resources</phase>
@@ -226,7 +225,7 @@
                                     <goal>npm</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>run dev</arguments>
+                                    <arguments>run prod</arguments>
                                 </configuration>
                             </execution>
                         </executions>

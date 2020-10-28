@@ -1,9 +1,5 @@
-'use strict';
-
 const path = require('path');
-const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
@@ -11,7 +7,7 @@ const SOURCE_ROOT = `${__dirname}/src/main`;
 
 module.exports = {
     entry: {
-        site: `${SOURCE_ROOT}/site/index.js`,
+        site: `${SOURCE_ROOT}/site/app/App.js`,
     },
     output: {
         filename: 'cif-examples-react/[name].js',
@@ -22,7 +18,7 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: ['babel-loader', 'eslint-loader'],
+                loader: ['babel-loader'],
             },
             {
                 test: /\.scss$/,
@@ -58,6 +54,18 @@ module.exports = {
             },
         ],
     },
+
+    // during development we may have dependencies which are linked in node_modules using either `npm link`
+    // or `npm install <file dir>`. Those dependencies will bring *all* their dependencies along, because
+    // in that case npm ignores the "devDependencies" setting.
+    // In that case, we need to make sure that this project using its own version of React libraries.
+    resolve: {
+        alias: {
+            react: path.resolve('./node_modules/react'),
+            'react-dom': path.resolve('./node_modules/react-dom'),
+            'react-i18next': path.resolve('./node_modules/react-i18next'),
+        },
+    },
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
@@ -86,7 +94,7 @@ module.exports = {
         errors: true,
         errorDetails: true,
         env: true,
-        modules: false,
+        modules: true,
         performance: true,
         providedExports: false,
         source: false,
