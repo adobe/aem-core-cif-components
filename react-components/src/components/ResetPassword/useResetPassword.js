@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 import { useState, useCallback } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import MUTATION_RESET_PASSWORD from '../../queries/mutation_reset_password.graphql';
 

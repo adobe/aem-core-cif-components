@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { fireEvent } from '@testing-library/react';
 import AccountTrigger from '../accountTrigger';
 import UserContextProvider from '../../../context/UserContext';

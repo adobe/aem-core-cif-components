@@ -12,80 +12,13 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, wait } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from 'test-utils';
 
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
+import { useUserContext } from '../../../context/UserContext';
 import { CartProvider } from '../../Minicart/cartContext';
 
-import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
-import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
-import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 import SignIn from '../signIn';
-import i18n from '../../../../__mocks__/i18nForTests';
-
-const mocks = [
-    {
-        request: {
-            query: MUTATION_GENERATE_TOKEN,
-            variables: {
-                email: 'chuck@example.com',
-                password: 'norris'
-            }
-        },
-        result: {
-            data: {
-                generateCustomerToken: {
-                    token: 'token-123'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CUSTOMER_DETAILS
-        },
-        result: {
-            data: {
-                customer: {
-                    email: 'test@example.com',
-                    firstname: 'John',
-                    lastname: 'Doe'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: MUTATION_MERGE_CARTS,
-            variables: {
-                sourceCartId: 'guest123',
-                destinationCartId: 'customercart'
-            }
-        },
-        result: {
-            data: {
-                mergeCarts: {
-                    id: 'customercart'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CUSTOMER_CART
-        },
-        result: {
-            data: {
-                customerCart: {
-                    id: 'customercart'
-                }
-            }
-        }
-    }
-];
 
 describe('<SignIn>', () => {
     beforeEach(() => {
@@ -97,19 +30,9 @@ describe('<SignIn>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <SignIn
-                                showMyAccount={jest.fn()}
-                                showCreateAccount={jest.fn()}
-                                showForgotPassword={jest.fn()}
-                            />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <SignIn showMyAccount={jest.fn()} showCreateAccount={jest.fn()} showForgotPassword={jest.fn()} />
+            </CartProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -134,13 +57,9 @@ describe('<SignIn>', () => {
         };
 
         const { getByTestId, getByLabelText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                        <SignInWrapper />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <SignInWrapper />
+            </CartProvider>
         );
 
         fireEvent.change(getByLabelText(/email/i), { target: { value: 'chuck@example.com' } });
@@ -152,41 +71,10 @@ describe('<SignIn>', () => {
     });
 
     it('shows an error when the sign in is not successful', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: MUTATION_GENERATE_TOKEN,
-                    variables: {
-                        email: 'chuck@example.com',
-                        password: 'wrongpassword'
-                    }
-                },
-                result: {
-                    data: {
-                        generateCustomerToken: null
-                    },
-                    errors: [
-                        {
-                            message: 'Error',
-                            category: 'graphql-authentication'
-                        }
-                    ]
-                }
-            }
-        ];
-
         const { getByText, getByLabelText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                        <SignIn
-                            showMyAccount={jest.fn()}
-                            showForgotPassword={jest.fn()}
-                            showCreateAccount={jest.fn()}
-                        />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <SignIn showMyAccount={jest.fn()} showForgotPassword={jest.fn()} showCreateAccount={jest.fn()} />
+            </CartProvider>
         );
 
         fireEvent.change(getByLabelText(/email/i), { target: { value: 'chuck@example.com' } });

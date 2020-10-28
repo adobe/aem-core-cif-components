@@ -14,7 +14,7 @@
 import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
 import { getCartDetails } from '../../actions/cart';

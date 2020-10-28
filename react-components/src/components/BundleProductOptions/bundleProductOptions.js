@@ -53,6 +53,7 @@ const BundleProductOptions = () => {
                 type: item.type,
                 quantity: ['checkbox', 'multi'].includes(item.type) ? 1 : item.options.find(o => o.is_default).quantity,
                 options: item.options
+                    .slice() // return a shallow copy of the array. the original is frozen and cannot be sorted as Array.prototype.sort() sorts the elements of the array in place
                     .sort((a, b) => a.position - b.position)
                     .map(option => {
                         const {

@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import UserContextProvider from '../../../context/UserContext';
 import { useAddressForm } from '../useAddressForm';
 import * as actions from '../../../actions/user';

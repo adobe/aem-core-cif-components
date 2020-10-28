@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import * as hooks from '../../../utils/hooks';
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
@@ -41,26 +41,7 @@ describe('<BundleProductOptions>', () => {
             container: document.body.appendChild(bundleProductOptionsContainer)
         });
 
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <section
-                class="productFullDetail__section productFullDetail__customizeBundle"
-              >
-                <button
-                  class="root_highPriority"
-                  type="button"
-                >
-                  <span
-                    class="content"
-                  >
-                    <span>
-                      Customize
-                    </span>
-                  </span>
-                </button>
-              </section>
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with full options', async () => {
@@ -82,7 +63,7 @@ describe('<BundleProductOptions>', () => {
         bundleProductOptionsContainer.dataset.sku = 'VA24';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
-        const { container, getByRole } = render(<BundleProductOptions />, {
+        const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
             config: config,
             container: document.body.appendChild(bundleProductOptionsContainer)
         });
@@ -90,7 +71,7 @@ describe('<BundleProductOptions>', () => {
         fireEvent.click(getByRole('button', { name: 'Customize' }));
 
         await waitForDomChange({ container });
-        expect(container).toMatchSnapshot();
+        expect(asFragment()).toMatchSnapshot();
 
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 

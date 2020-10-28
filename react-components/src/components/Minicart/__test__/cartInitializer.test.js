@@ -14,83 +14,10 @@
 
 import React from 'react';
 import { waitForElement, fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { useCartState, CartProvider } from '../cartContext';
 import CartInitializer from '../cartInitializer';
 import { useUserContext } from '../../..';
-
-import MUTATION_CREATE_CART from '../../../queries/mutation_create_guest_cart.graphql';
-import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
-import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
-import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
-
-const queryMocks = [
-    {
-        request: {
-            query: MUTATION_GENERATE_TOKEN
-        },
-        result: {
-            data: {
-                generateCustomerToken: {
-                    token: 'token123'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CUSTOMER_CART
-        },
-        result: {
-            data: {
-                customerCart: {
-                    id: 'customercart'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: MUTATION_MERGE_CARTS,
-            variables: {
-                sourceCartId: 'guest123',
-                destinationCartId: 'customercart'
-            }
-        },
-        result: {
-            data: {
-                mergeCarts: {
-                    id: 'customercart'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CUSTOMER_DETAILS
-        },
-        result: {
-            data: {
-                customer: {
-                    firstname: 'Iris',
-                    lastname: 'McCoy',
-                    email: 'imccoy@weretail.net'
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: MUTATION_CREATE_CART
-        },
-        result: {
-            data: {
-                createEmptyCart: 'guest123'
-            }
-        }
-    }
-];
 
 const DummyCart = () => {
     const [{ cartId }] = useCartState();
@@ -176,8 +103,7 @@ describe('<CartInitializer />', () => {
                 <CartInitializer>
                     <ResetCartComponent />
                 </CartInitializer>
-            </CartProvider>,
-            { mocks: queryMocks }
+            </CartProvider>
         );
 
         fireEvent.click(getByRole('button'));
