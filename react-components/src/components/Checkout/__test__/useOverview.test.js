@@ -13,13 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CartProvider } from '../../Minicart';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 import useOverview from '../useOverview';
-
-import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-import MUTATION_PLACE_ORDER from '../../../queries/mutation_place_order.graphql';
 
 describe('useOverview', () => {
     const mockShippingAddress = {
@@ -34,36 +31,6 @@ describe('useOverview', () => {
         street: ['cart shipping address'],
         telephone: '(555) 229-3326'
     };
-
-    const mocks = [
-        {
-            request: {
-                query: QUERY_CUSTOMER_CART
-            },
-            result: {
-                data: {
-                    customerCart: {
-                        id: 'customercart'
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: MUTATION_PLACE_ORDER,
-                variables: {
-                    cartId: ''
-                }
-            },
-            result: {
-                data: {
-                    order: {
-                        order_id: 'orderid'
-                    }
-                }
-            }
-        }
-    ];
 
     it('edits new shipping address', async () => {
         const Wrapper = () => {
@@ -104,7 +71,7 @@ describe('useOverview', () => {
                     <Wrapper />
                 </CheckoutProvider>
             </CartProvider>,
-            { userContext: mockUserState, mocks: mocks }
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -158,7 +125,7 @@ describe('useOverview', () => {
                     <Wrapper />
                 </CheckoutProvider>
             </CartProvider>,
-            { userContext: mockUserState, mocks: mocks }
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -213,7 +180,7 @@ describe('useOverview', () => {
                     <Wrapper />
                 </CheckoutProvider>
             </CartProvider>,
-            { userContext: mockUserState, mocks: mocks }
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -268,7 +235,7 @@ describe('useOverview', () => {
                     <Wrapper />
                 </CheckoutProvider>
             </CartProvider>,
-            { userContext: mockUserState, mocks: mocks }
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();

@@ -13,9 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import { screen, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import AccountDetails from '../accountDetails';
-import getDetailsQuery from '../../../queries/query_get_customer_information.graphql';
 
 const config = {
     storeView: 'default',
@@ -31,20 +30,9 @@ describe('<AccountDetails>', () => {
     });
 
     it('renders the Account Details data for an authenticated user', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: getDetailsQuery
-                },
-                result: {
-                    data: { customer: { id: 1, firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } }
-                }
-            }
-        ];
         const { queryByText } = render(<AccountDetails />, {
             config: config,
-            userContext: { isSignedIn: true },
-            mocks: mocks
+            userContext: { isSignedIn: true }
         });
 
         await waitForElement(() => screen.getByLabelText('name'));

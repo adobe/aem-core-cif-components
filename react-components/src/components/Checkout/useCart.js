@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import { useAddressForm } from '../AddressForm/useAddressForm';
 import { useAwaitQuery } from '../../utils/hooks';

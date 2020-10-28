@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { wait } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import AddressBook from '../addressBook';
 
 describe('<AddressBook>', () => {
