@@ -205,13 +205,13 @@ describe('TeaserConfig', () => {
                                                                              data-foundation-validation=""
                                                                              name="./actions/item0/productSlug"
                                                                              pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;filter=folderOrProduct&amp;selectionCount=single&amp;selectionId=slug"
-                                                                             placeholder="Product Slug" role="combobox">
+                                                                             placeholder="Product slug" role="combobox">
                                                         <div class="foundation-autocomplete-inputgroupwrapper">
                                                             <div class="coral-InputGroup">
                                                                 <input autocomplete="off"
                                                                        class="coral3-Textfield coral-InputGroup-input"
                                                                        is="coral-textfield"
-                                                                       placeholder="Product Slug">
+                                                                       placeholder="Product slug">
                                                                 <span class="coral-InputGroup-button">
                                                                     <button class="coral3-Button coral3-Button--secondary"
                                                                             is="coral-button"
@@ -382,7 +382,7 @@ describe('TeaserConfig', () => {
                                                                          data-foundation-validation=""
                                                                          name="productSlug"
                                                                          pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;filter=folderOrProduct&amp;selectionCount=single&amp;selectionId=slug"
-                                                                         placeholder="Product Slug">
+                                                                         placeholder="Product slug">
                                                     <coral-overlay class="foundation-picker-buttonlist"
                                                                    data-foundation-picker-buttonlist-src=""
                                                                    foundation-autocomplete-suggestion=""></coral-overlay>
@@ -493,15 +493,29 @@ describe('TeaserConfig', () => {
 
     it('handles toggling actions', () => {
         const teaserConfig = new TeaserConfig(jQuery);
-        const actionsEnabledCheckbox = {};
-        const stubJQuery = sinon.stub(teaserConfig, '$');
-        const jActionsEnabledCheckbox = {
-            on: sinon.fake()
+        const actionsEnabledCheckbox = {
+            addEventListener: sinon.fake()
         };
-        stubJQuery.withArgs(actionsEnabledCheckbox).returns(jActionsEnabledCheckbox);
-
         teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
-        assert(jActionsEnabledCheckbox.on.calledOnceWith('change'));
+        assert(actionsEnabledCheckbox.addEventListener.calledOnceWith('change'));
+    });
+
+    it('handles toggling fields', () => {
+        const teaserConfig = new TeaserConfig(jQuery);
+        const actionsEnabledCheckbox = document.querySelector(TeaserConfig.selectors.actionsEnabledCheckboxSelector);
+        teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
+
+        actionsEnabledCheckbox.checked = false;
+        actionsEnabledCheckbox.dispatchEvent(new Event('change'));
+
+        const prodDisabled = document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled;
+        const catDisabled = document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled;
+
+        actionsEnabledCheckbox.checked = true;
+        actionsEnabledCheckbox.dispatchEvent(new Event('change'));
+
+        assert.equal(document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled, !prodDisabled);
+        assert.equal(document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled, !catDisabled);
     });
 
     it('handles pickers change', () => {

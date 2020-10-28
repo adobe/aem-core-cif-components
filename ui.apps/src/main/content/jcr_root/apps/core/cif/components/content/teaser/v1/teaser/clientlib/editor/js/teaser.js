@@ -60,20 +60,13 @@ class TeaserConfig {
     // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
     // this also enables/disables the category picker
     actionsToggleHandler(actionsEnabledCheckbox) {
-        this.$(actionsEnabledCheckbox).on('change', e => {
-            const actionsEnabled =
-                this.$(e.target)
-                    .adaptTo('foundation-field')
-                    .getValue() === 'true';
+        actionsEnabledCheckbox.addEventListener('change', e => {
+            const actionsEnabled = e.target.checked === true;
             document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
-                this.$(catEl)
-                    .adaptTo('foundation-field')
-                    .setDisabled(!actionsEnabled);
+                catEl.disabled = !actionsEnabled;
             });
-            document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(catEl => {
-                this.$(catEl)
-                    .adaptTo('foundation-field')
-                    .setDisabled(!actionsEnabled);
+            document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
+                prodEl.disabled = !actionsEnabled;
             });
         });
     }
