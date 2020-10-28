@@ -51,6 +51,8 @@ public interface ProductList extends ProductCollection, PageMetadata {
 
     boolean showImage();
 
+    String getUrlPath();
+
     /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.
      *

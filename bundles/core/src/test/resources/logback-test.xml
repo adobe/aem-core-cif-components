@@ -46,9 +46,11 @@
 
   <logger name="org.apache.sling.models.impl.ModelPackageBundleListener" level="OFF"/>
   <logger name="org.apache.sling.models.impl.AdapterImplementations" level="OFF"/>
+  <logger name="org.apache.sling.models.impl.ModelAdapterFactory" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.productlist" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel" level="OFF"/>
+  <logger name="com.adobe.cq.commerce.core.search.internal.converters" level="off"/>
 
   <root level="INFO">          
     <appender-ref ref="STDOUT" />

@@ -38,7 +38,7 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.eq;
 
 public class SpecificPageFilterFactoryTest {
 
@@ -74,15 +74,18 @@ public class SpecificPageFilterFactoryTest {
     }
 
     @Test
-    public void testFilterForwardingWithStringProperty() throws IOException, ServletException {
+    public void testFilterForwarding() throws IOException, ServletException {
         request.setResource(context.resourceResolver().resolve("/content/product-page"));
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         pathInfo.setSelectorString("productId1");
         filter.doFilter(request, null, chain);
 
-        // Check that the request dispatcher is called for the matching sub-page
-        ResourcePathMatcher matcher = new ResourcePathMatcher("/content/product-page/sub-page");
-        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), isNull(RequestDispatcherOptions.class));
+        // Check that the request dispatcher adds the extra selector and forwards to the same page
+        ResourcePathMatcher matcher = new ResourcePathMatcher("/content/product-page");
+        RequestDispatcherOptions options = new RequestDispatcherOptions();
+        options.setReplaceSelectors(SpecificPageServlet.SELECTOR + ".productId1");
+
+        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), eq(options));
         Mockito.verify(chain, Mockito.times(0)).doFilter(request, null);
     }
 
@@ -94,33 +97,6 @@ public class SpecificPageFilterFactoryTest {
 
         // Verify that the filter does nothing if WCMMode is something else than DISABLED
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
-        filter.doFilter(request, null, chain);
-
-        // Verify that the request is passed unchanged down the filter chain
-        Mockito.verify(requestDispatcherFactory, Mockito.times(0)).getRequestDispatcher(any(Resource.class), any());
-        Mockito.verify(chain).doFilter(request, null);
-    }
-
-    @Test
-    public void testFilterForwardingWithStringArrayProperty() throws IOException, ServletException {
-        request.setResource(context.resourceResolver().resolve("/content/category-page"));
-        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString("categoryId2");
-
-        filter.doFilter(request, null, chain);
-
-        // Check that the request dispatcher is called for the matching sub-page
-        ResourcePathMatcher matcher = new ResourcePathMatcher("/content/category-page/sub-page");
-        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), isNull(RequestDispatcherOptions.class));
-        Mockito.verify(chain, Mockito.times(0)).doFilter(request, null);
-    }
-
-    @Test
-    public void testFilterForwardingNoMatch() throws IOException, ServletException {
-        request.setResource(context.resourceResolver().resolve("/content/product-page"));
-        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString("productId3");
 
         filter.doFilter(request, null, chain);
 

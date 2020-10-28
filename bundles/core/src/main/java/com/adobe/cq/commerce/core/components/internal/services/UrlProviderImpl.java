@@ -28,6 +28,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
@@ -41,6 +42,8 @@ public class UrlProviderImpl implements UrlProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
 
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
+    private static final String URL_PATH_PROPERTY = "urlPath";
+    private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
 
     private String productUrlTemplate;
     private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
@@ -72,7 +75,7 @@ public class UrlProviderImpl implements UrlProvider {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             if (deepLink && params.containsKey(selectorFilter)) {
-                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter));
+                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter), request);
                 if (subPageResource != null) {
                     pageResource = subPageResource;
                 }
@@ -109,6 +112,24 @@ public class UrlProviderImpl implements UrlProvider {
      *         If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, String selector) {
+        return toSpecificPage(page, selector, null);
+    }
+
+    /**
+     * This method checks if any of the children of the given <code>page</code> resource
+     * is a page with a <code>selectorFilter</code> property set with the value
+     * of the given <code>selector</code>.
+     * 
+     * @param page The page resource, from where children pages will be checked.
+     * @param selector The searched value for the <code>selectorFilter</code> property.
+     * @param request The current Sling HTTP Servlet request.
+     * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
+     *         If not found, this method returns null.
+     */
+    public static Resource toSpecificPage(Resource page, String selector, SlingHttpServletRequest request) {
+
+        ProductList productList = null;
+
         Iterator<Resource> children = page.listChildren();
         while (children.hasNext()) {
             Resource child = children.next();
@@ -132,6 +153,19 @@ public class UrlProviderImpl implements UrlProvider {
             if (ArrayUtils.contains(selectors, selector)) {
                 LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
                 return child;
+            }
+
+            String urlPath = jcrContent.getValueMap().get(URL_PATH_PROPERTY, String.class);
+            boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+            if (urlPath != null && request != null && includesSubCategories) {
+                if (productList == null) {
+                    productList = request.adaptTo(ProductList.class);
+                }
+
+                if (productList != null && StringUtils.startsWith(productList.getUrlPath(), urlPath + "/")) {
+                    LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
+                    return child;
+                }
             }
         }
         return null;
