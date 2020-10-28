@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { useCheckoutState } from '../checkoutContext';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import dropIn from 'braintree-web-drop-in';
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 import { oneOf } from 'prop-types';

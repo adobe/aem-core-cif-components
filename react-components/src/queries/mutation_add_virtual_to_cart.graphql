@@ -6,6 +6,9 @@ mutation($cartId: String!, $cartItems: [VirtualProductCartItemInput]!) {
                 quantity
                 product {
                     name
+                    thumbnail {
+                        url
+                    }
                 }
             }
         }
