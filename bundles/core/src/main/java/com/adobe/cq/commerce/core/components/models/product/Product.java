@@ -69,6 +69,10 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
+    Boolean isGiftCardProduct();
+
+    String getFieldsJson();
+
     String getVariantsJson();
 
     List<Variant> getVariants();

@@ -19,6 +19,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRet
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
@@ -114,13 +115,28 @@ class ProductRetriever extends AbstractProductRetriever {
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
                 .onGroupedProduct(generateGroupedProductQuery())
-                .onBundleProduct(generateBundleProductQuery());
+                .onBundleProduct(generateBundleProductQuery())
+                .onGiftCardProduct(generateGiftCardProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
             }
         };
+    }
+
+    private GiftCardProductQueryDefinition generateGiftCardProductQuery() {
+        return gc -> gc
+            .allowOpenAmount()
+            .giftcardAmounts(a -> a
+                .websiteValue())
+            .openAmountMax()
+            .openAmountMin()
+            .messageMaxLength()
+            .giftCardOptions(o -> o
+                .title()
+                .required()
+                .sortOrder());
     }
 
     private GroupedProductQueryDefinition generateGroupedProductQuery() {
