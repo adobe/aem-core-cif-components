@@ -12,20 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import CheckoutButton from '../checkoutButton';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('<CheckoutButton />', () => {
     it('renders the checkout button', () => {
         const mockOnClick = jest.fn(() => {});
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <CheckoutButton disabled={false} onClick={mockOnClick} />
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<CheckoutButton disabled={false} onClick={mockOnClick} />);
         expect(asFragment()).toMatchSnapshot();
     });
 

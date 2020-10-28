@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '../../utils/test-utils';
 
-const { useConfigContext, default: ConfigContextProvider } = require('../ConfigContext');
+const { useConfigContext } = require('../ConfigContext');
 
 describe('ConfigContext', () => {
     const Consumer = () => {
@@ -30,12 +30,9 @@ describe('ConfigContext', () => {
     };
 
     it('provides the configuration', () => {
-        const { asFragment } = render(
-            <ConfigContextProvider
-                config={{ storeView: 'my-store', graphqlEndpoint: '/api/graphql', graphqlMethod: 'GET' }}>
-                <Consumer />
-            </ConfigContextProvider>
-        );
+        const { asFragment } = render(<Consumer />, {
+            config: { storeView: 'my-store', graphqlEndpoint: '/api/graphql', graphqlMethod: 'GET' }
+        });
 
         expect(asFragment()).toMatchSnapshot();
     });

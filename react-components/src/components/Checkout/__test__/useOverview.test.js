@@ -14,11 +14,8 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
 import { render } from 'test-utils';
-
-import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { CartProvider } from '../../Minicart';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
-
 import useOverview from '../useOverview';
 
 describe('useOverview', () => {
@@ -69,13 +66,12 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <UserContextProvider initialState={mockUserState}>
-                <CartProvider>
-                    <CheckoutProvider initialState={mockCheckoutState}>
-                        <Wrapper />
-                    </CheckoutProvider>
-                </CartProvider>
-            </UserContextProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -124,13 +120,12 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <UserContextProvider initialState={mockUserState}>
-                <CartProvider>
-                    <CheckoutProvider initialState={mockCheckoutState}>
-                        <Wrapper />
-                    </CheckoutProvider>
-                </CartProvider>
-            </UserContextProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -180,13 +175,12 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <UserContextProvider initialState={mockUserState}>
-                <CartProvider>
-                    <CheckoutProvider initialState={mockCheckoutState}>
-                        <Wrapper />
-                    </CheckoutProvider>
-                </CartProvider>
-            </UserContextProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -236,13 +230,12 @@ describe('useOverview', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <UserContextProvider initialState={mockUserState}>
-                <CartProvider>
-                    <CheckoutProvider initialState={mockCheckoutState}>
-                        <Wrapper />
-                    </CheckoutProvider>
-                </CartProvider>
-            </UserContextProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={mockCheckoutState}>
+                    <Wrapper />
+                </CheckoutProvider>
+            </CartProvider>,
+            { userContext: mockUserState }
         );
 
         expect(getByRole('button')).not.toBeUndefined();

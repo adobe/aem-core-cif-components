@@ -73,6 +73,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Breadcrumb;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -112,6 +113,8 @@ public class GraphqlServletTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -128,6 +131,7 @@ public class GraphqlServletTest {
     private static final String UPSELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/upsellproducts";
     private static final String CROSS_SELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/crosssellproducts";
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
+    private static final String CATEGORY_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/categorycarousel";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
     private static final String PRODUCTPAGE_BREADCRUMB_RESOURCE = PRODUCT_PAGE + "/jcr:content/breadcrumb";
@@ -247,6 +251,11 @@ public class GraphqlServletTest {
                 Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
             }
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Chaz Kangeroo Hoodie", productModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Chaz Kangeroo Hoodie", productModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Chaz Kangeroo Hoodie", productModel.getMetaTitle());
     }
 
     @Test
@@ -284,6 +293,11 @@ public class GraphqlServletTest {
         for (ProductListItem product : productListModel.getProducts()) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Outdoor Collection", productListModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Outdoor Collection", productListModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Outdoor Collection", productListModel.getMetaTitle());
     }
 
     @Test
@@ -362,6 +376,20 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testCategoryCarouselModel() throws ServletException {
+        prepareModel(CATEGORY_CAROUSEL_RESOURCE);
+        FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
+        List<CategoryTree> categories = featureCategoryListModel.getCategories();
+        Assert.assertEquals(4, categories.size());
+
+        // Test that the servlet returns the expected categories in the correct order
+        Assert.assertEquals(15, categories.get(0).getId().intValue());
+        Assert.assertEquals(24, categories.get(1).getId().intValue());
+        Assert.assertEquals(28, categories.get(2).getId().intValue());
+        Assert.assertEquals(32, categories.get(3).getId().intValue());
+    }
+
+    @Test
     public void testFeaturedCategoryListModel() throws ServletException {
         prepareModel(FEATURED_CATEGORY_LIST_RESOURCE);
         FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
@@ -398,7 +426,7 @@ public class GraphqlServletTest {
 
     @Test
     public void testCategoryPageBreadcrumbModel() throws ServletException {
-        prepareModel(PRODUCTPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
+        prepareModel(CATEGORYPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("1");

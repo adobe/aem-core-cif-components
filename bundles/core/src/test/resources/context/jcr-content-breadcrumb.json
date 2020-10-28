@@ -7,8 +7,10 @@
       "cq:cifCategoryPage": "/content/venia/us/en/products/category-page",
       "cq:cifSearchResultsPage": "/content/venia/us/en/products/search-page",
       "cq:notfound": "/content/venia/notfound",
+      "jcr:description": "The Venia page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
+      "jcr:title": "Venia",
       "magentoStore": "my-store"
     },
     "us": {
@@ -177,7 +179,10 @@
                         }
                       },
                       "category-page": {
-                        "jcr:primaryType": "cq:Page"
+                        "jcr:primaryType": "cq:Page",
+                        "jcr:content": {
+                          "jcr:primaryType": "cq:PageContent"
+                        }
                       }
                     }
                   }
