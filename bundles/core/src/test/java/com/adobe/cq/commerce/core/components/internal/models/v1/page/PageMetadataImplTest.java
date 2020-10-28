@@ -121,6 +121,11 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnProductSpecificPage() throws Exception {
+        testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page/product-specific-page");
+    }
+
+    @Test
     public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
         testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
     }
@@ -144,6 +149,11 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnCategoryPage() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page");
+    }
+
+    @Test
+    public void testPageMetadataModelOnCategorySpecificPage() throws Exception {
+        testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page/category-specific-page");
     }
 
     @Test
