@@ -28,6 +28,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.commons.jcr.JcrConstants;
@@ -75,7 +76,7 @@ public class UrlProviderImpl implements UrlProvider {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             if (deepLink && params.containsKey(selectorFilter)) {
-                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter), request);
+                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter), request, params);
                 if (subPageResource != null) {
                     pageResource = subPageResource;
                 }
@@ -127,8 +128,13 @@ public class UrlProviderImpl implements UrlProvider {
      *         If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, String selector, SlingHttpServletRequest request) {
+        return toSpecificPage(page, selector, request, null);
+    }
+
+    private static Resource toSpecificPage(Resource page, String selector, SlingHttpServletRequest request, Map<String, String> params) {
 
         ProductList productList = null;
+        String currentUrlPath = null;
 
         Iterator<Resource> children = page.listChildren();
         while (children.hasNext()) {
@@ -155,16 +161,37 @@ public class UrlProviderImpl implements UrlProvider {
                 return child;
             }
 
-            String urlPath = jcrContent.getValueMap().get(URL_PATH_PROPERTY, String.class);
             boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
-            if (urlPath != null && request != null && includesSubCategories) {
-                if (productList == null) {
-                    productList = request.adaptTo(ProductList.class);
+            if (includesSubCategories) {
+                Object urlPathProperty = jcrContent.getValueMap().get(URL_PATH_PROPERTY);
+                if (urlPathProperty == null) {
+                    continue;
                 }
 
-                if (productList != null && StringUtils.startsWith(productList.getUrlPath(), urlPath + "/")) {
-                    LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
-                    return child;
+                // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
+                String[] urlPaths = urlPathProperty.getClass().isArray() ? ((String[]) urlPathProperty)
+                    : ArrayUtils.toArray((String) urlPathProperty);
+
+                // The currentUrlPath being processed is either coming from:
+                // 1) the ProductList model when a category page is being rendered
+                // 2) the params map when the Navigation model renders the category links in the navigation menu
+
+                if (currentUrlPath == null) {
+                    if (params != null && params.containsKey(UrlProvider.URL_PATH_PARAM)) {
+                        currentUrlPath = params.get(UrlProvider.URL_PATH_PARAM);
+                    } else if (request != null && productList == null) {
+                        productList = request.adaptTo(ProductList.class);
+                        if (productList instanceof ProductListImpl) {
+                            currentUrlPath = ((ProductListImpl) productList).getUrlPath();
+                        }
+                    }
+                }
+
+                for (String urlPath : urlPaths) {
+                    if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
+                        LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
+                        return child;
+                    }
                 }
             }
         }

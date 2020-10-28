@@ -57,7 +57,7 @@ public class SpecificPageServlet extends SlingSafeMethodsServlet {
         WCMMode wcmMode = WCMMode.fromRequest(request);
 
         if (WCMMode.DISABLED.equals(wcmMode)) {
-            LOGGER.info("Checking sub-pages for {} {}", request.getRequestURI(), page.getPath());
+            LOGGER.debug("Checking sub-pages for {} {}", request.getRequestURI(), page.getPath());
             Resource subPage = UrlProviderImpl.toSpecificPage(page.getParent(), selectors[1], request);
             if (subPage != null) {
                 page = subPage;

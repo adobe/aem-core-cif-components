@@ -73,7 +73,7 @@ public class SpecificPageFilterFactory implements Filter {
 
         Resource page = slingRequest.getResource();
 
-        LOGGER.info("Adding {} selector for {} {}", SpecificPageServlet.SELECTOR, slingRequest.getRequestURI(), page.getPath());
+        LOGGER.debug("Adding {} selector for {} {}", SpecificPageServlet.SELECTOR, slingRequest.getRequestURI(), page.getPath());
 
         RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(page, options);
         dispatcher.forward(slingRequest, response);

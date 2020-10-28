@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -131,7 +132,7 @@ public class SpecificPageServletTest {
 
     @Test
     public void testForwardingWithMatchingUrlPath() throws IOException, ServletException {
-        ProductList productList = Mockito.mock(ProductList.class);
+        ProductListImpl productList = Mockito.mock(ProductListImpl.class);
         Mockito.when(productList.getUrlPath()).thenReturn("men/tops/shirts");
         context.registerAdapter(SlingHttpServletRequest.class, ProductList.class, productList);
 
@@ -153,7 +154,7 @@ public class SpecificPageServletTest {
 
     @Test
     public void testForwardingWithNonMatchingUrlPath() throws IOException, ServletException {
-        ProductList productList = Mockito.mock(ProductList.class);
+        ProductListImpl productList = Mockito.mock(ProductListImpl.class);
         Mockito.when(productList.getUrlPath()).thenReturn("women/tops/shirts");
         context.registerAdapter(SlingHttpServletRequest.class, ProductList.class, productList);
 
