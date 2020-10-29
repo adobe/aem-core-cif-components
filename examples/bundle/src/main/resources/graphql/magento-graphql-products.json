@@ -19,6 +19,9 @@
           },
           "url_key": "chaz-kangeroo-hoodie",
           "stock_status": "IN_STOCK",
+          "meta_description": "Meta description for Chaz Kangeroo Hoodie",
+          "meta_keyword": "Meta keywords for Chaz Kangeroo Hoodie",
+          "meta_title": "Meta title for Chaz Kangeroo Hoodie",
           "price_range": {
             "minimum_price": {
               "regular_price": {

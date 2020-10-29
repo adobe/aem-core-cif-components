@@ -11,7 +11,21 @@
       "id": 24,
       "name": "Women's Jackets",
       "url_path": "women/tops-women/jackets-women",
-      "position": 1,
+      "position": 2,
+      "image": null
+    },
+    "category__category_28": {
+      "id": 28,
+      "name": "Accessories",
+      "url_path": "accessories",
+      "position": 3,
+      "image": null
+    },
+    "category__category_32": {
+      "id": 32,
+      "name": "Watches",
+      "url_path": "watches",
+      "position": 4,
       "image": null
     }
   }

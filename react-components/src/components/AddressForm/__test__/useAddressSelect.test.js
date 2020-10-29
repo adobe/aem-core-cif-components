@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import { CheckoutProvider } from '../../Checkout';
 import { useAddressSelect } from '../useAddressSelect';
 

@@ -20,10 +20,11 @@ import useAccountDetails from '../useAccountDetails';
 const mockSetCustomerInformation = jest.fn();
 const mockChangeCustomerPassword = jest.fn();
 
-jest.mock('@apollo/react-hooks', () => {
-    const { useMutation, useQuery, ...rest } = jest.requireActual('@apollo/react-hooks');
+jest.mock('@apollo/client', () => {
+    const { useMutation, ...rest } = jest.requireActual('@apollo/client');
 
     return {
+        ...rest,
         useMutation: jest.fn().mockImplementation(mutation => {
             if (mutation === 'setCustomerInformationMutation') {
                 return [mockSetCustomerInformation, { loading: false }];
@@ -37,8 +38,7 @@ jest.mock('@apollo/react-hooks', () => {
             data: { customer: { firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } },
             loading: false,
             error: null
-        }),
-        ...rest
+        })
     };
 });
 

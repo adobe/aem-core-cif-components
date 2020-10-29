@@ -69,6 +69,7 @@ import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,7 +78,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE)
+    resourceType = ProductImpl.RESOURCE_TYPE,
+    cache = true)
 public class ProductImpl extends DataLayerComponent implements Product {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
@@ -107,11 +109,15 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Inject
     private XSSAPI xssApi;
 
+    @Inject
+    private Externalizer externalizer;
+
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
+    private String canonicalUrl;
 
     private AbstractProductRetriever productRetriever;
 
@@ -141,6 +147,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
                 }
                 loadClientPrice = false;
             }
+        }
+
+        if (!wcmMode.isDisabled()) {
+            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+        } else {
+            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
         }
     }
 
@@ -387,6 +399,26 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         // Filter HTML
         return xssApi.filterHTML(description.getHtml());
+    }
+
+    @Override
+    public String getMetaDescription() {
+        return productRetriever.fetchProduct().getMetaDescription();
+    }
+
+    @Override
+    public String getMetaKeywords() {
+        return productRetriever.fetchProduct().getMetaKeyword();
+    }
+
+    @Override
+    public String getMetaTitle() {
+        return StringUtils.defaultString(productRetriever.fetchProduct().getMetaTitle(), getName());
+    }
+
+    @Override
+    public String getCanonicalUrl() {
+        return canonicalUrl;
     }
 
     // DataLayer methods
