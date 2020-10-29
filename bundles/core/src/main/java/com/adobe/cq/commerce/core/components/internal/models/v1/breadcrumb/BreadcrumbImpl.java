@@ -69,9 +69,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     private SlingHttpServletRequest request;
 
     @Inject
-    private Resource resource;
-
-    @Inject
     private UrlProvider urlProvider;
 
     @ScriptVariable
@@ -171,7 +168,8 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             }
 
             String url = urlProvider.toProductUrl(request, productPage, paramsBuilder.map());
-            NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true);
+            NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true, this.getId(),
+                productPage.getContentResource());
             items.add(productItem);
             return;
         }
@@ -193,7 +191,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive);
+        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
         items.add(categoryItem);
     }
 
