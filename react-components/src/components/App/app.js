@@ -19,12 +19,21 @@ import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
 import { useConfigContext } from '../../context/ConfigContext';
 import { graphqlAuthLink } from '../../utils/authUtils';
+import compressQueryFetch from '../../utils/compressQueryFetch';
 
 const App = props => {
-    const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
+    const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
 
     const clientConfig = {
-        link: from([graphqlAuthLink, new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]),
+        link: from([
+            graphqlAuthLink,
+            new HttpLink({
+                uri: graphqlEndpoint,
+                headers: { Store: storeView },
+                useGETForQueries: graphqlMethod === 'GET',
+                fetch: compressQueryFetch
+            })
+        ]),
         cache: new InMemoryCache()
     };
 
