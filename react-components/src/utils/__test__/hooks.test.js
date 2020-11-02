@@ -13,9 +13,8 @@
  ******************************************************************************/
 
 import React from 'react';
-
 import { waitForElement } from '@testing-library/react';
-import { render } from 'test-utils';
+import { render } from '../test-utils';
 import { useCountries, useQueryParams } from '../hooks';
 
 describe('Custom hooks', () => {
