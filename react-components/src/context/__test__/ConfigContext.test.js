@@ -18,16 +18,22 @@ const { useConfigContext } = require('../ConfigContext');
 
 describe('ConfigContext', () => {
     const Consumer = () => {
-        const config = useConfigContext();
+        const { storeView, graphqlEndpoint, graphqlMethod } = useConfigContext();
 
-        return <div data-testid="config">{config.storeView}</div>;
+        return (
+            <div>
+                <span data-testid="storeView">{storeView}</span>
+                <span data-testid="graphqlEndpoint">{graphqlEndpoint}</span>
+                <span data-testid="graphqlMethod">{graphqlMethod}</span>
+            </div>
+        );
     };
 
     it('provides the configuration', () => {
-        const { getByTestId } = render(<Consumer />, {
-            config: { storeView: 'my-store', graphqlEndpoint: '/api/graphql' }
+        const { asFragment } = render(<Consumer />, {
+            config: { storeView: 'my-store', graphqlEndpoint: '/api/graphql', graphqlMethod: 'GET' }
         });
 
-        expect(getByTestId('config').textContent).toEqual('my-store');
+        expect(asFragment()).toMatchSnapshot();
     });
 });
