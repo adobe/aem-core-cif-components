@@ -13,36 +13,37 @@
  ******************************************************************************/
 import React from 'react';
 import { screen, fireEvent, wait } from '@testing-library/react';
-import { render } from 'test-utils';
+import { render } from '../../../utils/test-utils';
 import { CheckoutProvider } from '../../Checkout';
 import AddressForm from '../addressForm';
+
+jest.mock('informed', () => ({
+    ...jest.requireActual('informed'),
+    useFieldState: () => 'US'
+}));
 
 describe('<AddressForm />', () => {
     const countries = [
         {
-            id: 'US',
-            full_name_locale: 'United States',
-            available_regions: [
-                {
-                    name: 'Michigan',
-                    code: 'MI'
-                }
-            ]
-        },
-        {
             id: 'RO',
             full_name_locale: 'Romania',
             available_regions: [
-                {
-                    code: 'BT',
-                    name: 'Botosani'
-                }
+                { id: 835, code: 'AB', name: 'Alba' },
+                { id: 838, code: 'AR', name: 'Arad' }
+            ]
+        },
+        {
+            id: 'US',
+            full_name_locale: 'United States',
+            available_regions: [
+                { id: 4, code: 'AL', name: 'Alabama' },
+                { id: 7, code: 'AK', name: 'Alaska' }
             ]
         }
     ];
 
     it('renders the component', async () => {
-        const { asFragment } = render(<AddressForm cancel={() => {}} submit={() => {}} />);
+        const { asFragment } = render(<AddressForm countries={countries} cancel={() => {}} submit={() => {}} />);
         await wait(() => {
             expect(asFragment()).toMatchSnapshot();
         });
@@ -51,6 +52,7 @@ describe('<AddressForm />', () => {
     it('renders the component with address validation message and form error message', async () => {
         const { asFragment } = render(
             <AddressForm
+                countries={countries}
                 isAddressInvalid={true}
                 validationMessage={'address validation message'}
                 formErrorMessage={'form error message'}
@@ -89,7 +91,12 @@ describe('<AddressForm />', () => {
     it('renders the component with default address checkbox', async () => {
         const { asFragment } = render(
             <CheckoutProvider>
-                <AddressForm showDefaultAddressCheckbox={true} cancel={() => {}} submit={() => {}} />
+                <AddressForm
+                    countries={countries}
+                    showDefaultAddressCheckbox={true}
+                    cancel={() => {}}
+                    submit={() => {}}
+                />
             </CheckoutProvider>
         );
         await wait(() => {
@@ -100,7 +107,12 @@ describe('<AddressForm />', () => {
     it('renders the component with save in address book checkbox', async () => {
         const { asFragment } = render(
             <CheckoutProvider>
-                <AddressForm showSaveInAddressBookCheckbox={true} cancel={() => {}} submit={() => {}} />
+                <AddressForm
+                    countries={countries}
+                    showSaveInAddressBookCheckbox={true}
+                    cancel={() => {}}
+                    submit={() => {}}
+                />
             </CheckoutProvider>
         );
         await wait(() => {
@@ -113,6 +125,7 @@ describe('<AddressForm />', () => {
         render(
             <CheckoutProvider>
                 <AddressForm
+                    countries={countries}
                     showAddressSelect={true}
                     initialAddressSelectValue={0}
                     onAddressSelectValueChange={onAddressSelectValueChange}

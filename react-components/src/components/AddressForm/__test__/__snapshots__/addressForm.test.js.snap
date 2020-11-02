@@ -10,9 +10,7 @@ exports[`<AddressForm /> renders the component 1`] = `
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -179,14 +177,14 @@ exports[`<AddressForm /> renders the component 1`] = `
                 name="countryCode"
               >
                 <option
-                  value="US"
-                >
-                  United States
-                </option>
-                <option
                   value="RO"
                 >
                   Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
                 </option>
               </select>
             </span>
@@ -356,9 +354,7 @@ exports[`<AddressForm /> renders the component 1`] = `
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -608,14 +604,14 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
                 name="countryCode"
               >
                 <option
-                  value="US"
-                >
-                  United States
-                </option>
-                <option
                   value="RO"
                 >
                   Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
                 </option>
               </select>
             </span>
@@ -764,7 +760,9 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
       />
       <div
         class="error"
-      />
+      >
+        form error message
+      </div>
     </div>
     <div
       class="footer"
@@ -785,9 +783,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -804,9 +800,7 @@ exports[`<AddressForm /> renders the component with address validation message a
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -945,6 +939,71 @@ exports[`<AddressForm /> renders the component with address validation message a
             <span
               class="after"
             />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="countryCode"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
@@ -1087,9 +1146,7 @@ exports[`<AddressForm /> renders the component with address validation message a
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -1106,9 +1163,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -1247,6 +1302,71 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
             <span
               class="after"
             />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="countryCode"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
@@ -1413,9 +1533,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -1432,9 +1550,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -1573,6 +1689,71 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
             <span
               class="after"
             />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="countryCode"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
@@ -1739,9 +1920,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
