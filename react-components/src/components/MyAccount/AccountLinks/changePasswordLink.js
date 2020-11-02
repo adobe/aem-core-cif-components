@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,6 +11,27 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-export { default } from './myAccount';
-export { default as AccountLink } from './accountLink';
-export * from './AccountLinks';
+import { func } from 'prop-types';
+import React from 'react';
+import { Lock as PasswordIcon } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+
+import AccountLink from '../accountLink';
+
+const ChangePasswordLink = props => {
+    const { showChangePassword } = props;
+    const [t] = useTranslation('account');
+
+    return (
+        <AccountLink onClick={showChangePassword}>
+            <PasswordIcon size={18} />
+            {t('account:change-password', 'Change Password')}
+        </AccountLink>
+    );
+};
+
+ChangePasswordLink.propTypes = {
+    showChangePassword: func.isRequired
+};
+
+export default ChangePasswordLink;
