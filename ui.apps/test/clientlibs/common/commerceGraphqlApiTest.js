@@ -31,7 +31,7 @@ describe('CommerceGraphqlApi', () => {
 
     beforeEach(() => {
         fetchSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetch');
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
+        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default', graphqlMethod: 'GET' });
     });
 
     afterEach(() => {
