@@ -23,6 +23,10 @@ class Navigation {
         this.panelTitleElement = document.querySelector(Navigation.selectors.navigationHeaderTitle);
         this.navigationMask = document.querySelector(Navigation.selectors.navigationMask);
 
+        if (!this.navigationPanel || !this.panelTitleElement) {
+            return;
+        }
+
         this.defaultPanelTitle = this.panelTitleElement.textContent;
 
         const backNavigationBinding = this.backNavigation.bind(this);

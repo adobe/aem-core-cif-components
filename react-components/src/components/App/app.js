@@ -11,46 +11,33 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 import React from 'react';
-import { ApolloProvider } from '@apollo/react-hooks';
-import ApolloClient from 'apollo-boost';
+import { ApolloClient, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
 import UserContextProvider from '../../context/UserContext';
-import NavigationContextProvider from '../../context/NavigationContext';
-import { checkCookie, cookieValue } from '../../utils/cookieUtils';
 import { useConfigContext } from '../../context/ConfigContext';
+import { graphqlAuthLink } from '../../utils/authUtils';
 
 const App = props => {
     const { graphqlEndpoint, storeView = 'default' } = useConfigContext();
 
-    const client = new ApolloClient({
-        uri: graphqlEndpoint,
-        headers: { Store: storeView },
-        request: operation => {
-            let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
-            if (token.length > 0) {
-                operation.setContext({
-                    headers: {
-                        authorization: `Bearer ${token && token.length > 0 ? token : ''}`
-                    }
-                });
-            }
-        }
-    });
+    const clientConfig = {
+        link: from([graphqlAuthLink, new HttpLink({ uri: graphqlEndpoint, headers: { Store: storeView } })]),
+        cache: new InMemoryCache()
+    };
+
+    const client = new ApolloClient(clientConfig);
 
     return (
         <ApolloProvider client={client}>
             <UserContextProvider>
-                <NavigationContextProvider>
-                    <CartProvider>
-                        <CartInitializer>
-                            <CheckoutProvider>{props.children}</CheckoutProvider>
-                        </CartInitializer>
-                    </CartProvider>
-                </NavigationContextProvider>
+                <CartProvider>
+                    <CartInitializer>
+                        <CheckoutProvider>{props.children}</CheckoutProvider>
+                    </CartInitializer>
+                </CartProvider>
             </UserContextProvider>
         </ApolloProvider>
     );

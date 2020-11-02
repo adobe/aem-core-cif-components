@@ -1,0 +1,22 @@
+{
+  "featuredcategorylist-4295dd6c7a": {
+    "categories": [
+      {
+        "id": "5",
+        "name": "Equipment",
+        "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
+      },
+      {
+        "id": "6",
+        "name": "Running",
+        "image": "/content/dam/venia/landing_page_image4.web.jpg"
+      },
+      {
+        "id": "7",
+        "name": "Bike",
+        "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg"
+      }
+    ],
+    "@type": "venia/components/commerce/featuredcategorylist"
+  }
+}

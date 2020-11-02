@@ -12,28 +12,25 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
-
-import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
+import { render } from 'test-utils';
+import { CartProvider } from '../../Minicart';
 import AccountContainer from '../accountContainer';
 
 describe('<AccountContainer>', () => {
     it('renders the component', () => {
+        const config = {
+            graphqlEndpoint: 'endpoint',
+            storeView: 'default',
+            pagePaths: {
+                accountDetails: '/accountDetails'
+            }
+        };
+
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <AccountContainer />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <AccountContainer />
+            </CartProvider>,
+            { config: config }
         );
         expect(asFragment()).toMatchSnapshot();
     });

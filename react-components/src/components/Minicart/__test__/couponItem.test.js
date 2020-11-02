@@ -13,14 +13,10 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
+import { render } from 'test-utils';
+import { fireEvent } from '@testing-library/react';
 import { CartProvider } from '../cartContext';
 import CouponItem from '../couponItem';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 const mockRemoveCouponFromCart = jest.fn();
 jest.mock('../useCouponItem.js', () => {
@@ -40,13 +36,9 @@ describe('<CouponItem />', () => {
         };
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={[]}>
-                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                        <CouponItem />
-                    </CartProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                <CouponItem />
+            </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -61,16 +53,11 @@ describe('<CouponItem />', () => {
         };
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={[]}>
-                    <CartProvider initialState={initialState} reducerFactory={() => state => state}>
-                        <CouponItem />
-                    </CartProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={initialState} reducerFactory={() => state => state}>
+                <CouponItem />
+            </CartProvider>
         );
         fireEvent.mouseDown(getByText('Remove coupon'));
-
         expect(mockRemoveCouponFromCart).toHaveBeenCalledTimes(1);
     });
 });

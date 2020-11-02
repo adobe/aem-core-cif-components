@@ -13,7 +13,7 @@
  ******************************************************************************/
 import React from 'react';
 import ProductList from '../productList';
-import { render } from 'test-utils';
+import { render } from '../../../utils/test-utils';
 import { CartProvider } from '../cartContext';
 
 describe('<ProductList>', () => {

@@ -21,7 +21,7 @@ jest.mock('informed', () => ({
 
 import React from 'react';
 import { render, act, wait } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
 import dropIn from 'braintree-web-drop-in';
 import { useFieldApi } from 'informed';
 
@@ -54,7 +54,7 @@ describe('<Braintree />', () => {
         render(
             <MockedProvider mocks={mocks} addTypename={false}>
                 <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                    <CheckoutProvider initialState={{ braintreeToken: null }} reducer={mockReducer}>
+                    <CheckoutProvider initialState={{ flowState: '', braintreeToken: null }} reducer={mockReducer}>
                         <Braintree accept="card" />
                     </CheckoutProvider>
                 </CartProvider>
@@ -81,7 +81,9 @@ describe('<Braintree />', () => {
         render(
             <MockedProvider>
                 <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
-                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                    <CheckoutProvider
+                        initialState={{ flowState: '', braintreeToken: 'my-sample-token' }}
+                        reducer={state => state}>
                         <Braintree accept="card" />
                     </CheckoutProvider>
                 </CartProvider>
@@ -124,7 +126,9 @@ describe('<Braintree />', () => {
         render(
             <MockedProvider>
                 <CartProvider initialState={cartState} reducerFactory={() => mockCartDispatchFn}>
-                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                    <CheckoutProvider
+                        initialState={{ flowState: '', braintreeToken: 'my-sample-token' }}
+                        reducer={state => state}>
                         <Braintree accept="paypal" />
                     </CheckoutProvider>
                 </CartProvider>
@@ -166,7 +170,9 @@ describe('<Braintree />', () => {
         render(
             <MockedProvider>
                 <CartProvider initialState={{}} reducerFactory={() => mockCartDispatchFn}>
-                    <CheckoutProvider initialState={{ braintreeToken: 'my-sample-token' }} reducer={state => state}>
+                    <CheckoutProvider
+                        initialState={{ flowState: '', braintreeToken: 'my-sample-token' }}
+                        reducer={state => state}>
                         <Braintree accept="card" />
                     </CheckoutProvider>
                 </CartProvider>

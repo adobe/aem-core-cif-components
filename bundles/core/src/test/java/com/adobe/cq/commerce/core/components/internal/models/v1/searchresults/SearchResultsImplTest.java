@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -27,6 +28,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
@@ -39,6 +41,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -56,9 +59,11 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -89,6 +94,11 @@ public class SearchResultsImplTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, new MockExternalizer());
+
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -276,5 +286,24 @@ public class SearchResultsImplTest {
         Assert.assertEquals("name", otherKey.getName());
         Assert.assertEquals("Product Name", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
+    }
+
+    @Test
+    public void testJsonRender() throws IOException {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("results/result-datalayer-searchresults-component.json");
+        String jsonResult = searchResultsModel.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        String itemsJsonExpected = Utils.getResource("results/result-datalayer-searchresults-component-items.json");
+        String itemsJsonResult = searchResultsModel.getProducts()
+            .stream()
+            .map(i -> i.getData().getJson())
+            .collect(Collectors.joining(",", "[", "]"));
+        Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
 }

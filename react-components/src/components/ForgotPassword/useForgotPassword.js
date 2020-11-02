@@ -13,42 +13,33 @@
  ******************************************************************************/
 
 import { useState, useCallback } from 'react';
-import { useUserContext } from '../../context/UserContext';
+import { useMutation } from '@apollo/client';
 
-const useForgotPasswordForm = props => {
-    const { onClose, onCancel } = props;
-    const [, { resetPassword }] = useUserContext();
+import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../queries/mutation_request_password_reset_email.graphql';
 
-    const [submitting, setSubmitting] = useState(false);
-    const [formEmail, setFormEmail] = useState(null);
+const useForgotPasswordForm = () => {
+    const [state, setState] = useState({ loading: false, submitted: false, email: null });
+
+    const [requestPasswordResetEmail] = useMutation(MUTATION_REQUEST_PASSWORD_RESET_EMAIL);
 
     const handleFormSubmit = useCallback(
         async ({ email }) => {
-            setSubmitting(true);
-            setFormEmail(email);
-            await resetPassword(email);
+            setState({ ...state, loading: true });
+            try {
+                await requestPasswordResetEmail({ variables: { email } });
+            } catch (err) {
+                // Do not output any errors which might indicate if the user email actually exists or not
+            } finally {
+                setState({ ...state, loading: false, submitted: true, email });
+            }
         },
-        [resetPassword]
+        [requestPasswordResetEmail]
     );
 
-    const handleCancel = useCallback(() => {
-        if (onCancel) {
-            setSubmitting(false);
-            onCancel();
-        }
-    }, [onCancel]);
-
-    const handleContinue = useCallback(() => {
-        setSubmitting(false);
-        onClose();
-    }, [onClose]);
-
     return [
-        { submitting, email: formEmail },
+        state,
         {
-            handleFormSubmit,
-            handleCancel,
-            handleContinue
+            handleFormSubmit
         }
     ];
 };

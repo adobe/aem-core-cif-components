@@ -29,5 +29,8 @@
   "add-shipping-information": "Add Shipping Information",
   "country": "Country",
   "address-default-address": "Make my default address",
-  "address-form-heading": "Shipping Address"
+  "address-form-heading": "Shipping Address",
+  "address-form-address-select-new-address": "New Address",
+  "address-save-in-address-book": "Save in address book",
+  "address-use-saved-address": "Use Saved Address"
 }

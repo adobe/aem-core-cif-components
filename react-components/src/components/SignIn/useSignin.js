@@ -13,7 +13,7 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { mergeCarts } from '../../actions/cart';
@@ -26,10 +26,7 @@ import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 export const useSignin = props => {
     const { showMyAccount } = props;
     const [{ cartId }, cartDispatch] = useCartState();
-    const [
-        userState,
-        { setToken, getUserDetails, setCustomerCart, setError, toggleAccountDropdown }
-    ] = useUserContext();
+    const [userState, { setToken, getUserDetails, setCustomerCart, setError }] = useUserContext();
     const [inProgress, setInProgress] = useState(false);
 
     const [, setCartCookie] = useCookieValue('cif.cart');

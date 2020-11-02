@@ -14,7 +14,7 @@
 import React from 'react';
 
 import { useUserContext } from '../../context/UserContext';
-import { useAddressForm } from './useAddressForm';
+import { useAddressForm } from '../AddressForm/useAddressForm';
 import AddressForm from '../AddressForm';
 
 import classes from './addressFormContainer.css';

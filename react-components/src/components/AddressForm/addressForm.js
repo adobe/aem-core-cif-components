@@ -13,45 +13,41 @@
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
 import { Form, useFieldState } from 'informed';
-import { array, bool, func, object, shape, string } from 'prop-types';
+import { array, bool, func, object, shape, string, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
 import Select from '../Select';
 import classes from './addressForm.css';
-import { validateEmail, isRequired, validateRegionCode } from '../../utils/formValidators';
+import { validateEmail, isRequired } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
-import TextInput from '../TextInput';
-import Field from '../Field';
-import Checkbox from '../Checkbox';
 
-const fields = [
-    'city',
-    'default_shipping',
-    'email',
-    'firstname',
-    'lastname',
-    'postcode',
-    'region_code',
-    'region',
-    'street',
-    'telephone'
-];
+import { useAddressForm } from './useAddressForm';
+
+import AddressSelect from './addressSelect';
+import Checkbox from '../Checkbox';
+import Field from '../Field';
+import TextInput from '../TextInput';
 
 const AddressForm = props => {
+    const { parseAddressFormValues } = useAddressForm();
     const [submitting, setIsSubmitting] = useState(false);
     const {
         cancel,
         countries,
         formErrorMessage,
-        heading,
+        formHeading,
         isAddressInvalid,
         invalidAddressMessage,
+        initialAddressSelectValue,
         initialValues,
+        onAddressSelectValueChange,
+        showAddressSelect,
         showDefaultAddressCheckbox,
         showEmailInput,
+        showSaveInAddressBookCheckbox,
         submit,
-        submitLabel
+        submitButtonLabel
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const errorMessage = formErrorMessage ? formErrorMessage : null;
@@ -68,27 +64,6 @@ const AddressForm = props => {
             };
         });
     }, [countries]);
-
-    const values = useMemo(
-        () =>
-            fields.reduce((acc, key) => {
-                if (initialValues && key in initialValues) {
-                    // Convert street from array to flat strings
-                    if (key === 'street') {
-                        initialValues[key].forEach((v, i) => (acc[`street${i}`] = v));
-                        return acc;
-                    }
-                    // Convert region from object to region_code string
-                    if (key === 'region') {
-                        acc['region_code'] = initialValues[key].region_code;
-                        return acc;
-                    }
-                    acc[key] = initialValues[key];
-                }
-                return acc;
-            }, {}),
-        [initialValues]
-    );
 
     const handleSubmit = useCallback(
         values => {
@@ -125,79 +100,122 @@ const AddressForm = props => {
         return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
     };
     return (
-        <Form className={classes.root} initialValues={values} onSubmit={handleSubmit}>
-            <div className={classes.body}>
-                <h2 className={classes.heading}>{heading}</h2>
-                <div className={classes.firstname}>
-                    <Field label={t('checkout:address-firstname', 'First Name')}>
-                        <TextInput id={classes.firstname} field="firstname" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                <div className={classes.lastname}>
-                    <Field label={t('checkout:address-lastname', 'Last Name')}>
-                        <TextInput id={classes.lastname} field="lastname" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                {showEmailInput && (
-                    <div className={classes.email}>
-                        <Field label={t('checkout:address-email', 'E-Mail')}>
-                            <TextInput
-                                id={classes.email}
-                                field="email"
-                                validateOnBlur
-                                validate={combine([isRequired, validateEmail])}
-                            />
-                        </Field>
+        <Form className={classes.root} initialValues={parseAddressFormValues(initialValues)} onSubmit={handleSubmit}>
+            {({ formApi }) => (
+                <>
+                    <div className={classes.body}>
+                        <h2 className={classes.heading}>{formHeading}</h2>
+                        {showAddressSelect && (
+                            <div className={classes.address_select}>
+                                <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
+                                    <AddressSelect
+                                        initialValue={initialAddressSelectValue}
+                                        onValueChange={value => onAddressSelectValueChange(value, formApi)}
+                                    />
+                                </Field>
+                            </div>
+                        )}
+                        <div className={classes.firstname}>
+                            <Field label={t('checkout:address-firstname', 'First Name')}>
+                                <TextInput
+                                    id={classes.firstname}
+                                    field="firstname"
+                                    validateOnBlur
+                                    validate={isRequired}
+                                />
+                            </Field>
+                        </div>
+                        <div className={classes.lastname}>
+                            <Field label={t('checkout:address-lastname', 'Last Name')}>
+                                <TextInput
+                                    id={classes.lastname}
+                                    field="lastname"
+                                    validateOnBlur
+                                    validate={isRequired}
+                                />
+                            </Field>
+                        </div>
+                        {showEmailInput && (
+                            <div className={classes.email}>
+                                <Field label={t('checkout:address-email', 'E-Mail')}>
+                                    <TextInput
+                                        id={classes.email}
+                                        field="email"
+                                        validateOnBlur
+                                        validate={combine([isRequired, validateEmail])}
+                                    />
+                                </Field>
+                            </div>
+                        )}
+                        <div className={classes.street0}>
+                            <Field label={t('checkout:address-street', 'Street')}>
+                                <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
+                            </Field>
+                        </div>
+                        <div className={classes.city}>
+                            <Field label={t('checkout:address-city', 'City')}>
+                                <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
+                            </Field>
+                        </div>
+                        <div className={classes.country}>
+                            <Field label={t('checkout:country', 'Country')}>
+                                <Select field="countryCode" items={displayCountries} />
+                            </Field>
+                        </div>
+                        <div className={classes.region_code}>
+                            <Field label={t('checkout:address-state', 'State')}>
+                                <Regions />
+                            </Field>
+                        </div>
+                        <div className={classes.postcode}>
+                            <Field label={t('checkout:address-postcode', 'ZIP')}>
+                                <TextInput
+                                    id={classes.postcode}
+                                    field="postcode"
+                                    validateOnBlur
+                                    validate={isRequired}
+                                />
+                            </Field>
+                        </div>
+                        <div className={classes.telephone}>
+                            <Field label={t('checkout:address-phone', 'Phone')}>
+                                <TextInput
+                                    id={classes.telephone}
+                                    field="telephone"
+                                    validateOnBlur
+                                    validate={isRequired}
+                                />
+                            </Field>
+                        </div>
+                        {showDefaultAddressCheckbox && (
+                            <div className={classes.default_shipping}>
+                                <Checkbox
+                                    id={classes.default_shipping}
+                                    label={t('checkout:address-default-address', 'Make my default address')}
+                                    field="default_shipping"
+                                />
+                            </div>
+                        )}
+                        {showSaveInAddressBookCheckbox && (
+                            <div className={classes.save_in_address_book}>
+                                <Checkbox
+                                    id={classes.save_in_address_book}
+                                    label={t('checkout:address-save-in-address-book', 'Save in address book')}
+                                    field="save_in_address_book"
+                                />
+                            </div>
+                        )}
+                        <div className={classes.validation}>{validationMessage}</div>
+                        <div className={classes.error}>{errorMessage}</div>
                     </div>
-                )}
-                <div className={classes.street0}>
-                    <Field label={t('checkout:address-street', 'Street')}>
-                        <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                <div className={classes.city}>
-                    <Field label={t('checkout:address-city', 'City')}>
-                        <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                <div className={classes.country}>
-                    <Field label={t('checkout:country', 'Country')}>
-                        <Select field="countryCode" items={displayCountries} />
-                    </Field>
-                </div>
-                <div className={classes.region_code}>
-                    <Field label={t('checkout:address-state', 'State')}>
-                        <Regions />
-                    </Field>
-                </div>
-                <div className={classes.postcode}>
-                    <Field label={t('checkout:address-postcode', 'ZIP')}>
-                        <TextInput id={classes.postcode} field="postcode" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                <div className={classes.telephone}>
-                    <Field label={t('checkout:address-phone', 'Phone')}>
-                        <TextInput id={classes.telephone} field="telephone" validateOnBlur validate={isRequired} />
-                    </Field>
-                </div>
-                {showDefaultAddressCheckbox && (
-                    <div className={classes.default_shipping}>
-                        <Checkbox
-                            id={classes.default_shipping}
-                            label={t('checkout:address-default-address', 'Make my default address')}
-                            field="default_shipping"
-                        />
+                    <div className={classes.footer}>
+                        <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
+                        <Button type="submit" priority="high" disabled={submitting}>
+                            {submitButtonLabel}
+                        </Button>
                     </div>
-                )}
-                <div className={classes.validation}>{validationMessage}</div>
-                <div className={classes.error}>{errorMessage}</div>
-            </div>
-            <div className={classes.footer}>
-                <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
-                <Button type="submit" priority="high" disabled={submitting}>
-                    {submitLabel}
-                </Button>
-            </div>
+                </>
+            )}
         </Form>
     );
 };
@@ -223,19 +241,28 @@ AddressForm.propTypes = {
     }),
     countries: array,
     formErrorMessage: string,
-    heading: string,
+    formHeading: string,
     invalidAddressMessage: string,
+    initialAddressSelectValue: number,
     initialValues: object,
     isAddressInvalid: bool,
+    onAddressSelectValueChange: func,
+    showAddressSelect: bool,
     showDefaultAddressCheckbox: bool,
     showEmailInput: bool,
+    showSaveInAddressBookCheckbox: bool,
     submit: func.isRequired,
     submitting: bool,
-    submitLabel: string
+    submitButtonLabel: string
 };
 
 AddressForm.defaultProps = {
-    initialValues: {}
+    initialAddressSelectValue: null,
+    initialValues: {},
+    showAddressSelect: false,
+    showDefaultAddressCheckbox: false,
+    showEmailInput: false,
+    showSaveInAddressBookCheckbox: false
 };
 
 export default AddressForm;

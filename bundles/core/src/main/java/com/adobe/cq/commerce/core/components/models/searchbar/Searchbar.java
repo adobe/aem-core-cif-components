@@ -16,10 +16,12 @@ package com.adobe.cq.commerce.core.components.models.searchbar;
 
 import javax.annotation.Nullable;
 
+import com.adobe.cq.wcm.core.components.models.Component;
+
 /**
  * Sling Model API for the Searchbar component
  */
-public interface Searchbar {
+public interface Searchbar extends Component {
 
     @Nullable
     String getSearchResultsPageUrl();

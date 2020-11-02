@@ -12,51 +12,41 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
 import ForgotPassword from '../forgotPassword';
-import UserContextProvider from '../../../context/UserContext';
-import { MockedProvider } from '@apollo/react-testing';
-import i18n from '../../../../__mocks__/i18nForTests';
+
+import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../../queries/mutation_request_password_reset_email.graphql';
 
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
-        const Wrapper = () => {
-            return <ForgotPassword onClose={jest.fn()} />;
-        };
-
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('renders the success message after the "forgot password" form is submitted', () => {
-        const Wrapper = () => {
-            return <ForgotPassword onClose={jest.fn()} />;
-        };
+    it('renders the success message after the "forgot password" form is submitted', async () => {
+        const mocks = [
+            {
+                request: {
+                    query: MUTATION_REQUEST_PASSWORD_RESET_EMAIL,
+                    variables: {
+                        email: 'chuck@example.com'
+                    }
+                },
+                result: {
+                    data: { requestPasswordResetEmail: true }
+                }
+            }
+        ];
 
-        const { getByLabelText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <Wrapper />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { getByLabelText } = render(<ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />, {
+            mocks: mocks
+        });
 
         fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });
         fireEvent.click(getByLabelText('submit'));
 
+        await waitForElement(() => getByLabelText('continue-shopping'));
         expect(getByLabelText('continue-shopping')).not.toBeUndefined();
     });
 });

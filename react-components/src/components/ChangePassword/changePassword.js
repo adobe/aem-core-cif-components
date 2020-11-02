@@ -15,7 +15,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { func } from 'prop-types';
 import { Form } from 'informed';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import classes from './changePassword.css';
 import { useUserContext } from '../../context/UserContext';

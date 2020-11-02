@@ -18,11 +18,12 @@ import java.util.List;
 
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.core.components.models.Component;
 
 /**
  * Provides the list of categories to CategoryList Componenet.
  */
-public interface FeaturedCategoryList {
+public interface FeaturedCategoryList extends Component {
 
     /**
      * Returns the categories data in a list from Magento depending on configurations.
@@ -44,4 +45,11 @@ public interface FeaturedCategoryList {
      * @return true or false
      */
     boolean isConfigured();
+
+    /**
+     * Should return the HTML tag type for the component title.
+     * 
+     * @return The HTML tag type that should be used to display the component title.
+     */
+    String getTitleType();
 }

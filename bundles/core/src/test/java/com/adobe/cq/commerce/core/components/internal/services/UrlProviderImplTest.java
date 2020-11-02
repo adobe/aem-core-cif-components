@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -165,7 +166,10 @@ public class UrlProviderImplTest {
     @Test
     public void testProductIdentifierParsingInSelector() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+
+        // For example for lazy loading, we have two selectors and the id is in the last position
+        requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
+
         Pair<ProductIdentifierType, String> id = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals(ProductIdentifierType.URL_KEY, id.getLeft());
         Assert.assertEquals("beaumont-summit-kit", id.getRight());
@@ -185,5 +189,23 @@ public class UrlProviderImplTest {
         Pair<ProductIdentifierType, String> id = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals(ProductIdentifierType.SKU, id.getLeft());
         Assert.assertEquals("MJ01", id.getRight());
+    }
+
+    @Test
+    public void testStringSubstitutor() {
+        Map<String, String> params = new HashMap<>();
+
+        // empty params, valid prefix & suffix
+        UrlProviderImpl.StringSubstitutor sub = new UrlProviderImpl.StringSubstitutor(params, "${", "}");
+        Assert.assertEquals("Wrong substitution", "${test}", sub.replace("${test}"));
+
+        // valid params, no prefix & suffix
+        params.put("test", "value");
+        sub = new UrlProviderImpl.StringSubstitutor(params, null, null);
+        Assert.assertEquals("Wrong substitution", "${value}-value", sub.replace("${test}-test"));
+
+        // valid params, prefix & suffix
+        sub = new UrlProviderImpl.StringSubstitutor(params, "${", "}");
+        Assert.assertEquals("Wrong substitution", "value-value", sub.replace("${test}-${test}"));
     }
 }

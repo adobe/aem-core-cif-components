@@ -89,6 +89,9 @@ class ProductRetriever extends AbstractProductRetriever {
                 .thumbnail(t -> t.label().url())
                 .urlKey()
                 .stockStatus()
+                .metaDescription()
+                .metaKeyword()
+                .metaTitle()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .mediaGallery(g -> g

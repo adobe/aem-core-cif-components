@@ -21,14 +21,21 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
 public interface ProductCollection {
+
     /**
      * Name of the String resource property indicating number of products to render on front-end.
      */
     String PN_PAGE_SIZE = "pageSize";
+
     /**
      * Name of the boolean resource property indicating if the product list should load prices on the client-side.
      */
     String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
+
+    /**
+     * Name of the String resource property indicating the type of pagination that should be displayed.
+     */
+    String PN_PAGINATION_TYPE = "paginationType";
 
     /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
@@ -52,4 +59,11 @@ public interface ProductCollection {
      * @return true if prices should be loaded client side
      */
     boolean loadClientPrice();
+
+    /**
+     * Returns the type of pagination that should be displayed.
+     * 
+     * @return The pagination type.
+     */
+    String getPaginationType();
 }

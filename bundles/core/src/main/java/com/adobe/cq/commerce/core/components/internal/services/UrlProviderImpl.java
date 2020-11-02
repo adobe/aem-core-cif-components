@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.text.StringSubstitutor;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Activate;
@@ -155,11 +154,33 @@ public class UrlProviderImpl implements UrlProvider {
      */
     private String parseIdentifier(IdentifierLocation identifierLocation, SlingHttpServletRequest request) {
         if (IdentifierLocation.SELECTOR.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSelectorString();
+            // In case there are multiple selectors, the id is the last like in 'productlist.lazy.1.html`
+            String[] selectors = request.getRequestPathInfo().getSelectors();
+            return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
             return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
         } else {
             throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
+        }
+    }
+
+    static class StringSubstitutor {
+
+        private final String[] searchList;
+        private final String[] replacementList;
+
+        public StringSubstitutor(Map<String, String> params, String prefix, String suffix) {
+            replacementList = params.values().toArray(new String[0]);
+            searchList = params.keySet().toArray(new String[0]);
+            if (StringUtils.isNotBlank(prefix) && StringUtils.isNotBlank(suffix)) {
+                for (int i = 0; i < searchList.length; ++i) {
+                    searchList[i] = prefix + searchList[i] + suffix;
+                }
+            }
+        }
+
+        public String replace(String source) {
+            return StringUtils.replaceEach(source, searchList, replacementList);
         }
     }
 }

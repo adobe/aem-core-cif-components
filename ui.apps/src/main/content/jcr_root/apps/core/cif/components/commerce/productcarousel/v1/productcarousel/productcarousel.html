@@ -13,20 +13,9 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-use.carousel="${'com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel' @productSkuList=properties.product}"
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
-     data-sly-use.productTpl="productcard.html" />
+     data-sly-use.carouselTpl="carousel.html" />
 
-<div data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}" data-comp-is="productcarousel" class="productcarousel__container">
-    <h2 data-sly-test="${properties.jcr:title}" class="productcarousel__title">${properties.jcr:title}</h2>
-    <button data-carousel-action='prev' class="productcarousel__btn productcarousel__btn--prev" type="button" style="display: none;"></button>
-    <div class="productcarousel__root">
-        <div class="productcarousel__parent">
-            <div class="productcarousel__cardscontainer" data-sly-list.product=${carousel.products}>
-                <sly data-sly-call="${productTpl.productcard @ product=product}"></sly>
-            </div>
-        </div>
-    </div>
-    <button data-carousel-action='next' class="productcarousel__btn productcarousel__btn--next" type="button" style="display: none;"></button>
-</div>
+<sly data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}" data-sly-call="${carouselTpl.carousel @ carousel = carousel, items = carousel.products, componentType='productcarousel'}"></sly>
 
 <sly data-sly-call="${templates.placeholder @ isEmpty = !carousel.isConfigured}" />
 <sly data-sly-call="${templates.placeholder @ isEmpty = carousel.isConfigured && !hasProducts, emptyTextAppend = 'Configured, but no products to display'}" />

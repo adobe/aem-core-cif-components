@@ -12,17 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
+import { screen, fireEvent, wait } from '@testing-library/react';
+import { render } from 'test-utils';
+import { CheckoutProvider } from '../../Checkout';
 import AddressForm from '../addressForm';
-import i18n from '../../../../__mocks__/i18nForTests';
-jest.mock('informed', () => {
-    return {
-        ...jest.requireActual('informed'),
-        useFieldState: () => 'US'
-    };
-});
 
 describe('<AddressForm />', () => {
     const countries = [
@@ -48,41 +41,95 @@ describe('<AddressForm />', () => {
         }
     ];
 
-    it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <AddressForm
-                    cancel={() => {}}
-                    submit={() => {}}
-                    countries={countries}
-                    heading={'Address'}
-                    submitLabel={'Save'}
-                />
-            </I18nextProvider>
-        );
-
-        expect(asFragment()).toMatchSnapshot();
+    it('renders the component', async () => {
+        const { asFragment } = render(<AddressForm cancel={() => {}} submit={() => {}} />);
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('renders the component with address validation message and form error message', () => {
+    it('renders the component with address validation message and form error message', async () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
+            <AddressForm
+                isAddressInvalid={true}
+                validationMessage={'address validation message'}
+                formErrorMessage={'form error message'}
+                cancel={() => {}}
+                submit={() => {}}
+            />
+        );
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
+    });
+
+    it('renders the component with address select', async () => {
+        const { asFragment } = render(
+            <CheckoutProvider>
                 <AddressForm
                     isAddressInvalid={true}
                     validationMessage={'address validation message'}
                     formErrorMessage={'form error message'}
-                    heading={'Address'}
+                    formHeading={'Address'}
+                    showAddressSelect={true}
+                    initialAddressSelectValue={0}
+                    onAddressSelectValueChange={() => {}}
                     cancel={() => {}}
                     countries={countries}
                     submit={() => {}}
                     submitLabel={'Save'}
                 />
-            </I18nextProvider>
+            </CheckoutProvider>
         );
-        expect(asFragment()).toMatchSnapshot();
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
     });
 
-    it('fills the street0 field with a given street array value', () => {
+    it('renders the component with default address checkbox', async () => {
+        const { asFragment } = render(
+            <CheckoutProvider>
+                <AddressForm showDefaultAddressCheckbox={true} cancel={() => {}} submit={() => {}} />
+            </CheckoutProvider>
+        );
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
+    });
+
+    it('renders the component with save in address book checkbox', async () => {
+        const { asFragment } = render(
+            <CheckoutProvider>
+                <AddressForm showSaveInAddressBookCheckbox={true} cancel={() => {}} submit={() => {}} />
+            </CheckoutProvider>
+        );
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
+    });
+
+    it('calls the callback function when changing the address select', async () => {
+        const onAddressSelectValueChange = jest.fn(() => {});
+        render(
+            <CheckoutProvider>
+                <AddressForm
+                    showAddressSelect={true}
+                    initialAddressSelectValue={0}
+                    onAddressSelectValueChange={onAddressSelectValueChange}
+                    cancel={() => {}}
+                    submit={() => {}}
+                />
+            </CheckoutProvider>
+        );
+        const addressSelect = screen.getByDisplayValue('New Address');
+        expect(addressSelect).not.toBeUndefined();
+        fireEvent.change(addressSelect, { target: { value: '1' } });
+        await wait(() => {
+            expect(onAddressSelectValueChange).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    it('fills the street0 field with a given street array value', async () => {
         const initialValues = {
             street: ['street A', 'street B']
         };
@@ -91,11 +138,13 @@ describe('<AddressForm />', () => {
             <AddressForm cancel={() => {}} countries={countries} submit={() => {}} initialValues={initialValues} />
         );
 
-        const streetField = container.querySelector('#street0');
-        expect(streetField.value).toEqual('street A');
+        await wait(() => {
+            const streetField = container.querySelector('#street0');
+            expect(streetField.value).toEqual('street A');
+        });
     });
 
-    it('returns the street field as array', () => {
+    it('returns the street field as array', async () => {
         const initialValues = {
             country_id: 'US',
             firstname: 'Veronica',
@@ -130,8 +179,10 @@ describe('<AddressForm />', () => {
         fireEvent.click(submit);
 
         // Verify parameter
-        expect(mockSubmit).toHaveBeenCalledTimes(1);
-        const submitValues = mockSubmit.mock.calls[0][0];
-        expect(submitValues.street).toEqual(['street A']);
+        await wait(() => {
+            expect(mockSubmit).toHaveBeenCalledTimes(1);
+            const submitValues = mockSubmit.mock.calls[0][0];
+            expect(submitValues.street).toEqual(['street A']);
+        });
     });
 });

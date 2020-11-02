@@ -15,7 +15,7 @@
     <div class="quantity__root">
         <span class="fieldIcons__root" style="--iconsBefore:0; --iconsAfter:1;">
             <span class="fieldIcons__input">
-                <select aria-label="product's quantity" class="select__input field__input" name="quantity" data-product-sku="${product.sku}" data-virtual="${product.virtualProduct}">
+                <select aria-label="product's quantity" class="select__input field__input" name="quantity" data-product-sku="${product.sku}" data-product-id="${product.id}" data-virtual="${product.virtualProduct}">
                     <option value="0" data-sly-test="${allowZeroQuantity}" selected="${defaultQuantity && defaultQuantity == 0}">0</option>
                     <option value="1" selected="${defaultQuantity == null || defaultQuantity == 1}">1</option>
                     <option value="2" selected="${defaultQuantity && defaultQuantity == 2}">2</option>

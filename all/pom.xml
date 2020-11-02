@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.2.1-SNAPSHOT</version>
+        <version>1.5.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -67,21 +67,28 @@
             <plugin>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>filevault-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
-                    <showImportPackageReport>false</showImportPackageReport>
-                    <embeddedTarget>/apps/bundles/install</embeddedTarget>
+                    <group>cif-components-library</group>
+                    <packageType>container</packageType>
+                    <allowIndexDefinitions>true</allowIndexDefinitions>
+                    <embeddedTarget>/apps/core/cif/install</embeddedTarget>
                     <embeddeds>
                         <embedded>
-                            <groupId>${project.groupId}</groupId>
+                            <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-core</artifactId>
                             <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
                         </embedded>
                     </embeddeds>
                     <subPackages>
                         <subPackage>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>core-cif-components-apps</artifactId>
+                            <filter>true</filter>
+                        </subPackage>
+                        <subPackage>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>core-cif-components-config</artifactId>
                             <filter>true</filter>
                         </subPackage>
                     </subPackages>
@@ -110,6 +117,13 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>core-cif-components-apps</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-config</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>

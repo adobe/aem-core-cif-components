@@ -13,28 +13,14 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
 import ChangePassword from '../changePassword';
-import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
 
 describe('<ChangePassword />', () => {
     it('renders the change password form', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <ChangePassword showMyAccount={() => {}} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<ChangePassword showMyAccount={() => {}} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -58,13 +44,7 @@ describe('<ChangePassword />', () => {
             }
         ];
 
-        const { getByLabelText, getByText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <ChangePassword showMyAccount={() => {}} />
-                </UserContextProvider>
-            </MockedProvider>
-        );
+        const { getByLabelText, getByText } = render(<ChangePassword showMyAccount={() => {}} />, { mocks: mocks });
 
         const detailsFromValue = value => {
             return {

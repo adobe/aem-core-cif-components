@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.2.1-SNAPSHOT</version>
+        <version>1.5.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
@@ -30,7 +30,7 @@
     <packaging>content-package</packaging>
 
     <name>AEM CIF Core Components - Content Package for apps</name>
-    <description>Content Package with Components, Templates, Policies and Clientlibs for AEM CIF Core Components</description>
+    <description>Content Package with Components for AEM CIF Core Components</description>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <scm>
@@ -69,7 +69,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
-
+                    <packageType>application</packageType>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
@@ -77,7 +77,6 @@
                         <createdBy>${vault.package.company}</createdBy>
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
-
                     <dependencies>
                         <dependency>
                             <group>day/cq60/product</group>
@@ -90,14 +89,6 @@
                             <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
-                    
-                    <embeddedTarget>/apps/bundles/install</embeddedTarget>
-                    <embeddeds> 
-                        <embedded>
-                            <groupId>org.apache.commons</groupId>
-                            <artifactId>commons-text</artifactId>
-                        </embedded>
-                    </embeddeds>
                 </configuration>
             </plugin>
 
@@ -163,13 +154,30 @@
                     </filesets>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>htl-maven-plugin</artifactId>
+                <version>2.0.2-1.4.0</version>
+                <configuration>
+                    <sourceDirectory>src/main/content/jcr_root/apps/core/cif/components</sourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.adobe.cq</groupId>

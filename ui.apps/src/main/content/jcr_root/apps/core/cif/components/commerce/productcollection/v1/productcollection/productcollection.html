@@ -15,13 +15,14 @@
           data-sly-use.itemTemplate="item.html"
           data-sly-use.sortingTemplate="sorting.html"
           data-sly-use.paginationTemplate="paginationbar.html"
-          data-sly-use.facetSelectorTemplate="facetselector.html">
+          data-sly-use.facetSelectorTemplate="facetselector.html"
+          data-sly-use.loadMoreButtonTemplate="loadmorebutton.html">
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
      <div class="results__count">
           ${productCollection.searchResultsSet.totalResults} ${productCollection.searchResultsSet.totalResults == 1 ? 'item' : 'items' @ i18n}
      </div>
-     <section class="gallery__root search__root">
+     <section class="gallery__root search__root" id="${productCollection.id}" data-cmp-data-layer="${productCollection.data.json}">
           <div class="search__filters"
                data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
                data-sly-call="${facetSelectorTemplate.facetSelector @ searchResultsSet = productCollection.searchResultsSet}"></div>
@@ -29,15 +30,20 @@
                data-sly-test="${productCollection.searchResultsSet.hasSorting}"
                data-sly-call="${sortingTemplate.sorting @ searchResultsSet = productCollection.searchResultsSet}"></div>
           <div class="gallery__items search__items" data-sly-list.product="${productCollection.products}">
-               <div class="item__root" role="product" data-sku="${product.SKU}" data-sly-call="${itemTemplate.item @ item = product}"></div>
+               <div class="item__root"
+                    id="${product.id}"
+                    role="product"
+                    data-cmp-data-layer="${product.data.json}"
+                    data-sku="${product.SKU}"
+                    data-sly-call="${itemTemplate.item @ item = product}">
+               </div>
           </div>
      </section>
+     <sly data-sly-test="${productCollection.paginationType == 'loadmorebutton'}"
+          data-sly-call="${loadMoreButtonTemplate.pager @ pager = productCollection.searchResultsSet.pager, addLazy = true}"></sly>
 </sly>
 <p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
-<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts}"
+<sly data-sly-test="${productCollection.searchResultsSet.hasPagination && hasProducts && productCollection.paginationType == 'paginationbar'}"
      data-sly-call="${paginationTemplate.searchResultsSet @ searchResultsSet = productCollection.searchResultsSet}"/>
 
 </template>
-
-<sly data-sly-use.productCollectionModel="com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection"
-     data-sly-call="${productCollection @ productCollection = productCollectionModel}"></sly>

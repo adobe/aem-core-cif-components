@@ -59,6 +59,7 @@ import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceI
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -71,6 +72,8 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.Breadcrumb;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -110,11 +113,16 @@ public class GraphqlServletTest {
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
             },
             ResourceResolverType.JCR_MOCK);
     }
 
     private static final String PAGE = "/content/page";
+    private static final String PRODUCT_PAGE = "/content/page/catalogpage/product-page";
+    private static final String CATEGORY_PAGE = "/content/page/catalogpage/category-page";
+
     private static final String PRODUCT_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product";
     private static final String PRODUCT_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist";
     private static final String PRODUCT_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productcarousel";
@@ -123,8 +131,11 @@ public class GraphqlServletTest {
     private static final String UPSELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/upsellproducts";
     private static final String CROSS_SELL_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/crosssellproducts";
     private static final String SEARCH_RESULTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/searchresults";
+    private static final String CATEGORY_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/categorycarousel";
     private static final String FEATURED_CATEGORY_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String NAVIGATION_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/navigation";
+    private static final String PRODUCTPAGE_BREADCRUMB_RESOURCE = PRODUCT_PAGE + "/jcr:content/breadcrumb";
+    private static final String CATEGORYPAGE_BREADCRUMB_RESOURCE = CATEGORY_PAGE + "/jcr:content/breadcrumb";
 
     private static final String CIF_DAM_ROOT = "/content/dam/core-components-examples/library/cif-sample-assets/";
 
@@ -181,7 +192,11 @@ public class GraphqlServletTest {
     }
 
     private Resource prepareModel(String resourcePath) throws ServletException {
-        Page page = Mockito.spy(context.currentPage(PAGE));
+        return prepareModel(resourcePath, PAGE);
+    }
+
+    private Resource prepareModel(String resourcePath, String currentPage) throws ServletException {
+        Page page = Mockito.spy(context.currentPage(currentPage));
         context.currentPage(page);
         context.currentResource(resourcePath);
         Resource resource = Mockito.spy(context.currentResource());
@@ -236,6 +251,11 @@ public class GraphqlServletTest {
                 Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
             }
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Chaz Kangeroo Hoodie", productModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Chaz Kangeroo Hoodie", productModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Chaz Kangeroo Hoodie", productModel.getMetaTitle());
     }
 
     @Test
@@ -273,6 +293,11 @@ public class GraphqlServletTest {
         for (ProductListItem product : productListModel.getProducts()) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
         }
+
+        // These are used in the Venia ITs
+        Assert.assertEquals("Meta description for Outdoor Collection", productListModel.getMetaDescription());
+        Assert.assertEquals("Meta keywords for Outdoor Collection", productListModel.getMetaKeywords());
+        Assert.assertEquals("Meta title for Outdoor Collection", productListModel.getMetaTitle());
     }
 
     @Test
@@ -351,6 +376,20 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testCategoryCarouselModel() throws ServletException {
+        prepareModel(CATEGORY_CAROUSEL_RESOURCE);
+        FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
+        List<CategoryTree> categories = featureCategoryListModel.getCategories();
+        Assert.assertEquals(4, categories.size());
+
+        // Test that the servlet returns the expected categories in the correct order
+        Assert.assertEquals(15, categories.get(0).getId().intValue());
+        Assert.assertEquals(24, categories.get(1).getId().intValue());
+        Assert.assertEquals(28, categories.get(2).getId().intValue());
+        Assert.assertEquals(32, categories.get(3).getId().intValue());
+    }
+
+    @Test
     public void testFeaturedCategoryListModel() throws ServletException {
         prepareModel(FEATURED_CATEGORY_LIST_RESOURCE);
         FeaturedCategoryList featureCategoryListModel = context.request().adaptTo(FeaturedCategoryList.class);
@@ -372,6 +411,28 @@ public class GraphqlServletTest {
 
         Navigation navigationModel = context.request().adaptTo(Navigation.class);
         Assert.assertEquals(7, navigationModel.getItems().size()); // Our test catalog has 7 top-level categories
+    }
+
+    @Test
+    public void testProductPageBreadcrumbModel() throws ServletException {
+        prepareModel(PRODUCTPAGE_BREADCRUMB_RESOURCE, PRODUCT_PAGE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
+
+        Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
+        Assert.assertEquals(4, breadcrumbModel.getItems().size()); // The base page, 2 categories and the product
+    }
+
+    @Test
+    public void testCategoryPageBreadcrumbModel() throws ServletException {
+        prepareModel(CATEGORYPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("1");
+
+        Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
+        Assert.assertEquals(3, breadcrumbModel.getItems().size()); // The base page and 2 categories
     }
 
     @Test
@@ -438,5 +499,44 @@ public class GraphqlServletTest {
             .discount(d -> d
                 .amountOff()
                 .percentOff());
+    }
+
+    @Test
+    public void testBundleProductItemsQuery() throws ServletException, IOException {
+
+        // This is a simplified version of the query sent by the React BundleProductOptions component
+
+        ProductInterfaceQueryDefinition priceQuery = q -> q
+            .sku()
+            .onBundleProduct(b -> b
+                .dynamicSku()
+                .dynamicPrice()
+                .dynamicWeight()
+                .priceView()
+                .shipBundleItems()
+                .items(i -> i
+                    .optionId()
+                    .options(o -> o
+                        .id()
+                        .product(p -> p
+                            .priceRange(r -> r
+                                .maximumPrice(generatePriceQuery()))))));
+
+        FilterEqualTypeInput in = new FilterEqualTypeInput().setEq("24-WG080");
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(in);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        String query = Operations.query(q -> q.products(searchArgs, p -> p.items(priceQuery))).toString();
+
+        request.setParameterMap(Collections.singletonMap("query", query));
+        graphqlServlet.doGet(request, response);
+        String output = response.getOutputAsString();
+
+        Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
+        GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
+        Products products = graphqlResponse.getData().getProducts();
+
+        BundleProduct bundleProduct = (BundleProduct) products.getItems().get(0);
+        Assert.assertEquals("24-WG080", bundleProduct.getSku());
+        Assert.assertEquals(4, bundleProduct.getItems().size());
     }
 }

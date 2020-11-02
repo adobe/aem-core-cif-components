@@ -13,21 +13,25 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
-import { CartProvider } from '../../Minicart/cartContext';
+import { cleanup, wait } from '@testing-library/react';
+import { render } from 'test-utils';
+import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
-
 import Flow from '../flow';
+
 const dummyCart = {
     items: []
 };
+
 const dummyItem = {
     id: 3,
     quantity: 3
 };
+
 afterEach(cleanup);
+
 describe('<Flow>', () => {
-    it('it disables checkout button for empty cart', () => {
+    it('it disables checkout button for empty cart', async () => {
         const { getByRole } = render(
             <CartProvider initialState={{ cart: dummyCart, cartId: '123ABC' }} reducerFactory={() => state => state}>
                 <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
@@ -37,10 +41,12 @@ describe('<Flow>', () => {
         );
 
         // there are no items in the initial cart, button should be disabled
-        expect(getByRole('button').disabled).toBe(true);
+        await wait(() => {
+            expect(getByRole('button').disabled).toBe(true);
+        });
     });
 
-    it('enables checkout button for non empty cart', () => {
+    it('enables checkout button for non empty cart', async () => {
         const newCart = { ...dummyCart, items: [dummyItem] };
 
         // we rerender the component with the new cart, button should be enabled
@@ -51,6 +57,8 @@ describe('<Flow>', () => {
                 </CheckoutProvider>
             </CartProvider>
         );
-        expect(getByRole('button').disabled).toBe(false);
+        await wait(() => {
+            expect(getByRole('button').disabled).toBe(false);
+        });
     });
 });

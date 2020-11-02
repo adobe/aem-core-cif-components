@@ -15,7 +15,7 @@ import React, { useContext, useReducer, useCallback } from 'react';
 import { object, func } from 'prop-types';
 
 import { useCookieValue } from '../utils/hooks';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
 import {
@@ -269,10 +269,6 @@ const UserContextProvider = props => {
         await resetCustomerCartAction({ fetchCustomerCartQuery, dispatch });
     };
 
-    const resetPassword = async email => {
-        await Promise.resolve(email);
-    };
-
     const getUserDetails = useCallback(async () => {
         try {
             const { data: customerData } = await fetchCustomerDetails({ fetchPolicy: 'no-cache' });
@@ -322,7 +318,6 @@ const UserContextProvider = props => {
             setToken,
             setError,
             signOut,
-            resetPassword,
             setCustomerCart,
             getUserDetails,
             resetCustomerCart,

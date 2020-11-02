@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 import { useEffect, useCallback } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
-import { useApolloClient } from '@apollo/react-hooks';
+import { useApolloClient } from '@apollo/client';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
@@ -35,7 +35,7 @@ export const useCookieValue = cookieName => {
     }
     let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
     const setCookieValue = (value, age) => {
-        const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
+        const cookieSettings = `path=/; domain=${window.location.hostname};Max-Age=${age !== undefined ? age : 3600}`;
         document.cookie = `${cookieName}=${value};${cookieSettings}`;
     };
 
@@ -71,4 +71,12 @@ export const useAwaitQuery = query => {
         },
         [apolloClient, query]
     );
+};
+
+/**
+ * This hook makes the query parameters of the URL available.
+ */
+export const useQueryParams = () => {
+    // Better to use useLocation from react router here, but this doesn't work because of dependency mess up.
+    return new URLSearchParams(window.location.search);
 };

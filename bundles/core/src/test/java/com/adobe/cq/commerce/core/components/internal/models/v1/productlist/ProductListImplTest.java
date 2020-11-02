@@ -29,6 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
@@ -43,6 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -67,9 +69,11 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -105,6 +109,11 @@ public class ProductListImplTest {
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
+
+                context.registerService(Externalizer.class, new MockExternalizer());
+
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -156,6 +165,7 @@ public class ProductListImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
+        context.request().setServletPath(PAGE + ".6.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -180,9 +190,13 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void getTitle() {
+    public void testTitleAndMetadata() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + PAGE + ".6.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -300,12 +314,16 @@ public class ProductListImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
+        context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
         // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertTrue(productListModel.getProducts().isEmpty());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
+
+        // Test canonical url on publish
+        Assert.assertEquals("https://publish" + PAGE + ".html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -319,6 +337,9 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getTitle().isEmpty());
         Assert.assertTrue(productListModel.getImage().isEmpty());
         Assert.assertTrue(productListModel.getProducts().isEmpty());
+        Assert.assertTrue(productListModel.getMetaTitle().isEmpty());
+        Assert.assertNull(productListModel.getMetaDescription());
+        Assert.assertNull(productListModel.getMetaKeywords());
     }
 
     @Test
@@ -382,5 +403,31 @@ public class ProductListImplTest {
         Assert.assertEquals("name", otherKey.getName());
         Assert.assertEquals("Product Name", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
+    }
+
+    @Test
+    public void testClientLoadingIsDisabledOnLaunchPage() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertTrue(productListModel.loadClientPrice());
+        Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
+        Whitebox.setInternalState(productListModel, "currentPage", launch);
+        Assert.assertFalse(productListModel.loadClientPrice());
+    }
+
+    @Test
+    public void testJsonRender() throws IOException {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("results/result-datalayer-productlist-component.json");
+        String jsonResult = productListModel.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        String itemsJsonExpected = Utils.getResource("results/result-datalayer-productlistitem-component.json");
+        String itemsJsonResult = productListModel.getProducts()
+            .stream()
+            .map(i -> i.getData().getJson())
+            .collect(Collectors.joining(",", "[", "]"));
+        Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
 }

@@ -11,15 +11,18 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
 
+/* eslint-disable react/prop-types */
+
+import React from 'react';
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import useCouponItem from '../useCouponItem';
-import { MockedProvider } from '@apollo/react-testing';
 import * as actions from '../../../actions/cart';
 
 // mock the actions because we don't need them
 jest.mock('../../../actions/cart');
+
 // mock the cart context to make the whole stack lighter
 jest.mock('../../Minicart/cartContext.js', () => ({
     useCartState: () => {
@@ -30,7 +33,7 @@ jest.mock('../../Minicart/cartContext.js', () => ({
 describe('useCouponItem', () => {
     it('calls the "removeCoupon"', async () => {
         const Consumer = () => {
-            const [data, { removeCouponFromCart }] = useCouponItem();
+            const [, { removeCouponFromCart }] = useCouponItem();
             return (
                 <div>
                     <button onClick={removeCouponFromCart}>Remove</button>
@@ -38,11 +41,7 @@ describe('useCouponItem', () => {
             );
         };
 
-        const { getByRole } = render(
-            <MockedProvider>
-                <Consumer />
-            </MockedProvider>
-        );
+        const { getByRole } = render(<Consumer />);
 
         fireEvent.click(getByRole('button'));
         expect(actions.removeCoupon).toHaveBeenCalledTimes(1);

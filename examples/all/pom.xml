@@ -12,15 +12,13 @@
     governing permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.2.1-SNAPSHOT</version>
+        <version>1.5.1-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -56,32 +54,35 @@
             <plugin>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>filevault-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
                 <configuration>
                     <group>cif-components-library</group>
-                    <showImportPackageReport>false</showImportPackageReport>
-                    <allowIndexDefinitions>true</allowIndexDefinitions>
-                    <failOnMissingEmbed>true</failOnMissingEmbed>
+                    <packageType>container</packageType>
+                    <allowIndexDefinitions>true</allowIndexDefinitions> 
+                    <embeddedTarget>/apps/core/cif/install</embeddedTarget>                 
                     <embeddeds>
                         <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>graphql-client</artifactId>
                             <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
                         </embedded>
                         <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>magento-graphql</artifactId>
                             <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
                         </embedded>
                         <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-core</artifactId>
                             <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
                         </embedded>
                         <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-examples-bundle</artifactId>
                             <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
                         </embedded>
                     </embeddeds>
                     <subPackages>
@@ -92,7 +93,17 @@
                         </subPackage>
                         <subPackage>
                             <groupId>com.adobe.commerce.cif</groupId>
+                            <artifactId>core-cif-components-config</artifactId>
+                            <filter>true</filter>
+                        </subPackage>
+                        <subPackage>
+                            <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-examples-apps</artifactId>
+                            <filter>true</filter>
+                        </subPackage>
+                        <subPackage>
+                            <groupId>com.adobe.commerce.cif</groupId>
+                            <artifactId>core-cif-components-examples-config</artifactId>
                             <filter>true</filter>
                         </subPackage>
                         <subPackage>
@@ -102,6 +113,10 @@
                         </subPackage>
                     </subPackages>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.day.jcr.vault</groupId>
+                <artifactId>content-package-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -178,11 +193,23 @@
             <type>zip</type>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>core-cif-components-config</artifactId>
+            <type>zip</type>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- CIF Components Library -->
         <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>core-cif-components-examples-apps</artifactId>
+            <type>zip</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>core-cif-components-examples-config</artifactId>
             <type>zip</type>
             <version>${project.version}</version>
         </dependency>

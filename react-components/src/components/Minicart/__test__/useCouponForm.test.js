@@ -12,14 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import * as actions from '../../../actions/cart';
 import useCouponForm from '../useCouponForm';
-import { MockedProvider } from '@apollo/react-testing';
 
 // mock the actions because we don't need them
 jest.mock('../../../actions/cart');
+
 // mock the cart context to make the whole stack lighter
 jest.mock('../../Minicart/cartContext.js', () => ({
     useCartState: () => {
@@ -41,11 +41,7 @@ describe('useCouponForm', () => {
             );
         };
 
-        const { getByRole } = render(
-            <MockedProvider>
-                <Consumer />
-            </MockedProvider>
-        );
+        const { getByRole } = render(<Consumer />);
 
         fireEvent.click(getByRole('button'));
 

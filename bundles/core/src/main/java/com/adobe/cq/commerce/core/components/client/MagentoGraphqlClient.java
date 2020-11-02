@@ -14,7 +14,11 @@
 
 package com.adobe.cq.commerce.core.components.client;
 
-import java.util.Collections;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -34,6 +38,8 @@ import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.launches.api.Launch;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.adobe.granite.ui.components.ds.ValueMapResource;
 import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
@@ -72,7 +78,8 @@ public class MagentoGraphqlClient {
      * @return A new MagentoGraphqlClient instance.
      */
     public static MagentoGraphqlClient create(Resource resource) {
-        return create(resource, null);
+        PageManager pageManager = resource.adaptTo(PageManager.class);
+        return create(resource, pageManager != null ? pageManager.getContainingPage(resource) : null);
     }
 
     /**
@@ -99,6 +106,14 @@ public class MagentoGraphqlClient {
     private MagentoGraphqlClient(Resource resource, Page page) {
 
         Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
+
+        // If the page is an AEM Launch, we get the configuration from the production page
+        Launch launch = null;
+        if (page != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
+            Resource launchResource = LaunchUtils.getLaunchResource(configurationResource);
+            launch = launchResource.adaptTo(Launch.class);
+            configurationResource = LaunchUtils.getTargetResource(configurationResource, null);
+        }
 
         LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());
 
@@ -129,8 +144,9 @@ public class MagentoGraphqlClient {
             .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST);
         requestOptions.withCachingStrategy(cachingStrategy);
 
-        String storeCode;
+        List<Header> headers = new ArrayList<>();
 
+        String storeCode;
         if (configuration.size() > 0) {
             storeCode = configuration.get(STORE_CODE_PROPERTY, String.class);
             if (storeCode == null) {
@@ -140,8 +156,24 @@ public class MagentoGraphqlClient {
             storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
         }
         if (StringUtils.isNotEmpty(storeCode)) {
-            Header storeHeader = new BasicHeader("Store", storeCode);
-            requestOptions.withHeaders(Collections.singletonList(storeHeader));
+            headers.add(new BasicHeader("Store", storeCode));
+        }
+
+        if (launch != null) {
+            Calendar liveDate = launch.getLiveDate();
+            if (liveDate != null) {
+                TimeZone timeZone = liveDate.getTimeZone();
+                OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(liveDate.toInstant(), timeZone.toZoneId());
+                Long previewVersion = offsetDateTime.toEpochSecond();
+                headers.add(new BasicHeader("Preview-Version", String.valueOf(previewVersion)));
+
+                // We use POST to ensure that Magento doesn't return a cached response
+                requestOptions.withHttpMethod(HttpMethod.POST);
+            }
+        }
+
+        if (!headers.isEmpty()) {
+            requestOptions.withHeaders(headers);
         }
     }
 

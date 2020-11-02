@@ -12,13 +12,14 @@
  *
  ******************************************************************************/
 import React, { Suspense } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
 import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
+import MUTATION_ADD_BUNDLE_TO_CART from '../../queries/mutation_add_bundle_to_cart.graphql';
 
 import Mask from '../Mask';
 import Header from './header';
@@ -36,6 +37,7 @@ const MiniCart = () => {
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
     const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
     const [addSimpleAndVirtualItemMutation] = useMutation(MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART);
+    const [addBundleItemMutation] = useMutation(MUTATION_ADD_BUNDLE_TO_CART);
     const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
     const [{ flowState }] = useCheckoutState();
 
@@ -45,6 +47,7 @@ const MiniCart = () => {
             addToCartMutation,
             cartDetailsQuery,
             addVirtualItemMutation,
+            addBundleItemMutation,
             addSimpleAndVirtualItemMutation
         }
     });
@@ -61,7 +64,7 @@ const MiniCart = () => {
 
     return (
         <>
-            <Mask />
+            <Mask isOpen={isOpen} onClickHandler={() => dispatch({ type: 'close' })} />
             <aside className={rootClass}>
                 <Suspense fallback={<LoadingIndicator />}>
                     <Header />

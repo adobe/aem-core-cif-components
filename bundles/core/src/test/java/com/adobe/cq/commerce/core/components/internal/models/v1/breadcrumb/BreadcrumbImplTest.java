@@ -17,20 +17,24 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -40,12 +44,14 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -75,6 +81,9 @@ public class BreadcrumbImplTest {
                 context.registerService(UrlProvider.class, urlProvider);
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
+
+                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -160,6 +169,35 @@ public class BreadcrumbImplTest {
 
         NavigationItem product = items.get(3);
         assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page/product-specific-page.tiberius-gym-tank.html");
+        assertThat(product.isActive()).isTrue();
+    }
+
+    @Test
+    public void testProductSpecificPageOnLaunch() throws Exception {
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+        context.request().setContextPath("");
+
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-breadcrumb-result.json");
+        String launchPage = "/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page/product-specific-page";
+        prepareModel(launchPage);
+
+        // We set the EDIT mode to see the page specific URL
+        context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
+
+        // Check that all the paths are pointing to pages in the Launch
+        for (NavigationItem item : items) {
+            assertThat(item.getURL()).startsWith("/content/launches/2020/09/14/mylaunch/content/venia");
+        }
+
+        NavigationItem product = items.get(3);
+        assertThat(product.getURL()).isEqualTo(launchPage + ".tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
@@ -329,5 +367,28 @@ public class BreadcrumbImplTest {
         categories.sort(breadcrumb.getCategoryInterfaceComparator());
         // [men/tops/tanks, men/tops, women/tops, men]
         assertThat(categories).containsExactly(c3, c2, c4, c1);
+    }
+
+    @Test
+    public void testJsonRender() throws Exception {
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-breadcrumb-result.json");
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("results/result-datalayer-breadcrumb-component.json");
+        String jsonResult = breadcrumbModel.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        String itemsJsonExpected = Utils.getResource("results/result-datalayer-breadcrumb-items.json");
+        Collection<NavigationItem> breadcrumbModelItems = breadcrumbModel.getItems();
+        String itemsJsonResult = breadcrumbModelItems
+            .stream()
+            .map(i -> i.getData().getJson())
+            .collect(Collectors.joining(",", "[", "]"));
+        Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
 }

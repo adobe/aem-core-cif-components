@@ -70,8 +70,7 @@ public class ProductRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position}}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable}}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
+        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable}}}"));
     }
 
     @Test
@@ -83,8 +82,7 @@ public class ProductRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},weight,volume_custom_:volume}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
+        Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume}}},... on GroupedProduct"));
     }
 
     @Test

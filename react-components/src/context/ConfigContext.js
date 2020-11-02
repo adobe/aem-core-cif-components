@@ -30,7 +30,10 @@ ConfigContextProvider.propTypes = {
             accountContainer: PropTypes.string,
             addressBookContainer: PropTypes.string,
             authBarContainer: PropTypes.string,
-            cartTrigger: PropTypes.string
+            cartTrigger: PropTypes.string,
+            navPanel: PropTypes.string,
+            bundleProductOptionsContainer: PropTypes.string,
+            accountDetailsDialogContainer: PropTypes.string
         }),
         pagePaths: PropTypes.shape({
             addressBook: PropTypes.string

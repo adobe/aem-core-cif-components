@@ -49,11 +49,15 @@ import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProductCarouselImplTest {
 
@@ -89,7 +93,7 @@ public class ProductCarouselImplTest {
 
     @Before
     public void setUp() throws Exception {
-        Page page = context.currentPage(PAGE);
+        Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTCAROUSEL);
         carouselResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTCAROUSEL));
 
@@ -101,10 +105,18 @@ public class ProductCarouselImplTest {
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient") != null ? graphqlClient : null);
 
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(carouselResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         productSkuArray = (String[]) carouselResource.getValueMap().get("product"); // The HTL script uses an alias here
         slingBindings.put("productSkuList", productSkuArray);
@@ -114,6 +126,8 @@ public class ProductCarouselImplTest {
 
     @Test
     public void getProducts() {
+
+        Assert.assertEquals("h2", productCarousel.getTitleType());
 
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product

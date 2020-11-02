@@ -27,7 +27,8 @@ const plugins = [
     ['@babel/plugin-syntax-dynamic-import'],
     ['@babel/plugin-syntax-jsx'],
     ['@babel/plugin-transform-react-jsx'],
-    ['babel-plugin-graphql-tag']
+    ['babel-plugin-graphql-tag'],
+    ['@babel/plugin-proposal-optional-chaining']
 ];
 
 // eslint-disable-next-line no-undef

@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -37,6 +38,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -64,6 +66,8 @@ public class ProductCollectionImplTest {
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
+
+                context.registerService(Externalizer.class, new MockExternalizer());
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -139,6 +143,7 @@ public class ProductCollectionImplTest {
         productCollectionModel = context.request().adaptTo(ProductCollectionImpl.class);
         Assert.assertEquals(ProductCollectionImpl.LOAD_CLIENT_PRICE_DEFAULT, productCollectionModel.loadClientPrice());
         Assert.assertEquals(SearchOptionsImpl.PAGE_SIZE_DEFAULT.intValue(), productCollectionModel.navPageSize);
+        Assert.assertEquals(ProductCollectionImpl.PAGINATION_TYPE_DEFAULT, productCollectionModel.getPaginationType());
     }
 
     @Test
@@ -147,6 +152,7 @@ public class ProductCollectionImplTest {
         productCollectionModel = context.request().adaptTo(ProductCollectionImpl.class);
         Assert.assertFalse(productCollectionModel.loadClientPrice());
         Assert.assertEquals(8, productCollectionModel.navPageSize);
+        Assert.assertEquals("loadmorebutton", productCollectionModel.getPaginationType());
     }
 
     @Test

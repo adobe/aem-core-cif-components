@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import MUTATION_REMOVE_ITEM from '../../queries/mutation_remove_item.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
@@ -20,6 +20,7 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import { removeItemFromCart } from '../../actions/cart';
 import { useCartState } from './cartContext';
 import { useAwaitQuery } from '../../utils/hooks';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 export default props => {
     const { item } = props;
@@ -36,6 +37,11 @@ export default props => {
         dispatch({ type: 'beginLoading' });
         await removeItemFromCart({ cartId, itemId, dispatch, cartDetailsQuery, removeItemMutation });
         dispatch({ type: 'endLoading' });
+        dataLayerUtils.pushEvent('cif:removeFromCart', {
+            '@id': `product-${item.product.id}`,
+            'xdm:SKU': item.product.sku,
+            'xdm:quantity': item.quantity
+        });
     };
 
     return [{}, { removeItem, editItem }];

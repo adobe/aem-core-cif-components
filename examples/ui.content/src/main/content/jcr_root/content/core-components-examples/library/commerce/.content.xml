@@ -23,7 +23,9 @@
     <relatedproducts/>
     <productlist/>
     <search/>
+    <categorycarousel/>
     <featuredcategorylist/>
     <teaser/>
     <navigation/>
+    <breadcrumb/>
 </jcr:root>
