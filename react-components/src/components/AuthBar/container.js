@@ -19,7 +19,7 @@ import MyAccountPanel from './myAccountPanel';
 import classes from './container.css';
 import useNavigationState from './useNavigationState';
 
-const Container = () => {
+const Container = props => {
     const [view, api] = useNavigationState();
 
     const hasModal = view !== 'MENU';
@@ -31,7 +31,9 @@ const Container = () => {
             </div>
             {view !== null && (
                 <div className={modalClassName}>
-                    <MyAccountPanel view={view} api={api} />
+                    <MyAccountPanel view={view} api={api}>
+                        {props.children}
+                    </MyAccountPanel>
                 </div>
             )}
         </>
