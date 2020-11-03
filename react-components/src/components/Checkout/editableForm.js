@@ -195,7 +195,7 @@ const EditableForm = props => {
                 <AddressForm
                     cancel={handleCancel}
                     countries={countries}
-                    heading={t('checkout:address-form-heading', 'Shipping Address')}
+                    formHeading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
                     initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
