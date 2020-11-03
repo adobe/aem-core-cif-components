@@ -20,10 +20,9 @@ jest.mock('../../AddressForm/useAddressForm.js', () => ({
         countries: [],
         handleSubmit: () => {},
         handleCancel: () => {},
-        errorMessage: () => {},
+        errorMessage: '',
         updateAddress: {},
-        parseAddressFormValues: () => {},
-        errorMessage: ''
+        parseAddressFormValues: () => {}
     })
 }));
 describe('<AddressFormContainer>', () => {
