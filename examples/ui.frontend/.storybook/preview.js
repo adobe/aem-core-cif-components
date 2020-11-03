@@ -4,6 +4,7 @@ export const parameters = {
     actions: { argTypesRegex: '^on[A-Z].*' },
     cifConfig: {
         storeView: 'default',
-        graphqlEndpoint: '/apps/cif-components-examples/graphql'
+        graphqlEndpoint: '/apps/cif-components-examples/graphql',
+        graphqlMethod: 'GET'
     }
 };

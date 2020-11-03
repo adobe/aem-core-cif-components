@@ -44,7 +44,8 @@ const Template = (args, context) => {
             <ConfigContextProvider
                 config={{
                     storeView: context.parameters.cifConfig.storeView,
-                    graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint
+                    graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint,
+                    graphqlMethod: context.parameters.cifConfig.graphqlMethod
                 }}>
                 <CommerceApp>
                     <ResetPassword />
