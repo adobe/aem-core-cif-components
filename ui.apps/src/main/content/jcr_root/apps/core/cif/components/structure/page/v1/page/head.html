@@ -15,13 +15,15 @@
     data-sly-template.head="${ @ page }"
     data-sly-use.headlibRenderer="headlibs.html"
     data-sly-use.headResources="head.resources.html"
+    data-sly-use.metadata="com.adobe.cq.commerce.core.components.models.page.PageMetadata"
 >
     <meta charset="UTF-8" />
-    <title>${page.title}</title>
-    <meta data-sly-test.keywords="${page.keywords}" name="keywords" content="${keywords}" />
-    <meta data-sly-test.description="${properties['jcr:description']}" name="description" content="${description}" />
+    <title>${metadata.metaTitle}</title>
+    <meta data-sly-test.keywords="${metadata.metaKeywords}" name="keywords" content="${keywords}" />
+    <meta data-sly-test.description="${metadata.metaDescription}" name="description" content="${description}" />
     <meta data-sly-test.templateName="${page.templateName}" name="template" content="${templateName}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link data-sly-test.canonical="${metadata.canonicalUrl}" rel="canonical" href="${canonical}" />
 
     <sly data-sly-include="customheaderlibs.html"></sly>
     <sly

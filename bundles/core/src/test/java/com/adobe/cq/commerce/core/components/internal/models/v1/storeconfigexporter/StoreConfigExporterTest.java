@@ -18,13 +18,17 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
@@ -32,23 +36,25 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class StoreConfigExporterTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store"));
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "cq:graphqlClient",
+            "my-graphql-client"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
-
-    private ConfigurationBuilder configurationBuilder;
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 context.load().json(contentPath, "/content");
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) input -> input.getValueMap().get("cq:conf", String.class) != null
+                    (Function<Resource, ComponentsConfiguration>) input -> input.getPath().contains("pageH")
                         ? MOCK_CONFIGURATION_OBJECT
                         : ComponentsConfiguration.EMPTY);
             },
@@ -57,14 +63,23 @@ public class StoreConfigExporterTest {
 
     @Test
     public void testStoreView() {
-        setupWithPage("/content/pageH");
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+    }
+
+    @Test
+    public void testStoreViewOnLaunchPage() {
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+
+        setupWithPage("/content/launches/2020/09/14/mylaunch/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewDefault() {
-        setupWithPage("/content/pageD");
+        setupWithPage("/content/pageD", HttpMethod.POST);
 
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("default", storeConfigExporter.getStoreView());
@@ -72,7 +87,7 @@ public class StoreConfigExporterTest {
 
     @Test
     public void testGraphqlEndpoint() {
-        setupWithPage("/content/pageH");
+        setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
         Assert.assertEquals("/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
@@ -80,15 +95,37 @@ public class StoreConfigExporterTest {
 
     @Test
     public void testGraphqlEndpointDefault() {
-        setupWithPage("/content/pageD");
+        setupWithPage("/content/pageD", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
-    private void setupWithPage(String pagetPath) {
-        Page page = context.pageManager().getPage(pagetPath);
+    @Test
+    public void testGraphqlMethodGet() {
+        setupWithPage("/content/pageH", HttpMethod.GET);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        Assert.assertEquals("GET", storeConfigExporter.getMethod());
+    }
+
+    @Test
+    public void testGraphqlMethodPost() {
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        Assert.assertEquals("POST", storeConfigExporter.getMethod());
+    }
+
+    private void setupWithPage(String pagePath, HttpMethod method) {
+        Page page = context.pageManager().getPage(pagePath);
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.setResource(page.getContentResource());
 
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(method);
+        GraphqlClient graphqlClient = mock(GraphqlClient.class);
+        when(graphqlClient.getConfiguration()).thenReturn(graphqlClientConfiguration);
+
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
     }
 }

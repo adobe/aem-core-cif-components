@@ -49,7 +49,11 @@ import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = ProductList.class,
+    resourceType = ProductListImpl.RESOURCE_TYPE,
+    cache = true)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
@@ -68,6 +72,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
+    private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
@@ -87,6 +92,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
+
+        if (!wcmMode.isDisabled()) {
+            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+        } else {
+            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+        }
 
         // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
@@ -157,7 +168,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
             CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider);
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider,
+                resource);
             return categoryProducts.getItems().stream()
                 .map(converter)
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
@@ -201,5 +213,25 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public AbstractCategoryRetriever getCategoryRetriever() {
         return categoryRetriever;
+    }
+
+    @Override
+    public String getMetaDescription() {
+        return getCategory() != null ? getCategory().getMetaDescription() : null;
+    }
+
+    @Override
+    public String getMetaKeywords() {
+        return getCategory() != null ? getCategory().getMetaKeywords() : null;
+    }
+
+    @Override
+    public String getMetaTitle() {
+        return StringUtils.defaultString(getCategory() != null ? getCategory().getMetaTitle() : null, getTitle());
+    }
+
+    @Override
+    public String getCanonicalUrl() {
+        return canonicalUrl;
     }
 }

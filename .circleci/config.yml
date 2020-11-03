@@ -142,7 +142,7 @@ jobs:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:3919
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:4271
         <<: *docker_auth
     resource_class: large
     working_directory: /home/circleci/build
@@ -152,7 +152,7 @@ jobs:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:3919
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:4271
         <<: *docker_auth
     environment:
       AEM: addon
@@ -164,10 +164,7 @@ jobs:
     executor: cif_executor
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - maven-repo-v1-{{ checksum "pom.xml" }}
-            - maven-repo-v1-
+      - *restore_cache
       - run:
           name: Update permissions
           command: sudo chown -R circleci /usr/local/lib/node_modules

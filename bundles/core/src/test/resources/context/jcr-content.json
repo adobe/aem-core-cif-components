@@ -33,7 +33,8 @@
           },
           "productcarousel": {
             "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01", "MJ01"],
-            "sling:resourceType": "venia/components/commerce/productcarousel"
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2"
           },
           "product": {
             "sling:resourceType": "venia/components/commerce/product"
@@ -50,7 +51,8 @@
           "relatedproducts": {
             "product": "24-MG01",
             "relationType": "RELATED_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
+            "sling:resourceType": "venia/components/commerce/relatedproducts",
+            "titleType": "h2"
           },
           "upsellproducts": {
             "relationType": "UPSELL_PRODUCTS",
@@ -73,11 +75,11 @@
                 "text": "A product"
               },
               "item1": {
-                "categoryId": "30",
+                "categoryId": "5",
                 "text": "A category"
               },
               "item2": {
-                "categoryId": "30",
+                "categoryId": "6",
                 "productSlug": "beaumont-summit-kit",
                 "text": "A category"
               },
@@ -88,6 +90,7 @@
           },
           "featuredcategorylist": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "titleType": "h2",
             "items": {
               "item0": {
                 "categoryId": "5"
@@ -137,6 +140,7 @@
           "productcollection2": {
             "loadClientPrice": false,
             "pageSize": 8,
+            "paginationType": "loadmorebutton",
             "sling:resourceType": "venia/components/commerce/productcollection"
           }
         }
@@ -235,6 +239,10 @@
                     }
                   }
                 } 
+              },
+              "pageH": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:content": {}
               }
             }
           }

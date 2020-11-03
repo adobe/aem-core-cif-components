@@ -16,6 +16,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -25,12 +28,14 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 
@@ -38,8 +43,6 @@ import com.day.cq.wcm.api.Page;
 public class CommerceTeaserImpl implements CommerceTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/content/teaser/v1/teaser";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
     private Page productPage;
     private Page categoryPage;
@@ -77,28 +80,49 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     void populateActions() {
         Resource actionsNode = resource.getChild(CommerceTeaser.NN_ACTIONS);
         if (actionsNode != null) {
-            for (Resource action : actionsNode.getChildren()) {
+            Iterable<Resource> configuredActions = actionsNode.getChildren();
 
+            // collect all configured category actions to query url_path
+            List<String> categoryIds = StreamSupport
+                .stream(configuredActions.spliterator(), false).filter(res -> res.getValueMap().containsKey(PN_ACTION_CATEGORY_ID))
+                .map(res -> res.getValueMap().get(PN_ACTION_CATEGORY_ID, String.class))
+                .distinct().collect(Collectors.toList());
+
+            AbstractCategoriesRetriever categoriesRetriever = null;
+            if (categoryIds.size() > 0) {
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+                if (magentoGraphqlClient != null) {
+                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                    categoriesRetriever.setIdentifiers(categoryIds);
+                }
+            }
+
+            // build teaser action items for all configured actions
+            for (Resource action : configuredActions) {
                 ValueMap properties = action.getValueMap();
-                String title = properties.get(PN_ACTION_TEXT, String.class);
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
-                String selector = null;
-                Page page;
-                boolean isProduct = false;
 
+                String actionUrl = null;
                 if (categoryId != null) {
-                    page = categoryPage;
-                    selector = categoryId;
+                    ParamsBuilder params = new ParamsBuilder().id(categoryId);
+                    if (categoriesRetriever != null) {
+                        Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
+                            .filter(c -> c.getId() == Integer.valueOf(categoryId)).findAny();
+                        if (cat.isPresent()) {
+                            params.urlPath(cat.get().getUrlPath());
+                        }
+                    }
+                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
                 } else if (productSlug != null) {
-                    page = productPage;
-                    selector = productSlug;
-                    isProduct = true;
+                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
+                    actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
                 } else {
-                    page = currentPage;
-
+                    actionUrl = currentPage.getPath() + ".html";
                 }
-                actions.add(new CommerceTeaserActionItem(title, selector, page, request, urlProvider, isProduct));
+
+                String title = properties.get(PN_ACTION_TEXT, String.class);
+                actions.add(new CommerceTeaserActionItem(title, actionUrl));
             }
         }
     }
@@ -112,5 +136,4 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     public List<ListItem> getActions() {
         return actions;
     }
-
 }

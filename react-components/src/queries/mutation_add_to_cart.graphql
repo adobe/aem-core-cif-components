@@ -6,6 +6,9 @@ mutation addSimpleProductToCart($cartId: String!, $cartItems: [SimpleProductCart
                 quantity
                 product {
                     name
+                    thumbnail {
+                        url
+                    }
                 }
             }
         }

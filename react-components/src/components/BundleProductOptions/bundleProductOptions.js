@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConfigContext } from '../../context/ConfigContext';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 import Checkbox from './checkbox';
 import Radio from './radio';
 import Select from './select';
@@ -33,6 +34,7 @@ const BundleProductOptions = () => {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
     const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
+    const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
 
     const fetchBundleDetails = async sku => {
@@ -51,6 +53,7 @@ const BundleProductOptions = () => {
                 type: item.type,
                 quantity: ['checkbox', 'multi'].includes(item.type) ? 1 : item.options.find(o => o.is_default).quantity,
                 options: item.options
+                    .slice() // return a shallow copy of the array. the original is frozen and cannot be sorted as Array.prototype.sort() sorts the elements of the array in place
                     .sort((a, b) => a.position - b.position)
                     .map(option => {
                         const {
@@ -147,25 +150,30 @@ const BundleProductOptions = () => {
 
     const addToCart = () => {
         const { selections, quantity } = bundleState;
-
+        const productData = {
+            sku,
+            virtual: false,
+            bundle: true,
+            quantity: quantity,
+            options: selections.map(s => {
+                return {
+                    id: s.option_id,
+                    quantity: s.quantity,
+                    value: s.customization.map(c => c.id.toString())
+                };
+            })
+        };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [
-                {
-                    sku,
-                    virtual: false,
-                    bundle: true,
-                    quantity: quantity,
-                    options: selections.map(s => {
-                        return {
-                            id: s.option_id,
-                            quantity: s.quantity,
-                            value: s.customization.map(c => c.id.toString())
-                        };
-                    })
-                }
-            ]
+            detail: [productData]
         });
         document.dispatchEvent(customEvent);
+        // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
+        dataLayerUtils.pushEvent('cif:addToCart', {
+            '@id': productId,
+            'xdm:SKU': productData.sku,
+            'xdm:quantity': productData.quantity,
+            bundle: true
+        });
     };
 
     const getTotalPrice = () => {

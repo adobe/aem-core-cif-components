@@ -20,8 +20,9 @@ import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.wcm.core.components.models.Component;
 
-public interface ProductCarousel {
+public interface ProductCarousel extends Component {
 
     /**
      * Returns the list of products to be displayed in the carousel.
@@ -44,4 +45,11 @@ public interface ProductCarousel {
      * @return true or false
      */
     boolean isConfigured();
+
+    /**
+     * Should return the HTML tag type for the component title.
+     * 
+     * @return The HTML tag type that should be used to display the component title.
+     */
+    String getTitleType();
 }

@@ -12,13 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
-
-import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
+import { render } from 'test-utils';
 import AddressItemsContainer from '../addressItemsContainer';
 
 describe('<AddressItemsContainer>', () => {
@@ -39,28 +33,12 @@ describe('<AddressItemsContainer>', () => {
             }
         };
 
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <AddressItemsContainer />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressItemsContainer />, { userContext: mockInitialState });
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with list display type', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressItemsContainer displayType={'list'} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressItemsContainer displayType={'list'} />);
         expect(asFragment()).toMatchSnapshot();
     });
 });

@@ -12,39 +12,34 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render } from '@testing-library/react';
-
-import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
+import { render } from '../../../utils/test-utils';
 
 import AddressFormContainer from '../addressFormContainer';
+jest.mock('../../AddressForm/useAddressForm.js', () => {
+    return {
+        useAddressForm: () => {
+            return {
+                countries: [],
+                handleSubmit: () => {},
+                handleCancel: () => {},
+                errorMessage: '',
+                updateAddress: {},
+                parseAddressFormValues: values => values
+            };
+        }
+    };
+});
 
 describe('<AddressFormContainer>', () => {
     it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressFormContainer />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressFormContainer />);
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with address form shown', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={{ isShowAddressForm: true }}>
-                        <AddressFormContainer />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressFormContainer />, {
+            userContext: { isShowAddressForm: true }
+        });
         expect(asFragment()).toMatchSnapshot();
     });
 });

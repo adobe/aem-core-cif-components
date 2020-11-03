@@ -13,39 +13,9 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { render, waitForElement } from '@testing-library/react';
-
-import { useCountries } from '../hooks';
-import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
-
-const mocks = [
-    {
-        request: {
-            query: QUERY_COUNTRIES
-        },
-        result: {
-            data: {
-                countries: [
-                    {
-                        id: 'RO',
-                        available_regions: [
-                            { id: 835, code: 'AB', name: 'Alba' },
-                            { id: 838, code: 'AR', name: 'Arad' }
-                        ]
-                    },
-                    {
-                        id: 'US',
-                        available_regions: [
-                            { id: 4, code: 'AL', name: 'Alabama' },
-                            { id: 7, code: 'AK', name: 'Alaska' }
-                        ]
-                    }
-                ]
-            }
-        }
-    }
-];
+import { waitForElement } from '@testing-library/react';
+import { render } from '../test-utils';
+import { useCountries, useQueryParams } from '../hooks';
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
@@ -63,14 +33,21 @@ describe('Custom hooks', () => {
                 );
             };
 
-            const { getByTestId } = render(
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <HookWrapper />
-                </MockedProvider>
-            );
+            const { getByTestId } = render(<HookWrapper />);
             const [count, result] = await waitForElement(() => [getByTestId('count'), getByTestId('result')]);
             expect(count.textContent).toEqual('2');
             expect(result.textContent).toEqual('US');
+        });
+    });
+
+    describe('useQueryParams', () => {
+        it('returns a URLSearchParams object', () => {
+            delete window.location;
+            window.location = new URL('http://localhost?token=my-token&page=5');
+
+            const queryParams = useQueryParams();
+            expect(queryParams.get('token')).toEqual('my-token');
+            expect(queryParams.get('page')).toEqual('5');
         });
     });
 });

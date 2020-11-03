@@ -12,60 +12,45 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from 'test-utils';
 import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import AddressDeleteModal from '../addressDeleteModal';
+
+// avoid console errors logged during testing
+console.error = jest.fn();
 
 describe('<AddressDeleteModal>', () => {
     it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressDeleteModal />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressDeleteModal />);
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('handle click event of confirm delete address button', () => {
+    it('handle click event of confirm delete address button', async () => {
         const handler = jest.fn(state => state);
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <AddressDeleteModal />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <AddressDeleteModal />
+            </UserContextProvider>
         );
         fireEvent.click(getByText('Delete'));
-
-        expect(handler.mock.calls.length).toEqual(1);
+        await wait(() => {
+            expect(handler.mock.calls.length).toEqual(1);
+        });
     });
 
-    it('handle click event of cancel delete address button', () => {
+    it('handle click event of cancel delete address button', async () => {
         const handler = jest.fn(state => state);
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <AddressDeleteModal />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <AddressDeleteModal />
+            </UserContextProvider>
         );
         fireEvent.click(getByText('Cancel'));
-
-        expect(handler.mock.calls.length).toEqual(1);
+        await wait(() => {
+            expect(handler.mock.calls.length).toEqual(1);
+        });
     });
 });

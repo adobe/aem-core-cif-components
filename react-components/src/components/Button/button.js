@@ -42,7 +42,7 @@ Button.propTypes = {
     type: oneOf(['button', 'reset', 'submit']).isRequired,
     children: node,
     classes: shape({
-        content: string.isRequired
+        content: string
     })
 };
 

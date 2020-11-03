@@ -22,6 +22,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -40,6 +41,9 @@ import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -81,6 +85,8 @@ public class FeaturedCategoryListImplTest {
             UrlProviderImpl urlProvider = new UrlProviderImpl();
             urlProvider.activate(new MockUrlProviderConfiguration());
             context.registerService(UrlProvider.class, urlProvider);
+            ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
         }, ResourceResolverType.JCR_MOCK);
     }
 
@@ -119,7 +125,11 @@ public class FeaturedCategoryListImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
         slingBindings.put(WCMBindings.WCM_MODE, new SightlyWCMMode(context.request()));
-        slingBindings.put("currentPage", page);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         featuredCategoryList = context.request().adaptTo(FeaturedCategoryListImpl.class);
     }
@@ -130,6 +140,7 @@ public class FeaturedCategoryListImplTest {
 
         Assert.assertNotNull(featuredCategoryList);
         Assert.assertTrue(featuredCategoryList.isConfigured());
+        Assert.assertEquals("h2", featuredCategoryList.getTitleType());
         List<CategoryTree> list = featuredCategoryList.getCategories();
         Assert.assertNotNull(list);
         Assert.assertEquals(list.size(), 3);
@@ -201,5 +212,14 @@ public class FeaturedCategoryListImplTest {
         categories = featuredCategoryList.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
+    }
+
+    @Test
+    public void testJsonRender() throws Exception {
+        setupTest(COMPONENT_PATH);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("results/result-datalayer-featuredcategorylist-component.json");
+        String jsonResult = featuredCategoryList.getData().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 }

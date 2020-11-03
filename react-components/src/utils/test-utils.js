@@ -11,107 +11,76 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 import React from 'react';
 import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/client/testing';
+import { I18nextProvider } from 'react-i18next';
 
-import QUERY_CART_DETAILS from '../queries/query_cart_details.graphql';
+import i18n from '../../__mocks__/i18nForTests';
+import ConfigContextProvider from '../context/ConfigContext';
+import UserContextProvider from '../context/UserContext';
 
-const emptyCartId = 'empty';
-const mockCartId = '123ABC';
+import mutationChangePassword from './mocks/mutationChangePassword';
+import mutationCreateCustomer from './mocks/mutationCreateCustomer';
+import mutationCreateDuplicateCustomer from './mocks/mutationCreateCustomerDuplicate';
+import mutationDeleteCustomerAddress from './mocks/mutationDeleteCustomerAddress';
+import mutationGenerateToken from './mocks/mutationGenerateToken';
+import mutationGenerateTokenWrongPassword from './mocks/mutationGenerateTokenWrongPassword';
+import mutationMergeCarts from './mocks/mutationMergeCarts';
+import mutationPlaceOrder from './mocks/mutationPlaceOrder';
+import mutationRevokeToken from './mocks/mutationRevokeToken';
+import mutationShippingAddress from './mocks/mutationShippingAddress';
+import queryCart from './mocks/queryCart';
+import queryCountries from './mocks/queryCountries';
+import queryCustomerCart from './mocks/queryCustomerCart';
+import queryCustomerDetails from './mocks/queryCustomerDetails';
+import queryCustomerInformation from './mocks/queryCustomerInformation';
+import queryEmptyCart from './mocks/queryEmptyCart';
+import queryNewCart from './mocks/queryNewCart';
 
-const mocks = [
-    {
-        request: {
-            query: QUERY_CART_DETAILS,
-            variables: {
-                cartId: emptyCartId
-            }
-        },
-        result: {
-            data: {
-                cart: {
-                    email: null,
-                    shipping_addresses: [],
-                    prices: {
-                        grand_total: {
-                            currency: 'USD',
-                            value: 0
-                        }
-                    },
-                    selected_payment_method: {
-                        code: '',
-                        title: ''
-                    },
-                    billing_address: {
-                        city: null,
-                        country: {
-                            code: null
-                        },
-                        lastname: null,
-                        firstname: null,
-                        region: {
-                            code: null
-                        },
-                        street: [''],
-                        postcode: null,
-                        telephone: null
-                    },
-                    available_payment_methods: [
-                        {
-                            code: 'cashondelivery',
-                            title: 'Cash On Delivery'
-                        },
-                        {
-                            code: 'banktransfer',
-                            title: 'Bank Transfer Payment'
-                        },
-                        {
-                            code: 'checkmo',
-                            title: 'Check / Money order'
-                        },
-                        {
-                            code: 'free',
-                            title: 'No Payment Information Required'
-                        }
-                    ],
-                    items: []
-                }
-            }
-        }
-    },
-    {
-        request: {
-            query: QUERY_CART_DETAILS,
-            variables: {
-                cartId: mockCartId
-            }
-        },
-        result: {
-            data: {
-                prices: {
-                    grand_total: {
-                        currency: 'USD',
-                        value: 0
-                    }
-                },
-                items: []
-            }
-        }
-    }
+const defaultMocks = [
+    mutationChangePassword,
+    mutationCreateCustomer,
+    mutationCreateDuplicateCustomer,
+    mutationDeleteCustomerAddress,
+    mutationGenerateToken,
+    mutationGenerateTokenWrongPassword,
+    mutationMergeCarts,
+    mutationPlaceOrder,
+    mutationRevokeToken,
+    mutationShippingAddress,
+    queryCart,
+    queryCountries,
+    queryCustomerCart,
+    queryCustomerDetails,
+    queryCustomerInformation,
+    queryEmptyCart,
+    queryNewCart
 ];
 
-const AllProviders = ({ children }) => {
+const defaultConfig = {
+    storeView: 'default',
+    graphqlEndpoint: 'none'
+};
+
+// eslint-disable-next-line react/display-name
+const allProviders = (config, userContext, mocks) => ({ children }) => {
     return (
         <MockedProvider mocks={mocks} addTypename={false}>
-            {children}
+            <ConfigContextProvider config={config || defaultConfig}>
+                <UserContextProvider initialState={userContext}>
+                    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+                </UserContextProvider>
+            </ConfigContextProvider>
         </MockedProvider>
     );
 };
 
 /* Wrap all the React components tested with the library in a mocked Apollo provider */
-const customRender = (ui, options) => render(ui, { wrapper: AllProviders, ...options });
+const customRender = (ui, options = {}) => {
+    const { config, userContext, mocks = defaultMocks, ...renderOptions } = options;
+    return render(ui, { wrapper: allProviders(config, userContext, mocks), ...renderOptions });
+};
 
 export * from '@testing-library/react';
 export { customRender as render };

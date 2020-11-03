@@ -77,6 +77,7 @@ query cartDetails($cartId: String!) {
         }
         total_quantity
         items {
+            __typename
             id
             quantity
             prices {
@@ -91,6 +92,7 @@ query cartDetails($cartId: String!) {
             }
             product {
                 name
+                sku
                 thumbnail {
                     url
                 }

@@ -12,39 +12,19 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import AddAddressButton from '../addAddressButton';
 
 describe('<AddAddressButton>', () => {
     it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddAddressButton />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddAddressButton />);
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with list display type', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddAddressButton displayType={'list'} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddAddressButton displayType={'list'} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -52,16 +32,11 @@ describe('<AddAddressButton>', () => {
         const handler = jest.fn(state => state);
 
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <AddAddressButton />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <AddAddressButton />
+            </UserContextProvider>
         );
         fireEvent.click(getByRole('button'));
-
         expect(handler.mock.calls.length).toEqual(1);
     });
 });

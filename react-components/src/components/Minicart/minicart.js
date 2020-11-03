@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { Suspense } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
@@ -64,7 +64,7 @@ const MiniCart = () => {
 
     return (
         <>
-            <Mask />
+            <Mask isOpen={isOpen} onClickHandler={() => dispatch({ type: 'close' })} />
             <aside className={rootClass}>
                 <Suspense fallback={<LoadingIndicator />}>
                     <Header />

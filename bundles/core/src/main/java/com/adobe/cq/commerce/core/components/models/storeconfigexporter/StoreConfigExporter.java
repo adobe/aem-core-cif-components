@@ -26,4 +26,8 @@ public interface StoreConfigExporter {
      */
     String getGraphqlEndpoint();
 
+    /**
+     * Returns the HTTP method to be used for GraphQL requests.
+     */
+    String getMethod();
 }

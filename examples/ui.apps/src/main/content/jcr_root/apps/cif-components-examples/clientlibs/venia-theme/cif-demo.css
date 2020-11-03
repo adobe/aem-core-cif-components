@@ -12,6 +12,10 @@
     max-width: 50%;
 }
 
+.cif-demo .carousel__container {
+    max-width: 50%;
+}
+
 .cif-demo .searchBar__root {
     display: block !important;
 }
@@ -24,4 +28,8 @@
 
 .cif-demo .navigation__mask {
     z-index: 1400;
+}
+
+.cif-demo .cmp-breadcrumb__item::before {
+	content: "" !important;
 }

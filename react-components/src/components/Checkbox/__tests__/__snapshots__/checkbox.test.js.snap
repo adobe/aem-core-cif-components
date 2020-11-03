@@ -1,42 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<Checkbox> renders the correct tree 1`] = `
-<form
-  onKeyDown={[Function]}
-  onReset={[Function]}
-  onSubmit={[Function]}
->
-  <label
-    className="root"
-  >
-    <span
-      className="icon"
-    />
-    <input
-      checked={false}
-      className="input"
-      classes={
-        Object {
-          "icon": "icon",
-          "input": "input",
-          "label": "label",
-          "message": "message",
-          "root": "root",
-        }
-      }
-      name="a"
-      onBlur={[Function]}
-      onChange={[Function]}
-      type="checkbox"
-    />
-    <span
-      className="label"
+<DocumentFragment>
+  <form>
+    <label
+      class="root"
+      for="c"
     >
-      b
-    </span>
-  </label>
-  <p
-    className="root"
-  />
-</form>
+      <span
+        class="icon"
+      />
+      <input
+        class="input"
+        id="c"
+        name="a"
+        type="checkbox"
+      />
+      <span
+        class="label"
+      >
+        b
+      </span>
+    </label>
+    <p
+      class="root"
+    />
+  </form>
+</DocumentFragment>
 `;

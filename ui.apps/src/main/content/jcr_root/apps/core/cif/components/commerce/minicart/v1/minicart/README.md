@@ -12,13 +12,13 @@ The MiniCart is a client-side component written in React which renders the shopp
 
 ## Implementation
 
-This AEM component only renders a container `div` for the [React component](../../../../../../../../../../../../javascript/minicart).
+This AEM component only renders a container `div` for the [React component](/react-components/src/components/Minicart).
 
 ## Using the MiniCart
 
 ### URL routing
 
-This component requires the [AEM Dispatcher with GraphQL routing](../../../../../../../../../../../../../dispatcher) set up. By default Magento GraphQL endpoint will be accessed via relative URL `/magento/graphql`.
+This component requires the [AEM Dispatcher with GraphQL routing](/dispatcher) set up. By default Magento GraphQL endpoint will be accessed via relative URL `/magento/graphql`.
 
 ### Adding a product to cart
 

@@ -13,20 +13,13 @@
  ******************************************************************************/
 
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-
-import UserContextProvider, { useUserContext } from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
+import { useUserContext } from '../../..';
+import { CartProvider } from '../../Minicart';
 import CreateAccount from '../createAccount';
-import i18n from '../../../../__mocks__/i18nForTests';
 
-import MUTATION_GENERATE_TOKEN from '../../../queries/mutation_generate_token.graphql';
-import QUERY_CUSTOMER_DETAILS from '../../../queries/query_customer_details.graphql';
 import MUTATION_CREATE_CUSTOMER from '../../../queries/mutation_create_customer.graphql';
-import QUERY_CUSTOMER_CART from '../../../queries/query_customer_cart.graphql';
-import MUTATION_MERGE_CARTS from '../../../queries/mutation_merge_carts.graphql';
 
 describe('<CreateAccount>', () => {
     beforeEach(() => {
@@ -34,117 +27,31 @@ describe('<CreateAccount>', () => {
     });
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
-                            <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />
-                        </CartProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />
+            </CartProvider>
         );
 
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('submits the form properly', async () => {
-        const mockPerson = {
-            email: 'imccoy@weretail.net',
-            firstname: 'Iris',
-            lastname: 'McCoy'
-        };
-        const mockPassword = 'Imccoy123';
-        const mocks = [
-            {
-                request: {
-                    query: MUTATION_CREATE_CUSTOMER,
-                    variables: {
-                        ...mockPerson,
-                        password: mockPassword
-                    }
-                },
-                result: {
-                    data: {
-                        createCustomer: {
-                            customer: { ...mockPerson }
-                        }
-                    }
-                }
-            },
-            {
-                request: {
-                    query: MUTATION_GENERATE_TOKEN,
-                    variables: { email: mockPerson.email, password: mockPassword }
-                },
-                result: {
-                    data: {
-                        generateCustomerToken: {
-                            token: 'token123'
-                        }
-                    }
-                }
-            },
-            {
-                request: {
-                    query: QUERY_CUSTOMER_DETAILS
-                },
-                result: {
-                    data: {
-                        customer: mockPerson
-                    }
-                }
-            },
-            {
-                request: {
-                    query: QUERY_CUSTOMER_CART
-                },
-                result: {
-                    data: {
-                        customerCart: {
-                            id: 'customercart'
-                        }
-                    }
-                }
-            },
-            {
-                request: {
-                    query: MUTATION_MERGE_CARTS,
-                    variables: {
-                        sourceCartId: 'guest123',
-                        destinationCartId: 'customercart'
-                    }
-                },
-                result: {
-                    data: {
-                        mergeCarts: {
-                            id: 'customercart'
-                        }
-                    }
-                }
-            }
-        ];
-
         const ContextWrapper = () => {
             const [{ createAccountEmail }] = useUserContext();
             let content;
             if (createAccountEmail !== null) {
                 content = <div data-testid="success">{createAccountEmail}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;
         };
 
         const { getByLabelText, getByTestId, container } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                <ContextWrapper />
+            </CartProvider>
         );
         const detailsFromValue = value => {
             return {
@@ -153,11 +60,11 @@ describe('<CreateAccount>', () => {
                 }
             };
         };
-        fireEvent.change(getByLabelText('firstname'), detailsFromValue(mockPerson.firstname));
-        fireEvent.change(getByLabelText('lastname'), detailsFromValue(mockPerson.lastname));
-        fireEvent.change(getByLabelText('email'), detailsFromValue(mockPerson.email));
-        fireEvent.change(getByLabelText('password'), detailsFromValue(mockPassword));
-        fireEvent.change(getByLabelText('confirm'), detailsFromValue(mockPassword));
+        fireEvent.change(getByLabelText('firstname'), detailsFromValue('Iris'));
+        fireEvent.change(getByLabelText('lastname'), detailsFromValue('McCoy'));
+        fireEvent.change(getByLabelText('email'), detailsFromValue('imccoy@weretail.net'));
+        fireEvent.change(getByLabelText('password'), detailsFromValue('Imccoy123'));
+        fireEvent.change(getByLabelText('confirm'), detailsFromValue('Imccoy123'));
 
         fireEvent.click(getByLabelText('submit'));
 
@@ -167,7 +74,7 @@ describe('<CreateAccount>', () => {
 
         expect(container.querySelector('.root_error')).toBe(null);
         expect(result).not.toBeUndefined();
-        expect(result.textContent).toEqual(mockPerson.email);
+        expect(result.textContent).toEqual('imccoy@weretail.net');
     });
 
     it('handles the account creation error', async () => {
@@ -215,20 +122,17 @@ describe('<CreateAccount>', () => {
             if (createAccountError) {
                 content = <div data-testid="success">{createAccountError}</div>;
             } else {
-                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={() => {}} />;
+                content = <CreateAccount showMyAccount={jest.fn()} showAccountCreated={jest.fn()} />;
             }
 
             return content;
         };
 
         const { getByTestId, getByLabelText } = render(
-            <MockedProvider mocks={mocks} addTypename={false}>
-                <UserContextProvider>
-                    <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
-                        <ContextWrapper />
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
+                <ContextWrapper />
+            </CartProvider>,
+            { mocks: mocks }
         );
 
         const detailsFromValue = value => {

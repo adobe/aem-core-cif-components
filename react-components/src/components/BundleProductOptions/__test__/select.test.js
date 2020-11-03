@@ -13,10 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import Select from '../select';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
-import i18n from '../../../../__mocks__/i18nForTests';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 
 describe('<Select>', () => {
     const requiredItem = {
@@ -55,14 +53,12 @@ describe('<Select>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Select
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -70,14 +66,12 @@ describe('<Select>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Select
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         fireEvent.change(getByRole('combobox'), { target: { value: 2 } });
@@ -103,85 +97,14 @@ describe('<Select>', () => {
             }
         ];
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Select
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={quantityDisableCustomization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Select
+                item={requiredItem}
+                options={sortedOptions}
+                customization={quantityDisableCustomization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <div
-                class="bundleOptionSelect__root"
-              >
-                <span
-                  class="fieldIcons__root"
-                >
-                  <span
-                    class="fieldIcons__input"
-                  >
-                    <select
-                      class="select__input field__input bundleProduct__option"
-                    >
-                      <option
-                        value="1"
-                      >
-                        Carmina Necklace
-                      </option>
-                      <option
-                        value="2"
-                      >
-                        Augusta Necklace
-                      </option>
-                    </select>
-                  </span>
-                  <span
-                    class="fieldIcons__before"
-                  />
-                  <span
-                    class="fieldIcons__after"
-                  >
-                    <span
-                      class="icon__root"
-                    >
-                      <svg
-                        fill="none"
-                        height="18"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        width="18"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <polyline
-                          points="6 9 12 15 18 9"
-                        />
-                      </svg>
-                    </span>
-                  </span>
-                </span>
-              </div>
-              <h2
-                class="bundleProduct__quantityTitle"
-              >
-                <span>
-                  Quantity
-                </span>
-              </h2>
-              <input
-                class="option__quantity"
-                disabled=""
-                min="1"
-                type="number"
-                value="1"
-              />
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchSnapshot();
     });
 });

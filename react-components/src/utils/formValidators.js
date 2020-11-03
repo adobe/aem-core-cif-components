@@ -49,11 +49,25 @@ export const validateEmail = value => {
 };
 
 export const validateRegionCode = (value, values, countries) => {
+    const selectedCountry = values.countryCode;
+    if (selectedCountry !== 'US') {
+        // not validating the state for countries other than US
+        // this is actually more complex since on the Magento side
+        // you can define this in the store configuration
+        // ...but we don't read the store configuration now.
+        return SUCCESS;
+    }
+    if (!value || value.length === 0) {
+        return 'This field is mandatory';
+    }
+
+    let lengthValidation = hasLengthExactly(value, values, 2);
+    if (lengthValidation) {
+        return lengthValidation;
+    }
+
     const country = countries.find(({ id }) => id === 'US');
 
-    if (!country) {
-        return 'Country "US" is not an available country.';
-    }
     const { available_regions: regions } = country;
 
     if (!(Array.isArray(regions) && regions.length)) {
@@ -91,4 +105,8 @@ export const validatePassword = value => {
 
 export const validateConfirmPassword = (value, values, passwordKey = 'password') => {
     return value === values[passwordKey] ? SUCCESS : 'Passwords must match.';
+};
+
+export const isNotEqualToField = (value, values, otherField) => {
+    return value !== values[otherField] ? SUCCESS : `${otherField} must be different`;
 };

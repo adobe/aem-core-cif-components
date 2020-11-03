@@ -7,6 +7,7 @@
   "current-password": "Current Password",
   "new-password": "New Password",
   "confirm-new-password": "Confirm New Password",
+  "name": "Name",
   "firstname": "First Name",
   "lastname": "Last Name",
   "email": "Email address",
@@ -42,5 +43,14 @@
   "address-delete": "Delete",
   "address-default-tag": "Default",
   "address-form-heading": "Address",
-  "account-information": "Account Information"
+  "account-information": "Account Information",
+  "reset-password-instructions": "Enter your email below to receive a password reset link.",
+  "reset-password-lead": "Please choose a new password to complete the password reset.",
+  "new-password-confirm": "Confirm new Password",
+  "reset-password": "Reset Password",
+  "reset-password-missing-token": "Missing or invalid token.",
+  "reset-password-error": "Could not reset password.",
+  "reset-password-success": "Your password was changed. Please log in with your new password.",
+  "account-details-sign-in-text": "Please sign in to see the account details.",
+  "edit-account-info": "Edit account information"
 }

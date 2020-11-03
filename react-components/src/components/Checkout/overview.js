@@ -14,7 +14,7 @@
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
 
-import { Price } from '@magento/peregrine';
+import Price from '../Price';
 import { useTranslation } from 'react-i18next';
 
 import PaymentMethodSummary from './paymentMethodSummary';
@@ -24,6 +24,7 @@ import LoadingIndicator from '../LoadingIndicator';
 import Section from './section';
 import Button from '../Button';
 import useOverview from './useOverview';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -44,7 +45,41 @@ const Overview = props => {
         return <LoadingIndicator message="Placing order"></LoadingIndicator>;
     }
     const submitOrder = async () => {
-        await placeOrder(cart.id);
+        const {
+            placeOrder: {
+                order: { order_id }
+            }
+        } = await placeOrder(cart.id);
+        const {
+            prices: {
+                grand_total: { currency, value }
+            },
+            selected_payment_method: { code },
+            items
+        } = cart;
+        dataLayerUtils.pushEvent('cif:placeOrder', {
+            'xdm:purchaseOrderNumber': order_id,
+            'xdm:currencyCode': currency,
+            'xdm:priceTotal': value,
+            'xdm:payments': [
+                {
+                    'xdm:paymentAmount': value,
+                    'xdm:paymentType': code,
+                    'xdm:currencyCode': currency
+                }
+            ],
+            'xdm:products': items.map(item => {
+                const {
+                    product: { sku },
+                    quantity
+                } = item;
+                return {
+                    '@id': `product-${sku}`,
+                    'xdm:SKU': sku,
+                    'xdm:quantity': quantity
+                };
+            })
+        });
     };
 
     return (

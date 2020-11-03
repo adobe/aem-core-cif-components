@@ -12,14 +12,10 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
-
-import { CheckoutProvider } from '../../Checkout/checkoutContext';
-import UserContextProvider from '../../../context/UserContext';
+import { fireEvent, wait } from '@testing-library/react';
+import { render } from 'test-utils';
+import { CheckoutProvider } from '../../Checkout';
 import { useAddressSelect } from '../useAddressSelect';
-import i18n from '../../../../__mocks__/i18nForTests';
 
 describe('useAddressSelect', () => {
     const mockInitialState = {
@@ -55,22 +51,19 @@ describe('useAddressSelect', () => {
         };
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
-        const newAddressLabel = getByTestId('new-address-label');
-        expect(newAddressLabel.textContent).toEqual('New Address');
+        await wait(() => {
+            const newAddressLabel = getByTestId('new-address-label');
+            expect(newAddressLabel.textContent).toEqual('New Address');
 
-        const savedAddressLabel = getByTestId('saved-address-label');
-        expect(savedAddressLabel.textContent).toEqual('saved address street');
+            const savedAddressLabel = getByTestId('saved-address-label');
+            expect(savedAddressLabel.textContent).toEqual('saved address street');
+        });
     });
 
     it('calls the "handleChangeAddressSelectInCheckout" callback function', async () => {
@@ -98,24 +91,23 @@ describe('useAddressSelect', () => {
         const handler = jest.fn(state => state);
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider reducer={handler}>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider reducer={handler}>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
         fireEvent.click(getByTestId('change-to-new-address-item'));
-        expect(setValues).toHaveBeenCalledTimes(1);
-        expect(handler).toHaveBeenCalledTimes(1);
+        await wait(() => {
+            expect(setValues).toHaveBeenCalledTimes(1);
+            expect(handler).toHaveBeenCalledTimes(1);
+        });
 
         fireEvent.click(getByTestId('change-to-saved-address-item'));
-        expect(setValues).toHaveBeenCalledTimes(2);
-        expect(handler).toHaveBeenCalledTimes(2);
+        await wait(() => {
+            expect(setValues).toHaveBeenCalledTimes(2);
+            expect(handler).toHaveBeenCalledTimes(2);
+        });
     });
 
     it('calls the "parseInitialAddressSelectValue" function', async () => {
@@ -136,18 +128,15 @@ describe('useAddressSelect', () => {
         };
 
         const { getByTestId } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={mockInitialState}>
-                        <CheckoutProvider>
-                            <Wrapper />
-                        </CheckoutProvider>
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CheckoutProvider>
+                <Wrapper />
+            </CheckoutProvider>,
+            { userContext: mockInitialState }
         );
 
-        const initialValue = getByTestId('address-select-initial-value');
-        expect(initialValue.textContent).toEqual('1');
+        await wait(() => {
+            const initialValue = getByTestId('address-select-initial-value');
+            expect(initialValue.textContent).toEqual('1');
+        });
     });
 });
