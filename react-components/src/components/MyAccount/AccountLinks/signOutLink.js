@@ -17,13 +17,14 @@ import { useTranslation } from 'react-i18next';
 import { LogOut as SignOutIcon } from 'react-feather';
 import { useUserContext } from '../../../context/UserContext';
 import { useCartState } from '../../../components/Minicart/cartContext';
+import { func } from 'prop-types';
 
 const SignOutLink = props => {
     const { showMenu } = props;
     const [t] = useTranslation('account');
     const [, dispatch] = useCartState();
 
-    const [{ currentUser, inProgress }, { signOut }] = useUserContext();
+    const [, { signOut }] = useUserContext();
 
     const handleSignOut = async () => {
         dispatch({ type: 'reset' });
@@ -39,6 +40,10 @@ const SignOutLink = props => {
             {t('account:sign-out', 'Sign Out')}
         </AccountLink>
     );
+};
+
+SignOutLink.propTypes = {
+    showMenu: func
 };
 
 export default SignOutLink;
