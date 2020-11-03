@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -131,10 +132,13 @@ public class ProductImplAssetsTest {
         Query rootQuery = Utils.getQueryFromResource(graphqlResponse);
         ProductInterface product = rootQuery.getProducts().getItems().get(0);
 
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse(graphqlResponse, httpClient, 200);
 

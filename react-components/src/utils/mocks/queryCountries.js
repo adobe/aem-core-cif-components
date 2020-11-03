@@ -15,14 +15,14 @@ import QUERY_COUNTRIES from '../../queries/query_countries.graphql';
 
 export default {
     request: {
-        query: QUERY_COUNTRIES,
-        variables: {}
+        query: QUERY_COUNTRIES
     },
     result: {
         data: {
             countries: [
                 {
                     id: 'RO',
+                    full_name_locale: 'Romania',
                     available_regions: [
                         { id: 835, code: 'AB', name: 'Alba' },
                         { id: 838, code: 'AR', name: 'Arad' }
@@ -30,6 +30,7 @@ export default {
                 },
                 {
                     id: 'US',
+                    full_name_locale: 'United States',
                     available_regions: [
                         { id: 4, code: 'AL', name: 'Alabama' },
                         { id: 7, code: 'AK', name: 'Alaska' }

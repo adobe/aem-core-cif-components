@@ -31,6 +31,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -205,6 +206,15 @@ public class MagentoGraphqlClient {
             .withHttpMethod(httpMethod);
 
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    }
+
+    /**
+     * Returns the complete configuration of the GraphQL client.
+     *
+     * @return GraphQL client configuration.
+     */
+    public GraphqlClientConfiguration getConfiguration() {
+        return graphqlClient.getConfiguration();
     }
 
     private String readFallBackConfiguration(Resource resource, String propertyName) {
