@@ -1,30 +1,18 @@
-const merge             = require('webpack-merge');
-const common            = require('./webpack.common.js');
-const path              = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-const SOURCE_ROOT = __dirname + '/src/main/webpack';
-
-module.exports = env => {
-    const writeToDisk = env && Boolean(env.writeToDisk);
-
+const merge = require('webpack-merge');
+const common = require('./webpack.common.js');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+    .BundleAnalyzerPlugin;
+module.exports = (env) => {
     return merge(common, {
         mode: 'development',
-        devtool: 'inline-source-map',
-        performance: { hints: 'warning' },
+        devtool: 'eval-cheap-source-map',
+        performance: {hints: 'warning'},
         plugins: [
-            new HtmlWebpackPlugin({
-                template: path.resolve(__dirname, SOURCE_ROOT + '/static/index.html')
-            })
+            new BundleAnalyzerPlugin({
+                analyzerMode: 'static',
+                generateStatsFile: true,
+                openAnalyzer: false,
+            }),
         ],
-        devServer: {
-            inline: true,
-            proxy: [{
-                context: ['/content', '/etc.clientlibs'],
-                target: 'http://localhost:4502',
-            }],
-            writeToDisk,
-            liveReload: !writeToDisk
-        }
     });
-}
+};

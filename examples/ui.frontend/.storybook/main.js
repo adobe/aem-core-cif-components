@@ -13,6 +13,12 @@ module.exports = {
             use: ['style-loader', 'css-loader', 'sass-loader'],
             include: path.resolve(__dirname, '../')
         });
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            'react-i18next': path.resolve('./node_modules/react-i18next'),
+            'core-js': path.resolve('./node_modules/core-js')
+        };
+
         return config;
     }
 };

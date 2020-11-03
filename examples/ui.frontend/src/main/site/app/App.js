@@ -14,7 +14,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { I18nextProvider } from 'react-i18next';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { CommerceApp, Portal, ConfigContextProvider, BundleProductOptions } from '@adobe/aem-core-cif-react-components';
 
 import i18n from './i18n';

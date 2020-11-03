@@ -28,11 +28,12 @@ export default {
     parameters: {
         docs: {
             description: {
-                component:
-                    `The component is a client-side React component which displays a reset password form for customer accounts.<br /><br />
+                component: `The component is a client-side React component which displays a reset password form for customer accounts.<br /><br />
                     To display the form, a token is required to be passed as in the token query parameter with the URL. The URL can be requested using the Forgot Password component and is sent via e-mail by Magento.<br /><br />
                     After submitting the form, the component uses a Magento GraphQL mutation to change the password to the new one provided in the form.<br /><br />
-                    ${generateGithubLink('https://github.com/adobe/aem-core-cif-components/tree/master/react-components/src/components/ResetPassword')}`
+                    ${generateGithubLink(
+                        'https://github.com/adobe/aem-core-cif-components/tree/master/react-components/src/components/ResetPassword'
+                    )}`
             }
         }
     }

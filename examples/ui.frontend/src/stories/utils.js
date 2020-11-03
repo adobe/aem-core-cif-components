@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-import githubLogo from './assets/github-logo.svg'
+import githubLogo from './assets/github-logo.svg';
 
 export const generateGithubLink = link => {
     return `<a href="${link}">
@@ -24,4 +24,4 @@ export const generateGithubLink = link => {
             <div class="description">GitHub</div>
         </div>
     </a>`;
-}
+};

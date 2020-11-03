@@ -7,7 +7,7 @@
     "url": "https://github.com/adobe/aem-project-archetype"
   },
   "private": true,
-  "main": "src/main/webpack/site/main.ts",
+  "main": "src/main/site/index.js",
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
     "dev": "webpack -d --env dev --config ./webpack.dev.js && build-storybook && clientlib --verbose",
@@ -24,6 +24,7 @@
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.3.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
+    "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@storybook/addon-actions": "^6.0.26",
@@ -44,7 +45,6 @@
     "css-loader": "^3.0.0",
     "cssnano": "^4.1.10",
     "eslint": "^6.8.0",
-    "eslint-loader": "^3.0.3",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.4",
     "node-sass": "^4.11.0",
@@ -57,12 +57,10 @@
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.14.1",
     "terser-webpack-plugin": "^1.4.1",
-    "ts-loader": "^5.3.3",
-    "tsconfig-paths-webpack-plugin": "^3.2.0",
-    "typescript": "^3.3.3333",
     "watch": "^1.0.2",
     "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2",
+    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.9.0",
     "webpack-import-glob-loader": "^1.6.3",
     "webpack-merge": "^4.2.1"
@@ -73,7 +71,6 @@
     "i18next-browser-languagedetector": "^5.0.0",
     "i18next-xhr-backend": "^3.2.2",
     "react": "^16.13.1",
-    "react-apollo": "^3.1.5",
     "react-dom": "^16.13.1",
     "react-i18next": "^11.7.0",
     "react-router-dom": "^5.2.0"
