@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { fireEvent, waitForElement } from '@testing-library/react';
+import { fireEvent, wait, waitForElement } from '@testing-library/react';
 import { render } from 'test-utils';
 import { CartProvider } from '../../Minicart';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
@@ -77,13 +77,15 @@ describe('useOverview', () => {
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
 
-        const isEditingNewAddress = await waitForElement(() => getByTestId('is-editing-new-address'));
-        expect(isEditingNewAddress).not.toBeUndefined();
-        expect(isEditingNewAddress.textContent).toEqual('true');
+        await wait(() => {
+            const isEditingNewAddress = getByTestId('is-editing-new-address');
+            expect(isEditingNewAddress).not.toBeUndefined();
+            expect(isEditingNewAddress.textContent).toEqual('true');
 
-        const editing = getByTestId('editing');
-        expect(editing).not.toBeUndefined();
-        expect(editing.textContent).toEqual('address');
+            const editing = getByTestId('editing');
+            expect(editing).not.toBeUndefined();
+            expect(editing.textContent).toEqual('address');
+        });
     });
 
     it('edits saved shipping address', async () => {
@@ -131,13 +133,15 @@ describe('useOverview', () => {
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
 
-        const isEditingNewAddress = await waitForElement(() => getByTestId('is-editing-new-address'));
-        expect(isEditingNewAddress).not.toBeUndefined();
-        expect(isEditingNewAddress.textContent).toEqual('false');
+        await wait(() => {
+            const isEditingNewAddress = getByTestId('is-editing-new-address');
+            expect(isEditingNewAddress).not.toBeUndefined();
+            expect(isEditingNewAddress.textContent).toEqual('false');
 
-        const editing = getByTestId('editing');
-        expect(editing).not.toBeUndefined();
-        expect(editing.textContent).toEqual('address');
+            const editing = getByTestId('editing');
+            expect(editing).not.toBeUndefined();
+            expect(editing.textContent).toEqual('address');
+        });
     });
 
     it('edits billing information with the billing address that is the same as the shipping address', async () => {
@@ -186,13 +190,15 @@ describe('useOverview', () => {
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
 
-        const isEditingNewAddress = await waitForElement(() => getByTestId('is-editing-new-address'));
-        expect(isEditingNewAddress).not.toBeUndefined();
-        expect(isEditingNewAddress.textContent).toEqual('true');
+        await wait(() => {
+            const isEditingNewAddress = getByTestId('is-editing-new-address');
+            expect(isEditingNewAddress).not.toBeUndefined();
+            expect(isEditingNewAddress.textContent).toEqual('true');
 
-        const editing = getByTestId('editing');
-        expect(editing).not.toBeUndefined();
-        expect(editing.textContent).toEqual('paymentMethod');
+            const editing = getByTestId('editing');
+            expect(editing).not.toBeUndefined();
+            expect(editing.textContent).toEqual('paymentMethod');
+        });
     });
 
     it('edits billing information with saved billing address', async () => {
@@ -241,12 +247,14 @@ describe('useOverview', () => {
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
 
-        const isEditingNewAddress = await waitForElement(() => getByTestId('is-editing-new-address'));
-        expect(isEditingNewAddress).not.toBeUndefined();
-        expect(isEditingNewAddress.textContent).toEqual('false');
+        await wait(() => {
+            const isEditingNewAddress = getByTestId('is-editing-new-address');
+            expect(isEditingNewAddress).not.toBeUndefined();
+            expect(isEditingNewAddress.textContent).toEqual('false');
 
-        const editing = getByTestId('editing');
-        expect(editing).not.toBeUndefined();
-        expect(editing.textContent).toEqual('paymentMethod');
+            const editing = getByTestId('editing');
+            expect(editing).not.toBeUndefined();
+            expect(editing.textContent).toEqual('paymentMethod');
+        });
     });
 });

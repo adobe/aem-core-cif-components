@@ -15,21 +15,24 @@ import React from 'react';
 import { render } from '../../../utils/test-utils';
 
 import AddressFormContainer from '../addressFormContainer';
-jest.mock('../../AddressForm/useAddressForm.js', () => ({
-    useAddressForm: () => ({
-        countries: [],
-        handleSubmit: () => {},
-        handleCancel: () => {},
-        errorMessage: '',
-        updateAddress: {},
-        parseAddressFormValues: () => {}
-    })
-}));
+jest.mock('../../AddressForm/useAddressForm.js', () => {
+    return {
+        useAddressForm: () => {
+            return {
+                countries: [],
+                handleSubmit: () => {},
+                handleCancel: () => {},
+                errorMessage: '',
+                updateAddress: {},
+                parseAddressFormValues: values => values
+            };
+        }
+    };
+});
+
 describe('<AddressFormContainer>', () => {
     it('renders the component', () => {
-        const { asFragment } = render(<AddressFormContainer />, {
-            userContext: { isShowAddressForm: false }
-        });
+        const { asFragment } = render(<AddressFormContainer />);
         expect(asFragment()).toMatchSnapshot();
     });
 
