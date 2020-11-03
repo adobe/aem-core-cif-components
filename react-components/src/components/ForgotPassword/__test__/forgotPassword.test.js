@@ -12,25 +12,15 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import { MockedProvider } from '@apollo/react-testing';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
+import ForgotPassword from '../forgotPassword';
 
 import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../../queries/mutation_request_password_reset_email.graphql';
 
-import ForgotPassword from '../forgotPassword';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 describe('ForgotPassword', () => {
     it('renders the "forgot password" form ', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -49,13 +39,9 @@ describe('ForgotPassword', () => {
             }
         ];
 
-        const { getByLabelText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <ForgotPassword onClose={jest.fn()} />
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { getByLabelText } = render(<ForgotPassword onClose={jest.fn()} onCancel={jest.fn()} />, {
+            mocks: mocks
+        });
 
         fireEvent.change(getByLabelText('email'), { target: { value: 'chuck@example.com' } });
         fireEvent.click(getByLabelText('submit'));

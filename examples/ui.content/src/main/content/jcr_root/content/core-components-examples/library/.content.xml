@@ -245,6 +245,29 @@
                                 width="12"/>
                         </cq:responsive>
                     </teaser_1837085997>
+                    <teaser_1837086007
+                            cq:styleIds="[1547060090076]"
+                            jcr:primaryType="nt:unstructured"
+                            jcr:title="Category Carousel"
+                            sling:resourceType="core-components-examples/components/teaser"
+                            actionsEnabled="false"
+                            descriptionFromPage="true"
+                            fileReference="/content/dam/core-components-examples/library/cif-components/productcarousel.svg"
+                            linkURL="/content/core-components-examples/library/commerce/categorycarousel"
+                            textIsRich="true"
+                            titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                    jcr:primaryType="nt:unstructured"
+                                    width="3"/>
+                            <small
+                                    jcr:primaryType="nt:unstructured"
+                                    width="4"/>
+                            <extrasmall
+                                    jcr:primaryType="nt:unstructured"
+                                    width="12"/>
+                        </cq:responsive>
+                    </teaser_1837086007>
                 </container_1589240807>
             </responsivegrid>
         </root>

@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 
 describe('checkoutContext', () => {
@@ -50,11 +49,9 @@ describe('checkoutContext', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <CheckoutProvider initialState={mockCheckoutState}>
-                    <ContextWrapper />
-                </CheckoutProvider>
-            </MockedProvider>
+            <CheckoutProvider initialState={mockCheckoutState}>
+                <ContextWrapper />
+            </CheckoutProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -101,11 +98,9 @@ describe('checkoutContext', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <CheckoutProvider initialState={mockCheckoutState}>
-                    <ContextWrapper />
-                </CheckoutProvider>
-            </MockedProvider>
+            <CheckoutProvider initialState={mockCheckoutState}>
+                <ContextWrapper />
+            </CheckoutProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -148,11 +143,9 @@ describe('checkoutContext', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <CheckoutProvider initialState={mockCheckoutState}>
-                    <ContextWrapper />
-                </CheckoutProvider>
-            </MockedProvider>
+            <CheckoutProvider initialState={mockCheckoutState}>
+                <ContextWrapper />
+            </CheckoutProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();
@@ -189,11 +182,9 @@ describe('checkoutContext', () => {
         };
 
         const { getByRole, getByTestId } = render(
-            <MockedProvider>
-                <CheckoutProvider initialState={mockCheckoutState}>
-                    <ContextWrapper />
-                </CheckoutProvider>
-            </MockedProvider>
+            <CheckoutProvider initialState={mockCheckoutState}>
+                <ContextWrapper />
+            </CheckoutProvider>
         );
 
         expect(getByRole('button')).not.toBeUndefined();

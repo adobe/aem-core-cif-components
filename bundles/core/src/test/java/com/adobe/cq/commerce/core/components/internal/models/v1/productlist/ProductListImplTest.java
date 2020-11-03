@@ -44,6 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -57,6 +58,7 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -68,6 +70,7 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -108,6 +111,8 @@ public class ProductListImplTest {
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
 
+                context.registerService(Externalizer.class, new MockExternalizer());
+
                 ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
@@ -137,10 +142,13 @@ public class ProductListImplTest {
         category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategory();
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getProducts();
 
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -161,6 +169,7 @@ public class ProductListImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
+        context.request().setServletPath(PAGE + ".6.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -185,9 +194,13 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void getTitle() {
+    public void testTitleAndMetadata() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + PAGE + ".6.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -305,12 +318,16 @@ public class ProductListImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
+        context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         productListModel = context.request().adaptTo(ProductListImpl.class);
 
         // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertTrue(productListModel.getProducts().isEmpty());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
+
+        // Test canonical url on publish
+        Assert.assertEquals("https://publish" + PAGE + ".html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -324,6 +341,9 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getTitle().isEmpty());
         Assert.assertTrue(productListModel.getImage().isEmpty());
         Assert.assertTrue(productListModel.getProducts().isEmpty());
+        Assert.assertTrue(productListModel.getMetaTitle().isEmpty());
+        Assert.assertNull(productListModel.getMetaDescription());
+        Assert.assertNull(productListModel.getMetaKeywords());
     }
 
     @Test

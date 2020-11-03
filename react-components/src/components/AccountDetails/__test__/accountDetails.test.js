@@ -12,46 +12,28 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render, screen, waitForElement } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-
+import { screen, waitForElement } from '@testing-library/react';
+import { render } from 'test-utils';
 import AccountDetails from '../accountDetails';
-import UserContextProvider from '../../../context/UserContext';
-import getDetailsQuery from '../../../queries/query_get_customer_information.graphql';
-import ConfigContextProvider from '../../../context/ConfigContext';
+
+const config = {
+    storeView: 'default',
+    graphqlEndpoint: 'none',
+    mountingPoints: { accountDetails: 'mock' }
+};
 
 describe('<AccountDetails>', () => {
-    const withContext = (Component, userContext = {}, mocks = []) => {
-        return (
-            <ConfigContextProvider
-                config={{ storeView: 'default', graphqlEndpoint: 'none', mountingPoints: { accountDetails: 'mock' } }}>
-                <MockedProvider mocks={mocks} addTypename={false}>
-                    <UserContextProvider initialState={userContext}>
-                        <Component />
-                    </UserContextProvider>
-                </MockedProvider>
-            </ConfigContextProvider>
-        );
-    };
-
     it('renders the Account Details data for an unauthenticated user', () => {
-        const { queryByText } = render(withContext(AccountDetails, { isSignedIn: false }));
+        const { queryByText } = render(<AccountDetails />, { config: config, userContext: { isSignedIn: false } });
 
         expect(queryByText('Please Sign in to see the account details.')).not.toBeUndefined();
     });
 
     it('renders the Account Details data for an authenticated user', async () => {
-        const mocks = [
-            {
-                request: {
-                    query: getDetailsQuery
-                },
-                result: {
-                    data: { customer: { id: 1, firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } }
-                }
-            }
-        ];
-        const { queryByText } = render(withContext(AccountDetails, { isSignedIn: true }, mocks));
+        const { queryByText } = render(<AccountDetails />, {
+            config: config,
+            userContext: { isSignedIn: true }
+        });
 
         await waitForElement(() => screen.getByLabelText('name'));
 

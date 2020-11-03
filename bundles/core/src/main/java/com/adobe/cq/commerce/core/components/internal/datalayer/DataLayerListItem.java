@@ -28,9 +28,13 @@ public abstract class DataLayerListItem extends DataLayerComponent {
         this.resource = resource;
     }
 
+    protected String getIdentifier() {
+        return resource.getPath();
+    }
+
     @Override
     protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(resource.getPath()), 0, 10));
+        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getIdentifier()), 0, 10));
     }
 }

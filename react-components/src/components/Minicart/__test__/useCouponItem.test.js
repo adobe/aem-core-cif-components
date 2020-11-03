@@ -15,14 +15,14 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import useCouponItem from '../useCouponItem';
-import { MockedProvider } from '@apollo/react-testing';
 import * as actions from '../../../actions/cart';
 
 // mock the actions because we don't need them
 jest.mock('../../../actions/cart');
+
 // mock the cart context to make the whole stack lighter
 jest.mock('../../Minicart/cartContext.js', () => ({
     useCartState: () => {
@@ -41,11 +41,7 @@ describe('useCouponItem', () => {
             );
         };
 
-        const { getByRole } = render(
-            <MockedProvider>
-                <Consumer />
-            </MockedProvider>
-        );
+        const { getByRole } = render(<Consumer />);
 
         fireEvent.click(getByRole('button'));
         expect(actions.removeCoupon).toHaveBeenCalledTimes(1);

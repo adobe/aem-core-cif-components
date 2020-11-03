@@ -13,13 +13,10 @@
  ******************************************************************************/
 
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import { CartProvider } from '../cartContext';
 import CouponForm from '../couponForm';
-import i18n from '../../../../__mocks__/i18nForTests';
 import useCouponForm from '../useCouponForm.js';
 
 const mockAddCouponToCart = jest.fn();
@@ -35,13 +32,9 @@ describe('<CouponForm />', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={[]}>
-                    <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                        <CouponForm />
-                    </CartProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+                <CouponForm />
+            </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
@@ -52,24 +45,18 @@ describe('<CouponForm />', () => {
         });
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider mocks={[]}>
-                    <CartProvider reducerFactory={() => state => state}>
-                        <CouponForm />
-                    </CartProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <CartProvider reducerFactory={() => state => state}>
+                <CouponForm />
+            </CartProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('applies an coupon', () => {
         const { getByText, getByPlaceholderText } = render(
-            <I18nextProvider i18n={i18n}>
-                <CartProvider reducerFactory={() => state => state}>
-                    <CouponForm />
-                </CartProvider>
-            </I18nextProvider>
+            <CartProvider reducerFactory={() => state => state}>
+                <CouponForm />
+            </CartProvider>
         );
 
         // Add coupon to input

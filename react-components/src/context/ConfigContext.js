@@ -26,6 +26,7 @@ ConfigContextProvider.propTypes = {
     config: PropTypes.shape({
         storeView: PropTypes.string.isRequired,
         graphqlEndpoint: PropTypes.string.isRequired,
+        graphqlMethod: PropTypes.oneOf(['GET', 'POST']).isRequired,
         mountingPoints: PropTypes.shape({
             accountContainer: PropTypes.string,
             addressBookContainer: PropTypes.string,

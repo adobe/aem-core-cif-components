@@ -17,6 +17,9 @@ const setCartCookie = jest.fn();
 const setUserCookie = jest.fn();
 const dispatch = jest.fn();
 
+// avoid console errors logged during testing
+console.error = jest.fn();
+
 describe('User actions', () => {
     beforeEach(() => {
         setCartCookie.mockReset();

@@ -13,34 +13,34 @@
  ******************************************************************************/
 
 import React, { useState } from 'react';
-import { fireEvent, render, waitForElement } from '@testing-library/react';
+import { fireEvent, waitForElement } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 import useAccountDetails from '../useAccountDetails';
 
 const mockSetCustomerInformation = jest.fn();
 const mockChangeCustomerPassword = jest.fn();
 
-jest.mock('../../../context/UserContext.js', () => {
-    const userState = { isSignedIn: true };
-    const useUserContext = jest.fn(() => [userState, {}]);
-    return { useUserContext };
-});
+jest.mock('@apollo/client', () => {
+    const { useMutation, ...rest } = jest.requireActual('@apollo/client');
 
-jest.mock('@apollo/react-hooks', () => ({
-    useMutation: jest.fn().mockImplementation(mutation => {
-        if (mutation === 'setCustomerInformationMutation') {
-            return [mockSetCustomerInformation, { loading: false }];
-        }
-        if (mutation === 'changeCustomerPasswordMutation') {
-            return [mockChangeCustomerPassword, { loading: false }];
-        }
-        return;
-    }),
-    useQuery: jest.fn().mockReturnValue({
-        data: { customer: { firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } },
-        loading: false,
-        error: null
-    })
-}));
+    return {
+        ...rest,
+        useMutation: jest.fn().mockImplementation(mutation => {
+            if (mutation === 'setCustomerInformationMutation') {
+                return [mockSetCustomerInformation, { loading: false }];
+            } else if (mutation === 'changeCustomerPasswordMutation') {
+                return [mockChangeCustomerPassword, { loading: false }];
+            } else {
+                return useMutation(mutation);
+            }
+        }),
+        useQuery: jest.fn().mockReturnValue({
+            data: { customer: { firstname: 'Jane', lastname: 'Doe', email: 'jdoe@gmail.com' } },
+            loading: false,
+            error: null
+        })
+    };
+});
 
 describe('useAccountDetails', () => {
     const mockProps = {
@@ -80,7 +80,9 @@ describe('useAccountDetails', () => {
             password: '12345'
         };
 
-        const { getByRole, queryByText } = render(<TestComponent {...mockVariables} />);
+        const { getByRole, queryByText } = render(<TestComponent {...mockVariables} />, {
+            userContext: { isSignedIn: true }
+        });
         const button = getByRole('button');
 
         fireEvent.click(button);

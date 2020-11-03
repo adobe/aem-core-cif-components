@@ -12,43 +12,36 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/react-testing';
-
-import UserContextProvider from '../../../context/UserContext';
-import { CartProvider } from '../../Minicart/cartContext';
+import { wait } from '@testing-library/react';
+import { render } from 'test-utils';
+import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
-
 import Cart from '../cart';
 
 describe('<Cart />', () => {
-    it('renders the disabled checkout button', () => {
+    it('renders the disabled checkout button', async () => {
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider>
-                        <CheckoutProvider initialState={{}} reducer={state => state}>
-                            <Cart ready={false} submitting={false} />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Cart ready={false} submitting={false} />
+                </CheckoutProvider>
+            </CartProvider>
         );
-        expect(getByRole('button').disabled).toEqual(true);
+        await wait(() => {
+            expect(getByRole('button').disabled).toEqual(true);
+        });
     });
 
-    it('renders the active checkout button', () => {
+    it('renders the active checkout button', async () => {
         const { getByRole } = render(
-            <MockedProvider>
-                <UserContextProvider>
-                    <CartProvider>
-                        <CheckoutProvider initialState={{}} reducer={state => state}>
-                            <Cart ready={true} submitting={false} />
-                        </CheckoutProvider>
-                    </CartProvider>
-                </UserContextProvider>
-            </MockedProvider>
+            <CartProvider>
+                <CheckoutProvider initialState={{ flowState: 'cart' }} reducer={state => state}>
+                    <Cart ready={true} submitting={false} />
+                </CheckoutProvider>
+            </CartProvider>
         );
-        expect(getByRole('button').disabled).toEqual(false);
+        await wait(() => {
+            expect(getByRole('button').disabled).toEqual(false);
+        });
     });
 });

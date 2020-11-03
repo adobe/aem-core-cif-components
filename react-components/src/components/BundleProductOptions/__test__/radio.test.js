@@ -13,10 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import Radio from '../radio';
-import { render, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-
-import i18n from '../../../../__mocks__/i18nForTests';
+import { fireEvent } from '@testing-library/react';
+import { render } from '../../../utils/test-utils';
 
 describe('<Radio>', () => {
     const requiredItem = {
@@ -56,14 +54,12 @@ describe('<Radio>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Radio
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Radio
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -71,14 +67,12 @@ describe('<Radio>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <Radio
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={customization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Radio
+                item={requiredItem}
+                options={sortedOptions}
+                customization={customization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
         fireEvent.click(getByRole('radio', { name: 'Augusta Necklace + $13.00' }));
@@ -104,72 +98,14 @@ describe('<Radio>', () => {
             }
         ];
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <Radio
-                    item={requiredItem}
-                    options={sortedOptions}
-                    customization={quantityDisableCustomization}
-                    handleSelectionChange={handleSelectionChange}
-                />
-            </I18nextProvider>
+            <Radio
+                item={requiredItem}
+                options={sortedOptions}
+                customization={quantityDisableCustomization}
+                handleSelectionChange={handleSelectionChange}
+            />
         );
 
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <div
-                class="bundleProduct__options"
-              >
-                <label>
-                  <input
-                    name="1"
-                    type="radio"
-                    value="1"
-                  />
-                   Carmina Necklace +
-                  <b>
-                    <span
-                      class=""
-                    >
-                      $12.00
-                    </span>
-                  </b>
-                </label>
-              </div>
-              <div
-                class="bundleProduct__options"
-              >
-                <label>
-                  <input
-                    checked=""
-                    name="1"
-                    type="radio"
-                    value="2"
-                  />
-                   Augusta Necklace +
-                  <b>
-                    <span
-                      class=""
-                    >
-                      $13.00
-                    </span>
-                  </b>
-                </label>
-              </div>
-              <h2
-                class="option__title productFullDetail__quantityTitle"
-              >
-                <span>
-                  Quantity
-                </span>
-              </h2>
-              <input
-                class="option__quantity"
-                disabled=""
-                min="1"
-                type="number"
-                value="1"
-              />
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchSnapshot();
     });
 });

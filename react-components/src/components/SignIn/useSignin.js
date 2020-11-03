@@ -13,7 +13,7 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { mergeCarts } from '../../actions/cart';

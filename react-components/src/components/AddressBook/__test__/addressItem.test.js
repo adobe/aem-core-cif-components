@@ -12,13 +12,9 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
-
+import { fireEvent } from '@testing-library/react';
+import { render } from 'test-utils';
 import UserContextProvider from '../../../context/UserContext';
-import i18n from '../../../../__mocks__/i18nForTests';
-
 import AddressItem from '../addressItem';
 
 describe('<AddressItem>', () => {
@@ -33,28 +29,12 @@ describe('<AddressItem>', () => {
     };
 
     it('renders the component', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressItem address={mockAddress} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressItem address={mockAddress} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with list display type', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressItem address={mockAddress} displayType={'list'} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<AddressItem address={mockAddress} displayType={'list'} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -64,30 +44,14 @@ describe('<AddressItem>', () => {
             default_shipping: true,
             default_billing: true
         };
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider>
-                        <AddressItem address={mockDefaultAddress} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<AddressItem address={mockDefaultAddress} />);
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the component with delete address modal', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider initialState={{ deleteAddress: { id: 'my-address-id' } }}>
-                        <AddressItem address={mockAddress} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
-        );
-
+        const { asFragment } = render(<AddressItem address={mockAddress} />, {
+            userContext: { deleteAddress: { id: 'my-address-id' } }
+        });
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -95,16 +59,11 @@ describe('<AddressItem>', () => {
         const handler = jest.fn(state => state);
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <AddressItem address={mockAddress} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <AddressItem address={mockAddress} />
+            </UserContextProvider>
         );
         fireEvent.click(getByText('Edit'));
-
         expect(handler.mock.calls.length).toEqual(1);
     });
 
@@ -112,16 +71,11 @@ describe('<AddressItem>', () => {
         const handler = jest.fn(state => state);
 
         const { getByText } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <UserContextProvider reducerFactory={() => handler}>
-                        <AddressItem address={mockAddress} />
-                    </UserContextProvider>
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => handler}>
+                <AddressItem address={mockAddress} />
+            </UserContextProvider>
         );
         fireEvent.click(getByText('Delete'));
-
         expect(handler.mock.calls.length).toEqual(1);
     });
 });

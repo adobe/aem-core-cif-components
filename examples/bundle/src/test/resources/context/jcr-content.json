@@ -43,6 +43,23 @@
           "searchresults": {
             "sling:resourceType": "core/cif/components/commerce/searchresults/v1/searchresults"
           },
+          "categorycarousel": {
+            "items": {
+              "item0": {
+                "categoryId": "15"
+              },
+              "item1": {
+                "categoryId": "24"
+              },
+              "item2": {
+                "categoryId": "28"
+              },
+              "item3": {
+                "categoryId": "32"
+              }
+            },
+            "sling:resourceType": "core/cif/components/commerce/categorycarousel/v1/categorycarousel"
+          },
           "featuredcategorylist": {
             "items": {
               "item0": {

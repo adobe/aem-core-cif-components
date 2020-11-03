@@ -12,41 +12,28 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { MockedProvider } from '@apollo/react-testing';
-import { I18nextProvider } from 'react-i18next';
-import { render, fireEvent } from '@testing-library/react';
-
-import i18n from '../../../../__mocks__/i18nForTests';
-
+import { render } from 'test-utils';
+import { fireEvent } from '@testing-library/react';
 import AccountTrigger from '../accountTrigger';
+import UserContextProvider from '../../../context/UserContext';
 
-const mockToggleAccountDropdown = jest.fn();
-
-jest.mock('../../../context/UserContext', () => ({
-    useUserContext: () => {
-        return [{}, { toggleAccountDropdown: mockToggleAccountDropdown }];
-    }
-}));
+const mockToggleAccountDropdown = jest.fn(state => state);
 
 describe('<AccountTrigger>', () => {
     it('renders the component', () => {
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <AccountTrigger />
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => mockToggleAccountDropdown}>
+                <AccountTrigger />
+            </UserContextProvider>
         );
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('calls the handler function when clicked', () => {
         const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <MockedProvider>
-                    <AccountTrigger />
-                </MockedProvider>
-            </I18nextProvider>
+            <UserContextProvider reducerFactory={() => mockToggleAccountDropdown}>
+                <AccountTrigger />
+            </UserContextProvider>
         );
         fireEvent.click(getByRole('button'));
 

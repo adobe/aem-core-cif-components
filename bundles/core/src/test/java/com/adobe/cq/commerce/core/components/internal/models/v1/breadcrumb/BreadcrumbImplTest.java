@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
@@ -370,11 +371,24 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testJsonRender() throws Exception {
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-breadcrumb-result.json");
         prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-breadcrumb-component.json");
         String jsonResult = breadcrumbModel.getData().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        String itemsJsonExpected = Utils.getResource("results/result-datalayer-breadcrumb-items.json");
+        Collection<NavigationItem> breadcrumbModelItems = breadcrumbModel.getItems();
+        String itemsJsonResult = breadcrumbModelItems
+            .stream()
+            .map(i -> i.getData().getJson())
+            .collect(Collectors.joining(",", "[", "]"));
+        Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
 }
