@@ -12,9 +12,49 @@
  *
  ******************************************************************************/
 
+import { validateRegionCode } from '../formValidators';
 import { hasLengthAtLeast, isNotEqualToField, validateConfirmPassword, hasLengthAtMost } from '../formValidators';
 
-describe('Form validation', () => {
+describe('Form validators', () => {
+    const countries = [
+        {
+            id: 'US',
+            name: 'United States',
+            available_regions: [{ code: 'AK' }, { code: 'CA' }]
+        },
+        { id: 'RO', name: 'Romania', available_regions: [] }
+    ];
+
+    it('validates an existing region code for US', () => {
+        let values = { countryCode: 'US' };
+        let value = 'AK';
+
+        let result = validateRegionCode(value, values, countries);
+
+        expect(result).toBeUndefined();
+    });
+    it('validates a non-existing region code for US', () => {
+        let values = { countryCode: 'US' };
+        let value = 'NO';
+
+        let result = validateRegionCode(value, values, countries);
+        expect(result).toEqual(`State "${value}" is not an valid state abbreviation.`);
+    });
+    it('validates a empty region code for US', () => {
+        let values = { countryCode: 'US' };
+        let value = '';
+
+        let result = validateRegionCode(value, values, countries);
+        expect(result).toEqual('This field is mandatory');
+    });
+    it('validates a empty region code for a country other than US', () => {
+        let values = { countryCode: 'RO' };
+        let value = '';
+
+        let result = validateRegionCode(value, values, countries);
+        expect(result).toBeUndefined();
+    });
+
     it('[isNotEqualToField] checks that a field has a different value than other', () => {
         const formValues = {
             password: '1235',
