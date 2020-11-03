@@ -35,7 +35,6 @@ const MyAccount = props => {
         );
     }
 
-    console.log(`Got some children? `, props.children.length);
     const accountLinks = props.children || (
         <>
             <ChangePasswordLink showChangePassword={showChangePassword} />
