@@ -14,8 +14,12 @@
 
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,8 +47,8 @@ public class UrlProviderImpl implements UrlProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
 
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
-    private static final String URL_PATH_PROPERTY = "urlPath";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
+    private static final String ID_AND_URL_PATH_SEPARATOR = "|";
 
     private String productUrlTemplate;
     private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
@@ -154,23 +158,32 @@ public class UrlProviderImpl implements UrlProvider {
             }
 
             // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
-            String[] selectors = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
+            String[] selectorFilters = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
 
-            if (ArrayUtils.contains(selectors, selector)) {
+            // When used with the category picker and the 'idAndUrlPath' option, the values might have a format like '12|men/men-tops'
+            // --> so we split them to first extract the category ids
+            Set<String> selectors = Arrays.asList(selectorFilters)
+                .stream()
+                .map(s -> StringUtils.substringBefore(s, ID_AND_URL_PATH_SEPARATOR))
+                .collect(Collectors.toSet());
+
+            if (selectors.contains(selector)) {
                 LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
                 return child;
             }
 
             boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
             if (includesSubCategories) {
-                Object urlPathProperty = jcrContent.getValueMap().get(URL_PATH_PROPERTY);
-                if (urlPathProperty == null) {
+
+                List<String> urlPaths = Arrays.asList(selectorFilters)
+                    .stream()
+                    .map(s -> StringUtils.substringAfter(s, ID_AND_URL_PATH_SEPARATOR))
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+
+                if (urlPaths.isEmpty()) {
                     continue;
                 }
-
-                // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
-                String[] urlPaths = urlPathProperty.getClass().isArray() ? ((String[]) urlPathProperty)
-                    : ArrayUtils.toArray((String) urlPathProperty);
 
                 // The currentUrlPath being processed is either coming from:
                 // 1) the ProductList model when a category page is being rendered
