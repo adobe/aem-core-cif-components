@@ -21,13 +21,15 @@
     data-sly-use.redirect="redirect.html"
 >
     <head data-sly-call="${head.head @ page = page}"></head>
-    <body 
+    <body
         id="${page.id}"
-        class="${page.cssClassNames}" 
-        data-store-view="${storeView.storeView}" 
+        class="${page.cssClassNames}"
+        data-store-root-url="${storeView.StoreRootURL}"
+        data-store-view="${storeView.storeView}"
         data-cmp-data-layer-enabled="${page.data ? true : false}"
         data-graphql-endpoint="${storeView.graphqlEndpoint}"
-        data-graphql-method="${storeView.method}">
+        data-graphql-method="${storeView.method}"
+    >
         <script data-sly-test.dataLayerEnabled="${page.data}">
             window.adobeDataLayer = window.adobeDataLayer || [];
             adobeDataLayer.push({
