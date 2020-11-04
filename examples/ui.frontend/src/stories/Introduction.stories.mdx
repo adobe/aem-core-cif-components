@@ -48,7 +48,8 @@ outside of the main React application tree. To do so, you can wrap your componen
 const MyApp = () => {
     const config = {
         storeView: 'default',
-        graphqlEndpoint: '/graphql'
+        graphqlEndpoint: '/graphql',
+        graphqlMethod: 'GET'
     };
     return (
         <I18nextProvider i18n={i18n} defaultNS="common">

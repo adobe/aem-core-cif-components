@@ -30,3 +30,5 @@ export { CartProvider, CartInitializer } from './components/Minicart';
 export { AccountDetails } from './components/AccountDetails';
 
 export { graphqlAuthLink } from './utils/authUtils';
+
+export { default as MUTATION_RESET_PASSWORD } from './queries/mutation_reset_password.graphql';

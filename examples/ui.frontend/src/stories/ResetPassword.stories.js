@@ -15,8 +15,9 @@
 import React from 'react';
 
 import { I18nextProvider } from 'react-i18next';
-import { CommerceApp, ConfigContextProvider, ResetPassword } from '@adobe/aem-core-cif-react-components';
+import { ConfigContextProvider, ResetPassword, MUTATION_RESET_PASSWORD } from '@adobe/aem-core-cif-react-components';
 import { withQuery } from '@storybook/addon-queryparams';
+import { MockedProvider } from '@apollo/client/testing';
 
 import i18n from './i18n';
 import { generateGithubLink } from './utils';
@@ -31,6 +32,7 @@ export default {
                 component: `The component is a client-side React component which displays a reset password form for customer accounts.<br /><br />
                     To display the form, a token is required to be passed as in the token query parameter with the URL. The URL can be requested using the Forgot Password component and is sent via e-mail by Magento.<br /><br />
                     After submitting the form, the component uses a Magento GraphQL mutation to change the password to the new one provided in the form.<br /><br />
+                    <b>Example:</b> Try changing the password to <code>NewPassword123</code> using the e-mail <code>chuck@example.com</code>.<br /><br />
                     ${generateGithubLink(
                         'https://github.com/adobe/aem-core-cif-components/tree/master/react-components/src/components/ResetPassword'
                     )}`
@@ -40,6 +42,22 @@ export default {
 };
 
 const Template = (args, context) => {
+    const mocks = [
+        {
+            request: {
+                query: MUTATION_RESET_PASSWORD,
+                variables: {
+                    email: 'chuck@example.com',
+                    resetPasswordToken: 'my-token',
+                    newPassword: 'NewPassword123'
+                }
+            },
+            result: {
+                data: { resetPassword: true }
+            }
+        }
+    ];
+
     return (
         <I18nextProvider i18n={i18n} defaultNS="common">
             <ConfigContextProvider
@@ -48,9 +66,9 @@ const Template = (args, context) => {
                     graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint,
                     graphqlMethod: context.parameters.cifConfig.graphqlMethod
                 }}>
-                <CommerceApp>
+                <MockedProvider mocks={mocks}>
                     <ResetPassword />
-                </CommerceApp>
+                </MockedProvider>
             </ConfigContextProvider>
         </I18nextProvider>
     );
