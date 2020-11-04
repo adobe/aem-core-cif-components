@@ -1,0 +1,24 @@
+{
+  "empty": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent"
+    }
+  },
+  "singlevalue": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "selectorFilter": "0",
+      "urlPath": "root"
+    }
+  },
+  "multivalues": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "selectorFilter": ["1", "2"],
+      "urlPath": ["men", "women"]
+    }
+  }
+}

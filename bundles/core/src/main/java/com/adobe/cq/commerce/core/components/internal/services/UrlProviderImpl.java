@@ -42,8 +42,8 @@ public class UrlProviderImpl implements UrlProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
 
-    private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
-    private static final String URL_PATH_PROPERTY = "urlPath";
+    public static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
+    public static final String URL_PATH_PROPERTY = "urlPath";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
 
     private String productUrlTemplate;
