@@ -15,12 +15,13 @@
 import React from 'react';
 
 import { I18nextProvider } from 'react-i18next';
-import { ConfigContextProvider, ResetPassword, MUTATION_RESET_PASSWORD } from '@adobe/aem-core-cif-react-components';
+import { ConfigContextProvider, ResetPassword } from '@adobe/aem-core-cif-react-components';
 import { withQuery } from '@storybook/addon-queryparams';
 import { MockedProvider } from '@apollo/client/testing';
 
 import i18n from './i18n';
 import { generateGithubLink } from './utils';
+import MUTATION_RESET_PASSWORD from 'Queries/mutation_reset_password.graphql';
 
 export default {
     title: 'Commerce/ResetPassword',
