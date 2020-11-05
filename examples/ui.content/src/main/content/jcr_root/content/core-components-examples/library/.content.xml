@@ -252,7 +252,7 @@
                             sling:resourceType="core-components-examples/components/teaser"
                             actionsEnabled="false"
                             descriptionFromPage="true"
-                            fileReference="/content/dam/core-components-examples/library/cif-components/productcarousel.svg"
+                            fileReference="/content/dam/core-components-examples/library/cif-components/categorycarousel.svg"
                             linkURL="/content/core-components-examples/library/commerce/categorycarousel"
                             textIsRich="true"
                             titleFromPage="false">
