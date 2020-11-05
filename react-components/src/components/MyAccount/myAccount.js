@@ -39,13 +39,20 @@ const MyAccount = props => {
         );
     }
 
+    const redirectBacktoStorefront = () => {
+        window.location.href = pagePaths.baseUrl;
+    };
+
     const handleSignOut = async () => {
         dispatch({ type: 'reset' });
         await signOut();
         if (showMenu) {
             showMenu();
         }
-        window.location.href = pagePaths.baseUrl;
+
+        if (pagePaths && pagePaths.baseUrl) {
+            redirectBacktoStorefront();
+        }
     };
 
     return (
