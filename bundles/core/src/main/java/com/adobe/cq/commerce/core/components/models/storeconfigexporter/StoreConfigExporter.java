@@ -35,9 +35,4 @@ public interface StoreConfigExporter {
      * Returns the URL of the storefront homepage
      */
     String getStoreRootUrl();
-
-    /**
-     * Returns the URL of the storefront homepage
-     */
-    String getTest();
 }

@@ -107,9 +107,4 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
         return storeRootPage.getPath() + ".html";
     }
-
-    @Override
-    public String getTest() {
-        return "TEST";
-    }
 }
