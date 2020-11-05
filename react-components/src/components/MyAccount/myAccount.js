@@ -27,7 +27,7 @@ import { useConfigContext } from '../../context/ConfigContext';
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, inProgress }, { signOut }] = useUserContext();
-    const { pagePaths, storeView } = useConfigContext();
+    const { pagePaths } = useConfigContext();
     const [, dispatch] = useCartState();
     const [t] = useTranslation('account');
 
