@@ -54,11 +54,7 @@ export const cart_details = {
                         product: {
                             name: 'Honora Wide Leg Pants',
                             sku: 'VP05-MT-S',
-                            thumbnail: {
-                                url:
-                                    'https://adobe-starter.dummycachetest.com/media/catalog/product/cache/e0d2bda07ae3887a54bc453b0b7bd41b/v/p/vp05-mt_main_1.jpg',
-                                __typename: 'ProductImage'
-                            },
+                            thumbnail: {},
                             __typename: 'SimpleProduct'
                         },
                         __typename: 'SimpleCartItem'
@@ -150,11 +146,7 @@ export const cart_details_discount = {
                         product: {
                             name: 'Honora Wide Leg Pants',
                             sku: 'VP05-MT-S',
-                            thumbnail: {
-                                url:
-                                    'https://adobe-starter.dummycachetest.com/media/catalog/product/cache/e0d2bda07ae3887a54bc453b0b7bd41b/v/p/vp05-mt_main_1.jpg',
-                                __typename: 'ProductImage'
-                            },
+                            thumbnail: {},
                             __typename: 'SimpleProduct'
                         },
                         __typename: 'SimpleCartItem'
