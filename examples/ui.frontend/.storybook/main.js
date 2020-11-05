@@ -13,10 +13,16 @@ module.exports = {
             use: ['style-loader', 'css-loader', 'sass-loader'],
             include: path.resolve(__dirname, '../')
         });
+        config.module.rules.push({
+            test: /\.graphql$/,
+            exclude: /node_modules/,
+            use: ['graphql-tag/loader']
+        });
         config.resolve.alias = {
             ...config.resolve.alias,
             'react-i18next': path.resolve('./node_modules/react-i18next'),
-            'core-js': path.resolve('./node_modules/core-js')
+            'core-js': path.resolve('./node_modules/core-js'),
+            Queries: path.resolve('../../react-components/src/queries/')
         };
 
         return config;
