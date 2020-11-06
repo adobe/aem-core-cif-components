@@ -50,8 +50,8 @@ const MyAccount = props => {
         await signOut();
         if (showMenu) {
             showMenu();
-
-            redirectBacktoStorefront();
+        }
+        redirectBacktoStorefront();
     };
 
     return (

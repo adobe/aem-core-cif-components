@@ -118,7 +118,6 @@ public class StoreConfigExporterTest {
     public void testGetStoreRootUrl() {
         setupWithPage("/content/pageB/pageC", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
         Assert.assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
     }
 
