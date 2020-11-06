@@ -40,7 +40,9 @@ const MyAccount = props => {
     }
 
     const redirectBacktoStorefront = () => {
-        window.location.href = pagePaths.baseUrl;
+        if (pagePaths && pagePaths.baseUrl) {
+            window.location.href = pagePaths.baseUrl;
+        }
     };
 
     const handleSignOut = async () => {
@@ -48,11 +50,8 @@ const MyAccount = props => {
         await signOut();
         if (showMenu) {
             showMenu();
-        }
 
-        if (pagePaths && pagePaths.baseUrl) {
             redirectBacktoStorefront();
-        }
     };
 
     return (
