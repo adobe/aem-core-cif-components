@@ -1,3 +1,4 @@
+
 {
   "product-page": {
     "jcr:primaryType": "cq:Page",
@@ -30,6 +31,42 @@
       "jcr:content": {
         "jcr:primaryType":"cq:PageContent",
         "selectorFilter": ["categoryId1", "categoryId2"],
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
+      }
+    },
+    "sub-page-with-urlpath": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "selectorFilter": "categoryId1|men/tops",
+        "includesSubCategories": true,
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
+      }
+    },
+    "sub-page-with-urlpath-disabled": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "selectorFilter": "categoryId1|women/tops",
+        "includesSubCategories": false,
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
+      }
+    },
+    "sub-page-without-urlpath": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "selectorFilter": "categoryId1",
+        "includesSubCategories": true,
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
+      }
+    },
+    "sub-page-with-urlpath-array": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "selectorFilter": ["categoryId1|men/tops", "categoryId2|men/bottoms"],
+        "includesSubCategories": true,
         "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
     }
