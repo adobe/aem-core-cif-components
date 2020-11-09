@@ -206,7 +206,7 @@ const EditableForm = props => {
                     showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
-                    submitLabel={t('checkout:address-submit', 'Use Address')}
+                    submitButtonLabel={t('checkout:address-submit', 'Use Address')}
                 />
             );
         }
