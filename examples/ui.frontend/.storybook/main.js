@@ -19,7 +19,8 @@ module.exports = {
     addons: [
         '@storybook/addon-links',
         { name: '@storybook/addon-essentials', options: { backgrounds: false } },
-        '@storybook/addon-queryparams'
+        '@storybook/addon-queryparams',
+        '@storybook/addon-storysource'
     ],
     webpackFinal: async (config, { configType }) => {
         config.module.rules.push({

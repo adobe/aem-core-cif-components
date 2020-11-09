@@ -43,7 +43,30 @@ export default {
 };
 
 const Template = (args, context) => {
-    const mocks = [
+    return (
+        <I18nextProvider i18n={i18n} defaultNS="common">
+            <ConfigContextProvider
+                config={{
+                    storeView: context.parameters.cifConfig.storeView,
+                    graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint,
+                    graphqlMethod: context.parameters.cifConfig.graphqlMethod
+                }}>
+                <MockedProvider mocks={args.mocks}>
+                    <ResetPassword />
+                </MockedProvider>
+            </ConfigContextProvider>
+        </I18nextProvider>
+    );
+};
+
+export const WithToken = Template.bind({});
+WithToken.parameters = {
+    query: {
+        token: 'my-token'
+    }
+};
+WithToken.args = {
+    mocks: [
         {
             request: {
                 query: MUTATION_RESET_PASSWORD,
@@ -57,29 +80,7 @@ const Template = (args, context) => {
                 data: { resetPassword: true }
             }
         }
-    ];
-
-    return (
-        <I18nextProvider i18n={i18n} defaultNS="common">
-            <ConfigContextProvider
-                config={{
-                    storeView: context.parameters.cifConfig.storeView,
-                    graphqlEndpoint: context.parameters.cifConfig.graphqlEndpoint,
-                    graphqlMethod: context.parameters.cifConfig.graphqlMethod
-                }}>
-                <MockedProvider mocks={mocks}>
-                    <ResetPassword />
-                </MockedProvider>
-            </ConfigContextProvider>
-        </I18nextProvider>
-    );
-};
-
-export const WithToken = Template.bind({});
-WithToken.parameters = {
-    query: {
-        token: 'my-token'
-    }
+    ]
 };
 
 export const MissingToken = Template.bind({});

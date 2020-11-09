@@ -28,4 +28,7 @@
     <teaser/>
     <navigation/>
     <breadcrumb/>
+    <minicart/>
+    <carttrigger/>
+    <resetpassword/>
 </jcr:root>
