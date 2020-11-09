@@ -12,13 +12,11 @@
  *
  ******************************************************************************/
 
-import '../src/stories/styles/main.scss';
+import { create } from '@storybook/theming/create';
 
-export const parameters = {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    cifConfig: {
-        storeView: 'default',
-        graphqlEndpoint: '/apps/cif-components-examples/graphql',
-        graphqlMethod: 'GET'
-    }
-};
+export default create({
+    base: 'light',
+    brandTitle: 'Component Library',
+    brandUrl: '/content/core-components-examples/library.html',
+    brandImage: '/content/dam/core-components-examples/library/aem-corecomponents-logo.svg'
+});

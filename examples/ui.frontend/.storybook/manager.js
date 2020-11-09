@@ -12,13 +12,9 @@
  *
  ******************************************************************************/
 
-import '../src/stories/styles/main.scss';
+import { addons } from '@storybook/addons';
+import theme from './theme.js';
 
-export const parameters = {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    cifConfig: {
-        storeView: 'default',
-        graphqlEndpoint: '/apps/cif-components-examples/graphql',
-        graphqlMethod: 'GET'
-    }
-};
+addons.setConfig({
+    theme: theme
+});
