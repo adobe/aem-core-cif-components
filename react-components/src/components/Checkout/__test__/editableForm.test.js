@@ -17,41 +17,20 @@ import { render } from '../../../utils/test-utils';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
+import mocksQueryCountries from '../../../utils/mocks/queryCountries';
 
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
 describe('<EditableForm />', () => {
-    const mocksQueryCountries = [
-        {
-            request: {
-                query: QUERY_COUNTRIES
-            },
-            result: {
-                data: {
-                    countries: [
-                        {
-                            id: 'US',
-                            available_regions: [
-                                { id: 4, code: 'AL', name: 'Alabama' },
-                                { id: 7, code: 'AK', name: 'Alaska' }
-                            ]
-                        }
-                    ]
-                }
-            }
-        }
-    ];
     it('renders the shipping address form if countries are loaded', async () => {
-        const { queryByText } = render(
+        const { queryByText, debug } = render(
             <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
                     <EditableForm />
                 </CheckoutProvider>
-            </CartProvider>,
-            { mocks: mocksQueryCountries }
+            </CartProvider>
         );
-
         await wait(() => {
             expect(queryByText('Shipping Address')).not.toBeNull();
         });
@@ -59,7 +38,7 @@ describe('<EditableForm />', () => {
 
     it('renders the payments form if countries are loaded', async () => {
         const mocksPaymentsForm = [
-            ...mocksQueryCountries,
+            mocksQueryCountries,
             {
                 request: {
                     query: CREATE_BRAINTREE_CLIENT_TOKEN
@@ -112,8 +91,7 @@ describe('<EditableForm />', () => {
                     reducer={state => state}>
                     <EditableForm />
                 </CheckoutProvider>
-            </CartProvider>,
-            { mocks: mocksQueryCountries }
+            </CartProvider>
         );
 
         await wait(() => {

@@ -25,13 +25,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.request.RequestDispatcherOptions;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.day.cq.wcm.api.WCMMode;
 
 @Component(
@@ -67,17 +67,16 @@ public class SpecificPageFilterFactory implements Filter {
             return;
         }
 
+        // We add a specific selector to the request to forward the request to SpecificPageServlet
+        RequestDispatcherOptions options = new RequestDispatcherOptions();
+        options.setReplaceSelectors(SpecificPageServlet.SELECTOR + "." + selector);
+
         Resource page = slingRequest.getResource();
-        LOGGER.debug("Checking sub-pages for {}", slingRequest.getRequestURI());
 
-        Resource subPage = UrlProviderImpl.toSpecificPage(page, selector);
-        if (subPage != null) {
-            RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(subPage);
-            dispatcher.forward(slingRequest, response);
-            return;
-        }
+        LOGGER.debug("Adding {} selector for {} {}", SpecificPageServlet.SELECTOR, slingRequest.getRequestURI(), page.getPath());
 
-        chain.doFilter(request, response);
+        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(page, options);
+        dispatcher.forward(slingRequest, response);
     }
 
     @Override

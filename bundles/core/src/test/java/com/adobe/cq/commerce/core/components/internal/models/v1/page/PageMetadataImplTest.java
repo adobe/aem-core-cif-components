@@ -40,6 +40,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -121,6 +122,11 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnProductSpecificPage() throws Exception {
+        testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page/product-specific-page");
+    }
+
+    @Test
     public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
         testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
     }
@@ -147,16 +153,25 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnCategorySpecificPage() throws Exception {
+        testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page/category-specific-page");
+    }
+
+    @Test
     public void testPageMetadataModelOnCategoryPageOnLaunch() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/category-page");
     }
 
     private void testPageMetadataModelOnCategoryPage(String pagePath) throws Exception {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

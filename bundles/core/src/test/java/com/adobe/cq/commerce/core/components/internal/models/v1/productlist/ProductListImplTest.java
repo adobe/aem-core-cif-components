@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -141,10 +142,13 @@ public class ProductListImplTest {
         category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategory();
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getProducts();
 
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -193,6 +197,7 @@ public class ProductListImplTest {
     public void testTitleAndMetadata() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
@@ -340,6 +345,7 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getMetaTitle().isEmpty());
         Assert.assertNull(productListModel.getMetaDescription());
         Assert.assertNull(productListModel.getMetaKeywords());
+        Assert.assertNull(productListModel.getUrlPath());
     }
 
     @Test

@@ -139,6 +139,20 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCategoryUrlWithSubpage() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .id("42")
+            .urlPath("men/tops/shirts")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.42.html", url);
+    }
+
+    @Test
     public void testProductUrlWithCustomPage() {
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
