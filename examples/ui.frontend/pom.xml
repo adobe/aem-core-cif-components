@@ -224,7 +224,7 @@
                                     <goal>npm</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>run prod</arguments>
+                                    <arguments>run dev</arguments>
                                 </configuration>
                             </execution>
                         </executions>

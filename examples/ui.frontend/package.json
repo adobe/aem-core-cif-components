@@ -52,7 +52,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@adobe/aem-core-cif-react-components": "^1.4.0",
+    "@adobe/aem-core-cif-react-components": "^1.5.0",
     "i18next": "^19.5.3",
     "i18next-browser-languagedetector": "^5.0.0",
     "i18next-xhr-backend": "^3.2.2",
