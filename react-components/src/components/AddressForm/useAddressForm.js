@@ -137,6 +137,7 @@ export const useAddressForm = () => {
             'lastname',
             'postcode',
             'region_code',
+            'country_code',
             'region',
             'save_in_address_book',
             'street',

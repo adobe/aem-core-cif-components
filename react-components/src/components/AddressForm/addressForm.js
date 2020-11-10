@@ -80,7 +80,7 @@ const AddressForm = props => {
     );
 
     const Regions = () => {
-        const { value: countryCode } = useFieldState('countryCode');
+        const { value: countryCode } = useFieldState('country_code');
         const country = countries.find(({ id }) => countryCode === id);
 
         if (!country || !country.available_regions) {
@@ -96,9 +96,16 @@ const AddressForm = props => {
                 label: entry.name
             };
         });
-
-        return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
+        return (
+            <Select
+                id={classes.region_code}
+                field="region_code"
+                items={[{ value: '', label: '' }, ...displayRegions]}
+                validate={isRequired}
+            />
+        );
     };
+
     return (
         <Form className={classes.root} initialValues={parseAddressFormValues(initialValues)} onSubmit={handleSubmit}>
             {({ formApi }) => (
@@ -159,12 +166,12 @@ const AddressForm = props => {
                         </div>
                         <div className={classes.country}>
                             <Field label={t('checkout:country', 'Country')}>
-                                <Select field="countryCode" items={displayCountries} />
+                                <Select field="country_code" items={displayCountries} />
                             </Field>
                         </div>
                         <div className={classes.region_code}>
                             <Field label={t('checkout:address-state', 'State')}>
-                                <Regions />
+                                <Regions formApi={formApi} />
                             </Field>
                         </div>
                         <div className={classes.postcode}>

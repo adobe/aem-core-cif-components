@@ -188,7 +188,7 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
               >
                 <select
                   class="input"
-                  name="countryCode"
+                  name="country_code"
                 />
               </span>
               <span
