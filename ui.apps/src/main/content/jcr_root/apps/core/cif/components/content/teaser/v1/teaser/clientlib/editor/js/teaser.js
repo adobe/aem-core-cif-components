@@ -63,10 +63,14 @@ class TeaserConfig {
         actionsEnabledCheckbox.addEventListener('change', e => {
             const actionsEnabled = e.target.checked === true;
             document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
-                catEl.disabled = !actionsEnabled;
+                this.$(catEl)
+                    .adaptTo('foundation-field')
+                    .setDisabled(!actionsEnabled);
             });
             document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
-                prodEl.disabled = !actionsEnabled;
+                this.$(prodEl)
+                    .adaptTo('foundation-field')
+                    .setDisabled(!actionsEnabled);
             });
         });
     }
