@@ -105,7 +105,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
             .distinct()
             .collect(Collectors.toList());
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
