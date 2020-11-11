@@ -32,14 +32,18 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser)
 -   [Sign In](react-components/src/components/SignIn)
 -   [Create Account](react-components/src/components/CreateAccount)
+-   [AccountDetails](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v1/accountdetails)
+-   [AddressBook](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/addressbook/v1/addressbook)
+-   [ResetPassword](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v1/resetpassword)
+-   [Category Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/categorycarousel/v1/categorycarousel)
 
 ## System Requirements
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento                    | Java   |
-| ------------------- | ---------------------- | ------- | ------- | -------------------------- | ------ |
-| 1.5.0               | Continual              | 6.5.7   | 6.4.4.0 | 2.4.0                      | 8, 11  |
+| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento | Java  |
+| ------------------- | ---------------------- | ------- | ------- | ------- | ----- |
+| 1.5.0               | Continual              | 6.5.7   | 6.4.4.0 | 2.4.0   | 8, 11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
@@ -72,10 +76,12 @@ If you want to build all the modules yourself and get all the latest (yet) **unr
 ```
 mvn clean install -PautoInstallAll
 ```
+
 This installs everything by default to `localhost:4502` without any context path. You can also configure the install location with the following maven properties:
-* `aem.host`: the name of the AEM instance
-* `aem.port`: the port number of the AEM instance
-* `aem.contextPath`: the context path of your AEM instance (if not `/`)
+
+-   `aem.host`: the name of the AEM instance
+-   `aem.port`: the port number of the AEM instance
+-   `aem.contextPath`: the context path of your AEM instance (if not `/`)
 
 ### UberJar
 
