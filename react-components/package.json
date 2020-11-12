@@ -44,7 +44,6 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-loader": "^4.3.0",
-    "graphql": "^14.6.0",
     "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
@@ -63,6 +62,8 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
+    "@apollo/client": "^3.2.4",
+    "graphql": "^14.6.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0"
   },
