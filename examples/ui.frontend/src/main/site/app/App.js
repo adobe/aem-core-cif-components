@@ -21,12 +21,15 @@ import i18n from './i18n';
 import partialConfig from './config';
 
 const App = () => {
-    const { storeView, graphqlEndpoint } = document.querySelector('body').dataset;
+    const { storeView, graphqlEndpoint, graphqlMethod } = document.querySelector('body').dataset;
     const { mountingPoints } = partialConfig;
     const config = {
         ...partialConfig,
         storeView,
-        graphqlEndpoint
+        graphqlEndpoint,
+        // Can be GET or POST. When selecting GET, this applies to cache-able GraphQL query requests only. Mutations
+        // will always be executed as POST requests.
+        graphqlMethod
     };
 
     return (
