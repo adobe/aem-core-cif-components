@@ -68,10 +68,9 @@ export const useAddressForm = () => {
         setInProgress(true);
 
         const variables = {
-            country_code: 'US',
             region: {
                 region_code: formValues.region_code,
-                region_id: getRegionId(countries, 'US', formValues.region_code)
+                region_id: getRegionId(countries, formValues.country_code, formValues.region_code)
             },
             default_billing: formValues.default_shipping,
             ...formValues
