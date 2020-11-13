@@ -87,15 +87,13 @@ public interface SearchResultsSet {
     List<SearchAggregation> getAvailableAggregations();
 
     /**
-     * Returns the pager model, responsible for handling the pagination of search results.
-     * 
-     * @return
+     * @return The pager model, responsible for handling the pagination of search results.
      */
     @Nonnull
     Pager getPager();
 
     /**
-     * Returns the sorter model, responsible for handling the sorting of search results.
+     * @return The sorter model, responsible for handling the sorting of search results.
      */
     @Nonnull
     Sorter getSorter();

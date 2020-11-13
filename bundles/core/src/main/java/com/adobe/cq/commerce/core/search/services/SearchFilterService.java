@@ -30,7 +30,8 @@ public interface SearchFilterService {
     /**
      * Service to retrieve available search filters from the backing commerce system.
      *
-     * @return a {@link List< FilterAttributeMetadata >} of available search filters
+     * @param page The current page being rendered.
+     * @return a list of {@link FilterAttributeMetadata} of available search filters
      */
     List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(Page page);
 

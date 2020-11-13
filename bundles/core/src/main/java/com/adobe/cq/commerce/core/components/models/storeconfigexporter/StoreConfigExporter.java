@@ -17,17 +17,17 @@ package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 public interface StoreConfigExporter {
 
     /**
-     * Returns the Magento store view identifier.
+     * @return The Magento store view identifier.
      */
     String getStoreView();
 
     /**
-     * Returns the GraphQL endpoint for client-side components.
+     * @return The GraphQL endpoint for client-side components.
      */
     String getGraphqlEndpoint();
 
     /**
-     * Returns the HTTP method to be used for GraphQL requests.
+     * @return The HTTP method to be used for GraphQL requests.
      */
     String getMethod();
 }
