@@ -17,6 +17,7 @@ class TeaserConfig {
         this.$ = jQuery;
         this.handleDialogLoaded = this.handleDialogLoaded.bind(this);
         this.attachEventHandlers = this.attachEventHandlers.bind(this);
+        this.setFieldsDisabled = this.setFieldsDisabled.bind(this);
         this.actionsToggleHandler = this.actionsToggleHandler.bind(this);
         this.handlePickersChange = this.handlePickersChange.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
@@ -41,6 +42,8 @@ class TeaserConfig {
                 TeaserConfig.selectors.actionsEnabledCheckboxSelector
             );
             this.actionsToggleHandler(actionsEnabledCheckbox);
+            const actionsEnabled = actionsEnabledCheckbox.checked === true;
+            this.setFieldsDisabled(!actionsEnabled);
         }
     }
 
@@ -62,16 +65,20 @@ class TeaserConfig {
     actionsToggleHandler(actionsEnabledCheckbox) {
         actionsEnabledCheckbox.addEventListener('change', e => {
             const actionsEnabled = e.target.checked === true;
-            document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
-                this.$(catEl)
-                    .adaptTo('foundation-field')
-                    .setDisabled(!actionsEnabled);
-            });
-            document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
-                this.$(prodEl)
-                    .adaptTo('foundation-field')
-                    .setDisabled(!actionsEnabled);
-            });
+            this.setFieldsDisabled(!actionsEnabled);
+        });
+    }
+
+    setFieldsDisabled(disabled) {
+        document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
+            this.$(catEl)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
+        });
+        document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
+            this.$(prodEl)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
         });
     }
 
