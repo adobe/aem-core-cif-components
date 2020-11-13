@@ -84,18 +84,28 @@ public class PageMetadataImpl implements PageMetadata {
 
     private boolean isProductPage() {
         Page productPage = SiteNavigation.getProductPage(currentPage);
+        if (productPage == null) {
+            return false;
+        }
 
-        // The product page might be in a Launch so we use 'endsWith' to compare the paths, for example
-        // - product page: /content/launches/2020/09/15/mylaunch/content/venia/us/en/products/category-page
-        // - current page: /content/venia/us/en/products/category-page
-        return productPage != null ? productPage.getPath().endsWith(currentPage.getPath()) : false;
+        // The product page might be in a Launch so we first extract the paths of the production versions
+        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
+        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+
+        return currentPagePath.equals(productPagePath) || currentPagePath.startsWith(productPagePath + "/");
     }
 
     private boolean isCategoryPage() {
         Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+        if (categoryPage == null) {
+            return false;
+        }
 
-        // See comment above
-        return categoryPage != null ? categoryPage.getPath().endsWith(currentPage.getPath()) : false;
+        // The category page might be in a Launch so we first extract the paths of the production versions
+        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+
+        return currentPagePath.equals(categoryPagePath) || currentPagePath.startsWith(categoryPagePath + "/");
     }
 
 }
