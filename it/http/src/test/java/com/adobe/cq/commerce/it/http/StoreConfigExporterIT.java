@@ -48,9 +48,4 @@ public class StoreConfigExporterIT extends CommerceTestBase {
         Assert.assertEquals("GET", body.dataset().get("graphql-method"));
     }
 
-    @Test
-    public void testStoreRootUrl() {
-        Assert.assertEquals("/content/core-components-examples/library/commerce/productteaser.html", body.dataset().get("store-root-url"));
-    }
-
 }
