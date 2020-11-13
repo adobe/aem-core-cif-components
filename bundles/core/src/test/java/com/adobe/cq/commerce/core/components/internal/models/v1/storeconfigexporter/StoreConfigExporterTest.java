@@ -114,13 +114,6 @@ public class StoreConfigExporterTest {
         Assert.assertEquals("POST", storeConfigExporter.getMethod());
     }
 
-    @Test
-    public void testGetStoreRootUrl() {
-        setupWithPage("/content/pageB/pageC", HttpMethod.POST);
-        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
-    }
-
     private void setupWithPage(String pagePath, HttpMethod method) {
         Page page = context.pageManager().getPage(pagePath);
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
