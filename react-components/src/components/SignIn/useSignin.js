@@ -41,6 +41,10 @@ export const useSignin = props => {
         errorMessage = userState.signInError;
     }
 
+    const refreshPage = () => {
+        window.location.reload();
+    };
+
     const handleSubmit = async ({ email, password }) => {
         setInProgress(true);
         try {
@@ -77,6 +81,9 @@ export const useSignin = props => {
 
             //5. show my account view in account dropdown or navigation side panel after sign in
             showMyAccount();
+
+            //6. simple refresh(current page)
+            refreshPage();
         } catch (e) {
             setError(e);
             setInProgress(false);
