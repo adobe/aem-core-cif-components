@@ -32,8 +32,6 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 
-
-
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { StoreConfigExporter.class },
