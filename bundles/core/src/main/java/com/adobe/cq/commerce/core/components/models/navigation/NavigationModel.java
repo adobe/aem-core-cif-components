@@ -25,12 +25,12 @@ import java.util.List;
 public interface NavigationModel {
 
     /**
-     * Returns the currently active navigation.
+     * @return The currently active navigation.
      */
     Navigation getActiveNavigation();
 
     /**
-     * Returns all available navigation instances.
+     * @return All available navigation instances.
      */
     List<Navigation> getNavigationList();
 }
