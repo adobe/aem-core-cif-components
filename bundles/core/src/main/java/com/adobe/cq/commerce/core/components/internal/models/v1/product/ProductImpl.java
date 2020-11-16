@@ -132,7 +132,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         locale = currentPage.getLanguage(false);
 
         // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
             if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);

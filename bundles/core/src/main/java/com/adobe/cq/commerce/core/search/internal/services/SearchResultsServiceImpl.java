@@ -130,7 +130,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
 
         if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, request);
         }
 
         if (magentoGraphqlClient == null) {
