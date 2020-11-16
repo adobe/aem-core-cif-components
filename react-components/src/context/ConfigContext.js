@@ -37,8 +37,7 @@ ConfigContextProvider.propTypes = {
             accountDetailsDialogContainer: PropTypes.string
         }),
         pagePaths: PropTypes.shape({
-            addressBook: PropTypes.string,
-            baseUrl: PropTypes.string
+            addressBook: PropTypes.string
         })
     }).isRequired
 };
