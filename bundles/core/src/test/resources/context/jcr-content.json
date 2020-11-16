@@ -163,13 +163,16 @@
   "pageD": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType": "cq:PageContent"
+      "jcr:primaryType": "cq:PageContent",
+      "cq:graphqlClient": "default",
+      "magentoStore": "my-store"
     }
   },
   "pageE": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
+      "cq:graphqlClient": "default",
       "cq:magentoStore": "my-store"
     }
   },
