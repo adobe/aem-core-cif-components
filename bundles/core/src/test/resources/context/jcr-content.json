@@ -151,8 +151,7 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "magentoStore": "my-store",
-      "navRoot": true
+      "magentoStore": "my-store"
     },
     "pageC": {
       "jcr:primaryType": "cq:Page",
