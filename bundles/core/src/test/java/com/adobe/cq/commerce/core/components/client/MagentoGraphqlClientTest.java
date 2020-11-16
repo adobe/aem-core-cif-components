@@ -15,8 +15,11 @@
 package com.adobe.cq.commerce.core.components.client;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+
+import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -161,17 +164,17 @@ public class MagentoGraphqlClientTest {
 
     @Test
     public void testMissingMagentoStoreProperty() {
-        // Get page whose parent has the magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageD"));
-        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-        testMagentoStoreProperty(resource, false);
+        // Get page which has the magentoStore property in its jcr:content node
+        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageD/jcr:content"));
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+        testMagentoStoreProperty(resource, true);
     }
 
     @Test
     public void testOldMagentoStoreProperty() {
         // Get page which has the old cq:magentoStore property in its jcr:content node
-        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageE"));
-        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageE/jcr:content"));
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         testMagentoStoreProperty(resource, true);
     }
 
@@ -215,6 +218,66 @@ public class MagentoGraphqlClientTest {
         headers.add(new BasicHeader("Preview-Version", "1606809600")); // Tuesday, 1 December 2020 09:00:00 GMT+01:00
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, HttpMethod.POST);
+        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testPreviewVersionHeaderWithTimewarpRequestParameter() {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(time.getTimeInMillis() + 3600000); // 1h in future from now
+
+        // Set a date in future so the unit test never fails (the code checks that the timewarp epoch is in the future)
+        context.request().setParameterMap(Collections.singletonMap("timewarp", String.valueOf(time.getTimeInMillis()))); // Time in ms
+        testPreviewVersionHeaderWithTimewarp(time.getTimeInMillis());
+    }
+
+    @Test
+    public void testPreviewVersionHeaderWithTimewarpCookie() {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(time.getTimeInMillis() + 3600000); // 1h in future from now
+
+        // Set a date in future so the unit test never fails (the code checks that the timewarp epoch is in the future)
+        context.request().addCookie(new Cookie("timewarp", String.valueOf(time.getTimeInMillis()))); // Time in ms
+        testPreviewVersionHeaderWithTimewarp(time.getTimeInMillis());
+    }
+
+    @Test
+    public void testPreviewVersionHeaderWithTimewarpCookieInThePast() {
+        Calendar time = Calendar.getInstance();
+        time.setTimeInMillis(time.getTimeInMillis() - 3600000); // 1h in past from now
+
+        // Set a date in past so the unit test always fails (the code checks that the timewarp epoch is in the future)
+        context.request().addCookie(new Cookie("timewarp", String.valueOf(time.getTimeInMillis()))); // Time in ms
+        testPreviewVersionHeaderWithTimewarp(null);
+    }
+
+    @Test
+    public void testPreviewVersionHeaderWithInvalidTimewarpValue() {
+        context.request().addCookie(new Cookie("timewarp", "invalid"));
+        testPreviewVersionHeaderWithTimewarp(null);
+    }
+
+    private void testPreviewVersionHeaderWithTimewarp(Long expectedTimeInMillis) {
+        Page page = Mockito.spy(context.pageManager().getPage(PAGE_A));
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageResource, page, context.request());
+
+        // Verify parameters with default execute() method and store property
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        if (expectedTimeInMillis != null) {
+            String expectedPreviewVersion = String.valueOf(expectedTimeInMillis.longValue() / 1000);
+            headers.add(new BasicHeader("Preview-Version", expectedPreviewVersion));
+        }
+
+        // The POST is only explicitly added when there is a Preview-Version header
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, expectedTimeInMillis != null ? HttpMethod.POST : null);
         Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
