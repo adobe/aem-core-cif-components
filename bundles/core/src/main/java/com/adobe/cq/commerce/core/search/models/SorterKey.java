@@ -21,32 +21,32 @@ import java.util.Map;
  */
 public interface SorterKey {
     /**
-     * Returns the sort key.
+     * @return The sort key.
      */
     String getName();
 
     /**
-     * Returns a user friendly localizable label of a sort key.
+     * @return A user friendly localizable label of a sort key.
      */
     String getLabel();
 
     /**
-     * Returns the ordering related to this key.
+     * @return The ordering related to this key.
      */
     Sorter.Order getOrder();
 
     /**
-     * Returns {@code true} if this is the currently selected key, {@code false} otherwise.
+     * @return {@code true} if this is the currently selected key, {@code false} otherwise.
      */
     boolean isSelected();
 
     /**
-     * Returns the filtering parameters related to the current sort key and sort order.
+     * @return The filtering parameters related to the current sort key and sort order.
      */
     Map<String, String> getCurrentOrderParameters();
 
     /**
-     * Returns the filtering parameters related to the current sort key but opposite sort order.
+     * @return The filtering parameters related to the current sort key but opposite sort order.
      */
     Map<String, String> getOppositeOrderParameters();
 }

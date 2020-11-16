@@ -80,9 +80,6 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         return filters;
     }
 
-    /**
-     * {@see SearchResults#getProducts()}
-     */
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
