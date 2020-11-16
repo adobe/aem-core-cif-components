@@ -90,7 +90,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);

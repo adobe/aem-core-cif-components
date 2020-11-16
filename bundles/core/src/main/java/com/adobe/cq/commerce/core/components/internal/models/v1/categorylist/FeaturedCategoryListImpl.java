@@ -118,7 +118,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             }
 
             if (!categoryIds.isEmpty()) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                     categoriesRetriever.setIdentifiers(categoryIds);
