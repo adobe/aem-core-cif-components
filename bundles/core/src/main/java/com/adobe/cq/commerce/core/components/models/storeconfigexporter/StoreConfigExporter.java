@@ -32,7 +32,7 @@ public interface StoreConfigExporter {
     String getMethod();
 
     /**
-     * Returns the URL of the storefront homepage
+     * @return The URL of the storefront homepage
      */
     String getStoreRootUrl();
 }
