@@ -22,6 +22,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
@@ -42,6 +43,9 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
+
+    @Self
+    private SlingHttpServletRequest request;
 
     @Inject
     private Page currentPage;
@@ -69,7 +73,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, "/magento/graphql");
 
         // Get configuration from GraphQL client
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
             GraphqlClientConfiguration graphqlClientConfiguration = magentoGraphqlClient.getConfiguration();
             method = graphqlClientConfiguration.httpMethod();
