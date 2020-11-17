@@ -89,7 +89,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
             AbstractCategoriesRetriever categoriesRetriever = null;
             if (categoryIds.size() > 0) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                     categoriesRetriever.setIdentifiers(categoryIds);

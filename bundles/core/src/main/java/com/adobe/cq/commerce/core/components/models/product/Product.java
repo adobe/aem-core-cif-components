@@ -40,12 +40,14 @@ public interface Product extends Component, PageMetadata {
     String getSku();
 
     /**
+     * @return The price currency.
      * @deprecated Please use getPriceRange() instead.
      */
     @Deprecated
     String getCurrency();
 
     /**
+     * @return The price.
      * @deprecated Please use getPriceRange() instead.
      */
     @Deprecated
@@ -54,6 +56,7 @@ public interface Product extends Component, PageMetadata {
     Price getPriceRange();
 
     /**
+     * @return The formatted price including the currency.
      * @deprecated Please use getPriceRange() instead.
      */
     @Deprecated
