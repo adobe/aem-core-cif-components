@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,24 +13,14 @@
  ******************************************************************************/
 'use strict';
 
-import Carousel from '../../../../../carousel/v1/carousel/clientlibs/js/carousel';
+import Carousel from './carousel';
 
 (function() {
-    const selectors = {
-        self: "[data-comp-is='productcarousel']",
-        btnPrev: "[data-carousel-action='prev']",
-        btnNext: "[data-carousel-action='next']",
-        container: '.productcarousel__cardscontainer',
-        root: '.productcarousel__root',
-        parent: '.productcarousel__parent',
-        card: '.product__card'
-    };
-
     function onDocumentReady() {
-        const productCmp = document.querySelectorAll(selectors.self);
-        if (productCmp) {
-            productCmp.forEach(function(element) {
-                new Carousel(element, selectors);
+        const carouselCmp = document.querySelectorAll(Carousel.selectors.self);
+        if (carouselCmp) {
+            carouselCmp.forEach(function(element) {
+                new Carousel(element);
             });
         }
     }
