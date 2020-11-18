@@ -30,4 +30,9 @@ public interface StoreConfigExporter {
      * @return The HTTP method to be used for GraphQL requests.
      */
     String getMethod();
+
+    /**
+     * @return The URL of the storefront homepage
+     */
+    String getStoreRootUrl();
 }
