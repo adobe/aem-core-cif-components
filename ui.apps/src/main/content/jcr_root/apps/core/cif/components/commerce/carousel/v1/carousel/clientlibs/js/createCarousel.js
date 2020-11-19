@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,28 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+'use strict';
 
-package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
+import Carousel from './carousel';
 
-public interface StoreConfigExporter {
+(function() {
+    function onDocumentReady() {
+        const carouselCmp = document.querySelectorAll(Carousel.selectors.self);
+        if (carouselCmp) {
+            carouselCmp.forEach(function(element) {
+                new Carousel(element);
+            });
+        }
+    }
 
-    /**
-     * @return The Magento store view identifier.
-     */
-    String getStoreView();
-
-    /**
-     * @return The GraphQL endpoint for client-side components.
-     */
-    String getGraphqlEndpoint();
-
-    /**
-     * @return The HTTP method to be used for GraphQL requests.
-     */
-    String getMethod();
-
-    /**
-     * @return The URL of the storefront homepage
-     */
-    String getStoreRootUrl();
-}
+    if (document.readyState !== 'loading') {
+        onDocumentReady();
+    } else {
+        document.addEventListener('DOMContentLoaded', onDocumentReady);
+    }
+})();
