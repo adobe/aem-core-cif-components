@@ -52,7 +52,7 @@ describe('useAddressSelect', () => {
             );
         };
 
-        const { debug, getByTestId } = render(
+        const { getByTestId } = render(
             <CheckoutProvider>
                 <Wrapper />
             </CheckoutProvider>,
@@ -60,7 +60,6 @@ describe('useAddressSelect', () => {
         );
 
         await wait(() => {
-            debug();
             const newAddressLabel = getByTestId('new-address-label');
             expect(newAddressLabel.textContent).toEqual('New Address');
 

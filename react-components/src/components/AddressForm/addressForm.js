@@ -85,7 +85,7 @@ const AddressForm = props => {
         const country = countries.find(({ id }) => countryCode === id);
 
         if (!country || !country.available_regions) {
-            return <TextInput id={classes.region_code} field="region_code" defaultValue={formValues.region_code} />;
+            return <TextInput id={classes.region_code} field="region_code" />;
         }
 
         // US do not have regions with unique codes
