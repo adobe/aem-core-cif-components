@@ -20,23 +20,24 @@ import java.util.List;
  * Simple data model for a navigation item of the navigation component.
  */
 public interface NavigationItem {
+
     /**
-     * Item title to be displayed in the navigation.
+     * @return The item title to be displayed in the navigation.
      */
     String getTitle();
 
     /**
-     * The URL for the item.
+     * @return The URL for the item.
      */
     String getURL();
 
     /**
-     * If true the current page is referred to by this navigation item.
+     * @return True if the current page is referred to by this navigation item.
      */
     boolean isActive();
 
     /**
-     * Returns the navigation items to be rendered by the navigation component.
+     * @return The navigation items to be rendered by the navigation component.
      */
     List<NavigationItem> getItems();
 }

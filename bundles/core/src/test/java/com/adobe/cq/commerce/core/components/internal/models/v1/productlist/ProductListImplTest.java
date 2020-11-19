@@ -197,6 +197,7 @@ public class ProductListImplTest {
     public void testTitleAndMetadata() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
@@ -344,6 +345,7 @@ public class ProductListImplTest {
         Assert.assertTrue(productListModel.getMetaTitle().isEmpty());
         Assert.assertNull(productListModel.getMetaDescription());
         Assert.assertNull(productListModel.getMetaKeywords());
+        Assert.assertNull(productListModel.getUrlPath());
     }
 
     @Test

@@ -34,7 +34,8 @@ class CategoryRetriever extends AbstractCategoryRetriever {
                 .productCount()
                 .metaDescription()
                 .metaKeywords()
-                .metaTitle();
+                .metaTitle()
+                .urlPath();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

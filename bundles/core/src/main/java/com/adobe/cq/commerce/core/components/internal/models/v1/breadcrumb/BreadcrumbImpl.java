@@ -227,7 +227,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }
@@ -244,7 +244,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }
