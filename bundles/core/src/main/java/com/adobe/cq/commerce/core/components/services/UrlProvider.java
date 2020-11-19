@@ -138,8 +138,12 @@ public interface UrlProvider {
         }
 
         /**
-         * The <code>url_key</code> parameter of the product or category. In the case of a <code>ConfigurableProduct</code>,
-         * this must hold the url_key of the configurable product and the variant url_key must be set with {@link #variantUrlKey(String)}.
+         * Sets the <code>url_key</code> of the product.
+         * In the case of a <code>ConfigurableProduct</code>, this sets the <code>url_key</code> of the configurable
+         * product and the variant <code>url_key</code> must be set with {@link #variantUrlKey(String)}.
+         * 
+         * @param urlKey The <code>url_key</code> of the product or category.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder urlKey(String urlKey) {
             params.put(URL_KEY_PARAM, urlKey);
@@ -147,8 +151,11 @@ public interface UrlProvider {
         }
 
         /**
-         * In the case of a <code>ConfigurableProduct</code>, the <code>variant_url_key</code> parameter must
-         * be set to the url_key of the currently selected/chosen variant.
+         * In the case of a <code>ConfigurableProduct</code>, the <code>variantUrlKey</code> parameter must
+         * be set to the <code>url_key</code> of the currently selected/chosen variant.
+         * 
+         * @param variantUrlKey The <code>url_key</code> of the selected/chosen variant.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder variantUrlKey(String variantUrlKey) {
             params.put(VARIANT_URL_KEY_PARAM, variantUrlKey);
@@ -156,8 +163,12 @@ public interface UrlProvider {
         }
 
         /**
-         * The <code>sku</code> parameter of the product. In the case of a <code>ConfigurableProduct</code>,
-         * this must hold the sku of the configurable product and the variant sku must be set with {@link #variantSku(String)}.
+         * Sets the <code>sku</code> of the product.
+         * In the case of a <code>ConfigurableProduct</code>, this must hold the <code>sku</code> of the configurable
+         * product and the variant <code>sku</code> must be set with {@link #variantSku(String)}.
+         * 
+         * @param sku The <code>sku</code> of the product.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder sku(String sku) {
             params.put(SKU_PARAM, sku);
@@ -165,8 +176,11 @@ public interface UrlProvider {
         }
 
         /**
-         * In the case of a <code>ConfigurableProduct</code>, the <code>variant_sku</code> parameter must
-         * be set to the sku of the currently selected/chosen variant.
+         * In the case of a <code>ConfigurableProduct</code>, the <code>variantSku</code> parameter must
+         * be set to the <code>sku</code> of the currently selected/chosen variant.
+         * 
+         * @param variantSku The <code>sku</code> of the selected/chosen variant.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder variantSku(String variantSku) {
             params.put(VARIANT_SKU_PARAM, variantSku);
@@ -174,7 +188,10 @@ public interface UrlProvider {
         }
 
         /**
-         * The <code>id</code> of the category.
+         * Sets the <code>id</code> of the category.
+         * 
+         * @param id The <code>id</code> of the category.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder id(String id) {
             params.put(ID_PARAM, id);
@@ -183,6 +200,9 @@ public interface UrlProvider {
 
         /**
          * Can be used to statically set the <code>page</code> parameter of the URL.
+         * 
+         * @param page The page that will be used to build the URL.
+         * @return This ParamsBuilder.
          */
         public ParamsBuilder page(String page) {
             params.put(PAGE_PARAM, page);

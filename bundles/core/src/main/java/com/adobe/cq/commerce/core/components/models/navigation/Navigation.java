@@ -20,6 +20,7 @@ import java.util.List;
  * Sling model interface to represent a navigation.
  */
 public interface Navigation {
+
     /**
      * Sling resource type for catalog landing page.
      */
@@ -33,17 +34,17 @@ public interface Navigation {
     String PN_SHOW_MAIN_CATEGORIES = "showMainCategories";
 
     /**
-     * Returns the navigation items to be rendered by the navigation component.
+     * @return The navigation items to be rendered by the navigation component.
      */
     List<NavigationItem> getItems();
 
     /**
-     * Returns the identifier of this navigation.
+     * @return The identifier of this navigation.
      */
     String getId();
 
     /**
-     * Returns the identifier of the parent navigation or null for the root navigation.
+     * @return The identifier of the parent navigation or null for the root navigation.
      */
     String getParentId();
 }

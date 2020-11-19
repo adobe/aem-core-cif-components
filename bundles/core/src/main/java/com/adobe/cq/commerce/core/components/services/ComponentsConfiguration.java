@@ -38,14 +38,20 @@ public final class ComponentsConfiguration {
     }
 
     /**
-     * @see {@link ValueMap#get(String, Class)}
+     * @param <T> The class type of the property being fetched.
+     * @param name The name of the property.
+     * @param type The class of the type.
+     * @return Return named value converted to type T or <code>null</code> if non existing or can't be converted.
      */
     public <T> T get(String name, Class<T> type) {
         return internalProperties.get(name, type);
     }
 
     /**
-     * @see {@link ValueMap#get(String, Object)}
+     * @param <T> The class type of the property being fetched.
+     * @param name The name of the property.
+     * @param defaultValue The default value to use if the named property does not exist or cannot be converted to the requested type.
+     * @return Return named value converted to type T or the default value if non existing or can't be converted.
      */
     public <T> T get(String name, T defaultValue) {
         return internalProperties.get(name, defaultValue);
@@ -61,7 +67,7 @@ public final class ComponentsConfiguration {
     }
 
     /**
-     * @see {@link ValueMap#size()}
+     * @return The number of properties in this configuration.
      */
     public int size() {
         return internalProperties.size();
