@@ -40,7 +40,9 @@ describe('useAddressSelect', () => {
 
     it('gets the "addressSelectItems" variable', async () => {
         const Wrapper = () => {
-            const { addressSelectItems } = useAddressSelect();
+            const { addressSelectItems } = useAddressSelect({
+                initialAddress: mockInitialState.currentUser.addresses[0]
+            });
 
             return (
                 <>
@@ -50,7 +52,7 @@ describe('useAddressSelect', () => {
             );
         };
 
-        const { getByTestId } = render(
+        const { debug, getByTestId } = render(
             <CheckoutProvider>
                 <Wrapper />
             </CheckoutProvider>,
@@ -58,6 +60,7 @@ describe('useAddressSelect', () => {
         );
 
         await wait(() => {
+            debug();
             const newAddressLabel = getByTestId('new-address-label');
             expect(newAddressLabel.textContent).toEqual('New Address');
 
@@ -112,17 +115,19 @@ describe('useAddressSelect', () => {
 
     it('calls the "parseInitialAddressSelectValue" function', async () => {
         const Wrapper = () => {
-            const { parseInitialAddressSelectValue } = useAddressSelect();
-            const initialValue = parseInitialAddressSelectValue({
-                city: 'Calder',
-                country_code: 'US',
-                firstname: 'Veronica',
-                lastname: 'Costello',
-                postcode: '49628-7978',
-                region_code: 'MI',
-                street: ['saved address street'],
-                telephone: '(555) 229-3326'
+            const { parseInitialAddressSelectValue } = useAddressSelect({
+                initialAddress: {
+                    city: 'Calder',
+                    country_code: 'US',
+                    firstname: 'Veronica',
+                    lastname: 'Costello',
+                    postcode: '49628-7978',
+                    region_code: 'MI',
+                    street: ['saved address street'],
+                    telephone: '(555) 229-3326'
+                }
             });
+            const initialValue = parseInitialAddressSelectValue();
 
             return <div data-testid="address-select-initial-value">{initialValue}</div>;
         };

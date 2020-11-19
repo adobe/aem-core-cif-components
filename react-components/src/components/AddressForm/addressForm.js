@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form, useFieldState } from 'informed';
+import { Form, useFieldState, useFormState } from 'informed';
 import { array, bool, func, object, shape, string, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +30,7 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 
 const AddressForm = props => {
-    const { parseAddressFormValues } = useAddressForm();
+    const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);
     const {
         cancel,
@@ -81,10 +81,11 @@ const AddressForm = props => {
 
     const Regions = () => {
         const { value: countryCode } = useFieldState('country_code');
+        const { values: formValues } = useFormState();
         const country = countries.find(({ id }) => countryCode === id);
 
         if (!country || !country.available_regions) {
-            return <TextInput id={classes.region_code} field="region_code" />;
+            return <TextInput id={classes.region_code} field="region_code" defaultValue={formValues.region_code} />;
         }
 
         // US do not have regions with unique codes
@@ -96,6 +97,7 @@ const AddressForm = props => {
                 label: entry.name
             };
         });
+
         return (
             <Select
                 id={classes.region_code}
@@ -171,7 +173,7 @@ const AddressForm = props => {
                         </div>
                         <div className={classes.region_code}>
                             <Field label={t('checkout:address-state', 'State')}>
-                                <Regions formApi={formApi} />
+                                <Regions />
                             </Field>
                         </div>
                         <div className={classes.postcode}>
