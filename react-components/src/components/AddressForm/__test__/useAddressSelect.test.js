@@ -109,13 +109,12 @@ describe('useAddressSelect', () => {
         fireEvent.click(getByTestId('change-to-saved-address-item'));
         await wait(() => {
             expect(setValues).toHaveBeenCalledTimes(2);
-            expect(handler).toHaveBeenCalledTimes(2);
         });
     });
 
-    it('calls the "parseInitialAddressSelectValue" function', async () => {
+    it('selects the correct initial address', async () => {
         const Wrapper = () => {
-            const { parseInitialAddressSelectValue } = useAddressSelect({
+            const { selectedAddressId } = useAddressSelect({
                 initialAddress: {
                     city: 'Calder',
                     country_code: 'US',
@@ -127,9 +126,8 @@ describe('useAddressSelect', () => {
                     telephone: '(555) 229-3326'
                 }
             });
-            const initialValue = parseInitialAddressSelectValue();
 
-            return <div data-testid="address-select-initial-value">{initialValue}</div>;
+            return <div data-testid="address-select-initial-value">{selectedAddressId}</div>;
         };
 
         const { getByTestId } = render(

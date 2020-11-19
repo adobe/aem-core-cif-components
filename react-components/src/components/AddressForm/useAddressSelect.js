@@ -30,7 +30,7 @@ export const useAddressSelect = (props = { initialAddress: undefined }) => {
         return foundAddress ? foundAddress.id : initialValue;
     };
     const initialAddressId = initialAddress ? parseInitialAddressSelectValue(initialAddress) : 0;
-    const { selectedAddressId, setSelectedAddressId } = useState(initialAddressId);
+    const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId);
 
     const [t] = useTranslation('checkout');
 
