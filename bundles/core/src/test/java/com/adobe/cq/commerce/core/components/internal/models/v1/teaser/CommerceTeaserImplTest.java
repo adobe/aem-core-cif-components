@@ -139,7 +139,7 @@ public class CommerceTeaserImplTest {
         List<ListItem> actionItems = commerceTeaser.getActions();
 
         Assert.assertTrue(commerceTeaser.isActionsEnabled());
-        Assert.assertTrue(actionItems.size() == 4);
+        Assert.assertTrue(actionItems.size() == 5);
 
         // Product slug is configured and there is a dedicated specific subpage for that product
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
@@ -156,6 +156,10 @@ public class CommerceTeaserImplTest {
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
         Assert.assertEquals("Some text", actionItems.get(3).getTitle());
+
+        // Link is configured
+        Assert.assertEquals("/content/page.html", actionItems.get(4).getURL());
+        Assert.assertEquals("A page", actionItems.get(4).getTitle());
     }
 
     @Test

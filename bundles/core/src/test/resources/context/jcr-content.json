@@ -92,6 +92,10 @@
               },
               "item3": {
                 "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
               }
             }
           },

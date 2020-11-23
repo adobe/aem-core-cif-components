@@ -104,17 +104,16 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 ValueMap properties = action.getValueMap();
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
+                String link = properties.get(Teaser.PN_ACTION_LINK, String.class);
 
-                String actionUrl = null;
+                String actionUrl;
                 if (categoryId != null) {
                     ParamsBuilder params = new ParamsBuilder().id(categoryId);
                     if (categoriesRetriever != null) {
                         try {
                             Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getId() == Integer.valueOf(categoryId)).findAny();
-                            if (cat.isPresent()) {
-                                params.urlPath(cat.get().getUrlPath());
-                            }
+                                .filter(c -> c.getId().equals(Integer.valueOf(categoryId))).findAny();
+                            cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
                         } catch (RuntimeException x) {
                             LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }
@@ -123,6 +122,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
+                } else if (link != null) {
+                    actionUrl = link + ".html";
                 } else {
                     actionUrl = currentPage.getPath() + ".html";
                 }
