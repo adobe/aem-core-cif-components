@@ -140,9 +140,9 @@ class TeaserConfig {
 
 TeaserConfig.selectors = {
     dialogContentSelector: '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor',
-    pageFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Path"]',
-    productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Product slug"]',
-    categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Category ID"]',
+    pageFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"]',
+    productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionProduct"]',
+    categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionCategory"]',
     actionsMultifieldSelector: '.cmp-teaser__editor-multifield_actions',
     actionsMultifieldItemSelector: 'coral-multifield-item',
     actionsEnabledCheckboxSelector: 'coral-checkbox[name="./actionsEnabled"]'

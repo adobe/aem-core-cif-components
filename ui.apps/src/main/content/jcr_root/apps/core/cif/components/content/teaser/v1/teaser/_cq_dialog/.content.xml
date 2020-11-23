@@ -105,7 +105,7 @@
                                                             selectionId="slug">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
-                                                                cmp-teaser-v1-dialog-edit-hook="actionLink"/>
+                                                                cmp-teaser-v1-dialog-edit-hook="actionProduct"/>
                                                         </prodLink>
                                                         <catLink
                                                             granite:class="cmp-teaser__editor-actionField"
@@ -116,7 +116,7 @@
                                                             required="{Boolean}false">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
-                                                                cmp-teaser-v1-dialog-edit-hook="actionLink"/>
+                                                                cmp-teaser-v1-dialog-edit-hook="actionCategory"/>
                                                         </catLink>
                                                         <text
                                                             granite:class="cmp-teaser__editor-actionField"
