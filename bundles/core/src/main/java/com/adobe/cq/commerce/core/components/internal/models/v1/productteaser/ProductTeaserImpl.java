@@ -102,7 +102,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             combinedSku = SiteNavigation.toProductSkus(selection);
 
             // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {

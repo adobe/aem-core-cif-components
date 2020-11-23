@@ -33,6 +33,7 @@ public interface ProductTeaser extends Component {
     String getName();
 
     /**
+     * @return The formatted price including the currency.
      * @deprecated Please use getPriceRange() instead.
      */
     @Deprecated
@@ -63,7 +64,7 @@ public interface ProductTeaser extends Component {
      * Returns the "call to action" configured for this teaser.
      * 
      * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured
-     *         then this methods returns {@link null}
+     *         then this methods returns {@code null}
      */
     String getCallToAction();
 
