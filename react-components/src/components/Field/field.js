@@ -11,40 +11,33 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component } from 'react';
+import React from 'react';
 import { bool, node, shape, string } from 'prop-types';
 
 import classes from './field.css';
 
-class Field extends Component {
-    static propTypes = {
-        children: node,
-        classes: shape({
-            label: string,
-            root: string
-        }),
-        label: node,
-        required: bool
-    };
+const Field = props => {
+    const { required, children, label } = props;
 
-    get requiredSymbol() {
-        const { required } = this.props;
-        return required ? <span className={classes.requiredSymbol} /> : null;
-    }
+    return (
+        <div className={classes.root}>
+            <span className={classes.label}>
+                {required && <span className={classes.requiredSymbol} />}
+                {label}
+            </span>
+            {children}
+        </div>
+    );
+};
 
-    render() {
-        const { children, label } = this.props;
-
-        return (
-            <div className={classes.root}>
-                <span className={classes.label}>
-                    {this.requiredSymbol}
-                    {label}
-                </span>
-                {children}
-            </div>
-        );
-    }
-}
+Field.propTypes = {
+    children: node,
+    classes: shape({
+        label: string,
+        root: string
+    }),
+    label: node,
+    required: bool
+};
 
 export default Field;
