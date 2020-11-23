@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.models.productteaser;
 
+import org.apache.sling.api.resource.Resource;
+
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.wcm.core.components.models.Component;
@@ -60,8 +62,8 @@ public interface ProductTeaser extends Component {
     /**
      * Returns the "call to action" configured for this teaser.
      * 
-     * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured then this methods
-     *         returns {@link null}
+     * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured
+     *         then this methods returns {@link null}
      */
     String getCallToAction();
 
@@ -78,6 +80,13 @@ public interface ProductTeaser extends Component {
      * @return Boolean
      */
     Boolean isVirtualProduct();
+
+    /**
+     * Returns wrapped image resource used by the WCM core image component if DAM assets are used.
+     *
+     * @return {@link Resource}
+     */
+    Resource getImageResource();
 
     /**
      * Returns in instance of the product retriever for fetching product data via GraphQL.
