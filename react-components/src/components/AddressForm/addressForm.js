@@ -67,6 +67,7 @@ const AddressForm = props => {
 
     const handleSubmit = useCallback(
         values => {
+            console.log(`Submitting form values `, values);
             if (!values['region_code'] || values['region_code'].length === 0) {
                 // add an empty `region_code` value since
                 // the form doesn't provide one if you leave the field empty
@@ -81,8 +82,10 @@ const AddressForm = props => {
 
     const Regions = () => {
         const { value: countryCode } = useFieldState('country_code');
-        const { values: formValues } = useFormState();
         const country = countries.find(({ id }) => countryCode === id);
+
+        const { values: formValues } = useFormState();
+        console.log(`Rendering the regions. Form values are `, formValues);
 
         if (!country || !country.available_regions) {
             return <TextInput id={classes.region_code} field="region_code" />;
@@ -168,7 +171,15 @@ const AddressForm = props => {
                         </div>
                         <div className={classes.country}>
                             <Field label={t('checkout:country', 'Country')}>
-                                <Select field="country_code" items={displayCountries} />
+                                <Select
+                                    field="country_code"
+                                    items={displayCountries}
+                                    onChange={() => {
+                                        // reset the region_code field when we change the country
+                                        // otherwise the previous selected version would still be in the form state
+                                        formApi.setValue('region_code', '');
+                                    }}
+                                />
                             </Field>
                         </div>
                         <div className={classes.region_code}>
