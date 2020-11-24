@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import { bool, node, shape, string } from 'prop-types';
 import { BasicCheckbox, asField } from 'informed';
 
@@ -20,39 +20,37 @@ import Icon from '../Icon';
 import { Check as CheckIcon } from 'react-feather';
 import classes from './checkbox.css';
 
-export class Checkbox extends Component {
-    static propTypes = {
-        classes: shape({
-            icon: string,
-            input: string,
-            label: string,
-            message: string,
-            root: string
-        }),
-        field: string.isRequired,
-        fieldState: shape({
-            value: bool
-        }).isRequired,
-        id: string,
-        label: node.isRequired,
-        message: node
-    };
+const Checkbox = props => {
+    const { fieldState, id, label, message, ...rest } = props;
+    const { value: checked } = fieldState;
 
-    render() {
-        const { fieldState, id, label, message, ...rest } = this.props;
-        const { value: checked } = fieldState;
+    return (
+        <>
+            <label className={classes.root} htmlFor={id}>
+                <span className={classes.icon}>{checked && <Icon src={CheckIcon} size={18} />}</span>
+                <BasicCheckbox {...rest} className={classes.input} fieldState={fieldState} id={id} />
+                <span className={classes.label}>{label}</span>
+            </label>
+            <Message fieldState={fieldState}>{message}</Message>
+        </>
+    );
+};
 
-        return (
-            <Fragment>
-                <label className={classes.root} htmlFor={id}>
-                    <span className={classes.icon}>{checked && <Icon src={CheckIcon} size={18} />}</span>
-                    <BasicCheckbox {...rest} className={classes.input} fieldState={fieldState} id={id} />
-                    <span className={classes.label}>{label}</span>
-                </label>
-                <Message fieldState={fieldState}>{message}</Message>
-            </Fragment>
-        );
-    }
-}
+Checkbox.propTypes = {
+    classes: shape({
+        icon: string,
+        input: string,
+        label: string,
+        message: string,
+        root: string
+    }),
+    field: string.isRequired,
+    fieldState: shape({
+        value: bool
+    }).isRequired,
+    id: string,
+    label: node.isRequired,
+    message: node
+};
 
 export default asField(Checkbox);

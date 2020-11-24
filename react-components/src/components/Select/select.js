@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import { arrayOf, node, number, oneOfType, shape, string } from 'prop-types';
 import { BasicSelect, Option, asField } from 'informed';
 
@@ -23,43 +23,41 @@ import { ChevronDown as ChevronDownIcon } from 'react-feather';
 
 const arrow = <Icon src={ChevronDownIcon} size={18} />;
 
-class Select extends Component {
-    static propTypes = {
-        classes: shape({
-            input: string
-        }),
-        field: string.isRequired,
-        fieldState: shape({
+const Select = props => {
+    const { fieldState, items, message, ...rest } = props;
+    const options = items.map(({ label, value }) => (
+        <Option key={value} value={value}>
+            {label || (value != null ? value : '')}
+        </Option>
+    ));
+
+    return (
+        <>
+            <FieldIcons after={arrow}>
+                <BasicSelect {...rest} fieldState={fieldState} className={classes.input}>
+                    {options}
+                </BasicSelect>
+            </FieldIcons>
+            <Message fieldState={fieldState}>{message}</Message>
+        </>
+    );
+};
+
+Select.propTypes = {
+    classes: shape({
+        input: string
+    }),
+    field: string.isRequired,
+    fieldState: shape({
+        value: oneOfType([number, string])
+    }),
+    items: arrayOf(
+        shape({
+            label: string,
             value: oneOfType([number, string])
-        }),
-        items: arrayOf(
-            shape({
-                label: string,
-                value: oneOfType([number, string])
-            })
-        ),
-        message: node
-    };
-
-    render() {
-        const { fieldState, items, message, ...rest } = this.props;
-        const options = items.map(({ label, value }) => (
-            <Option key={value} value={value}>
-                {label || (value != null ? value : '')}
-            </Option>
-        ));
-
-        return (
-            <Fragment>
-                <FieldIcons after={arrow}>
-                    <BasicSelect {...rest} fieldState={fieldState} className={classes.input}>
-                        {options}
-                    </BasicSelect>
-                </FieldIcons>
-                <Message fieldState={fieldState}>{message}</Message>
-            </Fragment>
-        );
-    }
-}
+        })
+    ),
+    message: node
+};
 
 export default asField(Select);

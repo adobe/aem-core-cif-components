@@ -57,7 +57,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         Resource resource = new SyntheticResource(null, (String) null, SearchFilterService.class.getName());
 
         // First we query Magento for the required attribute and filter information
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, null);
         final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
         final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 

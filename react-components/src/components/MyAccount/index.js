@@ -12,3 +12,5 @@
  *
  ******************************************************************************/
 export { default } from './myAccount';
+export { default as AccountLink } from './accountLink';
+export * from './AccountLinks';

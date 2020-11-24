@@ -24,7 +24,9 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
       >
         <h2
           class="heading"
-        />
+        >
+          Address
+        </h2>
         <div
           class="firstname"
         >
@@ -188,7 +190,7 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
               >
                 <select
                   class="input"
-                  name="countryCode"
+                  name="country_code"
                 />
               </span>
               <span
@@ -383,7 +385,9 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
         >
           <span
             class="content"
-          />
+          >
+            Save
+          </span>
         </button>
       </div>
     </form>

@@ -29,4 +29,7 @@ export { CheckoutProvider } from './components/Checkout/checkoutContext';
 export { CartProvider, CartInitializer } from './components/Minicart';
 export { AccountDetails } from './components/AccountDetails';
 
+export { AccountLink } from './components/MyAccount';
+export { default as MyAccount } from './components/MyAccount';
+export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';

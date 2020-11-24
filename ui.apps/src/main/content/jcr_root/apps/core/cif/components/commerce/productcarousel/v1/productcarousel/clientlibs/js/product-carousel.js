@@ -13,6 +13,8 @@
  ******************************************************************************/
 'use strict';
 
+import Carousel from '../../../../../carousel/v1/carousel/clientlibs/js/carousel';
+
 (function() {
     const selectors = {
         self: "[data-comp-is='productcarousel']",

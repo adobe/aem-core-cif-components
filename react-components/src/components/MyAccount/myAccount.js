@@ -12,23 +12,19 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { Book as BookIcon, Lock as PasswordIcon, LogOut as SignOutIcon, Info as InfoIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { func } from 'prop-types';
 
-import AccountLink from './accountLink';
 import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './myAccount.css';
 import { useUserContext } from '../../context/UserContext';
-import { useCartState } from '../Minicart/cartContext';
-import { useConfigContext } from '../../context/ConfigContext';
+
+import { SignOutLink, AccountInfoLink, AddressBookLink, ChangePasswordLink } from './AccountLinks';
 
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
-    const [{ currentUser, inProgress }, { signOut }] = useUserContext();
-    const { pagePaths } = useConfigContext();
-    const [, dispatch] = useCartState();
+    const [{ currentUser, inProgress }] = useUserContext();
     const [t] = useTranslation('account');
 
     if (inProgress) {
@@ -39,13 +35,14 @@ const MyAccount = props => {
         );
     }
 
-    const handleSignOut = async () => {
-        dispatch({ type: 'reset' });
-        await signOut();
-        if (showMenu) {
-            showMenu();
-        }
-    };
+    const accountLinks = props.children || (
+        <>
+            <ChangePasswordLink showChangePassword={showChangePassword} />
+            <AddressBookLink />
+            <AccountInfoLink showAccountInformation={showAccountInformation} />
+            <SignOutLink showMenu={showMenu} />
+        </>
+    );
 
     return (
         <div className={classes.root}>
@@ -53,27 +50,7 @@ const MyAccount = props => {
                 <h2 className={classes.title}>{`${currentUser.firstname} ${currentUser.lastname}`}</h2>
                 <span className={classes.subtitle}>{currentUser.email}</span>
             </div>
-            <div className={classes.actions}>
-                <AccountLink onClick={showChangePassword}>
-                    <PasswordIcon size={18} />
-                    {t('account:change-password', 'Change Password')}
-                </AccountLink>
-                <AccountLink
-                    onClick={() => {
-                        window.location.href = pagePaths.addressBook;
-                    }}>
-                    <BookIcon size={18} />
-                    {t('account:address-book', 'Address Book')}
-                </AccountLink>
-                <AccountLink onClick={showAccountInformation}>
-                    <InfoIcon size={18} />
-                    {t('account:account-information', 'Account Information')}
-                </AccountLink>
-                <AccountLink onClick={handleSignOut}>
-                    <SignOutIcon size={18} />
-                    {t('account:sign-out', 'Sign Out')}
-                </AccountLink>
-            </div>
+            <div className={classes.actions}>{accountLinks}</div>
         </div>
     );
 };

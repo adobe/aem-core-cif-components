@@ -69,6 +69,13 @@
           "commerceteaser": {
             "actionsEnabled": true,
             "sling:resourceType": "venia/components/content/teaser",
+            "pretitle": "Pretitle",
+            "titleFromPage": "flase",
+            "jcr:title": "Title",
+            "descriptionFromPage": false,
+            "jcr:description": "Description",
+            "id": "id",
+            "fileReference": "/content/dam/image.jpg",
             "actions": {
               "item0": {
                 "productSlug": "beaumont-summit-kit",
@@ -85,6 +92,10 @@
               },
               "item3": {
                 "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
               }
             }
           },
@@ -151,7 +162,8 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "magentoStore": "my-store"
+      "magentoStore": "my-store",
+      "navRoot": true
     },
     "pageC": {
       "jcr:primaryType": "cq:Page",
@@ -163,13 +175,16 @@
   "pageD": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:primaryType": "cq:PageContent"
+      "jcr:primaryType": "cq:PageContent",
+      "cq:graphqlClient": "default",
+      "magentoStore": "my-store"
     }
   },
   "pageE": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
+      "cq:graphqlClient": "default",
       "cq:magentoStore": "my-store"
     }
   },

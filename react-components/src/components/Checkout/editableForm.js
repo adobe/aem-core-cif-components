@@ -41,7 +41,6 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
-    const { parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [
         {
@@ -55,6 +54,11 @@ const EditableForm = props => {
         },
         dispatch
     ] = useCheckoutState();
+    const { selectedAddressId, parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect(
+        {
+            initialAddress: shippingAddress
+        }
+    );
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn, currentUser }] = useUserContext();
 
@@ -198,15 +202,15 @@ const EditableForm = props => {
                     formHeading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
-                    initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
+                    initialAddressSelectValue={selectedAddressId}
                     initialValues={shippingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     showAddressSelect={isSignedIn && hasSavedAddresses}
                     showEmailInput={!isSignedIn}
-                    showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
+                    showSaveInAddressBookCheckbox={isSignedIn && selectedAddressId !== 0}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
-                    submitLabel={t('checkout:address-submit', 'Use Address')}
+                    submitButtonLabel={t('checkout:address-submit', 'Use Address')}
                 />
             );
         }
