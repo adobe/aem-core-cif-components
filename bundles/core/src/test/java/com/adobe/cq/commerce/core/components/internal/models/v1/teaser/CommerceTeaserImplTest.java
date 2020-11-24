@@ -37,6 +37,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
+import com.day.cq.wcm.api.components.ComponentManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -96,10 +97,12 @@ public class CommerceTeaserImplTest {
         commerceTeaserResource = spy(context.resourceResolver().getResource(TEASER));
         ResourceResolver resolver = spy(commerceTeaserResource.getResourceResolver());
         when(commerceTeaserResource.getResourceResolver()).thenReturn(resolver);
+        when(commerceTeaserResource.getResourceSuperType()).thenReturn("core/wcm/components/teaser/v1/teaser");
         when(commerceTeaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(TEASER);
+        context.currentResource(commerceTeaserResource);
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -108,9 +111,26 @@ public class CommerceTeaserImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(commerceTeaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
+        ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+    }
+
+    @Test
+    public void verifyProperties() {
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+        Assert.assertNotNull(commerceTeaser);
+
+        Assert.assertEquals("Pretitle", commerceTeaser.getPretitle());
+        Assert.assertEquals("Title", commerceTeaser.getTitle());
+        Assert.assertEquals("Description", commerceTeaser.getDescription());
+        Assert.assertEquals("id", commerceTeaser.getId());
+        Assert.assertNull(commerceTeaser.getLinkURL());
+        Assert.assertNull(commerceTeaser.getData());
+        Assert.assertEquals("core/wcm/components/teaser/v1/teaser", commerceTeaser.getExportedType());
     }
 
     @Test
@@ -119,7 +139,7 @@ public class CommerceTeaserImplTest {
         List<ListItem> actionItems = commerceTeaser.getActions();
 
         Assert.assertTrue(commerceTeaser.isActionsEnabled());
-        Assert.assertTrue(actionItems.size() == 4);
+        Assert.assertTrue(actionItems.size() == 5);
 
         // Product slug is configured and there is a dedicated specific subpage for that product
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
@@ -136,6 +156,10 @@ public class CommerceTeaserImplTest {
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
         Assert.assertEquals("Some text", actionItems.get(3).getTitle());
+
+        // Link is configured
+        Assert.assertEquals("/content/page.html", actionItems.get(4).getURL());
+        Assert.assertEquals("A page", actionItems.get(4).getTitle());
     }
 
     @Test

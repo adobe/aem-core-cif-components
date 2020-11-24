@@ -18,10 +18,13 @@ class SubArray extends Array {
     adaptTo(api) {
         switch (api) {
             case 'foundation-field': {
+                const arr = this;
                 return {
                     getValue: function() {},
                     setValue: function(val) {},
-                    setDisabled: function(val) {}
+                    setDisabled: function(val) {
+                        arr[0].disabled = val;
+                    }
                 };
             }
             case 'foundation-util-htmlparser': {

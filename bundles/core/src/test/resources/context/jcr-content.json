@@ -69,6 +69,13 @@
           "commerceteaser": {
             "actionsEnabled": true,
             "sling:resourceType": "venia/components/content/teaser",
+            "pretitle": "Pretitle",
+            "titleFromPage": "flase",
+            "jcr:title": "Title",
+            "descriptionFromPage": false,
+            "jcr:description": "Description",
+            "id": "id",
+            "fileReference": "/content/dam/image.jpg",
             "actions": {
               "item0": {
                 "productSlug": "beaumont-summit-kit",
@@ -85,6 +92,10 @@
               },
               "item3": {
                 "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
               }
             }
           },
