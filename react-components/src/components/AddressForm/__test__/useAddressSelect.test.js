@@ -40,7 +40,9 @@ describe('useAddressSelect', () => {
 
     it('gets the "addressSelectItems" variable', async () => {
         const Wrapper = () => {
-            const { addressSelectItems } = useAddressSelect();
+            const { addressSelectItems } = useAddressSelect({
+                initialAddress: mockInitialState.currentUser.addresses[0]
+            });
 
             return (
                 <>
@@ -106,25 +108,25 @@ describe('useAddressSelect', () => {
         fireEvent.click(getByTestId('change-to-saved-address-item'));
         await wait(() => {
             expect(setValues).toHaveBeenCalledTimes(2);
-            expect(handler).toHaveBeenCalledTimes(2);
         });
     });
 
-    it('calls the "parseInitialAddressSelectValue" function', async () => {
+    it('selects the correct initial address', async () => {
         const Wrapper = () => {
-            const { parseInitialAddressSelectValue } = useAddressSelect();
-            const initialValue = parseInitialAddressSelectValue({
-                city: 'Calder',
-                country_code: 'US',
-                firstname: 'Veronica',
-                lastname: 'Costello',
-                postcode: '49628-7978',
-                region_code: 'MI',
-                street: ['saved address street'],
-                telephone: '(555) 229-3326'
+            const { selectedAddressId } = useAddressSelect({
+                initialAddress: {
+                    city: 'Calder',
+                    country_code: 'US',
+                    firstname: 'Veronica',
+                    lastname: 'Costello',
+                    postcode: '49628-7978',
+                    region_code: 'MI',
+                    street: ['saved address street'],
+                    telephone: '(555) 229-3326'
+                }
             });
 
-            return <div data-testid="address-select-initial-value">{initialValue}</div>;
+            return <div data-testid="address-select-initial-value">{selectedAddressId}</div>;
         };
 
         const { getByTestId } = render(

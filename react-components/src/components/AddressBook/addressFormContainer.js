@@ -18,10 +18,12 @@ import { useAddressForm } from '../AddressForm/useAddressForm';
 import AddressForm from '../AddressForm';
 
 import classes from './addressFormContainer.css';
+import { useTranslation } from 'react-i18next';
 
 const AddressFormContainer = () => {
     const [{ isShowAddressForm }] = useUserContext();
     const { countries, handleSubmit, handleCancel, errorMessage, updateAddress } = useAddressForm();
+    const [t] = useTranslation(['account', 'common']);
 
     return (
         <>
@@ -35,6 +37,8 @@ const AddressFormContainer = () => {
                         initialValues={updateAddress}
                         showDefaultAddressCheckbox={true}
                         submit={handleSubmit}
+                        formHeading={t('account:address-form-heading', 'Address')}
+                        submitButtonLabel={t('common:save', 'Save')}
                     />
                 </div>
             )}
