@@ -60,7 +60,8 @@ const defaultMocks = [
 
 const defaultConfig = {
     storeView: 'default',
-    graphqlEndpoint: 'none'
+    graphqlEndpoint: 'none',
+    graphqlMethod: 'GET'
 };
 
 // eslint-disable-next-line react/display-name

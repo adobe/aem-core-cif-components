@@ -19,6 +19,7 @@ import AccountDetails from '../accountDetails';
 const config = {
     storeView: 'default',
     graphqlEndpoint: 'none',
+    graphqlMethod: 'GET',
     mountingPoints: { accountDetails: 'mock' }
 };
 

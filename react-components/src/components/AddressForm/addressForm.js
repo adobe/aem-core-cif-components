@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form, useFieldState } from 'informed';
+import { Form, useFieldState, useFormState } from 'informed';
 import { array, bool, func, object, shape, string, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +30,7 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 
 const AddressForm = props => {
-    const { parseAddressFormValues } = useAddressForm();
+    const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);
     const {
         cancel,
@@ -67,6 +67,7 @@ const AddressForm = props => {
 
     const handleSubmit = useCallback(
         values => {
+            console.log(`Submitting form values `, values);
             if (!values['region_code'] || values['region_code'].length === 0) {
                 // add an empty `region_code` value since
                 // the form doesn't provide one if you leave the field empty
@@ -80,8 +81,11 @@ const AddressForm = props => {
     );
 
     const Regions = () => {
-        const { value: countryCode } = useFieldState('countryCode');
+        const { value: countryCode } = useFieldState('country_code');
         const country = countries.find(({ id }) => countryCode === id);
+
+        const { values: formValues } = useFormState();
+        console.log(`Rendering the regions. Form values are `, formValues);
 
         if (!country || !country.available_regions) {
             return <TextInput id={classes.region_code} field="region_code" />;
@@ -97,8 +101,16 @@ const AddressForm = props => {
             };
         });
 
-        return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
+        return (
+            <Select
+                id={classes.region_code}
+                field="region_code"
+                items={[{ value: '', label: '' }, ...displayRegions]}
+                validate={isRequired}
+            />
+        );
     };
+
     return (
         <Form className={classes.root} initialValues={parseAddressFormValues(initialValues)} onSubmit={handleSubmit}>
             {({ formApi }) => (
@@ -159,7 +171,15 @@ const AddressForm = props => {
                         </div>
                         <div className={classes.country}>
                             <Field label={t('checkout:country', 'Country')}>
-                                <Select field="countryCode" items={displayCountries} />
+                                <Select
+                                    field="country_code"
+                                    items={displayCountries}
+                                    onChange={() => {
+                                        // reset the region_code field when we change the country
+                                        // otherwise the previous selected version would still be in the form state
+                                        formApi.setValue('region_code', '');
+                                    }}
+                                />
                             </Field>
                         </div>
                         <div className={classes.region_code}>

@@ -174,7 +174,7 @@ exports[`<AddressForm /> renders the component 1`] = `
             >
               <select
                 class="input"
-                name="countryCode"
+                name="country_code"
               >
                 <option
                   value="RO"
@@ -601,7 +601,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
             >
               <select
                 class="input"
-                name="countryCode"
+                name="country_code"
               >
                 <option
                   value="RO"
@@ -964,7 +964,7 @@ exports[`<AddressForm /> renders the component with address validation message a
             >
               <select
                 class="input"
-                name="countryCode"
+                name="country_code"
               >
                 <option
                   value="RO"
@@ -1327,7 +1327,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
             >
               <select
                 class="input"
-                name="countryCode"
+                name="country_code"
               >
                 <option
                   value="RO"
@@ -1714,7 +1714,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
             >
               <select
                 class="input"
-                name="countryCode"
+                name="country_code"
               >
                 <option
                   value="RO"
