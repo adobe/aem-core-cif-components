@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2020 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,30 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { func } from 'prop-types';
+import { Info as InfoIcon } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 
-import { useUserContext } from '../../context/UserContext';
-import AccountTrigger from './accountTrigger';
-import AccountDropdown from './accountDropdown';
+import AccountLink from '../accountLink';
 
-const AccountContainer = props => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
+const AccountInfoLink = props => {
+    const { showAccountInformation } = props;
+
     const [t] = useTranslation('account');
-
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
-
     return (
-        <>
-            <AccountTrigger label={label} />
-            <AccountDropdown>{props.children}</AccountDropdown>
-        </>
+        <AccountLink onClick={showAccountInformation}>
+            <InfoIcon size={18} />
+            {t('account:account-information', 'Account Information')}
+        </AccountLink>
     );
 };
 
-export default AccountContainer;
+AccountInfoLink.propTypes = {
+    showAccountInformation: func.isRequired
+};
+
+export default AccountInfoLink;

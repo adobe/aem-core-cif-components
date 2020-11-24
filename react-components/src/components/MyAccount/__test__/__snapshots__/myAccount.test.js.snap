@@ -1,5 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`<MyAccount> renders a custom list of links 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <div
+      class="user"
+    >
+      <h2
+        class="title"
+      >
+         
+      </h2>
+      <span
+        class="subtitle"
+      />
+    </div>
+    <div
+      class="actions"
+    >
+      <button
+        classes="[object Object]"
+        type="button"
+      >
+        <span>
+          <span>
+            Icon
+          </span>
+          <span>
+            Custom link
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
 exports[`<MyAccount> renders the component 1`] = `
 <DocumentFragment>
   <div
