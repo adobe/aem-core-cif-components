@@ -15,18 +15,21 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import Backend from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-i18n.use(Backend)
-    .use(LanguageDetector)
-    .use(initReactI18next)
+import common from '@adobe/aem-core-cif-react-components/i18n/en/common.json';
+import account from '@adobe/aem-core-cif-react-components/i18n/en/account.json';
+import cart from '@adobe/aem-core-cif-react-components/i18n/en/cart.json';
+import checkout from '@adobe/aem-core-cif-react-components/i18n/en/checkout.json';
+import product from '@adobe/aem-core-cif-react-components/i18n/en/product.json';
 
+i18n.use(LanguageDetector)
+    .use(initReactI18next)
     .init({
         fallbackLng: 'en',
         debug: true,
 
-        load: 'currentOnly',
+        load: 'all',
         defaultNS: 'common',
         ns: [],
 
@@ -50,11 +53,14 @@ i18n.use(Backend)
             lookupFromSubdomainIndex: 0
         },
 
-        backend: {
-            loadPath:
-                '/etc.clientlibs/cif-components-examples/clientlibs/cif-examples-react/resources/i18n/{{lng}}/{{ns}}.json',
-            allowMultiLoading: false,
-            withCredentials: true
+        resources: {
+            en: {
+                common,
+                account,
+                cart,
+                checkout,
+                product
+            }
         }
     });
 
