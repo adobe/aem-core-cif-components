@@ -171,7 +171,7 @@
         <profile>
             <id>fedDev</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -224,7 +224,7 @@
                                     <goal>npm</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>run dev</arguments>
+                                    <arguments>run prod</arguments>
                                 </configuration>
                             </execution>
                         </executions>

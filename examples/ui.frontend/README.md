@@ -30,14 +30,9 @@ The second part of the ui.frontend module build process leverages the [aem-clien
 That clientlib is embedded into the [cif-clientlib-base](../ui.apps/src/main/content/jcr_root/apps/cif-components-examples/clientlibs/cif-clientlib-base) to include the CIF React components in the CIF components library pages.
 
 ### Local development
+By default, the `fedDev` profile is active which builds the project using the SNAPSHOT version of the `@adobe/aem-core-cif-react-components` package using `npm link`.
 
-For local development you may want to work with the SNAPSHOT version of the `@adobe/aem-core-cif-react-components` package using `npm link`. You can do this by going to the root of the `examples` project and using the following command to build it:
-
-```bash
-mvn clean install -PautoInstallPackage,fedDev
-```
-
-This will build and install the whole project, but will also use the `fedDev` which will build and install the SNAPSHOT version of `@adobe/aem-core-cif-react-components`
+If needed, you can deactive the profile using `-P-fedFev`.
 
 If you don't want to use the Maven profile you can do these steps manually:
 

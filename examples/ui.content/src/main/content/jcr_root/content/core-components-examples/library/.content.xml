@@ -268,6 +268,75 @@
                                     width="12"/>
                         </cq:responsive>
                     </teaser_1837086007>
+                    <teaser_1837086017
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Minicart &amp; Checkout"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/cif-components/shoppingcart.svg"
+                        linkURL="/content/core-components-examples/library/commerce/minicart"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837086017>
+                    <teaser_1837086027
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Cart Trigger"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/components/form-button.svg"
+                        linkURL="/content/core-components-examples/library/commerce/carttrigger"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837086027>
+                    <teaser_1837086037
+                        cq:styleIds="[1547060090076]"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Reset Password"
+                        sling:resourceType="core-components-examples/components/teaser"
+                        actionsEnabled="false"
+                        descriptionFromPage="true"
+                        fileReference="/content/dam/core-components-examples/library/components/form-input.svg"
+                        linkURL="/content/core-components-examples/library/commerce/resetpassword"
+                        textIsRich="true"
+                        titleFromPage="false">
+                        <cq:responsive jcr:primaryType="nt:unstructured">
+                            <default
+                                jcr:primaryType="nt:unstructured"
+                                width="3"/>
+                            <small
+                                jcr:primaryType="nt:unstructured"
+                                width="4"/>
+                            <extrasmall
+                                jcr:primaryType="nt:unstructured"
+                                width="12"/>
+                        </cq:responsive>
+                    </teaser_1837086037>
                 </container_1589240807>
             </responsivegrid>
         </root>
