@@ -249,5 +249,14 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
         category = rootQuery.getCategory();
+        rawData = response.getRawData();
+    }
+
+    @Override
+    public String getRawResponse() {
+        if (this.category == null) {
+            populate();
+        }
+        return this.rawData;
     }
 }

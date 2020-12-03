@@ -18,6 +18,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.CustomizableProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -28,6 +29,8 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
 class ProductRetriever extends AbstractProductRetriever {
+
+    private static final String MULTI_VALUE_ALIAS = "multi";
 
     ProductRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -114,7 +117,8 @@ class ProductRetriever extends AbstractProductRetriever {
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
                 .onGroupedProduct(generateGroupedProductQuery())
-                .onBundleProduct(generateBundleProductQuery());
+                .onBundleProduct(generateBundleProductQuery())
+                .onCustomizableProductInterface(generateCustomizableProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
@@ -137,7 +141,90 @@ class ProductRetriever extends AbstractProductRetriever {
 
     private BundleProductQueryDefinition generateBundleProductQuery() {
         return bp -> bp
+            .items(i -> i
+                .optionId()
+                .title()
+                .required()
+                .type()
+                .position()
+                .options(bo -> bo
+                    .id()
+                    .quantity()
+                    .position()
+                    .isDefault()
+                    .price()
+                    .priceType()
+                    .canChangeQuantity()
+                    .label()
+                    .product(p -> p
+                        .priceRange(pr -> pr
+                            .maximumPrice(mp -> mp
+                                .finalPrice(fp -> fp
+                                    .currency()
+                                    .value()))))))
             .priceRange(r -> r
                 .maximumPrice(generatePriceQuery()));
+    }
+
+    private CustomizableProductInterfaceQueryDefinition generateCustomizableProductQuery() {
+        return cp -> cp
+            .options(o -> o
+                .optionId()
+                .required()
+                .sortOrder()
+                .title()
+                .onCustomizableAreaOption(ao -> ao
+                    .value(v -> v
+                        .uid()
+                        .maxCharacters()
+                        .price()
+                        .priceType()))
+                .onCustomizableDateOption(cdo -> cdo
+                    .value(v -> v
+                        .uid()
+                        .price()
+                        .priceType()))
+                .onCustomizableFieldOption(cfo -> cfo
+                    .value(v -> v
+                        .uid()
+                        .maxCharacters()
+                        .price()
+                        .priceType()))
+                .onCustomizableDropDownOption(ddo -> ddo
+                    .withAlias(MULTI_VALUE_ALIAS)
+                    .value(v -> v
+                        .uid()
+                        .optionTypeId()
+                        .sortOrder()
+                        .title()
+                        .price()
+                        .priceType()))
+                .onCustomizableMultipleOption(cmo -> cmo
+                    .withAlias(MULTI_VALUE_ALIAS)
+                    .value(v -> v
+                        .uid()
+                        .optionTypeId()
+                        .sortOrder()
+                        .title()
+                        .price()
+                        .priceType()))
+                .onCustomizableRadioOption(ro -> ro
+                    .withAlias(MULTI_VALUE_ALIAS)
+                    .value(v -> v
+                        .uid()
+                        .optionTypeId()
+                        .sortOrder()
+                        .title()
+                        .price()
+                        .priceType()))
+                .onCustomizableCheckboxOption(co -> co
+                    .withAlias(MULTI_VALUE_ALIAS)
+                    .value(v -> v
+                        .uid()
+                        .optionTypeId()
+                        .sortOrder()
+                        .title()
+                        .price()
+                        .priceType())));
     }
 }

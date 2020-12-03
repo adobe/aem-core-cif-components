@@ -91,7 +91,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
      * Set the identifier and the identifier type of the category that should be fetched. Setting the identifier, removes any cached data.
      *
      * @param categoryIdentifierType The category identifier type.
-     * @param identifier The category identifier.
+     * @param categoryIdentifier The category identifier.
      */
     protected void setCategoryIdentifier(CategoryIdentifierType categoryIdentifierType, String categoryIdentifier) {
         this.categoryIdentifier = categoryIdentifier;
@@ -106,6 +106,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
 
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
+        rawData = response.getRawData();
 
         if (productIdentifier != null) {
             List<ProductInterface> products = rootQuery
@@ -120,6 +121,14 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         } else {
             categories = rootQuery.getCategoryList();
         }
+    }
+
+    @Override
+    public String getRawResponse() {
+        if (this.rawData == null) {
+            populate();
+        }
+        return this.rawData;
     }
 
     @Override

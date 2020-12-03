@@ -138,6 +138,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
+        rawData = response.getRawData();
 
         categories = new ArrayList<>();
         for (String identifier : identifiers) {
@@ -147,5 +148,13 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
                 categories.add(category);
             }
         }
+    }
+
+    @Override
+    public String getRawResponse() {
+        if (this.categories == null) {
+            populate();
+        }
+        return this.rawData;
     }
 }

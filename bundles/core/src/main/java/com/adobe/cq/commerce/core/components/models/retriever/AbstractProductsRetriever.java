@@ -153,7 +153,16 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
+        rawData = response.getRawData();
         products = rootQuery.getProducts().getItems();
+    }
+
+    @Override
+    public String getRawResponse() {
+        if (this.products == null) {
+            populate();
+        }
+        return this.rawData;
     }
 
     protected ProductPriceQueryDefinition generatePriceQuery() {

@@ -219,7 +219,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         // Return first product in list
         if (products.size() > 0) {
             product = products.get(0);
+            rawData = response.getRawData();
         }
+    }
+
+    @Override
+    public String getRawResponse() {
+        if (this.product == null) {
+            populate();
+        }
+        return this.rawData;
     }
 
     /**

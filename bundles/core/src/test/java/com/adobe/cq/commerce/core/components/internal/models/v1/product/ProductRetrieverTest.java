@@ -81,6 +81,7 @@ public class ProductRetrieverTest {
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
+        String value = captor.getValue();
 
         Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume}}},... on GroupedProduct"));
     }

@@ -30,6 +30,11 @@ public abstract class AbstractRetriever {
     protected String query;
 
     /**
+     * Raw response data
+     */
+    protected String rawData;
+
+    /**
      * Instance of the Magento GraphQL client.
      */
     protected MagentoGraphqlClient client;
@@ -61,5 +66,12 @@ public abstract class AbstractRetriever {
      * @return GraphqlResponse object
      */
     abstract protected GraphqlResponse<Query, Error> executeQuery();
+
+    /**
+     * Returns the raw data of the executed query.
+     *
+     * @return String data
+     */
+    abstract public String getRawResponse();
 
 }
