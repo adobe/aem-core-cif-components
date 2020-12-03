@@ -38,10 +38,13 @@ export default ({ queries }) => {
         if (!event.detail) return;
 
         const mapper = item => {
-            let quantity = parseFloat(item.quantity);
+            const { sku, selected_options, entered_options } = item;
+            const quantity = parseFloat(item.quantity);
             return {
                 data: {
-                    sku: item.sku,
+                    sku,
+                    selected_options,
+                    entered_options,
                     quantity
                 }
             };

@@ -3,7 +3,7 @@
 exports[`<Radio> disables quantity change 1`] = `
 <DocumentFragment>
   <div
-    class="bundleProduct__options"
+    class="product__options"
   >
     <label>
       <input
@@ -22,7 +22,7 @@ exports[`<Radio> disables quantity change 1`] = `
     </label>
   </div>
   <div
-    class="bundleProduct__options"
+    class="product__options"
   >
     <label>
       <input
@@ -61,7 +61,7 @@ exports[`<Radio> disables quantity change 1`] = `
 exports[`<Radio> renders the component 1`] = `
 <DocumentFragment>
   <div
-    class="bundleProduct__options"
+    class="product__options"
   >
     <label>
       <input
@@ -81,7 +81,7 @@ exports[`<Radio> renders the component 1`] = `
     </label>
   </div>
   <div
-    class="bundleProduct__options"
+    class="product__options"
   >
     <label>
       <input

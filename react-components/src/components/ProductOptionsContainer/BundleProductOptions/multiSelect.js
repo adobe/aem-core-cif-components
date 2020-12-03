@@ -13,8 +13,12 @@
  ******************************************************************************/
 import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 const MultiSelect = props => {
+
+    const [t] = useTranslation('common');
+
     const { item, customization, options, handleSelectionChange } = props;
 
     const onChange = event => {
@@ -33,13 +37,13 @@ const MultiSelect = props => {
         <select
             name={item.option_id}
             multiple="multiple"
-            className="bundleProduct__option field__input"
+            className="product__option field__input"
             size="5"
             value={customization.map(c => c.id)}
             onChange={onChange}>
             {options.map(o => (
                 <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                    {o.label}
+                    {`${o.label} +${t('common:formattedPrice', { price: { currency: o.currency, value: o.price } })}`}
                 </option>
             ))}
         </select>

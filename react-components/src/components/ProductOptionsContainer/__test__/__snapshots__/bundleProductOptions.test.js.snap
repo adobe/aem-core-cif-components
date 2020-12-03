@@ -3,7 +3,7 @@
 exports[`<BundleProductOptions> renders the component with full options 1`] = `
 <DocumentFragment>
   <section
-    class="productFullDetail__section productFullDetail__bundleProduct"
+    class="productFullDetail__section productFullDetail__productOption"
   >
     <h3
       class="option__title"
@@ -11,7 +11,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span>
         Necklace
       </span>
-       
+
       <span
         class="required"
       >
@@ -20,7 +20,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </h3>
     <div>
       <div
-        class="bundleProduct__option"
+        class="product__option"
       >
         <label>
           <input
@@ -39,7 +39,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
         </label>
       </div>
       <div
-        class="bundleProduct__option"
+        class="product__option"
       >
         <label>
           <input
@@ -59,7 +59,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__section productFullDetail__bundleProduct"
+    class="productFullDetail__section productFullDetail__productOption"
   >
     <h3
       class="option__title"
@@ -67,7 +67,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span>
         Cirque Earrings
       </span>
-       
+
       <span
         class="required"
       >
@@ -76,7 +76,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </h3>
     <div>
       <div
-        class="bundleOptionSelect__root"
+        class="productOptionSelect__root"
       >
         <span
           class="fieldIcons__root"
@@ -85,7 +85,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
             class="fieldIcons__input"
           >
             <select
-              class="select__input field__input bundleProduct__option"
+              class="select__input field__input product__option"
             >
               <option
                 value="3"
@@ -128,7 +128,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
         </span>
       </div>
       <h2
-        class="bundleProduct__quantityTitle"
+        class="product__quantityTitle"
       >
         <span>
           Quantity
@@ -143,7 +143,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__section productFullDetail__bundleProduct"
+    class="productFullDetail__section productFullDetail__productOption"
   >
     <h3
       class="option__title"
@@ -151,7 +151,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span>
         Sol Earrings
       </span>
-       
+
       <span
         class="required"
       >
@@ -160,7 +160,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </h3>
     <div>
       <div
-        class="bundleProduct__options"
+        class="product__options"
       >
         <label>
           <input
@@ -180,7 +180,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
         </label>
       </div>
       <div
-        class="bundleProduct__options"
+        class="product__options"
       >
         <label>
           <input
@@ -215,7 +215,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__section productFullDetail__bundleProduct"
+    class="productFullDetail__section productFullDetail__productOption"
   >
     <h3
       class="option__title"
@@ -223,7 +223,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span>
         Bangles
       </span>
-       
+
       <span
         class="required"
       >
@@ -232,7 +232,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </h3>
     <div>
       <select
-        class="bundleProduct__option field__input"
+        class="product__option field__input"
         multiple=""
         name="4"
         size="5"
@@ -256,7 +256,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__section productFullDetail__bundleProduct"
+    class="productFullDetail__section productFullDetail__productOption"
   >
     <h3>
       <span
@@ -267,9 +267,9 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
       <span
         class="priceInfo"
       >
-        Your customization: 
+        Your customization:
         <span
-          class="bundlePrice"
+          class="customPrice"
         >
           $380.00
         </span>

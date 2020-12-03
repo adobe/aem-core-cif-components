@@ -12,11 +12,14 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { array, shape, func, bool, number } from 'prop-types';
-import Price from '../Price';
+import { array, func, bool, number, string } from 'prop-types';
+
+import Price from '../../Price';
+
 
 const Checkbox = props => {
-    const { item, customization, options, handleSelectionChange } = props;
+
+    const { option_id, options, customization, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
         const { checked, value } = event.target;
@@ -24,45 +27,43 @@ const Checkbox = props => {
 
         if (checked) {
             newCustomization = [...customization];
-            const { id, price, quantity } = options.find(o => o.id == value);
-            newCustomization.push({ id, price, quantity });
+            const option = options.find(o => o.id == value);
+            newCustomization.push(option);
         } else {
             newCustomization = customization.filter(c => c.id != value);
         }
 
-        handleSelectionChange(item.option_id, 1, newCustomization);
-    };
+        handleSelectionChange(option_id, newCustomization);
+    }
 
     return (
         <>
             {options.map(o => (
-                <div key={`option-${item.option_id}-${o.id}`} className="bundleProduct__option">
+                <div key={`option-${option_id}-${o.id}`} className="product__option">
                     <label>
                         <input
                             type="checkbox"
                             checked={customization.findIndex(c => c.id === o.id) > -1}
                             onChange={onChange}
                             value={o.id}
-                        />{' '}
-                        {`${o.quantity} x ${o.label} +`}
+                        />{` ${o.label} +`}
                         <b>
-                            <Price currencyCode={o.currency} value={o.price} />
+                            <Price currencyCode={currencyCode} value={o.price} />
                         </b>
                     </label>
                 </div>
             ))}
         </>
     );
-};
+}
 
 Checkbox.propTypes = {
-    item: shape({
-        required: bool.isRequired,
-        option_id: number.isRequired
-    }),
+    required: bool.isRequired,
+    option_id: number.isRequired,
     customization: array.isRequired,
     options: array.isRequired,
-    handleSelectionChange: func.isRequired
+    currencyCode: string.isRequired,
+    handleSelectionChange: func.isRequired,
 };
 
 export default Checkbox;

@@ -3,7 +3,7 @@
 exports[`<Select> disables quantity change 1`] = `
 <DocumentFragment>
   <div
-    class="bundleOptionSelect__root"
+    class="productOptionSelect__root"
   >
     <span
       class="fieldIcons__root"
@@ -12,7 +12,7 @@ exports[`<Select> disables quantity change 1`] = `
         class="fieldIcons__input"
       >
         <select
-          class="select__input field__input bundleProduct__option"
+          class="select__input field__input product__option"
         >
           <option
             value="1"
@@ -55,7 +55,7 @@ exports[`<Select> disables quantity change 1`] = `
     </span>
   </div>
   <h2
-    class="bundleProduct__quantityTitle"
+    class="product__quantityTitle"
   >
     <span>
       Quantity
@@ -74,7 +74,7 @@ exports[`<Select> disables quantity change 1`] = `
 exports[`<Select> renders the component 1`] = `
 <DocumentFragment>
   <div
-    class="bundleOptionSelect__root"
+    class="productOptionSelect__root"
   >
     <span
       class="fieldIcons__root"
@@ -83,7 +83,7 @@ exports[`<Select> renders the component 1`] = `
         class="fieldIcons__input"
       >
         <select
-          class="select__input field__input bundleProduct__option"
+          class="select__input field__input product__option"
         >
           <option
             value="1"
@@ -126,7 +126,7 @@ exports[`<Select> renders the component 1`] = `
     </span>
   </div>
   <h2
-    class="bundleProduct__quantityTitle"
+    class="product__quantityTitle"
   >
     <span>
       Quantity

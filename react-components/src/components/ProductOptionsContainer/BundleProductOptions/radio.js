@@ -15,7 +15,9 @@ import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-const Select = props => {
+import Price from '../../Price';
+
+const Radio = props => {
     const { item, customization, options, handleSelectionChange } = props;
     const { quantity } = item;
     const { can_change_quantity } =
@@ -48,44 +50,38 @@ const Select = props => {
 
     return (
         <>
-            <div className="bundleOptionSelect__root">
-                <span className="fieldIcons__root">
-                    <span className="fieldIcons__input">
-                        <select
-                            aria-label={item.title}
-                            className="select__input field__input bundleProduct__option"
-                            name={item.id}
-                            value={customization[0]?.id}
-                            onChange={onChange}>
-                            {!item.required && <option value="">None</option>}
-                            {options.map(o => (
-                                <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                                    {o.label}
-                                </option>
-                            ))}
-                        </select>
-                    </span>
-                    <span className="fieldIcons__before"></span>
-                    <span className="fieldIcons__after">
-                        <span className="icon__root">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </span>
-                    </span>
-                </span>
-            </div>
-
-            <h2 className="bundleProduct__quantityTitle">
+            {!item.required && (
+                <div className="product__option">
+                    <label>
+                        <input
+                            type="radio"
+                            name={item.option_id}
+                            value=""
+                            onChange={onChange}
+                            checked={customization.length === 0}
+                        />{' '}
+                        None
+                    </label>
+                </div>
+            )}
+            {options.map(o => (
+                <div key={`option-${item.option_id}-${o.id}`} className="product__options">
+                    <label>
+                        <input
+                            type="radio"
+                            name={item.option_id}
+                            value={o.id}
+                            onChange={onChange}
+                            checked={customization.findIndex(c => c.id === o.id) > -1}
+                        />{' '}
+                        {`${o.label} +`}
+                        <b>
+                            <Price currencyCode={o.currency} value={o.price} />
+                        </b>
+                    </label>
+                </div>
+            ))}
+            <h2 className="option__title productFullDetail__quantityTitle">
                 <span>{t('cart:quantity', 'Quantity')}</span>
             </h2>
             <input
@@ -100,7 +96,7 @@ const Select = props => {
     );
 };
 
-Select.propTypes = {
+Radio.propTypes = {
     item: shape({
         required: bool.isRequired,
         option_id: number.isRequired,
@@ -111,4 +107,4 @@ Select.propTypes = {
     handleSelectionChange: func.isRequired
 };
 
-export default Select;
+export default Radio;

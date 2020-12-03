@@ -3,7 +3,7 @@
 exports[`<Checkbox> renders the component 1`] = `
 <DocumentFragment>
   <div
-    class="bundleProduct__option"
+    class="product__option"
   >
     <label>
       <input
@@ -22,7 +22,7 @@ exports[`<Checkbox> renders the component 1`] = `
     </label>
   </div>
   <div
-    class="bundleProduct__option"
+    class="product__option"
   >
     <label>
       <input
