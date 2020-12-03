@@ -16,14 +16,7 @@ import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 
 export default ({ queries }) => {
-    const {
-        createCartMutation,
-        addToCartMutation,
-        cartDetailsQuery,
-        addVirtualItemMutation,
-        addBundleItemMutation,
-        addSimpleAndVirtualItemMutation
-    } = queries;
+    const { createCartMutation, addToCartMutation, cartDetailsQuery } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
     useEffect(() => {
@@ -39,47 +32,38 @@ export default ({ queries }) => {
 
         const mapper = item => {
             let quantity = parseFloat(item.quantity);
+            let selected_options = [];
+
+            if (item.bundle) {
+                item.options.forEach(o => {
+                    o.value.forEach(v => selected_options.push(window.btoa(`bundle/${o.id}/${v}/${o.quantity}`))); // Encode option as UID
+                });
+            }
+
+            if (selected_options.length === 0) {
+                selected_options = undefined;
+            }
+
             return {
-                data: {
-                    sku: item.sku,
-                    quantity
-                }
+                sku: item.sku,
+                quantity,
+                selected_options
             };
         };
 
-        const bundleMapper = item => {
-            return {
-                ...mapper(item),
-                bundle_options: item.options
-            };
-        };
-
-        let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
-        let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
-        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundleMapper);
+        let cartItems = event.detail.filter(item => !item.virtual).map(mapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
 
-        let addItemFn = addToCartMutation;
-        if (bundleCartItems.length > 0) {
-            addItemFn = addBundleItemMutation;
-        } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
-            addItemFn = addSimpleAndVirtualItemMutation;
-        } else if (virtualCartItems.length > 0) {
-            addItemFn = addVirtualItemMutation;
-        }
-
         await addItemToCart({
             createCartMutation,
-            addToCartMutation: addItemFn,
+            addToCartMutation,
             cartDetailsQuery,
             cart,
             cartId,
             dispatch,
-            physicalCartItems,
-            virtualCartItems,
-            bundleCartItems
+            cartItems
         });
         dispatch({ type: 'endLoading' });
     };

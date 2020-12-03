@@ -28,15 +28,11 @@ describe('useMinicart', () => {
     });
 
     const addToCartMutation = jest.fn();
-    const addVirtualItemMutation = jest.fn();
     const createCartMutation = jest.fn();
-    const addSimpleAndVirtualItemMutation = jest.fn();
 
     const queries = {
         cartDetailsQuery,
         addToCartMutation,
-        addVirtualItemMutation,
-        addSimpleAndVirtualItemMutation,
         createCartMutation
     };
 
@@ -88,6 +84,6 @@ describe('useMinicart', () => {
 
         await act(async () => fireEvent.click(getByRole('button')));
 
-        expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
+        expect(addToCartMutation).toHaveBeenCalledTimes(2);
     });
 });

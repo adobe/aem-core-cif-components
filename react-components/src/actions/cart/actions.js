@@ -26,15 +26,7 @@ import parseError from '../../utils/parseError';
  */
 
 export const addItemToCart = async payload => {
-    const {
-        createCartMutation,
-        cartDetailsQuery,
-        addToCartMutation,
-        dispatch,
-        physicalCartItems,
-        virtualCartItems,
-        bundleCartItems
-    } = payload;
+    const { createCartMutation, cartDetailsQuery, addToCartMutation, dispatch, cartItems } = payload;
 
     try {
         let cartId = payload.cartId;
@@ -43,14 +35,7 @@ export const addItemToCart = async payload => {
             cartId = newCartData.createEmptyCart;
         }
 
-        let variables = { cartId, cartItems: physicalCartItems };
-        if (bundleCartItems.length > 0) {
-            variables = { cartId, cartItems: bundleCartItems };
-        } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
-            variables = { cartId, virtualCartItems, simpleCartItems: physicalCartItems };
-        } else if (virtualCartItems.length > 0) {
-            variables = { cartId, cartItems: virtualCartItems };
-        }
+        let variables = { cartId, cartItems: cartItems };
 
         await addToCartMutation({ variables });
         dispatch({ type: 'cartId', cartId });

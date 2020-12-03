@@ -14,14 +14,14 @@
 
 // This is used to validate the queries against the Magento GraphQL schema
 import { buildClientSchema, parse, validate } from 'graphql';
-import magentoSchema240 from './magento-schema-2.4.0.json';
+import magentoSchema241 from './magento-schema-2.4.1.json';
 
 import fs from 'fs';
 import path from 'path';
 
 let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql')); // eslint-disable-line
 
-describe.each([['2.4.0', magentoSchema240]])(
+describe.each([['2.4.1', magentoSchema241]])(
     'Validate all GraphQL requests against Magento schema %s',
     (version, magentoSchema) => {
         beforeEach(() => {
