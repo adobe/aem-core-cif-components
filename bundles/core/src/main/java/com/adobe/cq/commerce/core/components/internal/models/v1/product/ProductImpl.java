@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.CustomizableProductInterface;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
@@ -116,6 +117,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
+    private Boolean hasCustomizableOptions;
     private Boolean loadClientPrice;
     private String canonicalUrl;
 
@@ -226,6 +228,22 @@ public class ProductImpl extends DataLayerComponent implements Product {
             isBundleProduct = productRetriever != null && productRetriever.fetchProduct() instanceof BundleProduct;
         }
         return isBundleProduct;
+    }
+
+    @Override
+    public Boolean hasCustomizableOptions() {
+        if (hasCustomizableOptions == null) {
+            hasCustomizableOptions = productRetriever != null
+                && productRetriever.fetchProduct() instanceof CustomizableProductInterface
+                && !((CustomizableProductInterface) productRetriever.fetchProduct()).getOptions().isEmpty();
+        }
+
+        return hasCustomizableOptions;
+    }
+
+    @Override
+    public String getRawData() {
+        return productRetriever.getRawResponse();
     }
 
     @Override
