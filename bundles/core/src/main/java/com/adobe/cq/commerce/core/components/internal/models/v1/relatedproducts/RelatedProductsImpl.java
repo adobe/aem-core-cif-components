@@ -41,7 +41,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -64,7 +64,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     private Page currentPage;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @ScriptVariable
     private ValueMap properties;

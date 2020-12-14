@@ -36,7 +36,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -61,7 +61,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     private Page currentPage;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @ScriptVariable
     private ValueMap properties;

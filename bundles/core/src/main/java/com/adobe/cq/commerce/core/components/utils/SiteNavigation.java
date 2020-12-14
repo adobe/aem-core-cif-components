@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;

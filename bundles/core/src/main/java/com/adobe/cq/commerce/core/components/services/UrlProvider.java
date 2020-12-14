@@ -126,6 +126,11 @@ public interface UrlProvider {
     public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request);
 
     /**
+     * @return boolean -- if this URL provider should process the current request
+     */
+    public boolean shouldProcess(SlingHttpServletRequest request);
+
+    /**
      * A helper class used to easily build parameters for the URL templates.
      */
     public static class ParamsBuilder {

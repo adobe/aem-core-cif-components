@@ -40,7 +40,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerCompone
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -69,7 +69,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Page currentPage;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @Self
     private SlingHttpServletRequest request;

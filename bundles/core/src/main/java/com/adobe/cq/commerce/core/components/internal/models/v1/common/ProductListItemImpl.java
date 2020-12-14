@@ -26,7 +26,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListIte
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
@@ -41,10 +41,10 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private final String activeVariantSku;
     private final Page productPage;
     private final SlingHttpServletRequest request;
-    private final UrlProvider urlProvider;
+    private final UrlDelegator urlProvider;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId) {
+                               String activeVariantSku, SlingHttpServletRequest request, UrlDelegator urlProvider, String parentId) {
         super(parentId, productPage.getContentResource());
         this.sku = sku;
         this.slug = slug;

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -76,7 +76,7 @@ public class NavigationImpl implements Navigation {
     private Resource resource;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @ScriptVariable
     private ValueMap properties = null;

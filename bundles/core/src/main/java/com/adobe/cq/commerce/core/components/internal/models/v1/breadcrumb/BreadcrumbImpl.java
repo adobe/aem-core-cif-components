@@ -41,7 +41,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -72,7 +72,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     private Resource resource;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @ScriptVariable
     private Page currentPage;

@@ -32,7 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -56,7 +56,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     private Page currentPage;
 
     @Inject
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @Self
     private SlingHttpServletRequest request;

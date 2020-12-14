@@ -147,6 +147,11 @@ public class UrlProviderImpl implements UrlProvider {
         return Pair.of(categoryIdentifierConfig.getRight(), parseIdentifier(categoryIdentifierConfig.getLeft(), request));
     }
 
+    @Override
+    public boolean shouldProcess(SlingHttpServletRequest request) {
+        return true;
+    }
+
     /**
      * Returns the identifier used in the URL, based on the configuration of the UrlProvider service.
      *
