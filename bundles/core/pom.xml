@@ -177,15 +177,10 @@
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>default-instrument</id>
+                                <id>prepare-agent</id>
+                                <phase>test-compile</phase>
                                 <goals>
-                                    <goal>instrument</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>default-restore-instrumented-classes</id>
-                                <goals>
-                                    <goal>restore-instrumented-classes</goal>
+                                    <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
                             <execution>
