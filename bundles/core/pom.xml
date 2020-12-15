@@ -177,15 +177,10 @@
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>default-instrument</id>
+                                <id>prepare-agent</id>
+                                <phase>test-compile</phase>
                                 <goals>
-                                    <goal>instrument</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>default-restore-instrumented-classes</id>
-                                <goals>
-                                    <goal>restore-instrumented-classes</goal>
+                                    <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
                             <execution>
@@ -203,7 +198,7 @@
                                                 <limit>
                                                     <counter>BRANCH</counter>
                                                     <value>COVEREDRATIO</value>
-                                                    <minimum>0.55</minimum>
+                                                    <minimum>0.75</minimum>
                                                 </limit>
                                             </limits>
                                         </rule>
@@ -250,15 +245,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>org.jacoco.agent</artifactId>
-                    <version>${jacoco.version}</version>
-                    <classifier>runtime</classifier>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
         </profile>
 
         <profile>
