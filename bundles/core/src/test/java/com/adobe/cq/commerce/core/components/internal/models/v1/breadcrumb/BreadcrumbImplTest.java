@@ -115,7 +115,7 @@ public class BreadcrumbImplTest {
         slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
