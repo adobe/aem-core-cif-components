@@ -221,6 +221,7 @@ workflows:
               only: /.*/
           requires:
             - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready:
@@ -229,6 +230,7 @@ workflows:
               only: /.*/
           requires:
             - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready-with-addon:
@@ -237,6 +239,7 @@ workflows:
               only: /.*/
           requires:
             - build-java-11
+            - build-java-8
             - karma
             - jest
       - release:
