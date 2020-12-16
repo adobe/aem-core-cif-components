@@ -45,7 +45,7 @@ executors:
       - image: circleci/openjdk:11-stretch-node
 
 jobs:
-  build:
+  build-java-11:
     executor: cif_executor
     working_directory: /home/circleci/build
     steps:
@@ -78,6 +78,22 @@ jobs:
           path: test-results/junit
       - codecov/upload:
           flags: unittests
+
+  build-java-8:
+    docker:
+      - image: circleci/openjdk:8-stretch-node
+    working_directory: /home/circleci/build
+    steps:
+      - checkout
+      - *restore_cache
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Build
+          command: node .circleci/ci/build.js
+      - store_artifacts:
+          path: test-results/junit
 
   karma:
     docker:
@@ -183,7 +199,11 @@ workflows:
   version: 2
   build-and-release:
     jobs:
-      - build:
+      - build-java-11:
+          filters:
+            tags:
+              only: /.*/
+      - build-java-8:
           filters:
             tags:
               only: /.*/
@@ -200,7 +220,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready:
@@ -208,7 +229,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready-with-addon:
@@ -216,12 +238,13 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - release:
           requires:
-            - build
+            - build-java-11
           filters:
             branches:
               ignore: /.*/
