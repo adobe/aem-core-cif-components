@@ -158,6 +158,12 @@
                                 </goals>
                             </execution>
                             <execution>
+                                <id>npm-install</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                            </execution>
+                            <execution>
                                 <id>npm build components</id>
                                 <phase>generate-resources</phase>
                                 <goals>
