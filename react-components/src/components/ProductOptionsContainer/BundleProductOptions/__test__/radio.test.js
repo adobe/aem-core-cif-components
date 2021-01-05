@@ -12,11 +12,11 @@
  *
  ******************************************************************************/
 import React from 'react';
-import MultiSelect from '../multiSelect';
+import Radio from '../radio';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 
-describe('<MultiSelect>', () => {
+describe('<Radio>', () => {
     const requiredItem = {
         option_id: 1,
         required: true,
@@ -29,7 +29,7 @@ describe('<MultiSelect>', () => {
             quantity: 1,
             price: 12,
             currency: 'USD',
-            can_change_quantity: false,
+            can_change_quantity: true,
             label: 'Carmina Necklace'
         },
         {
@@ -37,7 +37,7 @@ describe('<MultiSelect>', () => {
             quantity: 1,
             price: 13,
             currency: 'USD',
-            can_change_quantity: true,
+            can_change_quantity: false,
             label: 'Augusta Necklace'
         }
     ];
@@ -54,8 +54,9 @@ describe('<MultiSelect>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <MultiSelect
+            <Radio
                 item={requiredItem}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
@@ -67,24 +68,18 @@ describe('<MultiSelect>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <MultiSelect
+            <Radio
                 item={requiredItem}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
             />
         );
 
-        getByRole('option', { name: 'Augusta Necklace' }).selected = true;
-
-        fireEvent.change(getByRole('listbox'));
+        fireEvent.click(getByRole('radio', { name: 'Augusta Necklace + $13.00' }));
 
         const newCustomization = [
-            {
-                id: 1,
-                price: 12,
-                quantity: 1
-            },
             {
                 id: 2,
                 price: 13,
@@ -94,5 +89,26 @@ describe('<MultiSelect>', () => {
 
         expect(handleSelectionChange).toHaveBeenCalledTimes(1);
         expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
+    });
+
+    it('disables quantity change', async () => {
+        const quantityDisableCustomization = [
+            {
+                id: 2,
+                price: 13,
+                quantity: 1
+            }
+        ];
+        const { asFragment } = render(
+            <Radio
+                item={requiredItem}
+                currencyCode="USD"
+                options={sortedOptions}
+                customization={quantityDisableCustomization}
+                handleSelectionChange={handleSelectionChange}
+            />
+        );
+
+        expect(asFragment()).toMatchSnapshot();
     });
 });

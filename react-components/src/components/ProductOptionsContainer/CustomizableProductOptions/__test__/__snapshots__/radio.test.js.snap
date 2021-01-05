@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Radio> disables quantity change 1`] = `
+<DocumentFragment>
+  <div
+    class="product__options"
+  >
+    <label>
+      <input
+        name="1"
+        type="radio"
+        value="1"
+      />
+       Carmina Necklace +
+      <b>
+        <span
+          class=""
+        >
+          $12.00
+        </span>
+      </b>
+    </label>
+  </div>
+  <div
+    class="product__options"
+  >
+    <label>
+      <input
+        checked=""
+        name="1"
+        type="radio"
+        value="2"
+      />
+       Augusta Necklace +
+      <b>
+        <span
+          class=""
+        >
+          $13.00
+        </span>
+      </b>
+    </label>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<Radio> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="product__options"
+  >
+    <label>
+      <input
+        checked=""
+        name="1"
+        type="radio"
+        value="1"
+      />
+       Carmina Necklace +
+      <b>
+        <span
+          class=""
+        >
+          $12.00
+        </span>
+      </b>
+    </label>
+  </div>
+  <div
+    class="product__options"
+  >
+    <label>
+      <input
+        name="1"
+        type="radio"
+        value="2"
+      />
+       Augusta Necklace +
+      <b>
+        <span
+          class=""
+        >
+          $13.00
+        </span>
+      </b>
+    </label>
+  </div>
+</DocumentFragment>
+`;

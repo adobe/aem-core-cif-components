@@ -1,0 +1,238 @@
+{
+    "data": {
+        "products": {
+            "items": [
+                {
+                    "__typename": "BundleProduct",
+                    "sku": "test-bundle",
+                    "name": "Test Bundle",
+                    "description": {
+                        "html": ""
+                    },
+                    "image": {
+                        "label": "Test Bundle",
+                        "url": "http:\/\/127.0.0.1:8080\/pub\/static\/version1604529392\/frontend\/Magento\/luma\/en_US\/Magento_Catalog\/images\/product\/placeholder\/image.jpg"
+                    },
+                    "thumbnail": {
+                        "label": "Test Bundle",
+                        "url": "http:\/\/127.0.0.1:8080\/pub\/static\/version1604529392\/frontend\/Magento\/luma\/en_US\/Magento_Catalog\/images\/product\/placeholder\/thumbnail.jpg"
+                    },
+                    "url_key": "test-bundle",
+                    "stock_status": "IN_STOCK",
+                    "meta_description": "Test Bundle ",
+                    "meta_keyword": "Test Bundle",
+                    "meta_title": "Test Bundle",
+                    "price_range": {
+                        "minimum_price": {
+                            "regular_price": {
+                                "value": 113,
+                                "currency": "USD"
+                            },
+                            "final_price": {
+                                "value": 113,
+                                "currency": "USD"
+                            },
+                            "discount": {
+                                "amount_off": 0,
+                                "percent_off": 0
+                            }
+                        },
+                        "maximum_price": {
+                            "regular_price": {
+                                "value": 131,
+                                "currency": "USD"
+                            },
+                            "final_price": {
+                                "value": 131,
+                                "currency": "USD"
+                            },
+                            "discount": {
+                                "amount_off": 0,
+                                "percent_off": 0
+                            }
+                        }
+                    },
+                    "media_gallery": [],
+                    "items": [
+                        {
+                            "option_id": 5,
+                            "title": "Bag",
+                            "required": true,
+                            "type": "select",
+                            "position": 1,
+                            "options": [
+                                {
+                                    "id": 9,
+                                    "quantity": 1,
+                                    "position": 1,
+                                    "is_default": true,
+                                    "price": 11,
+                                    "price_type": "FIXED",
+                                    "can_change_quantity": true,
+                                    "label": "Joust Duffle Bag"
+                                },
+                                {
+                                    "id": 10,
+                                    "quantity": 1,
+                                    "position": 2,
+                                    "is_default": false,
+                                    "price": 12,
+                                    "price_type": "FIXED",
+                                    "can_change_quantity": true,
+                                    "label": "Wayfarer Messenger Bag"
+                                }
+                            ]
+                        },
+                        {
+                            "option_id": 6,
+                            "title": "Backpack",
+                            "required": true,
+                            "type": "multi",
+                            "position": 2,
+                            "options": [
+                                {
+                                    "id": 11,
+                                    "quantity": 1,
+                                    "position": 1,
+                                    "is_default": false,
+                                    "price": 0,
+                                    "price_type": "FIXED",
+                                    "can_change_quantity": false,
+                                    "label": "Fusion Backpack"
+                                },
+                                {
+                                    "id": 12,
+                                    "quantity": 2,
+                                    "position": 2,
+                                    "is_default": false,
+                                    "price": 0,
+                                    "price_type": "FIXED",
+                                    "can_change_quantity": false,
+                                    "label": "Driven Backpack"
+                                }
+                            ]
+                        }
+                    ],
+                    "options": [
+                        {
+                            "__typename": "CustomizableRadioOption",
+                            "option_id": 11,
+                            "required": true,
+                            "sort_order": 1,
+                            "title": "Logo",
+                            "value__multi": [
+                                {
+                                    "option_type_id": 15,
+                                    "sort_order": 1,
+                                    "title": "Yes",
+                                    "price": 1,
+                                    "price_type": "FIXED"
+                                },
+                                {
+                                    "option_type_id": 16,
+                                    "sort_order": 2,
+                                    "title": "No",
+                                    "price": 2,
+                                    "price_type": "FIXED"
+                                }
+                            ]
+                        },
+                        {
+                            "__typename": "CustomizableCheckboxOption",
+                            "option_id": 12,
+                            "required": false,
+                            "sort_order": 2,
+                            "title": "Gift wrap",
+                            "value__multi": [
+                                {
+                                    "option_type_id": 17,
+                                    "sort_order": 1,
+                                    "title": "White",
+                                    "price": 1,
+                                    "price_type": "FIXED"
+                                },
+                                {
+                                    "option_type_id": 18,
+                                    "sort_order": 2,
+                                    "title": "Black",
+                                    "price": 2,
+                                    "price_type": "FIXED"
+                                }
+                            ]
+                        },
+                        {
+                            "__typename": "CustomizableFieldOption",
+                            "option_id": 13,
+                            "required": false,
+                            "sort_order": 3,
+                            "title": "Custom message",
+                            "value": {
+                                "max_characters": 200,
+                                "price": 3,
+                                "price_type": "FIXED"
+                            }
+                        },
+                        {
+                            "__typename": "CustomizableAreaOption",
+                            "option_id": 14,
+                            "required": false,
+                            "sort_order": 4,
+                            "title": "Custom story",
+                            "value": {
+                                "max_characters": 0,
+                                "price": 4,
+                                "price_type": "FIXED"
+                            }
+                        },
+                        {
+                            "__typename": "CustomizableDropDownOption",
+                            "option_id": 15,
+                            "required": false,
+                            "sort_order": 5,
+                            "title": "Dropdown option",
+                            "value__multi": [
+                                {
+                                    "option_type_id": 19,
+                                    "sort_order": 1,
+                                    "title": "Op 1",
+                                    "price": 1,
+                                    "price_type": "FIXED"
+                                },
+                                {
+                                    "option_type_id": 20,
+                                    "sort_order": 2,
+                                    "title": "Op2",
+                                    "price": 2,
+                                    "price_type": "FIXED"
+                                }
+                            ]
+                        },
+                        {
+                            "__typename": "CustomizableMultipleOption",
+                            "option_id": 16,
+                            "required": false,
+                            "sort_order": 6,
+                            "title": "MultiSelect",
+                            "value__multi": [
+                                {
+                                    "option_type_id": 21,
+                                    "sort_order": 1,
+                                    "title": "Multi1",
+                                    "price": 2,
+                                    "price_type": "FIXED"
+                                },
+                                {
+                                    "option_type_id": 22,
+                                    "sort_order": 2,
+                                    "title": "Multi 2",
+                                    "price": 3,
+                                    "price_type": "FIXED"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

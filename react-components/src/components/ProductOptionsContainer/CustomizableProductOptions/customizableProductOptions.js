@@ -36,27 +36,27 @@ const CustomizableProductOptions = props => {
         const { option_id, required, options, type, customization, title } = item;
         const itemProps = { option_id, required, currencyCode, customization, handleSelectionChange };
         switch (type) {
-            case "CustomizableFieldOption": {
+            case 'CustomizableFieldOption': {
                 return <TextField max_characters={item.value.max_characters} {...itemProps} />;
             }
 
-            case "CustomizableAreaOption": {
+            case 'CustomizableAreaOption': {
                 return <TextField textarea max_characters={item.value.max_characters} {...itemProps} />;
             }
 
-            case "CustomizableDropDownOption": {
-                return <Select options={options} title={title} {...itemProps} />
+            case 'CustomizableDropDownOption': {
+                return <Select options={options} title={title} {...itemProps} />;
             }
 
-            case "CustomizableRadioOption": {
+            case 'CustomizableRadioOption': {
                 return <Radio options={options} {...itemProps} />;
             }
 
-            case "CustomizableCheckboxOption": {
+            case 'CustomizableCheckboxOption': {
                 return <Checkbox options={options} {...itemProps} />;
             }
 
-            case "CustomizableMultipleOption": {
+            case 'CustomizableMultipleOption': {
                 return <MultiSelect options={options} {...itemProps} />;
             }
         }
@@ -70,19 +70,20 @@ const CustomizableProductOptions = props => {
                     className="productFullDetail__section productFullDetail__productOption">
                     <h3 className="option__title">
                         <span>{e.title}</span>
-                        {e?.value && <span>
-                            {' + '}
-                            <Price currencyCode={currencyCode} value={e.value.price} />
-                        </span>}
+                        {e?.value && (
+                            <span>
+                                {' + '}
+                                <Price currencyCode={currencyCode} value={e.value.price} />
+                            </span>
+                        )}
                         {e.required && <span className="required"> *</span>}
                     </h3>
                     <div>{renderItemOptions(e)}</div>
                 </section>
             ))}
-
         </>
     );
-}
+};
 
 CustomizableProductOptions.propTypes = {
     currencyCode: string.isRequired,

@@ -1,0 +1,103 @@
+{
+    "data": {
+        "products": {
+            "items": [
+                {
+                    "__typename": "SimpleProduct",
+                    "sku": "24-UG06",
+                    "name": "Affirm Water Bottle ",
+                    "description": {
+                        "html": "<p>You'll stay hydrated with ease with the Affirm Water Bottle by your side or in hand. Measurements on the outside help you keep track of how much you're drinking, while the screw-top lid prevents spills. A metal carabiner clip allows you to attach it to the outside of a backpack or bag for easy access.<\/p>\r\n<ul>\r\n<li>Made of plastic.<\/li>\r\n<li>Grooved sides for an easy grip.<\/li>\r\n<\/ul>"
+                    },
+                    "image": {
+                        "label": "Image",
+                        "url": "http:\/\/127.0.0.1:8080\/pub\/media\/catalog\/product\/cache\/01a2e9a54fa5fd118fbd394d48a4d9ce\/u\/g\/ug06-lb-0.jpg"
+                    },
+                    "thumbnail": {
+                        "label": "Image",
+                        "url": "http:\/\/127.0.0.1:8080\/pub\/media\/catalog\/product\/cache\/01a2e9a54fa5fd118fbd394d48a4d9ce\/u\/g\/ug06-lb-0.jpg"
+                    },
+                    "url_key": "affirm-water-bottle",
+                    "stock_status": "IN_STOCK",
+                    "meta_description": null,
+                    "meta_keyword": null,
+                    "meta_title": null,
+                    "price_range": {
+                        "minimum_price": {
+                            "regular_price": {
+                                "value": 7,
+                                "currency": "USD"
+                            },
+                            "final_price": {
+                                "value": 7,
+                                "currency": "USD"
+                            },
+                            "discount": {
+                                "amount_off": 0,
+                                "percent_off": 0
+                            }
+                        }
+                    },
+                    "media_gallery": [
+                        {
+                            "__typename": "ProductImage",
+                            "disabled": false,
+                            "url": "http:\/\/127.0.0.1:8080\/pub\/media\/catalog\/product\/cache\/01a2e9a54fa5fd118fbd394d48a4d9ce\/u\/g\/ug06-lb-0.jpg",
+                            "label": "Image",
+                            "position": 1
+                        }
+                    ],
+                    "options": [
+                        {
+                            "__typename": "CustomizableDropDownOption",
+                            "option_id": 1,
+                            "required": true,
+                            "sort_order": 1,
+                            "title": "Drop Down Options",
+                            "value__multi": [
+                                {
+                                    "option_type_id": 1,
+                                    "sort_order": 1,
+                                    "title": "value 1",
+                                    "price": 20,
+                                    "price_type": "PERCENT"
+                                },
+                                {
+                                    "option_type_id": 2,
+                                    "sort_order": 2,
+                                    "title": "value 2",
+                                    "price": 30,
+                                    "price_type": "FIXED"
+                                }
+                            ]
+                        },
+                        {
+                            "__typename": "CustomizableAreaOption",
+                            "option_id": 3,
+                            "required": true,
+                            "sort_order": 2,
+                            "title": "Area Option",
+                            "value": {
+                                "max_characters": 200,
+                                "price": 3,
+                                "price_type": "FIXED"
+                            }
+                        },
+                        {
+                            "__typename": "CustomizableFieldOption",
+                            "option_id": 4,
+                            "required": true,
+                            "sort_order": 3,
+                            "title": "Text Option",
+                            "value": {
+                                "max_characters": 0,
+                                "price": 11,
+                                "price_type": "FIXED"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,1223 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ProductOptionsContainer> renders the component with bundle data 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__customizeBundle"
+  >
+    <button
+      class="root_highPriority"
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Customize
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`<ProductOptionsContainer> renders the component with bundle data 2`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sprite Stasis Ball
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            checked=""
+            name="1"
+            type="radio"
+            value="1"
+          />
+           Sprite Stasis Ball 55 cm +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            name="1"
+            type="radio"
+            value="2"
+          />
+           Sprite Stasis Ball 65 cm +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            name="1"
+            type="radio"
+            value="3"
+          />
+           Sprite Stasis Ball 75 cm +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <h2
+        class="option__title productFullDetail__quantityTitle"
+      >
+        <span>
+          Quantity
+        </span>
+      </h2>
+      <input
+        class="option__quantity"
+        min="1"
+        type="number"
+        value="1"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sprite Foam Yoga Brick
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            checked=""
+            name="2"
+            type="radio"
+            value="4"
+          />
+           Sprite Foam Yoga Brick +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <h2
+        class="option__title productFullDetail__quantityTitle"
+      >
+        <span>
+          Quantity
+        </span>
+      </h2>
+      <input
+        class="option__quantity"
+        min="1"
+        type="number"
+        value="1"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sprite Yoga Strap
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            checked=""
+            name="3"
+            type="radio"
+            value="5"
+          />
+           Sprite Yoga Strap 6 foot +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            name="3"
+            type="radio"
+            value="6"
+          />
+           Sprite Yoga Strap 8 foot +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            name="3"
+            type="radio"
+            value="7"
+          />
+           Sprite Yoga Strap 10 foot +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <h2
+        class="option__title productFullDetail__quantityTitle"
+      >
+        <span>
+          Quantity
+        </span>
+      </h2>
+      <input
+        class="option__quantity"
+        min="1"
+        type="number"
+        value="1"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sprite Foam Roller
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            checked=""
+            name="4"
+            type="radio"
+            value="8"
+          />
+           Sprite Foam Roller +
+          <b>
+            <span
+              class=""
+            >
+              $0.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <h2
+        class="option__title productFullDetail__quantityTitle"
+      >
+        <span>
+          Quantity
+        </span>
+      </h2>
+      <input
+        class="option__quantity"
+        min="1"
+        type="number"
+        value="1"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3>
+      <span
+        class="required"
+      >
+        * Required fields
+      </span>
+      <span
+        class="priceInfo"
+      >
+        Your customization: 
+        <span
+          class="customPrice"
+        >
+          $0.00
+        </span>
+      </span>
+    </h3>
+  </section>
+  <section
+    class="productFullDetail__quantity productFullDetail__section"
+  >
+    <h2
+      class="productFullDetail__quantityTitle option__title"
+    >
+      <span>
+        Quantity
+      </span>
+    </h2>
+    <div
+      class="quantity__root"
+    >
+      <span
+        class="fieldIcons__root"
+      >
+        <span
+          class="fieldIcons__input"
+        >
+          <select
+            aria-label="product's quantity"
+            class="select__input field__input"
+            name="quantity"
+          >
+            <option
+              value="1"
+            >
+              1
+            </option>
+            <option
+              value="2"
+            >
+              2
+            </option>
+            <option
+              value="3"
+            >
+              3
+            </option>
+            <option
+              value="4"
+            >
+              4
+            </option>
+          </select>
+        </span>
+        <span
+          class="fieldIcons__before"
+        />
+        <span
+          class="fieldIcons__after"
+        >
+          <span
+            class="icon__root"
+          >
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+      <p
+        class="message-root"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__cartActions productFullDetail__section"
+  >
+    <button
+      class="button__root_highPriority button__root clickable__root button__filled"
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Cart
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`<ProductOptionsContainer> renders the component with customizable bundle data 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__customizeBundle"
+  >
+    <button
+      class="root_highPriority"
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        <span>
+          Customize
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`<ProductOptionsContainer> renders the component with customizable bundle data 2`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Bag
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <span
+          class="fieldIcons__root"
+        >
+          <span
+            class="fieldIcons__input"
+          >
+            <select
+              class="select__input field__input product__option"
+            >
+              <option
+                value="9"
+              >
+                Joust Duffle Bag +$11.00
+              </option>
+              <option
+                value="10"
+              >
+                Wayfarer Messenger Bag +$12.00
+              </option>
+            </select>
+          </span>
+          <span
+            class="fieldIcons__before"
+          />
+          <span
+            class="fieldIcons__after"
+          >
+            <span
+              class="icon__root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </div>
+      <h2
+        class="product__quantityTitle"
+      >
+        <span>
+          Quantity
+        </span>
+      </h2>
+      <input
+        class="option__quantity"
+        min="1"
+        type="number"
+        value="1"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Backpack
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <select
+        class="product__option field__input"
+        multiple=""
+        name="6"
+        size="5"
+      >
+        <option
+          value="11"
+        >
+          Fusion Backpack +$0.00
+        </option>
+        <option
+          value="12"
+        >
+          Driven Backpack +$0.00
+        </option>
+      </select>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Logo
+      </span>
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            checked=""
+            name="11"
+            type="radio"
+            value="15"
+          />
+           Yes +
+          <b>
+            <span
+              class=""
+            >
+              $1.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__options"
+      >
+        <label>
+          <input
+            name="11"
+            type="radio"
+            value="16"
+          />
+           No +
+          <b>
+            <span
+              class=""
+            >
+              $2.00
+            </span>
+          </b>
+        </label>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Gift wrap
+      </span>
+    </h3>
+    <div>
+      <div
+        class="product__option"
+      >
+        <label>
+          <input
+            type="checkbox"
+            value="17"
+          />
+           White +
+          <b>
+            <span
+              class=""
+            >
+              $1.00
+            </span>
+          </b>
+        </label>
+      </div>
+      <div
+        class="product__option"
+      >
+        <label>
+          <input
+            type="checkbox"
+            value="18"
+          />
+           Black +
+          <b>
+            <span
+              class=""
+            >
+              $2.00
+            </span>
+          </b>
+        </label>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Custom message
+      </span>
+      <span>
+         + 
+        <span
+          class=""
+        >
+          $3.00
+        </span>
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <input
+          class="field__input"
+          value=""
+        />
+        <small>
+          Maximum 200 characters
+        </small>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Custom story
+      </span>
+      <span>
+         + 
+        <span
+          class=""
+        >
+          $4.00
+        </span>
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <textarea
+          class="field__textarea"
+          rows="5"
+        />
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Dropdown option
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <span
+          class="fieldIcons__root"
+        >
+          <span
+            class="fieldIcons__input"
+          >
+            <select
+              aria-label="Dropdown option"
+              class="select__input field__input product__option"
+              name="15"
+            >
+              <option
+                value=""
+              >
+                None
+              </option>
+              <option
+                value="19"
+              >
+                Op 1 +$1.00
+              </option>
+              <option
+                value="20"
+              >
+                Op2 +$2.00
+              </option>
+            </select>
+          </span>
+          <span
+            class="fieldIcons__before"
+          />
+          <span
+            class="fieldIcons__after"
+          >
+            <span
+              class="icon__root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        MultiSelect
+      </span>
+    </h3>
+    <div>
+      <select
+        class="product__option field__input"
+        multiple=""
+        name="16"
+        size="5"
+      >
+        <option
+          value="21"
+        >
+          Multi1 +$2.00
+        </option>
+        <option
+          value="22"
+        >
+          Multi 2 +$3.00
+        </option>
+      </select>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3>
+      <span
+        class="required"
+      >
+        * Required fields
+      </span>
+      <span
+        class="priceInfo"
+      >
+        Your customization: 
+        <span
+          class="customPrice"
+        >
+          $12.00
+        </span>
+      </span>
+    </h3>
+  </section>
+  <section
+    class="productFullDetail__quantity productFullDetail__section"
+  >
+    <h2
+      class="productFullDetail__quantityTitle option__title"
+    >
+      <span>
+        Quantity
+      </span>
+    </h2>
+    <div
+      class="quantity__root"
+    >
+      <span
+        class="fieldIcons__root"
+      >
+        <span
+          class="fieldIcons__input"
+        >
+          <select
+            aria-label="product's quantity"
+            class="select__input field__input"
+            name="quantity"
+          >
+            <option
+              value="1"
+            >
+              1
+            </option>
+            <option
+              value="2"
+            >
+              2
+            </option>
+            <option
+              value="3"
+            >
+              3
+            </option>
+            <option
+              value="4"
+            >
+              4
+            </option>
+          </select>
+        </span>
+        <span
+          class="fieldIcons__before"
+        />
+        <span
+          class="fieldIcons__after"
+        >
+          <span
+            class="icon__root"
+          >
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+      <p
+        class="message-root"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__cartActions productFullDetail__section"
+  >
+    <button
+      class="button__root_highPriority button__root clickable__root button__filled"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Cart
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`<ProductOptionsContainer> renders the component with customizable options 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Drop Down Options
+      </span>
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <span
+          class="fieldIcons__root"
+        >
+          <span
+            class="fieldIcons__input"
+          >
+            <select
+              aria-label="Drop Down Options"
+              class="select__input field__input product__option"
+              name="1"
+            >
+              <option
+                value="1"
+              >
+                value 1 +$20.00
+              </option>
+              <option
+                value="2"
+              >
+                value 2 +$30.00
+              </option>
+            </select>
+          </span>
+          <span
+            class="fieldIcons__before"
+          />
+          <span
+            class="fieldIcons__after"
+          >
+            <span
+              class="icon__root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Area Option
+      </span>
+      <span>
+         + 
+        <span
+          class=""
+        >
+          $3.00
+        </span>
+      </span>
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <textarea
+          class="field__textarea"
+          rows="5"
+        />
+        <small>
+          Maximum 200 characters
+        </small>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Text Option
+      </span>
+      <span>
+         + 
+        <span
+          class=""
+        >
+          $11.00
+        </span>
+      </span>
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="productOptionSelect__root"
+      >
+        <input
+          class="field__input"
+          value=""
+        />
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__productOption"
+  >
+    <h3>
+      <span
+        class="required"
+      >
+        * Required fields
+      </span>
+      <span
+        class="priceInfo"
+      >
+        Your customization: 
+        <span
+          class="customPrice"
+        >
+          $20.00
+        </span>
+      </span>
+    </h3>
+  </section>
+  <section
+    class="productFullDetail__quantity productFullDetail__section"
+  >
+    <h2
+      class="productFullDetail__quantityTitle option__title"
+    >
+      <span>
+        Quantity
+      </span>
+    </h2>
+    <div
+      class="quantity__root"
+    >
+      <span
+        class="fieldIcons__root"
+      >
+        <span
+          class="fieldIcons__input"
+        >
+          <select
+            aria-label="product's quantity"
+            class="select__input field__input"
+            name="quantity"
+          >
+            <option
+              value="1"
+            >
+              1
+            </option>
+            <option
+              value="2"
+            >
+              2
+            </option>
+            <option
+              value="3"
+            >
+              3
+            </option>
+            <option
+              value="4"
+            >
+              4
+            </option>
+          </select>
+        </span>
+        <span
+          class="fieldIcons__before"
+        />
+        <span
+          class="fieldIcons__after"
+        >
+          <span
+            class="icon__root"
+          >
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+      <p
+        class="message-root"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__cartActions productFullDetail__section"
+  >
+    <button
+      class="button__root_highPriority button__root clickable__root button__filled"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Cart
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`<ProductOptionsContainer> renders the component with no data 1`] = `<DocumentFragment />`;

@@ -16,9 +16,7 @@ import { array, func, bool, number, string } from 'prop-types';
 
 import Price from '../../Price';
 
-
 const Checkbox = props => {
-
     const { option_id, options, customization, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
@@ -34,7 +32,7 @@ const Checkbox = props => {
         }
 
         handleSelectionChange(option_id, newCustomization);
-    }
+    };
 
     return (
         <>
@@ -46,7 +44,8 @@ const Checkbox = props => {
                             checked={customization.findIndex(c => c.id === o.id) > -1}
                             onChange={onChange}
                             value={o.id}
-                        />{` ${o.label} +`}
+                        />
+                        {` ${o.label} +`}
                         <b>
                             <Price currencyCode={currencyCode} value={o.price} />
                         </b>
@@ -55,7 +54,7 @@ const Checkbox = props => {
             ))}
         </>
     );
-}
+};
 
 Checkbox.propTypes = {
     required: bool.isRequired,
@@ -63,7 +62,7 @@ Checkbox.propTypes = {
     customization: array.isRequired,
     options: array.isRequired,
     currencyCode: string.isRequired,
-    handleSelectionChange: func.isRequired,
+    handleSelectionChange: func.isRequired
 };
 
 export default Checkbox;

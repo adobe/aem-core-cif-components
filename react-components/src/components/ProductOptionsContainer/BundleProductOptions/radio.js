@@ -12,13 +12,13 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { array, shape, func, bool, number } from 'prop-types';
+import { array, shape, func, bool, number, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import Price from '../../Price';
 
 const Radio = props => {
-    const { item, customization, options, handleSelectionChange } = props;
+    const { item, customization, options, currencyCode, handleSelectionChange } = props;
     const { quantity } = item;
     const { can_change_quantity } =
         customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
@@ -76,7 +76,7 @@ const Radio = props => {
                         />{' '}
                         {`${o.label} +`}
                         <b>
-                            <Price currencyCode={o.currency} value={o.price} />
+                            <Price currencyCode={currencyCode} value={o.price} />
                         </b>
                     </label>
                 </div>
@@ -104,6 +104,7 @@ Radio.propTypes = {
     }),
     customization: array.isRequired,
     options: array.isRequired,
+    currencyCode: string.isRequired,
     handleSelectionChange: func.isRequired
 };
 

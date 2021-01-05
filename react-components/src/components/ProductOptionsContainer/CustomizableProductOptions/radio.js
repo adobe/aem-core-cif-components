@@ -16,18 +16,15 @@ import { array, func, bool, number, string } from 'prop-types';
 
 import Price from '../../Price';
 
-
 const Radio = props => {
-
     const { required, option_id, options, customization, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
         const { value } = event.target;
-        const newCustomization = options
-            .filter(o => o.id == value);
+        const newCustomization = options.filter(o => o.id == value);
 
         handleSelectionChange(option_id, newCustomization);
-    }
+    };
 
     return (
         <>
@@ -64,7 +61,7 @@ const Radio = props => {
             ))}
         </>
     );
-}
+};
 
 Radio.propTypes = {
     required: bool.isRequired,
@@ -72,7 +69,7 @@ Radio.propTypes = {
     customization: array.isRequired,
     options: array.isRequired,
     currencyCode: string.isRequired,
-    handleSelectionChange: func.isRequired,
+    handleSelectionChange: func.isRequired
 };
 
 export default Radio;

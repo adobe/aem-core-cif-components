@@ -12,32 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Select from '../select';
+import Radio from '../radio';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 
-describe('<Select>', () => {
-    const requiredItem = {
-        option_id: 1,
-        required: true,
-        quantity: 1
-    };
+describe('<Radio>', () => {
+    const option_id = 1;
+    const required = true;
 
     const sortedOptions = [
         {
             id: 1,
-            quantity: 1,
             price: 12,
-            currency: 'USD',
-            can_change_quantity: true,
             label: 'Carmina Necklace'
         },
         {
             id: 2,
-            quantity: 1,
             price: 13,
-            currency: 'USD',
-            can_change_quantity: false,
             label: 'Augusta Necklace'
         }
     ];
@@ -45,7 +36,8 @@ describe('<Select>', () => {
     const customization = [
         {
             id: 1,
-            quantity: 1
+            price: 12,
+            label: 'Carmina Necklace'
         }
     ];
 
@@ -53,8 +45,10 @@ describe('<Select>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <Select
-                item={requiredItem}
+            <Radio
+                option_id={option_id}
+                required={required}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
@@ -66,26 +60,28 @@ describe('<Select>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <Select
-                item={requiredItem}
+            <Radio
+                option_id={option_id}
+                required={required}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
             />
         );
 
-        fireEvent.change(getByRole('combobox'), { target: { value: 2 } });
+        fireEvent.click(getByRole('radio', { name: 'Augusta Necklace + $13.00' }));
 
         const newCustomization = [
             {
                 id: 2,
                 price: 13,
-                quantity: 1
+                label: 'Augusta Necklace'
             }
         ];
 
         expect(handleSelectionChange).toHaveBeenCalledTimes(1);
-        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
+        expect(handleSelectionChange).toHaveBeenCalledWith(option_id, newCustomization);
     });
 
     it('disables quantity change', async () => {
@@ -93,12 +89,14 @@ describe('<Select>', () => {
             {
                 id: 2,
                 price: 13,
-                quantity: 1
+                label: 'Augusta Necklace'
             }
         ];
         const { asFragment } = render(
-            <Select
-                item={requiredItem}
+            <Radio
+                option_id={option_id}
+                required={required}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={quantityDisableCustomization}
                 handleSelectionChange={handleSelectionChange}

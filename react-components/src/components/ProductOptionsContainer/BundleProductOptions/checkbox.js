@@ -12,11 +12,11 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { array, shape, func, bool, number } from 'prop-types';
+import { array, shape, func, bool, number, string } from 'prop-types';
 import Price from '../../Price';
 
 const Checkbox = props => {
-    const { item, customization, options, handleSelectionChange } = props;
+    const { item, customization, options, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
         const { checked, value } = event.target;
@@ -46,7 +46,7 @@ const Checkbox = props => {
                         />{' '}
                         {`${o.quantity} x ${o.label} +`}
                         <b>
-                            <Price currencyCode={o.currency} value={o.price} />
+                            <Price currencyCode={currencyCode} value={o.price} />
                         </b>
                     </label>
                 </div>
@@ -62,6 +62,7 @@ Checkbox.propTypes = {
     }),
     customization: array.isRequired,
     options: array.isRequired,
+    currencyCode: string.isRequired,
     handleSelectionChange: func.isRequired
 };
 

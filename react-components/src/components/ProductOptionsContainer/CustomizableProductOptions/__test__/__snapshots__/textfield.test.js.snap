@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Radio> renders the input component 1`] = `
+<DocumentFragment>
+  <div
+    class="productOptionSelect__root"
+  >
+    <input
+      class="field__input"
+      value=""
+    />
+    <small>
+      Maximum 20 characters
+    </small>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<Radio> renders the textarea component 1`] = `
+<DocumentFragment>
+  <div
+    class="productOptionSelect__root"
+  >
+    <textarea
+      class="field__textarea"
+      rows="5"
+    />
+    <small>
+      Maximum 20 characters
+    </small>
+  </div>
+</DocumentFragment>
+`;

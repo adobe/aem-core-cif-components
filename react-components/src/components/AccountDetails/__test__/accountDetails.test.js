@@ -17,6 +17,7 @@ import { render } from 'test-utils';
 import AccountDetails from '../accountDetails';
 
 const config = {
+    graphqlMethod: 'GET',
     storeView: 'default',
     graphqlEndpoint: 'none',
     mountingPoints: { accountDetails: 'mock' }

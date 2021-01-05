@@ -19,6 +19,7 @@ import AccountContainer from '../accountContainer';
 describe('<AccountContainer>', () => {
     it('renders the component', () => {
         const config = {
+            graphqlMethod: 'GET',
             graphqlEndpoint: 'endpoint',
             storeView: 'default',
             pagePaths: {

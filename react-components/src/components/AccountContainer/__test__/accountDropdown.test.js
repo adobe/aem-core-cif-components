@@ -17,6 +17,7 @@ import { CartProvider } from '../../Minicart';
 import AccountDropdown from '../accountDropdown';
 
 const config = {
+    graphqlMethod: 'GET',
     graphqlEndpoint: 'endpoint',
     storeView: 'default',
     pagePaths: {

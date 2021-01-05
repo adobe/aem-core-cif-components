@@ -56,11 +56,11 @@
                  data-currency="${product.priceRange.currency}"
                  data-raw="${product.rawData}"
             ></div>
-            <section data-sly-test="${!isGroupedProduct && !isBundleProduct}" class="productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !hasCustomizableOptions}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
             </section>
-            <section data-sly-test="${!isBundleProduct}" class="productFullDetail__cartActions productFullDetail__section">
+            <section data-sly-test="${!isBundleProduct && !hasCustomizableOptions}" class="productFullDetail__cartActions productFullDetail__section">
                 <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
             </section>
             <section class="productFullDetail__description productFullDetail__section">

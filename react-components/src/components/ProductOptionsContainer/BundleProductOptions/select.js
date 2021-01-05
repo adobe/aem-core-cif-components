@@ -12,15 +12,15 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { array, shape, func, bool, number } from 'prop-types';
+import { array, shape, func, bool, number, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const Select = props => {
-    const { item, customization, options, handleSelectionChange } = props;
+    const { item, customization, options, currencyCode, handleSelectionChange } = props;
     const { quantity } = item;
     const { can_change_quantity } =
         customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
-    const [t] = useTranslation('cart');
+    const [t] = useTranslation(['cart', 'common']);
 
     const onChange = event => {
         const { value } = event.target;
@@ -60,7 +60,9 @@ const Select = props => {
                             {!item.required && <option value="">None</option>}
                             {options.map(o => (
                                 <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                                    {o.label}
+                                    {`${o.label} +${t('common:formattedPrice', {
+                                        price: { currency: currencyCode, value: o.price }
+                                    })}`}
                                 </option>
                             ))}
                         </select>
@@ -108,6 +110,7 @@ Select.propTypes = {
     }),
     customization: array.isRequired,
     options: array.isRequired,
+    currencyCode: string.isRequired,
     handleSelectionChange: func.isRequired
 };
 

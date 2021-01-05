@@ -11,12 +11,12 @@ exports[`<MultiSelect> renders the component 1`] = `
     <option
       value="1"
     >
-      Carmina Necklace
+      Carmina Necklace +$12.00
     </option>
     <option
       value="2"
     >
-      Augusta Necklace
+      Augusta Necklace +$13.00
     </option>
   </select>
 </DocumentFragment>

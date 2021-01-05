@@ -12,14 +12,13 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { array, shape, func, bool, number } from 'prop-types';
+import { array, shape, func, bool, number, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const MultiSelect = props => {
-
     const [t] = useTranslation('common');
 
-    const { item, customization, options, handleSelectionChange } = props;
+    const { item, customization, options, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
         const values = Array.from(event.target.options)
@@ -43,7 +42,7 @@ const MultiSelect = props => {
             onChange={onChange}>
             {options.map(o => (
                 <option key={`option-${item.option_id}-${o.id}`} value={o.id}>
-                    {`${o.label} +${t('common:formattedPrice', { price: { currency: o.currency, value: o.price } })}`}
+                    {`${o.label} +${t('common:formattedPrice', { price: { currency: currencyCode, value: o.price } })}`}
                 </option>
             ))}
         </select>
@@ -57,6 +56,7 @@ MultiSelect.propTypes = {
     }),
     customization: array.isRequired,
     options: array.isRequired,
+    currencyCode: string.isRequired,
     handleSelectionChange: func.isRequired
 };
 

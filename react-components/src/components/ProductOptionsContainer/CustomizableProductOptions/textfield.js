@@ -16,29 +16,34 @@ import { func, bool, number, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const TextField = props => {
-    const [t] = useTranslation("common");
+    const [t] = useTranslation('common');
     const { textarea, option_id, max_characters, customization, handleSelectionChange } = props;
 
     const onChange = event => {
         const { value } = event.target;
-        if (max_characters === 0 || value.length < max_characters) {
+        if (max_characters > 0) {
+            handleSelectionChange(option_id, value.substr(0, max_characters));
+        } else {
             handleSelectionChange(option_id, value);
         }
-    }
+    };
 
     return (
         <div className="productOptionSelect__root">
-            {textarea ?
-                <textarea className="field__textarea" rows={5} value={customization} onChange={onChange} ></textarea> :
+            {textarea ? (
+                <textarea className="field__textarea" rows={5} value={customization} onChange={onChange}></textarea>
+            ) : (
                 <input className="field__input" value={customization} onChange={onChange} />
-            }
-            {
-                max_characters > 0 &&
-                <small>{`${t('common:maximum', 'Maximum')} ${max_characters} ${t('common:characters', 'characters').toLowerCase()}`}</small>
-            }
+            )}
+            {max_characters > 0 && (
+                <small>{`${t('common:maximum', 'Maximum')} ${max_characters} ${t(
+                    'common:characters',
+                    'characters'
+                ).toLowerCase()}`}</small>
+            )}
         </div>
     );
-}
+};
 
 TextField.propTypes = {
     textarea: bool,
@@ -46,7 +51,7 @@ TextField.propTypes = {
     customization: string.isRequired,
     max_characters: number.isRequired,
     currencyCode: string.isRequired,
-    handleSelectionChange: func.isRequired,
+    handleSelectionChange: func.isRequired
 };
 
 export default TextField;

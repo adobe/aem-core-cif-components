@@ -13,15 +13,15 @@
  ******************************************************************************/
 import React from 'react';
 import { array, func, bool, number, string } from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 const Select = props => {
-
-    const { title, required, option_id, options, customization, handleSelectionChange } = props;
+    const [t] = useTranslation('common');
+    const { title, required, option_id, options, customization, currencyCode, handleSelectionChange } = props;
 
     const onChange = event => {
         const { value } = event.target;
-        const newCustomization = options
-            .filter(o => o.id == value);
+        const newCustomization = options.filter(o => o.id == value);
 
         handleSelectionChange(option_id, newCustomization);
     };
@@ -39,7 +39,9 @@ const Select = props => {
                         {!required && <option value="">None</option>}
                         {options.map(o => (
                             <option key={`option-${option_id}-${o.id}`} value={o.id}>
-                                {o.label}
+                                {`${o.label} +${t('common:formattedPrice', {
+                                    price: { currency: currencyCode, value: o.price }
+                                })}`}
                             </option>
                         ))}
                     </select>
@@ -73,7 +75,7 @@ Select.propTypes = {
     customization: array.isRequired,
     options: array.isRequired,
     currencyCode: string.isRequired,
-    handleSelectionChange: func.isRequired,
+    handleSelectionChange: func.isRequired
 };
 
 export default Select;

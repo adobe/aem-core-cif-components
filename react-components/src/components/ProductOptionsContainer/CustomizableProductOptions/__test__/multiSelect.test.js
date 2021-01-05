@@ -12,32 +12,23 @@
  *
  ******************************************************************************/
 import React from 'react';
-import Checkbox from '../checkbox';
+import MultiSelect from '../multiSelect';
 import { fireEvent } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 
-describe('<Checkbox>', () => {
-    const requiredItem = {
-        option_id: 1,
-        required: true,
-        quantity: 1
-    };
+describe('<MultiSelect>', () => {
+    const option_id = 1;
+    const required = true;
 
     const sortedOptions = [
         {
             id: 1,
-            quantity: 1,
             price: 12,
-            currency: 'USD',
-            can_change_quantity: false,
             label: 'Carmina Necklace'
         },
         {
             id: 2,
-            quantity: 1,
             price: 13,
-            currency: 'USD',
-            can_change_quantity: true,
             label: 'Augusta Necklace'
         }
     ];
@@ -46,7 +37,7 @@ describe('<Checkbox>', () => {
         {
             id: 1,
             price: 12,
-            quantity: 1
+            label: 'Carmina Necklace'
         }
     ];
 
@@ -54,8 +45,10 @@ describe('<Checkbox>', () => {
 
     it('renders the component', () => {
         const { asFragment } = render(
-            <Checkbox
-                item={requiredItem}
+            <MultiSelect
+                option_id={option_id}
+                required={required}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
@@ -67,30 +60,34 @@ describe('<Checkbox>', () => {
 
     it('tests selection change', () => {
         const { getByRole } = render(
-            <Checkbox
-                item={requiredItem}
+            <MultiSelect
+                option_id={option_id}
+                required={required}
+                currencyCode="USD"
                 options={sortedOptions}
                 customization={customization}
                 handleSelectionChange={handleSelectionChange}
             />
         );
 
-        fireEvent.click(getByRole('checkbox', { name: '1 x Augusta Necklace + $13.00' }));
+        getByRole('option', { name: 'Augusta Necklace +$13.00' }).selected = true;
+
+        fireEvent.change(getByRole('listbox'));
 
         const newCustomization = [
             {
                 id: 1,
                 price: 12,
-                quantity: 1
+                label: 'Carmina Necklace'
             },
             {
                 id: 2,
                 price: 13,
-                quantity: 1
+                label: 'Augusta Necklace'
             }
         ];
 
         expect(handleSelectionChange).toHaveBeenCalledTimes(1);
-        expect(handleSelectionChange).toHaveBeenCalledWith(requiredItem.option_id, 1, newCustomization);
+        expect(handleSelectionChange).toHaveBeenCalledWith(option_id, newCustomization);
     });
 });

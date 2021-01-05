@@ -61,7 +61,6 @@ const BundleProductOptions = props => {
                     <div>{renderItemOptions(e)}</div>
                 </section>
             ))}
-
         </>
     );
 };

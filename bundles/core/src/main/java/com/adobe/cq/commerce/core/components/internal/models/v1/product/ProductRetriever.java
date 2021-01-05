@@ -155,13 +155,7 @@ class ProductRetriever extends AbstractProductRetriever {
                     .price()
                     .priceType()
                     .canChangeQuantity()
-                    .label()
-                    .product(p -> p
-                        .priceRange(pr -> pr
-                            .maximumPrice(mp -> mp
-                                .finalPrice(fp -> fp
-                                    .currency()
-                                    .value()))))))
+                    .label()))
             .priceRange(r -> r
                 .maximumPrice(generatePriceQuery()));
     }
@@ -175,25 +169,21 @@ class ProductRetriever extends AbstractProductRetriever {
                 .title()
                 .onCustomizableAreaOption(ao -> ao
                     .value(v -> v
-                        .uid()
                         .maxCharacters()
                         .price()
                         .priceType()))
                 .onCustomizableDateOption(cdo -> cdo
                     .value(v -> v
-                        .uid()
                         .price()
                         .priceType()))
                 .onCustomizableFieldOption(cfo -> cfo
                     .value(v -> v
-                        .uid()
                         .maxCharacters()
                         .price()
                         .priceType()))
                 .onCustomizableDropDownOption(ddo -> ddo
                     .withAlias(MULTI_VALUE_ALIAS)
                     .value(v -> v
-                        .uid()
                         .optionTypeId()
                         .sortOrder()
                         .title()
@@ -202,7 +192,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .onCustomizableMultipleOption(cmo -> cmo
                     .withAlias(MULTI_VALUE_ALIAS)
                     .value(v -> v
-                        .uid()
                         .optionTypeId()
                         .sortOrder()
                         .title()
@@ -211,7 +200,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .onCustomizableRadioOption(ro -> ro
                     .withAlias(MULTI_VALUE_ALIAS)
                     .value(v -> v
-                        .uid()
                         .optionTypeId()
                         .sortOrder()
                         .title()
@@ -220,7 +208,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .onCustomizableCheckboxOption(co -> co
                     .withAlias(MULTI_VALUE_ALIAS)
                     .value(v -> v
-                        .uid()
                         .optionTypeId()
                         .sortOrder()
                         .title()

@@ -16,8 +16,7 @@ import { array, func, number, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const MultiSelect = props => {
-
-    const [t] = useTranslation("common");
+    const [t] = useTranslation('common');
 
     const { option_id, options, customization, currencyCode, handleSelectionChange } = props;
 
@@ -25,8 +24,7 @@ const MultiSelect = props => {
         const values = Array.from(event.target.options)
             .filter(e => e.selected)
             .map(e => e.value);
-        const newCustomization = options
-            .filter(o => values.includes(o.id.toString()))
+        const newCustomization = options.filter(o => values.includes(o.id.toString()));
         handleSelectionChange(option_id, newCustomization);
     };
 
@@ -52,7 +50,7 @@ MultiSelect.propTypes = {
     customization: array.isRequired,
     options: array.isRequired,
     currencyCode: string.isRequired,
-    handleSelectionChange: func.isRequired,
+    handleSelectionChange: func.isRequired
 };
 
 export default MultiSelect;
