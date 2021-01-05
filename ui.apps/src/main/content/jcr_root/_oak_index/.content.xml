@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:oak="http://jackrabbit.apache.org/oak/ns/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured">
+    <commerceExperienceFragment-custom-1
+        jcr:primaryType="oak:QueryIndexDefinition"
+        async="[async,nrt]"
+        compatVersion="{Long}2"
+        evaluatePathRestrictions="{Boolean}true"
+        includedPaths="[/content/experience-fragments]"
+        queryPaths="[/content/experience-fragments]"
+        reindex="{Boolean}false"
+        type="lucene">
+        <indexRules jcr:primaryType="nt:unstructured">
+            <cq:PageContent jcr:primaryType="nt:unstructured">
+                <properties jcr:primaryType="nt:unstructured">
+                    <fragmentLocation
+                        jcr:primaryType="nt:unstructured"
+                        name="fragmentLocation"
+                        propertyIndex="{Boolean}true"/>
+                    <cqProducts
+                        jcr:primaryType="nt:unstructured"
+                        name="cq:products"
+                        propertyIndex="{Boolean}true"/>
+                </properties>
+            </cq:PageContent>
+        </indexRules>
+    </commerceExperienceFragment-custom-1>
+</jcr:root>
