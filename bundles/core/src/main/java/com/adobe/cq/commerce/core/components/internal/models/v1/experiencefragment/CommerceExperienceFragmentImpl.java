@@ -107,17 +107,20 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
             sku = identifier.getRight();
         } else if (SiteNavigation.isProductPage(currentPage)) {
             Product product = request.adaptTo(Product.class);
-            sku = product.getSku();
-        } else {
-            LOGGER.warn("Cannot find sku for current request");
+            if (product.getFound()) {
+                sku = product.getSku();
+            }
+        }
+
+        if (sku == null) {
+            LOGGER.warn("Cannot find sku or product for current request");
             return;
         }
 
         String localizationRoot = getLocalizationRoot(currentPage.getPath());
         String xfRoot = localizationRoot.replace("/content/", "/content/experience-fragments/");
-        LOGGER.info("Localization root: {} {}", localizationRoot, xfRoot);
 
-        String query = String.format(QUERY_TEMPLATE, xfRoot, sku, PN_CQ_PRODUCTS, PN_FRAGMENT_LOCATION);
+        String query = String.format(QUERY_TEMPLATE, xfRoot, sku);
         if (fragmentLocation != null) {
             query += "= '" + fragmentLocation + "'";
         } else {
@@ -181,17 +184,11 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         return name;
     }
 
+    // All the methods below are copied from the WCM ExperienceFragmentImpl class
+    // and will be OSGi-exported in a new public class in a next release
+
     /**
      * Returns the localization root of the resource defined at the given path.
-     *
-     * Use case | Path | Root
-     * ------------------------------------------|--------------------------------------|------------------
-     * 1. No localization | /content/mysite/mypage | null
-     * 2. Language localization | /content/mysite/en/mypage | /content/mysite/en
-     * 3. Country-language localization | /content/mysite/us/en/mypage | /content/mysite/us/en
-     * 4. Country-language localization (variant)| /content/us/mysite/en/mypage | /content/us/mysite/en
-     * 5. Blueprint | /content/mysite/blueprint/mypage | /content/mysite/blueprint
-     * 6. Live Copy | /content/mysite/livecopy/mypage | /content/mysite/livecopy
      *
      * @param path the resource path
      * @return the localization root of the resource at the given path if it exists, {@code null} otherwise
