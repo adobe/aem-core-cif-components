@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -40,12 +41,20 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.Teaser;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = Teaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { Teaser.class, ComponentExporter.class },
+    resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class CommerceTeaserImpl implements CommerceTeaser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
@@ -129,7 +138,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 }
 
                 String title = properties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItem(title, actionUrl));
+                actions.add(new CommerceTeaserActionItem(title, actionUrl, categoryId, productSlug));
             }
         }
     }
@@ -186,7 +195,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
     @Override
     public String getExportedType() {
-        return wcmTeaser.getExportedType();
+        return RESOURCE_TYPE;
     }
 
     @Override

@@ -130,7 +130,7 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("id", commerceTeaser.getId());
         Assert.assertNull(commerceTeaser.getLinkURL());
         Assert.assertNull(commerceTeaser.getData());
-        Assert.assertEquals("core/wcm/components/teaser/v1/teaser", commerceTeaser.getExportedType());
+        Assert.assertEquals("core/cif/components/content/teaser/v1/teaser", commerceTeaser.getExportedType());
     }
 
     @Test
