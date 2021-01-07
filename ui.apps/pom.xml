@@ -66,12 +66,10 @@
             <plugin>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>filevault-package-maven-plugin</artifactId>
-                <version>1.0.4</version>
                 <extensions>true</extensions>
                 <configuration>
                     <group>${vault.package.group}</group>
                     <packageType>application</packageType>
-                    <allowIndexDefinitions>true</allowIndexDefinitions>
                     <properties>
                         <acHandling>overwrite</acHandling>
                         <description>${project.description}</description>
@@ -81,12 +79,16 @@
                     </properties>
                     <dependencies>
                         <dependency>
-                            <groupId>com.adobe.cq</groupId>
-                            <artifactId>core.wcm.components.content</artifactId>
+                            <group>day/cq60/product</group>
+                            <name>cq-ui-wcm-editor-content</name>
+                            <version>(1.0.138,)</version>
+                        </dependency>
+                        <dependency>
+                            <group>adobe/cq60</group>
+                            <name>core.wcm.components.content</name>
+                            <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
-                    <!-- Required because of https://issues.apache.org/jira/browse/JCRVLT-355 -->
-                    <failOnDuplicateEntries>false</failOnDuplicateEntries>
                 </configuration>
             </plugin>
 

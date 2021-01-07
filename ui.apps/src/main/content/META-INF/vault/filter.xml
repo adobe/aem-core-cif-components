@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspaceFilter version="1.0">
-
-    <!--
-        To include an oak index in the content package, we have to downgrade filevault-package-maven-plugin to version 1.0.4
-        so this requires adding the following filters to define the root paths of the content.
-        See https://experienceleague.adobe.com/docs/experience-manager-cloud-service/operations/indexing.html
-    -->
-    <filter root="/apps/core" mode="update"/>
-    <filter root="/apps/core/cif" mode="update" />
-    <filter root="/apps/core/cif/components" mode="update" />
-    <filter root="/oak:index" mode="update"/>
-    
+    <filter root="/apps/core/cif/components"/>
     <filter root="/apps/core/cif/clientlibs" />
-    <filter root="/oak:index/commerceExperienceFragment-custom-1" />
 </workspaceFilter>
