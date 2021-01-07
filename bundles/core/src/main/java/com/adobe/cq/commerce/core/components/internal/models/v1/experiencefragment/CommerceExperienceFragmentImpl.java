@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2020 Adobe. All rights reserved.
+ *    Copyright 2021 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -58,8 +58,7 @@ import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = CommerceExperienceFragment.class,
-    resourceType = CommerceExperienceFragmentImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = CommerceExperienceFragmentImpl.RESOURCE_TYPE)
 public class CommerceExperienceFragmentImpl implements CommerceExperienceFragment {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
@@ -182,6 +181,11 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getExportedType() {
+        return resource.getResourceType();
     }
 
     // All the methods below are copied from the WCM ExperienceFragmentImpl class

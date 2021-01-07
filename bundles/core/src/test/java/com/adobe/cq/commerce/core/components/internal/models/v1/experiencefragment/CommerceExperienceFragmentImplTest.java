@@ -110,6 +110,7 @@ public class CommerceExperienceFragmentImplTest {
         Resource xf = cxf.getExperienceFragmentResource();
         Assert.assertEquals("/content/experience-fragments/mysite/page/xf-1/master/jcr:content", xf.getPath());
         Assert.assertEquals("xf-1", cxf.getName());
+        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
         Assert.assertEquals(QUERY_1, queryHandler.getQuery().getStatement());
     }
 
@@ -129,6 +130,7 @@ public class CommerceExperienceFragmentImplTest {
         Resource xf = cxf.getExperienceFragmentResource();
         Assert.assertEquals("/content/experience-fragments/mysite/page/xf-2/master/jcr:content", xf.getPath());
         Assert.assertEquals("xf-2", cxf.getName());
+        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
         Assert.assertEquals(QUERY_2, queryHandler.getQuery().getStatement());
     }
 
