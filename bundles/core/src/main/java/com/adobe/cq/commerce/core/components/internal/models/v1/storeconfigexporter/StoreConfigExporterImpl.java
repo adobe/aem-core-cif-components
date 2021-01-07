@@ -17,10 +17,12 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexpo
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.settings.SlingSettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,7 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
+import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -43,6 +46,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
+    private static final String USE_PUBLISH_GRAPHQL_ENDPOINT_PROPERTY = "usePublishGraphqlEndpoint";
 
     @Self
     private SlingHttpServletRequest request;
@@ -53,10 +57,17 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Inject
     private Resource resource;
 
+    @Inject
+    protected Externalizer externalizer;
+
+    @Inject
+    private SlingSettingsService slingSettings;
+
     private String storeView;
     private String graphqlEndpoint = "/magento/graphql";
     private HttpMethod method = HttpMethod.POST;
     private Page storeRootPage;
+    private boolean usePublishGraphqlEndpoint = false;
 
     @PostConstruct
     void initModel() {
@@ -71,6 +82,10 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
         storeView = properties.get(STORE_CODE_PROPERTY, "default");
         graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, "/magento/graphql");
+
+        // use the AEM publish server endpoint absolut URL only on author, if configured and if endpoint is not already an absolut URL
+        usePublishGraphqlEndpoint = properties.get(USE_PUBLISH_GRAPHQL_ENDPOINT_PROPERTY, false) && slingSettings.getRunModes().contains(
+            "author") && !StringUtils.startsWith(graphqlEndpoint, "http");
 
         // Get configuration from GraphQL client
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
@@ -87,6 +102,10 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @Override
     public String getGraphqlEndpoint() {
+        if (usePublishGraphqlEndpoint) {
+            return externalizer.publishLink(resource.getResourceResolver(), graphqlEndpoint);
+        }
+
         return graphqlEndpoint;
     }
 
