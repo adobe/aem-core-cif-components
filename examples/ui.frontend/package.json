@@ -10,13 +10,13 @@
   "main": "src/main/site/index.js",
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
-    "dev": "webpack -d --env dev --config ./webpack.dev.js && build-storybook && clientlib --verbose",
-    "prod": "webpack -p --config ./webpack.prod.js && build-storybook && clientlib --verbose",
+    "dev": "webpack -d --env dev --config ./webpack.dev.js && build-storybook --quiet && clientlib --verbose",
+    "prod": "webpack -p --config ./webpack.prod.js && build-storybook --quiet && clientlib --verbose",
     "start": "webpack-dev-server --open --config ./webpack.dev.js",
     "sync": "aemsync -d -p ../ui.apps/src/main/content",
     "watch": "webpack-dev-server --config ./webpack.dev.js --env.writeToDisk & watch 'clientlib' ./dist & aemsync -w ../ui.apps/src/main/content",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
+    "build-storybook": "build-storybook --quiet",
     "prettier:check": "prettier --check '{src,.storybook}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,.storybook}/**/*.{js,css}' --config ./.prettierrc"
   },
@@ -67,7 +67,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@adobe/aem-core-cif-react-components": "^1.5.0",
+    "@adobe/aem-core-cif-react-components": "^1.6.0",
     "@apollo/client": "^3.2.4",
     "graphql": "^14.6.0",
     "i18next": "^19.5.3",
