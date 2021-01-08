@@ -16,9 +16,9 @@ limitations under the License.
 
 # Commerce Experience Fragment (v1)
 
-The Commerce Experience Fragement component is a server-side component written in HTL, allowing to dynymically display an experience fragment based on:
-* the product or category identifier defined in the page URL
-* the product or category identifier defined in each experience fragment
+The Commerce Experience Fragment component is a server-side component written in HTL, allowing to dynamically display an experience fragment based on:
+* the SKU of the product currently being displayed on the product page
+* the product SKU defined in each experience fragment
 * the target location defined in each experience fragment
  
 
