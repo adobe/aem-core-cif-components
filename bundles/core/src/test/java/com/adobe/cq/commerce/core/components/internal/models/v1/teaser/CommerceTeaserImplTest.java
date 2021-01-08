@@ -30,6 +30,7 @@ import org.junit.Test;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
@@ -122,15 +123,16 @@ public class CommerceTeaserImplTest {
     @Test
     public void verifyProperties() {
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
-        Assert.assertNotNull(commerceTeaser);
+        Assert.assertNotNull("The CommerceTeaser object is not null", commerceTeaser);
 
-        Assert.assertEquals("Pretitle", commerceTeaser.getPretitle());
-        Assert.assertEquals("Title", commerceTeaser.getTitle());
-        Assert.assertEquals("Description", commerceTeaser.getDescription());
-        Assert.assertEquals("id", commerceTeaser.getId());
-        Assert.assertNull(commerceTeaser.getLinkURL());
+        Assert.assertEquals("The pre-title is correct", "Pretitle", commerceTeaser.getPretitle());
+        Assert.assertEquals("The title is correct", "Title", commerceTeaser.getTitle());
+        Assert.assertEquals("The description is correct", "Description", commerceTeaser.getDescription());
+        Assert.assertEquals("The id is correct", "id", commerceTeaser.getId());
+        Assert.assertNull("The link URL is null", commerceTeaser.getLinkURL());
         Assert.assertNull(commerceTeaser.getData());
-        Assert.assertEquals("core/cif/components/content/teaser/v1/teaser", commerceTeaser.getExportedType());
+        Assert.assertEquals("The exported resource type is correct", "core/cif/components/content/teaser/v1/teaser",
+            commerceTeaser.getExportedType());
     }
 
     @Test
@@ -144,14 +146,20 @@ public class CommerceTeaserImplTest {
         // Product slug is configured and there is a dedicated specific subpage for that product
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
+        Assert.assertEquals("The action points to the right product slug", "beaumont-summit-kit", ((CommerceTeaserActionItem) actionItems
+            .get(0)).getProductSlug());
 
         // Category id is configured
         Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
+        Assert.assertEquals("The action points to the right category id", "5",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getCategoryId());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment/running", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
+        Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
+            .getCategoryId());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());

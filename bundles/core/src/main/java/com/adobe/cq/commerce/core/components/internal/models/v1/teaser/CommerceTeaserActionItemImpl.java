@@ -17,21 +17,21 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 
-public class CommerceTeaserActionItem implements ListItem {
+public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
 
     private String title;
     private String url;
     private String categoryId;
     private String productSlug;
 
-    public CommerceTeaserActionItem(String title, String url) {
+    public CommerceTeaserActionItemImpl(String title, String url) {
         this.title = title;
         this.url = url;
     }
 
-    public CommerceTeaserActionItem(String title, String url, String categoryId, String productSlug) {
+    public CommerceTeaserActionItemImpl(String title, String url, String categoryId, String productSlug) {
         this(title, url);
         this.categoryId = categoryId;
         this.productSlug = productSlug;

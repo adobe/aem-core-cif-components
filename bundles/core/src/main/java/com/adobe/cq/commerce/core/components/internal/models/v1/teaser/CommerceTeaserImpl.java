@@ -138,7 +138,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 }
 
                 String title = properties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItem(title, actionUrl, categoryId, productSlug));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, categoryId, productSlug));
             }
         }
     }
