@@ -68,17 +68,17 @@ const Overview = props => {
                     'xdm:currencyCode': currency
                 }
             ],
-            'xdm:products': items.map(item => {
+            'xdm:products': await Promise.all(items.map(async (item) => {
                 const {
                     product: { sku },
                     quantity
                 } = item;
                 return {
-                    '@id': `product-${sku}`,
+                    '@id': await dataLayerUtils.generateDataLayerId("product", sku),
                     'xdm:SKU': sku,
                     'xdm:quantity': quantity
                 };
-            })
+            }))
         });
     };
 
