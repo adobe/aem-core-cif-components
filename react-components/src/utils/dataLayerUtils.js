@@ -14,13 +14,13 @@
 const dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
 const dataLayer = dataLayerEnabled ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
 
-export const generateDataLayerId = async (prefix, idData, separator = "-") => {
-    const msgUint8 = new TextEncoder().encode(idData);                            // encode as (utf-8) Uint8Array
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
-    const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+export const generateDataLayerId = async (prefix, idData, separator = '-') => {
+    const msgUint8 = new TextEncoder().encode(idData); // encode as (utf-8) Uint8Array
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
     return prefix + separator + hashHex.substring(0, 10);
-}
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
 export const pushData = data => {
