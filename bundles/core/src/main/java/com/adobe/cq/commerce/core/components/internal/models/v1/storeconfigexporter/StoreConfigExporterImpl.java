@@ -85,7 +85,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
         // use the AEM publish server endpoint absolut URL only on author, if configured and if endpoint is not already an absolut URL
         usePublishGraphqlEndpoint = properties.get(USE_PUBLISH_GRAPHQL_ENDPOINT_PROPERTY, false) && slingSettings.getRunModes().contains(
-            "author") && !StringUtils.startsWith(graphqlEndpoint, "http");
+            "author") && !StringUtils.startsWith(graphqlEndpoint, "http") && !StringUtils.startsWith(graphqlEndpoint, "//");
 
         // Get configuration from GraphQL client
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);

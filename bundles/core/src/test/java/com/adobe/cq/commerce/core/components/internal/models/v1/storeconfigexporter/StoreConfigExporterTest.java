@@ -52,9 +52,13 @@ public class StoreConfigExporterTest {
     private static final ValueMap MOCK_CONFIGURATION_3 = new ValueMapDecorator(
         ImmutableMap.of("magentoGraphqlEndpoint", "https://www.magento.com/my/magento/graphql", "magentoStore", "my-magento-store",
             "cq:graphqlClient", "my-graphql-client", "usePublishGraphqlEndpoint", true));
+    private static final ValueMap MOCK_CONFIGURATION_4 = new ValueMapDecorator(
+        ImmutableMap.of("magentoGraphqlEndpoint", "//localhost:3002/graphql", "magentoStore", "my-magento-store",
+            "cq:graphqlClient", "my-graphql-client", "usePublishGraphqlEndpoint", true));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT_1 = new ComponentsConfiguration(MOCK_CONFIGURATION_1);
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT_2 = new ComponentsConfiguration(MOCK_CONFIGURATION_2);
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT_3 = new ComponentsConfiguration(MOCK_CONFIGURATION_3);
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT_4 = new ComponentsConfiguration(MOCK_CONFIGURATION_4);
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -71,6 +75,8 @@ public class StoreConfigExporterTest {
                             return MOCK_CONFIGURATION_OBJECT_2;
                         } else if (input.getPath().contains("pageJ")) {
                             return MOCK_CONFIGURATION_OBJECT_3;
+                        } else if (input.getPath().contains("pageK")) {
+                            return MOCK_CONFIGURATION_OBJECT_4;
                         } else {
                             return ComponentsConfiguration.EMPTY;
                         }
@@ -142,12 +148,21 @@ public class StoreConfigExporterTest {
     }
 
     @Test
-    public void testAbsolutGraphqlEndpointUsePublishOnAuthor() {
+    public void testAbsolutGraphqlEndpointUsePublishOnAuthor1() {
         context.runMode("publish");
         setupWithPage("/content/pageJ", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
         Assert.assertEquals("https://www.magento.com/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+    }
+
+    @Test
+    public void testAbsolutGraphqlEndpointUsePublishOnAuthor2() {
+        context.runMode("publish");
+        setupWithPage("/content/pageK", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+
+        Assert.assertEquals("//localhost:3002/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test

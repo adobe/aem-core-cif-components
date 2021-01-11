@@ -225,6 +225,13 @@
       "cq:conf": "/conf/testing"
     }
   },
+  "pageK": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:conf": "/conf/testing"
+    }
+  },
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
