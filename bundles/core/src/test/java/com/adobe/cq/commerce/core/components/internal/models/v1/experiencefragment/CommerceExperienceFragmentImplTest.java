@@ -60,7 +60,7 @@ public class CommerceExperienceFragmentImplTest {
 
     private static final String QUERY_3 = "SELECT * FROM [cq:PageContent] as node" +
         " WHERE ISDESCENDANTNODE('/content/experience-fragments/')" +
-        " AND node.[cq:products] = 'sku-xf1' AND node.[fragmentLocation] IS NULL";
+        " AND (node.[cq:products] = 'sku-xf1' OR node.[cq:products] LIKE 'sku-xf1#%') AND node.[fragmentLocation] IS NULL";
 
     private LanguageManager languageManager;
 
