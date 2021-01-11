@@ -33,6 +33,13 @@ public interface FeaturedCategoryList extends Component {
     List<CategoryTree> getCategories();
 
     /**
+     * Returns a list of category ids configured for this component
+     * 
+     * @return a {@code List} of ids or an empty list if no categories are configured
+     */
+    List<String> getCategoryIds();
+
+    /**
      * Returns in instance of the category retriever for fetching category data via GraphQL.
      *
      * @return category retriever instance
