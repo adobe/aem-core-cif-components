@@ -52,11 +52,11 @@ public class CommerceExperienceFragmentImplTest {
 
     private static final String QUERY_1 = "SELECT * FROM [cq:PageContent] as node" +
         " WHERE ISDESCENDANTNODE('/content/experience-fragments/mysite/page')" +
-        " AND node.[cq:products] = 'sku-xf1' AND node.[fragmentLocation] IS NULL";
+        " AND (node.[cq:products] = 'sku-xf1' OR node.[cq:products] LIKE 'sku-xf1#%') AND node.[fragmentLocation] IS NULL";
 
     private static final String QUERY_2 = "SELECT * FROM [cq:PageContent] as node" +
         " WHERE ISDESCENDANTNODE('/content/experience-fragments/mysite/page')" +
-        " AND node.[cq:products] = 'sku-xf2' AND node.[fragmentLocation] = 'location-xf2'";
+        " AND (node.[cq:products] = 'sku-xf2' OR node.[cq:products] LIKE 'sku-xf2#%') AND node.[fragmentLocation] = 'location-xf2'";
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(

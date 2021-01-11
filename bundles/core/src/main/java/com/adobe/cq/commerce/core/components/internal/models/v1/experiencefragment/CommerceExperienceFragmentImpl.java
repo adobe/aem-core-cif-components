@@ -66,7 +66,8 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
     // This query is backed up by an index
     private static final String QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-        + "AND node.[" + PN_CQ_PRODUCTS + "] = '%s' AND node.[" + PN_FRAGMENT_LOCATION + "] ";
+        + "AND (node.[" + PN_CQ_PRODUCTS + "] = '%s' OR node.[" + PN_CQ_PRODUCTS + "] LIKE '%s#%%') "
+        + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
 
     @Self
     private SlingHttpServletRequest request;
@@ -119,7 +120,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         String localizationRoot = getLocalizationRoot(currentPage.getPath());
         String xfRoot = localizationRoot.replace("/content/", "/content/experience-fragments/");
 
-        String query = String.format(QUERY_TEMPLATE, xfRoot, sku);
+        String query = String.format(QUERY_TEMPLATE, xfRoot, sku, sku);
         if (fragmentLocation != null) {
             query += "= '" + fragmentLocation + "'";
         } else {
