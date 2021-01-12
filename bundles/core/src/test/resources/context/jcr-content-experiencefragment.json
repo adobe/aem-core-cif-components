@@ -1,0 +1,82 @@
+{
+    "mysite": {
+        "jcr:primaryType": "sling:Folder", 
+        "jcr:content": {
+            "jcr:primaryType": "cq:PageContent", 
+            "jcr:title": "My Site", 
+            "cq:cifProductPage": "/content/mysite/page"
+        },
+        "page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Product page",
+                "root": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "xf-component-1": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "core/cif/components/commerce/experiencefragment/v1/experiencefragment"
+                    },
+                    "xf-component-2": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "core/cif/components/commerce/experiencefragment/v1/experiencefragment",
+                        "fragmentLocation": "location-xf2"
+                    },
+                    "xf-component-3": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "core/cif/components/commerce/experiencefragment/v1/experiencefragment"
+                    }
+                }
+            }
+        },
+        "another-page": {
+            "jcr:primaryType": "cq:Page"
+        }
+    },
+    "experience-fragments": {
+        "jcr:primaryType": "sling:Folder",
+        "mysite": {
+            "jcr:primaryType": "sling:Folder",
+            "page": {
+                "jcr:primaryType": "sling:folder",
+                "xf-1" :{
+                    "jcr:primaryType": "cq:Page",
+                    "jcr:content": {
+                        "jcr:primaryType": "cq:PageContent",
+                        "jcr:title": "Test XF",
+                        "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
+                    },
+                    "master": {
+                        "jcr:primaryType": "cq:Page",
+                        "jcr:content": {
+                            "jcr:primaryType": "cq:PageContent",
+                            "jcr:title": "Text XF Master",
+                            "cq:xfVariantType": "web",
+                            "cq:xfMasterVariation": "true",
+                            "cq:products": "sku-xf1"
+                        }
+                    }
+                },
+                "xf-2" :{
+                    "jcr:primaryType": "cq:Page",
+                    "jcr:content": {
+                        "jcr:primaryType": "cq:PageContent",
+                        "jcr:title": "Test XF",
+                        "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
+                    },
+                    "master": {
+                        "jcr:primaryType": "cq:Page",
+                        "jcr:content": {
+                            "jcr:primaryType": "cq:PageContent",
+                            "jcr:title": "Text XF Master",
+                            "cq:xfVariantType": "web",
+                            "cq:xfMasterVariation": "true",
+                            "cq:products": "sku-xf2",
+                            "fragmentLocation": "location-xf2"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
