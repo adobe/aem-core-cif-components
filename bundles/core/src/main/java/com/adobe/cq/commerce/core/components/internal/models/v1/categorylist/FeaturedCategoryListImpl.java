@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryListDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.models.categorylist.CategoryListItem;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -166,18 +167,19 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     }
 
     @Override
-    public List<String> getCategoryIds() {
+    public List<CategoryListItem> getCategoryItems() {
         if (!isConfigured()) {
             return Collections.emptyList();
         }
 
-        List<String> categories = new ArrayList<>();
+        List<CategoryListItem> categories = new ArrayList<>();
 
         resource.getChild(ITEMS_PROP).getChildren().forEach(resource -> {
             ValueMap props = resource.adaptTo(ValueMap.class);
             String categoryId = props.get(CATEGORY_ID_PROP, String.class);
+            String assetPath = props.get(ASSET_PROP, String.class);
             if (StringUtils.isNotEmpty(categoryId)) {
-                categories.add(categoryId);
+                categories.add(new FeaturedCategoryListItem(categoryId, assetPath));
             }
         });
 
