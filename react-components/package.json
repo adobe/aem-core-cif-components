@@ -31,6 +31,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
+    "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/react": "^9.5.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
@@ -53,7 +54,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.2.4",
-    "@peculiar/webcrypto": "^1.1.4",
     "braintree-web-drop-in": "^1.22.1",
     "graphql": "^14.6.0",
     "i18next": "^19.3.2",
