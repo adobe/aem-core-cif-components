@@ -8,4 +8,5 @@
     <filter root="/content/core-components-examples/library/commerce"/>
     <filter root="/content/dam/core-components-examples/library/cif-sample-assets/"/>
     <filter root="/content/dam/core-components-examples/library/cif-components"/>
+    <filter root="/content/experience-fragments/core-components-examples/library/commerce"/>
 </workspaceFilter>
