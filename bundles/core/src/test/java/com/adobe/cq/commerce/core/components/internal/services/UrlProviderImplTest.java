@@ -182,12 +182,12 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         Map<String, String> params = new ParamsBuilder()
-            .urlKey("productId1")
+            .urlKey("productId2")
             .variantSku("variantSku")
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page.productId1.html#variantSku", url);
+        Assert.assertEquals("/content/product-page/sub-page-2.productId2.html#variantSku", url);
     }
 
     @Test
