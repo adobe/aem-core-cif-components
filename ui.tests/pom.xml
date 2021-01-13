@@ -31,6 +31,7 @@
     <artifactId>core-cif-components-ui-tests</artifactId>
     <name>AEM CIF Core Components - UI Tests</name>
     <description>UI Tests for AEM CIF Core Components</description>
+    <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,11 +61,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.3.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.2.0</version>
                 </plugin>
@@ -78,25 +74,6 @@
                     <execution>
                         <id>default-jar</id>
                         <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>${project.basedir}/assembly-ui-test-docker-context.xml</descriptor>
-                    </descriptors>
-                    <tarLongFileMode>gnu</tarLongFileMode>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -164,121 +141,6 @@
                                 <HEADLESS_BROWSER>${HEADLESS_BROWSER}</HEADLESS_BROWSER>
                             </environmentVariables>
                         </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>ui-tests-docker-build</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                            <id>docker-build</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>exec</goal>
-                            </goals>
-                            <configuration> 
-                                <executable>docker</executable>
-                                <workingDirectory>${project.basedir}</workingDirectory>
-                                <arguments>
-                                    <argument>build</argument>
-                                    <argument>-t</argument>
-                                    <argument>${project.groupId}-${project.artifactId}/ui.tests:${project.version}</argument>
-                                    <argument>.</argument>
-                                </arguments>
-                            </configuration>
-                            </execution>
-                            <execution>
-                            <id>docker-tag</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>exec</goal>
-                            </goals>
-                            <configuration> 
-                                <executable>docker</executable>
-                                <workingDirectory>${project.basedir}</workingDirectory>
-                                <arguments>
-                                    <argument>tag</argument>
-                                    <argument>${project.groupId}-${project.artifactId}/ui.tests:${project.version}</argument>
-                                    <argument>${project.groupId}-${project.artifactId}/ui.tests:latest</argument>
-                                </arguments>
-                            </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>ui-tests-docker-execution</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>docker-compose-up</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>docker-compose</executable>
-                                    <workingDirectory>${project.basedir}</workingDirectory>
-                                    <environmentVariables>
-                                        <AEM_AUTHOR_URL>${AEM_AUTHOR_URL}</AEM_AUTHOR_URL>
-                                        <AEM_AUTHOR_USERNAME>${AEM_AUTHOR_USERNAME}</AEM_AUTHOR_USERNAME>
-                                        <AEM_AUTHOR_PASSWORD>${AEM_AUTHOR_PASSWORD}</AEM_AUTHOR_PASSWORD>
-                                        <AEM_PUBLISH_URL>${AEM_PUBLISH_URL}</AEM_PUBLISH_URL>
-                                        <AEM_PUBLISH_USERNAME>${AEM_PUBLISH_USERNAME}</AEM_PUBLISH_USERNAME>
-                                        <AEM_PUBLISH_PASSWORD>${AEM_PUBLISH_PASSWORD}</AEM_PUBLISH_PASSWORD>
-                                        <SELENIUM_BROWSER>${SELENIUM_BROWSER}</SELENIUM_BROWSER>
-                                        <HEADLESS_BROWSER>${HEADLESS_BROWSER}</HEADLESS_BROWSER>
-                                    </environmentVariables>
-                                    <arguments>
-                                        <argument>-f</argument>
-                                        <argument>${project.basedir}/docker-compose-wdio-${SELENIUM_BROWSER}.yaml</argument>
-                                        <argument>up</argument>
-                                        <argument>--quiet-pull</argument>
-                                        <argument>--abort-on-container-exit</argument>
-                                        <argument>--remove-orphans</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>docker-compose-down</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>docker-compose</executable>
-                                    <workingDirectory>${project.basedir}</workingDirectory>
-                                    <arguments>
-                                        <argument>-f</argument>
-                                        <argument>${project.basedir}/docker-compose-wdio-${SELENIUM_BROWSER}.yaml</argument>
-                                        <argument>down</argument>
-                                        <argument>--remove-orphans</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

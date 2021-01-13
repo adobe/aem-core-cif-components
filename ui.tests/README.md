@@ -1,19 +1,13 @@
 
-UI Testing module for your AEM application
-===
+# UI tests
 
+This folder contains UI tests that test some client-side (= clientlib) features of the CIF components. The tests are based on the sample content of the [CIF components library](../../examples). To execute the tests with a local AEM instance, simply setup and install the CIF components library. Make sure you also install the GraphQL client version >= `1.6.1` so you no longer have to setup HTTPS.
 
-## Structure
+To execute the tests, simply run
 
-* `test-module/` The test project (add your tests there)
-
-**Do not modify following files**
-* `pom.xml` Builds and executes the test Docker image
-* `Dockerfile` Builds test Docker image compatible with AEMaaCS
-* `wait-for-grid.sh` Bash script helper to check Selenium readiness in the Docker image
-* `docker-compose-wdio-*.yaml` Docker compose files to demo the Docker image with Selenium Docker images
-* `assembly-ui-test-docker-context.xml` Packages test project for AEMaaCS
-
+```
+mvn verify -Pui-tests-local-execution
+```
 
 ## Requirements
 
@@ -21,12 +15,6 @@ UI Testing module for your AEM application
 * Chrome and/or Firefox browser installed locally in default location
 * An AEM author instance running at http://localhost:4502
 
-
-## Run Tests
-
-```
-mvn verify -Pui-tests-local-execution
-```
 
 #### Remarks
 * After execution, reports and logs are available in `test-module/reports` folder
@@ -70,48 +58,3 @@ mvn test \
     <span style="color:blue">-DAEM_AUTHOR_PASSWORD=aVVe5om3</span>
 </PRE>
 
-
-## Docker execution
-
-This project also provides Maven profiles to build and execute the tests using Docker
-
-### Requirements
-
-* Maven
-* Docker
-* An AEM author instance
-
-### Build test image
-
-```
-mvn clean install -Pui-tests-docker-build
-```
-
-will build Docker image `com.venia-venia.ui.tests/ui.tests` locally
-
-### Run Tests
-
-**Remarks**
-* Following commands will start a Docker service with both the cloud tests and a Selenium server (using official Docker images)
-* Parameters described above also apply for Docker use case
-
-#### Target a local AEM author instance
-
-Example, your instance is available at http://localhost:4502):
-
-```
-mvn verify -Pui-tests-docker-execution -DAEM_AUTHOR_URL=http://host.docker.internal:4502
-```
-
-> `host.docker.internal` is a Docker convention, do not change it!
-
-#### Target a remote AEM author instance
-
-Example, you have an [AEM as a Cloud Service](https://docs.adobe.com/content/help/en/experience-manager-cloud-service/overview/introduction.html) deployment with author instance available at https://author.my-deployment.com:
-
-
-```
-mvn verify -Pui-tests-docker-execution -DAEM_AUTHOR_URL=https://author.my-deployment.com
-```
-
-> **&#x26A0; Default tests provided in this module require sample content (module `ui.content`) to be installed in your AEMaaCS deployment!**
