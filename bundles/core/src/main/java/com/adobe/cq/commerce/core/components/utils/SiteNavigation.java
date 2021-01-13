@@ -283,4 +283,46 @@ public class SiteNavigation {
         }
         return page;
     }
+
+    /**
+     * Returns true if the <code>currentPage</code> is the product page referenced by the <code>cq:cifProductPage</code>
+     * property in the page hierarchy. This method does support that the current page and/or the product page is
+     * located inside a Launch.
+     * 
+     * @param currentPage The page to be checked.
+     * @return true if the current page is the product page.
+     */
+    public static boolean isProductPage(Page currentPage) {
+        Page productPage = getProductPage(currentPage);
+        if (productPage == null) {
+            return false;
+        }
+
+        // The product page might be in a Launch so we first extract the paths of the production versions
+        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
+        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+
+        return currentPagePath.equals(productPagePath) || currentPagePath.startsWith(productPagePath + "/");
+    }
+
+    /**
+     * Returns true if the <code>currentPage</code> is the category page referenced by the <code>cq:cifCategoryPage</code>
+     * property in the page hierarchy. This method does support that the current page and/or the category page is
+     * located inside a Launch.
+     * 
+     * @param currentPage The page to be checked.
+     * @return true if the current page is the category page.
+     */
+    public static boolean isCategoryPage(Page currentPage) {
+        Page categoryPage = getCategoryPage(currentPage);
+        if (categoryPage == null) {
+            return false;
+        }
+
+        // The category page might be in a Launch so we first extract the paths of the production versions
+        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+
+        return currentPagePath.equals(categoryPagePath) || currentPagePath.startsWith(categoryPagePath + "/");
+    }
 }
