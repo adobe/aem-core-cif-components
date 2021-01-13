@@ -22,6 +22,7 @@ ci.stage('Project Configuration');
 const config = ci.restoreConfiguration();
 console.log(config);
 const qpPath = '/home/circleci/cq';
+const { TYPE, BROWSER, AEM } = process.env;
 
 try {
     ci.stage("Integration Tests");
@@ -34,10 +35,10 @@ try {
 
         // We install the graphql-client by default except with the CIF Add-On
         let extras = `--bundle com.adobe.commerce.cif:graphql-client:${graphqlClientVersion}:jar`;
-        if (process.env.AEM == 'classic') {
+        if (AEM == 'classic') {
         	// The core components are already installed in the Cloud SDK
         	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
-        } else if (process.env.AEM == 'addon') {
+        } else if (AEM == 'addon') {
         	// Download the CIF Add-On
         	ci.sh(`curl -s "${process.env.CIF_ADDON_URL}" -o cif-addon.far`);
         	extras = '--install-file cif-addon.far';
