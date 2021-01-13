@@ -119,7 +119,7 @@ class AddToCart {
                         eventInfo: {
                             '@id': selection.dataset.productId,
                             'xdm:SKU': selection.dataset.productSku,
-                            'xdm:quantity': selection.value
+                            'xdm:quantity': parseInt(selection.value)
                         }
                     });
                 });
