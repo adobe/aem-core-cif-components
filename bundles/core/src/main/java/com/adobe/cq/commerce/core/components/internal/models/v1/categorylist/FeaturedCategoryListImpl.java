@@ -192,6 +192,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     }
 
     @Override
+    @JsonIgnore
     public AbstractCategoriesRetriever getCategoriesRetriever() {
         return this.categoriesRetriever;
     }
