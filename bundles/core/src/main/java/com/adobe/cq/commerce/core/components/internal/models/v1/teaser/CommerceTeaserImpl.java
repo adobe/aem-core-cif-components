@@ -47,6 +47,7 @@ import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.Teaser;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -159,6 +160,17 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     }
 
     @Override
+    public String getAssetPath() {
+        Resource imageResource = getImageResource();
+        if (imageResource == null) {
+            return null;
+        }
+        ValueMap props = imageResource.adaptTo(ValueMap.class);
+        return props.get("fileReference", String.class);
+    }
+
+    @Override
+    @JsonIgnore
     public Resource getImageResource() {
         return wcmTeaser.getImageResource();
     }

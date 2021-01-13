@@ -84,6 +84,7 @@ public class CommerceTeaserImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
+    private static final String EXPORTED_TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser-exported";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
@@ -177,5 +178,11 @@ public class CommerceTeaserImplTest {
 
         List<ListItem> actionItems = commerceTeaser.getActions();
         Assert.assertTrue(actionItems.isEmpty());
+    }
+
+    @Test
+    public void verifyJsonExport() {
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+        Utils.testJSONExport(commerceTeaser, "/exporter/commerce-teaser.json");
     }
 }
