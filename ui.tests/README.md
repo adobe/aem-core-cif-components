@@ -1,7 +1,7 @@
 
 # UI tests
 
-This folder contains UI tests that test some client-side (= clientlib) features of the CIF components. The tests are based on the sample content of the [CIF components library](../../examples). To execute the tests with a local AEM instance, simply setup and install the CIF components library. Make sure you also install the GraphQL client version >= `1.6.1` so you no longer have to setup HTTPS.
+This folder contains UI tests that test some client-side (= clientlib) features of the CIF components. The tests are based on the sample content of the [CIF components library](../examples). To execute the tests with a local AEM instance, simply setup and install the CIF components library. Make sure you also install the GraphQL client version >= `1.6.1` so you no longer have to setup HTTPS.
 
 To execute the tests, simply run
 
