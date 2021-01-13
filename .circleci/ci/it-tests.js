@@ -61,16 +61,35 @@ try {
     });
 
     // Run integration tests
-    ci.sh(`mvn clean verify -U -B \
-        -Ptest-all \
-        -Dsling.it.instance.url.1=http://localhost:4502 \
-        -Dsling.it.instance.runmode.1=author \
-        -Dsling.it.instances=1`);
+    if (TYPE === 'integration') {
+        ci.sh(`mvn clean verify -U -B \
+            -Ptest-all \
+            -Dsling.it.instance.url.1=http://localhost:4502 \
+            -Dsling.it.instance.runmode.1=author \
+            -Dsling.it.instances=1`);
+    }
+    
+    // Run UI tests
+    if (TYPE === 'selenium') {
+        // Get version of ChromeDriver
+        let chromedriver = ci.sh('chromedriver --version', true); // Returns something like ChromeDriver 80.0.3987.16 (320f6526c1632ad4f205ebce69b99a062ed78647-refs/branch-heads/3987@{#185})
+        chromedriver = chromedriver.split(' ');
+        chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
+
+        ci.dir('ui.tests', () => {
+            ci.sh(`CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
+        });
+    }
     
     ci.dir(qpPath, () => {
         // Stop CQ
         ci.sh('./qp.sh -v stop --id author');
     });
+    
+    // No coverage for UI tests
+    if (TYPE === 'selenium') {
+        return;
+    }
     
     // Create coverage reports
     const createCoverageReport = () => {
