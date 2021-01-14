@@ -50,12 +50,12 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
     }
 
     @Nullable
-    public String getCategoryId() {
+    public String getCategoryIdentifier() {
         return categoryId;
     }
 
     @Nullable
-    public String getProductSlug() {
+    public String getProductIdentifier() {
         return productSlug;
     }
 }

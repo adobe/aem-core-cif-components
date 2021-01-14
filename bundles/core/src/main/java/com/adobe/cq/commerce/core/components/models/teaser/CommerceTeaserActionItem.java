@@ -18,13 +18,13 @@ public interface CommerceTeaserActionItem extends ListItem {
      * 
      * @return a String representing the category or <code>null</code> if no category id is configured
      */
-    String getCategoryId();
+    String getCategoryIdentifier();
 
     /**
      * Returns the product slung associated with this teaser action.
      * 
      * @return a String representing the product slug or <code>null</code> if no product slug is configured
      */
-    String getProductSlug();
+    String getProductIdentifier();
 
 }
