@@ -35,7 +35,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -63,6 +62,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
+    private static final String XF_ROOT = "/content/experience-fragments/";
 
     // This query is backed up by an index
     private static final String QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
@@ -75,7 +75,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @ValueMapValue(name = PN_FRAGMENT_LOCATION, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String fragmentLocation;
 
-    @ScriptVariable
+    @Inject
     private Page currentPage;
 
     @Inject
@@ -118,7 +118,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         }
 
         String localizationRoot = getLocalizationRoot(currentPage.getPath());
-        String xfRoot = localizationRoot.replace("/content/", "/content/experience-fragments/");
+        String xfRoot = localizationRoot != null ? localizationRoot.replace("/content/", XF_ROOT) : XF_ROOT;
 
         String query = String.format(QUERY_TEMPLATE, xfRoot, sku, sku);
         if (fragmentLocation != null) {

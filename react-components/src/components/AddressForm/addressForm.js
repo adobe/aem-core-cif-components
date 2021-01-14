@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React, { useCallback, useMemo, useState } from 'react';
-import { Form, useFieldState, useFormState } from 'informed';
+import { Form, useFieldState } from 'informed';
 import { array, bool, func, object, shape, string, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
@@ -67,7 +67,6 @@ const AddressForm = props => {
 
     const handleSubmit = useCallback(
         values => {
-            console.log(`Submitting form values `, values);
             if (!values['region_code'] || values['region_code'].length === 0) {
                 // add an empty `region_code` value since
                 // the form doesn't provide one if you leave the field empty
@@ -83,9 +82,6 @@ const AddressForm = props => {
     const Regions = () => {
         const { value: countryCode } = useFieldState('country_code');
         const country = countries.find(({ id }) => countryCode === id);
-
-        const { values: formValues } = useFormState();
-        console.log(`Rendering the regions. Form values are `, formValues);
 
         if (!country || !country.available_regions) {
             return <TextInput id={classes.region_code} field="region_code" />;
