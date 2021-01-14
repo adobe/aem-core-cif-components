@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -115,8 +117,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
                 String link = properties.get(Teaser.PN_ACTION_LINK, String.class);
+                String title = properties.get(PN_ACTION_TEXT, String.class);
 
                 String actionUrl;
+                CommerceIdentifier id = null;
+
                 if (categoryId != null) {
                     ParamsBuilder params = new ParamsBuilder().id(categoryId);
                     if (categoriesRetriever != null) {
@@ -129,17 +134,18 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID, CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
+                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.SLUG, CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
                 } else {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                String title = properties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, categoryId, productSlug));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
             }
         }
     }
