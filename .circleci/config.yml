@@ -95,10 +95,10 @@ jobs:
           root: /home/circleci/build
           paths:
             - configuration.json
-            - bundles/core/target/*.jar
+            - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
-            - examples/bundle/target/*.jar
+            - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
             - examples/ui.content/target/*.zip
