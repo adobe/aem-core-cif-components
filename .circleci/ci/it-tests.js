@@ -63,11 +63,13 @@ try {
 
     // Run integration tests
     if (TYPE === 'integration') {
-        ci.sh(`mvn clean verify -U -B \
-            -Ptest-all \
-            -Dsling.it.instance.url.1=http://localhost:4502 \
-            -Dsling.it.instance.runmode.1=author \
-            -Dsling.it.instances=1`);
+        ci.dir('it/http', () => {
+            ci.sh(`mvn clean verify -U -B \
+                -Ptest-all \
+                -Dsling.it.instance.url.1=http://localhost:4502 \
+                -Dsling.it.instance.runmode.1=author \
+                -Dsling.it.instances=1`);
+        });
     }
     
     // Run UI tests
