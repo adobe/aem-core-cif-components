@@ -19,5 +19,5 @@ public interface CommerceTeaserActionItem extends ListItem {
      * 
      * @return a {@link CommerceIdentifier} object representing the identifier of the entity
      */
-    CommerceIdentifier getIdentifier();
+    CommerceIdentifier getEntityIdentifier();
 }

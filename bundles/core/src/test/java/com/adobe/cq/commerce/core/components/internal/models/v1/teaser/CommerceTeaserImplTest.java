@@ -148,19 +148,19 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
         Assert.assertEquals("The action points to the right product slug", "beaumont-summit-kit", ((CommerceTeaserActionItem) actionItems
-            .get(0)).getIdentifier().getValue());
+            .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
         Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("The action points to the right category id", "5",
-            ((CommerceTeaserActionItem) actionItems.get(1)).getIdentifier().getValue());
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment/running", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
-            .getIdentifier().getValue());
+            .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());

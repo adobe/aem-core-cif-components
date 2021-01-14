@@ -49,7 +49,7 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
     }
 
     @Nullable
-    public CommerceIdentifier getIdentifier() {
+    public CommerceIdentifier getEntityIdentifier() {
         return id;
     }
 }
