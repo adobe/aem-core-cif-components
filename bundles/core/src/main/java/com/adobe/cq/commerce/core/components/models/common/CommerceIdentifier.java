@@ -10,34 +10,42 @@
 package com.adobe.cq.commerce.core.components.models.common;
 
 /**
- * An identifier for any commerce entity (category or product). A commerce entity can be identified by more than one key, for example a product can be identified by the URL key or by the SKU.
+ * An identifier for any commerce entity (category or product). A commerce entity can be identified by more than one key, for example a
+ * product can be identified by the URL key or by the SKU.
  */
 public interface CommerceIdentifier {
 
     /**
      * The type of this identifier
      */
-    enum IdentifierType { SLUG, URL_KEY, ID }
+    enum IdentifierType {
+        SLUG, URL_KEY, ID
+    }
 
     /**
      * The type of the entity which is identified
      */
-    enum EntityType {PRODUCT, CATEGORY}
+    enum EntityType {
+        PRODUCT, CATEGORY
+    }
 
     /**
      * The value of the identifier
+     * 
      * @return a string value representing the value of the identifier
      */
     String getValue();
 
     /**
      * The type of the identifier
+     * 
      * @return a {@link IdentifierType} value
      */
     IdentifierType getType();
 
     /**
      * The type of entity which identifier is for
+     * 
      * @return a {@link EntityType} value
      */
     EntityType getEntityType();

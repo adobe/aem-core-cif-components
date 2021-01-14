@@ -134,11 +134,13 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
-                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID, CommerceIdentifier.EntityType.CATEGORY);
+                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                        CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
-                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.SLUG, CommerceIdentifier.EntityType.PRODUCT);
+                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.SLUG,
+                        CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
                 } else {
