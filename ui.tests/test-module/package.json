@@ -1,8 +1,9 @@
 {
-  "name": "aem-cloud-wdio-sample-project",
+  "name": "core-cif-components-ui-tests",
   "version": "1.0.0",
-  "description": "Sample Tests Project",
+  "description": "UI tests for CIF components",
   "author": "catalan@adobe.com",
+  "private": true,
   "keywords": [
     "aem",
     "cloud",
