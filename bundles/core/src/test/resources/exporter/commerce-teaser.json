@@ -6,7 +6,7 @@
       "entityIdentifier": {
         "entityType": "PRODUCT",
         "value":"beaumont-summit-kit",
-        "type": "SLUG"
+        "type": "URL_KEY"
       }
     },
     {
