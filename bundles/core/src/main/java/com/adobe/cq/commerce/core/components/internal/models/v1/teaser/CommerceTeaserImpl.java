@@ -139,7 +139,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
-                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.SKU,
+                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
