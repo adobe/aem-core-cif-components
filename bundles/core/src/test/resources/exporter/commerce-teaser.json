@@ -3,18 +3,29 @@
     {
       "title": "A product",
       "url": "/content/product-page/product-specific-page.beaumont-summit-kit.html",
-      "productSlug": "beaumont-summit-kit"
+      "entityIdentifier": {
+        "entityType": "PRODUCT",
+        "value":"beaumont-summit-kit",
+        "type": "SLUG"
+      }
     },
     {
       "title": "A category",
       "url": "/content/category-page.5.html/equipment",
-      "categoryId": "5"
+      "entityIdentifier": {
+        "entityType": "CATEGORY",
+        "value":"5",
+        "type": "ID"
+      }
     },
     {
       "title": "A category",
       "url": "/content/category-page.6.html/equipment/running",
-      "categoryId": "6",
-      "productSlug": "beaumont-summit-kit"
+      "entityIdentifier": {
+        "entityType": "CATEGORY",
+        "value":"6",
+        "type": "ID"
+      }
     },
     {
       "title": "Some text",

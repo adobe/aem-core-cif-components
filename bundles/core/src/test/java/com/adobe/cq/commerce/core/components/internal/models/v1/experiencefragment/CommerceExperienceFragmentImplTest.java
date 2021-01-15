@@ -58,13 +58,19 @@ public class CommerceExperienceFragmentImplTest {
         " WHERE ISDESCENDANTNODE('/content/experience-fragments/mysite/page')" +
         " AND (node.[cq:products] = 'sku-xf2' OR node.[cq:products] LIKE 'sku-xf2#%') AND node.[fragmentLocation] = 'location-xf2'";
 
-    private static AemContext createContext(String contentPath) {
+    private static final String QUERY_3 = "SELECT * FROM [cq:PageContent] as node" +
+        " WHERE ISDESCENDANTNODE('/content/experience-fragments/')" +
+        " AND (node.[cq:products] = 'sku-xf1' OR node.[cq:products] LIKE 'sku-xf1#%') AND node.[fragmentLocation] IS NULL";
+
+    private LanguageManager languageManager;
+
+    private AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
 
-                LanguageManager languageManager = Mockito.mock(LanguageManager.class);
+                languageManager = Mockito.mock(LanguageManager.class);
                 Page rootPage = context.pageManager().getPage(PAGE);
                 Mockito.when(languageManager.getLanguageRoot(Mockito.any())).thenReturn(rootPage);
                 context.registerService(LanguageManager.class, languageManager);
@@ -132,6 +138,30 @@ public class CommerceExperienceFragmentImplTest {
         Assert.assertEquals("xf-2", cxf.getName());
         Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
         Assert.assertEquals(QUERY_2, queryHandler.getQuery().getStatement());
+    }
+
+    @Test
+    public void testLanguageManagerReturnsNull() {
+        Mockito.reset(languageManager);
+
+        setup(PAGE, RESOURCE_XF1, ProductIdentifierType.URL_KEY);
+
+        Product product = Mockito.mock(Product.class);
+        Mockito.when(product.getFound()).thenReturn(true);
+        Mockito.when(product.getSku()).thenReturn("sku-xf1");
+        context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
+
+        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
+        Session session = context.resourceResolver().adaptTo(Session.class);
+        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf1", null);
+        MockJcr.addQueryResultHandler(session, queryHandler);
+
+        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
+        Resource xf = cxf.getExperienceFragmentResource();
+        Assert.assertEquals("/content/experience-fragments/mysite/page/xf-1/master/jcr:content", xf.getPath());
+        Assert.assertEquals("xf-1", cxf.getName());
+        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
+        Assert.assertEquals(QUERY_3, queryHandler.getQuery().getStatement());
     }
 
     @Test

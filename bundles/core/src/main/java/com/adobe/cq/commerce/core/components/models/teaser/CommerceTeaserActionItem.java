@@ -9,22 +9,15 @@
 
 package com.adobe.cq.commerce.core.components.models.teaser;
 
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 
 public interface CommerceTeaserActionItem extends ListItem {
 
     /**
-     * Returns the category id associated with this teaser action.
+     * Returns the id of the entity associated with this teaser action.
      * 
-     * @return a String representing the category or <code>null</code> if no category id is configured
+     * @return a {@link CommerceIdentifier} object representing the identifier of the entity
      */
-    String getCategoryId();
-
-    /**
-     * Returns the product slung associated with this teaser action.
-     * 
-     * @return a String representing the product slug or <code>null</code> if no product slug is configured
-     */
-    String getProductSlug();
-
+    CommerceIdentifier getEntityIdentifier();
 }

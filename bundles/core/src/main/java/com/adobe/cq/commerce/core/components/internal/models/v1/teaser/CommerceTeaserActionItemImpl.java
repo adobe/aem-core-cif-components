@@ -17,24 +17,23 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 
 public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
 
-    private String title;
-    private String url;
-    private String categoryId;
-    private String productSlug;
+    private final String title;
+    private final String url;
+    private CommerceIdentifier id;
 
     public CommerceTeaserActionItemImpl(String title, String url) {
         this.title = title;
         this.url = url;
     }
 
-    public CommerceTeaserActionItemImpl(String title, String url, String categoryId, String productSlug) {
+    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier id) {
         this(title, url);
-        this.categoryId = categoryId;
-        this.productSlug = productSlug;
+        this.id = id;
     }
 
     @Nonnull
@@ -50,12 +49,7 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
     }
 
     @Nullable
-    public String getCategoryId() {
-        return categoryId;
-    }
-
-    @Nullable
-    public String getProductSlug() {
-        return productSlug;
+    public CommerceIdentifier getEntityIdentifier() {
+        return id;
     }
 }
