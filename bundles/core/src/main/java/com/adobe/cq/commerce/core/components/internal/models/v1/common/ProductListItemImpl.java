@@ -24,24 +24,27 @@ import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
-    private final String sku;
-    private final String slug;
-    private final String name;
-    private final String imageURL;
-    private final Price price;
-    private final String activeVariantSku;
-    private final Page productPage;
-    private final SlingHttpServletRequest request;
-    private final UrlProvider urlProvider;
+    private String sku;
+    private String slug;
+    private String name;
+    private String imageURL;
+    private Price price;
+    private String activeVariantSku;
+    private Page productPage;
+    private SlingHttpServletRequest request;
+    private UrlProvider urlProvider;
+    private CommerceIdentifier identifier;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
                                String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId) {
@@ -57,25 +60,46 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.urlProvider = urlProvider;
     }
 
+    public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
+        super(parentId, productPage.getContentResource());
+        this.identifier = identifier;
+
+        switch (identifier.getType()) {
+            case SKU:
+                this.sku = identifier.getValue();
+                break;
+            case URL_KEY:
+                this.slug = identifier.getValue();
+        }
+    }
+
     @Override
+    @JsonIgnore
     public String getSKU() {
         return sku;
     }
 
     @Override
+    @JsonIgnore
     public String getSlug() {
         return slug;
     }
 
     @Nullable
     @Override
+    @JsonIgnore
     public String getImageURL() {
         return imageURL;
     }
 
     @Nullable
     @Override
+    @JsonIgnore
     public String getURL() {
+
+        if (urlProvider == null) {
+            return "";
+        }
         Map<String, String> params = new ParamsBuilder()
             .sku(sku)
             .urlKey(slug)
@@ -87,29 +111,34 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
 
     @Nullable
     @Override
+    @JsonIgnore
     public String getTitle() {
         return name;
     }
 
     @Nullable
     @Override
+    @JsonIgnore
     public Double getPrice() {
-        return price.getFinalPrice();
+        return price != null ? price.getFinalPrice() : 0;
     }
 
     @Nullable
     @Override
+    @JsonIgnore
     public String getCurrency() {
-        return price.getCurrency();
+        return price != null ? price.getCurrency() : "";
     }
 
     @Nullable
     @Override
+    @JsonIgnore
     public String getFormattedPrice() {
-        return price.getFormattedFinalPrice();
+        return price != null ? price.getFormattedFinalPrice() : "";
     }
 
     @Override
+    @JsonIgnore
     public Price getPriceRange() {
         return price;
     }
@@ -152,4 +181,8 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         return this.getCurrency();
     }
 
+    @Override
+    public CommerceIdentifier getCommerceIdentifier() {
+        return identifier;
+    }
 }

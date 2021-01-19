@@ -179,6 +179,11 @@ public class ProductCarouselImplTest {
         }
     }
 
+    @Test
+    public void testJsonExport() {
+        Utils.testJSONExport(productCarousel, "/exporter/productcarousel.json");
+    }
+
     protected ProductInterface toProductOrVariant(ProductInterface product, Pair<String, String> skus) {
         if (!(product instanceof ConfigurableProduct) || skus.getRight() == null) {
             return product;

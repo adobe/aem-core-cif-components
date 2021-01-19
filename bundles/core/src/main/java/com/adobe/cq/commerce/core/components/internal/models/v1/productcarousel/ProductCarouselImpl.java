@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -37,9 +38,11 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -51,11 +54,16 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.export.json.ComponentExporter;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
-public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { ProductCarousel.class, ComponentExporter.class },
+    resourceType = ProductCarouselImpl.RESOURCE_TYPE)
+public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel, ComponentExporter {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
@@ -120,6 +128,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     }
 
     @Override
+    @JsonIgnore
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null) {
             return Collections.emptyList();
@@ -173,6 +182,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     }
 
     @Override
+    @JsonIgnore
     public AbstractProductsRetriever getProductsRetriever() {
         return productsRetriever;
     }
@@ -188,5 +198,22 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     @Override
     public String getTitleType() {
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
+    }
+
+    @Override
+    @Nonnull
+    public List<ProductListItem> getProductIdentifiers() {
+        if (baseProductSkus == null) {
+            return Collections.emptyList();
+        }
+        return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
+            new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT), "", productPage))
+            .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public String getExportedType() {
+        return RESOURCE_TYPE;
     }
 }
