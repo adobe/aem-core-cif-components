@@ -9,10 +9,26 @@
 
 package com.adobe.cq.commerce.core.components.models.categorylist;
 
-public interface CategoryListItem {
+import javax.annotation.Nullable;
 
-    String getCategoryId();
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 
+/**
+ * An item from a category list
+ */
+public interface FeaturedCategoryListItem {
+
+    /**
+     * The identifier of this category.
+     * @return a {@link CommerceIdentifier} object to idenfity this category
+     */
+    CommerceIdentifier getCategoryIdentifier();
+
+    /**
+     * The path to the asset which overrides the default asset.
+     * @return a String representing the AEM path to the asset, or {@code null} if there's no such asset set.
+     */
+    @Nullable
     String getAssetPath();
 
 }

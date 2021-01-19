@@ -9,21 +9,22 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
-import com.adobe.cq.commerce.core.components.models.categorylist.CategoryListItem;
+import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 
-public class FeaturedCategoryListItem implements CategoryListItem {
+public class FeaturedCategoryListItemImpl implements FeaturedCategoryListItem {
 
-    private String categoryId;
+    private CommerceIdentifier categoryId;
 
     private String assetPath;
 
-    public FeaturedCategoryListItem(String categoryId, String assetPath) {
+    public FeaturedCategoryListItemImpl(CommerceIdentifier categoryId, String assetPath) {
         this.categoryId = categoryId;
         this.assetPath = assetPath;
     }
 
     @Override
-    public String getCategoryId() {
+    public CommerceIdentifier getCategoryIdentifier() {
         return categoryId;
     }
 
