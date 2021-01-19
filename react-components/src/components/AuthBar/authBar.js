@@ -19,6 +19,7 @@ import classes from './authBar.css';
 import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
 import { func } from 'prop-types';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 const AuthBar = ({ showMyAccount, showSignIn }) => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
@@ -28,6 +29,16 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
             getUserDetails();
         }
     }, [getUserDetails]);
+
+
+    useEffect(() => {
+        if (!isSignedIn) {
+            dataLayerUtils.pushData({ user: "anonymous" });
+        } else if (isSignedIn && currentUser.email !== '') {
+            dataLayerUtils.pushData({ user: currentUser });
+        }
+    });
+
     const [t] = useTranslation('account');
 
     const disabled = false;
@@ -35,10 +46,10 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
     const content = isSignedIn ? (
         <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
     ) : (
-        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
-            {t('account:sign-in', 'Sign In')}
-        </Button>
-    );
+            <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
+                {t('account:sign-in', 'Sign In')}
+            </Button>
+        );
     return <div className={classes.root}>{content}</div>;
 };
 
