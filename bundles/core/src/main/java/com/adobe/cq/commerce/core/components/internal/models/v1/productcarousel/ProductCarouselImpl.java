@@ -30,9 +30,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Optional;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +72,9 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
-    @Optional
+    @ValueMapValue(
+        name = "product",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
     private String[] productSkuList;
 
     @Inject
@@ -93,6 +95,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     @PostConstruct
     private void initModel() {
+
         if (!isConfigured()) {
             return;
         }
