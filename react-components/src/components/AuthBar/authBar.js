@@ -30,10 +30,9 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
         }
     }, [getUserDetails]);
 
-
     useEffect(() => {
         if (!isSignedIn) {
-            dataLayerUtils.pushData({ user: "anonymous" });
+            dataLayerUtils.pushData({ user: 'anonymous' });
         } else if (isSignedIn && currentUser.email !== '') {
             dataLayerUtils.pushData({ user: currentUser });
         }
@@ -46,10 +45,10 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
     const content = isSignedIn ? (
         <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
     ) : (
-            <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
-                {t('account:sign-in', 'Sign In')}
-            </Button>
-        );
+        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
+            {t('account:sign-in', 'Sign In')}
+        </Button>
+    );
     return <div className={classes.root}>{content}</div>;
 };
 
