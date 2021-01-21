@@ -36,7 +36,7 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
         } else if (isSignedIn && currentUser.email !== '') {
             dataLayerUtils.pushData({ user: currentUser });
         }
-    });
+    }, [isSignedIn, currentUser]);
 
     const [t] = useTranslation('account');
 

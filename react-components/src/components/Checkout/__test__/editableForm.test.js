@@ -24,7 +24,7 @@ import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
 describe('<EditableForm />', () => {
     it('renders the shipping address form if countries are loaded', async () => {
-        const { queryByText, debug } = render(
+        const { queryByText } = render(
             <CartProvider initialState={{}} reducerFactory={() => state => state}>
                 <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
                     <EditableForm />
