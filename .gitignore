@@ -56,3 +56,6 @@ frontend-maven-plugin
 yarn-error.log
 .env
 .npmrc
+
+# UI Tests
+ui.tests/test-module/reports
