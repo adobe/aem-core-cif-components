@@ -18,7 +18,8 @@
       data-sly-use.storeView="com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter"
       data-sly-use.head="head.html"
       data-sly-use.footer="footer.html"
-      data-sly-use.redirect="redirect.html">
+      data-sly-use.redirect="redirect.html"
+      data-sly-use.clientLib="${'/libs/granite/sightly/templates/clientlib.html'}">
     <head data-sly-call="${head.head @ page = page}"></head>
     <body id="${page.id}"
         class="${page.cssClassNames}" 
@@ -45,5 +46,6 @@
             <sly data-sly-call="${footer.footer @ page = page}"></sly>
             <sly data-sly-include="body.socialmedia_end.html"></sly>
         </sly>
+        <sly data-sly-call="${clientLib.all @ categories='cif-examples.base'}"/>
     </body>
 </html>
