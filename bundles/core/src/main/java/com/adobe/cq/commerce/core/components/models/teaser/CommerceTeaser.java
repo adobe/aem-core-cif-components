@@ -29,4 +29,11 @@ public interface CommerceTeaser extends Teaser {
      *
      */
     String PN_ACTION_CATEGORY_ID = "categoryId";
+
+    /**
+     * Retrieves the URL of the image associated with this teaser.
+     * 
+     * @return A String representing the URL or {@code null} if there is not image associated with the teaser
+     */
+    String getAssetPath();
 }

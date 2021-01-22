@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -34,18 +35,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.Teaser;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = Teaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { Teaser.class, ComponentExporter.class },
+    resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class CommerceTeaserImpl implements CommerceTeaser {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
@@ -105,8 +117,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
                 String link = properties.get(Teaser.PN_ACTION_LINK, String.class);
+                String title = properties.get(PN_ACTION_TEXT, String.class);
 
                 String actionUrl;
+                CommerceIdentifier id = null;
+
                 if (categoryId != null) {
                     ParamsBuilder params = new ParamsBuilder().id(categoryId);
                     if (categoriesRetriever != null) {
@@ -119,17 +134,20 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                        CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
+                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
+                        CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
                 } else {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                String title = properties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItem(title, actionUrl));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
             }
         }
     }
@@ -150,6 +168,17 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     }
 
     @Override
+    public String getAssetPath() {
+        Resource imageResource = getImageResource();
+        if (imageResource == null) {
+            return null;
+        }
+        ValueMap props = imageResource.adaptTo(ValueMap.class);
+        return props.get("fileReference", String.class);
+    }
+
+    @Override
+    @JsonIgnore
     public Resource getImageResource() {
         return wcmTeaser.getImageResource();
     }
@@ -186,7 +215,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
     @Override
     public String getExportedType() {
-        return wcmTeaser.getExportedType();
+        return RESOURCE_TYPE;
     }
 
     @Override
