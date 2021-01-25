@@ -132,6 +132,10 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
             return null;
         }
 
+        return buildQueryForProduct(sku);
+    }
+
+    private String buildQueryForProduct(String sku) {
         // This query is backed up by an index
         final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
             + "AND (node.[" + PN_CQ_PRODUCTS + "] = '%s' OR node.[" + PN_CQ_PRODUCTS + "] LIKE '%s#%%') "
@@ -161,11 +165,15 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
             return null;
         }
 
+        return buildQueryForCategory(id);
+    }
+
+    private String buildQueryForCategory(String categoryId) {
         final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-            + "AND node.[" + PN_CQ_CATEGORIES + "] = '%s'"
+            + "AND node.[" + PN_CQ_CATEGORIES + "] = '%s' "
             + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
 
-        String query = String.format(CATEGORY_QUERY_TEMPLATE, getExperienceFragmentsRoot(), id);
+        String query = String.format(CATEGORY_QUERY_TEMPLATE, getExperienceFragmentsRoot(), categoryId);
         if (fragmentLocation != null) {
             query += "= '" + fragmentLocation + "'";
         } else {
