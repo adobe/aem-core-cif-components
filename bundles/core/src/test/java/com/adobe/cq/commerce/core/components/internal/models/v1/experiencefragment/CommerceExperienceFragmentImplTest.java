@@ -221,6 +221,13 @@ public class CommerceExperienceFragmentImplTest {
         verifyFragmentResourceIsNull(XF_ROOT, null, "catid-xf3", "location-xf2");
     }
 
+    @Test
+    public void testFragmentOnCategoryPageWithInvalidId() {
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
+
+        verifyFragmentResourceIsNull(XF_ROOT, null, null, null);
+    }
+
     private void verifyFragment(String xfRootPath, String productSku, String categoryId, String fragmentLocation, String expectedXFName,
         String expectedXFPath) {
         XFMockQueryResultHandler queryHandler = mockJcrQueryResult(xfRootPath, productSku, categoryId, fragmentLocation);
