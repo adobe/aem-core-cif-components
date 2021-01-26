@@ -159,6 +159,49 @@
                             reference="../../component"/>
                     </info>
                 </breadcrumb-demo>
+                <text_1337506763
+                    jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core/wcm/components/text/v2/text"
+                    text="&lt;p>In addition to the product component, this demonstrates the commerce experience fragment component displaying its content dynamically based on both the &quot;fragmentLocation&quot; property and the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>"
+                    textIsRich="true"/>
+                <xf-demo
+                    jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/demo/component">
+                        <xf
+                            jcr:created="{Date}2020-08-17T16:22:56.378+02:00"
+                            jcr:createdBy="admin"
+                            jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00"
+                            jcr:lastModifiedBy="admin"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="cif-components-examples/components/experiencefragment"
+                            fragmentLocation="bottom"/>
+                    </component>
+                    <info
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                            cq:panelTitle="Properties"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/properties"
+                            reference="../../component"/>
+                        <markup
+                            cq:panelTitle="Markup"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/markup"
+                            reference="../../component"/>
+                    </info>
+                </xf-demo>
             </responsivegrid>
         </root>
     </jcr:content>

@@ -48,7 +48,7 @@
         <module>all</module>
     </modules>
 
-    <!-- Integration tests are included unless we perform a release -->
+    <!-- Integration and UI tests are included unless we perform a release -->
     <profiles>
         <profile>
             <id>integration-tests</id>
@@ -59,6 +59,7 @@
             </activation>
             <modules>
                 <module>it/http</module>
+                <module>ui.tests</module>
             </modules>
         </profile>
     </profiles>

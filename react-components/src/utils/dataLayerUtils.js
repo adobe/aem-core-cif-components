@@ -11,20 +11,40 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
-const dataLayer = dataLayerEnabled ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
+let dataLayerEnabled = null;
+let dataLayer = null;
+const isDataLayerEnabled = () => {
+    if (dataLayerEnabled === null) {
+        dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
+    }
+    return dataLayerEnabled;
+};
+const getDataLayer = () => {
+    if (dataLayer === null) {
+        dataLayer = isDataLayerEnabled() ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
+    }
+    return dataLayer;
+};
+
+export const generateDataLayerId = async (prefix, idData, separator = '-') => {
+    const msgUint8 = new TextEncoder().encode(idData); // encode as (utf-8) Uint8Array
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+    return prefix + separator + hashHex.substring(0, 10);
+};
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
 export const pushData = data => {
-    if (dataLayerEnabled) {
-        dataLayer.push(data);
+    if (isDataLayerEnabled()) {
+        getDataLayer().push(data);
     }
 };
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
 export const pushEvent = (eventName, eventData) => {
-    if (dataLayerEnabled) {
-        dataLayer.push({
+    if (isDataLayerEnabled()) {
+        getDataLayer().push({
             event: eventName,
             eventInfo: eventData
         });
@@ -33,22 +53,22 @@ export const pushEvent = (eventName, eventData) => {
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#getstate
 export const getState = reference => {
-    if (dataLayerEnabled) {
-        return dataLayer.getState(reference);
+    if (isDataLayerEnabled()) {
+        return getDataLayer().getState(reference);
     }
     return null;
 };
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#addeventlistener
 export const addEventListener = (eventName, handler) => {
-    if (dataLayerEnabled) {
-        dataLayer.addEventListener(eventName, handler);
+    if (isDataLayerEnabled()) {
+        getDataLayer().addEventListener(eventName, handler);
     }
 };
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#removeeventlistener
 export const removeEventListener = (eventName, handler) => {
-    if (dataLayerEnabled) {
-        dataLayer.removeEventListener(eventName, handler);
+    if (isDataLayerEnabled()) {
+        getDataLayer().removeEventListener(eventName, handler);
     }
 };
