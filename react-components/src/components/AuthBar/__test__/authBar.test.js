@@ -54,7 +54,7 @@ describe('<AuthBar>', () => {
 
         expect(asFragment()).toMatchSnapshot();
         expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({ user: 'anonymous' });
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({ user: null });
     });
 
     it('renders the component for logged user', () => {

@@ -32,7 +32,7 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
 
     useEffect(() => {
         if (!isSignedIn) {
-            dataLayerUtils.pushData({ user: 'anonymous' });
+            dataLayerUtils.pushData({ user: null });
         } else if (isSignedIn && currentUser.email !== '') {
             dataLayerUtils.pushData({ user: currentUser });
         }
