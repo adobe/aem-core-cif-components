@@ -15,17 +15,25 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
+import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 
-public class CommerceTeaserActionItem implements ListItem {
+public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
 
-    private String title;
-    private String url;
+    private final String title;
+    private final String url;
+    private CommerceIdentifier id;
 
-    public CommerceTeaserActionItem(String title, String url) {
+    public CommerceTeaserActionItemImpl(String title, String url) {
         this.title = title;
         this.url = url;
+    }
+
+    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier id) {
+        this(title, url);
+        this.id = id;
     }
 
     @Nonnull
@@ -38,5 +46,10 @@ public class CommerceTeaserActionItem implements ListItem {
     @Override
     public String getURL() {
         return url;
+    }
+
+    @Nullable
+    public CommerceIdentifier getEntityIdentifier() {
+        return id;
     }
 }

@@ -16,10 +16,16 @@ package com.adobe.cq.commerce.core.components.testing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+
+import javax.json.Json;
+import javax.json.JsonReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -32,6 +38,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.junit.Assert;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
@@ -46,6 +53,9 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.wcm.core.components.internal.DataLayerConfig;
+import com.adobe.cq.wcm.core.components.internal.jackson.DefaultMethodSkippingModuleProvider;
+import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -225,5 +235,36 @@ public class Utils {
         Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(dataLayerConfig);
 
         return mockConfigBuilder;
+    }
+
+    /**
+     * Provided a {@code model} object and an {@code expectedJsonResource} identifying a JSON file in the class path, this method will
+     * test the JSON export of the model and compare it to the JSON object provided by the {@code expectedJsonResource}.
+     *
+     * @param model the Sling Model
+     * @param expectedJsonResource the class path resource providing the expected JSON object
+     */
+    public static void testJSONExport(Object model, String expectedJsonResource) {
+        Writer writer = new StringWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        PageModuleProvider pageModuleProvider = new PageModuleProvider();
+        mapper.registerModule(pageModuleProvider.getModule());
+        DefaultMethodSkippingModuleProvider defaultMethodSkippingModuleProvider = new DefaultMethodSkippingModuleProvider();
+        mapper.registerModule(defaultMethodSkippingModuleProvider.getModule());
+        try {
+            mapper.writer().writeValue(writer, model);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Unable to generate JSON export for model %s: %s", model.getClass().getName(), e
+                .getMessage()));
+        }
+        JsonReader outputReader = Json.createReader(IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8));
+        InputStream is = Utils.class.getResourceAsStream(expectedJsonResource);
+        if (is != null) {
+            JsonReader expectedReader = Json.createReader(is);
+            Assert.assertEquals(expectedReader.read(), outputReader.read());
+        } else {
+            throw new RuntimeException("Unable to find test file " + expectedJsonResource + ".");
+        }
+        IOUtils.closeQuietly(is);
     }
 }
