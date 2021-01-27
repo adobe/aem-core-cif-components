@@ -19,6 +19,7 @@ import classes from './authBar.css';
 import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
 import { func } from 'prop-types';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 const AuthBar = ({ showMyAccount, showSignIn }) => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
@@ -28,6 +29,15 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
             getUserDetails();
         }
     }, [getUserDetails]);
+
+    useEffect(() => {
+        if (!isSignedIn) {
+            dataLayerUtils.pushData({ user: null });
+        } else if (isSignedIn && currentUser.email !== '') {
+            dataLayerUtils.pushData({ user: currentUser });
+        }
+    }, [isSignedIn, currentUser]);
+
     const [t] = useTranslation('account');
 
     const disabled = false;
