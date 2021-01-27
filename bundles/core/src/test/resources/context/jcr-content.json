@@ -230,6 +230,27 @@
       "jcr:language": "en_US"
     }
   },
+  "pageI": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "navRoot": true,
+      "pageTitle": "Page I",
+      "header": {
+        "jcr:primaryType": "nt:unstructured",
+        "sling:resourceType": "core/cif/components/structure/header/v1/header",
+        "minicart": {
+          "jcr:primaryType": "nt:unstructured"
+        },
+        "searchbar": {
+          "jcr:primaryType": "nt:unstructured"
+        },
+        "miniaccount": {
+          "jcr:primaryType": "nt:unstructured"
+        }
+      }
+    }
+  },
   "launches": {
     "2020": {
       "09": {

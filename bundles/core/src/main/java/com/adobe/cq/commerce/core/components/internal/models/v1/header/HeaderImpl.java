@@ -14,8 +14,10 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.header;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
@@ -51,18 +53,43 @@ public class HeaderImpl implements Header {
 
     private Page navigationRootPage;
 
-    @Override
-    public String getNavigationRootPageUrl() {
+    @PostConstruct
+    private void initModel() {
         if (navigationRootPage == null) {
             navigationRootPage = SiteNavigation.getNavigationRootPage(currentPage);
         }
 
         if (navigationRootPage == null) {
             LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());
+        }
+    }
+
+    @Override
+    public String getNavigationRootPageUrl() {
+        if (navigationRootPage != null) {
+            return navigationRootPage.getPath() + ".html";
+        } else {
             return null;
         }
+    }
 
-        return navigationRootPage.getPath() + ".html";
+    @Override
+    public String getNavigationRootPageTitle() {
+        if (navigationRootPage != null) {
+            String title = navigationRootPage.getPageTitle();
+            if (StringUtils.isNotBlank(title)) {
+                return title;
+            }
+
+            title = navigationRootPage.getTitle();
+            if (StringUtils.isNotBlank(title)) {
+                return title;
+            }
+
+            return null;
+        } else {
+            return null;
+        }
     }
 
     public Resource getMinicartResource() {
