@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { fireEvent, wait, waitForElement } from '@testing-library/react';
+import { fireEvent, wait } from '@testing-library/react';
 import { render } from 'test-utils';
 import { CartProvider } from '../../Minicart';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';

@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AuthBar> renders the component for anonymous user 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <button
+      class="root_highPriority"
+      type="button"
+    >
+      <span
+        class="content"
+      >
+        Sign In
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<AuthBar> renders the component for logged user 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <button
+      class="root"
+    >
+      <span
+        class="content"
+      >
+        <span
+          class="avatar"
+        >
+          <span
+            class="root"
+          >
+            <svg
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+              />
+              <circle
+                cx="12"
+                cy="7"
+                r="4"
+              />
+            </svg>
+          </span>
+        </span>
+        <span
+          class="user"
+        >
+          <span
+            class="fullName"
+          >
+            Test User
+          </span>
+          <span
+            class="email"
+          >
+            test_user@example.com
+          </span>
+        </span>
+        <span
+          class="icon"
+        >
+          <span
+            class="root"
+          >
+            <svg
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="9 18 15 12 9 6"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
