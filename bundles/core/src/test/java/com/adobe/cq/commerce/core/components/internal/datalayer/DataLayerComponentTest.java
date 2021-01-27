@@ -115,9 +115,9 @@ public class DataLayerComponentTest {
 
         @Override
         public CategoryData[] getDataLayerCategories() {
-            return new CategoryListDataImpl.CategoryDataImpl[] {
-                new CategoryListDataImpl.CategoryDataImpl("cat1", "Category 1", "/url/to/img1"),
-                new CategoryListDataImpl.CategoryDataImpl("cat2", "Category 2", "/url/to/img2")
+            return new CategoryDataImpl[] {
+                new CategoryDataImpl("cat1", "Category 1", "/url/to/img1"),
+                new CategoryDataImpl("cat2", "Category 2", "/url/to/img2")
             };
         }
     }

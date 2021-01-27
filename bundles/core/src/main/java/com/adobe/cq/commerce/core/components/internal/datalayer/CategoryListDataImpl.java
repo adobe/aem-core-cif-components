@@ -24,33 +24,6 @@ public class CategoryListDataImpl extends ComponentDataImpl implements CategoryL
         super(component, resource);
     }
 
-    static public class CategoryDataImpl implements CategoryData {
-        private String id;
-        private String name;
-        private String image;
-
-        public CategoryDataImpl(String id, String name, String image) {
-            this.id = id;
-            this.name = name;
-            this.image = image;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getImage() {
-            return image;
-        }
-    }
-
     @Override
     public CategoryData[] getCategories() {
         return component.getDataLayerCategories();

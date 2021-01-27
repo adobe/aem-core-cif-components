@@ -22,6 +22,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -146,6 +147,11 @@ public abstract class DataLayerComponent {
 
     @JsonIgnore
     public String getDataLayerCurrency() {
+        return null;
+    }
+
+    @JsonIgnore
+    public AssetData[] getDataLayerAssets() {
         return null;
     }
 
