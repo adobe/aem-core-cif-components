@@ -18,7 +18,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,8 +26,6 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 public class HeaderImplTest {
-    private static final String PAGE_PATH = "/content/pageI";
-    private static final String HEADER_PATH = "/content/pageI/jcr:content/header";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -42,19 +39,20 @@ public class HeaderImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
-    @Before
-    public void setup() {
-        context.currentResource(HEADER_PATH);
+    private void setupPage(String pagePath, String headerPath) {
+        context.currentResource(headerPath);
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.setResource(context.resourceResolver().getResource(HEADER_PATH));
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(PAGE_PATH));
+        slingBindings.setResource(context.resourceResolver().getResource(headerPath));
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(pagePath));
 
         header = context.request().adaptTo(HeaderImpl.class);
     }
 
     @Test
     public void testHeader() {
+        setupPage("/content/pageI", "/content/pageI/jcr:content/header");
+
         Assert.assertEquals("/content/pageI.html", header.getNavigationRootPageUrl());
         Assert.assertEquals("Page I", header.getNavigationRootPageTitle());
 
@@ -69,5 +67,27 @@ public class HeaderImplTest {
         resource = header.getSearchbarResource();
         Assert.assertNotNull(resource);
         Assert.assertEquals(HeaderImpl.SEARCHBAR_NODE_NAME, resource.getName());
+    }
+
+    @Test
+    public void testHeaderNoRootPageTitle() {
+        setupPage("/content/pageJ", "/content/pageJ/jcr:content/header");
+
+        Assert.assertEquals("/content/pageJ.html", header.getNavigationRootPageUrl());
+        Assert.assertEquals("Page J", header.getNavigationRootPageTitle());
+        Assert.assertNull(header.getMiniaccountResource());
+        Assert.assertNull(header.getMinicartResource());
+        Assert.assertNull(header.getSearchbarResource());
+    }
+
+    @Test
+    public void testHeaderNoRootPage() {
+        setupPage("/content/pageK", "/content/pageK/jcr:content/header");
+
+        Assert.assertNull(header.getNavigationRootPageUrl());
+        Assert.assertNull(header.getNavigationRootPageTitle());
+        Assert.assertNull(header.getMiniaccountResource());
+        Assert.assertNull(header.getMinicartResource());
+        Assert.assertNull(header.getSearchbarResource());
     }
 }
