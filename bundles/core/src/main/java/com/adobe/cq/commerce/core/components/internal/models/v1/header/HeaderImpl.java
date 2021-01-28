@@ -55,9 +55,7 @@ public class HeaderImpl implements Header {
 
     @PostConstruct
     private void initModel() {
-        if (navigationRootPage == null) {
-            navigationRootPage = SiteNavigation.getNavigationRootPage(currentPage);
-        }
+        navigationRootPage = SiteNavigation.getNavigationRootPage(currentPage);
 
         if (navigationRootPage == null) {
             LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());
@@ -68,9 +66,9 @@ public class HeaderImpl implements Header {
     public String getNavigationRootPageUrl() {
         if (navigationRootPage != null) {
             return navigationRootPage.getPath() + ".html";
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     @Override
@@ -87,9 +85,9 @@ public class HeaderImpl implements Header {
             }
 
             return null;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public Resource getMinicartResource() {
