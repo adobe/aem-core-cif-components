@@ -464,7 +464,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public CategoryData[] getDataLayerCategories() {
-        return productRetriever.fetchProduct().getCategories().stream()
+        return productRetriever.fetchProduct().getCategories()
+            .stream()
             .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }

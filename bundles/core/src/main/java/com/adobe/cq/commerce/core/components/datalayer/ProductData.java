@@ -34,7 +34,7 @@ public interface ProductData extends ComponentData {
         throw new UnsupportedOperationException();
     }
 
-    @JsonProperty("xdm:category")
+    @JsonProperty("xdm:categories")
     default CategoryData[] getCategories() {
         throw new UnsupportedOperationException();
     }

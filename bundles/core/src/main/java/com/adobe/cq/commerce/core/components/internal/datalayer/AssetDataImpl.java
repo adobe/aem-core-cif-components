@@ -13,6 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
+import java.util.Date;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,4 +44,13 @@ public class AssetDataImpl implements AssetData {
         return asset.getPath();
     }
 
+    @Override
+    public String[] getTags() {
+        return new String[0];
+    }
+
+    @Override
+    public Date getLastModifiedDate() {
+        return null;
+    }
 }
