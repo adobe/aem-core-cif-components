@@ -26,27 +26,43 @@ import javax.inject.Inject;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.via.ResourceSuperType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.models.Teaser;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = CommerceTeaser.class, resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { Teaser.class, ComponentExporter.class },
+    resourceType = CommerceTeaserImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class CommerceTeaserImpl implements CommerceTeaser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceTeaserImpl.class);
 
     protected static final String RESOURCE_TYPE = "core/cif/components/content/teaser/v1/teaser";
 
-    private Page productPage;
-    private Page categoryPage;
-    private boolean actionsEnabled = false;
     private List<ListItem> actions = new ArrayList<>();
 
     @Inject
@@ -61,20 +77,15 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Self
     private SlingHttpServletRequest request;
 
+    @Self
+    @Via(type = ResourceSuperType.class)
+    private Teaser wcmTeaser;
+
     @PostConstruct
     void initModel() {
-        setActionsEnabled();
-        productPage = SiteNavigation.getProductPage(currentPage);
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
-
-        if (actionsEnabled) {
+        if (isActionsEnabled()) {
             populateActions();
         }
-    }
-
-    void setActionsEnabled() {
-        ValueMap properties = resource.getValueMap();
-        actionsEnabled = properties.get(CommerceTeaser.PN_ACTIONS_ENABLED, actionsEnabled);
     }
 
     void populateActions() {
@@ -97,43 +108,123 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 }
             }
 
+            Page productPage = SiteNavigation.getProductPage(currentPage);
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+
             // build teaser action items for all configured actions
             for (Resource action : configuredActions) {
                 ValueMap properties = action.getValueMap();
                 String productSlug = properties.get(PN_ACTION_PRODUCT_SLUG, String.class);
                 String categoryId = properties.get(PN_ACTION_CATEGORY_ID, String.class);
+                String link = properties.get(Teaser.PN_ACTION_LINK, String.class);
+                String title = properties.get(PN_ACTION_TEXT, String.class);
 
-                String actionUrl = null;
+                String actionUrl;
+                CommerceIdentifier id = null;
+
                 if (categoryId != null) {
                     ParamsBuilder params = new ParamsBuilder().id(categoryId);
                     if (categoriesRetriever != null) {
-                        Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                            .filter(c -> c.getId() == Integer.valueOf(categoryId)).findAny();
-                        if (cat.isPresent()) {
-                            params.urlPath(cat.get().getUrlPath());
+                        try {
+                            Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
+                                .filter(c -> c.getId().equals(Integer.valueOf(categoryId))).findAny();
+                            cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
+                        } catch (RuntimeException x) {
+                            LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                        CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
+                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
+                        CommerceIdentifier.EntityType.PRODUCT);
+                } else if (link != null) {
+                    actionUrl = link + ".html";
                 } else {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                String title = properties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItem(title, actionUrl));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
             }
         }
     }
 
     @Override
-    public boolean isActionsEnabled() {
-        return actionsEnabled;
+    public List<ListItem> getActions() {
+        return actions;
     }
 
     @Override
-    public List<ListItem> getActions() {
-        return actions;
+    public boolean isActionsEnabled() {
+        return wcmTeaser.isActionsEnabled();
+    }
+
+    @Override
+    public String getLinkURL() {
+        return wcmTeaser.getLinkURL();
+    }
+
+    @Override
+    public String getAssetPath() {
+        Resource imageResource = getImageResource();
+        if (imageResource == null) {
+            return null;
+        }
+        ValueMap props = imageResource.adaptTo(ValueMap.class);
+        return props.get("fileReference", String.class);
+    }
+
+    @Override
+    @JsonIgnore
+    public Resource getImageResource() {
+        return wcmTeaser.getImageResource();
+    }
+
+    @Override
+    public boolean isImageLinkHidden() {
+        return wcmTeaser.isImageLinkHidden();
+    }
+
+    @Override
+    public String getPretitle() {
+        return wcmTeaser.getPretitle();
+    }
+
+    @Override
+    public String getTitle() {
+        return wcmTeaser.getTitle();
+    }
+
+    @Override
+    public boolean isTitleLinkHidden() {
+        return wcmTeaser.isTitleLinkHidden();
+    }
+
+    @Override
+    public String getDescription() {
+        return wcmTeaser.getDescription();
+    }
+
+    @Override
+    public String getTitleType() {
+        return wcmTeaser.getTitleType();
+    }
+
+    @Override
+    public String getExportedType() {
+        return RESOURCE_TYPE;
+    }
+
+    @Override
+    public String getId() {
+        return wcmTeaser.getId();
+    }
+
+    @Override
+    public ComponentData getData() {
+        return wcmTeaser.getData();
     }
 }

@@ -47,10 +47,10 @@ public class PageMetadataImpl implements PageMetadata {
 
     @PostConstruct
     void initModel() {
-        if (isProductPage()) {
+        if (SiteNavigation.isProductPage(currentPage)) {
             Product product = request.adaptTo(Product.class);
             provider = product;
-        } else if (isCategoryPage()) {
+        } else if (SiteNavigation.isCategoryPage(currentPage)) {
             ProductList productList = request.adaptTo(ProductList.class);
             provider = productList;
         }
@@ -80,32 +80,6 @@ public class PageMetadataImpl implements PageMetadata {
     @Override
     public String getCanonicalUrl() {
         return provider != null ? provider.getCanonicalUrl() : null;
-    }
-
-    private boolean isProductPage() {
-        Page productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            return false;
-        }
-
-        // The product page might be in a Launch so we first extract the paths of the production versions
-        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
-        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
-
-        return currentPagePath.equals(productPagePath) || currentPagePath.startsWith(productPagePath + "/");
-    }
-
-    private boolean isCategoryPage() {
-        Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-        if (categoryPage == null) {
-            return false;
-        }
-
-        // The category page might be in a Launch so we first extract the paths of the production versions
-        String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
-        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
-
-        return currentPagePath.equals(categoryPagePath) || currentPagePath.startsWith(categoryPagePath + "/");
     }
 
 }

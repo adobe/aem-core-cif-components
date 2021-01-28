@@ -17,8 +17,10 @@ class TeaserConfig {
         this.$ = jQuery;
         this.handleDialogLoaded = this.handleDialogLoaded.bind(this);
         this.attachEventHandlers = this.attachEventHandlers.bind(this);
+        this.setFieldsDisabled = this.setFieldsDisabled.bind(this);
         this.actionsToggleHandler = this.actionsToggleHandler.bind(this);
         this.handlePickersChange = this.handlePickersChange.bind(this);
+        this.handlePageChange = this.handlePageChange.bind(this);
         this.handleProductChange = this.handleProductChange.bind(this);
         this.handleCategoryChange = this.handleCategoryChange.bind(this);
 
@@ -40,6 +42,8 @@ class TeaserConfig {
                 TeaserConfig.selectors.actionsEnabledCheckboxSelector
             );
             this.actionsToggleHandler(actionsEnabledCheckbox);
+            const actionsEnabled = actionsEnabledCheckbox.checked === true;
+            this.setFieldsDisabled(!actionsEnabled);
         }
     }
 
@@ -59,16 +63,22 @@ class TeaserConfig {
     // when actions are disabled, only products picker gets disabled ( Core WCM Components Teaser expects only one action )
     // this also enables/disables the category picker
     actionsToggleHandler(actionsEnabledCheckbox) {
-        this.$(actionsEnabledCheckbox).on('change', e => {
-            const actionsEnabled =
-                this.$(e.target)
-                    .adaptTo('foundation-field')
-                    .getValue() === 'true';
-            document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
-                this.$(catEl)
-                    .adaptTo('foundation-field')
-                    .setDisabled(!actionsEnabled);
-            });
+        actionsEnabledCheckbox.addEventListener('change', e => {
+            const actionsEnabled = e.target.checked === true;
+            this.setFieldsDisabled(!actionsEnabled);
+        });
+    }
+
+    setFieldsDisabled(disabled) {
+        document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
+            this.$(catEl)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
+        });
+        document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
+            this.$(prodEl)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
         });
     }
 
@@ -76,39 +86,53 @@ class TeaserConfig {
     handlePickersChange(multiFieldActions) {
         // retrieve all teaser actions
         multiFieldActions.querySelectorAll(TeaserConfig.selectors.actionsMultifieldItemSelector).forEach(action => {
-            // each action contains a category and a product picker
+            // each action contains a page picker, a category picker and a product picker
             // retrieve DOM elements for pickers
+            const pageElement = this.$(action.querySelector(TeaserConfig.selectors.pageFieldSelector));
             const productElement = this.$(action.querySelector(TeaserConfig.selectors.productFieldSelector));
             const categoryElement = this.$(action.querySelector(TeaserConfig.selectors.categoryFieldSelector));
 
             // adapt the pickers so we can read/update values
+            const pageField = pageElement.adaptTo('foundation-field');
             const productField = productElement.adaptTo('foundation-field');
             const categoryField = categoryElement.adaptTo('foundation-field');
 
             // remove attached handlers (if any)
+            pageElement.off('change', this.handlePageChange);
             productElement.off('change', this.handleProductChange);
             categoryElement.off('change', this.handleCategoryChange);
 
             // create additional data to be sent to event handlers
             // this contains the Granite UI adapted fields
-            const eventData = { productField, categoryField };
+            const eventData = { pageField, productField, categoryField };
 
             // [re]attach change handlers with additional data
+            pageElement.on('change', eventData, this.handlePageChange);
             productElement.on('change', eventData, this.handleProductChange);
             categoryElement.on('change', eventData, this.handleCategoryChange);
         });
     }
 
     // sets an empty value on the category field when product field gets updated
-    handleProductChange({ data: { productField, categoryField } }) {
+    handlePageChange({ data: { pageField, productField, categoryField } }) {
+        if (pageField.getValue() !== '') {
+            productField.setValue('');
+            categoryField.setValue('');
+        }
+    }
+
+    // sets an empty value on the category field when product field gets updated
+    handleProductChange({ data: { pageField, productField, categoryField } }) {
         if (productField.getValue() !== '') {
+            pageField.setValue('');
             categoryField.setValue('');
         }
     }
 
     // sets an empty value on the product field when category field gets updated
-    handleCategoryChange({ data: { productField, categoryField } }) {
+    handleCategoryChange({ data: { pageField, productField, categoryField } }) {
         if (categoryField.getValue() !== '') {
+            pageField.setValue('');
             productField.setValue('');
         }
     }
@@ -116,8 +140,9 @@ class TeaserConfig {
 
 TeaserConfig.selectors = {
     dialogContentSelector: '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor',
-    productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Product"]',
-    categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"][placeholder="Category"]',
+    pageFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"]',
+    productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionProduct"]',
+    categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionCategory"]',
     actionsMultifieldSelector: '.cmp-teaser__editor-multifield_actions',
     actionsMultifieldItemSelector: 'coral-multifield-item',
     actionsEnabledCheckboxSelector: 'coral-checkbox[name="./actionsEnabled"]'

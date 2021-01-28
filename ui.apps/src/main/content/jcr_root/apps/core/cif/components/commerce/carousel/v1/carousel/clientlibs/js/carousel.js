@@ -134,21 +134,4 @@ Carousel.selectors = {
     card: '.carousel__card'
 };
 
-(function() {
-    function onDocumentReady() {
-        const carouselCmp = document.querySelectorAll(Carousel.selectors.self);
-        if (carouselCmp) {
-            carouselCmp.forEach(function(element) {
-                new Carousel(element);
-            });
-        }
-    }
-
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
-})();
-
 export default Carousel;

@@ -36,6 +36,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [AddressBook](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/addressbook/v1/addressbook)
 -   [ResetPassword](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v1/resetpassword)
 -   [Category Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/categorycarousel/v1/categorycarousel)
+-   [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
 
 ## System Requirements
 
@@ -43,7 +44,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento | Java  |
 | ------------------- | ---------------------- | ------- | ------- | ------- | ----- |
-| 1.5.0               | Continual              | 6.5.7   | 6.4.4.0 | 2.4.0   | 8, 11 |
+| 1.6.0               | Continual              | 6.5.7   | 6.4.4.0 | 2.4.0   | 8, 11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 

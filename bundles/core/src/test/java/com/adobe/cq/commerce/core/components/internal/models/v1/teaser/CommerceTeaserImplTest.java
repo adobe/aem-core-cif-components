@@ -30,6 +30,7 @@ import org.junit.Test;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
@@ -37,6 +38,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
+import com.day.cq.wcm.api.components.ComponentManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -82,6 +84,7 @@ public class CommerceTeaserImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
+    private static final String EXPORTED_TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser-exported";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
@@ -96,10 +99,12 @@ public class CommerceTeaserImplTest {
         commerceTeaserResource = spy(context.resourceResolver().getResource(TEASER));
         ResourceResolver resolver = spy(commerceTeaserResource.getResourceResolver());
         when(commerceTeaserResource.getResourceResolver()).thenReturn(resolver);
+        when(commerceTeaserResource.getResourceSuperType()).thenReturn("core/wcm/components/teaser/v1/teaser");
         when(commerceTeaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(TEASER);
+        context.currentResource(commerceTeaserResource);
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -108,9 +113,27 @@ public class CommerceTeaserImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(commerceTeaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
+        ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+    }
+
+    @Test
+    public void verifyProperties() {
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+        Assert.assertNotNull("The CommerceTeaser object is not null", commerceTeaser);
+
+        Assert.assertEquals("The pre-title is correct", "Pretitle", commerceTeaser.getPretitle());
+        Assert.assertEquals("The title is correct", "Title", commerceTeaser.getTitle());
+        Assert.assertEquals("The description is correct", "Description", commerceTeaser.getDescription());
+        Assert.assertEquals("The id is correct", "id", commerceTeaser.getId());
+        Assert.assertNull("The link URL is null", commerceTeaser.getLinkURL());
+        Assert.assertNull(commerceTeaser.getData());
+        Assert.assertEquals("The exported resource type is correct", "core/cif/components/content/teaser/v1/teaser",
+            commerceTeaser.getExportedType());
     }
 
     @Test
@@ -119,23 +142,33 @@ public class CommerceTeaserImplTest {
         List<ListItem> actionItems = commerceTeaser.getActions();
 
         Assert.assertTrue(commerceTeaser.isActionsEnabled());
-        Assert.assertTrue(actionItems.size() == 4);
+        Assert.assertTrue(actionItems.size() == 5);
 
         // Product slug is configured and there is a dedicated specific subpage for that product
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
+        Assert.assertEquals("The action points to the right product slug", "beaumont-summit-kit", ((CommerceTeaserActionItem) actionItems
+            .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
         Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
+        Assert.assertEquals("The action points to the right category id", "5",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment/running", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
+        Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
+            .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
         Assert.assertEquals("Some text", actionItems.get(3).getTitle());
+
+        // Link is configured
+        Assert.assertEquals("/content/page.html", actionItems.get(4).getURL());
+        Assert.assertEquals("A page", actionItems.get(4).getTitle());
     }
 
     @Test
@@ -145,5 +178,11 @@ public class CommerceTeaserImplTest {
 
         List<ListItem> actionItems = commerceTeaser.getActions();
         Assert.assertTrue(actionItems.isEmpty());
+    }
+
+    @Test
+    public void verifyJsonExport() {
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+        Utils.testJSONExport(commerceTeaser, "/exporter/commerce-teaser.json");
     }
 }

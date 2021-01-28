@@ -1,5 +1,8 @@
 .cmp-teaser__editor-action {
     display: block;
+    box-sizing: border-box;
+    border: solid lightgray;
+    padding-right: 1rem;
 }
 
 .cmp-teaser__editor-action .coral-Form-fieldwrapper label {

@@ -30,7 +30,7 @@ import Field from '../Field';
 import TextInput from '../TextInput';
 
 const AddressForm = props => {
-    const { parseAddressFormValues } = useAddressForm();
+    const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);
     const {
         cancel,
@@ -80,7 +80,7 @@ const AddressForm = props => {
     );
 
     const Regions = () => {
-        const { value: countryCode } = useFieldState('countryCode');
+        const { value: countryCode } = useFieldState('country_code');
         const country = countries.find(({ id }) => countryCode === id);
 
         if (!country || !country.available_regions) {
@@ -97,8 +97,16 @@ const AddressForm = props => {
             };
         });
 
-        return <Select id={classes.region_code} field="region_code" items={displayRegions} />;
+        return (
+            <Select
+                id={classes.region_code}
+                field="region_code"
+                items={[{ value: '', label: '' }, ...displayRegions]}
+                validate={isRequired}
+            />
+        );
     };
+
     return (
         <Form className={classes.root} initialValues={parseAddressFormValues(initialValues)} onSubmit={handleSubmit}>
             {({ formApi }) => (
@@ -159,7 +167,15 @@ const AddressForm = props => {
                         </div>
                         <div className={classes.country}>
                             <Field label={t('checkout:country', 'Country')}>
-                                <Select field="countryCode" items={displayCountries} />
+                                <Select
+                                    field="country_code"
+                                    items={displayCountries}
+                                    onChange={() => {
+                                        // reset the region_code field when we change the country
+                                        // otherwise the previous selected version would still be in the form state
+                                        formApi.setValue('region_code', '');
+                                    }}
+                                />
                             </Field>
                         </div>
                         <div className={classes.region_code}>

@@ -16,7 +16,6 @@
 
 const path = require('path');
 
-const BUILD_DIR = path.join(__dirname, 'dist');
 const CLIENTLIB_DIR = path.join(
   __dirname,
   '..',
@@ -39,7 +38,7 @@ const libsBaseConfig = {
 
 // Config for `aem-clientlib-generator`
 module.exports = {
-  context: BUILD_DIR,
+  context: __dirname,
   clientLibRoot: CLIENTLIB_DIR,
   libs: [
     {
@@ -51,22 +50,35 @@ module.exports = {
         // Copy entrypoint scripts and stylesheets into the respective ClientLib
         // directories
         js: {
-          cwd: 'cif-examples-react',
+          cwd: 'dist/cif-examples-react',
           files: ['**/*.js'],
           flatten: false
         },
         css: {
-          cwd: 'cif-examples-react',
+          cwd: 'dist/cif-examples-react',
           files: ['**/*.css'],
           flatten: false
         },
 
         // Copy all other files into the `resources` ClientLib directory
         resources: {
-          cwd: 'cif-examples-react',
+          cwd: 'dist/cif-examples-react',
           files: ['**/*.*'],
           flatten: false,
           ignore: ['**/*.js', '**/*.css']
+        }
+      }
+    },
+    {
+      ...libsBaseConfig,
+      name: 'storybook',
+      categories: ['cif-examples.storybook'],
+      dependencies: [],
+      assets: {
+        resources: {
+          cwd: 'storybook-static',
+          files: ['**/*.*'],
+          flatten: false
         }
       }
     }

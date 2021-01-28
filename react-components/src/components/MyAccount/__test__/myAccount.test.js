@@ -17,7 +17,7 @@ import { fireEvent, wait } from '@testing-library/react';
 import { render } from 'test-utils';
 import { CartProvider } from '../../Minicart';
 import MyAccount from '../myAccount';
-
+import AccountLink from '../accountLink';
 // avoid console errors logged during testing
 console.error = jest.fn();
 
@@ -62,5 +62,20 @@ describe('<MyAccount>', () => {
 
             expect(mockReducerFactory).toHaveBeenCalledTimes(1);
         });
+    });
+
+    it('renders a custom list of links', () => {
+        const { asFragment } = render(
+            <CartProvider initialState={{ cartId: null }} reducerFactory={() => state => state}>
+                <MyAccount>
+                    <AccountLink>
+                        {'Icon'}
+                        {'Custom link'}
+                    </AccountLink>
+                </MyAccount>
+            </CartProvider>
+        );
+
+        expect(asFragment()).toMatchSnapshot();
     });
 });

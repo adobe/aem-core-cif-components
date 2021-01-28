@@ -15,34 +15,24 @@
 const plugins = [
     /**
      * See:
-     * https://babeljs.io/docs/en/babel-plugin-proposal-class-properties
-     * https://babeljs.io/docs/en/babel-plugin-proposal-object-rest-spread
-     * https://babeljs.io/docs/en/next/babel-plugin-syntax-dynamic-import.html
-     * https://babeljs.io/docs/en/next/babel-plugin-syntax-jsx.html
-     * https://babeljs.io/docs/en/babel-plugin-transform-react-jsx
-     * https://www.npmjs.com/package/babel-plugin-graphql-tag
+     *  https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining
      */
-    ['@babel/plugin-proposal-class-properties'],
-    ['@babel/plugin-proposal-object-rest-spread'],
-    ['@babel/plugin-syntax-dynamic-import'],
-    ['@babel/plugin-syntax-jsx'],
-    ['@babel/plugin-transform-react-jsx'],
-    ['babel-plugin-graphql-tag'],
     ['@babel/plugin-proposal-optional-chaining']
 ];
 
+const presets = [['@babel/preset-react']];
 // eslint-disable-next-line no-undef
 module.exports = function(api) {
     const envConfigs = {
         development: {
             plugins,
-            presets: [['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]]
+            presets: [...presets, ['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]]
         },
         test: {
             plugins: [...plugins, ['babel-plugin-dynamic-import-node']],
-            presets: [['@babel/preset-env', { modules: 'commonjs', targets: 'node 10' }]]
+            presets: [...presets, ['@babel/preset-env', { modules: 'commonjs', targets: 'node 10' }]]
         }
     };
 
-    return envConfigs[api.env() || 'development'];
+    return envConfigs[Object.keys(envConfigs).indexOf(api.env()) !== -1 ? api.env() : 'development'];
 };

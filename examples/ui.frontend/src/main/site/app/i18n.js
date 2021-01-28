@@ -51,7 +51,8 @@ i18n.use(Backend)
         },
 
         backend: {
-            loadPath: '/etc.clientlibs/cif-components-examples/clientlibs/cif-examples-react/resources/i18n/{{lng}}/{{ns}}.json',
+            loadPath:
+                '/etc.clientlibs/cif-components-examples/clientlibs/cif-examples-react/resources/i18n/{{lng}}/{{ns}}.json',
             allowMultiLoading: false,
             withCredentials: true
         }
