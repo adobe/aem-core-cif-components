@@ -30,6 +30,12 @@ public interface Header {
     String getNavigationRootPageUrl();
 
     /**
+     * @return the title of the navigation root page
+     */
+    @Nullable
+    String getNavigationRootPageTitle();
+
+    /**
      * @return the {@link Resource} representing the "minicart" component, or <code>null</code> if there is no child resource with the name
      *         <code>minicart</code>
      */
