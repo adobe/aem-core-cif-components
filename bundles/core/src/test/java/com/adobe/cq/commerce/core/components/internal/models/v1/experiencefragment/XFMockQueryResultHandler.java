@@ -34,10 +34,11 @@ import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceE
  */
 public class XFMockQueryResultHandler implements MockQueryResultHandler {
 
-    private Resource root;
-    private String sku;
-    private String fragmentLocation;
-    private List<Node> nodes;
+    private final Resource root;
+    private final String productSku;
+    private final String categoryId;
+    private final String fragmentLocation;
+    private final List<Node> nodes;
     private MockQuery query;
 
     /**
@@ -45,12 +46,14 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
      * and will look for resources matching the given <code>sku</code> and <code>fragmentLocation</code> parameters.
      * 
      * @param root The resource where the search should start.
-     * @param sku The value of the <code>cq:products</code> property, can be null.
+     * @param productSku The value of the <code>cq:products</code> property, can be null.
+     * @param categoryId The value of the <code>cq:categories</code> property, can be null.
      * @param fragmentLocation The value of the <code>fragmentLocation</code> property, can be null.
      */
-    XFMockQueryResultHandler(Resource root, String sku, String fragmentLocation) {
+    XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
         this.root = root;
-        this.sku = sku;
+        this.productSku = productSku;
+        this.categoryId = categoryId;
         this.fragmentLocation = fragmentLocation;
         nodes = new ArrayList<>();
     }
@@ -67,8 +70,12 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
         if (jcrContent != null) {
             ValueMap vm = jcrContent.getValueMap();
             String sku = vm.get(CommerceExperienceFragment.PN_CQ_PRODUCTS, String.class);
+            String categoryId = vm.get(CommerceExperienceFragment.PN_CQ_CATEGORIES, String.class);
             String fragmentLocation = vm.get(CommerceExperienceFragment.PN_FRAGMENT_LOCATION, String.class);
-            if (StringUtils.equals(this.sku, sku) && StringUtils.equals(this.fragmentLocation, fragmentLocation)) {
+            if (StringUtils.equals(this.fragmentLocation, fragmentLocation)
+                && ((this.productSku == null && this.categoryId == null)
+                    || (this.productSku != null && StringUtils.equals(this.productSku, sku))
+                    || (this.categoryId != null && StringUtils.equals(this.categoryId, categoryId)))) {
                 nodes.add(jcrContent.adaptTo(Node.class));
             }
         }
