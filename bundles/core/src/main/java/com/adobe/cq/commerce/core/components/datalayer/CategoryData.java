@@ -13,17 +13,23 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.datalayer;
 
+import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public interface CategoryData {
 
+    @JsonProperty("repo:id")
     default String getId() {
         throw new UnsupportedOperationException();
     }
 
+    @JsonProperty("xdm:name")
     default String getName() {
         throw new UnsupportedOperationException();
     }
 
-    default String getImage() {
+    @JsonProperty("xdm:asset")
+    default AssetData getImage() {
         throw new UnsupportedOperationException();
     }
 }

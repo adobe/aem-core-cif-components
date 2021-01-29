@@ -13,7 +13,12 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.internal.models.v1.product.AssetImpl;
+import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 
 public class CategoryDataImpl implements CategoryData {
     private String id;
@@ -28,7 +33,7 @@ public class CategoryDataImpl implements CategoryData {
 
     @Override
     public String getId() {
-        return id;
+        return StringUtils.join("category", DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(id), 0, 10));
     }
 
     @Override
@@ -37,7 +42,14 @@ public class CategoryDataImpl implements CategoryData {
     }
 
     @Override
-    public String getImage() {
-        return image;
+    public AssetData getImage() {
+        if (image != null) {
+            AssetImpl asset = new AssetImpl();
+            asset.setPath(image);
+            asset.setType("image");
+            return new AssetDataImpl(asset);
+        }
+
+        return null;
     }
 }

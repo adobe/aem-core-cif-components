@@ -17,7 +17,7 @@ import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public interface ProductData extends ComponentData {
+public interface ProductData extends ComponentData, CategoryListData {
 
     @JsonProperty("xdm:SKU")
     default String getSKU() {
@@ -31,11 +31,6 @@ public interface ProductData extends ComponentData {
 
     @JsonProperty("xdm:currencyCode")
     default String getCurrency() {
-        throw new UnsupportedOperationException();
-    }
-
-    @JsonProperty("xdm:categories")
-    default CategoryData[] getCategories() {
         throw new UnsupportedOperationException();
     }
 
