@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.LanguageManager;
@@ -63,11 +64,6 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
-
-    // This query is backed up by an index
-    private static final String QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-        + "AND (node.[" + PN_CQ_PRODUCTS + "] = '%s' OR node.[" + PN_CQ_PRODUCTS + "] LIKE '%s#%%') "
-        + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
 
     @Self
     private SlingHttpServletRequest request;
@@ -99,32 +95,15 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @PostConstruct
     private void initModel() {
 
-        // Parse identifier in URL
-        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        String sku = null;
-
-        if (ProductIdentifierType.SKU.equals(identifier.getLeft())) {
-            sku = identifier.getRight();
-        } else if (SiteNavigation.isProductPage(currentPage)) {
-            Product product = request.adaptTo(Product.class);
-            if (product.getFound()) {
-                sku = product.getSku();
-            }
+        String query = null;
+        if (SiteNavigation.isProductPage(currentPage)) {
+            query = getQueryForProduct();
+        } else if (SiteNavigation.isCategoryPage(currentPage)) {
+            query = getQueryForCategory();
         }
 
-        if (sku == null) {
-            LOGGER.warn("Cannot find sku or product for current request");
+        if (query == null) {
             return;
-        }
-
-        String localizationRoot = getLocalizationRoot(currentPage.getPath());
-        String xfRoot = localizationRoot != null ? localizationRoot.replace("/content/", XF_ROOT) : XF_ROOT;
-
-        String query = String.format(QUERY_TEMPLATE, xfRoot, sku, sku);
-        if (fragmentLocation != null) {
-            query += "= '" + fragmentLocation + "'";
-        } else {
-            query += "IS NULL";
         }
 
         List<Resource> xfs = findExperienceFragments(query);
@@ -132,6 +111,81 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
             xfResource = xfs.get(0);
             resolveName();
         }
+    }
+
+    private String getQueryForProduct() {
+        // Parse product identifier in URL
+        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
+        String sku = null;
+
+        if (ProductIdentifierType.SKU.equals(identifier.getLeft())) {
+            sku = identifier.getRight();
+        } else {
+            Product product = request.adaptTo(Product.class);
+            if (product != null && product.getFound()) {
+                sku = product.getSku();
+            }
+        }
+
+        if (StringUtils.isBlank(sku)) {
+            LOGGER.warn("Cannot find sku or product for current request");
+            return null;
+        }
+
+        return buildQueryForProduct(sku);
+    }
+
+    private String buildQueryForProduct(String sku) {
+        // This query is backed up by an index
+        final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
+            + "AND (node.[" + PN_CQ_PRODUCTS + "] = '%s' OR node.[" + PN_CQ_PRODUCTS + "] LIKE '%s#%%') "
+            + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
+
+        String query = String.format(PRODUCT_QUERY_TEMPLATE, getExperienceFragmentsRoot(), sku, sku);
+        if (fragmentLocation != null) {
+            query += "= '" + fragmentLocation + "'";
+        } else {
+            query += "IS NULL";
+        }
+
+        return query;
+    }
+
+    private String getQueryForCategory() {
+        // Parse category identifier in URL
+        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
+        String id = null;
+
+        if (CategoryIdentifierType.ID.equals(identifier.getLeft())) {
+            id = identifier.getRight();
+        }
+
+        if (StringUtils.isBlank(id)) {
+            LOGGER.warn("Cannot find category id for current request");
+            return null;
+        }
+
+        return buildQueryForCategory(id);
+    }
+
+    private String buildQueryForCategory(String categoryId) {
+        final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
+            + "AND node.[" + PN_CQ_CATEGORIES + "] = '%s' "
+            + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
+
+        String query = String.format(CATEGORY_QUERY_TEMPLATE, getExperienceFragmentsRoot(), categoryId);
+        if (fragmentLocation != null) {
+            query += "= '" + fragmentLocation + "'";
+        } else {
+            query += "IS NULL";
+        }
+
+        return query;
+    }
+
+    private String getExperienceFragmentsRoot() {
+        String localizationRoot = getLocalizationRoot(currentPage.getPath());
+        return localizationRoot != null ? localizationRoot.replace("/content/", XF_ROOT) : XF_ROOT;
     }
 
     private List<Resource> findExperienceFragments(String query) {
