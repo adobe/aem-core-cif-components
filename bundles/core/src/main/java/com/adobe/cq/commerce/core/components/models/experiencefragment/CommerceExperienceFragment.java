@@ -26,6 +26,11 @@ public interface CommerceExperienceFragment extends Component {
     String PN_CQ_PRODUCTS = "cq:products";
 
     /**
+     * Name of the configuration property that specifies the categories selected in an experience fragment.
+     */
+    String PN_CQ_CATEGORIES = "cq:categories";
+
+    /**
      * Name of the configuration property that specifies the experience fragment location name.
      */
     String PN_FRAGMENT_LOCATION = "fragmentLocation";

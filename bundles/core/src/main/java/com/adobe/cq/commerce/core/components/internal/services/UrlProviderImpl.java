@@ -147,6 +147,13 @@ public class UrlProviderImpl implements UrlProvider {
                 continue;
             }
 
+            if (child.hasChildren()) {
+                final Resource grandChild = toSpecificPage(child, selector, request, params);
+                if (grandChild != null) {
+                    return grandChild;
+                }
+            }
+
             Resource jcrContent = child.getChild(JcrConstants.JCR_CONTENT);
             if (jcrContent == null) {
                 continue;

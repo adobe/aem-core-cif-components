@@ -100,18 +100,13 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
             return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
         }
 
-        Page parentPage = page.getParent();
-        if (parentPage == null) {
-            return false;
-        }
-
         // perform the appropriate checks according to the pageType property
         if (PRODUCT_PAGE_TYPE.equals(pageType)) {
             Page productPage = SiteNavigation.getProductPage(page);
-            return productPage != null && productPage.getPath().equals(parentPage.getPath());
+            return productPage != null && pagePath.contains(productPage.getPath());
         } else if (CATEGORY_PAGE_TYPE.equals(pageType)) {
             Page categoryPage = SiteNavigation.getCategoryPage(page);
-            return categoryPage != null && categoryPage.getPath().equals(parentPage.getPath());
+            return categoryPage != null && pagePath.contains(categoryPage.getPath());
         }
 
         return false;
