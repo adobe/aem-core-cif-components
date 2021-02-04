@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -56,6 +57,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -64,7 +66,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
     adaptables = SlingHttpServletRequest.class,
     adapters = { ProductCarousel.class, ComponentExporter.class },
     resourceType = ProductCarouselImpl.RESOURCE_TYPE)
-public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel, ComponentExporter {
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
+public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
