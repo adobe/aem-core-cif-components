@@ -153,6 +153,19 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testNestedCategoryUrl() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .id("categoryId1.1")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page/nested-page.categoryId1.1.html", url);
+    }
+
+    @Test
     public void testProductUrlWithCustomPage() {
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
@@ -169,12 +182,26 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         Map<String, String> params = new ParamsBuilder()
-            .urlKey("productId1")
+            .urlKey("productId2")
             .variantSku("variantSku")
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page.productId1.html#variantSku", url);
+        Assert.assertEquals("/content/product-page/sub-page-2.productId2.html#variantSku", url);
+    }
+
+    @Test
+    public void testNestedProductUrlWithAnchor() {
+        Page page = context.currentPage("/content/product-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .urlKey("productId1.1")
+            .variantSku("variantSku")
+            .map();
+
+        String url = urlProvider.toProductUrl(request, page, params);
+        Assert.assertEquals("/content/product-page/sub-page/nested-page.productId1.1.html#variantSku", url);
     }
 
     @Test
