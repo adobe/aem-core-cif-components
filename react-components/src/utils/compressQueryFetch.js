@@ -25,13 +25,20 @@ import { stripIgnoredCharacters } from 'graphql';
 export default function(url, options) {
     try {
         if (options.method === 'GET') {
-            // Parse query from query string in URL
-            let parsedUrl = new URL(url);
-            let query = parsedUrl.searchParams.get('query');
-            if (query) {
-                query = stripIgnoredCharacters(query);
-                parsedUrl.searchParams.set('query', query);
-                url = parsedUrl.toString();
+            // Split url by ? to get query string
+            let parts = url.split('?');
+
+            // Only proceed if it is a valid URL
+            if (parts.length === 2) {
+                // Parse query from search params string
+                let params = new URLSearchParams(parts[1]);
+                let query = params.get('query');
+                if (query) {
+                    query = stripIgnoredCharacters(query);
+                    params.set('query', query);
+                    parts[1] = params.toString();
+                    url = parts.join('?');
+                }
             }
         }
         if (options.method === 'POST') {
