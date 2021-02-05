@@ -44,7 +44,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
-import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
