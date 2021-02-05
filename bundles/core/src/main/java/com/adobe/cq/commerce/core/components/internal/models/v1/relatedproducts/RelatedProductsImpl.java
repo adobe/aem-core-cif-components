@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
@@ -163,6 +164,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Nonnull
     @Override
     public List<ProductListItem> getProductIdentifiers() {
-        return null;
+        return Collections.emptyList();
     }
 }

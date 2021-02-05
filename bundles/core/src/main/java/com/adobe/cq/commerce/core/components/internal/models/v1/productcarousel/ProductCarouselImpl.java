@@ -215,7 +215,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
             return Collections.emptyList();
         }
         return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
-            new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT), "", productPage))
+            CommerceIdentifierImpl.fromProductSku(sku), "", productPage))
             .collect(Collectors.toList());
 
     }

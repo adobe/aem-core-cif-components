@@ -158,6 +158,12 @@ public class RelatedProductsImplTest {
     }
 
     @Test
+    public void testNoProductIdentifiersYet() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
+        Assert.assertEquals(0, relatedProducts.getProductIdentifiers().size());
+    }
+
+    @Test
     public void testRelatedProductsWithoutRelationType() throws Exception {
         setUp(null, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
@@ -234,4 +240,5 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getThumbnail().getUrl(), item.getImageURL());
         }
     }
+
 }
