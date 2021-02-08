@@ -1,0 +1,72 @@
+.carousel__btn {
+    background: transparent;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    height: 20px;
+    position: absolute;
+    top: 50%;
+    width: 20px;
+}
+
+.carousel__btn--next {
+    border-bottom: 8px solid;
+    border-right: 8px solid;
+    right: 0;
+    -moz-transform: rotate(315deg);
+    -webkit-transform: rotate(315deg);
+    transform: rotate(315deg);
+}
+
+.carousel__btn--prev {
+    border-bottom: 8px solid;
+    border-left: 8px solid;
+    left: 0;
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.carousel__card {
+    float: left;
+    text-align: center;
+    width: 240px;
+}
+
+.carousel__cardsroot {
+    overflow: hidden;
+}
+
+.carousel__container {
+    position: relative;
+    margin: 25px auto;
+    width: 240px;
+}
+
+@media screen and (min-width: 790px) {
+    .carousel__container {
+        width: 720px;
+    }
+}
+
+@media screen and (min-width: 1090px) {
+    .carousel__container {
+        width: 960px;
+    }
+}
+
+@media screen and (min-width: 1380px) {
+    .carousel__container {
+        width: 1200px;
+    }
+}
+
+@media screen and (min-width: 1650px) {
+    .carousel__container {
+        width: 1440px;
+    }
+}
+
+.carousel__title {
+    text-align: center;
+}
