@@ -30,17 +30,27 @@ describe('compressQueryFetch', () => {
     }`;
 
     const expectedQuery = '{categoryList(filters:{ids:{eq:"2"}}){id name}}';
+    const baseUrl = 'http://localhost';
 
-    it('compresses queries in query params', () => {
-        let url = new URL('http://localhost');
-        url.searchParams.set('query', sampleQuery);
+    it.each([[`${baseUrl}/`], ['https://localhost/api/graphql'], ['//localhost/'], ['/api/graphql/'], ['/']])(
+        'compresses queries in query params of url %s',
+        url => {
+            let queryParams = new URLSearchParams();
+            queryParams.set('query', sampleQuery);
+            const urlWithQuery = `${url}?${queryParams.toString()}`;
 
-        compressQueryFetch(url, { method: 'GET' });
+            compressQueryFetch(urlWithQuery, { method: 'GET' });
 
-        expect(fetch).toHaveBeenCalled();
-        const compressedUrl = new URL(fetch.mock.calls[0][0]);
-        expect(compressedUrl.searchParams.get('query')).toBe(expectedQuery);
-    });
+            // Verify called url
+            expect(fetch).toHaveBeenCalled();
+            const calledUrl = fetch.mock.calls[0][0];
+            expect(calledUrl.startsWith(url)).toBe(true);
+
+            // Verify query params
+            const compressedUrl = new URL(calledUrl, baseUrl);
+            expect(compressedUrl.searchParams.get('query')).toBe(expectedQuery);
+        }
+    );
 
     it('compresses queries in body', () => {
         const body = {
