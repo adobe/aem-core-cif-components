@@ -7,6 +7,7 @@
     position: absolute;
     top: 50%;
     width: 20px;
+    color: dimgrey;
 }
 
 .carousel__btn--next {
