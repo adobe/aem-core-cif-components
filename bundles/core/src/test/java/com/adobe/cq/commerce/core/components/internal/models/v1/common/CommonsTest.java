@@ -44,16 +44,17 @@ public class CommonsTest {
 
     @Test
     public void testCreateProductListItem() {
-        String sku="expected";
+        String sku = "expected";
         String urlKey = "expectedUrlKey";
 
-        CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY, CommerceIdentifier.EntityType.PRODUCT);
-        ProductListItem productListItem = new ProductListItemImpl(identifier,"", productPage);
+        CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY,
+            CommerceIdentifier.EntityType.PRODUCT);
+        ProductListItem productListItem = new ProductListItemImpl(identifier, "", productPage);
 
-        Assert.assertEquals(urlKey,productListItem.getSlug());
+        Assert.assertEquals(urlKey, productListItem.getSlug());
 
         identifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
-        productListItem = new ProductListItemImpl(identifier,"", productPage);
-        Assert.assertEquals(sku,productListItem.getSKU());
+        productListItem = new ProductListItemImpl(identifier, "", productPage);
+        Assert.assertEquals(sku, productListItem.getSKU());
     }
 }
