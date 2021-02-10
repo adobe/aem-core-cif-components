@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +30,9 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,7 @@ import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.Teaser;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Model(
@@ -77,15 +81,39 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Self
     private SlingHttpServletRequest request;
 
+    @Inject
+    private Style currentStyle;
+
     @Self
     @Via(type = ResourceSuperType.class)
     private Teaser wcmTeaser;
+
+    @ValueMapValue(name = "cq:styleIds", injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String[] cqStyleIds = null;
+
+    private String styleClass = null;
 
     @PostConstruct
     void initModel() {
         if (isActionsEnabled()) {
             populateActions();
         }
+
+        if (cqStyleIds != null && currentStyle != null) {
+
+            Resource stylePolicyResource = request.getResourceResolver().getResource(currentStyle.getPath());
+            if ((stylePolicyResource != null) && (stylePolicyResource.getChild("cq:styleGroups/item0/cq:styles") != null)) {
+                stylePolicyResource.getChild("cq:styleGroups/item0/cq:styles").getChildren().iterator()
+                    .forEachRemaining(r -> {
+                        ValueMap props = r.getValueMap();
+                        String styleId = props.get("cq:styleId", "");
+                        Arrays.stream(cqStyleIds).filter(elem -> elem.equals(styleId)).findFirst().ifPresent(
+                            value -> styleClass = props.get("cq:styleClasses", ""));
+                    });
+            }
+
+        }
+
     }
 
     void populateActions() {
@@ -216,6 +244,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Override
     public String getExportedType() {
         return RESOURCE_TYPE;
+    }
+
+    @Override
+    public String getCurrentStyle() {
+        return styleClass;
     }
 
     @Override

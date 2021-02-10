@@ -36,4 +36,11 @@ public interface CommerceTeaser extends Teaser {
      * @return A String representing the URL or {@code null} if there is not image associated with the teaser
      */
     String getAssetPath();
+
+    /**
+     * Retrieves the current style applied to the component (if any)
+     * 
+     * @return a CSS class corresponding to the style or {@code null} if no style is applied.
+     */
+    String getCurrentStyle();
 }
