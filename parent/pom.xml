@@ -21,7 +21,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.1-SNAPSHOT</version>
+    <version>1.7.1-SNAPSHOT</version>
 
     <name>AEM CIF Core Components - Parent</name>
     <description>Parent POM for AEM CIF Core Components</description>
@@ -975,7 +975,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
