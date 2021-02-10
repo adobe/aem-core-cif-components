@@ -20,4 +20,6 @@
      id="${component.id}"
      class="cmp-experiencefragment cmp-experiencefragment--${fragment.name}">
 </div>
-<sly data-sly-call="${template.placeholder @ isEmpty = !xf}" />
+<sly data-sly-test.hasFragmentLocation="${properties.fragmentLocation}" data-sly-set.emptyText="${'Configured to display related Experience Fragments for \'{0}\' placeholder location.' @format=properties.fragmentLocation}" />
+<sly data-sly-call="${template.placeholder @ isEmpty = !xf && hasFragmentLocation, emptyTextAppend = emptyText}" />
+<sly data-sly-call="${template.placeholder @ isEmpty = !xf && !hasFragmentLocation}" />
