@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
@@ -41,6 +42,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
@@ -151,13 +153,36 @@ public class SearchFilterServiceImplTest {
         response.setData(query);
         when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
-        context.registerAdapter(Resource.class,
-            GraphqlClient.class,
-            (Function<Resource, GraphqlClient>) input -> input.getValueMap().get("cq:graphqlClient") != null ? graphqlClient : null);
-
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
     }
 
+    @Test
+    public void testNullMagentoClient() {
+        context.registerAdapter(Resource.class, GraphqlClient.class, (GraphqlClient) null);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(page);
+
+        assertThat(filterAttributeMetadata).isEmpty();
+    }
+
+    @Test
+    public void testGraphqlResponsesWithErrors() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(page);
+        assertThat(filterAttributeMetadata).hasSize(0);
+    }
 }
