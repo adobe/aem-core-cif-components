@@ -12,5 +12,5 @@
  *
  ******************************************************************************/
 export { default } from './minicart';
-export { CartProvider } from './cartContext';
+export { CartProvider, useCartState } from './cartContext';
 export { default as CartInitializer } from './cartInitializer';
