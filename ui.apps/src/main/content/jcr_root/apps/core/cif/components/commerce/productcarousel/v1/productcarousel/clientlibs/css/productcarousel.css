@@ -40,6 +40,10 @@
     transform: rotate(45deg);
 }
 
+.productcarousel__cardscontainer {
+    margin: auto;
+}
+
 .productcarousel__container {
     position: relative;
     margin: 25px auto;

@@ -34,6 +34,10 @@
     width: 240px;
 }
 
+.carousel__cardscontainer {
+    margin: auto;
+}
+
 .carousel__cardsroot {
     overflow: hidden;
 }
