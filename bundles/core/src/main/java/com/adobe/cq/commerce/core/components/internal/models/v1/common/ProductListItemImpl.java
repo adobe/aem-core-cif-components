@@ -63,7 +63,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
         super(parentId, productPage.getContentResource());
         this.identifier = identifier;
-
+        this.productPage = productPage;
         switch (identifier.getType()) {
             case SKU:
                 this.sku = identifier.getValue();
