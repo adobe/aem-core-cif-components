@@ -52,6 +52,13 @@ public interface ProductListItem extends ListItem {
     }
 
     /**
+     * Returns the identifier of this product.
+     * 
+     * @return a {@link CommerceIdentifier} object representing the identifier of this product.
+     */
+    CommerceIdentifier getCommerceIdentifier();
+
+    /**
      * Returns the price of this {@code ProductListItem}.
      *
      * @return the price of this list item or {@code null}
