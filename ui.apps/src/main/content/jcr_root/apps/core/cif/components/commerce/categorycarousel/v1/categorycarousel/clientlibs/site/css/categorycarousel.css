@@ -1,0 +1,14 @@
+.categorycarousel__image {
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+
+.categorycarousel__imagewrapper {
+    background-position: 50% 50%;
+    background-size: cover;
+    display: block;
+    height: 7rem;
+    margin: 0 auto 1rem auto;
+    width: 7rem;
+}
