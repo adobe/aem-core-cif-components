@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryListDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
@@ -211,7 +212,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Override
     public CategoryData[] getDataLayerCategories() {
         return getCategories().stream()
-            .map(c -> new CategoryListDataImpl.CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 
