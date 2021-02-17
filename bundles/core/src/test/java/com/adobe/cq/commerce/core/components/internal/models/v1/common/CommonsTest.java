@@ -9,27 +9,12 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
-import org.apache.sling.api.resource.Resource;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.day.cq.wcm.api.Page;
 
 public class CommonsTest {
-
-    private Page productPage;
-
-    @Before
-    public void setup() {
-        productPage = Mockito.mock(Page.class);
-        Resource contentResource = Mockito.mock(Resource.class);
-
-        Mockito.when(productPage.getContentResource()).thenReturn(contentResource);
-    }
 
     @Test
     public void testCommerceIdentifierCreateProduct() {
@@ -40,21 +25,5 @@ public class CommonsTest {
         Assert.assertEquals("The sku is the expected one", sku, identifier.getValue());
         Assert.assertEquals("The identifier type is SKU", CommerceIdentifier.IdentifierType.SKU, identifier.getType());
         Assert.assertEquals("The entity type is Product", CommerceIdentifier.EntityType.PRODUCT, identifier.getEntityType());
-    }
-
-    @Test
-    public void testCreateProductListItem() {
-        String sku = "expected";
-        String urlKey = "expectedUrlKey";
-
-        CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY,
-            CommerceIdentifier.EntityType.PRODUCT);
-        ProductListItem productListItem = new ProductListItemImpl(identifier, "", productPage);
-
-        Assert.assertEquals(urlKey, productListItem.getSlug());
-
-        identifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
-        productListItem = new ProductListItemImpl(identifier, "", productPage);
-        Assert.assertEquals(sku, productListItem.getSKU());
     }
 }
