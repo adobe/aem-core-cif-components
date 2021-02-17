@@ -32,6 +32,9 @@ public interface ProductCarousel extends Component {
     @Nonnull
     List<ProductListItem> getProducts();
 
+    @Nonnull
+    List<ProductListItem> getProductIdentifiers();
+
     /**
      * Returns in instance of the products retriever for fetching product data via GraphQL.
      *
