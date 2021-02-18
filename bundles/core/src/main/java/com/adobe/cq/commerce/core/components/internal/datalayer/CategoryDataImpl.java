@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2020 Adobe. All rights reserved.
+ *    Copyright 2021 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,39 +13,43 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import org.apache.sling.api.resource.Resource;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
-import com.adobe.cq.commerce.core.components.datalayer.ProductData;
+import com.adobe.cq.commerce.core.components.internal.models.v1.product.AssetImpl;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 
-public class ProductDataImpl extends ComponentDataImpl implements ProductData {
-    public ProductDataImpl(DataLayerComponent component, Resource resource) {
-        super(component, resource);
+public class CategoryDataImpl implements CategoryData {
+    private String id;
+    private String name;
+    private String image;
+
+    public CategoryDataImpl(String id, String name, String image) {
+        this.id = id;
+        this.name = name;
+        this.image = image;
     }
 
     @Override
-    public String getSKU() {
-        return component.getDataLayerSKU();
+    public String getId() {
+        return StringUtils.join("category", DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(id), 0, 10));
     }
 
     @Override
-    public Double getPrice() {
-        return component.getDataLayerPrice();
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getCurrency() {
-        return component.getDataLayerCurrency();
-    }
+    public AssetData getImage() {
+        if (image != null) {
+            AssetImpl asset = new AssetImpl();
+            asset.setPath(image);
+            asset.setType("image");
+            return new AssetDataImpl(asset);
+        }
 
-    @Override
-    public CategoryData[] getCategories() {
-        return component.getDataLayerCategories();
-    }
-
-    @Override
-    public AssetData[] getAssets() {
-        return component.getDataLayerAssets();
+        return null;
     }
 }

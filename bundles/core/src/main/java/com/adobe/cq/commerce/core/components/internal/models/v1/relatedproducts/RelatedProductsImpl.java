@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -159,4 +160,9 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         return TitleTypeProvider.getTitleType(currentStyle, properties);
     }
 
+    @Nonnull
+    @Override
+    public List<ProductListItem> getProductIdentifiers() {
+        return Collections.emptyList();
+    }
 }

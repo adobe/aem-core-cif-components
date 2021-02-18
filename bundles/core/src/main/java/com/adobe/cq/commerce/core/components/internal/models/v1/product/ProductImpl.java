@@ -38,6 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.commerce.core.components.internal.datalayer.AssetDataImpl;
+import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
@@ -67,6 +70,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
@@ -456,5 +460,18 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public String getDataLayerDescription() {
         return this.getDescription();
+    }
+
+    @Override
+    public CategoryData[] getDataLayerCategories() {
+        return productRetriever.fetchProduct().getCategories()
+            .stream()
+            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .toArray(CategoryData[]::new);
+    }
+
+    @Override
+    public AssetData[] getDataLayerAssets() {
+        return getAssets().stream().map(AssetDataImpl::new).toArray(AssetData[]::new);
     }
 }
