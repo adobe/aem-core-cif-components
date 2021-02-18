@@ -472,6 +472,7 @@ public class ProductImplTest {
         Assert.assertEquals("https://publish" + PAGE + ".html", productModel.getCanonicalUrl());
     }
 
+    @Test
     public void testJsonRender() throws IOException {
         productModel = context.request().adaptTo(ProductImpl.class);
         ObjectMapper mapper = new ObjectMapper();
