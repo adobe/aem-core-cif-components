@@ -467,8 +467,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
     public CategoryData[] getDataLayerCategories() {
         List<CategoryInterface> productCategories = productRetriever.fetchProduct().getCategories();
 
-        if (productCategories == null || productCategories.size() == 0)
+        if (productCategories == null || productCategories.size() == 0) {
             return new CategoryData[0];
+        }
 
         return productRetriever.fetchProduct().getCategories()
             .stream()
