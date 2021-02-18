@@ -44,6 +44,14 @@
               "position": 1
             }
           ],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "id": 10,
+              "name": "category-1",
+              "image": "/url/to/image"
+            }
+          ],
           "items": [
             {
               "position": 0,

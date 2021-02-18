@@ -1,10 +1,42 @@
 {
-  "product-8309e8957e": {
-    "xdm:SKU": "MJ01",
-    "xdm:listPrice": 58.0,
-    "xdm:currencyCode": "USD",
-    "dc:title": "Beaumont Summit Kit",
-    "@type": "venia/components/commerce/product",
-    "dc:description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
-  }
+    "product-8309e8957e": {
+        "xdm:SKU": "MJ01",
+        "xdm:listPrice": 58.0,
+        "xdm:categories": [
+            {
+                "repo:id": "category-4a44dc1536",
+                "xdm:name": "category-1",
+                "xdm:asset": {
+                    "repo:path": "/url/to/image",
+                    "xdm:tags": [],
+                    "repo:id": "image-5e4329fc2c",
+                    "@type": "image"
+                }
+            }
+        ],
+        "xdm:assets": [
+            {
+                "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                "xdm:tags": [],
+                "repo:id": "image-67ec60811c",
+                "@type": "image"
+            },
+            {
+                "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                "xdm:tags": [],
+                "repo:id": "image-e71f9f4579",
+                "@type": "image"
+            },
+            {
+                "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                "xdm:tags": [],
+                "repo:id": "image-560184ac55",
+                "@type": "image"
+            }
+        ],
+        "xdm:currencyCode": "USD",
+        "dc:description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "dc:title": "Beaumont Summit Kit",
+        "@type": "venia/components/commerce/product"
+    }
 }
