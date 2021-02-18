@@ -55,6 +55,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRet
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -464,6 +465,11 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public CategoryData[] getDataLayerCategories() {
+        List<CategoryInterface> productCategories = productRetriever.fetchProduct().getCategories();
+
+        if (productCategories == null || productCategories.size() == 0)
+            return new CategoryData[0];
+
         return productRetriever.fetchProduct().getCategories()
             .stream()
             .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
