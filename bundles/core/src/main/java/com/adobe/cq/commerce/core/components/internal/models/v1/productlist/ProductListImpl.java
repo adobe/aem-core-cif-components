@@ -49,6 +49,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -241,5 +242,17 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public String getCanonicalUrl() {
         return canonicalUrl;
+    }
+
+    @Override
+    protected String generateId() {
+        resource = request.getResource();
+        return super.generateId();
+    }
+
+    @Override
+    protected ComponentData getComponentData() {
+        resource = request.getResource();
+        return super.getComponentData();
     }
 }
