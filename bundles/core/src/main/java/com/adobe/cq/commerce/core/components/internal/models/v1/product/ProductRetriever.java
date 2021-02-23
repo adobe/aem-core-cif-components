@@ -70,7 +70,11 @@ class ProductRetriever extends AbstractProductRetriever {
                     .disabled()
                     .url()
                     .label()
-                    .position());
+                    .position())
+                .categories(c -> c
+                    .id()
+                    .name()
+                    .image());
 
             // Apply product variant query hook
             if (variantQueryHook != null) {
@@ -99,6 +103,10 @@ class ProductRetriever extends AbstractProductRetriever {
                     .url()
                     .label()
                     .position())
+                .categories(c -> c
+                    .id()
+                    .name()
+                    .image())
                 .onConfigurableProduct(cp -> cp
                     .priceRange(r -> r
                         .maximumPrice(generatePriceQuery()))

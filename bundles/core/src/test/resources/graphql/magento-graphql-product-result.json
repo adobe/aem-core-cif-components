@@ -75,6 +75,14 @@
               "position": 3
             }
           ],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "id": 10,
+              "name": "category-1",
+              "image": "/url/to/image"
+            }
+          ],
           "configurable_options": [
             {
               "label": "Color",
@@ -174,6 +182,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -228,6 +244,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -298,6 +322,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -353,6 +385,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -407,6 +447,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -477,6 +525,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -532,6 +588,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -586,6 +650,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -656,6 +728,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -711,6 +791,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -765,6 +853,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -835,6 +931,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -890,6 +994,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -944,6 +1056,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -1013,6 +1133,14 @@
                     "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
                     "label": "",
                     "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }

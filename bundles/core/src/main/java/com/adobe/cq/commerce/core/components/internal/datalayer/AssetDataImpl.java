@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2020 Adobe. All rights reserved.
+ *    Copyright 2021 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,39 +13,44 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import org.apache.sling.api.resource.Resource;
+import java.util.Date;
 
-import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
-import com.adobe.cq.commerce.core.components.datalayer.ProductData;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 
-public class ProductDataImpl extends ComponentDataImpl implements ProductData {
-    public ProductDataImpl(DataLayerComponent component, Resource resource) {
-        super(component, resource);
+public class AssetDataImpl implements AssetData {
+    private final Asset asset;
+
+    public AssetDataImpl(Asset asset) {
+        this.asset = asset;
     }
 
     @Override
-    public String getSKU() {
-        return component.getDataLayerSKU();
+    public String getId() {
+        return StringUtils.join(asset.getType(), DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(asset
+            .getPath()), 0, 10));
     }
 
     @Override
-    public Double getPrice() {
-        return component.getDataLayerPrice();
+    public String getFormat() {
+        return asset.getType();
     }
 
     @Override
-    public String getCurrency() {
-        return component.getDataLayerCurrency();
+    public String getUrl() {
+        return asset.getPath();
     }
 
     @Override
-    public CategoryData[] getCategories() {
-        return component.getDataLayerCategories();
+    public String[] getTags() {
+        return new String[0];
     }
 
     @Override
-    public AssetData[] getAssets() {
-        return component.getDataLayerAssets();
+    public Date getLastModifiedDate() {
+        return null;
     }
 }
