@@ -28,6 +28,8 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
@@ -35,6 +37,7 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
@@ -86,6 +89,7 @@ public class NavigationImplTest {
         Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
         when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
+        UrlDelegator urlDelegator = mock(UrlDelegator.class);
 
         // WCM navigation model
         wcmNavigation = mock(com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl.class);
@@ -102,7 +106,19 @@ public class NavigationImplTest {
         // URL provider
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(new MockUrlProviderConfiguration());
-        Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
+        Whitebox.setInternalState(navigation, "urlProvider", urlDelegator);
+
+        Map<String, String> zeroMap = new HashMap<>();
+        zeroMap.put("id", "0");
+        zeroMap.put("url_key", null);
+        zeroMap.put("url_path", null);
+        Map<String, String> oneMap = new HashMap<>();
+        oneMap.put("id", "1");
+        oneMap.put("url_key", null);
+        oneMap.put("url_path", null);
+
+        when(urlDelegator.toCategoryUrl(Mockito.any(), Mockito.any(), Matchers.eq(zeroMap))).thenReturn("category_page_path.0.html");
+        when(urlDelegator.toCategoryUrl(Mockito.any(), Mockito.any(), Matchers.eq(oneMap))).thenReturn("category_page_path.1.html");
 
         // current request
         request = mock(SlingHttpServletRequest.class);

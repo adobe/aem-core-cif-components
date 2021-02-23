@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
@@ -54,7 +55,7 @@ public class PreviewServletTest {
     private SlingHttpServletResponse response;
     private ResourceResolver resourceResolver;
     private RequestPathInfo requestPathInfo;
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     @Before
     public void setUp() {
@@ -69,7 +70,7 @@ public class PreviewServletTest {
         requestPathInfo = mock(RequestPathInfo.class);
         when(request.getRequestPathInfo()).thenReturn(requestPathInfo);
 
-        urlProvider = mock(UrlProvider.class);
+        urlProvider = mock(UrlDelegator.class);
         Whitebox.setInternalState(servlet, "urlProvider", urlProvider);
     }
 

@@ -36,11 +36,16 @@ public class UrlDelegatorImpl implements UrlDelegator, UrlProvider {
 
     @Reference(policyOption = ReferencePolicyOption.GREEDY)
     private List<UrlProvider> urlProviderList;
+    private UrlProvider urlProvider = null;
 
     private UrlProvider getUrlProvider(SlingHttpServletRequest request) {
+        if (urlProvider != null) {
+            return urlProvider;
+        }
         for (UrlProvider provider : urlProviderList) {
             if (provider.shouldProcess(request)) {
-                return provider;
+                urlProvider = provider;
+                return urlProvider;
             }
         }
         return null;
@@ -49,22 +54,37 @@ public class UrlDelegatorImpl implements UrlDelegator, UrlProvider {
     @Override
     public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params) {
         UrlProvider provider = getUrlProvider(request);
-        return provider.toProductUrl(request, page, params);
+        if (provider != null) {
+            return provider.toProductUrl(request, page, params);
+        }
+        return null;
     }
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return getUrlProvider(request).toCategoryUrl(request, page, params);
+        UrlProvider provider = getUrlProvider(request);
+        if (provider != null) {
+            return provider.toCategoryUrl(request, page, params);
+        }
+        return null;
     }
 
     @Override
     public Pair<ProductIdentifierType, String> getProductIdentifier(SlingHttpServletRequest request) {
-        return getUrlProvider(request).getProductIdentifier(request);
+        UrlProvider provider = getUrlProvider(request);
+        if (provider != null) {
+            return provider.getProductIdentifier(request);
+        }
+        return null;
     }
 
     @Override
     public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request) {
-        return getUrlProvider(request).getCategoryIdentifier(request);
+        UrlProvider provider = getUrlProvider(request);
+        if (provider != null) {
+            return provider.getCategoryIdentifier(request);
+        }
+        return null;
     }
 
     @Override

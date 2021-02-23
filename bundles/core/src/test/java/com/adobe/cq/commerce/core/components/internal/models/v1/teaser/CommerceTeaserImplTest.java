@@ -13,7 +13,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -28,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlDelegatorImpl;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -108,6 +111,17 @@ public class CommerceTeaserImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(commerceTeaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        // make the urlDelegator give the provider back instead of using the provider directly
+        Map<String, String> urlProviderPropertiesMap = new HashMap();
+        urlProviderPropertiesMap.put("productUrlTemplate", "{{page}}.{{url_key}}.html#{{variant_sku}}");
+        urlProviderPropertiesMap.put("productIdentifierLocation", "SELECTOR");
+        urlProviderPropertiesMap.put("productIdentifierType", "URL_KEY");
+        urlProviderPropertiesMap.put("categoryUrlTemplate", "{page}}.{{id}}.html");
+        urlProviderPropertiesMap.put("categoryIdentifierLocation", "SELECTOR");
+        urlProviderPropertiesMap.put("categoryIdentifierType", "ID");
+        context.registerInjectActivateService(new UrlProviderImpl(), urlProviderPropertiesMap);
+        context.registerInjectActivateService(new UrlDelegatorImpl());
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);

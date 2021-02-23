@@ -43,6 +43,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlDelegatorImpl;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -89,6 +90,17 @@ public class SearchResultsImplTest {
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
+
+                // make the urlDelegator give the provider back instead of using the provider
+                Map<String, String> urlProviderPropertiesMap = new HashMap();
+                urlProviderPropertiesMap.put("productUrlTemplate", "{{page}}.{{url_key}}.html#{{variant_sku}}");
+                urlProviderPropertiesMap.put("productIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("productIdentifierType", "URL_KEY");
+                urlProviderPropertiesMap.put("categoryUrlTemplate", "{page}}.{{id}}.html");
+                urlProviderPropertiesMap.put("categoryIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("categoryIdentifierType", "ID");
+                context.registerInjectActivateService(new UrlProviderImpl(), urlProviderPropertiesMap);
+                context.registerInjectActivateService(new UrlDelegatorImpl());
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
