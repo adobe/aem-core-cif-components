@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
@@ -39,6 +41,7 @@ import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadata
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
@@ -89,6 +92,7 @@ public class SearchResultsServiceImplTest {
 
     Resource resource;
     SearchResultsServiceImpl serviceUnderTest;
+    SearchOptionsImpl searchOptions;
 
     private static final String FILTER_ATTRIBUTE_NAME_CODE = "name";
     private static final String FILTER_ATTRIBUTE_COLOR_CODE = "color";
@@ -98,6 +102,7 @@ public class SearchResultsServiceImplTest {
     private static final String FILTER_ATTRIBUTE_PRICE4_CODE = "price4";
     private static final String FILTER_ATTRIBUTE_PRICE5_CODE = "price5";
     private static final String FILTER_ATTRIBUTE_BOOLEAN_CODE = "is_new";
+    private static final String FILTER_ATTRIBUTE_UNKNOWN = "unknown";
 
     private static final String SEARCH_QUERY = "pants";
 
@@ -114,7 +119,8 @@ public class SearchResultsServiceImplTest {
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE3_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE4_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE5_CODE),
-            createBooleanEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE)));
+            createBooleanEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE),
+            createUnknownAttributeMetadata()));
 
         when(products.getTotalCount()).thenReturn(0);
         when(products.getItems()).thenReturn(new ArrayList<>());
@@ -132,13 +138,12 @@ public class SearchResultsServiceImplTest {
         urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
 
+        prepareSearchOptions();
         serviceUnderTest = context.registerInjectActivateService(new SearchResultsServiceImpl(magentoGraphqlClient));
     }
 
-    @Test
-    public void testPerformSearch() {
-
-        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
+    private void prepareSearchOptions() {
+        searchOptions = new SearchOptionsImpl();
         searchOptions.setPageSize(6);
         searchOptions.setSearchQuery(SEARCH_QUERY);
         searchOptions.setCurrentPage(1);
@@ -155,7 +160,12 @@ public class SearchResultsServiceImplTest {
         filters.put(FILTER_ATTRIBUTE_PRICE5_CODE, "*"); // invalid
 
         filters.put(FILTER_ATTRIBUTE_BOOLEAN_CODE, "1");
+        filters.put(FILTER_ATTRIBUTE_UNKNOWN, FILTER_ATTRIBUTE_UNKNOWN);
         searchOptions.setAttributeFilters(filters);
+    }
+
+    @Test
+    public void testPerformSearch() {
 
         SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
             searchOptions,
@@ -171,6 +181,8 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).isEmpty();
+        assertThat(searchResultsSet.getSorter().getKeys()).isNull();
+        assertThat(searchResultsSet.getSorter().getCurrentKey()).isNull();
 
         String query = captor.getValue();
         assertThat(query).contains("search:\"pants\"");
@@ -182,6 +194,97 @@ public class SearchResultsServiceImplTest {
         assertThat(query).contains("price4:{from:\"60\",to:\"60\"}");
         assertThat(query).doesNotContain("price5:");
         assertThat(query).contains("is_new:{eq:\"1\"}");
+    }
+
+    @Test
+    public void testSearchWithSortOrderParam() {
+
+        searchOptions.addSorterKey("name", "Name", Sorter.Order.DESC);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "name");
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("name");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{name:ASC}");
+    }
+
+    @Test
+    public void testSearchWithInvalidSortOrderParam() {
+
+        searchOptions.addSorterKey("position", "Position", null);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "position");
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, "invalid");
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("position");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{position:ASC}");
+    }
+
+    @Test
+    public void testSearchWithInvalidSortKey() {
+
+        searchOptions.addSorterKey("invalid", "Invalid", null);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("invalid");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).doesNotContain("sort:{invalid:ASC}");
+    }
+
+    @Test
+    public void testNullMagentoClient() {
+
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+
+        Mockito.reset(magentoGraphqlClient);
+        when(magentoGraphqlClient.execute(any())).thenReturn(response);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            new SearchOptionsImpl(),
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
+        assertThat(searchResultsSet.getAppliedQueryParameters()).isEmpty();
+        assertThat(searchResultsSet.getProductListItems()).isEmpty();
     }
 
     @Test
@@ -241,4 +344,10 @@ public class SearchResultsServiceImplTest {
         return newFilterAttributeMetadata;
     }
 
+    private FilterAttributeMetadata createUnknownAttributeMetadata() {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(FILTER_ATTRIBUTE_UNKNOWN);
+        newFilterAttributeMetadata.setFilterInputType(FILTER_ATTRIBUTE_UNKNOWN);
+        return newFilterAttributeMetadata;
+    }
 }

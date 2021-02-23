@@ -15,7 +15,9 @@ package com.adobe.cq.commerce.core.components.internal.datalayer;
 
 import org.apache.sling.api.resource.Resource;
 
+import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.datalayer.ProductData;
+import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 
 public class ProductDataImpl extends ComponentDataImpl implements ProductData {
     public ProductDataImpl(DataLayerComponent component, Resource resource) {
@@ -37,4 +39,13 @@ public class ProductDataImpl extends ComponentDataImpl implements ProductData {
         return component.getDataLayerCurrency();
     }
 
+    @Override
+    public CategoryData[] getCategories() {
+        return component.getDataLayerCategories();
+    }
+
+    @Override
+    public AssetData[] getAssets() {
+        return component.getDataLayerAssets();
+    }
 }

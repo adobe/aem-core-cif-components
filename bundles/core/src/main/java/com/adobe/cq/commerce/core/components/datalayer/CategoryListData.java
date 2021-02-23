@@ -14,9 +14,11 @@
 package com.adobe.cq.commerce.core.components.datalayer;
 
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public interface CategoryListData extends ComponentData {
 
+    @JsonProperty("xdm:categories")
     default CategoryData[] getCategories() {
         throw new UnsupportedOperationException();
     }

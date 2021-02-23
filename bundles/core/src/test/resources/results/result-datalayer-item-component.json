@@ -1,19 +1,29 @@
 {
   "testresource-970b5df37f-item-b22082e149": {
-    "categories": [
+    "xdm:categories": [
       {
-        "id": "cat1",
-        "name": "Category 1",
-        "image": "/url/to/img1"
+        "repo:id": "category-081706ccee",
+        "xdm:name": "Category 1",
+        "xdm:asset": {
+          "xdm:tags": [],
+          "repo:path": "/url/to/img1",
+          "@type": "image",
+          "repo:id": "image-8787af1144"
+        }
       },
       {
-        "id": "cat2",
-        "name": "Category 2",
-        "image": "/url/to/img2"
+        "repo:id": "category-ec53d7b8d4",
+        "xdm:name": "Category 2",
+        "xdm:asset": {
+          "xdm:tags": [],
+          "repo:path": "/url/to/img2",
+          "@type": "image",
+          "repo:id": "image-ba99e900d5"
+        }
       }
     ],
-    "dc:title": "Test item",
     "repo:modifyDate": "2020-10-12T10:20:34Z",
+    "dc:title": "Test item",
     "@type": "venia/components/commerce/testitemresource"
   }
 }

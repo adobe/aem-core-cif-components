@@ -82,9 +82,33 @@ public class PageTypeRenderConditionServletTest {
     }
 
     @Test
+    public void testNestedProductPage() {
+        request.getResource().getValueMap().put("pageType", "product");
+        request.setQueryString("item=/content/product-page/sub-page/nested-page");
+        request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
+
+        servlet.doGet(request, null);
+
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+        Assert.assertTrue(condition.check());
+    }
+
+    @Test
     public void testCatalogPage() {
         request.getResource().getValueMap().put("pageType", "catalog");
         request.setQueryString("item=/content/catalog-page");
+        request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
+
+        servlet.doGet(request, null);
+
+        SimpleRenderCondition condition = (SimpleRenderCondition) request.getAttribute(RenderCondition.class.getName());
+        Assert.assertTrue(condition.check());
+    }
+
+    @Test
+    public void testNestedCategoryPage() {
+        request.getResource().getValueMap().put("pageType", "category");
+        request.setQueryString("item=/content/category-page/sub-page/nested-page");
         request.setPathInfo("/mnt/overlay/wcm/core/content/sites/properties.html");
 
         servlet.doGet(request, null);

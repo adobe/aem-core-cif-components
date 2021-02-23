@@ -29,8 +29,10 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
@@ -45,22 +47,22 @@ public class CommerceExperienceFragmentImplTest {
     public final AemContext context = createContext("/context/jcr-content-experiencefragment.json");
 
     private static final String PAGE = "/content/mysite/page";
-    private static final String ANOTHER_PAGE = "/content/mysite/another-page";
-    private static final String RESOURCE_XF1 = "/content/mysite/page/jcr:content/root/xf-component-1";
-    private static final String RESOURCE_XF2 = "/content/mysite/page/jcr:content/root/xf-component-2";
-    private static final String XF_ROOT = "/content/experience-fragments/mysite/page";
+    private static final String PRODUCT_PAGE = PAGE + "/product-page";
+    private static final String CATEGORY_PAGE = PAGE + "/category-page";
+    private static final String ANOTHER_PAGE = PAGE + "/another-page";
+    private static final String RESOURCE_XF1 = "/jcr:content/root/xf-component-1";
+    private static final String RESOURCE_XF2 = "/jcr:content/root/xf-component-2";
+    private static final String XF_ROOT = "/content/experience-fragments/";
+    private static final String SITE_XF_ROOT = XF_ROOT + "mysite/page";
 
-    private static final String QUERY_1 = "SELECT * FROM [cq:PageContent] as node" +
-        " WHERE ISDESCENDANTNODE('/content/experience-fragments/mysite/page')" +
-        " AND (node.[cq:products] = 'sku-xf1' OR node.[cq:products] LIKE 'sku-xf1#%') AND node.[fragmentLocation] IS NULL";
+    private static final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s')" +
+        " AND (node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] = '%s'" +
+        " OR node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] LIKE '%s#%%')" +
+        " AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] %s";
 
-    private static final String QUERY_2 = "SELECT * FROM [cq:PageContent] as node" +
-        " WHERE ISDESCENDANTNODE('/content/experience-fragments/mysite/page')" +
-        " AND (node.[cq:products] = 'sku-xf2' OR node.[cq:products] LIKE 'sku-xf2#%') AND node.[fragmentLocation] = 'location-xf2'";
-
-    private static final String QUERY_3 = "SELECT * FROM [cq:PageContent] as node" +
-        " WHERE ISDESCENDANTNODE('/content/experience-fragments/')" +
-        " AND (node.[cq:products] = 'sku-xf1' OR node.[cq:products] LIKE 'sku-xf1#%') AND node.[fragmentLocation] IS NULL";
+    private static final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s')" +
+        " AND node.[" + CommerceExperienceFragment.PN_CQ_CATEGORIES + "] = '%s'" +
+        " AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] %s";
 
     private LanguageManager languageManager;
 
@@ -81,16 +83,12 @@ public class CommerceExperienceFragmentImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
-    private void setup(String pagePath, String resourcePath, ProductIdentifierType productIdentifierType) {
-        Page page = Mockito.spy(context.currentPage(pagePath));
-        Resource xfResource = context.resourceResolver().getResource(resourcePath);
-        context.currentResource(xfResource);
+    private void setup(String pagePath, String resourcePath) {
+        setupUrlProvider(ProductIdentifierType.URL_KEY);
 
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setProductIdentifierType(productIdentifierType);
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
+        Page page = Mockito.spy(context.currentPage(pagePath));
+        Resource xfResource = context.resourceResolver().getResource(pagePath + resourcePath);
+        context.currentResource(xfResource);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -98,118 +96,165 @@ public class CommerceExperienceFragmentImplTest {
         slingBindings.setResource(xfResource);
     }
 
+    private void setupUrlProvider(ProductIdentifierType productIdentifierType) {
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setProductIdentifierType(productIdentifierType);
+        config.setCategoryIdentifierType(CategoryIdentifierType.ID);
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
+    }
+
+    private String buildQuery(String xfRoot, String productSku, String categoryId, String fragmentLocation) {
+        String flCondition = fragmentLocation != null ? "= '" + fragmentLocation + "'" : "IS NULL";
+        String query;
+        if (productSku != null) {
+            query = String.format(PRODUCT_QUERY_TEMPLATE, xfRoot, productSku, productSku, flCondition);
+        } else {
+            query = String.format(CATEGORY_QUERY_TEMPLATE, xfRoot, categoryId, flCondition);
+        }
+        return query;
+    }
+
     @Test
     public void testFragmentOnProductPageWithoutLocationProperty() {
-        setup(PAGE, RESOURCE_XF1, ProductIdentifierType.URL_KEY);
+        setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         Product product = Mockito.mock(Product.class);
         Mockito.when(product.getFound()).thenReturn(true);
         Mockito.when(product.getSku()).thenReturn("sku-xf1");
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
-        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf1", null);
-        MockJcr.addQueryResultHandler(session, queryHandler);
-
-        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertEquals("/content/experience-fragments/mysite/page/xf-1/master/jcr:content", xf.getPath());
-        Assert.assertEquals("xf-1", cxf.getName());
-        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
-        Assert.assertEquals(QUERY_1, queryHandler.getQuery().getStatement());
+        verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
     }
 
     @Test
-    public void testFragmentWithSkuInRequestAndLocationProperty() {
-        setup(PAGE, RESOURCE_XF2, ProductIdentifierType.SKU);
+    public void testFragmentOnProductPageWithLocationPropertyAndSkuInRequest() {
+        setup(PRODUCT_PAGE, RESOURCE_XF2);
+        setupUrlProvider(ProductIdentifierType.SKU);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf2");
 
-        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf2", "location-xf2");
-        MockJcr.addQueryResultHandler(session, queryHandler);
-
-        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertEquals("/content/experience-fragments/mysite/page/xf-2/master/jcr:content", xf.getPath());
-        Assert.assertEquals("xf-2", cxf.getName());
-        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
-        Assert.assertEquals(QUERY_2, queryHandler.getQuery().getStatement());
+        verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2",
+            "/content/experience-fragments/mysite/page/xf-2/master/jcr:content");
     }
 
     @Test
-    public void testLanguageManagerReturnsNull() {
+    public void testFragmentOnProductPageWithInvalidLanguageManager() {
         Mockito.reset(languageManager);
 
-        setup(PAGE, RESOURCE_XF1, ProductIdentifierType.URL_KEY);
+        setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         Product product = Mockito.mock(Product.class);
         Mockito.when(product.getFound()).thenReturn(true);
         Mockito.when(product.getSku()).thenReturn("sku-xf1");
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
-        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf1", null);
-        MockJcr.addQueryResultHandler(session, queryHandler);
-
-        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertEquals("/content/experience-fragments/mysite/page/xf-1/master/jcr:content", xf.getPath());
-        Assert.assertEquals("xf-1", cxf.getName());
-        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
-        Assert.assertEquals(QUERY_3, queryHandler.getQuery().getStatement());
+        verifyFragment(XF_ROOT, "sku-xf1", null, null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
     }
 
     @Test
-    public void testFragmentWithoutMatchingSkus() {
-        setup(PAGE, RESOURCE_XF2, ProductIdentifierType.SKU);
+    public void testFragmentOnProductPageWithoutMatchingSkus() {
+        setup(PRODUCT_PAGE, RESOURCE_XF2);
+        setupUrlProvider(ProductIdentifierType.SKU);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf3");
 
-        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf3", "location-xf2");
-        MockJcr.addQueryResultHandler(session, queryHandler);
-
-        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertNull(xf);
+        verifyFragmentResourceIsNull(XF_ROOT, "sku-xf3", null, "location-xf2");
     }
 
     @Test
-    public void testProductNotFound() {
-        setup(PAGE, RESOURCE_XF1, ProductIdentifierType.URL_KEY);
+    public void testFragmentOnProductPageWhenProductNotFound() {
+        setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         Product product = Mockito.mock(Product.class);
         Mockito.when(product.getFound()).thenReturn(false);
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
         CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertNull(xf);
+        Assert.assertNotNull(cxf);
+        Assert.assertNull(cxf.getExperienceFragmentResource());
     }
 
     @Test
-    public void testIsNotProductPage() {
-        setup(ANOTHER_PAGE, RESOURCE_XF1, ProductIdentifierType.URL_KEY);
+    public void testFragmentOnNonProductOrCategoryPage() {
+        setup(ANOTHER_PAGE, RESOURCE_XF1);
 
         Product product = Mockito.mock(Product.class);
         Mockito.when(product.getFound()).thenReturn(true);
         Mockito.when(product.getSku()).thenReturn("sku-xf1");
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
-        Resource pageResource = context.resourceResolver().getResource(XF_ROOT);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, "sku-xf1", null);
-        MockJcr.addQueryResultHandler(session, queryHandler);
+        verifyFragmentResourceIsNull(XF_ROOT, "sku-xf1", null, null);
+    }
+
+    @Test
+    public void testFragmentOnCategoryPageWithoutLocationProperty() {
+        setup(CATEGORY_PAGE, RESOURCE_XF1);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("catid-xf1");
+
+        verifyFragment(SITE_XF_ROOT, null, "catid-xf1", null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
+    }
+
+    @Test
+    public void testFragmentOnCategoryPageWithLocationPropertyAndIdInRequest() {
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("catid-xf2");
+
+        verifyFragment(SITE_XF_ROOT, null, "catid-xf2", "location-xf2", "xf-2",
+            "/content/experience-fragments/mysite/page/xf-2/master/jcr:content");
+    }
+
+    @Test
+    public void testFragmentOnCategoryPageWithoutMatchingIds() {
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("catid-xf3");
+
+        verifyFragmentResourceIsNull(XF_ROOT, null, "catid-xf3", "location-xf2");
+    }
+
+    @Test
+    public void testFragmentOnCategoryPageWithInvalidId() {
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
+
+        verifyFragmentResourceIsNull(XF_ROOT, null, null, null);
+    }
+
+    private void verifyFragment(String xfRootPath, String productSku, String categoryId, String fragmentLocation, String expectedXFName,
+        String expectedXFPath) {
+        XFMockQueryResultHandler queryHandler = mockJcrQueryResult(xfRootPath, productSku, categoryId, fragmentLocation);
 
         CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
-        Resource xf = cxf.getExperienceFragmentResource();
-        Assert.assertNull(xf);
+        Assert.assertNotNull(cxf);
+        Assert.assertEquals(expectedXFName, cxf.getName());
+        Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
+        Assert.assertEquals(expectedXFPath, cxf.getExperienceFragmentResource().getPath());
+
+        String expectedQuery = buildQuery(xfRootPath, productSku, categoryId, fragmentLocation);
+        Assert.assertEquals(expectedQuery, queryHandler.getQuery().getStatement());
+    }
+
+    private void verifyFragmentResourceIsNull(String xfRootPath, String productSku, String categoryId, String fragmentLocation) {
+        mockJcrQueryResult(xfRootPath, productSku, categoryId, fragmentLocation);
+
+        CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
+        Assert.assertNotNull(cxf);
+        Assert.assertNull(cxf.getExperienceFragmentResource());
+    }
+
+    private XFMockQueryResultHandler mockJcrQueryResult(String xfRootPath, String productSku, String categoryId, String fragmentLocation) {
+        Resource pageResource = context.resourceResolver().getResource(xfRootPath);
+        Session session = context.resourceResolver().adaptTo(Session.class);
+        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, productSku, categoryId, fragmentLocation);
+        MockJcr.addQueryResultHandler(session, queryHandler);
+        return queryHandler;
     }
 }
