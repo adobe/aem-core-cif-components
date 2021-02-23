@@ -1,0 +1,48 @@
+{
+  "id": "productcarousel-15914e2010",
+  "configured": true,
+  "productIdentifiers": [
+    {
+      "id": "-item-f70dc07ce5",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "NOT-FOUND",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "-item-62ea014ced",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MG01",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "-item-8309e8957e",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "MJ01",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "-item-05eb031653",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "faultyproduct",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "-item-edd18cf4f6",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "WJ01",
+        "type": "SKU"
+      }
+    }
+  ],
+  "titleType": "h2",
+  ":type": "core/cif/components/commerce/productcarousel/v1/productcarousel"
+}

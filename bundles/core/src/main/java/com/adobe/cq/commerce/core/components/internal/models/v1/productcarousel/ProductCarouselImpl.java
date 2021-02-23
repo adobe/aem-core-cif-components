@@ -22,21 +22,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Optional;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
@@ -51,10 +55,19 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = ProductCarouselImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { ProductCarousel.class, ComponentExporter.class },
+    resourceType = ProductCarouselImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
@@ -63,8 +76,9 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
-    @Optional
+    @ValueMapValue(
+        name = "product",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
     private String[] productSkuList;
 
     @Inject
@@ -85,6 +99,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     @PostConstruct
     private void initModel() {
+
         if (!isConfigured()) {
             return;
         }
@@ -105,7 +120,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
             .distinct()
             .collect(Collectors.toList());
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
@@ -120,6 +135,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     }
 
     @Override
+    @JsonIgnore
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null) {
             return Collections.emptyList();
@@ -173,6 +189,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     }
 
     @Override
+    @JsonIgnore
     public AbstractProductsRetriever getProductsRetriever() {
         return productsRetriever;
     }
@@ -188,5 +205,22 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     @Override
     public String getTitleType() {
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
+    }
+
+    @Override
+    @Nonnull
+    public List<ProductListItem> getProductIdentifiers() {
+        if (baseProductSkus == null) {
+            return Collections.emptyList();
+        }
+        return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
+            CommerceIdentifierImpl.fromProductSku(sku), "", productPage))
+            .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public String getExportedType() {
+        return RESOURCE_TYPE;
     }
 }

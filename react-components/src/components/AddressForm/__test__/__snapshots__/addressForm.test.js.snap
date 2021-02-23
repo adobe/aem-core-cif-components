@@ -10,9 +10,7 @@ exports[`<AddressForm /> renders the component 1`] = `
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -158,6 +156,71 @@ exports[`<AddressForm /> renders the component 1`] = `
         </div>
       </div>
       <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="country_code"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
         class="region_code"
       >
         <div
@@ -291,9 +354,7 @@ exports[`<AddressForm /> renders the component 1`] = `
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -522,7 +583,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
         </div>
       </div>
       <div
-        class="region_code"
+        class="country"
       >
         <div
           class="root"
@@ -530,7 +591,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           <span
             class="label"
           >
-            State
+            Country
           </span>
           <span
             class="root"
@@ -538,283 +599,48 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
             <span
               class="input"
             >
-              <input
+              <select
                 class="input"
-                id="region_code"
-                name="region_code"
-                value=""
-              />
+                name="country_code"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
             </span>
             <span
               class="before"
             />
             <span
               class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="postcode"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            ZIP
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
             >
-              <input
-                class="input"
-                id="postcode"
-                name="postcode"
-                value=""
-              />
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
             </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="telephone"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            Phone
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="telephone"
-                name="telephone"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="validation"
-      />
-      <div
-        class="error"
-      />
-    </div>
-    <div
-      class="footer"
-    >
-      <button
-        class="root_normalPriority"
-        type="button"
-      >
-        <span
-          class="content"
-        >
-          Cancel
-        </span>
-      </button>
-      <button
-        class="root_highPriority"
-        type="submit"
-      >
-        <span
-          class="content"
-        >
-          Save
-        </span>
-      </button>
-    </div>
-  </form>
-</DocumentFragment>
-`;
-
-exports[`<AddressForm /> renders the component with address validation message and form error message 1`] = `
-<DocumentFragment>
-  <form
-    class="root"
-  >
-    <div
-      class="body"
-    >
-      <h2
-        class="heading"
-      >
-        Address
-      </h2>
-      <div
-        class="firstname"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            First Name
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="firstname"
-                name="firstname"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="lastname"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            Last Name
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="lastname"
-                name="lastname"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="street0"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            Street
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="street0"
-                name="street0"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root"
-          />
-        </div>
-      </div>
-      <div
-        class="city"
-      >
-        <div
-          class="root"
-        >
-          <span
-            class="label"
-          >
-            City
-          </span>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="city"
-                name="city"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
           </span>
           <p
             class="root"
@@ -957,16 +783,14 @@ exports[`<AddressForm /> renders the component with address validation message a
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
 </DocumentFragment>
 `;
 
-exports[`<AddressForm /> renders the component with default address checkbox 1`] = `
+exports[`<AddressForm /> renders the component with address validation message and form error message 1`] = `
 <DocumentFragment>
   <form
     class="root"
@@ -976,9 +800,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -1117,6 +939,434 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
             <span
               class="after"
             />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="country_code"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="region_code"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            State
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="region_code"
+                name="region_code"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="postcode"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            ZIP
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="postcode"
+                name="postcode"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="telephone"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Phone
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="telephone"
+                name="telephone"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="validation"
+      />
+      <div
+        class="error"
+      >
+        form error message
+      </div>
+    </div>
+    <div
+      class="footer"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Cancel
+        </span>
+      </button>
+      <button
+        class="root_highPriority"
+        type="submit"
+      >
+        <span
+          class="content"
+        />
+      </button>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`<AddressForm /> renders the component with default address checkbox 1`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <div
+      class="body"
+    >
+      <h2
+        class="heading"
+      />
+      <div
+        class="firstname"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            First Name
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="firstname"
+                name="firstname"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="lastname"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Last Name
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="lastname"
+                name="lastname"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="street0"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Street
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="street0"
+                name="street0"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="city"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            City
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <input
+                class="input"
+                id="city"
+                name="city"
+                value=""
+              />
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="country_code"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
@@ -1283,9 +1533,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>
@@ -1302,9 +1550,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
     >
       <h2
         class="heading"
-      >
-        Address
-      </h2>
+      />
       <div
         class="firstname"
       >
@@ -1443,6 +1689,71 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
             <span
               class="after"
             />
+          </span>
+          <p
+            class="root"
+          />
+        </div>
+      </div>
+      <div
+        class="country"
+      >
+        <div
+          class="root"
+        >
+          <span
+            class="label"
+          >
+            Country
+          </span>
+          <span
+            class="root"
+          >
+            <span
+              class="input"
+            >
+              <select
+                class="input"
+                name="country_code"
+              >
+                <option
+                  value="RO"
+                >
+                  Romania
+                </option>
+                <option
+                  value="US"
+                >
+                  United States
+                </option>
+              </select>
+            </span>
+            <span
+              class="before"
+            />
+            <span
+              class="after"
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
@@ -1609,9 +1920,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
       >
         <span
           class="content"
-        >
-          Save
-        </span>
+        />
       </button>
     </div>
   </form>

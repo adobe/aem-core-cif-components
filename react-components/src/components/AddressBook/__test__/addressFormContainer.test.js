@@ -12,22 +12,34 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { wait } from '@testing-library/react';
 import { render } from '../../../utils/test-utils';
+
 import AddressFormContainer from '../addressFormContainer';
+jest.mock('../../AddressForm/useAddressForm.js', () => {
+    return {
+        useAddressForm: () => {
+            return {
+                countries: [],
+                handleSubmit: () => {},
+                handleCancel: () => {},
+                errorMessage: '',
+                updateAddress: {},
+                parseAddressFormValues: values => values
+            };
+        }
+    };
+});
 
 describe('<AddressFormContainer>', () => {
-    it('renders the component', async () => {
+    it('renders the component', () => {
         const { asFragment } = render(<AddressFormContainer />);
-        await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
-        });
+        expect(asFragment()).toMatchSnapshot();
     });
 
-    it('renders the component with address form shown', async () => {
-        const { asFragment } = render(<AddressFormContainer />, { userContext: { isShowAddressForm: true } });
-        await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
+    it('renders the component with address form shown', () => {
+        const { asFragment } = render(<AddressFormContainer />, {
+            userContext: { isShowAddressForm: true }
         });
+        expect(asFragment()).toMatchSnapshot();
     });
 });

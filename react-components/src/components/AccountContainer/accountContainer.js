@@ -18,7 +18,7 @@ import { useUserContext } from '../../context/UserContext';
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
-const AccountContainer = () => {
+const AccountContainer = props => {
     const [{ currentUser, isSignedIn }] = useUserContext();
     const [t] = useTranslation('account');
 
@@ -33,7 +33,7 @@ const AccountContainer = () => {
     return (
         <>
             <AccountTrigger label={label} />
-            <AccountDropdown />
+            <AccountDropdown>{props.children}</AccountDropdown>
         </>
     );
 };

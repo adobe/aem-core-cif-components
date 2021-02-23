@@ -49,9 +49,13 @@ hs_err_pid*
 frontend-maven-plugin
 
 **/dist
-**/dist
 **/react-components/resources/lang
+**/storybook-static
+**/storybook/resources/**
 
 yarn-error.log
 .env
 .npmrc
+
+# UI Tests
+ui.tests/test-module/reports

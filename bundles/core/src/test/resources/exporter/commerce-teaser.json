@@ -1,0 +1,47 @@
+{
+  "actions": [
+    {
+      "title": "A product",
+      "url": "/content/product-page/product-specific-page.beaumont-summit-kit.html",
+      "entityIdentifier": {
+        "entityType": "PRODUCT",
+        "value":"beaumont-summit-kit",
+        "type": "URL_KEY"
+      }
+    },
+    {
+      "title": "A category",
+      "url": "/content/category-page.5.html/equipment",
+      "entityIdentifier": {
+        "entityType": "CATEGORY",
+        "value":"5",
+        "type": "ID"
+      }
+    },
+    {
+      "title": "A category",
+      "url": "/content/category-page.6.html/equipment/running",
+      "entityIdentifier": {
+        "entityType": "CATEGORY",
+        "value":"6",
+        "type": "ID"
+      }
+    },
+    {
+      "title": "Some text",
+      "url": "/content/pageA.html"
+    },
+    {
+      "title": "A page",
+      "url": "/content/page.html"
+    }
+  ],
+  "id": "id",
+  "description": "Description",
+  "pretitle": "Pretitle",
+  "title": "Title",
+  "actionsEnabled": true,
+  "imageLinkHidden": false,
+  "titleLinkHidden": false,
+  ":type": "core/cif/components/content/teaser/v1/teaser"
+}

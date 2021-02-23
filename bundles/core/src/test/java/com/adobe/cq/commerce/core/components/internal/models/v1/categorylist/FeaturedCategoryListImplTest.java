@@ -237,4 +237,10 @@ public class FeaturedCategoryListImplTest {
         String jsonResult = featuredCategoryList.getData().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
+
+    @Test
+    public void testJsonExport() throws Exception {
+        setupTest(COMPONENT_PATH);
+        Utils.testJSONExport(featuredCategoryList, "/exporter/featuredcategories.json");
+    }
 }

@@ -1,0 +1,90 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background-color: $color-background;
+    font-size: 100%;
+    font-weight: 400;
+    line-height: 1;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: $color-background;
+    color: $venia-text;
+    margin: 0;
+    padding: 0;
+}
+
+div.header + div.responsivegrid {
+    margin: 0 auto;
+    max-width: 1500px !important;
+    float: none !important;
+}
+
+body,
+input,
+select,
+textarea {
+    font-family: $venia-font;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+a {
+    color: currentColor;
+    text-decoration: none;
+}
+
+p {
+    margin: 0;
+}
+
+dl,
+ol,
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+dd,
+dt {
+    margin: 0;
+}
+
+button {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: $venia-font;
+    font-size: 100%;
+    padding: 0;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-appearance: none;
+}
+
+button:disabled {
+    cursor: default;
+    touch-action: none;
+}

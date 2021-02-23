@@ -130,7 +130,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
 
         if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, request);
         }
 
         if (magentoGraphqlClient == null) {
@@ -149,7 +149,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         // If we have any errors returned we'll log them and return an empty search result
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return new ImmutablePair<>(response.getData() != null ? response.getData().getCategory() : null, searchResultsSet);
@@ -173,7 +173,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
         List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
-        if (availableSorterKeys == null || availableSorterKeys.isEmpty()) {
+        if (CollectionUtils.isEmpty(availableSorterKeys)) {
             return null;
         }
 

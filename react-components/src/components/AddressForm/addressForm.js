@@ -11,31 +11,32 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useCallback, useState } from 'react';
-import { Form } from 'informed';
-import { array, bool, func, number, object, shape, string } from 'prop-types';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Form, useFieldState } from 'informed';
+import { array, bool, func, object, shape, string, number } from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { validateEmail, isRequired, hasLengthExactly, validateRegionCode } from '../../utils/formValidators';
+
+import Button from '../Button';
+import Select from '../Select';
+import classes from './addressForm.css';
+import { validateEmail, isRequired } from '../../utils/formValidators';
 import combine from '../../utils/combineValidators';
 
 import { useAddressForm } from './useAddressForm';
 
 import AddressSelect from './addressSelect';
-import Button from '../Button';
 import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
 
-import classes from './addressForm.css';
-
 const AddressForm = props => {
-    const { parseAddressFormValues } = useAddressForm();
+    const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);
     const {
         cancel,
         countries,
         formErrorMessage,
-        heading,
+        formHeading,
         isAddressInvalid,
         invalidAddressMessage,
         initialAddressSelectValue,
@@ -46,14 +47,31 @@ const AddressForm = props => {
         showEmailInput,
         showSaveInAddressBookCheckbox,
         submit,
-        submitLabel
+        submitButtonLabel
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const errorMessage = formErrorMessage ? formErrorMessage : null;
     const [t] = useTranslation(['account', 'checkout', 'common']);
 
+    const displayCountries = useMemo(() => {
+        if (!countries || countries.length === 0) {
+            return [];
+        }
+        return countries.map(country => {
+            return {
+                label: country['full_name_locale'],
+                value: country['id']
+            };
+        });
+    }, [countries]);
+
     const handleSubmit = useCallback(
         values => {
+            if (!values['region_code'] || values['region_code'].length === 0) {
+                // add an empty `region_code` value since
+                // the form doesn't provide one if you leave the field empty
+                values['region_code'] = '';
+            }
             setIsSubmitting(true);
             // Convert street back to array
             submit({ ...values, street: [values.street0] });
@@ -61,8 +79,33 @@ const AddressForm = props => {
         [submit]
     );
 
-    const submitButtonLabel = submitLabel || t('account:address-save', 'Save');
-    const formHeading = heading || t('account:address-form-heading', 'Address');
+    const Regions = () => {
+        const { value: countryCode } = useFieldState('country_code');
+        const country = countries.find(({ id }) => countryCode === id);
+
+        if (!country || !country.available_regions) {
+            return <TextInput id={classes.region_code} field="region_code" />;
+        }
+
+        // US do not have regions with unique codes
+        const uniqueRegions = [...new Set(country.available_regions.map(item => item.code))];
+        const displayRegions = uniqueRegions.map(id => {
+            let entry = country.available_regions.find(({ code }) => code === id);
+            return {
+                value: entry.code,
+                label: entry.name
+            };
+        });
+
+        return (
+            <Select
+                id={classes.region_code}
+                field="region_code"
+                items={[{ value: '', label: '' }, ...displayRegions]}
+                validate={isRequired}
+            />
+        );
+    };
 
     return (
         <Form className={classes.root} initialValues={parseAddressFormValues(initialValues)} onSubmit={handleSubmit}>
@@ -122,18 +165,22 @@ const AddressForm = props => {
                                 <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                             </Field>
                         </div>
+                        <div className={classes.country}>
+                            <Field label={t('checkout:country', 'Country')}>
+                                <Select
+                                    field="country_code"
+                                    items={displayCountries}
+                                    onChange={() => {
+                                        // reset the region_code field when we change the country
+                                        // otherwise the previous selected version would still be in the form state
+                                        formApi.setValue('region_code', '');
+                                    }}
+                                />
+                            </Field>
+                        </div>
                         <div className={classes.region_code}>
                             <Field label={t('checkout:address-state', 'State')}>
-                                <TextInput
-                                    id={classes.region_code}
-                                    field="region_code"
-                                    validateOnBlur
-                                    validate={combine([
-                                        isRequired,
-                                        [hasLengthExactly, 2],
-                                        [validateRegionCode, countries]
-                                    ])}
-                                />
+                                <Regions />
                             </Field>
                         </div>
                         <div className={classes.postcode}>
@@ -210,7 +257,7 @@ AddressForm.propTypes = {
     }),
     countries: array,
     formErrorMessage: string,
-    heading: string,
+    formHeading: string,
     invalidAddressMessage: string,
     initialAddressSelectValue: number,
     initialValues: object,
@@ -222,7 +269,7 @@ AddressForm.propTypes = {
     showSaveInAddressBookCheckbox: bool,
     submit: func.isRequired,
     submitting: bool,
-    submitLabel: string
+    submitButtonLabel: string
 };
 
 AddressForm.defaultProps = {

@@ -24,7 +24,7 @@ import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import classes from './accountDropdown.css';
 import Mask from '../Mask';
 
-const AccountDropdown = () => {
+const AccountDropdown = props => {
     const [
         { isAccountDropdownOpen, isSignedIn, accountDropdownView },
         {
@@ -80,8 +80,9 @@ const AccountDropdown = () => {
                         showChangePassword={showChangePassword}
                         showAccountInformation={() => {
                             window.location.href = pagePaths.accountDetails;
-                        }}
-                    />
+                        }}>
+                        {props.children}
+                    </MyAccount>
                 );
         }
     }

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.osgi.service.component.annotations.Component;
@@ -57,7 +58,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         Resource resource = new SyntheticResource(null, (String) null, SearchFilterService.class.getName());
 
         // First we query Magento for the required attribute and filter information
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, null);
         final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
         final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
 
@@ -91,7 +92,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(attributeQuery.toString());
 
         // If there are errors we'll log them and return a safe but empty list
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return new ArrayList<>();
@@ -126,7 +127,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(query);
 
         // If there are errors in the response we'll log them out and return a safe but empty value
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return Collections.emptyList();

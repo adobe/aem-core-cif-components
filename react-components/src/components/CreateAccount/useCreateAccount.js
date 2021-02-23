@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { useUserContext } from '../../context/UserContext';
 
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';

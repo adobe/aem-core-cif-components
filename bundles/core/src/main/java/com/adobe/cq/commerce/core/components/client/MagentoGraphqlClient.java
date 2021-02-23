@@ -20,9 +20,12 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -75,11 +79,14 @@ public class MagentoGraphqlClient {
      *
      * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
      *            the resource type is used as the cache key.
+     * @deprecated Use {@link #create(Resource, Page, SlingHttpServletRequest)} to be able to use the Timewarp feature to preview staged
+     *             data.
      * @return A new MagentoGraphqlClient instance.
      */
+    @Deprecated
     public static MagentoGraphqlClient create(Resource resource) {
         PageManager pageManager = resource.adaptTo(PageManager.class);
-        return create(resource, pageManager != null ? pageManager.getContainingPage(resource) : null);
+        return create(resource, pageManager != null ? pageManager.getContainingPage(resource) : null, null);
     }
 
     /**
@@ -93,17 +100,38 @@ public class MagentoGraphqlClient {
      *            This is needed because it is not possible to get the current page for components added to the page template.
      *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
      * @return A new MagentoGraphqlClient instance.
+     * @deprecated Use {@link #create(Resource, Page, SlingHttpServletRequest)} to be able to use the Timewarp feature to preview staged
+     *             data.
      */
+    @Deprecated
     public static MagentoGraphqlClient create(Resource resource, Page page) {
+        return create(resource, page, null);
+    }
+
+    /**
+     * Instantiates and returns a new MagentoGraphqlClient.
+     * This method returns <code>null</code> if the client cannot be instantiated.
+     *
+     * @param resource The JCR resource of the component being rendered. This is used for caching purposes, where the resource type is used
+     *            as the cache key. An OSGi service should pass a synthetic resource, where the resource type should be set to the
+     *            fully-qualified class name of the service.
+     * @param page The current AEM page. This is used to adapt to the lower-level {@link GraphqlClient}.
+     *            This is needed because it is not possible to get the current page for components added to the page template.
+     *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
+     * @param request The current AEM Sling HTTP request. This is used to extract a possible TimeWarp timestamp from the request.
+     *            If set and in the future, the client will use the TimeWarp timestamp to set Magento's Preview-Version header.
+     * @return A new MagentoGraphqlClient instance.
+     */
+    public static MagentoGraphqlClient create(Resource resource, Page page, SlingHttpServletRequest request) {
         try {
-            return new MagentoGraphqlClient(resource, page);
+            return new MagentoGraphqlClient(resource, page, request);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private MagentoGraphqlClient(Resource resource, Page page) {
+    private MagentoGraphqlClient(Resource resource, Page page, SlingHttpServletRequest request) {
 
         Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
 
@@ -159,21 +187,50 @@ public class MagentoGraphqlClient {
             headers.add(new BasicHeader("Store", storeCode));
         }
 
+        Long previewVersion = null;
         if (launch != null) {
             Calendar liveDate = launch.getLiveDate();
             if (liveDate != null) {
                 TimeZone timeZone = liveDate.getTimeZone();
                 OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(liveDate.toInstant(), timeZone.toZoneId());
-                Long previewVersion = offsetDateTime.toEpochSecond();
-                headers.add(new BasicHeader("Preview-Version", String.valueOf(previewVersion)));
-
-                // We use POST to ensure that Magento doesn't return a cached response
-                requestOptions.withHttpMethod(HttpMethod.POST);
+                previewVersion = offsetDateTime.toEpochSecond();
             }
+        } else if (request != null) {
+            Long timewarp = getTimeWarpEpoch(request);
+            if (timewarp != null) {
+                Calendar time = Calendar.getInstance();
+                time.setTimeInMillis(timewarp);
+                if (time.after(Calendar.getInstance())) {
+                    previewVersion = timewarp / 1000; // timewarp is in milliseconds, Magento Preview-Version header is in seconds
+                }
+            }
+        }
+
+        if (previewVersion != null) {
+            headers.add(new BasicHeader("Preview-Version", String.valueOf(previewVersion)));
+
+            // We use POST to ensure that Magento doesn't return a cached response
+            requestOptions.withHttpMethod(HttpMethod.POST);
         }
 
         if (!headers.isEmpty()) {
             requestOptions.withHeaders(headers);
+        }
+    }
+
+    private Long getTimeWarpEpoch(SlingHttpServletRequest request) {
+        String timeWarp = request.getParameter("timewarp");
+        if (timeWarp == null) {
+            Cookie cookie = request.getCookie("timewarp");
+            if (cookie != null) {
+                timeWarp = cookie.getValue();
+            }
+        }
+        try {
+            return timeWarp != null ? Long.valueOf(timeWarp) : null;
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Cannot parse timewarp timestamp '{}'", timeWarp);
+            return null;
         }
     }
 
@@ -205,6 +262,15 @@ public class MagentoGraphqlClient {
             .withHttpMethod(httpMethod);
 
         return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    }
+
+    /**
+     * Returns the complete configuration of the GraphQL client.
+     *
+     * @return GraphQL client configuration.
+     */
+    public GraphqlClientConfiguration getConfiguration() {
+        return graphqlClient.getConfiguration();
     }
 
     private String readFallBackConfiguration(Resource resource, String propertyName) {

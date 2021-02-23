@@ -104,6 +104,14 @@ public class ProductCarouselImplEmptyTest {
     }
 
     @Test
+    public void getEmptyProductIdentifiers() {
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+        List<ProductListItem> identifiers = productCarousel.getProductIdentifiers();
+
+        Assert.assertEquals(0, identifiers.size());
+    }
+
+    @Test
     public void getProductsEmpty() {
         String[] productSkuArray = (String[]) carouselResource.getValueMap().get("product"); // The HTL script uses an alias here
         slingBindings.put("productSkuList", productSkuArray);

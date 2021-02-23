@@ -29,7 +29,6 @@ import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
@@ -45,6 +44,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -123,9 +123,7 @@ public class PageMetadataImplTest {
         slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Matchers.eq(true))).then(i -> i.getArgumentAt(1, Boolean.class));
-        when(style.get(Mockito.anyString(), Matchers.eq(false))).then(i -> i.getArgumentAt(1, Boolean.class));
-        when(style.get(Mockito.anyString(), Matchers.eq(6))).then(i -> i.getArgumentAt(1, Integer.class));
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
@@ -136,6 +134,11 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnProductPage() throws Exception {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page");
+    }
+
+    @Test
+    public void testPageMetadataModelOnProductSpecificPage() throws Exception {
+        testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page/product-specific-page");
     }
 
     @Test
@@ -165,16 +168,25 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnCategorySpecificPage() throws Exception {
+        testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page/category-specific-page");
+    }
+
+    @Test
     public void testPageMetadataModelOnCategoryPageOnLaunch() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/category-page");
     }
 
     private void testPageMetadataModelOnCategoryPage(String pagePath) throws Exception {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

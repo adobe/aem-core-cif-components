@@ -161,7 +161,7 @@ public class ProductCarouselImplTest {
                 continue; // Can happen that a product is not found in the Magento JSON response
             }
 
-            if (!items.stream().filter(i -> i.getSKU().equals(skus.getLeft())).findFirst().isPresent()) {
+            if (items.stream().noneMatch(i -> i.getSKU().equals(skus.getLeft()))) {
                 continue; // A "faulty" product does not appear in the parsed product instances
             }
 
@@ -191,6 +191,11 @@ public class ProductCarouselImplTest {
             }
             idx++;
         }
+    }
+
+    @Test
+    public void testJsonExport() {
+        Utils.testJSONExport(productCarousel, "/exporter/productcarousel.json");
     }
 
     protected ProductInterface toProductOrVariant(ProductInterface product, Pair<String, String> skus) {

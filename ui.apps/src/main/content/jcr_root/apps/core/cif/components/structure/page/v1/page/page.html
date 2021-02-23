@@ -25,8 +25,10 @@
         id="${page.id}"
         class="${page.cssClassNames}" 
         data-store-view="${storeView.storeView}" 
+        data-store-root-url="${storeView.storeRootUrl}"
         data-cmp-data-layer-enabled="${page.data ? true : false}"
-        data-graphql-endpoint="${storeView.graphqlEndpoint}">
+        data-graphql-endpoint="${storeView.graphqlEndpoint}"
+        data-graphql-method="${storeView.method}">
         <script data-sly-test.dataLayerEnabled="${page.data}">
             window.adobeDataLayer = window.adobeDataLayer || [];
             adobeDataLayer.push({

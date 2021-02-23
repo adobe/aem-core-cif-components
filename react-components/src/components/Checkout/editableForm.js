@@ -14,7 +14,7 @@
 import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
 import { getCartDetails } from '../../actions/cart';
@@ -41,7 +41,6 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
-    const { parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect();
     const [{ cart, cartId }, cartDispatch] = useCartState();
     const [
         {
@@ -55,6 +54,11 @@ const EditableForm = props => {
         },
         dispatch
     ] = useCheckoutState();
+    const { selectedAddressId, parseInitialAddressSelectValue, handleChangeAddressSelectInCheckout } = useAddressSelect(
+        {
+            initialAddress: shippingAddress
+        }
+    );
     const { error: countriesError, countries } = useCountries();
     const [{ isSignedIn, currentUser }] = useUserContext();
 
@@ -195,18 +199,18 @@ const EditableForm = props => {
                 <AddressForm
                     cancel={handleCancel}
                     countries={countries}
-                    heading={t('checkout:address-form-heading', 'Shipping Address')}
+                    formHeading={t('checkout:address-form-heading', 'Shipping Address')}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
-                    initialAddressSelectValue={parseInitialAddressSelectValue(shippingAddress)}
+                    initialAddressSelectValue={selectedAddressId}
                     initialValues={shippingAddress}
                     onAddressSelectValueChange={handleChangeAddressSelectInCheckout}
                     showAddressSelect={isSignedIn && hasSavedAddresses}
                     showEmailInput={!isSignedIn}
-                    showSaveInAddressBookCheckbox={isSignedIn && isEditingNewAddress}
+                    showSaveInAddressBookCheckbox={isSignedIn && selectedAddressId !== 0}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
-                    submitLabel={t('checkout:address-submit', 'Use Address')}
+                    submitButtonLabel={t('checkout:address-submit', 'Use Address')}
                 />
             );
         }

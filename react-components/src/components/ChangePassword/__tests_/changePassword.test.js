@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../../utils/test-utils';
+import { render } from 'test-utils';
 import ChangePassword from '../changePassword';
 import MUTATION_CHANGE_PASSWORD from '../../../queries/mutation_change_password.graphql';
 

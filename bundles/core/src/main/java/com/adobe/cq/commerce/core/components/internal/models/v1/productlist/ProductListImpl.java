@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private boolean showTitle;
     private boolean showImage;
 
-    @ScriptVariable(name = "wcmmode")
+    // This script variable is not injected when the model is instantiated in SpecificPageServlet
+    @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
 
     private AbstractCategoryRetriever categoryRetriever;
@@ -88,12 +90,13 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage);
+        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
         // Parse category identifier from URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
+        boolean isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
 
-        if (!wcmMode.isDisabled()) {
+        if (isAuthorInstance) {
             canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
         } else {
             canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
@@ -104,7 +107,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
-            } else if (!wcmMode.isDisabled()) {
+            } else if (isAuthorInstance) {
                 usePlaceholderData = true;
                 loadClientPrice = false;
                 try {
@@ -144,6 +147,11 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public boolean showTitle() {
         return showTitle;
+    }
+
+    // Not OSGi exported but public so UrlProviderImpl can use it
+    public String getUrlPath() {
+        return getCategory() != null ? getCategory().getUrlPath() : null;
     }
 
     @Override

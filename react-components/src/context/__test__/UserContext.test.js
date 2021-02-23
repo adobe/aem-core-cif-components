@@ -13,14 +13,10 @@
  ******************************************************************************/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
-import { render } from '../../utils/test-utils';
+import { render } from 'test-utils';
 import { useUserContext } from '../UserContext';
 import { useAwaitQuery } from '../../utils/hooks';
 
-import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
-import QUERY_CUSTOMER_DETAILS from '../../queries/query_customer_details.graphql';
-import MUTATION_REVOKE_TOKEN from '../../queries/mutation_revoke_customer_token.graphql';
-import MUTATION_CREATE_CART from '../../queries/mutation_create_guest_cart.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 describe('UserContext test', () => {
@@ -30,75 +26,6 @@ describe('UserContext test', () => {
             value: ''
         });
     });
-
-    const mocks = [
-        {
-            request: {
-                query: MUTATION_GENERATE_TOKEN,
-                variables: {
-                    email: 'imccoy@weretail.net',
-                    password: 'imccoy123'
-                }
-            },
-            result: {
-                data: {
-                    generateCustomerToken: {
-                        token: 'token123'
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: QUERY_CUSTOMER_DETAILS
-            },
-            result: {
-                data: {
-                    customer: {
-                        email: 'test@example.com',
-                        firstname: 'John',
-                        lastname: 'Doe'
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: MUTATION_REVOKE_TOKEN
-            },
-            result: {
-                data: {
-                    revokeCustomerToken: {
-                        result: true
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: MUTATION_CREATE_CART
-            },
-            result: {
-                data: {
-                    createEmptyCart: {
-                        id: 'guest123'
-                    }
-                }
-            }
-        },
-        {
-            request: {
-                query: QUERY_CUSTOMER_CART
-            },
-            result: {
-                data: {
-                    customerCart: {
-                        id: 'customercart'
-                    }
-                }
-            }
-        }
-    ];
 
     it('updates the user token in state', async () => {
         const ContextWrapper = () => {
@@ -114,7 +41,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -138,7 +65,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -163,7 +90,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
@@ -195,7 +122,7 @@ describe('UserContext test', () => {
             value: 'cif.userToken=token123;'
         });
 
-        const { getByRole, getByTestId, getByText } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId, getByText } = render(<ContextWrapper />);
 
         expect(getByText('Signed in')).not.toBeUndefined();
 
@@ -224,7 +151,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -260,7 +187,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -292,7 +219,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -316,7 +243,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -340,7 +267,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -364,7 +291,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -426,7 +353,7 @@ describe('UserContext test', () => {
             isShowAddressForm: true
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState });
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -544,7 +471,7 @@ describe('UserContext test', () => {
             isShowAddressForm: false
         };
 
-        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
+        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState });
 
         expect(getByTestId('begin-editing-address-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('begin-editing-address-button'));
@@ -656,7 +583,7 @@ describe('UserContext test', () => {
             deleteAddressError: 'delete address error'
         };
 
-        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState, mocks: mocks });
+        const { getByTestId } = render(<ContextWrapper />, { userContext: mockInitialState });
 
         expect(getByTestId('begin-deleting-address-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('begin-deleting-address-button'));
@@ -723,7 +650,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
 
@@ -762,7 +689,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByRole, getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByRole, getByTestId } = render(<ContextWrapper />);
 
         expect(getByRole('button')).not.toBeUndefined();
         fireEvent.click(getByRole('button'));
@@ -804,7 +731,7 @@ describe('UserContext test', () => {
             return <div>{content}</div>;
         };
 
-        const { getByTestId } = render(<ContextWrapper />, { mocks: mocks });
+        const { getByTestId } = render(<ContextWrapper />);
 
         expect(getByTestId('open-address-form-button')).not.toBeUndefined();
         fireEvent.click(getByTestId('open-address-form-button'));

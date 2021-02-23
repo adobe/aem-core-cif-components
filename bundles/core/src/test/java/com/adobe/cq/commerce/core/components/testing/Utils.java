@@ -16,10 +16,16 @@ package com.adobe.cq.commerce.core.components.testing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+
+import javax.json.Json;
+import javax.json.JsonReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -32,11 +38,13 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.junit.Assert;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -44,9 +52,16 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
+import com.adobe.cq.wcm.core.components.internal.DataLayerConfig;
+import com.adobe.cq.wcm.core.components.internal.jackson.DefaultMethodSkippingModuleProvider;
+import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class Utils {
 
@@ -90,25 +105,25 @@ public class Utils {
     public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String startsWith) throws IOException {
         String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
 
-        HttpEntity mockedHttpEntity = Mockito.mock(HttpEntity.class);
-        HttpResponse mockedHttpResponse = Mockito.mock(HttpResponse.class);
-        StatusLine mockedStatusLine = Mockito.mock(StatusLine.class);
+        HttpEntity mockedHttpEntity = mock(HttpEntity.class);
+        HttpResponse mockedHttpResponse = mock(HttpResponse.class);
+        StatusLine mockedStatusLine = mock(StatusLine.class);
 
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-        Mockito.when(mockedHttpEntity.getContent()).thenReturn(new ByteArrayInputStream(bytes));
-        Mockito.when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
+        when(mockedHttpEntity.getContent()).thenReturn(new ByteArrayInputStream(bytes));
+        when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
 
-        Mockito.when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
+        when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
 
         if (startsWith != null) {
             GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(startsWith);
-            Mockito.when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
         } else {
-            Mockito.when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+            when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
         }
 
-        Mockito.when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
-        Mockito.when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
+        when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
+        when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
 
         return json;
     }
@@ -133,11 +148,15 @@ public class Utils {
      * @throws IOException
      */
     public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename, String queryStartsWith) throws IOException {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
+        HttpClient httpClient = mock(HttpClient.class);
         GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
         setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, queryStartsWith);
         return graphqlClient;
     }
@@ -205,11 +224,47 @@ public class Utils {
     }
 
     static public ConfigurationBuilder getDataLayerConfig(boolean enabled) {
-        ValueMap datalayerConfig = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+        ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+
+        DataLayerConfig dataLayerConfig = Mockito.mock(DataLayerConfig.class);
+        Mockito.when(dataLayerConfig.enabled()).thenReturn(true);
+
         ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
         Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
-        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerConfig);
+        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerVm);
+        Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(dataLayerConfig);
 
         return mockConfigBuilder;
+    }
+
+    /**
+     * Provided a {@code model} object and an {@code expectedJsonResource} identifying a JSON file in the class path, this method will
+     * test the JSON export of the model and compare it to the JSON object provided by the {@code expectedJsonResource}.
+     *
+     * @param model the Sling Model
+     * @param expectedJsonResource the class path resource providing the expected JSON object
+     */
+    public static void testJSONExport(Object model, String expectedJsonResource) {
+        Writer writer = new StringWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        PageModuleProvider pageModuleProvider = new PageModuleProvider();
+        mapper.registerModule(pageModuleProvider.getModule());
+        DefaultMethodSkippingModuleProvider defaultMethodSkippingModuleProvider = new DefaultMethodSkippingModuleProvider();
+        mapper.registerModule(defaultMethodSkippingModuleProvider.getModule());
+        try {
+            mapper.writer().writeValue(writer, model);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Unable to generate JSON export for model %s: %s", model.getClass().getName(), e
+                .getMessage()));
+        }
+        JsonReader outputReader = Json.createReader(IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8));
+        InputStream is = Utils.class.getResourceAsStream(expectedJsonResource);
+        if (is != null) {
+            JsonReader expectedReader = Json.createReader(is);
+            Assert.assertEquals(expectedReader.read(), outputReader.read());
+        } else {
+            throw new RuntimeException("Unable to find test file " + expectedJsonResource + ".");
+        }
+        IOUtils.closeQuietly(is);
     }
 }

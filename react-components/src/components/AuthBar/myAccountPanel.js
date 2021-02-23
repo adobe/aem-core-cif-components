@@ -22,7 +22,7 @@ import ChangePassword from '../ChangePassword';
 import classes from './myAccountPanel.css';
 import { string, shape, func } from 'prop-types';
 
-const AuthModal = ({ view = 'MENU', api }) => {
+const AuthModal = ({ view = 'MENU', api, children }) => {
     const {
         showSignIn,
         showMyAccount,
@@ -51,8 +51,9 @@ const AuthModal = ({ view = 'MENU', api }) => {
                 <MyAccount
                     showMenu={showMenu}
                     showChangePassword={showChangePassword}
-                    showAccountInformation={() => {}}
-                />
+                    showAccountInformation={() => {}}>
+                    {children}
+                </MyAccount>
             );
             break;
         case 'CHANGE_PASSWORD':

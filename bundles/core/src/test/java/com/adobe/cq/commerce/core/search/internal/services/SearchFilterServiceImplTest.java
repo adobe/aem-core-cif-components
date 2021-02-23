@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
@@ -36,10 +37,12 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
@@ -49,6 +52,7 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -87,10 +91,13 @@ public class SearchFilterServiceImplTest {
     public void setup() throws IOException {
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
 
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
         graphqlClient = new GraphqlClientImpl();
         Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "httpMethod", HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -146,13 +153,36 @@ public class SearchFilterServiceImplTest {
         response.setData(query);
         when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
 
-        context.registerAdapter(Resource.class,
-            GraphqlClient.class,
-            (Function<Resource, GraphqlClient>) input -> input.getValueMap().get("cq:graphqlClient") != null ? graphqlClient : null);
-
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
     }
 
+    @Test
+    public void testNullMagentoClient() {
+        context.registerAdapter(Resource.class, GraphqlClient.class, (GraphqlClient) null);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(page);
+
+        assertThat(filterAttributeMetadata).isEmpty();
+    }
+
+    @Test
+    public void testGraphqlResponsesWithErrors() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(page);
+        assertThat(filterAttributeMetadata).hasSize(0);
+    }
 }

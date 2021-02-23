@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
@@ -32,7 +33,6 @@ import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
@@ -129,10 +129,7 @@ public class BreadcrumbImplTest {
         slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
-        when(style.get(Matchers.eq("startLevel"), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Integer.class));
-        when(style.get(Matchers.eq("structureDepth"), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Integer.class));
-        when(style.get(Mockito.anyString(), Matchers.eq(true))).then(i -> i.getArgumentAt(1, Boolean.class));
-        when(style.get(Mockito.anyString(), Matchers.eq(false))).then(i -> i.getArgumentAt(1, Boolean.class));
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
@@ -399,11 +396,24 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testJsonRender() throws Exception {
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-breadcrumb-result.json");
         prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("tiberius-gym-tank");
+
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-breadcrumb-component.json");
         String jsonResult = breadcrumbModel.getData().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        String itemsJsonExpected = Utils.getResource("results/result-datalayer-breadcrumb-items.json");
+        Collection<NavigationItem> breadcrumbModelItems = breadcrumbModel.getItems();
+        String itemsJsonResult = breadcrumbModelItems
+            .stream()
+            .map(i -> i.getData().getJson())
+            .collect(Collectors.joining(",", "[", "]"));
+        Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
 }

@@ -11,16 +11,26 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import { useAddressForm } from './useAddressForm';
 import { useCheckoutState } from '../Checkout/checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
-export const useAddressSelect = () => {
+export const useAddressSelect = (props = { initialAddress: undefined }) => {
+    const { initialAddress } = props;
+
     const { findSavedAddress, getNewAddress, parseAddress, parseAddressFormValues } = useAddressForm();
     const [, dispatch] = useCheckoutState();
     const [{ currentUser }] = useUserContext();
+
+    const parseInitialAddressSelectValue = address => {
+        let initialValue = 0; // '0' is the value of option item 'New Address' in address select
+        const foundAddress = findSavedAddress(address);
+        return foundAddress ? foundAddress.id : initialValue;
+    };
+    const initialAddressId = initialAddress ? parseInitialAddressSelectValue(initialAddress) : 0;
+    const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId);
 
     const [t] = useTranslation('checkout');
 
@@ -38,6 +48,7 @@ export const useAddressSelect = () => {
 
     const handleChangeAddressSelectInCheckout = (value, addressFormApi) => {
         const newAddressItemValue = 0;
+        setSelectedAddressId(value);
         if (newAddressItemValue == value) {
             // clear the values of the form fields if the current select option item is 'New Address'
             addressFormApi.setValues(getNewAddress());
@@ -46,21 +57,17 @@ export const useAddressSelect = () => {
         }
 
         const address = currentUser.addresses.find(address => address.id == value);
+        // parse the "GraphQL format" address and normalize the properties (i.e. add the region_code on the same level as the rest of the props)
         const parsedAddress = parseAddress(address);
         // update form values by using formApi passed from <AddressForm> component, this is due to the fact that
         // this is the proposed way to update values of fields in 'informed' form library
-        addressFormApi.setValues(parseAddressFormValues(parsedAddress));
-        dispatch({ type: 'setIsEditingNewAddress', editing: false });
-    };
-
-    const parseInitialAddressSelectValue = address => {
-        let initialValue = 0; // '0' is the value of option item 'New Address' in address select
-        const foundAddress = findSavedAddress(address);
-        return foundAddress ? foundAddress.id : initialValue;
+        const parsedFormValues = parseAddressFormValues(parsedAddress);
+        addressFormApi.setValues(parsedFormValues);
     };
 
     return {
         addressSelectItems,
+        selectedAddressId,
         handleChangeAddressSelectInCheckout,
         parseInitialAddressSelectValue
     };

@@ -75,6 +75,14 @@
               "position": 3
             }
           ],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "id": 10,
+              "name": "category-1",
+              "image": "/url/to/image"
+            }
+          ],
           "configurable_options": [
             {
               "label": "Color",
@@ -174,6 +182,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -243,6 +259,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -298,6 +322,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -352,6 +384,14 @@
                     "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -422,6 +462,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -477,6 +525,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -531,6 +587,14 @@
                     "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -601,6 +665,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -656,6 +728,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -710,6 +790,14 @@
                     "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -780,6 +868,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -835,6 +931,14 @@
                     "label": "",
                     "position": 1
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -889,6 +993,14 @@
                     "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-black_main_2.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }
@@ -959,6 +1071,14 @@
                     "label": "",
                     "position": 3
                   }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
                 ]
               }
             },
@@ -1013,6 +1133,14 @@
                     "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-orange_main_2.jpg",
                     "label": "",
                     "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "id": 10,
+                    "name": "category-1",
+                    "image": "/url/to/image"
                   }
                 ]
               }

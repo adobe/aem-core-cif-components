@@ -47,10 +47,10 @@ public class PageMetadataImpl implements PageMetadata {
 
     @PostConstruct
     void initModel() {
-        if (isProductPage()) {
+        if (SiteNavigation.isProductPage(currentPage)) {
             Product product = request.adaptTo(Product.class);
             provider = product;
-        } else if (isCategoryPage()) {
+        } else if (SiteNavigation.isCategoryPage(currentPage)) {
             ProductList productList = request.adaptTo(ProductList.class);
             provider = productList;
         }
@@ -80,22 +80,6 @@ public class PageMetadataImpl implements PageMetadata {
     @Override
     public String getCanonicalUrl() {
         return provider != null ? provider.getCanonicalUrl() : null;
-    }
-
-    private boolean isProductPage() {
-        Page productPage = SiteNavigation.getProductPage(currentPage);
-
-        // The product page might be in a Launch so we use 'endsWith' to compare the paths, for example
-        // - product page: /content/launches/2020/09/15/mylaunch/content/venia/us/en/products/category-page
-        // - current page: /content/venia/us/en/products/category-page
-        return productPage != null ? productPage.getPath().endsWith(currentPage.getPath()) : false;
-    }
-
-    private boolean isCategoryPage() {
-        Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-
-        // See comment above
-        return categoryPage != null ? categoryPage.getPath().endsWith(currentPage.getPath()) : false;
     }
 
 }

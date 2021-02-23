@@ -23,6 +23,7 @@ import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -74,6 +75,11 @@ public class MockGraphqlClient implements GraphqlClient {
 
     @Override
     public String getGraphQLEndpoint() {
+        return null;
+    }
+
+    @Override
+    public GraphqlClientConfiguration getConfiguration() {
         return null;
     }
 

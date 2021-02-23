@@ -34,6 +34,24 @@ common:
       - store_artifacts:
           path: examples/bundle/target/site/jacoco
 
+  selenium_test_steps: &selenium_test_steps
+    steps:
+      - checkout
+      - *restore_cache
+      - attach_workspace:
+          at: /home/circleci/build
+      - run:
+          name: UI tests
+          command: node .circleci/ci/it-tests.js
+      - store_test_results:
+          path: ui.tests/test-module/reports
+      # Save test results as artifacts
+      - store_artifacts:
+          path: ui.tests/test-module/reports
+      # Save AEM logs as artifacts
+      - store_artifacts:
+          path: logs
+
   docker_auth: &docker_auth
     auth:
       username: $DOCKER_USER
@@ -43,9 +61,21 @@ executors:
   cif_executor:
     docker:
       - image: circleci/openjdk:11-stretch-node
+  test_executor_cloudready:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:4830
+        <<: *docker_auth
+  test_executor_655:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.7
+        <<: *docker_auth
 
 jobs:
-  build:
+  build-java-11:
     executor: cif_executor
     working_directory: /home/circleci/build
     steps:
@@ -65,10 +95,10 @@ jobs:
           root: /home/circleci/build
           paths:
             - configuration.json
-            - bundles/core/target/*.jar
+            - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
-            - examples/bundle/target/*.jar
+            - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
             - examples/ui.content/target/*.zip
@@ -78,6 +108,22 @@ jobs:
           path: test-results/junit
       - codecov/upload:
           flags: unittests
+
+  build-java-8:
+    docker:
+      - image: circleci/openjdk:8-stretch-node
+    working_directory: /home/circleci/build
+    steps:
+      - checkout
+      - *restore_cache
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Build
+          command: node .circleci/ci/build.js
+      - store_artifacts:
+          path: test-results/junit
 
   karma:
     docker:
@@ -127,47 +173,56 @@ jobs:
           flags: jest
  
   integration-test-655:
-    docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
-        <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.5
-        <<: *docker_auth
+    executor: test_executor_655
     environment:
       AEM: classic
+      TYPE: integration
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
  
   integration-test-cloudready:
-    docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
-        <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:4271
-        <<: *docker_auth
+    executor: test_executor_cloudready
+    environment:
+      TYPE: integration
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
     
   integration-test-cloudready-with-addon:
-    docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
-        <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:4271
-        <<: *docker_auth
+    executor: test_executor_cloudready
     environment:
       AEM: addon
+      TYPE: integration
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
+
+  selenium-chrome-655:
+    executor: test_executor_655
+    environment:
+      AEM: classic
+      TYPE: selenium
+      BROWSER: chrome
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *selenium_test_steps
+
+  selenium-chrome-cloudready-with-addon:
+    executor: test_executor_cloudready
+    environment:
+      AEM: addon
+      TYPE: selenium
+      BROWSER: chrome
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *selenium_test_steps
 
   release:
     executor: cif_executor
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - maven-repo-v1-{{ checksum "pom.xml" }}
-            - maven-repo-v1-
+      - *restore_cache
       - run:
           name: Update permissions
           command: sudo chown -R circleci /usr/local/lib/node_modules
@@ -186,7 +241,11 @@ workflows:
   version: 2
   build-and-release:
     jobs:
-      - build:
+      - build-java-11:
+          filters:
+            tags:
+              only: /.*/
+      - build-java-8:
           filters:
             tags:
               only: /.*/
@@ -203,7 +262,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready:
@@ -211,7 +271,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - integration-test-cloudready-with-addon:
@@ -219,12 +280,31 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+      - selenium-chrome-655:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+      - selenium-chrome-cloudready-with-addon:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
             - karma
             - jest
       - release:
           requires:
-            - build
+            - build-java-11
           filters:
             branches:
               ignore: /.*/

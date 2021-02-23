@@ -36,7 +36,7 @@ public interface Sorter {
         ASC, DESC;
 
         /**
-         * Returns the opposite sort order of this sort order.
+         * @return The opposite sort order of this sort order.
          */
         public Order opposite() {
             return this == ASC ? DESC : ASC;
@@ -44,12 +44,12 @@ public interface Sorter {
     }
 
     /**
-     * Returns the list of all available sorter keys.
+     * @return The list of all available sorter keys.
      */
     List<SorterKey> getKeys();
 
     /**
-     * Returns the current sorter key.
+     * @return The current sorter key.
      */
     SorterKey getCurrentKey();
 }

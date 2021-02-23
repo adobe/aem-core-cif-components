@@ -13,7 +13,7 @@
  ******************************************************************************/
 import { useState } from 'react';
 import { useUserContext } from '../../context/UserContext';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { mergeCarts } from '../../actions/cart';
@@ -40,6 +40,10 @@ export const useSignin = props => {
     if (userState.signInError && userState.signInError.length > 0) {
         errorMessage = userState.signInError;
     }
+
+    const refreshPage = () => {
+        window.location.reload();
+    };
 
     const handleSubmit = async ({ email, password }) => {
         setInProgress(true);
@@ -77,6 +81,9 @@ export const useSignin = props => {
 
             //5. show my account view in account dropdown or navigation side panel after sign in
             showMyAccount();
+
+            //6. simple refresh(current page)
+            refreshPage();
         } catch (e) {
             setError(e);
             setInProgress(false);
