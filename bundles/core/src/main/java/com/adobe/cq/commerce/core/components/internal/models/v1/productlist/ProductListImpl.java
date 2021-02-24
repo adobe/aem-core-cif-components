@@ -15,7 +15,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -25,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -35,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
@@ -49,6 +53,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -183,7 +188,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
                 .collect(Collectors.toList());
         } else {
-            return getSearchResultsSet().getProductListItems();
+            return fixProducts(getSearchResultsSet().getProductListItems());
         }
     }
 
@@ -241,5 +246,47 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public String getCanonicalUrl() {
         return canonicalUrl;
+    }
+
+    // TODO: This a temporary fix to solve an issue caused by SlingModel caching
+    private Collection<ProductListItem> fixedProducts;
+
+    private Collection<ProductListItem> fixProducts(Collection<ProductListItem> products) {
+        if (fixedProducts != null) {
+            return fixedProducts;
+        } else if (CollectionUtils.isEmpty(products)) {
+            fixedProducts = Collections.emptyList();
+            return fixedProducts;
+        }
+
+        resource = request.getResource();
+
+        fixedProducts = new ArrayList<>();
+        for (ProductListItem product : products) {
+            ProductListItem productListItem = new ProductListItemImpl(product.getSKU(),
+                product.getSlug(),
+                product.getTitle(),
+                product.getPriceRange(),
+                product.getImageURL(),
+                productPage,
+                null, // search results aren't targeting specific variant
+                request,
+                urlProvider,
+                this.getId());
+            fixedProducts.add(productListItem);
+        }
+        return fixedProducts;
+    }
+
+    @Override
+    protected String generateId() {
+        resource = request.getResource();
+        return super.generateId();
+    }
+
+    @Override
+    protected ComponentData getComponentData() {
+        resource = request.getResource();
+        return super.getComponentData();
     }
 }
