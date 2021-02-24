@@ -430,11 +430,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public ComponentData getComponentData() {
+        resource = request.getResource();
         return new ProductDataImpl(this, resource);
     }
 
     @Override
     protected String generateId() {
+        resource = request.getResource();
         return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
     }
 
