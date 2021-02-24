@@ -37,5 +37,5 @@ The call above adds two products with the sku `VA03-LL-S` to the cart.
 
 -   Vendor: Adobe
 -   Version: v1
--   Compatibility: AEM 6.4 / 6.5
+-   Compatibility: AEM as a Cloud Service / AEM 6.4 / 6.5
 -   Status: production-ready
