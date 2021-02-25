@@ -178,6 +178,42 @@ public class ProductImplTest {
     }
 
     @Test
+    public void testGetIdentifierFromSelector() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        // Check which identifier was set in the product retriever
+        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
+            .getProductRetriever(), "productIdentifierType");
+        String urlKey = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
+
+        Assert.assertEquals(UrlProvider.ProductIdentifierType.URL_KEY, type);
+        Assert.assertEquals("beaumont-summit-kit", urlKey);
+    }
+
+    @Test
+    public void testGetIdentifierFromProperty() {
+        // Use different page
+        context.currentResource("/content/product-of-the-week");
+        context.request().setServletPath("/content/product-of-the-week/jcr:content/root/responsivegrid/product.beaumont-summit-kit.html");
+        productResource = context.resourceResolver().getResource("/content/product-of-the-week/jcr:content/root/responsivegrid/product");
+
+        // Update product properties in sling bindings
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(productResource);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        // Check which identifier was set in the product retriever
+        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
+            .getProductRetriever(), "productIdentifierType");
+        String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
+
+        Assert.assertEquals(UrlProvider.ProductIdentifierType.SKU, type);
+        Assert.assertEquals("MJ01", sku);
+    }
+
+    @Test
     public void testProduct() {
         productModel = context.request().adaptTo(ProductImpl.class);
         testProduct(product, true);

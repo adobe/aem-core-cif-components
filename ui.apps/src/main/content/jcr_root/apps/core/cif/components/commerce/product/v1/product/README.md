@@ -15,7 +15,7 @@ limitations under the License.
 -->
 Product (v1)
 ====
-Product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Magento via GraphQL using the product slug provided in the URL. The main usage of this component would be on a product page.
+Product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Magento via GraphQL. The product identifier is taken either from the URL (slug) or configurable via the dialog (sku). The main usage of this component would be on a product page.
 
 ## Features
 
@@ -31,7 +31,7 @@ The Product component uses the `com.adobe.cq.commerce.core.components.models.pro
 
 ### Selectors & Request Parameters
 This component is targeted for a product page showing details of a single simple or configurable product.
-1. The product SKU is retrieved form the first URL selector. 
+1. The product slug is retrieved form the first URL selector. Alternatively, the product sku can be defined via the edit dialog.
 
 ### Component Policy Configuration Properties
 The following configuration properties are used:
