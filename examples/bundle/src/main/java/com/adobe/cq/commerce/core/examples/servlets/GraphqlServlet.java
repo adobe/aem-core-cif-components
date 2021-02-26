@@ -93,6 +93,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final Pattern SKU_EQ_PATTERN = Pattern.compile("\\{sku=\\{eq=(.+)\\}\\}");
     private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
 
+    private static final String PRODUCT_SKU = "MH01";
+
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
     private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
 
@@ -395,9 +397,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             } else if (skuEqMatcher.matches()) {
                 if (skuEqMatcher.group(1).equals(BUNDLE_PRODUCT_SKU)) {
                     return readProductsFrom(BUNDLE_PRODUCT_ITEMS_JSON);
-                } else {
-                    return readProductsFrom(PRODUCT_TEASER_JSON);
+                } else if (skuEqMatcher.group(1).equals(PRODUCT_SKU)) {
+                    return readProductsFrom(PRODUCTS_JSON);
                 }
+                return readProductsFrom(PRODUCT_TEASER_JSON);
             } else if (filter.matches(CATEGORY_ID_REGEX)) {
                 return readProductsFrom(PRODUCTS_COLLECTION_JSON);
             } else if (urlKeyEqPattern.matches()) {
