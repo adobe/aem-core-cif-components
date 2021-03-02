@@ -2,7 +2,7 @@
 
 exports[`<EditableForm /> does not render the shipping address form if countries could not be loaded 1`] = `<DocumentFragment />`;
 
-exports[`<EditableForm /> submits the Address form 1`] = `
+exports[`<EditableForm /> renders the payments form if countries are loaded 1`] = `
 <DocumentFragment>
   <form
     class="root"
@@ -13,418 +13,353 @@ exports[`<EditableForm /> submits the Address form 1`] = `
       <h2
         class="heading"
       >
-        Shipping Address
+        Billing Information
       </h2>
       <div
-        class="firstname"
+        class="braintree"
       >
-        <div
+        <span
           class="root"
         >
-          <label
-            for="firstname"
-          >
-            <span
-              class="label"
-            >
-              First Name
-            </span>
-          </label>
           <span
-            class="root"
+            class="input"
           >
-            <span
+            <select
               class="input"
+              name="payment_method"
             >
-              <input
-                class="input"
-                id="firstname"
-                name="firstname"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root_error"
-          >
-            The field is required.
-          </p>
-        </div>
-      </div>
-      <div
-        class="lastname"
-      >
-        <div
-          class="root"
-        >
-          <label
-            for="lastname"
-          >
-            <span
-              class="label"
-            >
-              Last Name
-            </span>
-          </label>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="lastname"
-                name="lastname"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root_error"
-          >
-            The field is required.
-          </p>
-        </div>
-      </div>
-      <div
-        class="email"
-      >
-        <div
-          class="root"
-        >
-          <label
-            for="email"
-          >
-            <span
-              class="label"
-            >
-              E-Mail
-            </span>
-          </label>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="email"
-                name="email"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root_error"
-          >
-            The field is required.
-          </p>
-        </div>
-      </div>
-      <div
-        class="street0"
-      >
-        <div
-          class="root"
-        >
-          <label
-            for="street0"
-          >
-            <span
-              class="label"
-            >
-              Street
-            </span>
-          </label>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="street0"
-                name="street0"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root_error"
-          >
-            The field is required.
-          </p>
-        </div>
-      </div>
-      <div
-        class="city"
-      >
-        <div
-          class="root"
-        >
-          <label
-            for="city"
-          >
-            <span
-              class="label"
-            >
-              City
-            </span>
-          </label>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <input
-                class="input"
-                id="city"
-                name="city"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
-          </span>
-          <p
-            class="root_error"
-          >
-            The field is required.
-          </p>
-        </div>
-      </div>
-      <div
-        class="country"
-      >
-        <div
-          class="root"
-        >
-          <label
-            for="country"
-          >
-            <span
-              class="label"
-            >
-              Country
-            </span>
-          </label>
-          <span
-            class="root"
-          >
-            <span
-              class="input"
-            >
-              <select
-                class="input"
-                id="country"
-                name="country_code"
+              <option
+                value="braintree"
               >
-                <option
-                  value="RO"
-                >
-                  Romania
-                </option>
-                <option
-                  value="US"
-                >
-                  United States
-                </option>
-              </select>
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            >
-              <span
-                class="root"
+                Credit Card (Braintree)
+              </option>
+              <option
+                value="checkmo"
               >
-                <svg
-                  fill="none"
-                  height="18"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  width="18"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polyline
-                    points="6 9 12 15 18 9"
-                  />
-                </svg>
-              </span>
-            </span>
+                Check / Money order
+              </option>
+            </select>
           </span>
-          <p
-            class="root"
+          <span
+            class="before"
           />
-        </div>
+          <span
+            class="after"
+          >
+            <span
+              class="root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+        <p
+          class="root"
+        />
       </div>
       <div
-        class="region_code"
+        class="address_check"
       >
-        <div
+        <label
           class="root"
         >
-          <label
-            for="region_code"
-          >
-            <span
-              class="label"
-            >
-              State
-            </span>
-          </label>
           <span
-            class="root"
+            class="icon"
           >
             <span
-              class="input"
+              class="root"
             >
-              <input
-                class="input"
-                id="region_code"
-                name="region_code"
-                value=""
-              />
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="20 6 9 17 4 12"
+                />
+              </svg>
             </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
           </span>
-          <p
-            class="root"
+          <input
+            checked=""
+            class="input"
+            name="addresses_same"
+            type="checkbox"
           />
-        </div>
+          <span
+            class="label"
+          >
+            Billing address same as shipping address
+          </span>
+        </label>
+        <p
+          class="root"
+        />
       </div>
-      <div
-        class="postcode"
+    </div>
+    <div
+      class="footer"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
       >
-        <div
+        <span
+          class="content"
+        >
+          Cancel
+        </span>
+      </button>
+      <button
+        class="root_highPriority"
+        disabled=""
+        type="submit"
+      >
+        <span
+          class="content"
+        >
+          Use Payment Method
+        </span>
+      </button>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`<EditableForm /> renders the payments form if countries are loaded 2`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <div
+      class="body"
+    >
+      <h2
+        class="heading"
+      >
+        Billing Information
+      </h2>
+      <div
+        class="braintree"
+      >
+        <span
           class="root"
         >
-          <label
-            for="postcode"
-          >
-            <span
-              class="label"
-            >
-              ZIP
-            </span>
-          </label>
           <span
-            class="root"
+            class="input"
           >
-            <span
+            <select
               class="input"
+              name="payment_method"
             >
-              <input
-                class="input"
-                id="postcode"
-                name="postcode"
-                value=""
-              />
-            </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
+              <option
+                value="braintree"
+              >
+                Credit Card (Braintree)
+              </option>
+              <option
+                value="checkmo"
+              >
+                Check / Money order
+              </option>
+            </select>
           </span>
-          <p
-            class="root_error"
+          <span
+            class="before"
+          />
+          <span
+            class="after"
           >
-            The field is required.
-          </p>
-        </div>
+            <span
+              class="root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+        <p
+          class="root"
+        />
       </div>
       <div
-        class="telephone"
+        class="address_check"
       >
-        <div
+        <label
           class="root"
         >
-          <label
-            for="telephone"
-          >
-            <span
-              class="label"
-            >
-              Phone
-            </span>
-          </label>
           <span
-            class="root"
+            class="icon"
           >
             <span
-              class="input"
+              class="root"
             >
-              <input
-                class="input"
-                id="telephone"
-                name="telephone"
-                value=""
-              />
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="20 6 9 17 4 12"
+                />
+              </svg>
             </span>
-            <span
-              class="before"
-            />
-            <span
-              class="after"
-            />
           </span>
-          <p
-            class="root_error"
+          <input
+            checked=""
+            class="input"
+            name="addresses_same"
+            type="checkbox"
+          />
+          <span
+            class="label"
           >
-            The field is required.
-          </p>
-        </div>
+            Billing address same as shipping address
+          </span>
+        </label>
+        <p
+          class="root"
+        />
       </div>
+    </div>
+    <div
+      class="footer"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Cancel
+        </span>
+      </button>
+      <button
+        class="root_highPriority"
+        disabled=""
+        type="submit"
+      >
+        <span
+          class="content"
+        >
+          Use Payment Method
+        </span>
+      </button>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`<EditableForm /> renders the shipping method form if countries are loaded 1`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <div
+      class="body"
+    >
+      <h2
+        class="heading"
+      >
+        Shipping Information
+      </h2>
       <div
-        class="validation"
-      />
-      <div
-        class="error"
-      />
+        class="shippingMethod"
+        id="shippingMethod"
+      >
+        <label
+          for="shippingMethod"
+        >
+          Shipping Method
+        </label>
+        <span
+          class="root"
+        >
+          <span
+            class="input"
+          >
+            <select
+              class="input"
+              name="shippingMethod"
+            >
+              <option
+                value="flatrate"
+              >
+                Flat Rate
+              </option>
+            </select>
+          </span>
+          <span
+            class="before"
+          />
+          <span
+            class="after"
+          >
+            <span
+              class="root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+        <p
+          class="root"
+        />
+      </div>
     </div>
     <div
       class="footer"
@@ -446,7 +381,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
         <span
           class="content"
         >
-          Use Address
+          Use Method
         </span>
       </button>
     </div>
@@ -454,7 +389,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
 </DocumentFragment>
 `;
 
-exports[`<EditableForm /> submits the Address form 2`] = `
+exports[`<EditableForm /> submits the Address form 1`] = `
 <DocumentFragment>
   <form
     class="root"
@@ -758,19 +693,52 @@ exports[`<EditableForm /> submits the Address form 2`] = `
             <span
               class="input"
             >
-              <input
+              <select
                 class="input"
                 id="region_code"
                 name="region_code"
-                value=""
-              />
+              >
+                <option
+                  value=""
+                />
+                <option
+                  value="AL"
+                >
+                  Alabama
+                </option>
+                <option
+                  value="AK"
+                >
+                  Alaska
+                </option>
+              </select>
             </span>
             <span
               class="before"
             />
             <span
               class="after"
-            />
+            >
+              <span
+                class="root"
+              >
+                <svg
+                  fill="none"
+                  height="18"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="6 9 12 15 18 9"
+                  />
+                </svg>
+              </span>
+            </span>
           </span>
           <p
             class="root"
