@@ -77,16 +77,16 @@ public class PageMetadataImpl implements PageMetadata {
         }
     }
 
-    private Resource findChildResourceWithType(Resource resource, String type) {
-        LOGGER.debug("Looking for child resource '{}' at {}", type, resource.getPath());
-        for (Resource child : resource.getChildren()) {
+    private Resource findChildResourceWithType(Resource fromResource, String type) {
+        LOGGER.debug("Looking for child resource type '{}' from {}", type, fromResource.getPath());
+        for (Resource child : fromResource.getChildren()) {
             if (child.isResourceType(type)) {
-                LOGGER.debug("Found child resource '{}' at {}", type, child.getPath());
+                LOGGER.debug("Found child resource type '{}' at {}", type, child.getPath());
                 return child;
             }
-            Resource productComponent = findChildResourceWithType(child, type);
-            if (productComponent != null) {
-                return productComponent;
+            Resource resource = findChildResourceWithType(child, type);
+            if (resource != null) {
+                return resource;
             }
         }
         return null;
