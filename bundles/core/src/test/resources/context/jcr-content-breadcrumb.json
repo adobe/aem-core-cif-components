@@ -53,6 +53,10 @@
                     "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
                     "startLevel": "3",
                     "structureDepth": "2"
+                  },
+                  "product": {
+                    "sling:resourceType": "venia/components/commerce/product",
+                    "sling:resourceSuperType": "core/cif/components/commerce/product/v1/product"
                   }
                 }
               }
@@ -70,7 +74,11 @@
                       "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
                       "startLevel": "3",
                       "structureDepth": "2"
-                    }
+                    },
+	                "product": {
+	                  "sling:resourceType": "venia/components/commerce/product",
+	                  "sling:resourceSuperType": "core/cif/components/commerce/product/v1/product"
+	                }
                   }
                 }
               }
@@ -88,6 +96,10 @@
                     "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
                     "startLevel": "3",
                     "structureDepth": "2"
+                  },
+                  "productlist": {
+                    "sling:resourceType": "venia/components/commerce/productlist",
+                    "sling:resourceSuperType": "core/cif/components/commerce/productlist/v1/productlist"
                   }
                 }
               }
@@ -105,6 +117,10 @@
                       "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
                       "startLevel": "3",
                       "structureDepth": "2"
+                    },
+                    "productlist": {
+                      "sling:resourceType": "venia/components/commerce/productlist",
+                      "sling:resourceSuperType": "core/cif/components/commerce/productlist/v1/productlist"
                     }
                   }
                 }
@@ -168,7 +184,15 @@
                         "jcr:primaryType": "cq:Page",
                         "jcr:content": {
                           "jcr:primaryType": "cq:PageContent",
-                          "sling:resourceType": "venia/components/page"
+                          "sling:resourceType": "venia/components/page",
+                          "root": {
+			                "responsivegrid": {
+			                  "product": {
+			                    "sling:resourceType": "venia/components/commerce/product",
+			                    "sling:resourceSuperType": "core/cif/components/commerce/product/v1/product"
+			                  }
+			                }
+			              }
                         },
                         "product-specific-page": {
                           "jcr:primaryType": "cq:Page",
@@ -192,7 +216,16 @@
                       "category-page": {
                         "jcr:primaryType": "cq:Page",
                         "jcr:content": {
-                          "jcr:primaryType": "cq:PageContent"
+                          "jcr:primaryType": "cq:PageContent",
+                          "sling:resourceType": "venia/components/page",
+                          "root": {
+			                "responsivegrid": {
+			                  "product": {
+			                    "sling:resourceType": "venia/components/commerce/productlist",
+			                    "sling:resourceSuperType": "core/cif/components/commerce/productlist/v1/productlist"
+			                  }
+			                }
+			              }
                         }
                       }
                     }

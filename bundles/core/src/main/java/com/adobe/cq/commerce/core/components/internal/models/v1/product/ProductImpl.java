@@ -87,7 +87,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     cache = true)
 public class ProductImpl extends DataLayerComponent implements Product {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
     protected static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
@@ -430,13 +430,11 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public ComponentData getComponentData() {
-        resource = request.getResource();
         return new ProductDataImpl(this, resource);
     }
 
     @Override
     protected String generateId() {
-        resource = request.getResource();
         return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
     }
 
