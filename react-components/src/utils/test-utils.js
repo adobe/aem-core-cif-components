@@ -40,7 +40,8 @@ import queryCustomerDetails from './mocks/queryCustomerDetails';
 import queryCustomerInformation from './mocks/queryCustomerInformation';
 import queryEmptyCart from './mocks/queryEmptyCart';
 import queryNewCart from './mocks/queryNewCart';
-import { gql } from '@apollo/client';
+
+const debugGraphQL = process.env.DEBUG_GRAPHQL !== undefined && process.env.DEBUG_GRAPHQL !== null ? true : false;
 
 const defaultMocks = [
     mutationChangePassword,
@@ -59,115 +60,7 @@ const defaultMocks = [
     queryCustomerDetails,
     queryCustomerInformation,
     queryEmptyCart,
-    queryNewCart,
-    {
-        request: {
-            query: gql`
-                mutation(
-                    $cartId: String!
-                    $city: String!
-                    $company: String
-                    $country_code: String!
-                    $firstname: String!
-                    $lastname: String!
-                    $postcode: String
-                    $region_code: String
-                    $save_in_address_book: Boolean
-                    $street: [String]!
-                    $telephone: String!
-                ) {
-                    setShippingAddressesOnCart(
-                        input: {
-                            cart_id: $cartId
-                            shipping_addresses: [
-                                {
-                                    address: {
-                                        city: $city
-                                        company: $company
-                                        country_code: $country_code
-                                        firstname: $firstname
-                                        lastname: $lastname
-                                        postcode: $postcode
-                                        region: $region_code
-                                        save_in_address_book: $save_in_address_book
-                                        street: $street
-                                        telephone: $telephone
-                                    }
-                                }
-                            ]
-                        }
-                    ) {
-                        cart {
-                            shipping_addresses {
-                                available_shipping_methods {
-                                    carrier_code
-                                    carrier_title
-                                    method_code
-                                    method_title
-                                }
-                                city
-                                company
-                                country {
-                                    code
-                                }
-                                firstname
-                                lastname
-                                postcode
-                                region {
-                                    code
-                                }
-                                street
-                                telephone
-                            }
-                        }
-                    }
-                }
-            `,
-            variables: {
-                cartId: '123ABC',
-                country_code: 'US',
-                firstname: 'Veronica',
-                lastname: 'Costello',
-                email: 'veronica@example.com',
-                city: 'Calder',
-                region_code: 'MI',
-                postcode: '49628-7978',
-                telephone: '(555) 229-3326',
-                street: ['cart shipping address']
-            }
-        },
-        result: {
-            data: {
-                cart: {
-                    shipping_addresses: [
-                        {
-                            available_shipping_methods: [
-                                {
-                                    carrier_code: 'test carrier code',
-                                    carrier_title: 'test carrier title',
-                                    method_code: 'test method code',
-                                    method_title: 'test method title'
-                                }
-                            ],
-                            city: 'Costello',
-                            company: '',
-                            country: {
-                                code: 'US'
-                            },
-                            firstname: 'Veronica',
-                            lastname: 'Costello',
-                            postcode: '49628-7978',
-                            region: {
-                                code: 'MI'
-                            },
-                            street: 'cart shipping address',
-                            telephone: '(555) 229-3326'
-                        }
-                    ]
-                }
-            }
-        }
-    }
+    queryNewCart
 ];
 
 const defaultConfig = {
@@ -182,7 +75,7 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
 
     let loggerLink = new ApolloLink((operation, forward) => {
         console.log(
-            `[GraphQL operation]: \nQuery: ${JSON.stringify(operation.query)} \nVariables: ${JSON.stringify(
+            `[GraphQL operation]: \n\tQuery: ${JSON.stringify(operation.query)} \n\tVariables: ${JSON.stringify(
                 operation.variables
             )}`
         );
@@ -197,7 +90,8 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
 
         if (networkError) console.log(`[Network error]: ${networkError}`);
     });
-    let link = from([loggerLink, errorLoggingLink, mockLink]);
+
+    let link = debugGraphQL ? from([loggerLink, errorLoggingLink, mockLink]) : from([mockLink]);
 
     return (
         <MockedProvider addTypename={false} link={link}>
