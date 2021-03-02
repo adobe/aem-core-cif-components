@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { wait } from '@testing-library/react';
+import { wait, fireEvent } from '@testing-library/react';
 import { render } from '../../../utils/test-utils';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart';
@@ -23,17 +23,73 @@ import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_brai
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
 
 describe('<EditableForm />', () => {
+    const checkoutReducer = jest.fn((state, action) => state);
+    const cartReducer = jest.fn((state, action) => state);
+    const cartReducerFactory = jest.fn(setCartCookie => cartReducer);
+
+    afterEach(() => {
+        checkoutReducer.mockClear();
+        cartReducer.mockClear();
+    });
+
     it('renders the shipping address form if countries are loaded', async () => {
-        const { queryByText } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+        const { queryByText, getByRole } = render(
+            <CartProvider initialState={{}} reducerFactory={cartReducer}>
+                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>
         );
+
         await wait(() => {
             expect(queryByText('Shipping Address')).not.toBeNull();
         });
+
+        fireEvent.click(getByRole('button', { name: 'Cancel' }));
+        expect(checkoutReducer).toHaveBeenCalledTimes(1);
+        expect(checkoutReducer).toHaveBeenCalledWith(
+            {
+                editing: 'address',
+                flowState: 'form'
+            },
+            { type: 'endEditing' }
+        );
+    });
+
+    it('submits the Address form', async () => {
+        const { asFragment, queryByText, getByRole } = render(
+            <CartProvider initialState={{ cartId: '123ABC' }} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={checkoutReducer}>
+                    <EditableForm />
+                </CheckoutProvider>
+            </CartProvider>
+        );
+
+        await wait(() => {
+            expect(queryByText('Shipping Address')).not.toBeNull();
+        });
+
+        fireEvent.click(getByRole('button', { name: 'Use Address' }));
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
+
+        fireEvent.change(getByRole('textbox', { name: 'First Name' }), { target: { value: 'Veronica' } });
+        fireEvent.change(getByRole('textbox', { name: 'Last Name' }), { target: { value: 'Costello' } });
+        fireEvent.change(getByRole('textbox', { name: 'E-Mail' }), { target: { value: 'veronica@example.com' } });
+        fireEvent.change(getByRole('textbox', { name: 'Street' }), { target: { value: 'cart shipping address' } });
+        fireEvent.change(getByRole('textbox', { name: 'City' }), { target: { value: 'Calder' } });
+        fireEvent.change(getByRole('textbox', { name: 'State' }), { target: { value: 'MI' } });
+        fireEvent.change(getByRole('textbox', { name: 'ZIP' }), { target: { value: '49628-7978' } });
+        fireEvent.change(getByRole('textbox', { name: 'Phone' }), { target: { value: '(555) 229-3326' } });
+
+        fireEvent.click(getByRole('button', { name: 'Use Address' }));
+
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+        });
+
+        expect(cartReducer).toHaveBeenNthCalledWith(1, { type: 'beginLoading' });
     });
 
     it('renders the payments form if countries are loaded', async () => {
@@ -67,10 +123,11 @@ describe('<EditableForm />', () => {
             }
         };
 
-        let mockReducer = jest.fn(state => state);
         const { queryByText } = render(
-            <CartProvider initialState={mockCartState} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'paymentMethod', flowState: 'form' }} reducer={mockReducer}>
+            <CartProvider initialState={mockCartState} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider
+                    initialState={{ editing: 'paymentMethod', flowState: 'form' }}
+                    reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>,
@@ -79,16 +136,16 @@ describe('<EditableForm />', () => {
 
         await wait(() => {
             expect(queryByText('Billing Information')).not.toBeNull();
-            expect(mockReducer.mock.calls.length).toBe(1);
+            expect(checkoutReducer.mock.calls.length).toBe(1);
         });
     });
 
     it('renders the shipping method form if countries are loaded', async () => {
         const { queryByText } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+            <CartProvider initialState={{}} reducerFactory={cartReducerFactory}>
                 <CheckoutProvider
                     initialState={{ editing: 'shippingMethod', flowState: 'form' }}
-                    reducer={state => state}>
+                    reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>
@@ -114,8 +171,8 @@ describe('<EditableForm />', () => {
         ];
 
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>,

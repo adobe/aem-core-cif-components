@@ -63,14 +63,16 @@ exports[`<AccountDropdown> renders the change password component inside account 
         <div
           class="root"
         >
-          <span
-            class="label"
-          >
+          <label>
             <span
-              class="requiredSymbol"
-            />
-            Current Password
-          </span>
+              class="label"
+            >
+              <span
+                class="requiredSymbol"
+              />
+              Current Password
+            </span>
+          </label>
           <span
             class="root"
           >
@@ -99,14 +101,16 @@ exports[`<AccountDropdown> renders the change password component inside account 
         <div
           class="root"
         >
-          <span
-            class="label"
-          >
+          <label>
             <span
-              class="requiredSymbol"
-            />
-            New Password
-          </span>
+              class="label"
+            >
+              <span
+                class="requiredSymbol"
+              />
+              New Password
+            </span>
+          </label>
           <span
             class="root"
           >
@@ -136,14 +140,16 @@ exports[`<AccountDropdown> renders the change password component inside account 
         <div
           class="root"
         >
-          <span
-            class="label"
-          >
+          <label>
             <span
-              class="requiredSymbol"
-            />
-            Confirm New Password
-          </span>
+              class="label"
+            >
+              <span
+                class="requiredSymbol"
+              />
+              Confirm New Password
+            </span>
+          </label>
           <span
             class="root"
           >
@@ -217,14 +223,16 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          First Name
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            First Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -253,14 +261,16 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Last Name
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Last Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -289,14 +299,16 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Email address
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Email address
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -325,14 +337,16 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Password
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Password
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -362,14 +376,16 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Confirm Password
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Confirm Password
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -469,14 +485,16 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
         <div
           class="root"
         >
-          <span
-            class="label"
-          >
+          <label>
             <span
-              class="requiredSymbol"
-            />
-            Email address
-          </span>
+              class="label"
+            >
+              <span
+                class="requiredSymbol"
+              />
+              Email address
+            </span>
+          </label>
           <span
             class="root"
           >
