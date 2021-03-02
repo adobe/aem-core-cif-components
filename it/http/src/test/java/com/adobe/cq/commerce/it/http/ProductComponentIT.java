@@ -22,14 +22,17 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class ProductComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
     private static final String PRODUCT_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .product ";
 
     @Test
-    public void testProductPageWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.chaz-kangeroo-hoodie.html", 200);
+    public void testProductPageWithSampleData() throws Exception {
+        String pagePath = COMMERCE_LIBRARY_PATH + "/product.chaz-kangeroo-hoodie.html";
+        SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify product name
@@ -38,6 +41,25 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Verify that the section for GroupedProduct is NOT displayed
         Assert.assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
+
+        // Check the meta data
+        elements = doc.select("title");
+        Assert.assertEquals("Meta title for Chaz Kangeroo Hoodie", elements.first().html());
+
+        elements = doc.select("meta[name=keywords]");
+        Assert.assertEquals("Meta keywords for Chaz Kangeroo Hoodie", elements.first().attr("content"));
+
+        elements = doc.select("meta[name=description]");
+        Assert.assertEquals("Meta description for Chaz Kangeroo Hoodie", elements.first().attr("content"));
+
+        elements = doc.select("link[rel=canonical]");
+        Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+
+        // Verify datalayer attributes
+        elements = doc.select(PRODUCT_SELECTOR + "> .productFullDetail__root");
+        JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
+        JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/chaz-kangeroo-hoodie-product.json"));
+        Assert.assertEquals(expected, result);
     }
 
     @Test

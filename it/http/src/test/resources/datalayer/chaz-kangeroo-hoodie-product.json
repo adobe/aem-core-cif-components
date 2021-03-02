@@ -1,0 +1,43 @@
+{
+  "product-500741b9f1": {
+    "xdm:SKU": "MH01",
+    "xdm:listPrice": 52.0,
+    "xdm:assets": [
+      {
+        "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
+        "xdm:tags": [],
+        "repo:id": "image-1b75bd4564",
+        "@type": "image"
+      },
+      {
+        "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
+        "xdm:tags": [],
+        "repo:id": "image-72c282d214",
+        "@type": "image"
+      },
+      {
+        "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
+        "xdm:tags": [],
+        "repo:id": "image-b01e75ba46",
+        "@type": "image"
+      }
+    ],
+    "xdm:currencyCode": "USD",
+    "xdm:categories": [
+      {
+        "repo:id": "category-4a44dc1536",
+        "xdm:name": "category-1",
+        "xdm:asset": {
+          "repo:path": "/url/to/image",
+          "xdm:tags": [],
+          "repo:id": "image-5e4329fc2c",
+          "@type": "image"
+        }
+      }
+    ],
+    "repo:modifyDate": "2019-05-21T15:59:35Z",
+    "dc:description": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>• Two-tone gray heather hoodie.<br />• Drawstring-adjustable hood. <br />• Machine wash/dry.</p>",
+    "@type": "cif-components-examples/components/product",
+    "dc:title": "Chaz Kangeroo Hoodie"
+  }
+}
