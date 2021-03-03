@@ -92,6 +92,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+    private static final String SELECTION_PROPERTY = "selection";
 
     @Self
     private SlingHttpServletRequest request;
@@ -130,9 +131,17 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @PostConstruct
     private void initModel() {
+        // Get product selection from dialog
+        String selection = properties.get(SELECTION_PROPERTY, String.class);
 
-        // Parse identifier in URL
-        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
+        // If no product is selected via dialog, take the one from the URL
+        Pair<ProductIdentifierType, String> identifier;
+        if (StringUtils.isEmpty(selection)) {
+            // Parse identifier in URL
+            identifier = urlProvider.getProductIdentifier(request);
+        } else {
+            identifier = Pair.of(ProductIdentifierType.SKU, selection);
+        }
 
         locale = currentPage.getLanguage(false);
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Product Detail"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[cif.shell.picker]"
+    trackingFeature="cif-core-components:product:v1">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <column jcr:primaryType="nt:unstructured" 
+                sling:resourceType="granite/ui/components/coral/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <product
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="commerce/gui/components/common/cifproductfield"
+                        fieldDescription="The product that should be displayed by the product detail component."
+                        fieldLabel="Manual Product Selection"
+                        filter="folderOrProduct"
+                        name="./selection"
+                        selectionId="sku"/>
+                    <well
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/well">
+                        <items jcr:primaryType="nt:unstructured">
+                            <text
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/text"
+                                text="Without a manual product selection, this component will display a product based on an URL selector."/>
+                        </items>
+                    </well>
+                    
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>
