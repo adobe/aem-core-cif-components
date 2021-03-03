@@ -29,7 +29,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -45,11 +45,11 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     private final Resource parentResource;
     private final Page productPage;
     private final Locale locale;
-    private final UrlProvider urlProvider;
+    private final UrlDelegator urlProvider;
 
     private final SlingHttpServletRequest request;
 
-    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
+    public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlDelegator urlProvider,
                                              Resource parentResource) {
         this.parentResource = parentResource;
         this.productPage = productPage;

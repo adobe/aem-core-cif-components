@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -81,7 +81,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     SearchFilterService searchFilterService;
 
     @Reference
-    private UrlProvider urlProvider = null;
+    private UrlDelegator urlProvider = null;
 
     private MagentoGraphqlClient magentoGraphqlClient;
 

@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.services.UrlDelegator;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
@@ -51,7 +52,7 @@ public class PreviewServlet extends SlingSafeMethodsServlet {
     protected static final String PREVIEW_CATEGORY = "previewcategory";
 
     @Reference
-    private UrlProvider urlProvider;
+    private UrlDelegator urlProvider;
 
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
 

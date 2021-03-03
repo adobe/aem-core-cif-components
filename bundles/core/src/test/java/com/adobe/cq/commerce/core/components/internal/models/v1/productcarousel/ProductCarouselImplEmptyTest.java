@@ -14,7 +14,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -26,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlDelegatorImpl;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -53,6 +56,17 @@ public class ProductCarouselImplEmptyTest {
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
+
+                // make the urlDelegator give the provider back instead of using the provider
+                Map<String, String> urlProviderPropertiesMap = new HashMap();
+                urlProviderPropertiesMap.put("productUrlTemplate", "{{page}}.{{url_key}}.html#{{variant_sku}}");
+                urlProviderPropertiesMap.put("productIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("productIdentifierType", "URL_KEY");
+                urlProviderPropertiesMap.put("categoryUrlTemplate", "{page}}.{{id}}.html");
+                urlProviderPropertiesMap.put("categoryIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("categoryIdentifierType", "ID");
+                context.registerInjectActivateService(new UrlProviderImpl(), urlProviderPropertiesMap);
+                context.registerInjectActivateService(new UrlDelegatorImpl());
             },
             ResourceResolverType.JCR_MOCK);
     }

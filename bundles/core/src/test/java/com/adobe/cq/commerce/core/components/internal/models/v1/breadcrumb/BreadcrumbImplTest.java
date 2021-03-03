@@ -16,7 +16,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -36,6 +38,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlDelegatorImpl;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -79,6 +82,17 @@ public class BreadcrumbImplTest {
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
+
+                // make the urlDelegator give the provider back instead of using the provider
+                Map<String, String> urlProviderPropertiesMap = new HashMap();
+                urlProviderPropertiesMap.put("productUrlTemplate", "{{page}}.{{url_key}}.html#{{variant_sku}}");
+                urlProviderPropertiesMap.put("productIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("productIdentifierType", "URL_KEY");
+                urlProviderPropertiesMap.put("categoryUrlTemplate", "{page}}.{{id}}.html");
+                urlProviderPropertiesMap.put("categoryIdentifierLocation", "SELECTOR");
+                urlProviderPropertiesMap.put("categoryIdentifierType", "ID");
+                context.registerInjectActivateService(new UrlProviderImpl(), urlProviderPropertiesMap);
+                context.registerInjectActivateService(new UrlDelegatorImpl());
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
 
@@ -272,6 +286,17 @@ public class BreadcrumbImplTest {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
         context.registerService(UrlProvider.class, urlProvider);
+
+        // make the urlDelegator give the provider back instead of using the provider
+        Map<String, String> urlProviderPropertiesMap = new HashMap();
+        urlProviderPropertiesMap.put("productUrlTemplate", "{{page}}.{{url_key}}.html#{{variant_sku}}");
+        urlProviderPropertiesMap.put("productIdentifierLocation", "SELECTOR");
+        urlProviderPropertiesMap.put("productIdentifierType", "URL_KEY");
+        urlProviderPropertiesMap.put("categoryUrlTemplate", "{page}}.{{id}}.html");
+        urlProviderPropertiesMap.put("categoryIdentifierLocation", "SELECTOR");
+        urlProviderPropertiesMap.put("categoryIdentifierType", "ID");
+        context.registerInjectActivateService(new UrlProviderImpl(), urlProviderPropertiesMap);
+        context.registerInjectActivateService(new UrlDelegatorImpl());
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("MT10");
