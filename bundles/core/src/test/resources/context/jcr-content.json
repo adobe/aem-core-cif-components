@@ -307,5 +307,22 @@
         }
       }
     }
+  },
+  "product-of-the-week": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "product": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/product"
+          }
+        }
+      }
+    }
   }
 }

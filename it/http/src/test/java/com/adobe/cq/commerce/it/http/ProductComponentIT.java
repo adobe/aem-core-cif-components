@@ -41,6 +41,19 @@ public class ProductComponentIT extends CommerceTestBase {
     }
 
     @Test
+    public void testProductWithManualSelection() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/manual-product.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Verify product name
+        Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
+        Assert.assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
+
+        // Verify that the section for GroupedProduct is NOT displayed
+        Assert.assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
+    }
+
+    @Test
     public void testProductPageWithSampleDataForGroupedProduct() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.set-of-sprite-yoga-straps.html", 200);
         Document doc = Jsoup.parse(response.getContent());
