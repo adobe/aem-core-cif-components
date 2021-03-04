@@ -388,6 +388,7 @@ public class ProductImplTest {
         product = rootQuery.getProducts().getItems().get(0);
 
         testProduct(product, false);
+        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
     }
 
     @Test
