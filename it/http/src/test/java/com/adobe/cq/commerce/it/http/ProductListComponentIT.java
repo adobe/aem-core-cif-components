@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.it.http;
 
+import java.util.stream.Collectors;
+
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.jsoup.Jsoup;
@@ -22,14 +24,17 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class ProductListComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
     private static final String PRODUCTLIST_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productlist ";
 
     @Test
-    public void testProductListPageWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.1.html", 200);
+    public void testProductListPageWithSampleData() throws Exception {
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.1.html";
+        SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
@@ -43,6 +48,34 @@ public class ProductListComponentIT extends CommerceTestBase {
         // Check that the 6 products are displayed on the first page
         elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
         Assert.assertEquals(6, elements.size());
+
+        // Check the meta data
+        elements = doc.select("title");
+        Assert.assertEquals("Meta title for Outdoor Collection", elements.first().html());
+
+        elements = doc.select("meta[name=keywords]");
+        Assert.assertEquals("Meta keywords for Outdoor Collection", elements.first().attr("content"));
+
+        elements = doc.select("meta[name=description]");
+        Assert.assertEquals("Meta description for Outdoor Collection", elements.first().attr("content"));
+
+        elements = doc.select("link[rel=canonical]");
+        Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+
+        // Verify datalayer attributes
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__root");
+        JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
+        JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist.json"));
+        Assert.assertEquals(expected, result);
+
+        // Verify product items datalayer attributes
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
+        result = OBJECT_MAPPER.readTree(elements.stream()
+            .map(e -> e.attr("data-cmp-data-layer"))
+            .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
+            .collect(Collectors.joining(",", "[", "]")));
+        expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist-items.json"));
+        Assert.assertEquals(expected, result);
     }
 
     @Test
