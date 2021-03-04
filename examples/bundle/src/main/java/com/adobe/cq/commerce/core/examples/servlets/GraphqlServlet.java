@@ -246,7 +246,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     @SuppressWarnings("unchecked")
     private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String json = readResource("magento-luma-schema-2.3.5.json");
+        String json = readResource("magento-schema-2.4.2ee.json");
 
         Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
         Map<String, Object> map = gson.fromJson(json, type);
@@ -340,7 +340,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return RuntimeWiring.newRuntimeWiring()
             .wiringFactory(wiringFactory)
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
-            .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("categoryList", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))

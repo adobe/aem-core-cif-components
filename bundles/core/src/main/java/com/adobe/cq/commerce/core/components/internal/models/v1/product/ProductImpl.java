@@ -243,6 +243,22 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
+    public Boolean isStaged() {
+        // A product is considered "staged" if the product itself or one of its variant or item is "staged"
+        ProductInterface product = productRetriever.fetchProduct();
+        if (Boolean.TRUE.equals(product.getStaged())) {
+            return true;
+        } else if (isConfigurable()) {
+            ConfigurableProduct cp = (ConfigurableProduct) product;
+            return cp.getVariants().stream().anyMatch(v -> Boolean.TRUE.equals(v.getProduct().getStaged()));
+        } else if (isGroupedProduct()) {
+            GroupedProduct gp = (GroupedProduct) product;
+            return gp.getItems().stream().anyMatch(i -> Boolean.TRUE.equals(i.getProduct().getStaged()));
+        }
+        return false;
+    }
+
+    @Override
     public String getVariantsJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {

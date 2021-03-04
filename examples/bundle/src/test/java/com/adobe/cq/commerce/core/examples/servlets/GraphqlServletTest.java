@@ -277,6 +277,23 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testBundleProductModel() throws ServletException {
+        prepareModel(PRODUCT_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("sprite-yoga-companion-kit");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG080", productModel.getSku());
+        Assert.assertTrue(productModel.isBundleProduct());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+    }
+
+    @Test
     public void testProductListModel() throws ServletException {
         prepareModel(PRODUCT_LIST_RESOURCE);
 

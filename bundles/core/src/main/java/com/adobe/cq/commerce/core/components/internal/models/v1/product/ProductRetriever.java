@@ -63,6 +63,7 @@ class ProductRetriever extends AbstractProductRetriever {
                 .thumbnail(t -> t.label().url())
                 .urlKey()
                 .stockStatus()
+                .staged()
                 .color()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
@@ -96,6 +97,7 @@ class ProductRetriever extends AbstractProductRetriever {
                 .metaDescription()
                 .metaKeyword()
                 .metaTitle()
+                .staged()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .mediaGallery(g -> g
