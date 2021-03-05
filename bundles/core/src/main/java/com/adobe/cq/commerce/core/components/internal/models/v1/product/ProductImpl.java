@@ -88,7 +88,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProductImpl extends DataLayerComponent implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
-    protected static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
+    public static final String PLACEHOLDER_DATA = "product-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
@@ -125,12 +125,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean loadClientPrice;
     private String canonicalUrl;
 
-    private AbstractProductRetriever productRetriever;
+    protected AbstractProductRetriever productRetriever;
 
     private Locale locale;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // Get product selection from dialog
         String selection = properties.get(SELECTION_PROPERTY, String.class);
 

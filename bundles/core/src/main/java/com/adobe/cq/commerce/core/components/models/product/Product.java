@@ -72,6 +72,10 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
+    default Boolean isStaged() {
+        return false;
+    };
+
     String getVariantsJson();
 
     List<Variant> getVariants();

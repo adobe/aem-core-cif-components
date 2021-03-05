@@ -120,7 +120,7 @@ public class ProductImplTest {
     private Resource pageResource;
     private ProductImpl productModel;
     private ProductInterface product;
-    private HttpClient httpClient;
+    protected HttpClient httpClient;
     private GraphqlClient graphqlClient;
 
     @Before
@@ -217,6 +217,7 @@ public class ProductImplTest {
     public void testProduct() {
         productModel = context.request().adaptTo(ProductImpl.class);
         testProduct(product, true);
+        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         // We don't return these fields for the EDIT placeholder data
         Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
@@ -427,6 +428,7 @@ public class ProductImplTest {
         List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
         Assert.assertEquals(4, items.size());
+        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
@@ -456,6 +458,7 @@ public class ProductImplTest {
         productModel = context.request().adaptTo(ProductImpl.class);
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isBundleProduct());
+        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
     }
 
     @Test
