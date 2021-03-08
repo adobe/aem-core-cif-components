@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
+import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
@@ -118,10 +119,11 @@ public class ProductImplTest {
 
     private Resource productResource;
     private Resource pageResource;
-    private ProductImpl productModel;
     private ProductInterface product;
-    protected HttpClient httpClient;
     private GraphqlClient graphqlClient;
+
+    protected Product productModel;
+    protected HttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
@@ -177,9 +179,13 @@ public class ProductImplTest {
 
     }
 
+    protected void adaptToProduct() {
+        productModel = context.request().adaptTo(ProductImpl.class);
+    }
+
     @Test
     public void testGetIdentifierFromSelector() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         // Check which identifier was set in the product retriever
         UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
@@ -202,7 +208,7 @@ public class ProductImplTest {
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         // Check which identifier was set in the product retriever
         UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
@@ -215,9 +221,18 @@ public class ProductImplTest {
 
     @Test
     public void testProduct() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        testProductImpl(false);
+    }
+
+    public void testProductImpl(boolean hasStagedData) {
+        adaptToProduct();
         testProduct(product, true);
-        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+
+        if (hasStagedData) {
+            Assert.assertTrue("The product has staged data", productModel.isStaged());
+        } else {
+            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+        }
 
         // We don't return these fields for the EDIT placeholder data
         Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
@@ -256,7 +271,7 @@ public class ProductImplTest {
 
     @Test
     public void testVariants() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         List<Variant> variants = productModel.getVariants();
         Assert.assertNotNull(variants);
 
@@ -296,7 +311,7 @@ public class ProductImplTest {
 
     @Test
     public void testGetVariantAttributes() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         List<VariantAttribute> attributes = productModel.getVariantAttributes();
         Assert.assertNotNull(attributes);
 
@@ -321,7 +336,7 @@ public class ProductImplTest {
 
     @Test
     public void testSimpleProduct() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", new SimpleProduct());
         Assert.assertTrue(productModel.getVariants().isEmpty());
         Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
@@ -329,7 +344,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionWithNull() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
@@ -338,7 +353,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionHtmlNull() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
         when(value.getHtml()).thenReturn(null);
@@ -351,7 +366,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescription() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         String sampleString = "<strong>abc</strong>";
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
@@ -365,7 +380,7 @@ public class ProductImplTest {
 
     @Test
     public void testSafeDescriptionConfigurableProduct() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         String sampleString = "<strong>def</strong>";
         ConfigurableProduct product = mock(ConfigurableProduct.class, RETURNS_DEEP_STUBS);
         ComplexTextValue value = mock(ComplexTextValue.class, RETURNS_DEEP_STUBS);
@@ -381,7 +396,7 @@ public class ProductImplTest {
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         String json = Utils.getResource(ProductImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
@@ -392,7 +407,7 @@ public class ProductImplTest {
 
     @Test
     public void testPriceRange() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Price price = productModel.getPriceRange();
 
         Assert.assertTrue(price.isRange());
@@ -405,7 +420,7 @@ public class ProductImplTest {
 
     @Test
     public void testDiscountedPrice() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Price price = productModel.getVariants().get(0).getPriceRange();
 
         Assert.assertFalse(price.isRange());
@@ -418,17 +433,26 @@ public class ProductImplTest {
 
     @Test
     public void testGroupedProduct() throws IOException {
+        testGroupedProductImpl(false);
+    }
+
+    public void testGroupedProductImpl(boolean hasStagedData) throws IOException {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-groupedproduct-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
         Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200);
 
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         List<GroupItem> items = productModel.getGroupedProductItems();
         Assert.assertTrue(productModel.isGroupedProduct());
         Assert.assertEquals(4, items.size());
-        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+
+        if (hasStagedData) {
+            Assert.assertTrue("The product has staged data", productModel.isStaged());
+        } else {
+            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+        }
 
         GroupedProduct gp = (GroupedProduct) product;
         for (int i = 0; i < items.size(); i++) {
@@ -447,25 +471,35 @@ public class ProductImplTest {
     @Test
     public void testVirtualProduct() throws IOException {
         Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200);
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isVirtualProduct());
+        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
     }
 
     @Test
     public void testBundleProduct() throws IOException {
+        testBundleProductImpl(false);
+    }
+
+    public void testBundleProductImpl(boolean hasStagedData) throws IOException {
         Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200);
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isBundleProduct());
-        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+
+        if (hasStagedData) {
+            Assert.assertTrue("The product has staged data", productModel.isStaged());
+        } else {
+            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+        }
     }
 
     @Test
     public void testProductNoGraphqlClient() {
         when(productResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         Assert.assertFalse("Product is not found", productModel.getFound());
         Assert.assertFalse("Product is not configurable", productModel.isConfigurable());
@@ -477,13 +511,13 @@ public class ProductImplTest {
     @Test
     public void testProductNotFound() throws IOException {
         Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200);
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Assert.assertFalse("Product is not found", productModel.getFound());
     }
 
     @Test
     public void testClientLoadingIsDisabledOnLaunchPage() {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         Assert.assertTrue(productModel.loadClientPrice());
         Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
         Whitebox.setInternalState(productModel, "currentPage", launch);
@@ -500,7 +534,7 @@ public class ProductImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertFalse(productModel.getFound());
@@ -513,7 +547,7 @@ public class ProductImplTest {
 
     @Test
     public void testJsonRender() throws IOException {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-product-component.json");
         String jsonResult = productModel.getData().getJson();

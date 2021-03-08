@@ -72,6 +72,13 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
+    /**
+     * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
+     * The version 2 of the product component does support this feature but it requires a Magento EE instance with
+     * at least version 2.4.2.
+     * 
+     * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
+     */
     default Boolean isStaged() {
         return false;
     };
