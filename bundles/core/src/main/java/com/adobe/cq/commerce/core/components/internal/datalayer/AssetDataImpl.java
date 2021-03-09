@@ -14,6 +14,7 @@
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,11 @@ public class AssetDataImpl implements AssetData {
 
     @Override
     public Date getLastModifiedDate() {
+        return null;
+    }
+
+    // Workaround until https://github.com/adobe/aem-core-wcm-components/issues/1415 is fixed
+    public Map<String, Object> getSmartTags() {
         return null;
     }
 }

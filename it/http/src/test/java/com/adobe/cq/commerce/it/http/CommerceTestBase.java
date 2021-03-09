@@ -14,12 +14,15 @@
 
 package com.adobe.cq.commerce.it.http;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.apache.sling.testing.clients.osgi.OsgiConsoleClient;
@@ -37,6 +40,7 @@ import com.adobe.cq.testing.client.CQClient;
 import com.adobe.cq.testing.client.CommerceClient;
 import com.adobe.cq.testing.junit.rules.CQAuthorClassRule;
 import com.adobe.cq.testing.junit.rules.CQRule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.apache.http.HttpStatus.SC_MOVED_TEMPORARILY;
 
@@ -51,6 +55,8 @@ public class CommerceTestBase {
     protected static final String CMP_EXAMPLES_DEMO_SELECTOR = ".cmp-examples-demo__top";
 
     private static final String CONFIGURATION_CONSOLE_URL = "/system/console/configMgr";
+
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ClassRule
     public static final CQAuthorClassRule cqBaseClassRule = new CQAuthorClassRule();
@@ -160,5 +166,9 @@ public class CommerceTestBase {
 
         // Wait a bit more so that other bundles can restart
         Thread.sleep(2000);
+    }
+
+    protected static String getResource(String filename) throws IOException {
+        return IOUtils.toString(CommerceTestBase.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 }
