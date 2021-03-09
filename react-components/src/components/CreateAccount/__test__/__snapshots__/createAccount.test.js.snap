@@ -9,14 +9,16 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
+      <label>
         <span
-          class="requiredSymbol"
-        />
-        First Name
-      </span>
+          class="label"
+        >
+          <span
+            class="requiredSymbol"
+          />
+          First Name
+        </span>
+      </label>
       <span
         class="root"
       >
@@ -45,14 +47,16 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
+      <label>
         <span
-          class="requiredSymbol"
-        />
-        Last Name
-      </span>
+          class="label"
+        >
+          <span
+            class="requiredSymbol"
+          />
+          Last Name
+        </span>
+      </label>
       <span
         class="root"
       >
@@ -81,14 +85,16 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
+      <label>
         <span
-          class="requiredSymbol"
-        />
-        Email address
-      </span>
+          class="label"
+        >
+          <span
+            class="requiredSymbol"
+          />
+          Email address
+        </span>
+      </label>
       <span
         class="root"
       >
@@ -117,14 +123,16 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
+      <label>
         <span
-          class="requiredSymbol"
-        />
-        Password
-      </span>
+          class="label"
+        >
+          <span
+            class="requiredSymbol"
+          />
+          Password
+        </span>
+      </label>
       <span
         class="root"
       >
@@ -154,14 +162,16 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
+      <label>
         <span
-          class="requiredSymbol"
-        />
-        Confirm Password
-      </span>
+          class="label"
+        >
+          <span
+            class="requiredSymbol"
+          />
+          Confirm Password
+        </span>
+      </label>
       <span
         class="root"
       >

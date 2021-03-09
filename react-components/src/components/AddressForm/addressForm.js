@@ -74,7 +74,7 @@ const AddressForm = props => {
             }
             setIsSubmitting(true);
             // Convert street back to array
-            submit({ ...values, street: [values.street0] });
+            submit({ ...values, street: [values.street0], street0: undefined });
         },
         [submit]
     );
@@ -124,7 +124,7 @@ const AddressForm = props => {
                             </div>
                         )}
                         <div className={classes.firstname}>
-                            <Field label={t('checkout:address-firstname', 'First Name')}>
+                            <Field htmlFor={classes.firstname} label={t('checkout:address-firstname', 'First Name')}>
                                 <TextInput
                                     id={classes.firstname}
                                     field="firstname"
@@ -134,7 +134,7 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.lastname}>
-                            <Field label={t('checkout:address-lastname', 'Last Name')}>
+                            <Field htmlFor={classes.lastname} label={t('checkout:address-lastname', 'Last Name')}>
                                 <TextInput
                                     id={classes.lastname}
                                     field="lastname"
@@ -145,7 +145,7 @@ const AddressForm = props => {
                         </div>
                         {showEmailInput && (
                             <div className={classes.email}>
-                                <Field label={t('checkout:address-email', 'E-Mail')}>
+                                <Field htmlFor={classes.email} label={t('checkout:address-email', 'E-Mail')}>
                                     <TextInput
                                         id={classes.email}
                                         field="email"
@@ -156,18 +156,19 @@ const AddressForm = props => {
                             </div>
                         )}
                         <div className={classes.street0}>
-                            <Field label={t('checkout:address-street', 'Street')}>
+                            <Field htmlFor={classes.street0} label={t('checkout:address-street', 'Street')}>
                                 <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
                             </Field>
                         </div>
                         <div className={classes.city}>
-                            <Field label={t('checkout:address-city', 'City')}>
+                            <Field htmlFor={classes.city} label={t('checkout:address-city', 'City')}>
                                 <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                             </Field>
                         </div>
                         <div className={classes.country}>
-                            <Field label={t('checkout:country', 'Country')}>
+                            <Field htmlFor={classes.country} label={t('checkout:country', 'Country')}>
                                 <Select
+                                    id={classes.country}
                                     field="country_code"
                                     items={displayCountries}
                                     onChange={() => {
@@ -179,12 +180,12 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.region_code}>
-                            <Field label={t('checkout:address-state', 'State')}>
+                            <Field htmlFor={classes.region_code} label={t('checkout:address-state', 'State')}>
                                 <Regions />
                             </Field>
                         </div>
                         <div className={classes.postcode}>
-                            <Field label={t('checkout:address-postcode', 'ZIP')}>
+                            <Field htmlFor={classes.postcode} label={t('checkout:address-postcode', 'ZIP')}>
                                 <TextInput
                                     id={classes.postcode}
                                     field="postcode"
@@ -194,7 +195,7 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.telephone}>
-                            <Field label={t('checkout:address-phone', 'Phone')}>
+                            <Field htmlFor={classes.telephone} label={t('checkout:address-phone', 'Phone')}>
                                 <TextInput
                                     id={classes.telephone}
                                     field="telephone"
