@@ -1,0 +1,29 @@
+.cmp-categorylist__anchor {
+    text-align: center;
+}
+
+.cmp-categorylist__content {
+    display: grid;
+    grid-gap: 3rem 2rem;
+    grid-template-columns: repeat(auto-fit, 7rem);
+    justify-content: center;
+}
+
+.cmp-categorylist__image {
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+
+.cmp-categorylist__imagewrapper {
+    background-position: 50% 50%;
+    background-size: cover;
+    display: block;
+    height: 7rem;
+    margin: 0 auto 1rem auto;
+    width: 7rem;
+}
+
+.cmp-categorylist__title {
+    text-align: center;
+}
