@@ -12,33 +12,146 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { wait } from '@testing-library/react';
+import { wait, fireEvent } from '@testing-library/react';
 import { render } from '../../../utils/test-utils';
 import EditableForm from '../editableForm';
 import { CartProvider } from '../../Minicart';
 import { CheckoutProvider } from '../checkoutContext';
 import mocksQueryCountries from '../../../utils/mocks/queryCountries';
+import mocksCartDetails from '../../../utils/mocks/queryCart';
+import mockAddress from '../../../utils/mocks/mockShippingAddress';
 
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
+import MUTATION_SET_BILLING_ADDRESS from '../../../queries/mutation_set_billing_address.graphql';
+import MUTATION_SET_PAYMENT_METHOD from '../../../queries/mutation_set_payment_method.graphql';
+import MUTATION_SET_SHIPPING_ADDRESS from '../../../queries/mutation_set_shipping_address.graphql';
+import MUTATION_SET_SHIPPING_METHOD from '../../../queries/mutation_set_shipping_method.graphql';
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
+import { gql } from '@apollo/client';
 
 describe('<EditableForm />', () => {
+    const checkoutReducer = jest.fn((state, action) => state);
+    const cartReducer = jest.fn((state, action) => state);
+    const cartReducerFactory = jest.fn(setCartCookie => cartReducer);
+
+    afterEach(() => {
+        checkoutReducer.mockClear();
+        cartReducer.mockClear();
+        cartReducerFactory.mockClear();
+    });
+
     it('renders the shipping address form if countries are loaded', async () => {
-        const { queryByText } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+        const { queryByText, getByRole } = render(
+            <CartProvider initialState={{}} reducerFactory={cartReducer}>
+                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>
         );
+
         await wait(() => {
             expect(queryByText('Shipping Address')).not.toBeNull();
+        });
+
+        fireEvent.click(getByRole('button', { name: 'Cancel' }));
+        expect(checkoutReducer).toHaveBeenCalledTimes(1);
+        expect(checkoutReducer).toHaveBeenCalledWith(
+            {
+                editing: 'address',
+                flowState: 'form'
+            },
+            { type: 'endEditing' }
+        );
+    });
+
+    it('submits the Address form', async () => {
+        const mocksAddressForm = [
+            mocksQueryCountries,
+            {
+                request: {
+                    query: MUTATION_SET_SHIPPING_ADDRESS,
+                    variables: {
+                        cartId: '123ABC',
+                        country_code: 'US',
+                        firstname: 'Veronica',
+                        lastname: 'Costello',
+                        email: 'veronica@example.com',
+                        city: 'Calder',
+                        region_code: 'MI',
+                        postcode: '49628-7978',
+                        telephone: '(555) 229-3326',
+                        street: ['cart shipping address']
+                    }
+                },
+                result: {
+                    data: {
+                        setShippingAddressesOnCart: {
+                            cart: {
+                                shipping_addresses: [
+                                    {
+                                        available_shipping_methods: [
+                                            {
+                                                carrier_code: 'test carrier code',
+                                                carrier_title: 'test carrier title',
+                                                method_code: 'test method code',
+                                                method_title: 'test method title'
+                                            }
+                                        ],
+                                        city: 'Calder',
+                                        company: 'mock company',
+                                        country: {
+                                            code: 'US'
+                                        },
+                                        firstname: 'Veronica',
+                                        lastname: 'Costello',
+                                        postcode: '49628-7978',
+                                        region: {
+                                            code: 'MI'
+                                        },
+                                        street: 'cart shipping address',
+                                        telephone: '(555) 229-3326'
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        ];
+        const { asFragment, queryByText, getByRole } = render(
+            <CartProvider initialState={{ cartId: '123ABC' }} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider
+                    initialState={{
+                        editing: 'address',
+                        flowState: 'form',
+                        shippingAddress: {
+                            ...mockAddress,
+                            email: 'veronica@example.com'
+                        },
+                        billingAddressSameAsShippingAddress: true
+                    }}
+                    reducer={checkoutReducer}>
+                    <EditableForm />
+                </CheckoutProvider>
+            </CartProvider>,
+            { mocks: mocksAddressForm }
+        );
+
+        await wait(() => {
+            expect(queryByText('Shipping Address')).not.toBeNull();
+        });
+
+        fireEvent.click(getByRole('button', { name: 'Use Address' }));
+
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
         });
     });
 
     it('renders the payments form if countries are loaded', async () => {
         const mocksPaymentsForm = [
             mocksQueryCountries,
+            mocksCartDetails,
             {
                 request: {
                     query: CREATE_BRAINTREE_CLIENT_TOKEN
@@ -48,10 +161,71 @@ describe('<EditableForm />', () => {
                         createBraintreeClientToken: 'my-sample-token'
                     }
                 }
+            },
+            {
+                request: {
+                    query: MUTATION_SET_BILLING_ADDRESS,
+                    variables: {
+                        cartId: '123ABC',
+                        country_code: 'US',
+                        city: 'Calder',
+                        company: 'shipping address company',
+                        firstname: 'Veronica',
+                        lastname: 'Costello',
+                        postcode: '49628-7978',
+                        region_code: 'MI',
+                        save_in_address_book: false,
+                        street: ['cart shipping address'],
+                        telephone: '(555) 229-3326'
+                    }
+                },
+                result: {
+                    data: {
+                        setBillingAddressOnCart: {
+                            cart: {
+                                billing_address: {
+                                    country: {
+                                        code: 'US'
+                                    },
+                                    city: 'Calder',
+                                    company: 'shipping address company',
+                                    firstname: 'Veronica',
+                                    lastname: 'Costello',
+                                    postcode: '49628-7978',
+                                    region: {
+                                        code: 'MI'
+                                    },
+                                    save_in_address_book: false,
+                                    street: ['cart shipping address'],
+                                    telephone: '(555) 229-3326'
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                request: {
+                    query: MUTATION_SET_PAYMENT_METHOD,
+                    variables: { cartId: '123ABC', paymentMethodCode: 'checkmo' }
+                },
+                result: {
+                    data: {
+                        setPaymentMethodOnCart: {
+                            cart: {
+                                selected_payment_method: {
+                                    code: 'checkmo',
+                                    title: 'Check / Money order'
+                                }
+                            }
+                        }
+                    }
+                }
             }
         ];
 
         const mockCartState = {
+            cartId: '123ABC',
             cart: {
                 available_payment_methods: [
                     {
@@ -67,10 +241,16 @@ describe('<EditableForm />', () => {
             }
         };
 
-        let mockReducer = jest.fn(state => state);
-        const { queryByText } = render(
-            <CartProvider initialState={mockCartState} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'paymentMethod', flowState: 'form' }} reducer={mockReducer}>
+        const { asFragment, queryByText, getByRole } = render(
+            <CartProvider initialState={mockCartState} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider
+                    initialState={{
+                        editing: 'paymentMethod',
+                        flowState: 'form',
+                        shippingAddress: mockAddress,
+                        billingAddressSameAsShippingAddress: true
+                    }}
+                    reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>,
@@ -79,23 +259,91 @@ describe('<EditableForm />', () => {
 
         await wait(() => {
             expect(queryByText('Billing Information')).not.toBeNull();
-            expect(mockReducer.mock.calls.length).toBe(1);
+            expect(checkoutReducer.mock.calls.length).toBe(1);
+        });
+        fireEvent.change(getByRole('combobox'), { target: { value: 'checkmo' } });
+
+        fireEvent.click(getByRole('button', { name: 'Use Payment Method' }));
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
+            expect(checkoutReducer).toHaveBeenLastCalledWith(
+                {
+                    editing: 'paymentMethod',
+                    flowState: 'form',
+                    shippingAddress: {
+                        city: 'Calder',
+                        country_code: 'US',
+                        company: 'shipping address company',
+                        firstname: 'Veronica',
+                        lastname: 'Costello',
+                        postcode: '49628-7978',
+                        region_code: 'MI',
+                        save_in_address_book: false,
+                        street: ['cart shipping address'],
+                        telephone: '(555) 229-3326'
+                    },
+                    billingAddressSameAsShippingAddress: true
+                },
+                { type: 'setPaymentMethod', paymentMethod: { code: 'checkmo', title: 'Check / Money order' } }
+            );
         });
     });
 
     it('renders the shipping method form if countries are loaded', async () => {
-        const { queryByText } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
+        const mocks = [
+            mocksQueryCountries,
+            mocksCartDetails,
+            {
+                request: {
+                    query: MUTATION_SET_SHIPPING_METHOD,
+                    variables: { cartId: '123ABC', carrier_code: 'flatrate', carrier_title: 'Flat Rate' }
+                },
+                result: {
+                    data: {
+                        setShippingMethodsOnCart: {
+                            cart: {
+                                shipping_addresses: [
+                                    {
+                                        selected_shipping_method: {
+                                            method_code: 'flatrate',
+                                            method_title: 'Fixed',
+                                            carrier_code: 'flatrate',
+                                            carrier_title: 'Flat Rate'
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        ];
+        const { asFragment, getByRole, queryByText } = render(
+            <CartProvider initialState={{ cartId: '123ABC' }} reducerFactory={cartReducerFactory}>
                 <CheckoutProvider
-                    initialState={{ editing: 'shippingMethod', flowState: 'form' }}
-                    reducer={state => state}>
+                    initialState={{
+                        editing: 'shippingMethod',
+                        flowState: 'form',
+                        shippingAddress: {
+                            available_shipping_methods: [{ carrier_code: 'flatrate', carrier_title: 'Flat Rate' }]
+                        }
+                    }}
+                    reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
-            </CartProvider>
+            </CartProvider>,
+            { mocks: mocks }
         );
 
         await wait(() => {
             expect(queryByText('Shipping Information')).not.toBeNull();
+        });
+
+        fireEvent.change(getByRole('combobox'), { target: { value: 'flatrate' } });
+        fireEvent.click(getByRole('button', { name: 'Use Method' }));
+
+        await wait(() => {
+            expect(asFragment()).toMatchSnapshot();
         });
     });
 
@@ -114,8 +362,8 @@ describe('<EditableForm />', () => {
         ];
 
         const { asFragment } = render(
-            <CartProvider initialState={{}} reducerFactory={() => state => state}>
-                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={state => state}>
+            <CartProvider initialState={{}} reducerFactory={cartReducerFactory}>
+                <CheckoutProvider initialState={{ editing: 'address', flowState: 'form' }} reducer={checkoutReducer}>
                     <EditableForm />
                 </CheckoutProvider>
             </CartProvider>,

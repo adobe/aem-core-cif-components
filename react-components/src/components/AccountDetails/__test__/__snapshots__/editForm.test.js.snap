@@ -11,11 +11,13 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          First Name
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            First Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -46,11 +48,13 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Last Name
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Last Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -81,11 +85,13 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Email address
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Email address
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -116,11 +122,13 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Password
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Password
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -205,11 +213,13 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          First Name
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            First Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -240,11 +250,13 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Last Name
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Last Name
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -275,11 +287,13 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Email address
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Email address
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -310,11 +324,13 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
-          Current Password
-        </span>
+        <label>
+          <span
+            class="label"
+          >
+            Current Password
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -378,11 +394,13 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
     <div
       class="root"
     >
-      <span
-        class="label"
-      >
-        New Password
-      </span>
+      <label>
+        <span
+          class="label"
+        >
+          New Password
+        </span>
+      </label>
       <span
         class="root"
       >

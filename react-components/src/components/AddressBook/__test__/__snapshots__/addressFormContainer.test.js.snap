@@ -33,11 +33,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="firstname"
             >
-              First Name
-            </span>
+              <span
+                class="label"
+              >
+                First Name
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -69,11 +73,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="lastname"
             >
-              Last Name
-            </span>
+              <span
+                class="label"
+              >
+                Last Name
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -105,11 +113,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="street0"
             >
-              Street
-            </span>
+              <span
+                class="label"
+              >
+                Street
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -141,11 +153,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="city"
             >
-              City
-            </span>
+              <span
+                class="label"
+              >
+                City
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -177,11 +193,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="country"
             >
-              Country
-            </span>
+              <span
+                class="label"
+              >
+                Country
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -190,6 +210,7 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
               >
                 <select
                   class="input"
+                  id="country"
                   name="country_code"
                 />
               </span>
@@ -231,11 +252,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="region_code"
             >
-              State
-            </span>
+              <span
+                class="label"
+              >
+                State
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -267,11 +292,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="postcode"
             >
-              ZIP
-            </span>
+              <span
+                class="label"
+              >
+                ZIP
+              </span>
+            </label>
             <span
               class="root"
             >
@@ -303,11 +332,15 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
           <div
             class="root"
           >
-            <span
-              class="label"
+            <label
+              for="telephone"
             >
-              Phone
-            </span>
+              <span
+                class="label"
+              >
+                Phone
+              </span>
+            </label>
             <span
               class="root"
             >
