@@ -17,14 +17,16 @@ import { bool, node, shape, string } from 'prop-types';
 import classes from './field.css';
 
 const Field = props => {
-    const { required, children, label } = props;
+    const { required, children, label, htmlFor } = props;
 
     return (
         <div className={classes.root}>
-            <span className={classes.label}>
-                {required && <span className={classes.requiredSymbol} />}
-                {label}
-            </span>
+            <label htmlFor={htmlFor}>
+                <span className={classes.label}>
+                    {required && <span className={classes.requiredSymbol} />}
+                    {label}
+                </span>
+            </label>
             {children}
         </div>
     );
@@ -37,7 +39,8 @@ Field.propTypes = {
         root: string
     }),
     label: node,
-    required: bool
+    required: bool,
+    htmlFor: string
 };
 
 export default Field;

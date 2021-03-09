@@ -15,6 +15,9 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { I18nextProvider } from 'react-i18next';
+import { MockLink } from '@apollo/client/testing';
+import { onError } from '@apollo/client/link/error';
+import { ApolloLink, from } from '@apollo/client';
 
 import i18n from '../../__mocks__/i18nForTests';
 import ConfigContextProvider from '../context/ConfigContext';
@@ -37,6 +40,8 @@ import queryCustomerDetails from './mocks/queryCustomerDetails';
 import queryCustomerInformation from './mocks/queryCustomerInformation';
 import queryEmptyCart from './mocks/queryEmptyCart';
 import queryNewCart from './mocks/queryNewCart';
+
+const debugGraphQL = process.env.DEBUG_GRAPHQL !== undefined && process.env.DEBUG_GRAPHQL !== null ? true : false;
 
 const defaultMocks = [
     mutationChangePassword,
@@ -66,8 +71,30 @@ const defaultConfig = {
 
 // eslint-disable-next-line react/display-name
 const allProviders = (config, userContext, mocks) => ({ children }) => {
+    let mockLink = new MockLink(mocks);
+
+    let loggerLink = new ApolloLink((operation, forward) => {
+        console.log(
+            `[GraphQL operation]: \n\tQuery: ${JSON.stringify(operation.query)} \n\tVariables: ${JSON.stringify(
+                operation.variables
+            )}`
+        );
+        return forward(operation);
+    });
+
+    let errorLoggingLink = onError(({ graphQLErrors, networkError }) => {
+        if (graphQLErrors)
+            graphQLErrors.map(({ message, locations, path }) =>
+                console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+            );
+
+        if (networkError) console.log(`[Network error]: ${networkError}`);
+    });
+
+    let link = debugGraphQL ? from([loggerLink, errorLoggingLink, mockLink]) : from([mockLink]);
+
     return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider addTypename={false} link={link}>
             <ConfigContextProvider config={config || defaultConfig}>
                 <UserContextProvider initialState={userContext}>
                     <I18nextProvider i18n={i18n}>{children}</I18nextProvider>

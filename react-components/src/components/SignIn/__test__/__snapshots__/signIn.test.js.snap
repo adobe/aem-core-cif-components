@@ -16,14 +16,16 @@ exports[`<SignIn> renders the component 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Email address
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Email address
+          </span>
+        </label>
         <span
           class="root"
         >
@@ -52,14 +54,16 @@ exports[`<SignIn> renders the component 1`] = `
       <div
         class="root"
       >
-        <span
-          class="label"
-        >
+        <label>
           <span
-            class="requiredSymbol"
-          />
-          Password
-        </span>
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Password
+          </span>
+        </label>
         <span
           class="root"
         >
