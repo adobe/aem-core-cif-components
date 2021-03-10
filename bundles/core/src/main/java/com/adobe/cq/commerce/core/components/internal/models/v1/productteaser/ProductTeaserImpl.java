@@ -24,15 +24,19 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.resource.ImageResourceWrapper;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -46,13 +50,18 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.day.cq.dam.commons.util.DamUtil;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.components.Component;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
 public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductTeaserImpl.class);
     private static final String SELECTION_PROPERTY = "selection";
+    private static final String IMAGE_DELEGATE = "imageDelegate";
 
     @Self
     private SlingHttpServletRequest request;
@@ -66,7 +75,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @ScriptVariable
     private ValueMap properties;
 
+    @ScriptVariable
+    private Component component;
+
     private Page productPage;
+    private Resource imageResource;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
 
@@ -211,4 +224,24 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public String getDataLayerCurrency() {
         return (new PriceImpl(getProduct().getPriceRange(), locale)).getCurrency();
     }
+
+    @Override
+    public Resource getImageResource() {
+        if (imageResource == null && component != null) {
+            Resource assetResource = request.getResourceResolver().getResource(getImage());
+            if (assetResource != null && DamUtil.isAsset(assetResource)) {
+                String delegateResourceType = component.getProperties().get(IMAGE_DELEGATE, String.class);
+                if (StringUtils.isEmpty(delegateResourceType)) {
+                    LOGGER.error(
+                        "In order for image rendering delegation to work correctly you need to set up the imageDelegate property on"
+                            + " the {} component; its value has to point to the resource type of an image component.",
+                        component.getPath());
+                } else {
+                    imageResource = new ImageResourceWrapper(request.getResource(), delegateResourceType, getImage());
+                }
+            }
+        }
+        return imageResource;
+    }
+
 }

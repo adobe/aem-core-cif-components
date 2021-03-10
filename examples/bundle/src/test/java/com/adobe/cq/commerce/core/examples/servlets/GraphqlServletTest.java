@@ -76,6 +76,7 @@ import com.adobe.cq.wcm.core.components.models.Breadcrumb;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.components.Component;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -209,10 +210,19 @@ public class GraphqlServletTest {
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
+        Component component = Mockito.mock(Component.class);
+        when(component.getProperties()).thenReturn(new ValueMapDecorator(new HashMap<String, Object>() {
+            {
+                put("imageDelegate", "core/wcm/components/image/v2/image");
+            }
+        }));
+        when(component.getResourceType()).thenReturn(context.currentResource().getResourceType());
+
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(resource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, component);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.getValueMap());
 
         XSSAPI xssApi = mock(XSSAPI.class);

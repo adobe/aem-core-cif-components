@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.Locale;
 
 import org.apache.sling.api.resource.Resource;
@@ -44,6 +45,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
+import com.day.cq.wcm.api.components.Component;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -59,9 +61,9 @@ public class ProductTeaserImplTest {
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
-    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(
+        MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
         return new AemContext((AemContextCallback) context -> {
@@ -99,19 +101,29 @@ public class ProductTeaserImplTest {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productteaser-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
+        GraphqlClient graphqlClient = Utils
+            .setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input
+            .getValueMap().get("cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
+        Component component = Mockito.mock(Component.class);
+        when(component.getProperties()).thenReturn(new ValueMapDecorator(new HashMap<String, Object>() {
+            {
+                put("imageDelegate", "core/wcm/components/image/v2/image");
+            }
+        }));
+        when(component.getResourceType()).thenReturn(ProductTeaserImpl.RESOURCE_TYPE);
+
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, component);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
         if (deepLink) {
@@ -166,17 +178,14 @@ public class ProductTeaserImplTest {
         ConfigurableProduct cp = (ConfigurableProduct) product;
         String selection = teaserResource.getValueMap().get("selection", String.class);
         String variantSku = SiteNavigation.toProductSkus(selection).getRight();
-        SimpleProduct variant = cp.getVariants()
-            .stream()
-            .map(v -> v.getProduct())
-            .filter(sp -> variantSku.equals(sp.getSku()))
-            .findFirst()
-            .orElse(null);
+        SimpleProduct variant = cp.getVariants().stream().map(v -> v.getProduct())
+            .filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
         SiteNavigation siteNavigation = new SiteNavigation(context.request());
-        Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
+        Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku),
+            productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
@@ -193,10 +202,19 @@ public class ProductTeaserImplTest {
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_NOCLIENT));
         when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(null);
 
+        Component component = Mockito.mock(Component.class);
+        when(component.getProperties()).thenReturn(new ValueMapDecorator(new HashMap<String, Object>() {
+            {
+                put("imageDelegate", "core/wcm/components/image/v2/image");
+            }
+        }));
+        when(component.getResourceType()).thenReturn(ProductTeaserImpl.RESOURCE_TYPE);
+
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, component);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
         ProductTeaserImpl productTeaserNoClient = context.request().adaptTo(ProductTeaserImpl.class);
@@ -212,17 +230,27 @@ public class ProductTeaserImplTest {
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        GraphqlClient graphqlClient = Utils
+            .setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input
+            .getValueMap().get("cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
+        Component component = Mockito.mock(Component.class);
+        when(component.getProperties()).thenReturn(new ValueMapDecorator(new HashMap<String, Object>() {
+            {
+                put("imageDelegate", "core/wcm/components/image/v2/image");
+            }
+        }));
+        when(component.getResourceType()).thenReturn(ProductTeaserImpl.RESOURCE_TYPE);
+
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, component);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
