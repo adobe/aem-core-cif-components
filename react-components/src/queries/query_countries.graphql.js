@@ -15,15 +15,15 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-query {
-    countries {
-        id
-        full_name_locale
-        available_regions {
+    query {
+        countries {
             id
-            name
-            code
+            full_name_locale
+            available_regions {
+                id
+                name
+                code
+            }
         }
     }
-}
 `;

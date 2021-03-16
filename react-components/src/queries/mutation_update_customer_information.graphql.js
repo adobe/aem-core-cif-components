@@ -15,13 +15,13 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation UpdateCustomerInformation($firstname: String, $lastname: String, $email: String, $password: String) {
-    updateCustomer(input: { firstname: $firstname, lastname: $lastname, email: $email, password: $password }) {
-        customer {
-            firstname
-            lastname
-            email
+    mutation UpdateCustomerInformation($firstname: String, $lastname: String, $email: String, $password: String) {
+        updateCustomer(input: { firstname: $firstname, lastname: $lastname, email: $email, password: $password }) {
+            customer {
+                firstname
+                lastname
+                email
+            }
         }
     }
-}
 `;

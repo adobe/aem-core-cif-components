@@ -15,20 +15,20 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!, $cartItems: [VirtualProductCartItemInput]!) {
-    addVirtualProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
-        cart {
-            items {
-                id
-                quantity
-                product {
-                    name
-                    thumbnail {
-                        url
+    mutation($cartId: String!, $cartItems: [VirtualProductCartItemInput]!) {
+        addVirtualProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
+            cart {
+                items {
+                    id
+                    quantity
+                    product {
+                        name
+                        thumbnail {
+                            url
+                        }
                     }
                 }
             }
         }
     }
-}
 `;

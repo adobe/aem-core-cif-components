@@ -15,9 +15,9 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation mergeCarts($sourceCartId: String!, $destinationCartId: String!) {
-    mergeCarts(source_cart_id: $sourceCartId, destination_cart_id: $destinationCartId) {
-        id
+    mutation mergeCarts($sourceCartId: String!, $destinationCartId: String!) {
+        mergeCarts(source_cart_id: $sourceCartId, destination_cart_id: $destinationCartId) {
+            id
+        }
     }
-}
 `;

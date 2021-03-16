@@ -15,9 +15,9 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-query {
-    customerCart {
-        id
+    query {
+        customerCart {
+            id
+        }
     }
-}
 `;

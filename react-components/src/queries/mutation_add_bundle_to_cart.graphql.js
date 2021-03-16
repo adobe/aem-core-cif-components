@@ -15,11 +15,11 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation addBundleProductToCart($cartId: String!, $cartItems: [BundleProductCartItemInput]!) {
-    addBundleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
-        cart {
-            id
+    mutation addBundleProductToCart($cartId: String!, $cartItems: [BundleProductCartItemInput]!) {
+        addBundleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
+            cart {
+                id
+            }
         }
     }
-}
 `;

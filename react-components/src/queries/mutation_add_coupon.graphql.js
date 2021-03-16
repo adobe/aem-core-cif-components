@@ -15,13 +15,13 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!, $couponCode: String!) {
-    applyCouponToCart(input: { cart_id: $cartId, coupon_code: $couponCode }) {
-        cart {
-            applied_coupon {
-                code
+    mutation($cartId: String!, $couponCode: String!) {
+        applyCouponToCart(input: { cart_id: $cartId, coupon_code: $couponCode }) {
+            cart {
+                applied_coupon {
+                    code
+                }
             }
         }
     }
-}
 `;

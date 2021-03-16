@@ -15,20 +15,20 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!, $carrier_code: String!, $method_code: String!) {
-    setShippingMethodsOnCart(
-        input: { cart_id: $cartId, shipping_methods: { carrier_code: $carrier_code, method_code: $method_code } }
-    ) {
-        cart {
-            shipping_addresses {
-                selected_shipping_method {
-                    method_code
-                    method_title
-                    carrier_code
-                    carrier_title
+    mutation($cartId: String!, $carrier_code: String!, $method_code: String!) {
+        setShippingMethodsOnCart(
+            input: { cart_id: $cartId, shipping_methods: { carrier_code: $carrier_code, method_code: $method_code } }
+        ) {
+            cart {
+                shipping_addresses {
+                    selected_shipping_method {
+                        method_code
+                        method_title
+                        carrier_code
+                        carrier_title
+                    }
                 }
             }
         }
     }
-}
 `;

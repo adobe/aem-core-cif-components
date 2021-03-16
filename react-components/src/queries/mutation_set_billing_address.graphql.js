@@ -15,60 +15,60 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-# Welcome to Altair GraphQL Client.
-# You can send your request using CmdOrCtrl + Enter.
+    # Welcome to Altair GraphQL Client.
+    # You can send your request using CmdOrCtrl + Enter.
 
-# Enter your graphQL query here.
+    # Enter your graphQL query here.
 
-mutation(
-    $cartId: String!
-    $city: String!
-    $company: String
-    $country_code: String!
-    $firstname: String!
-    $lastname: String!
-    $postcode: String
-    $region_code: String
-    $save_in_address_book: Boolean
-    $street: [String]!
-    $telephone: String!
-) {
-    setBillingAddressOnCart(
-        input: {
-            cart_id: $cartId
-            billing_address: {
-                address: {
-                    city: $city
-                    company: $company
-                    country_code: $country_code
-                    firstname: $firstname
-                    lastname: $lastname
-                    postcode: $postcode
-                    region: $region_code
-                    save_in_address_book: $save_in_address_book
-                    street: $street
-                    telephone: $telephone
+    mutation(
+        $cartId: String!
+        $city: String!
+        $company: String
+        $country_code: String!
+        $firstname: String!
+        $lastname: String!
+        $postcode: String
+        $region_code: String
+        $save_in_address_book: Boolean
+        $street: [String]!
+        $telephone: String!
+    ) {
+        setBillingAddressOnCart(
+            input: {
+                cart_id: $cartId
+                billing_address: {
+                    address: {
+                        city: $city
+                        company: $company
+                        country_code: $country_code
+                        firstname: $firstname
+                        lastname: $lastname
+                        postcode: $postcode
+                        region: $region_code
+                        save_in_address_book: $save_in_address_book
+                        street: $street
+                        telephone: $telephone
+                    }
                 }
             }
-        }
-    ) {
-        cart {
-            billing_address {
-                city
-                company
-                country {
-                    code
+        ) {
+            cart {
+                billing_address {
+                    city
+                    company
+                    country {
+                        code
+                    }
+                    firstname
+                    lastname
+                    postcode
+                    region {
+                        code
+                    }
+                    street
+                    telephone
                 }
-                firstname
-                lastname
-                postcode
-                region {
-                    code
-                }
-                street
-                telephone
             }
         }
     }
-}
 `;

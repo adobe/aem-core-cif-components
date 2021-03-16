@@ -15,9 +15,9 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation {
-    revokeCustomerToken {
-        result
+    mutation {
+        revokeCustomerToken {
+            result
+        }
     }
-}
 `;

@@ -15,11 +15,11 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!, $email: String!) {
-    setGuestEmailOnCart(input: { cart_id: $cartId, email: $email }) {
-        cart {
-            email
+    mutation($cartId: String!, $email: String!) {
+        setGuestEmailOnCart(input: { cart_id: $cartId, email: $email }) {
+            cart {
+                email
+            }
         }
     }
-}
 `;

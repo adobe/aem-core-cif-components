@@ -15,9 +15,9 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation ChangeCustomerPassword($currentPassword: String!, $newPassword: String!) {
-    changeCustomerPassword(currentPassword: $currentPassword, newPassword: $newPassword) {
-        id
+    mutation ChangeCustomerPassword($currentPassword: String!, $newPassword: String!) {
+        changeCustomerPassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+            id
+        }
     }
-}
 `;

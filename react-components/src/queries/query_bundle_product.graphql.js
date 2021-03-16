@@ -15,41 +15,42 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-query bundleProduct($sku: String!) {
-    products(filter: { sku: { eq: $sku } }) {
-        items {
-            sku
-            __typename
-            id
-            name
-            ... on BundleProduct {
-                dynamic_sku
-                dynamic_price
-                dynamic_weight
-                price_view
-                ship_bundle_items
-                items {
-                    option_id
-                    title
-                    required
-                    type
-                    position
-                    sku
-                    options {
-                        id
-                        quantity
+    query bundleProduct($sku: String!) {
+        products(filter: { sku: { eq: $sku } }) {
+            items {
+                sku
+                __typename
+                id
+                name
+                ... on BundleProduct {
+                    dynamic_sku
+                    dynamic_price
+                    dynamic_weight
+                    price_view
+                    ship_bundle_items
+                    items {
+                        option_id
+                        title
+                        required
+                        type
                         position
-                        is_default
-                        price
-                        price_type
-                        can_change_quantity
-                        label
-                        product {
-                            price_range {
-                                maximum_price {
-                                    final_price {
-                                        currency
-                                        value
+                        sku
+                        options {
+                            id
+                            quantity
+                            position
+                            is_default
+                            price
+                            price_type
+                            can_change_quantity
+                            label
+                            product {
+                                price_range {
+                                    maximum_price {
+                                        final_price {
+                                            currency
+                                            value
+                                        }
                                     }
                                 }
                             }
@@ -59,5 +60,4 @@ query bundleProduct($sku: String!) {
             }
         }
     }
-}
 `;

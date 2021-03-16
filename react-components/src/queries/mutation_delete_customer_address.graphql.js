@@ -15,7 +15,7 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($id: Int!) {
-    deleteCustomerAddress(id: $id)
-}
+    mutation($id: Int!) {
+        deleteCustomerAddress(id: $id)
+    }
 `;

@@ -15,13 +15,13 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation createAccount($email: String, $firstname: String, $lastname: String, $password: String) {
-    createCustomer(input: { email: $email, firstname: $firstname, lastname: $lastname, password: $password }) {
-        customer {
-            email
-            firstname
-            lastname
+    mutation createAccount($email: String, $firstname: String, $lastname: String, $password: String) {
+        createCustomer(input: { email: $email, firstname: $firstname, lastname: $lastname, password: $password }) {
+            customer {
+                email
+                firstname
+                lastname
+            }
         }
     }
-}
 `;

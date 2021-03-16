@@ -19,7 +19,7 @@ import magentoSchema240 from './magento-schema-2.4.0.json';
 import fs from 'fs';
 import path from 'path';
 
-let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql')); // eslint-disable-line
+let files = fs.readdirSync(path.join(__dirname, '..')).filter(file => file.endsWith('.graphql.js')); // eslint-disable-line
 
 describe.each([['2.4.0', magentoSchema240]])(
     'Validate all GraphQL requests against Magento schema %s',
@@ -33,7 +33,9 @@ describe.each([['2.4.0', magentoSchema240]])(
 
         it.each(files)('validates the GraphQL request from %s', file => {
             let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
-            let errors = validate(schema, parse(query));
+            let begin = query.indexOf('`');
+            let end = query.lastIndexOf('`');
+            let errors = validate(schema, parse(query.substring(begin + 1, end - 1)));
             expect(errors).toHaveLength(0);
         });
     }

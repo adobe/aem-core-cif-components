@@ -15,14 +15,22 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation ($cartId: String!, $paymentMethodCode: String!, $nonce: String!) {
-    setPaymentMethodOnCart(input: {cart_id: $cartId, payment_method: {code: $paymentMethodCode, braintree: {payment_method_nonce: $nonce, is_active_payment_token_enabler: false}}}) {
-        cart {
-            selected_payment_method {
-                code
-                title
+    mutation($cartId: String!, $paymentMethodCode: String!, $nonce: String!) {
+        setPaymentMethodOnCart(
+            input: {
+                cart_id: $cartId
+                payment_method: {
+                    code: $paymentMethodCode
+                    braintree: { payment_method_nonce: $nonce, is_active_payment_token_enabler: false }
+                }
+            }
+        ) {
+            cart {
+                selected_payment_method {
+                    code
+                    title
+                }
             }
         }
     }
-}
 `;

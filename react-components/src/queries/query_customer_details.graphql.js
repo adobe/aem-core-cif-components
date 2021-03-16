@@ -15,27 +15,27 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-query {
-    customer {
-        email
-        firstname
-        lastname
-        addresses {
-            id
-            city
-            company
-            country_code
-            default_billing
-            default_shipping
+    query {
+        customer {
+            email
             firstname
             lastname
-            postcode
-            region {
-                region_code
+            addresses {
+                id
+                city
+                company
+                country_code
+                default_billing
+                default_shipping
+                firstname
+                lastname
+                postcode
+                region {
+                    region_code
+                }
+                street
+                telephone
             }
-            street
-            telephone
         }
     }
-}
 `;

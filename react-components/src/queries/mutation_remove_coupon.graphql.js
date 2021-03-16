@@ -15,13 +15,13 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!) {
-    removeCouponFromCart(input: { cart_id: $cartId }) {
-        cart {
-            applied_coupon {
-                code
+    mutation($cartId: String!) {
+        removeCouponFromCart(input: { cart_id: $cartId }) {
+            cart {
+                applied_coupon {
+                    code
+                }
             }
         }
     }
-}
 `;

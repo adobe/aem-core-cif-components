@@ -15,7 +15,7 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation {
-    createEmptyCart
-}
+    mutation {
+        createEmptyCart
+    }
 `;

@@ -15,11 +15,11 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-mutation($cartId: String!) {
-    placeOrder(input: { cart_id: $cartId }) {
-        order {
-            order_id
+    mutation($cartId: String!) {
+        placeOrder(input: { cart_id: $cartId }) {
+            order {
+                order_id
+            }
         }
     }
-}
 `;
