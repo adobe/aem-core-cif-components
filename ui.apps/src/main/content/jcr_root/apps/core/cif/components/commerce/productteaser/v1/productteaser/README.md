@@ -50,7 +50,9 @@ BLOCK item
     ELEMENT item__images
     ELEMENT item__image
     ELEMENT item__name
-    ELEMENT item__price
+    ELEMENT price
+    ELEMENT productteaser__cta
+    ELEMENT button_root
 
 BLOCK blank
     ELEMENT blank-placeholder

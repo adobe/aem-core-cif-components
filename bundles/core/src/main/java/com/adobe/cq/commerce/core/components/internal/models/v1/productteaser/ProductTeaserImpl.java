@@ -128,7 +128,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public String getCallToAction() {
-        return properties.get("cta", null);
+        return properties.get("cta", String.class);
     }
 
     @Override

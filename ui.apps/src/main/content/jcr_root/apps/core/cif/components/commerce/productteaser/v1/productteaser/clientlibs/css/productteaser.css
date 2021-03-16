@@ -1,0 +1,24 @@
+.productteaser .item__root {
+    position: relative;
+}
+
+.productteaser .item__name {
+    background: white;
+    position: absolute;
+    top: 3%;
+    left: 3%;
+}
+
+.productteaser .price {
+    background: white;
+    position: absolute;
+    top: 3%;
+    left: 3%;
+    transform: translate(0, 100%);
+}
+
+.productteaser .productteaser__cta {
+    position: absolute;
+    bottom: 3%;
+    right: 2%;
+}
