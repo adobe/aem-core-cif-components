@@ -146,7 +146,6 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         return price;
     }
 
-    @Nullable
     @Override
     @JsonIgnore
     public Boolean isStaged() {
