@@ -52,7 +52,7 @@ BLOCK item
     ELEMENT item__name
     ELEMENT price
     ELEMENT productteaser__cta
-    ELEMENT button_root
+    ELEMENT button__root
 
 BLOCK blank
     ELEMENT blank-placeholder
