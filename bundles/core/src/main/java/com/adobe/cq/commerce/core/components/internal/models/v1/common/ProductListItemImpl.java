@@ -45,9 +45,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private SlingHttpServletRequest request;
     private UrlProvider urlProvider;
     private CommerceIdentifier identifier;
+    private Boolean isStaged;
 
     public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId) {
+                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId,
+                               Boolean isStaged) {
         super(parentId, productPage.getContentResource());
         this.sku = sku;
         this.slug = slug;
@@ -58,6 +60,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.activeVariantSku = activeVariantSku;
         this.request = request;
         this.urlProvider = urlProvider;
+        this.isStaged = isStaged;
     }
 
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
@@ -141,6 +144,13 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @JsonIgnore
     public Price getPriceRange() {
         return price;
+    }
+
+    @Nullable
+    @Override
+    @JsonIgnore
+    public Boolean isStaged() {
+        return Boolean.TRUE.equals(isStaged);
     }
 
     // DataLayer methods

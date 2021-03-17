@@ -123,7 +123,8 @@ public class GraphqlServletTest {
 
     private static final String PRODUCT_V1_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v1";
     private static final String PRODUCT_V2_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v2";
-    private static final String PRODUCT_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist";
+    private static final String PRODUCT_LIST_V1_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist-v1";
+    private static final String PRODUCT_LIST_V2_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist-v2";
     private static final String PRODUCT_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productcarousel";
     private static final String PRODUCT_TEASER_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productteaser";
     private static final String RELATED_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/relatedproducts";
@@ -311,14 +312,34 @@ public class GraphqlServletTest {
     }
 
     @Test
-    public void testProductListModel() throws ServletException {
-        prepareModel(PRODUCT_LIST_RESOURCE);
+    public void testProductListModelV1() throws ServletException {
+        prepareModel(PRODUCT_LIST_V1_RESOURCE);
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("1");
+
         ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
+        testProductListModelImpl(productListModel);
+    }
+
+    @Test
+    public void testProductListModelV2() throws ServletException {
+        prepareModel(PRODUCT_LIST_V2_RESOURCE);
+
+        // The category data is coming from magento-graphql-category.json
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("1");
+
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
+        testProductListModelImpl(productListModel);
+    }
+
+    private void testProductListModelImpl(ProductList productListModel) {
         Assert.assertEquals("Outdoor Collection", productListModel.getTitle());
+        Assert.assertFalse(productListModel.isStaged());
 
         // The products are coming from magento-graphql-category-products.json
         Assert.assertEquals(6, productListModel.getProducts().size());
@@ -326,6 +347,7 @@ public class GraphqlServletTest {
         // We make sure that all assets in the sample JSON response point to the DAM
         for (ProductListItem product : productListModel.getProducts()) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+            Assert.assertFalse(product.isStaged());
         }
 
         // These are used in the Venia ITs

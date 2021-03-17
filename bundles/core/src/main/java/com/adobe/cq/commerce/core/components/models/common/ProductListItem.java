@@ -98,4 +98,12 @@ public interface ProductListItem extends ListItem {
      * @return Price range instance.
      */
     Price getPriceRange();
+
+    /**
+     * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
+     * @since com.adobe.cq.commerce.core.components.models.common 1.9.0
+     */
+    default Boolean isStaged() {
+        return false;
+    };
 }
