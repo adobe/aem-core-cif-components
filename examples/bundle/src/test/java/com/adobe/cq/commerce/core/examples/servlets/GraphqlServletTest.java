@@ -29,7 +29,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.models.spi.ImplementationPicker;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
@@ -103,7 +102,6 @@ public class GraphqlServletTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
@@ -123,7 +121,8 @@ public class GraphqlServletTest {
     private static final String PRODUCT_PAGE = "/content/page/catalogpage/product-page";
     private static final String CATEGORY_PAGE = "/content/page/catalogpage/category-page";
 
-    private static final String PRODUCT_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product";
+    private static final String PRODUCT_V1_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v1";
+    private static final String PRODUCT_V2_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v2";
     private static final String PRODUCT_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist";
     private static final String PRODUCT_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productcarousel";
     private static final String PRODUCT_TEASER_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productteaser";
@@ -232,14 +231,32 @@ public class GraphqlServletTest {
     }
 
     @Test
-    public void testProductModel() throws ServletException {
-        prepareModel(PRODUCT_RESOURCE);
+    public void testProductModelV1() throws ServletException {
+        prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
 
         Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
+        testProductModelImpl(productModel);
+    }
+
+    @Test
+    public void testProductModelV2() throws ServletException {
+        prepareModel(PRODUCT_V2_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
+        testProductModelImpl(productModel);
+    }
+
+    private void testProductModelImpl(Product productModel) throws ServletException {
         Assert.assertEquals("MH01", productModel.getSku());
+        Assert.assertFalse(productModel.isStaged());
         Assert.assertEquals(15, productModel.getVariants().size());
 
         // We make sure that all assets in the sample JSON response point to the DAM
@@ -260,7 +277,7 @@ public class GraphqlServletTest {
 
     @Test
     public void testGroupedProductModel() throws ServletException {
-        prepareModel(PRODUCT_RESOURCE);
+        prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
@@ -269,6 +286,23 @@ public class GraphqlServletTest {
         Assert.assertEquals("24-WG085_Group", productModel.getSku());
         Assert.assertTrue(productModel.isGroupedProduct());
         Assert.assertEquals(3, productModel.getGroupedProductItems().size());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+    }
+
+    @Test
+    public void testBundleProductModel() throws ServletException {
+        prepareModel(PRODUCT_V1_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("sprite-yoga-companion-kit");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG080", productModel.getSku());
+        Assert.assertTrue(productModel.isBundleProduct());
 
         // We make sure that all assets in the sample JSON response point to the DAM
         for (Asset asset : productModel.getAssets()) {

@@ -137,10 +137,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param productQueryHook Lambda that extends the product query
      */
     public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
-        this.productQueryHook = productQueryHook;
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
     }
 
     /**
@@ -156,10 +162,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param variantQueryHook Lambda that extends the product variant query
      */
     public void extendVariantQueryWith(Consumer<SimpleProductQuery> variantQueryHook) {
-        this.variantQueryHook = variantQueryHook;
+        if (this.variantQueryHook == null) {
+            this.variantQueryHook = variantQueryHook;
+        } else {
+            this.variantQueryHook = this.variantQueryHook.andThen(variantQueryHook);
+        }
     }
 
     /**

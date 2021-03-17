@@ -66,6 +66,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -151,7 +152,9 @@ public class PageMetadataImplTest {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page");
 
         Product productModel = context.request().adaptTo(Product.class);
+        assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
         assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
+        assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         // Verify that GraphQL client is only called once, so Sling model caching works as expected
         verify(graphqlClient).execute(any(), any(), any(), any());
@@ -166,6 +169,13 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnProductSpecificPage() throws Exception {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page/product-specific-page");
+
+        // see jcr-content-breadcrumb.json : this product component is configured to be version 2
+        // so we test that the adaptation in PageMetadataImpl is done with the right resource type
+        Product productModel = context.request().adaptTo(Product.class);
+        assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
+        assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
+        assertTrue("The product has staged data", productModel.isStaged());
     }
 
     @Test

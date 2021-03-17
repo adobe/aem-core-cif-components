@@ -18,7 +18,8 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 
 ## Available Components
 
--   [Product](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
+-   [Product v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
+-   [Product v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v2/product) - Magento EE only with version >= 2.4.2
 -   [Product List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
 -   [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
 -   [Product Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcarousel/v1/productcarousel)

@@ -76,7 +76,7 @@
                       "structureDepth": "2"
                     },
                     "product": {
-                      "sling:resourceType": "venia/components/commerce/product",
+                      "sling:resourceType": "core/cif/components/commerce/product/v2/product",
                       "sling:resourceSuperType": "core/cif/components/commerce/product/v1/product"
                     }
                   }
