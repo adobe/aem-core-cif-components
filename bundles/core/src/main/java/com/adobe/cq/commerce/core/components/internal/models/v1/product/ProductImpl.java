@@ -125,12 +125,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean loadClientPrice;
     private String canonicalUrl;
 
-    private AbstractProductRetriever productRetriever;
+    protected AbstractProductRetriever productRetriever;
 
     private Locale locale;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // Get product selection from dialog
         String selection = properties.get(SELECTION_PROPERTY, String.class);
 

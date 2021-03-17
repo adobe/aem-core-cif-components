@@ -8,8 +8,11 @@
       "jcr:primaryType": "cq:PageContent",
       "root": {
         "responsivegrid": {
-          "product": {
+          "product-v1": {
             "sling:resourceType": "core/cif/components/commerce/product/v1/product"
+          },
+          "product-v2": {
+            "sling:resourceType": "core/cif/components/commerce/product/v2/product"
           },
           "productlist": {
             "loadClientPrice": false,
