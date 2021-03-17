@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 // This is used to validate the queries against the Magento GraphQL schema
-import { buildClientSchema, parse, validate } from 'graphql';
+import { buildClientSchema, validate } from 'graphql';
 import magentoSchema240 from './magento-schema-2.4.0.json';
 
 import fs from 'fs';
@@ -32,10 +32,8 @@ describe.each([['2.4.0', magentoSchema240]])(
         let schema = buildClientSchema(magentoSchema.data);
 
         it.each(files)('validates the GraphQL request from %s', file => {
-            let query = fs.readFileSync(path.join(__dirname, '..', file), 'UTF-8'); // eslint-disable-line
-            let begin = query.indexOf('`');
-            let end = query.lastIndexOf('`');
-            let errors = validate(schema, parse(query.substring(begin + 1, end - 1)));
+            let importedQuery = require(path.join(__dirname, '..', file)).default; // eslint-disable-line
+            let errors = validate(schema, importedQuery);
             expect(errors).toHaveLength(0);
         });
     }
