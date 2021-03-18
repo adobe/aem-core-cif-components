@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.models.productteaser;
 
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.wcm.core.components.models.Component;
@@ -22,6 +23,13 @@ import com.adobe.cq.wcm.core.components.models.Component;
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
 public interface ProductTeaser extends Component {
+
+    /**
+     * Returns the identifier of this product.
+     *
+     * @return a {@link CommerceIdentifier} object representing the identifier of this product.
+     */
+    CommerceIdentifier getCommerceIdentifier();
 
     /**
      * Returns name of the configured Product for this {@code ProductTeaser}

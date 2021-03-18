@@ -21,7 +21,6 @@ module.exports = {
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],
     reporters: ['default', ['jest-junit', { outputDirectory: './test-results' }]],
     transform: {
-        '\\.(gql|graphql)$': 'jest-transform-graphql',
         '.+\\.json': './__mocks__/jsonTransform.js',
         '.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
     },
