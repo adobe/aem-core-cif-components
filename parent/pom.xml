@@ -331,8 +331,6 @@
                         <!-- Clientlib files -->
                         <exclude>**/js.txt</exclude>
                         <exclude>**/css.txt</exclude>
-                        <exclude>**/*.css</exclude>
-                        <exclude>**/*.less</exclude>
                         <!-- Karma tests -->
                         <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
@@ -342,9 +340,6 @@
                         <!-- formatter configuration files -->
                         <exclude>**/.prettierrc</exclude>
                         <exclude>**/.prettierignore</exclude>
-
-                        <!-- Graphql queries -->
-                        <exclude>**/*.graphql</exclude>
 
                         <!-- Log files -->
                         <exclude>**/*.log</exclude>
