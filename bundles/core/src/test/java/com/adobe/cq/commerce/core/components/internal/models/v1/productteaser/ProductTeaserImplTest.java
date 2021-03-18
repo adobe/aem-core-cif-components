@@ -230,13 +230,7 @@ public class ProductTeaserImplTest {
     }
 
     @Test
-    public void testJsonExport() throws Exception {
-        setUp(PRODUCTTEASER_SIMPLE, false);
-        Utils.testJSONExport(productTeaser, "/exporter/productteaser.json");
-    }
-
-    @Test
-    public void testDataLayer() throws Exception {
+    public void testJsonRender() throws Exception {
         setUp(PRODUCTTEASER_SIMPLE, true);
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-productteaser-component.json");

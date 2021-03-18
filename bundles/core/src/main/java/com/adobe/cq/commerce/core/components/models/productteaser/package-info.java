@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-@Version("2.0.0")
+@Version("1.5.0")
 package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.Version;
