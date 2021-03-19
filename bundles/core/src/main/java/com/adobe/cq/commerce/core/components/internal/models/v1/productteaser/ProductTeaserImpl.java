@@ -85,6 +85,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String cta;
 
+    @ValueMapValue(
+        name = "ctaText",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String ctaText;
+
     private Page productPage;
     private Pair<String, String> combinedSku;
     private AbstractProductRetriever productRetriever;
@@ -137,37 +142,54 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public CommerceIdentifier getCommerceIdentifier() {
-        return CommerceIdentifierImpl.fromProductSku(getSku());
+        if (getSku() != null) {
+            return CommerceIdentifierImpl.fromProductSku(getSku());
+        }
+        return null;
     }
 
     @Override
     public String getName() {
-        return getProduct().getName();
+        if (getProduct() != null) {
+            return getProduct().getName();
+        }
+        return null;
     }
 
     @Override
     @JsonIgnore
     public String getSku() {
-        String sku = getProduct().getSku();
-        return sku != null ? sku : combinedSku.getLeft();
+        ProductInterface product = getProduct();
+        String sku = product != null ? product.getSku() : null;
+        return sku != null ? sku : combinedSku != null ? combinedSku.getLeft() : null;
     }
 
     @Override
     public String getCallToAction() {
-        // String cta = properties.get("cta", null);
         return cta;
+    }
+
+    @Override
+    public String getCallToActionText() {
+        return ctaText;
     }
 
     @Override
     @JsonIgnore
     public Price getPriceRange() {
-        return new PriceImpl(getProduct().getPriceRange(), locale);
+        if (getProduct() != null) {
+            return new PriceImpl(getProduct().getPriceRange(), locale);
+        }
+        return null;
     }
 
     @Override
     @JsonIgnore
     public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
+        if (getPriceRange() != null) {
+            return getPriceRange().getFormattedFinalPrice();
+        }
+        return null;
     }
 
     @Override
@@ -241,11 +263,17 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public Double getDataLayerPrice() {
-        return (new PriceImpl(getProduct().getPriceRange(), locale)).getFinalPrice();
+        if (getPriceRange() != null) {
+            return getPriceRange().getFinalPrice();
+        }
+        return null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return (new PriceImpl(getProduct().getPriceRange(), locale)).getCurrency();
+        if (getPriceRange() != null) {
+            return getPriceRange().getCurrency();
+        }
+        return null;
     }
 }

@@ -31,6 +31,12 @@
             "selection": "MJ01",
             "sling:resourceType": "venia/components/commerce/productteaser"
           },
+          "productteaser-full": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "details",
+            "ctaText": "See more details"
+          },
           "productcarousel": {
             "product": ["NOT-FOUND", "24-MG01", "MJ01#MJ01-L-Red", "faultyproduct", "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01", "MJ01"],
             "sling:resourceType": "venia/components/commerce/productcarousel",

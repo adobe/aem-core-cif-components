@@ -85,6 +85,7 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
     private static final String PRODUCTTEASER_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-noclient";
+    private static final String PRODUCTTEASER_FULL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-full";
 
     private Resource teaserResource;
     private Resource pageResource;
@@ -233,6 +234,9 @@ public class ProductTeaserImplTest {
     public void testJsonExport() throws Exception {
         setUp(PRODUCTTEASER_SIMPLE, false);
         Utils.testJSONExport(productTeaser, "/exporter/productteaser.json");
+
+        setUp(PRODUCTTEASER_FULL, false);
+        Utils.testJSONExport(productTeaser, "/exporter/productteaser-full.json");
     }
 
     @Test
