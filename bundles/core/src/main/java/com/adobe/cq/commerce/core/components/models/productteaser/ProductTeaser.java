@@ -75,6 +75,15 @@ public interface ProductTeaser extends Component {
     String getCallToAction();
 
     /**
+     * Returns the "call to action text" configured for this teaser.
+     * 
+     * @return the value of the "call to action text" option.
+     *         If no CTA text is configured then this methods returns
+     *         {@code null}
+     */
+    String getCallToActionText();
+
+    /**
      * Returns the price range.
      *
      * @return Price range instance.
