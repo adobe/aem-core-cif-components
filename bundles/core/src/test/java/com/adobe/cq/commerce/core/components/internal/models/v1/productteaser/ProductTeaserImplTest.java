@@ -81,6 +81,7 @@ public class ProductTeaserImplTest {
     private static final String PAGE = "/content/pageA";
 
     private static final String PRODUCTTEASER_SIMPLE = "/content/pageA/jcr:content/root/responsivegrid/productteaser-simple";
+    private static final String PRODUCTTEASER_NO_SKU = "/content/pageA/jcr:content/root/responsivegrid/productteaser-no-sku";
     private static final String PRODUCTTEASER_VIRTUAL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-virtual";
     private static final String PRODUCTTEASER_VARIANT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-variant";
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
@@ -231,10 +232,19 @@ public class ProductTeaserImplTest {
     }
 
     @Test
-    public void testJsonExport() throws Exception {
+    public void testJsonExportNoSku() throws Exception {
+        setUp(PRODUCTTEASER_NO_SKU, false);
+        Utils.testJSONExport(productTeaser, "/exporter/productteaser-nosku.json");
+    }
+
+    @Test
+    public void testJsonExportSimple() throws Exception {
         setUp(PRODUCTTEASER_SIMPLE, false);
         Utils.testJSONExport(productTeaser, "/exporter/productteaser.json");
+    }
 
+    @Test
+    public void testJsonExportFull() throws Exception {
         setUp(PRODUCTTEASER_FULL, false);
         Utils.testJSONExport(productTeaser, "/exporter/productteaser-full.json");
     }
