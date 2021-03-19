@@ -1,0 +1,10 @@
+{
+    "id": "productteaser-4571ccb4df",
+    "virtualProduct": false,
+    ":type": "core/cif/components/commerce/productteaser/v1/productteaser",
+    "dataLayer": {
+        "productteaser-4571ccb4df": {
+            "@type": "venia/components/commerce/productteaser"
+        }
+    }
+}
