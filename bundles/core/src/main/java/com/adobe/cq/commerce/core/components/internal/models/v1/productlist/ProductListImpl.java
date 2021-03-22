@@ -72,14 +72,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
 
-    private AbstractCategoryRetriever categoryRetriever;
+    protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));

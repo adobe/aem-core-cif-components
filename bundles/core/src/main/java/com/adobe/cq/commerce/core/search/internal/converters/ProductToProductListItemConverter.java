@@ -80,7 +80,8 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
                 null, // search results aren't targeting specific variant
                 request,
                 urlProvider,
-                parentId);
+                parentId,
+                product.getStaged());
 
             return productListItem;
         } catch (Exception e) {

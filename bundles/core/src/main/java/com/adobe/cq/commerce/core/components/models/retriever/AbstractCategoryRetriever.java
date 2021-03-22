@@ -186,10 +186,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param categoryQueryHook Lambda that extends the category query
      */
     public void extendCategoryQueryWith(Consumer<CategoryTreeQuery> categoryQueryHook) {
-        this.categoryQueryHook = categoryQueryHook;
+        if (this.categoryQueryHook == null) {
+            this.categoryQueryHook = categoryQueryHook;
+        } else {
+            this.categoryQueryHook = this.categoryQueryHook.andThen(categoryQueryHook);
+        }
     }
 
     /**
@@ -213,10 +219,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param productQueryHook Lambda that extends the product query
      */
     public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
-        this.productQueryHook = productQueryHook;
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
     }
 
     /**

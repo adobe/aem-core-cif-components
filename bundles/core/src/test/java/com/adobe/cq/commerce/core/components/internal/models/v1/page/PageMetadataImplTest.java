@@ -204,7 +204,9 @@ public class PageMetadataImplTest {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
+        assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
+        assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
         // Verify that GraphQL client is only called 4 times, so Sling model caching works as expected
         // --> see testPageMetadataModelOnCategoryPage() to see why we expect 4 queries
@@ -226,6 +228,12 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnCategorySpecificPage() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page/category-specific-page");
+
+        // see jcr-content-breadcrumb.json : this productlist component is configured to be version 2
+        // so we test that the adaptation in PageMetadataImpl is done with the right resource type
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
+        assertTrue("The category has staged data", productListModel.isStaged());
     }
 
     @Test

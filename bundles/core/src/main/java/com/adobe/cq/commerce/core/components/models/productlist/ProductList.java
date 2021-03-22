@@ -58,4 +58,16 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      * @return category retriever instance
      */
     AbstractCategoryRetriever getCategoryRetriever();
+
+    /**
+     * The version 1 of the productlist component always returns <code>false</code> as it does not support this feature.
+     * The version 2 of the productlist component does support this feature but it requires a Magento EE instance with
+     * at least Magento version 2.4.2.
+     * 
+     * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
+     * @since com.adobe.cq.commerce.core.components.models.productlist 3.1.0
+     */
+    default Boolean isStaged() {
+        return false;
+    };
 }
