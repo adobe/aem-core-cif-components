@@ -1,8 +1,0 @@
-query GetCustomerInformation {
-    customer {
-        id
-        firstname
-        lastname
-        email
-    }
-}

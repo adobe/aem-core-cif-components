@@ -1,0 +1,20 @@
+{
+    "id": "productteaser-7ca4f665c4",
+    "virtualProduct": false,
+    "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "MJ01",
+        "type": "SKU"
+    },
+    "name": "Beaumont Summit Kit",
+    ":type": "core/cif/components/commerce/productteaser/v1/productteaser",
+    "dataLayer": {
+        "productteaser-7ca4f665c4": {
+            "xdm:SKU": "MJ01",
+            "xdm:listPrice": 42.0,
+            "xdm:currencyCode": "USD",
+            "@type": "venia/components/commerce/productteaser",
+            "dc:title": "Beaumont Summit Kit"
+        }
+    }
+}

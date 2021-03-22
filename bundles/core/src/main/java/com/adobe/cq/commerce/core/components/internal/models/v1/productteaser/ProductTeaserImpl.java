@@ -25,14 +25,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -45,10 +50,19 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductTeaser.class, resourceType = ProductTeaserImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { ProductTeaser.class, ComponentExporter.class },
+    resourceType = ProductTeaserImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
@@ -65,6 +79,16 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @ScriptVariable
     private ValueMap properties;
+
+    @ValueMapValue(
+        name = "cta",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String cta;
+
+    @ValueMapValue(
+        name = "ctaText",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String ctaText;
 
     private Page productPage;
     private Pair<String, String> combinedSku;
@@ -99,6 +123,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         }
     }
 
+    @JsonIgnore
     private ProductInterface getProduct() {
         if (productRetriever == null) {
             return null;
@@ -116,32 +141,59 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     }
 
     @Override
-    public String getName() {
-        return getProduct().getName();
+    public CommerceIdentifier getCommerceIdentifier() {
+        if (getSku() != null) {
+            return CommerceIdentifierImpl.fromProductSku(getSku());
+        }
+        return null;
     }
 
     @Override
+    public String getName() {
+        if (getProduct() != null) {
+            return getProduct().getName();
+        }
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
     public String getSku() {
-        String sku = getProduct().getSku();
-        return sku != null ? sku : combinedSku.getLeft();
+        ProductInterface product = getProduct();
+        String sku = product != null ? product.getSku() : null;
+        return sku != null ? sku : combinedSku != null ? combinedSku.getLeft() : null;
     }
 
     @Override
     public String getCallToAction() {
-        return properties.get("cta", null);
+        return cta;
     }
 
     @Override
+    public String getCallToActionText() {
+        return ctaText;
+    }
+
+    @Override
+    @JsonIgnore
     public Price getPriceRange() {
-        return new PriceImpl(getProduct().getPriceRange(), locale);
+        if (getProduct() != null) {
+            return new PriceImpl(getProduct().getPriceRange(), locale);
+        }
+        return null;
     }
 
     @Override
+    @JsonIgnore
     public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
+        if (getPriceRange() != null) {
+            return getPriceRange().getFormattedFinalPrice();
+        }
+        return null;
     }
 
     @Override
+    @JsonIgnore
     public String getUrl() {
         if (getProduct() != null) {
             Map<String, String> params = new ParamsBuilder()
@@ -157,11 +209,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     }
 
     @Override
+    @JsonIgnore
     public AbstractProductRetriever getProductRetriever() {
         return productRetriever;
     }
 
     @Override
+    @JsonIgnore
     public String getImage() {
         if (getProduct() != null) {
             return getProduct().getImage().getUrl();
@@ -185,6 +239,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
     }
 
+    @Override
+    public String getExportedType() {
+        return RESOURCE_TYPE;
+    }
+
     // DataLayer methods
 
     @Override
@@ -204,11 +263,17 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public Double getDataLayerPrice() {
-        return (new PriceImpl(getProduct().getPriceRange(), locale)).getFinalPrice();
+        if (getPriceRange() != null) {
+            return getPriceRange().getFinalPrice();
+        }
+        return null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return (new PriceImpl(getProduct().getPriceRange(), locale)).getCurrency();
+        if (getPriceRange() != null) {
+            return getPriceRange().getCurrency();
+        }
+        return null;
     }
 }
