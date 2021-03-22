@@ -14,11 +14,14 @@
           "product-v2": {
             "sling:resourceType": "core/cif/components/commerce/product/v2/product"
           },
-          "productlist": {
+          "productlist-v1": {
             "loadClientPrice": false,
             "showImage": true,
             "showTitle": true,
             "sling:resourceType": "core/cif/components/commerce/productlist/v1/productlist"
+          },
+          "productlist-v2": {
+            "sling:resourceType": "core/cif/components/commerce/productlist/v2/productlist"
           },
           "productcarousel": {
             "product": ["24-MB02", "WJ04#WJ04-XS-Orange", "MH01", "MH01#MH01-XS-Orange"],

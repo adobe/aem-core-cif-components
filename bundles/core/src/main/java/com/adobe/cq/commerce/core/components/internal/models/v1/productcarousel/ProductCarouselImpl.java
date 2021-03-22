@@ -179,7 +179,8 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                         skus.getRight(),
                         request,
                         urlProvider,
-                        this.getId()));
+                        this.getId(),
+                        product.getStaged()));
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate product " + combinedSku, e);
                 }
