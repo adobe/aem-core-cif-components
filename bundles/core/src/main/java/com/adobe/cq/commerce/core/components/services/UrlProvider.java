@@ -44,7 +44,7 @@ public interface UrlProvider {
      * Defines the category identifier type used in category page urls.
      */
     public static enum CategoryIdentifierType {
-        ID
+        ID, UID
     }
 
     /**
@@ -82,6 +82,11 @@ public interface UrlProvider {
      * The <code>id</code> of the category.
      */
     public static final String ID_PARAM = "id";
+
+    /**
+     * The <code>uid</code> of the category.
+     */
+    public static final String UID_PARAM = "uid";
 
     /**
      * Use this parameter name to set the <b>page</b> part of the URL. This ensures that implementations of the
@@ -195,6 +200,17 @@ public interface UrlProvider {
          */
         public ParamsBuilder id(String id) {
             params.put(ID_PARAM, id);
+            return this;
+        }
+
+        /**
+         * Sets the <code>uid</code> of the category.
+         * 
+         * @param uid The <code>uid</code> of the category.
+         * @return This ParamsBuilder.
+         */
+        public ParamsBuilder uid(String uid) {
+            params.put(UID_PARAM, uid);
             return this;
         }
 
