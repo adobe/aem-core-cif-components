@@ -50,6 +50,7 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -139,7 +140,7 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategory();
+        category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategoryList().get(0);
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getProducts();
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
@@ -202,6 +203,29 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
         Assert.assertEquals("https://author" + PAGE + ".6.html", productListModel.getCanonicalUrl());
+    }
+
+    @Test
+    public void testUidIdentifier() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
+        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
+
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("MTM=");
+        context.request().setServletPath(PAGE + ".MTM=.html"); // used by context.request().getRequestURI();
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + PAGE + ".MTM=.html", productListModel.getCanonicalUrl());
     }
 
     @Test

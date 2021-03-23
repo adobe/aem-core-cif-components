@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -136,6 +137,26 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toCategoryUrl(request, page, params);
         Assert.assertEquals("/content/category-page.42.html", url);
+    }
+
+    @Test
+    public void testCategoryUrlWithUid() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
+        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
+
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .uid("MTM=")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page.MTM=.html", url);
     }
 
     @Test
