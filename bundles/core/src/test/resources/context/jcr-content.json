@@ -111,6 +111,7 @@
           "featuredcategorylist": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "titleType": "h2",
+            "categoryIdType": "ID",
             "items": {
               "item0": {
                 "categoryId": "5"
@@ -142,16 +143,16 @@
           },
           "featuredcategorylist4": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "selectionType": "categoryUID",
+            "categoryIdType": "UID",
             "items": {
               "item0": {
-                "categoryUID": "UID1"
+                "categoryId": "UID1"
               },
               "item1": {
-                "categoryUID": "UID2"
+                "categoryId": "UID2"
               },
               "item2": {
-                "categoryUID": "UID3"
+                "categoryId": "UID3"
               }
             }
           },

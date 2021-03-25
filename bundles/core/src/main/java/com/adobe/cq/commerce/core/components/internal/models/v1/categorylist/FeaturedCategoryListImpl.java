@@ -57,7 +57,6 @@ import com.day.cq.dam.api.Rendition;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableMap;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -73,13 +72,10 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
-    private static final String SELECTION_TYPE = "selectionType";
+    private static final String CATEGORY_IDENTIFIER = "categoryId";
+    private static final String SELECTION_TYPE = "categoryIdType";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
-    private static final Map<String, UrlProvider.CategoryIdentifierType> IDENTIFIER_TYPE_MAPPING = ImmutableMap.<String, UrlProvider.CategoryIdentifierType>builder()
-        .put("categoryId", UrlProvider.CategoryIdentifierType.ID)
-        .put("categoryUID", UrlProvider.CategoryIdentifierType.UID)
-        .build();
 
     @Inject
     private Page currentPage;
@@ -96,7 +92,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
-    private String categoryIdentifierType;
 
     @PostConstruct
     private void initModel() {
@@ -110,11 +105,14 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
-        categoryIdentifierType = resource.getValueMap().get(SELECTION_TYPE, "categoryId");
+
+        // Get the category identifier type. Could be ID or UID. This will be used in the GraphQL query as filter param
+        UrlProvider.CategoryIdentifierType categoryIdentifierType = UrlProvider.CategoryIdentifierType.valueOf(resource.getValueMap().get(
+            SELECTION_TYPE, "ID"));
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
-                String categoryIdentifier = props.get(categoryIdentifierType, String.class);
+                String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
@@ -139,7 +137,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                    categoriesRetriever.setIdentifiers(categoryIdentifiers, IDENTIFIER_TYPE_MAPPING.get(categoryIdentifierType));
+                    categoriesRetriever.setIdentifiers(categoryIdentifiers, categoryIdentifierType);
                 }
             }
         }
@@ -186,7 +184,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         resource.getChild(ITEMS_PROP).getChildren().forEach(resource -> {
             ValueMap props = resource.adaptTo(ValueMap.class);
-            String categoryId = props.get(categoryIdentifierType, String.class);
+            String categoryId = props.get(CATEGORY_IDENTIFIER, String.class);
             String assetPath = props.get(ASSET_PROP, String.class);
             if (StringUtils.isNotEmpty(categoryId)) {
                 categories.add(
