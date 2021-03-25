@@ -113,6 +113,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
+    private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
     private static final String CATEGORYLIST_BREADCRUMB_JSON = "magento-graphql-categorylist-breadcrumb.json";
     private static final String BUNDLE_PRODUCT_JSON = "magento-graphql-bundle-product.json";
@@ -441,13 +442,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     private CategoryTree readCategoryResponse(DataFetchingEnvironment env) {
 
-        // If the query has aliases, it's the FeaturedCategoryList component
-        String fieldAlias = env.getField().getAlias();
-        if (StringUtils.isNotBlank(fieldAlias)) {
-            GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
-            return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
-        }
-
         // Default query is fetching the category tree except if the category id is not "2"
         String filename = CATEGORY_TREE_JSON;
         Object id = env.getArgument(CATEGORY_ID_ARG);
@@ -469,8 +463,21 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * @return A list of Magento <code>CategoryTree</code> objects.
      */
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
-        // For now, only the breadcrumb component queries 'CategoryList'
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+
+        GraphqlResponse<Query, Error> graphqlResponse;
+        Map<String, Map<String, List<String>>> filters = env.getArgument("filters");
+        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
+
+        // Only category the Breadcrumb components selects this field
+        if (selectionSet.contains("breadcrumbs")) {
+            graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("in") && filters.get("ids").get("in").size() == 4) {
+            // The CategoriesCarousel example will require 4 items
+            graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
+        } else {
+            graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
+        }
+
         return graphqlResponse.getData().getCategoryList();
     }
 }
