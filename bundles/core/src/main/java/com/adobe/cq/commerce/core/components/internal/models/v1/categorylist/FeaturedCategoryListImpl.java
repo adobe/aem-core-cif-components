@@ -73,7 +73,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
-    private static final String SELECTION_TYPE = "selection_type";
+    private static final String SELECTION_TYPE = "selectionType";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
     private static final Map<String, UrlProvider.CategoryIdentifierType> IDENTIFIER_TYPE_MAPPING = ImmutableMap.<String, UrlProvider.CategoryIdentifierType>builder()
