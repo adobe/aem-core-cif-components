@@ -142,7 +142,7 @@
           },
           "featuredcategorylist4": {
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "selection_type": "categoryUID",
+            "selectionType": "categoryUID",
             "items": {
               "item0": {
                 "categoryUID": "UID1"
