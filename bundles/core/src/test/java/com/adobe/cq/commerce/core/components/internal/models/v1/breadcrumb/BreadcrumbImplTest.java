@@ -39,6 +39,7 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -219,6 +220,35 @@ public class BreadcrumbImplTest {
 
         NavigationItem topsCategory = items.get(2);
         assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.12.html");
+        assertThat(topsCategory.isActive()).isTrue();
+    }
+
+    @Test
+    public void testCategoryPageWithUid() throws Exception {
+        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-breadcrumb-result.json");
+        prepareModel("/content/venia/us/en/products/category-page");
+
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
+        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
+
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("MTM=");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
+
+        NavigationItem menCategory = items.get(1);
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTI=.html");
+        assertThat(menCategory.isActive()).isFalse();
+
+        NavigationItem topsCategory = items.get(2);
+        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTM=.html");
         assertThat(topsCategory.isActive()).isTrue();
     }
 

@@ -3,11 +3,13 @@
     "categoryList": [
       {
         "id": 12,
+        "uid": "MTM=",
         "url_path": "men/tops-men",
         "name": "Tops",
         "breadcrumbs": [
           {
             "category_id": 11,
+            "category_uid": "MTI=",
             "category_url_path": "men",
             "category_name": "Men"
           }

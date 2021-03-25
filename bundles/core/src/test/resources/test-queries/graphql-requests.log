@@ -36,11 +36,13 @@
 
 {products(currentPage:1,pageSize:6,filter:{category_id:{eq:"6"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status},aggregations{options{count,label,value},attribute_code,count,label}},categoryList(filters:{ids:{eq:"6"}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
 
-{products(filter:{sku:{eq:"MT10"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+{categoryList(filters:{category_uid:{eq:"MTM="}}){id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}
 
-{categoryList(filters:{ids:{eq:"12"}}){id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}
+{products(filter:{sku:{eq:"MT10"}}){items{__typename,sku,url_key,name,categories{__typename,id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}}}
 
-{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+{categoryList(filters:{ids:{eq:"12"}}){id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}
+
+{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}}}
 
 {category__category_5:category(id:5){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image}}
 

@@ -246,7 +246,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     @SuppressWarnings("unchecked")
     private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String json = readResource("magento-luma-schema-2.3.5.json");
+        String json = readResource("magento-schema-2.4.2ee.json");
 
         Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
         Map<String, Object> map = gson.fromJson(json, type);
