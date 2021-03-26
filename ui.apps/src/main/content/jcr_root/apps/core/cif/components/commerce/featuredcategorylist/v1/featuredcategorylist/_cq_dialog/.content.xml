@@ -30,10 +30,6 @@
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="core/wcm/components/commons/datasources/allowedheadingelements/v1"/>
                     </titleType>
-                    <categoryIdType jcr:primaryType="nt:unstructured" 
-                        sling:resourceType="granite/ui/components/coral/foundation/form/hidden" 
-                        name="./categoryIdType"
-                        value="id"/>
                     <content granite:class="cmp-cif-featuredcategorylist__editor" 
                         jcr:primaryType="nt:unstructured" 
                         sling:resourceType="granite/ui/components/coral/foundation/form/multifield" 
