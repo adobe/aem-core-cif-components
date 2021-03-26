@@ -106,9 +106,12 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
 
-        // Get the category identifier type. Could be ID or UID. This will be used in the GraphQL query as filter param
-        UrlProvider.CategoryIdentifierType categoryIdentifierType = UrlProvider.CategoryIdentifierType.valueOf(resource.getValueMap().get(
-            SELECTION_TYPE, "ID"));
+        ValueMap vm = resource.getValueMap();
+
+        // Get the category identifier type. Could be ID or UID. This will be used in
+        // the GraphQL query as filter param
+        String categoryIdType = vm.get(SELECTION_TYPE, "id").toUpperCase();
+        UrlProvider.CategoryIdentifierType categoryIdentifierType = UrlProvider.CategoryIdentifierType.valueOf(categoryIdType);
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
