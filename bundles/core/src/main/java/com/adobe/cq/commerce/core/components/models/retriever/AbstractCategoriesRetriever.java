@@ -17,6 +17,9 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -31,7 +34,7 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoriesRetriever.class);
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
@@ -138,7 +141,8 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
             } else if (UrlProvider.CategoryIdentifierType.ID.equals(identifierType)) {
                 filter = new CategoryFilterInput().setIds(identifiersFilter);
             } else {
-                throw new RuntimeException("Category identifier type is not supported");
+                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
+                filter = new CategoryFilterInput().setIds(identifiersFilter);
             }
 
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
