@@ -50,6 +50,7 @@ import static com.adobe.cq.commerce.core.components.models.navigation.Navigation
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,7 +98,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any(), anyBoolean())).thenReturn(categoryList);
 
         // URL provider
         UrlProviderImpl urlProvider = new UrlProviderImpl();
@@ -108,6 +109,14 @@ public class NavigationImplTest {
         request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("enableUIDSupport", false);
+        ValueMapDecorator vm = new ValueMapDecorator(props);
+        ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
+        Resource resource = mock((Resource.class));
+        Whitebox.setInternalState(navigation, "resource", resource);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
 
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);

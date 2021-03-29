@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -87,9 +88,11 @@ public class NavigationImpl implements Navigation {
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
     private int structureDepth;
+    private boolean supportUID;
 
     @PostConstruct
     void initModel() {
+        supportUID = isUIDsupportEnabled(resource);
         graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
@@ -176,18 +179,18 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        Integer rootCategoryId = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
-        if (rootCategoryId == null) {
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryId = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, Integer.class);
+            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
         }
 
-        if (rootCategoryId == null) {
+        if (rootCategoryIdentifier == null) {
             LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryId, structureDepth);
+        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth, supportUID);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -198,7 +201,7 @@ public class NavigationImpl implements Navigation {
 
         for (CategoryTree child : children) {
             Map<String, String> params = new ParamsBuilder()
-                .id(child.getId().toString())
+                .id((supportUID ? child.getUid() : child.getId()).toString())
                 .urlKey(child.getUrlKey())
                 .urlPath(child.getUrlPath())
                 .map();
@@ -221,9 +224,22 @@ public class NavigationImpl implements Navigation {
         return null;
     }
 
-    private Integer readPageConfiguration(Page page, String propertyName) {
+    private String readPageConfiguration(Page page, String propertyName) {
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
-        return properties.getInherited(propertyName, Integer.class);
+        return properties.getInherited(propertyName, String.class);
+    }
+
+    /**
+     * Checks the status of UID support in CA config for a given resource.
+     *
+     * @param resource the resource to check
+     *
+     * @return {@code true} if UID support is enabled, {@code false} otherwise
+     */
+    private static boolean isUIDsupportEnabled(Resource resource) {
+        ComponentsConfiguration properties = resource.adaptTo(ComponentsConfiguration.class);
+        String val = properties.get("enableUIDSupport", String.class);
+        return Boolean.parseBoolean(val);
     }
 
     class PageNavigationItem extends AbstractNavigationItem {
@@ -300,7 +316,7 @@ public class NavigationImpl implements Navigation {
 
             for (CategoryTree child : children) {
                 Map<String, String> params = new ParamsBuilder()
-                    .id(child.getId().toString())
+                    .id((supportUID ? child.getUid() : child.getId()).toString())
                     .urlKey(child.getUrlKey())
                     .urlPath(child.getUrlPath())
                     .map();

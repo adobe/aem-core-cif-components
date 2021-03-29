@@ -33,7 +33,10 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
@@ -76,7 +79,7 @@ public class GraphQLCategoryProviderTest {
         Page page = Mockito.spy(context.currentPage("/content/pageA"));
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
         Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
-        Assert.assertTrue(categoryProvider.getChildCategories(10, 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("10", 10, false).isEmpty());
     }
 
     @Test
@@ -94,14 +97,14 @@ public class GraphQLCategoryProviderTest {
         Query rootQuery = mock(Query.class);
         when(response.getData()).thenReturn(rootQuery);
         Assert.assertNull(rootQuery.getCategory());
-        Assert.assertTrue(categoryProvider.getChildCategories(-10, 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10, false).isEmpty());
 
         // test category children not found
         CategoryTree category = mock(CategoryTree.class);
         when(rootQuery.getCategory()).thenReturn(category);
         when(category.getChildren()).thenReturn(null);
         Assert.assertNull(category.getChildren());
-        Assert.assertTrue(categoryProvider.getChildCategories(13, 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("13", 10, false).isEmpty());
     }
 
     @Test
@@ -116,10 +119,10 @@ public class GraphQLCategoryProviderTest {
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
 
         // Test null categoryId
-        Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories(null, 5, false).isEmpty());
 
         // Test category children found
-        List<CategoryTree> categories = categoryProvider.getChildCategories(2, 5);
+        List<CategoryTree> categories = categoryProvider.getChildCategories("2", 5, false);
         Assert.assertEquals(6, categories.size());
     }
 
@@ -150,13 +153,17 @@ public class GraphQLCategoryProviderTest {
     }
 
     private String extractQueryString(int depth) {
-        int categoryId = 0;
-        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(categoryId);
-        QueryQuery topQuery = Operations.query(query -> query.category(searchArgs, GraphQLCategoryProvider.defineCategoriesQuery(depth)));
+        String categoryIdentifier = "0";
+        CategoryFilterInput categoryFilter = new CategoryFilterInput().setCategoryUid(new FilterEqualTypeInput().setEq(categoryIdentifier));
+        QueryQuery.CategoryListArgumentsDefinition searchArgs = d -> d.filters(categoryFilter);
+
+        java.util.function.Function<CategoryTreeQuery, CategoryTreeQuery> categoriesQuery = q -> q.id().name().urlPath().position();
+        QueryQuery topQuery = Operations.query(query -> query.categoryList(searchArgs, GraphQLCategoryProvider.defineCategoriesQuery(depth,
+            categoriesQuery)));
         String queryString = topQuery.toString();
 
-        // Trim "{category(id:0){" from the beginning and "}}" from the end of the string.
-        queryString = queryString.substring(16, queryString.length() - 2);
+        // Trim "{categoryList(filters:{category_uid:{eq:"0"}}){" from the beginning and "}}" from the end of the string.
+        queryString = queryString.substring(47, queryString.length() - 2);
         return queryString;
     }
 }
