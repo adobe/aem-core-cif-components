@@ -56,6 +56,7 @@ import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
@@ -66,9 +67,11 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SortEnum;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
@@ -148,27 +151,34 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         LOGGER.debug("Generated query string {}", queryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
+        Query data = response.getData();
+        Products products = data != null ? data.getProducts() : null;
+        List<CategoryTree> categories = data != null ? data.getCategoryList() : null;
+        CategoryTree category = CollectionUtils.isNotEmpty(categories) ? categories.get(0) : null;
+
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors().stream()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return new ImmutablePair<>(response.getData() != null ? response.getData().getCategory() : null, searchResultsSet);
+
+            return new ImmutablePair<>(category, searchResultsSet);
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
         final List<ProductListItem> productListItems = extractProductsFromResponse(
-            response.getData().getProducts().getItems(),
+            products.getItems(),
             productPage,
             request,
             resource);
-        final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(response.getData().getProducts()
-            .getAggregations(),
+
+        final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             searchOptions.getAllFilters(), availableFilters);
-        searchResultsSet.setTotalResults(response.getData().getProducts().getTotalCount());
+
+        searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
         searchResultsSet.setSearchAggregations(searchAggregations);
 
-        return new ImmutablePair<>(response.getData().getCategory(), searchResultsSet);
+        return new ImmutablePair<>(category, searchResultsSet);
     }
 
     private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
@@ -336,11 +346,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .attributeCode()
                 .count()
                 .label());
+
         if (categoryRetriever != null) {
-            Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateQueryArgs();
+            Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateCategoryQueryArgs();
             return Operations.query(query -> query
                 .products(searchArgs, queryArgs)
-                .category(categoryArgs.getLeft(), categoryArgs.getRight())).toString();
+                .categoryList(categoryArgs.getLeft(), categoryArgs.getRight())).toString();
         }
 
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();

@@ -52,7 +52,7 @@ public @interface UrlProviderConfiguration {
 
     @AttributeDefinition(
         name = "Category URL template",
-        description = "Default variables are {{page}}, {{id}}, {{url_key}} and {{url_path}}.",
+        description = "Default variables are {{page}}, {{uid}}, {{id}}, {{url_key}} and {{url_path}}.",
         type = AttributeType.STRING,
         required = true)
     String categoryUrlTemplate() default DEFAULT_CATEGORY_URL_TEMPLATE;
