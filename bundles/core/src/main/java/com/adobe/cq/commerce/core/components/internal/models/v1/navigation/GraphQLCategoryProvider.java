@@ -40,7 +40,8 @@ import com.day.cq.wcm.api.Page;
 class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
-    private final MagentoGraphqlClient magentoGraphqlClient;
+    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().uid().name().urlPath().position();
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(Resource resource, Page page, SlingHttpServletRequest request) {
         magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, request);
@@ -61,9 +62,7 @@ class GraphQLCategoryProvider {
             categoryIdentifier)) : new CategoryFilterInput().setIds(new FilterEqualTypeInput().setEq(categoryIdentifier));
         QueryQuery.CategoryListArgumentsDefinition searchArgs = d -> d.filters(categoryFilter);
 
-        Function<CategoryTreeQuery, CategoryTreeQuery> categoriesQuery = q -> (supportUID ? q.uid() : q.id()).name().urlPath().position();
-        String queryString = Operations.query(query -> query.categoryList(searchArgs, defineCategoriesQuery(depth, categoriesQuery)))
-            .toString();
+        String queryString = Operations.query(query -> query.categoryList(searchArgs, defineCategoriesQuery(depth))).toString();
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         Query rootQuery = response.getData();
@@ -81,11 +80,11 @@ class GraphQLCategoryProvider {
         return children;
     }
 
-    static CategoryTreeQueryDefinition defineCategoriesQuery(int depth, Function<CategoryTreeQuery, CategoryTreeQuery> categoriesQuery) {
+    static CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {
         if (depth <= 0) {
-            return categoriesQuery::apply;
+            return CATEGORIES_QUERY::apply;
         } else {
-            return t -> categoriesQuery.apply(t).children(defineCategoriesQuery(depth - 1, categoriesQuery));
+            return t -> CATEGORIES_QUERY.apply(t).children(defineCategoriesQuery(depth - 1));
         }
     }
 }

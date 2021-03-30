@@ -35,7 +35,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -157,9 +156,8 @@ public class GraphQLCategoryProviderTest {
         CategoryFilterInput categoryFilter = new CategoryFilterInput().setCategoryUid(new FilterEqualTypeInput().setEq(categoryIdentifier));
         QueryQuery.CategoryListArgumentsDefinition searchArgs = d -> d.filters(categoryFilter);
 
-        java.util.function.Function<CategoryTreeQuery, CategoryTreeQuery> categoriesQuery = q -> q.id().name().urlPath().position();
-        QueryQuery topQuery = Operations.query(query -> query.categoryList(searchArgs, GraphQLCategoryProvider.defineCategoriesQuery(depth,
-            categoriesQuery)));
+        QueryQuery topQuery = Operations.query(query -> query.categoryList(searchArgs, GraphQLCategoryProvider.defineCategoriesQuery(
+            depth)));
         String queryString = topQuery.toString();
 
         // Trim "{categoryList(filters:{category_uid:{eq:"0"}}){" from the beginning and "}}" from the end of the string.

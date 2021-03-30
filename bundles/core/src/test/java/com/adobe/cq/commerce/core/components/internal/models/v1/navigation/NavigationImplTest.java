@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
@@ -111,7 +112,7 @@ public class NavigationImplTest {
         when(request.getRequestURI()).thenReturn("uri");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("enableUIDSupport", false);
+        props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
         ValueMapDecorator vm = new ValueMapDecorator(props);
         ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
         Resource resource = mock((Resource.class));
@@ -127,6 +128,10 @@ public class NavigationImplTest {
     public void testStructureDepthProperty() {
 
         // set up
+        when(request.getRequestURI()).thenReturn("/page1/page11");
+        RequestPathInfo rpi = mock(RequestPathInfo.class);
+        when(rpi.getSelectors()).thenReturn(new String[0]);
+        when(request.getRequestPathInfo()).thenReturn(rpi);
         ValueMapDecorator properties = new ValueMapDecorator(new HashMap<>());
         Whitebox.setInternalState(navigation, "properties", properties);
         Style style = mock(Style.class);
@@ -335,6 +340,7 @@ public class NavigationImplTest {
         Assert.assertEquals(pageURL, navigationItem.getURL());
         Assert.assertEquals(active, navigationItem.isActive());
 
+        when(request.getRequestURI()).thenReturn("/page1/page11");
         when(request.getRequestURI()).thenReturn("/page1/page11");
 
         List<Navigation> navigationList = navigationModel.getNavigationList();

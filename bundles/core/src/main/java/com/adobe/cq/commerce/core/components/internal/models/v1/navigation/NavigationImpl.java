@@ -48,6 +48,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
 
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType.UID;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
 @Model(
@@ -57,6 +58,8 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
 public class NavigationImpl implements Navigation {
 
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
+    static final String PN_MAGENTO_ROOT_CATEGORY_ID_TYPE = PN_MAGENTO_ROOT_CATEGORY_ID + "Type";
+    static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
@@ -88,11 +91,11 @@ public class NavigationImpl implements Navigation {
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
     private int structureDepth;
-    private boolean supportUID;
+    boolean enableUIDRendering;
 
     @PostConstruct
     void initModel() {
-        supportUID = isUIDsupportEnabled(resource);
+        enableUIDRendering = UID.equals(urlProvider.getCategoryIdentifier(request).getLeft());
         graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
@@ -179,10 +182,14 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
+        final boolean enableUIDSupport;
         String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
             rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
+            enableUIDSupport = Boolean.parseBoolean(properties.get(PN_ENABLE_UID_SUPPORT, String.class));
+        } else {
+            enableUIDSupport = UID.name().equals(readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID_TYPE));
         }
 
         if (rootCategoryIdentifier == null) {
@@ -190,7 +197,7 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth, supportUID);
+        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth, enableUIDSupport);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -200,11 +207,11 @@ public class NavigationImpl implements Navigation {
         children.sort(Comparator.comparing(CategoryTree::getPosition));
 
         for (CategoryTree child : children) {
-            Map<String, String> params = new ParamsBuilder()
-                .id((supportUID ? child.getUid() : child.getId()).toString())
-                .urlKey(child.getUrlKey())
-                .urlPath(child.getUrlPath())
-                .map();
+            Map<String, String> params = (enableUIDRendering ? new ParamsBuilder().uid(child.getUid().toString())
+                : new ParamsBuilder().id(child.getId().toString()))
+                    .urlKey(child.getUrlKey())
+                    .urlPath(child.getUrlPath())
+                    .map();
 
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             boolean active = request.getRequestURI().equals(url);
@@ -227,19 +234,6 @@ public class NavigationImpl implements Navigation {
     private String readPageConfiguration(Page page, String propertyName) {
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
         return properties.getInherited(propertyName, String.class);
-    }
-
-    /**
-     * Checks the status of UID support in CA config for a given resource.
-     *
-     * @param resource the resource to check
-     *
-     * @return {@code true} if UID support is enabled, {@code false} otherwise
-     */
-    private static boolean isUIDsupportEnabled(Resource resource) {
-        ComponentsConfiguration properties = resource.adaptTo(ComponentsConfiguration.class);
-        String val = properties.get("enableUIDSupport", String.class);
-        return Boolean.parseBoolean(val);
     }
 
     class PageNavigationItem extends AbstractNavigationItem {
@@ -315,11 +309,11 @@ public class NavigationImpl implements Navigation {
             List<NavigationItem> pages = new ArrayList<>();
 
             for (CategoryTree child : children) {
-                Map<String, String> params = new ParamsBuilder()
-                    .id((supportUID ? child.getUid() : child.getId()).toString())
-                    .urlKey(child.getUrlKey())
-                    .urlPath(child.getUrlPath())
-                    .map();
+                Map<String, String> params = (enableUIDRendering ? new ParamsBuilder().uid(child.getUid().toString())
+                    : new ParamsBuilder().id(child.getId().toString()))
+                        .urlKey(child.getUrlKey())
+                        .urlPath(child.getUrlPath())
+                        .map();
 
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
                 boolean active = request.getRequestURI().equals(url);
