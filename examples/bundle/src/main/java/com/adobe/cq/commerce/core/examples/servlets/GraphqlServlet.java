@@ -465,15 +465,20 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
 
         GraphqlResponse<Query, Error> graphqlResponse;
-        Map<String, Map<String, List<String>>> filters = env.getArgument("filters");
+        Map<String, Map<String, Object>> filters = env.getArgument("filters");
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
 
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("in") && filters.get("ids").get("in").size() == 4) {
+        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("in") && (((List<String>) (filters.get("ids").get("in")))
+            .size() == 4)) {
             // The CategoriesCarousel example will require 4 items
             graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
+        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
+            filters.get("ids").get("eq").equals("1")) {
+            // The ProductList example will require 1 item
+            graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
         } else {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
         }
