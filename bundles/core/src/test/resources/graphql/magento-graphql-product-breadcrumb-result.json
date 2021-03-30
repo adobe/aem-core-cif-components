@@ -11,34 +11,36 @@
             {
               "__typename": "CategoryTree",
               "id": 12,
+              "uid": "MTM=",
               "url_path": "men/tops-men",
               "name": "Tops",
               "breadcrumbs": [
                 {
                   "category_id": 11,
+                  "category_uid": "MTI=",
                   "category_url_path": "men",
-                  "category_name": "Men",
-                  "category_level": 2
+                  "category_name": "Men"
                 }
               ]
             },
             {
               "__typename": "CategoryTree",
               "id": 17,
+              "uid": "MTg=",
               "url_path": "men/tops-men/tanks-men",
               "name": "Tanks",
               "breadcrumbs": [
                 {
                   "category_id": 11,
+                  "category_uid": "MTI=",
                   "category_url_path": "men",
-                  "category_name": "Men",
-                  "category_level": 2
+                  "category_name": "Men"
                 },
                 {
                   "category_id": 12,
+                  "category_uid": "MTM=",
                   "category_url_path": "men/tops-men",
-                  "category_name": "Tops",
-                  "category_level": 3
+                  "category_name": "Tops"
                 }
               ]
             }
