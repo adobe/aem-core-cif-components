@@ -237,6 +237,8 @@ public class BreadcrumbImplTest {
         context.registerService(UrlProvider.class, urlProvider);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        // The value is not URL-encoded here because in AEM this is properly URL-decoded by Jetty/Sling
+        // but with the Sling testing code this is not URL-decoded
         requestPathInfo.setSelectorString("MTM=");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
@@ -244,11 +246,11 @@ public class BreadcrumbImplTest {
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
 
         NavigationItem menCategory = items.get(1);
-        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTI=.html");
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTI%3D.html");
         assertThat(menCategory.isActive()).isFalse();
 
         NavigationItem topsCategory = items.get(2);
-        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTM=.html");
+        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTM%3D.html");
         assertThat(topsCategory.isActive()).isTrue();
     }
 
