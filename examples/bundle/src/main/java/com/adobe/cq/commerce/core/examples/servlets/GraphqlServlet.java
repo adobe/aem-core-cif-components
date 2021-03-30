@@ -111,6 +111,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
     private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
+    private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
@@ -469,8 +470,18 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * @return A list of Magento <code>CategoryTree</code> objects.
      */
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
-        // For now, only the breadcrumb component queries 'CategoryList'
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+
+        Object id = ((Map) ((Map) env.getArgument("filters")).get("ids")).get("eq");
+        String filename;
+        if (id != null && id.toString().equals("1")) {
+            // breadcrumb
+            filename = CATEGORYLIST_BREADCRUMB_JSON;
+        } else {
+            // navigation
+            filename = CATEGORY_LIST_TREE_JSON;
+        }
+
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
         return graphqlResponse.getData().getCategoryList();
     }
 }
