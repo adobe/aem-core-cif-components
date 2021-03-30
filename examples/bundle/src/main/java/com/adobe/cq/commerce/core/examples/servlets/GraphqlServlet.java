@@ -247,7 +247,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      */
     @SuppressWarnings("unchecked")
     private TypeDefinitionRegistry buildTypeDefinitionRegistry() throws IOException {
-        String json = readResource("magento-luma-schema-2.3.5.json");
+        String json = readResource("magento-schema-2.4.2ee.json");
 
         Type type = TypeToken.getParameterized(Map.class, String.class, Object.class).getType();
         Map<String, Object> map = gson.fromJson(json, type);
@@ -449,14 +449,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
         }
 
-        // Default query is fetching the category tree except if the category id is not "2"
-        String filename = CATEGORY_TREE_JSON;
-        Object id = env.getArgument(CATEGORY_ID_ARG);
-        if (id != null && !id.toString().equals("2")) {
-            filename = CATEGORY_JSON; // Query to only fetch some category data
-        }
-
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
+        // Default query is fetching the category tree
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORY_TREE_JSON);
         return graphqlResponse.getData().getCategory();
     }
 
@@ -472,13 +466,17 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
 
         Object id = ((Map) ((Map) env.getArgument("filters")).get("ids")).get("eq");
+        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
         String filename;
-        if (id != null && id.toString().equals("1")) {
-            // breadcrumb
-            filename = CATEGORYLIST_BREADCRUMB_JSON;
-        } else {
+        if (id != null && id.toString().equals("2")) {
             // navigation
             filename = CATEGORY_LIST_TREE_JSON;
+        } else if (selectionSet.contains("breadcrumbs")) {
+            // breadcrumbs
+            filename = CATEGORYLIST_BREADCRUMB_JSON;
+        } else {
+            // other
+            filename = CATEGORY_JSON;
         }
 
         GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);

@@ -21,13 +21,16 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
@@ -213,7 +216,9 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      *
      * @param identifier Category identifier, usually the category id
      * @return GraphQL query as string
+     * @deprecated Use {@link #generateCategoryQueryArgs(String)} to use the GraphQL <code>categoryList</code> field.
      */
+    @Deprecated
     public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs(String identifier) {
         // Use 'categoryIdentifierType' when we switch to Query.categoryList
         QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(identifier));
@@ -227,9 +232,41 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Generates a pair of args for the category query for the instance identifier;
      *
      * @return GraphQL query as string
+     * @deprecated Use {@link #generateCategoryQueryArgs()} to use the GraphQL <code>categoryList</code> field.
      */
+    @Deprecated
     public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs() {
         return generateQueryArgs(identifier);
+    }
+
+    /**
+     * Generates a pair of args for the category query for a given category identifier;
+     *
+     * @param identifier Category identifier, usually the category id
+     * @return GraphQL query as string
+     */
+    public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+        CategoryFilterInput filter;
+        if (CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setIds(identifierFilter);
+        } else {
+            filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+        }
+
+        CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);
+        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
+
+        return new ImmutablePair<>(searchArgs, queryArgs);
+    }
+
+    /**
+     * Generates a pair of args for the category query for the instance identifier;
+     *
+     * @return GraphQL query as string
+     */
+    public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs() {
+        return generateCategoryQueryArgs(identifier);
     }
 
     /**
