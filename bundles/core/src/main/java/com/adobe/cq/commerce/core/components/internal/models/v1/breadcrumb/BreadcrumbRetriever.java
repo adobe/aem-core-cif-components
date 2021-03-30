@@ -158,10 +158,12 @@ public class BreadcrumbRetriever extends AbstractRetriever {
             .name()
             .categories(c -> c
                 .id()
+                .uid()
                 .urlPath()
                 .name()
                 .breadcrumbs(b -> b
                     .categoryId()
+                    .categoryUid()
                     .categoryUrlPath()
                     .categoryName())));
 
@@ -178,6 +180,8 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         CategoryFilterInput filter;
         if (CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
             filter = new CategoryFilterInput().setIds(identifierFilter);
+        } else if (CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
         } else {
             throw new RuntimeException("Category identifier type is not supported");
         }
@@ -186,10 +190,12 @@ public class BreadcrumbRetriever extends AbstractRetriever {
 
         CategoryTreeQueryDefinition queryArgs = q -> q
             .id()
+            .uid()
             .urlPath()
             .name()
             .breadcrumbs(b -> b
                 .categoryId()
+                .categoryUid()
                 .categoryUrlPath()
                 .categoryName());
 

@@ -447,14 +447,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             return (CategoryTree) graphqlResponse.getData().get(fieldAlias);
         }
 
-        // Default query is fetching the category tree except if the category id is not "2"
-        String filename = CATEGORY_TREE_JSON;
-        Object id = env.getArgument(CATEGORY_ID_ARG);
-        if (id != null && !id.toString().equals("2")) {
-            filename = CATEGORY_JSON; // Query to only fetch some category data
-        }
-
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
+        // Default query is fetching the category tree
+        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORY_TREE_JSON);
         return graphqlResponse.getData().getCategory();
     }
 
@@ -468,8 +462,15 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * @return A list of Magento <code>CategoryTree</code> objects.
      */
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
-        // For now, only the breadcrumb component queries 'CategoryList'
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+
+        GraphqlResponse<Query, Error> graphqlResponse;
+        DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
+        if (selectionSet.contains("breadcrumbs")) {
+            graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+        } else {
+            graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
+        }
+
         return graphqlResponse.getData().getCategoryList();
     }
 }

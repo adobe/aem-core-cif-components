@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-@Version("3.2.0")
-package com.adobe.cq.commerce.core.components.models.productlist;
+@Version("1.10.0")
+package com.adobe.cq.commerce.core.components.services;
 
 import org.osgi.annotation.versioning.Version;

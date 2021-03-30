@@ -50,6 +50,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.shopify.graphql.support.ID;
 
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
@@ -176,16 +177,18 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     }
 
     private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive) {
-        addCategoryItem(b.getCategoryId(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(), isActive);
+        addCategoryItem(b.getCategoryId(), b.getCategoryUid(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(),
+            isActive);
     }
 
     private void addCategoryItem(CategoryInterface category, boolean isActive) {
-        addCategoryItem(category.getId(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
+        addCategoryItem(category.getId(), category.getUid(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
     }
 
-    private void addCategoryItem(Integer id, String urlKey, String urlPath, String name, boolean isActive) {
+    private void addCategoryItem(Integer id, ID uid, String urlKey, String urlPath, String name, boolean isActive) {
         Map<String, String> params = new ParamsBuilder()
             .id(id.toString())
+            .uid(uid.toString())
             .urlKey(urlKey)
             .urlPath(urlPath)
             .map();

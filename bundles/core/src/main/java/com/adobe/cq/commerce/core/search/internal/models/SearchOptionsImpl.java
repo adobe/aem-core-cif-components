@@ -28,12 +28,15 @@ public class SearchOptionsImpl implements SearchOptions {
 
     public static final Integer PAGE_SIZE_DEFAULT = 6;
     public static final String CATEGORY_ID_PARAMETER_ID = "category_id";
+    public static final String CATEGORY_UID_PARAMETER_ID = "category_uid";
     public static final String SEARCH_QUERY_PARAMETER_ID = "search_query";
     public static final String CURRENT_PAGE_PARAMETER_ID = "page";
 
     Map<String, String> attributeFilters;
 
     String categoryId;
+
+    String categoryUid;
 
     String searchQuery;
 
@@ -53,6 +56,9 @@ public class SearchOptionsImpl implements SearchOptions {
 
         if (getCategoryId().isPresent()) {
             allFilters.put(CATEGORY_ID_PARAMETER_ID, getCategoryId().get());
+        }
+        if (getCategoryUid().isPresent()) {
+            allFilters.put(CATEGORY_UID_PARAMETER_ID, getCategoryUid().get());
         }
         if (getSearchQuery().isPresent()) {
             allFilters.put(SEARCH_QUERY_PARAMETER_ID, getSearchQuery().get());
@@ -76,6 +82,14 @@ public class SearchOptionsImpl implements SearchOptions {
 
     public void setCategoryId(final String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Optional<String> getCategoryUid() {
+        return Optional.ofNullable(categoryUid);
+    }
+
+    public void setCategoryUid(final String categoryUid) {
+        this.categoryUid = categoryUid;
     }
 
     @Override
