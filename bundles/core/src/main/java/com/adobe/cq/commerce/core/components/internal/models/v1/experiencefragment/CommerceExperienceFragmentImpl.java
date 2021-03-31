@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -154,18 +155,20 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     private String getQueryForCategory() {
         // Parse category identifier in URL
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        String id = null;
+        String categoriesIdentifier = null;
 
-        if (CategoryIdentifierType.ID.equals(identifier.getLeft())) {
-            id = identifier.getRight();
+        List<CategoryIdentifierType> validCategoryIdentifiers = Arrays.asList(CategoryIdentifierType.ID, CategoryIdentifierType.UID);
+
+        if (validCategoryIdentifiers.contains(identifier.getLeft())) {
+            categoriesIdentifier = identifier.getRight();
         }
 
-        if (StringUtils.isBlank(id)) {
-            LOGGER.warn("Cannot find category id for current request");
+        if (StringUtils.isBlank(categoriesIdentifier)) {
+            LOGGER.warn("Cannot find category identifier for current request");
             return null;
         }
 
-        return buildQueryForCategory(id);
+        return buildQueryForCategory(categoriesIdentifier);
     }
 
     private String buildQueryForCategory(String categoryId) {
