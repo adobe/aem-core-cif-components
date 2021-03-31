@@ -77,6 +77,8 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
     private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
     private static final String COMPONENT_PATH_UID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
+    private static final String COMPONENT_PATH_MIXED_IDS = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist5";
+    private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist6";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -218,6 +220,36 @@ public class FeaturedCategoryListImplTest {
         String query = (String) retrieverQueryField.get(retriever);
 
         Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\",\"UID3\"]}})"));
+    }
+
+    @Test
+    public void testUsingMixedIDS() throws Exception {
+        setupTest(COMPONENT_PATH_MIXED_IDS);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID3\"]}})"));
+    }
+
+    @Test
+    public void testFallbackCategoryType() throws Exception {
+        setupTest(COMPONENT_PATH_FALLBACK_ID_TYPE);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{ids:{in:[\"1\",\"2\",\"3\"]}})"));
     }
 
     @Test

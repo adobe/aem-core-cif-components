@@ -160,6 +160,37 @@
               }
             }
           },
+          "featuredcategorylist5": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "UID1",
+                "categoryIdType": "uid"
+              },
+              "item1": {
+                "categoryId": "14",
+                "categoryIdType": "id"
+              },
+              "item2": {
+                "categoryId": "UID3",
+                "categoryIdType": "uid"
+              }
+            }
+          },
+          "featuredcategorylist6": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "1"
+              },
+              "item1": {
+                "categoryId": "2"
+              },
+              "item2": {
+                "categoryId": "3"
+              }
+            }
+          },
           "productcollection": {
             "sling:resourceType": "venia/components/commerce/productcollection"
           },

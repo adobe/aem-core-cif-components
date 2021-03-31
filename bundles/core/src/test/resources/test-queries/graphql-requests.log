@@ -48,3 +48,7 @@
 
 {categoryList(filters:{category_uid:{in:["UID1","UID2","UID3"]}}){id,name,url_path,position,image}}
 
+{categoryList(filters:{category_uid:{in:["UID1","UID3"]}}){id,name,url_path,position,image}}
+
+{categoryList(filters:{ids:{in:["1","2","3"]}}){id,name,url_path,position,image}}
+
