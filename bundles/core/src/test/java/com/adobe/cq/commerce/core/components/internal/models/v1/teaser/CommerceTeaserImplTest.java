@@ -91,7 +91,7 @@ public class CommerceTeaserImplTest {
 
     @Before
     public void setup() throws Exception {
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
