@@ -15,6 +15,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
 public class CategoriesRetriever extends AbstractCategoriesRetriever {
@@ -31,6 +32,10 @@ public class CategoriesRetriever extends AbstractCategoriesRetriever {
                 .urlPath()
                 .position()
                 .image();
+
+            if (identifierType == UrlProvider.CategoryIdentifierType.UID) {
+                q.uid();
+            }
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

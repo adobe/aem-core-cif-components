@@ -144,7 +144,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIdentifiers.isEmpty()) {
+            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(categoryIdentifierType).isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);

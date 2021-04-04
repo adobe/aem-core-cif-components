@@ -164,7 +164,7 @@
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
-                "categoryId": "UID1",
+                "categoryId": "UID3",
                 "categoryIdType": "uid"
               },
               "item1": {
@@ -172,7 +172,7 @@
                 "categoryIdType": "id"
               },
               "item2": {
-                "categoryId": "UID3",
+                "categoryId": "UID1",
                 "categoryIdType": "uid"
               }
             }

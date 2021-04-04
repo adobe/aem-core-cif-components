@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -29,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -37,7 +40,11 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.sightly.WCMBindings;
 import com.day.cq.dam.api.Asset;
@@ -99,8 +106,23 @@ public class FeaturedCategoryListImplTest {
     }
 
     private void setupTest(String componentPath, boolean withNullGraphqlClient) throws Exception {
+        HttpClient httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{ids");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-uid-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{in:[\"UID1");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-uid-sort-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{in:[\"UID3");
+
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null
             : graphqlClient);
@@ -229,12 +251,19 @@ public class FeaturedCategoryListImplTest {
 
         categories = featuredCategoryList.getCategories();
         Assert.assertNotNull(categories);
+        Assert.assertEquals(2, categories.size());
+
+        // Test sort order. The HTTP response returns "UID1" as first item
+        // The order of the categories returned should be aligned with the order of filter arguments
+        // by the Category retriever
+        // In this case "UID3" is the first item in the identifiers list
+        Assert.assertEquals("UID3", categories.get(0).getUid().toString());
 
         Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
         retrieverQueryField.setAccessible(true);
         String query = (String) retrieverQueryField.get(retriever);
 
-        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID3\"]}})"));
+        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID3\",\"UID1\"]}})"));
     }
 
     @Test

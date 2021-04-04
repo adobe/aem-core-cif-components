@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -166,6 +167,19 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
+        rootQuery.getCategoryList();
         categories = rootQuery.getCategoryList();
+        categories.sort(Comparator.comparing(c -> identifiers.indexOf(getCategoryIdentifierValue(c))));
+    }
+
+    private String getCategoryIdentifierValue(CategoryTree category) {
+        switch (identifierType) {
+            case ID:
+                return category.getId().toString();
+            case UID:
+                return category.getUid().toString();
+            default:
+                return "";
+        }
     }
 }
