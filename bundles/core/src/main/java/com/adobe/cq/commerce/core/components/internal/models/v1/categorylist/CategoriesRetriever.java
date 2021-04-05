@@ -19,9 +19,15 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
 public class CategoriesRetriever extends AbstractCategoriesRetriever {
+    private boolean enableUIDSupport;
 
     CategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
+    }
+
+    CategoriesRetriever(MagentoGraphqlClient client, boolean enableUIDSupport) {
+        super(client);
+        this.enableUIDSupport = enableUIDSupport;
     }
 
     @Override
@@ -33,7 +39,7 @@ public class CategoriesRetriever extends AbstractCategoriesRetriever {
                 .position()
                 .image();
 
-            if (identifierType == UrlProvider.CategoryIdentifierType.UID) {
+            if (enableUIDSupport || identifierType == UrlProvider.CategoryIdentifierType.UID) {
                 q.uid();
             }
 
