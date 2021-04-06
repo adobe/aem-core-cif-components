@@ -20,7 +20,7 @@
 
 {products(filter:{url_key:{eq:"no-asset"}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,meta_description,meta_keyword,meta_title,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,id,name,image},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,id,name,image}}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
-{category__category_5:category(id:5){id,url_path},category__category_6:category(id:6){id,url_path}}
+{categoryList(filters:{ids:{in:["5","6"]}}){id,url_path}}
 
 {products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}
 
@@ -36,13 +36,19 @@
 
 {products(currentPage:1,pageSize:6,filter:{category_id:{eq:"6"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status},aggregations{options{count,label,value},attribute_code,count,label}},categoryList(filters:{ids:{eq:"6"}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
 
-{products(filter:{sku:{eq:"MT10"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+{categoryList(filters:{category_uid:{eq:"MTM="}}){id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}
 
-{categoryList(filters:{ids:{eq:"12"}}){id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}
+{products(filter:{sku:{eq:"MT10"}}){items{__typename,sku,url_key,name,categories{__typename,id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}}}
 
-{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,url_path,name,breadcrumbs{category_id,category_url_path,category_name}}}}}
+{categoryList(filters:{ids:{eq:"12"}}){id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}
 
-{category__category_5:category(id:5){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image}}
+{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}}}
 
-{category__category_5:category(id:5){id,name,url_path,position,image},category__category_6:category(id:6){id,name,url_path,position,image},category__category_7:category(id:7){id,name,url_path,position,image},category__category_9999:category(id:9999){id,name,url_path,position,image}}
+{categoryList(filters:{ids:{in:["5","6","7","9999"]}}){id,name,url_path,position,image}}
+
+{categoryList(filters:{category_uid:{in:["UID1","UID2","UID3"]}}){id,name,url_path,position,image}}
+
+{categoryList(filters:{category_uid:{in:["UID1","UID3"]}}){id,name,url_path,position,image}}
+
+{categoryList(filters:{ids:{in:["1","2","3"]}}){id,name,url_path,position,image}}
 

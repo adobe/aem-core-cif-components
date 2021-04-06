@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -70,8 +71,19 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category__category_5:category(id:5){id,name,url_path,position,image,children_count,level_custom_:level},category__category_6:category(id:6){id,name,url_path,position,image,children_count,level_custom_:level}}";
+        String expectedQuery = "{categoryList(filters:{ids:{in:[\"5\",\"6\"]}}){id,name,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
+    public void testUsingUID() {
+        retriever.setIdentifiers(Arrays.asList("UID1", "UID2"), UrlProvider.CategoryIdentifierType.UID);
+        retriever.fetchCategories();
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+
+        Assert.assertTrue(captor.getValue().contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\"]}})"));
     }
 
     @Test
@@ -87,10 +99,8 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> secondCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(2)).execute(secondCaptor.capture());
 
-        Assert.assertTrue(firstCaptor.getValue().contains("category(id:5)"));
-        Assert.assertTrue(firstCaptor.getValue().contains("category(id:6)"));
-        Assert.assertFalse(secondCaptor.getValue().contains("category(id:5)"));
-        Assert.assertTrue(secondCaptor.getValue().contains("category(id:6)"));
+        Assert.assertTrue(firstCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"5\",\"6\"]}})"));
+        Assert.assertTrue(secondCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"6\"]}})"));
     }
 
 }

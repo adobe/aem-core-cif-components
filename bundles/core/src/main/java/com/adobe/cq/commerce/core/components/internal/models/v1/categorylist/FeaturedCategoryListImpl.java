@@ -46,6 +46,7 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -72,7 +73,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
-    private static final String CATEGORY_ID_PROP = "categoryId";
+    private static final String CATEGORY_IDENTIFIER = "categoryId";
+    private static final String SELECTION_TYPE = "categoryIdType";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
 
@@ -99,19 +101,33 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             categoryPage = currentPage;
         }
 
-        List<String> categoryIds = new ArrayList<>();
+        // Each identifier list will be held under a specific key
+        // After the identifier type has been determined, the specific list will be used further
+        Map<CategoryIdentifierType, ArrayList<String>> categoryIdentifiers = new HashMap<>();
         assetOverride = new HashMap<>();
 
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
+
+        // The identifier type to be used in the categoryList query.
+        // The value of the last item configured in the component will be used
+        CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
-                String categoryId = props.get(CATEGORY_ID_PROP, String.class);
-                if (StringUtils.isEmpty(categoryId)) {
+
+                // Get the category identifier type. Could be ID or UID. This will be used in
+                // the GraphQL query as filter param
+                categoryIdentifierType = CategoryIdentifierType.valueOf(props.get("categoryIdType", "id").toUpperCase());
+                String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
+                if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
-                categoryIds.add(categoryId);
+
+                if (!categoryIdentifiers.containsKey(categoryIdentifierType)) {
+                    categoryIdentifiers.put(categoryIdentifierType, new ArrayList<>());
+                }
+                categoryIdentifiers.get(categoryIdentifierType).add(categoryIdentifier);
 
                 // Check if an override asset was set. If yes, store it in a map for later use.
                 String assetPath = props.get(ASSET_PROP, String.class);
@@ -125,14 +141,15 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 }
 
                 Asset overrideAsset = assetResource.adaptTo(Asset.class);
-                assetOverride.put(categoryId, overrideAsset);
+                assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIds.isEmpty()) {
+            if (!categoryIdentifiers.isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                    categoriesRetriever.setIdentifiers(categoryIds);
+                    // Setting the identifiers list based on the determined identifier type
+                    categoriesRetriever.setIdentifiers(categoryIdentifiers.get(categoryIdentifierType), categoryIdentifierType);
                 }
             }
         }
@@ -179,7 +196,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         resource.getChild(ITEMS_PROP).getChildren().forEach(resource -> {
             ValueMap props = resource.adaptTo(ValueMap.class);
-            String categoryId = props.get(CATEGORY_ID_PROP, String.class);
+            String categoryId = props.get(CATEGORY_IDENTIFIER, String.class);
             String assetPath = props.get(ASSET_PROP, String.class);
             if (StringUtils.isNotEmpty(categoryId)) {
                 categories.add(
