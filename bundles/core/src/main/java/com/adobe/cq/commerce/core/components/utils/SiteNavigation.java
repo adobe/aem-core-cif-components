@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.utils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -247,7 +249,7 @@ public class SiteNavigation {
         Resource pageResource = page.adaptTo(Resource.class);
         boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
         if (deepLink) {
-            Resource subPageResource = UrlProviderImpl.toSpecificPage(pageResource, slug);
+            Resource subPageResource = UrlProviderImpl.toSpecificPage(pageResource, new HashSet<String>(Arrays.asList(slug)));
             if (subPageResource != null) {
                 pageResource = subPageResource;
             }
