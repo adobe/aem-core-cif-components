@@ -156,7 +156,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.MTM=.html", url);
+        Assert.assertEquals("/content/category-page.MTM%3D.html", url);
     }
 
     @Test

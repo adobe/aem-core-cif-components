@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
@@ -74,7 +76,9 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
     private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
-    private static final String COMPONENT_PATH_BADID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
+    private static final String COMPONENT_PATH_UID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
+    private static final String COMPONENT_PATH_MIXED_IDS = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist5";
+    private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist6";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -96,7 +100,7 @@ public class FeaturedCategoryListImplTest {
 
     private void setupTest(String componentPath, boolean withNullGraphqlClient) throws Exception {
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null
             : graphqlClient);
@@ -182,18 +186,6 @@ public class FeaturedCategoryListImplTest {
     }
 
     @Test
-    public void verifyBadId() throws Exception {
-        setupTest(COMPONENT_PATH_BADID);
-
-        Assert.assertNotNull("Sling model is not null", featuredCategoryList);
-        Assert.assertNotNull("Categories retriever is not null", featuredCategoryList.getCategoriesRetriever());
-        Assert.assertTrue("The components is configured", featuredCategoryList.isConfigured());
-        categories = featuredCategoryList.getCategories();
-        Assert.assertNotNull("The categories list is not null", categories);
-        Assert.assertEquals("There are two categories in the list", 2, categories.size());
-    }
-
-    @Test
     public void verifyGraphQLClientNotConfigured() throws Exception {
         setupTest(COMPONENT_PATH_NOCLIENT, true);
 
@@ -212,6 +204,52 @@ public class FeaturedCategoryListImplTest {
         categories = featuredCategoryList.getCategories();
         Assert.assertNotNull(categories);
         Assert.assertEquals(categories.get(2).getImage(), TEST_IMAGE_URL);
+    }
+
+    @Test
+    public void testUsingUID() throws Exception {
+        setupTest(COMPONENT_PATH_UID);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(3, categories.size());
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\",\"UID3\"]}})"));
+    }
+
+    @Test
+    public void testUsingMixedIDS() throws Exception {
+        setupTest(COMPONENT_PATH_MIXED_IDS);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID3\"]}})"));
+    }
+
+    @Test
+    public void testFallbackCategoryType() throws Exception {
+        setupTest(COMPONENT_PATH_FALLBACK_ID_TYPE);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{ids:{in:[\"1\",\"2\",\"3\"]}})"));
     }
 
     @Test
