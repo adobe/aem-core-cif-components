@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragm
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -65,6 +66,8 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
+    private static final List<CategoryIdentifierType> VALID_CATEGORY_IDENTIFIERS = Collections.unmodifiableList(Arrays.asList(
+        CategoryIdentifierType.ID, CategoryIdentifierType.UID));
 
     @Self
     private SlingHttpServletRequest request;
@@ -157,9 +160,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
         String categoriesIdentifier = null;
 
-        List<CategoryIdentifierType> validCategoryIdentifiers = Arrays.asList(CategoryIdentifierType.ID, CategoryIdentifierType.UID);
-
-        if (validCategoryIdentifiers.contains(identifier.getLeft())) {
+        if (VALID_CATEGORY_IDENTIFIERS.contains(identifier.getLeft())) {
             categoriesIdentifier = identifier.getRight();
         }
 
