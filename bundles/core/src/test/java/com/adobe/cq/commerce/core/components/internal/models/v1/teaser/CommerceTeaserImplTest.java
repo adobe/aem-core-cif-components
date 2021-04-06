@@ -91,7 +91,7 @@ public class CommerceTeaserImplTest {
 
     @Before
     public void setup() throws Exception {
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-alias-result.json");
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -157,7 +157,7 @@ public class CommerceTeaserImplTest {
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment/running", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment%2Frunning", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());

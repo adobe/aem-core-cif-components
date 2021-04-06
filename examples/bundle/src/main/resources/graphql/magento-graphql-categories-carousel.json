@@ -1,4 +1,4 @@
- {
+{
   "data": {
     "categoryList": [
       {
@@ -13,6 +13,20 @@
         "name": "Women's Jackets",
         "url_path": "women/tops-women/jackets-women",
         "position": 2,
+        "image": null
+      },
+      {
+        "id": 28,
+        "name": "Accessories",
+        "url_path": "accessories",
+        "position": 3,
+        "image": null
+      },
+      {
+        "id": 32,
+        "name": "Watches",
+        "url_path": "watches",
+        "position": 4,
         "image": null
       }
     ]

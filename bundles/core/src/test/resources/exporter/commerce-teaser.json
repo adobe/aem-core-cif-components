@@ -20,7 +20,7 @@
     },
     {
       "title": "A category",
-      "url": "/content/category-page.6.html/equipment/running",
+      "url": "/content/category-page.6.html/equipment%2Frunning",
       "entityIdentifier": {
         "entityType": "CATEGORY",
         "value":"6",

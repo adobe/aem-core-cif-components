@@ -113,14 +113,17 @@
             "titleType": "h2",
             "items": {
               "item0": {
-                "categoryId": "5"
+                "categoryId": "5",
+                "categoryIdType": "id"
               },
               "item1": {
                 "categoryId": "6",
+                "categoryIdType": "id",
                 "asset": "/content/dam/venia/landing_page_image4.jpg"
               },
               "item2": {
                 "categoryId": "7",
+                "categoryIdType": "id",
                 "asset": "invalid-asset"
               },
               "item3": {},
@@ -144,13 +147,47 @@
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
-                "categoryId": "5"
+                "categoryId": "UID1",
+                "categoryIdType": "uid"
               },
               "item1": {
-                "categoryId": "a"
+                "categoryId": "UID2",
+                "categoryIdType": "uid"
               },
               "item2": {
-                "categoryId": "7"
+                "categoryId": "UID3",
+                "categoryIdType": "uid"
+              }
+            }
+          },
+          "featuredcategorylist5": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "UID1",
+                "categoryIdType": "uid"
+              },
+              "item1": {
+                "categoryId": "14",
+                "categoryIdType": "id"
+              },
+              "item2": {
+                "categoryId": "UID3",
+                "categoryIdType": "uid"
+              }
+            }
+          },
+          "featuredcategorylist6": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "1"
+              },
+              "item1": {
+                "categoryId": "2"
+              },
+              "item2": {
+                "categoryId": "3"
               }
             }
           },

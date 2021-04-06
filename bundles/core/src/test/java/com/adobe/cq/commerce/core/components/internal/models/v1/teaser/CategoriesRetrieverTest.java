@@ -59,7 +59,7 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category__category_31:category(id:31){id,url_path},category__category_45:category(id:45){id,url_path}}";
+        String expectedQuery = "{categoryList(filters:{ids:{in:[\"31\",\"45\"]}}){id,url_path}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -71,7 +71,7 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{category__category_31:category(id:31){id,url_path,name},category__category_45:category(id:45){id,url_path,name}}";
+        String expectedQuery = "{categoryList(filters:{ids:{in:[\"31\",\"45\"]}}){id,url_path,name}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 }

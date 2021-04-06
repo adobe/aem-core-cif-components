@@ -14,6 +14,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +90,17 @@ public class UrlProviderImpl implements UrlProvider {
             }
 
             params.put(PAGE_PARAM, pageResource.getPath());
+        }
+
+        // We encode all parameters except the page path itself (we don't want to encode the path slashes)
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (!PAGE_PARAM.equals(entry.getKey()) && entry.getValue() != null) {
+                try {
+                    entry.setValue(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name()));
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.warn("Cannot URL-encode {}", entry.getValue());
+                }
+            }
         }
 
         String prefix = "${", suffix = "}"; // variables have the format ${var}
