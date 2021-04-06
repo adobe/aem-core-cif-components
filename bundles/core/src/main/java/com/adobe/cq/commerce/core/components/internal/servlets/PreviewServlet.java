@@ -70,6 +70,7 @@ public class PreviewServlet extends SlingSafeMethodsServlet {
         // prepare all possible parameters
         Map<String, String> params = new UrlProvider.ParamsBuilder()
             .id(request.getParameter((UrlProvider.ID_PARAM)))
+            .uid(request.getParameter((UrlProvider.UID_PARAM)))
             .sku(request.getParameter(UrlProvider.SKU_PARAM))
             .variantSku(request.getParameter(UrlProvider.VARIANT_SKU_PARAM))
             .urlKey(request.getParameter(UrlProvider.URL_KEY_PARAM))
