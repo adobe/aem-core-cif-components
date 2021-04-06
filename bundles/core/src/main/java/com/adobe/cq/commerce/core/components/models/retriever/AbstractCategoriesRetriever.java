@@ -167,7 +167,6 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
-        rootQuery.getCategoryList();
         categories = rootQuery.getCategoryList();
         categories.sort(Comparator.comparing(c -> identifiers.indexOf(getCategoryIdentifierValue(c))));
     }
