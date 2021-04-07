@@ -116,7 +116,15 @@
         "includesSubCategories": true,
         "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
-    }
+    },
+    "sub-page-with-uid": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "selectorFilter": "MTE=",
+        "includesSubCategories": true,
+        "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
+      }}
   },
 
   "catalog-page": {
