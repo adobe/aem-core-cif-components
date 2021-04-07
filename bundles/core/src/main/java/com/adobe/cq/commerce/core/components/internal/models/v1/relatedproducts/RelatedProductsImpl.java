@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -34,10 +36,14 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.EntityType;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.IdentifierType;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -46,10 +52,18 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductCarousel.class, resourceType = RelatedProductsImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = ProductCarousel.class,
+    resourceType = RelatedProductsImpl.RESOURCE_TYPE)
+@Exporter(
+    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class RelatedProductsImpl extends DataLayerComponent implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
@@ -77,6 +91,9 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     private MagentoGraphqlClient magentoGraphqlClient;
     private AbstractProductsRetriever productsRetriever;
     private Locale locale;
+    private RelationType relationType;
+    private String skuOrSlug;
+    private ProductIdentifierType productIdentifierType;
 
     @PostConstruct
     private void initModel() {
@@ -106,10 +123,8 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     }
 
     private void configureProductsRetriever() {
-        String relationType = properties.get(PN_RELATION_TYPE, String.class);
+        String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
-        String skuOrSlug;
-        ProductIdentifierType productIdentifierType;
 
         if (product != null) {
             skuOrSlug = product; // The picker is configured to return the SKU
@@ -120,12 +135,13 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
             productIdentifierType = identifier.getLeft();
         }
 
-        RelationType rel = relationType != null ? RelationType.valueOf(relationType) : RelationType.RELATED_PRODUCTS;
-        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, rel, productIdentifierType);
+        relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
+        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType, productIdentifierType);
         productsRetriever.setIdentifiers(Collections.singletonList(skuOrSlug));
     }
 
     @Override
+    @JsonIgnore
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null || !isConfigured()) {
             return Collections.emptyList();
@@ -151,6 +167,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     }
 
     @Override
+    @JsonIgnore
     public AbstractProductsRetriever getProductsRetriever() {
         return productsRetriever;
     }
@@ -163,6 +180,22 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Nonnull
     @Override
     public List<ProductListItem> getProductIdentifiers() {
-        return Collections.emptyList();
+        return getProducts().stream().map(p -> new ProductListItemImpl(
+            CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getExportedType() {
+        return RESOURCE_TYPE;
+    }
+
+    public RelationType getRelationType() {
+        return relationType;
+    }
+
+    public CommerceIdentifier getCommerceIdentifier() {
+        IdentifierType type = ProductIdentifierType.SKU.equals(productIdentifierType) ? IdentifierType.SKU : IdentifierType.URL_KEY;
+        return new CommerceIdentifierImpl(skuOrSlug, type, EntityType.PRODUCT);
     }
 }
