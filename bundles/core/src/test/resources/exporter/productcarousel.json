@@ -44,5 +44,5 @@
     }
   ],
   "titleType": "h2",
-  ":type": "core/cif/components/commerce/productcarousel/v1/productcarousel"
+  ":type": "venia/components/commerce/productcarousel"
 }

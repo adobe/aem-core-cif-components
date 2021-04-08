@@ -7,7 +7,7 @@
         "type": "SKU"
     },
     "name": "Beaumont Summit Kit",
-    ":type": "core/cif/components/commerce/productteaser/v1/productteaser",
+    ":type": "venia/components/commerce/productteaser",
     "dataLayer": {
         "productteaser-7ca4f665c4": {
             "xdm:SKU": "MJ01",

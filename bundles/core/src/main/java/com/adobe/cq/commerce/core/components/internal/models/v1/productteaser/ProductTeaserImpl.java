@@ -241,7 +241,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public String getExportedType() {
-        return RESOURCE_TYPE;
+        return resource.getResourceType();
     }
 
     // DataLayer methods

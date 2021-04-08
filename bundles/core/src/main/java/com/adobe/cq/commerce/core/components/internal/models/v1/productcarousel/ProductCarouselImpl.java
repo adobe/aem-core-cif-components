@@ -220,6 +220,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     @Override
     public String getExportedType() {
-        return RESOURCE_TYPE;
+        return resource.getResourceType();
     }
 }

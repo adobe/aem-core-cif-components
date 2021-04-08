@@ -132,7 +132,7 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("The id is correct", "id", commerceTeaser.getId());
         Assert.assertNull("The link URL is null", commerceTeaser.getLinkURL());
         Assert.assertNull(commerceTeaser.getData());
-        Assert.assertEquals("The exported resource type is correct", "core/cif/components/content/teaser/v1/teaser",
+        Assert.assertEquals("The exported resource type is correct", "venia/components/content/teaser",
             commerceTeaser.getExportedType());
     }
 

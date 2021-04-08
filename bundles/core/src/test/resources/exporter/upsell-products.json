@@ -8,7 +8,7 @@
     "type": "URL_KEY"
   },
   "titleType": "h3",
-  ":type": "core/cif/components/commerce/relatedproducts/v1/relatedproducts",
+  ":type": "venia/components/commerce/relatedproducts",
   "productIdentifiers": [
     {
       "id": "relatedproducts-44ab3d0edb-item-9b55e5472b",

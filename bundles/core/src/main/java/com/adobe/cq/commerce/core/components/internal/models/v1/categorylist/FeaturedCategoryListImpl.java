@@ -240,6 +240,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     @Override
     public String getExportedType() {
-        return RESOURCE_TYPE;
+        return resource.getResourceType();
     }
 }

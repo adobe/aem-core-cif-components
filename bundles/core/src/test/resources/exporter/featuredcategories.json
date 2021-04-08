@@ -2,7 +2,7 @@
   "id": "featuredcategorylist-4295dd6c7a",
   "configured": true,
   "titleType": "h2",
-  ":type": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist",
+  ":type": "venia/components/commerce/featuredcategorylist",
   "categoryItems": [
     {
       "assetPath": null,

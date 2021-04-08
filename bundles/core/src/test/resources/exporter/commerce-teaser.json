@@ -43,5 +43,5 @@
   "actionsEnabled": true,
   "imageLinkHidden": false,
   "titleLinkHidden": false,
-  ":type": "core/cif/components/content/teaser/v1/teaser"
+  ":type": "venia/components/content/teaser"
 }

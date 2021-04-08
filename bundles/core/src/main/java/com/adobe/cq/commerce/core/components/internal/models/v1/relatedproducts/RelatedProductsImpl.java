@@ -188,7 +188,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
 
     @Override
     public String getExportedType() {
-        return RESOURCE_TYPE;
+        return resource.getResourceType();
     }
 
     public RelationType getRelationType() {

@@ -9,7 +9,7 @@
         "value": "MJ01",
         "type": "SKU"
     },
-    ":type": "core/cif/components/commerce/productteaser/v1/productteaser",
+    ":type": "venia/components/commerce/productteaser",
     "dataLayer": {
         "productteaser-b968fab190": {
             "xdm:SKU": "MJ01",

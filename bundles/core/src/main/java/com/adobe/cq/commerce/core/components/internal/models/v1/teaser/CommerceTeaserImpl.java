@@ -215,7 +215,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
     @Override
     public String getExportedType() {
-        return RESOURCE_TYPE;
+        return resource.getResourceType();
     }
 
     @Override
