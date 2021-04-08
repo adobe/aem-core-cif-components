@@ -91,11 +91,9 @@ public class NavigationImpl implements Navigation {
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
     private int structureDepth;
-    boolean enableUIDRendering;
 
     @PostConstruct
     void initModel() {
-        enableUIDRendering = UID.equals(urlProvider.getCategoryIdentifier(request).getLeft());
         graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
@@ -207,11 +205,12 @@ public class NavigationImpl implements Navigation {
         children.sort(Comparator.comparing(CategoryTree::getPosition));
 
         for (CategoryTree child : children) {
-            Map<String, String> params = (enableUIDRendering ? new ParamsBuilder().uid(child.getUid().toString())
-                : new ParamsBuilder().id(child.getId().toString()))
-                    .urlKey(child.getUrlKey())
-                    .urlPath(child.getUrlPath())
-                    .map();
+            Map<String, String> params = new ParamsBuilder()
+                .id(child.getId().toString())
+                .uid(child.getUid().toString())
+                .urlKey(child.getUrlKey())
+                .urlPath(child.getUrlPath())
+                .map();
 
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             boolean active = request.getRequestURI().equals(url);
@@ -309,11 +308,12 @@ public class NavigationImpl implements Navigation {
             List<NavigationItem> pages = new ArrayList<>();
 
             for (CategoryTree child : children) {
-                Map<String, String> params = (enableUIDRendering ? new ParamsBuilder().uid(child.getUid().toString())
-                    : new ParamsBuilder().id(child.getId().toString()))
-                        .urlKey(child.getUrlKey())
-                        .urlPath(child.getUrlPath())
-                        .map();
+                Map<String, String> params = new ParamsBuilder()
+                    .id(child.getId().toString())
+                    .uid(child.getUid().toString())
+                    .urlKey(child.getUrlKey())
+                    .urlPath(child.getUrlPath())
+                    .map();
 
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
                 boolean active = request.getRequestURI().equals(url);

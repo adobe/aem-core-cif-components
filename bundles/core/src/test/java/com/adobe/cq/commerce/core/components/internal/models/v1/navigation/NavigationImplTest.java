@@ -42,6 +42,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
 import com.google.common.collect.ImmutableMap;
+import com.shopify.graphql.support.ID;
 
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
@@ -341,7 +342,6 @@ public class NavigationImplTest {
         Assert.assertEquals(active, navigationItem.isActive());
 
         when(request.getRequestURI()).thenReturn("/page1/page11");
-        when(request.getRequestURI()).thenReturn("/page1/page11");
 
         List<Navigation> navigationList = navigationModel.getNavigationList();
         Assert.assertEquals(2, navigationList.size());
@@ -372,6 +372,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -404,6 +405,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -412,6 +414,7 @@ public class NavigationImplTest {
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
         when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -455,6 +458,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -463,6 +467,7 @@ public class NavigationImplTest {
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
         when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -526,6 +531,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getName()).thenReturn(categoryTitle);
+        when(category.getUid()).thenReturn(new ID("0"));
         categoryList.add(category);
 
         if (pageBeforeCategory) {
