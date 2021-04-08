@@ -1,0 +1,38 @@
+{
+  "id": "relatedproducts-44ab3d0edb",
+  "relationType": "UPSELL_PRODUCTS",
+  "configured": true,
+  "commerceIdentifier": {
+    "entityType": "PRODUCT",
+    "value": "endurance-watch",
+    "type": "URL_KEY"
+  },
+  "titleType": "h3",
+  ":type": "core/cif/components/commerce/relatedproducts/v1/relatedproducts",
+  "productIdentifiers": [
+    {
+      "id": "relatedproducts-44ab3d0edb-item-9b55e5472b",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB01",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "relatedproducts-44ab3d0edb-item-cd8d53884f",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB04",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "relatedproducts-44ab3d0edb-item-c1f0eb0a23",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB03",
+        "type": "SKU"
+      }
+    }
+  ]
+}
