@@ -45,6 +45,7 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
@@ -71,6 +72,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
 
+    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
     private static final String CATEGORY_IDENTIFIER = "categoryId";
@@ -93,6 +95,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
+    private CategoryIdentifierType categoryIdentifierType;
+    private boolean enableUIDSupport;
 
     @PostConstruct
     private void initModel() {
@@ -111,14 +115,14 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // The identifier type to be used in the categoryList query.
         // The value of the last item configured in the component will be used
-        CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
+        categoryIdentifierType = CategoryIdentifierType.ID;
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
 
                 // Get the category identifier type. Could be ID or UID. This will be used in
                 // the GraphQL query as filter param
-                categoryIdentifierType = CategoryIdentifierType.valueOf(props.get("categoryIdType", "id").toUpperCase());
+                categoryIdentifierType = CategoryIdentifierType.valueOf(props.get(SELECTION_TYPE, "id").toUpperCase());
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
@@ -144,10 +148,14 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIdentifiers.isEmpty()) {
+            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(categoryIdentifierType).isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+
+                Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
+                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
+                enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
                 if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient, enableUIDSupport);
                     // Setting the identifiers list based on the determined identifier type
                     categoriesRetriever.setIdentifiers(categoryIdentifiers.get(categoryIdentifierType), categoryIdentifierType);
                 }
@@ -164,10 +172,15 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
-            Map<String, String> params = new ParamsBuilder()
+            ParamsBuilder paramsBuilder = new ParamsBuilder()
                 .id(category.getId().toString())
-                .urlPath(category.getUrlPath())
-                .map();
+                .urlPath(category.getUrlPath());
+
+            if (enableUIDSupport || categoryIdentifierType == CategoryIdentifierType.UID) {
+                paramsBuilder.uid(category.getUid().toString());
+            }
+
+            Map<String, String> params = paramsBuilder.map();
             category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
