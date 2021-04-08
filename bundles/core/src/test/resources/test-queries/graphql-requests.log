@@ -46,9 +46,9 @@
 
 {categoryList(filters:{ids:{in:["5","6","7","9999"]}}){id,name,url_path,position,image}}
 
-{categoryList(filters:{category_uid:{in:["UID1","UID2","UID3"]}}){id,name,url_path,position,image}}
+{categoryList(filters:{category_uid:{in:["UID1","UID2","UID3"]}}){id,name,url_path,position,image,uid}}
 
-{categoryList(filters:{category_uid:{in:["UID1","UID3"]}}){id,name,url_path,position,image}}
+{categoryList(filters:{category_uid:{in:["UID3","UID1"]}}){id,name,url_path,position,image,uid}}
 
 {categoryList(filters:{ids:{in:["1","2","3"]}}){id,name,url_path,position,image}}
 
