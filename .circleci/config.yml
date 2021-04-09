@@ -74,9 +74,9 @@ executors:
         <<: *docker_auth
   test_executor_655:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-jdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.7
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.7-azul
         <<: *docker_auth
 
 jobs:
