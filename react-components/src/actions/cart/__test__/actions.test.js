@@ -100,9 +100,9 @@ describe('Cart actions', () => {
 
     it('removes an item from the cart', async () => {
         const cartId = 'guest123';
-        const itemId = 'doesntmatter';
+        const itemUid = 'doesntmatter';
 
-        await removeItemFromCart({ cartDetailsQuery, removeItemMutation, cartId, itemId, dispatch });
+        await removeItemFromCart({ cartDetailsQuery, removeItemMutation, cartId, itemUid, dispatch });
         expect(removeItemMutation).toHaveBeenCalledTimes(1);
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: 'guest123' } });
     });
@@ -146,13 +146,13 @@ describe('Cart actions', () => {
 
     it('update quantity in the cart', async () => {
         const cartId = 'guest123';
-        const cartItemId = '1';
+        const cartItemUid = '1';
         const itemQuantity = 2;
 
-        await updateCartItem({ cartDetailsQuery, updateCartItemMutation, cartId, cartItemId, itemQuantity, dispatch });
+        await updateCartItem({ cartDetailsQuery, updateCartItemMutation, cartId, cartItemUid, itemQuantity, dispatch });
         expect(updateCartItemMutation).toHaveBeenCalledTimes(1);
         expect(updateCartItemMutation).toHaveBeenCalledWith({
-            variables: { cartId, cartItemId, quantity: itemQuantity }
+            variables: { cartId, cartItemUid, quantity: itemQuantity }
         });
 
         expect(dispatch).toHaveBeenCalledWith({ type: 'cart', cart: { id: cartId } });
