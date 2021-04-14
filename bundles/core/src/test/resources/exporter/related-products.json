@@ -1,0 +1,38 @@
+{
+  "id": "relatedproducts-d8575a4daf",
+  "relationType": "RELATED_PRODUCTS",
+  "configured": true,
+  "commerceIdentifier": {
+    "entityType": "PRODUCT",
+    "value": "24-MG01",
+    "type": "SKU"
+  },
+  "titleType": "h2",
+  ":type": "core/cif/components/commerce/relatedproducts/v1/relatedproducts",
+  "productIdentifiers": [
+    {
+      "id": "relatedproducts-d8575a4daf-item-9b55e5472b",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB01",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "relatedproducts-d8575a4daf-item-cd8d53884f",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB04",
+        "type": "SKU"
+      }
+    },
+    {
+      "id": "relatedproducts-d8575a4daf-item-c1f0eb0a23",
+      "commerceIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "24-MB03",
+        "type": "SKU"
+      }
+    }
+  ]
+}

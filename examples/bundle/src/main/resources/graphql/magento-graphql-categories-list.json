@@ -1,0 +1,131 @@
+{
+  "data": {
+    "categoryList": [
+      {
+        "id": 2,
+        "uid": "2",
+        "name": "Default Category",
+        "url_path": null,
+        "position": 1,
+        "children": [
+          {
+            "id": 3,
+            "uid": "3",
+            "name": "Gear",
+            "url_path": "gear",
+            "position": 4,
+            "children": [
+              {
+                "id": 4,
+                "uid": "4",
+                "name": "Bags",
+                "url_path": "gear/bags",
+                "position": 1
+              },
+              {
+                "id": 5,
+                "uid": "5",
+                "name": "Fitness Equipment",
+                "url_path": "gear/fitness-equipment",
+                "position": 2
+              },
+              {
+                "id": 6,
+                "uid": "6",
+                "name": "Watches",
+                "url_path": "gear/watches",
+                "position": 3
+              }
+            ]
+          },
+          {
+            "id": 12,
+            "uid": "12",
+            "name": "Men",
+            "url_path": "men",
+            "position": 3,
+            "children": [
+              {
+                "id": 13,
+                "uid": "13",
+                "name": "Tops",
+                "url_path": "men/tops-men",
+                "position": 1
+              },
+              {
+                "id": 14,
+                "uid": "14",
+                "name": "Bottoms",
+                "url_path": "men/bottoms-men",
+                "position": 2
+              }
+            ]
+          },
+          {
+            "id": 9,
+            "uid": "9",
+            "name": "Training",
+            "url_path": "training",
+            "position": 5,
+            "children": [
+              {
+                "id": 10,
+                "uid": "10",
+                "name": "Video Download",
+                "url_path": "training/training-video",
+                "position": 1
+              }
+            ]
+          },
+          {
+            "id": 21,
+            "uid": "21",
+            "name": "Women",
+            "url_path": "women",
+            "position": 2,
+            "children": [
+              {
+                "id": 22,
+                "uid": "22",
+                "name": "Tops",
+                "url_path": "women/tops-women",
+                "position": 1
+              },
+              {
+                "id": 23,
+                "uid": "23",
+                "name": "Bottoms",
+                "url_path": "women/bottoms-women",
+                "position": 2
+              }
+            ]
+          },
+          {
+            "id": 39,
+            "uid": "39",
+            "name": "What's New",
+            "url_path": "what-is-new",
+            "position": 1,
+            "children": []
+          },
+          {
+            "id": 38,
+            "uid": "38",
+            "name": "Sale",
+            "url_path": "sale",
+            "position": 6,
+            "children": []
+          },
+          {
+            "id": 11,
+            "uid": "11",
+            "name": "Gift Cards",
+            "url_path": "gift-cards",
+            "position": 7,
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}
