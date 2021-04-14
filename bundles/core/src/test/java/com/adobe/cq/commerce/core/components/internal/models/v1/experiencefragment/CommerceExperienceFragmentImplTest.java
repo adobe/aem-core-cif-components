@@ -97,10 +97,14 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     private void setupUrlProvider(ProductIdentifierType productIdentifierType) {
+        setupUrlProvider(productIdentifierType, CategoryIdentifierType.ID);
+    }
+
+    private void setupUrlProvider(ProductIdentifierType productIdentifierType, CategoryIdentifierType categoryIdentifierType) {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
         config.setProductIdentifierType(productIdentifierType);
-        config.setCategoryIdentifierType(CategoryIdentifierType.ID);
+        config.setCategoryIdentifierType(categoryIdentifierType);
         urlProvider.activate(config);
         context.registerService(UrlProvider.class, urlProvider);
     }
@@ -203,6 +207,18 @@ public class CommerceExperienceFragmentImplTest {
     @Test
     public void testFragmentOnCategoryPageWithLocationPropertyAndIdInRequest() {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("catid-xf2");
+
+        verifyFragment(SITE_XF_ROOT, null, "catid-xf2", "location-xf2", "xf-2",
+            "/content/experience-fragments/mysite/page/xf-2/master/jcr:content");
+    }
+
+    @Test
+    public void testFragmentOnCategoryPageWithLocationPropertyAndUIDInRequest() {
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
+        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.UID);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("catid-xf2");
