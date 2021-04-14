@@ -1,0 +1,36 @@
+{
+  "pageA": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "root": {
+        "navigation": {
+            "sling:resourceType": "core/cif/components/structure/navigation/v2/navigation",
+            "navigationRoot": "/content/pageA",
+            "structureStart": "1",
+            "structureDepth": "2",
+            "accessibilityLabel": "navigationAccessLabel",
+            "id": "navigation-id"
+        }
+      }
+    },
+    "pageB": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent"
+      },
+      "pageC": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent"
+        }
+      },
+      "pageD": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent"
+        }
+      }
+    }
+  }
+}
