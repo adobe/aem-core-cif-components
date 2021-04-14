@@ -3,7 +3,7 @@
   "configured": true,
   "productIdentifiers": [
     {
-      "id": "-item-f70dc07ce5",
+      "id": "productcarousel-15914e2010-item-f70dc07ce5",
       "commerceIdentifier": {
         "entityType": "PRODUCT",
         "value": "NOT-FOUND",
@@ -11,7 +11,7 @@
       }
     },
     {
-      "id": "-item-62ea014ced",
+      "id": "productcarousel-15914e2010-item-62ea014ced",
       "commerceIdentifier": {
         "entityType": "PRODUCT",
         "value": "24-MG01",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "id": "-item-8309e8957e",
+      "id": "productcarousel-15914e2010-item-8309e8957e",
       "commerceIdentifier": {
         "entityType": "PRODUCT",
         "value": "MJ01",
@@ -27,7 +27,7 @@
       }
     },
     {
-      "id": "-item-05eb031653",
+      "id": "productcarousel-15914e2010-item-05eb031653",
       "commerceIdentifier": {
         "entityType": "PRODUCT",
         "value": "faultyproduct",
@@ -35,7 +35,7 @@
       }
     },
     {
-      "id": "-item-edd18cf4f6",
+      "id": "productcarousel-15914e2010-item-edd18cf4f6",
       "commerceIdentifier": {
         "entityType": "PRODUCT",
         "value": "WJ01",

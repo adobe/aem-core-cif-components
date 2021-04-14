@@ -38,7 +38,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -130,6 +130,7 @@ public class PreviewServletTest {
 
         // mock request parameters
         when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
+        when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
         when(request.getParameter(UrlProvider.VARIANT_SKU_PARAM)).thenReturn("testVariantSku");
@@ -146,8 +147,9 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
         Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
         Assert.assertEquals("Incorrect VARIANT_SKU parameter", "testVariantSku", params.get(UrlProvider.VARIANT_SKU_PARAM));
@@ -178,6 +180,7 @@ public class PreviewServletTest {
 
         // mock request parameters
         when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
+        when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
         when(request.getParameter(UrlProvider.VARIANT_SKU_PARAM)).thenReturn("testVariantSku");
@@ -194,8 +197,9 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
         Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
         Assert.assertEquals("Incorrect VARIANT_SKU parameter", "testVariantSku", params.get(UrlProvider.VARIANT_SKU_PARAM));
