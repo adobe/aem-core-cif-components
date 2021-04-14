@@ -174,6 +174,42 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCategoryUrlWithSubpageUID() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .id("42")
+            .uid("MTE=")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-uid.42.html", url);
+    }
+
+    @Test
+    public void testCategoryUrlWithSubpageUIDTemplate() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
+        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
+
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .id("42")
+            .urlPath("men/tops/shirts")
+            .uid("MTM=")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.MTM%3D.html", url);
+    }
+
+    @Test
     public void testNestedCategoryUrl() {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
