@@ -17,7 +17,7 @@ limitations under the License.
 # Commerce Navigation (v2)
 
 Commerce Navigation component is a server-side component written in HTL, rendering a combined AEM page and commerce catalog navigation tree.
-The category tree details are retrieved from Magento via GraphQL. The main usage of this component would be as part of all page templates which include navigation.
+The category tree details are retrieved from commerce system via GraphQL. The main usage of this component would be as part of all page templates which include navigation.
 This component is based on Navigation component of the AEM WCM Core Components library.
 
 ## Features
@@ -56,5 +56,5 @@ See the BEM description of the [Navigation component](https://github.com/adobe/a
 
 - **Vendor**: Adobe
 - **Version**: v2
-- **Compatibility**: AEM 6.4 / 6.5
+- **Compatibility**: AEM 6.5 / AEMaaCS
 - **Status**: production-ready
