@@ -96,11 +96,11 @@ export const getCartDetails = async payload => {
  *      itemId - the id of the item to remove
  */
 export const removeItemFromCart = async payload => {
-    const { cartDetailsQuery, removeItemMutation, cartId, itemId, dispatch } = payload;
+    const { cartDetailsQuery, removeItemMutation, cartId, itemUid, dispatch } = payload;
 
     try {
         await removeItemMutation({
-            variables: { cartId, itemId }
+            variables: { cartId, itemUid }
         });
     } catch (error) {
         dispatch({ type: 'error', error: error.toString() });
@@ -179,10 +179,10 @@ export const mergeCarts = async payload => {
 };
 
 export const updateCartItem = async payload => {
-    const { cartDetailsQuery, updateCartItemMutation, cartId, cartItemId, itemQuantity, dispatch } = payload;
+    const { cartDetailsQuery, updateCartItemMutation, cartId, cartItemUid, itemQuantity, dispatch } = payload;
     try {
         await updateCartItemMutation({
-            variables: { cartId, cartItemId, quantity: itemQuantity }
+            variables: { cartId, cartItemUid, quantity: itemQuantity }
         });
         await getCartDetails({ cartDetailsQuery, dispatch, cartId });
     } catch (error) {

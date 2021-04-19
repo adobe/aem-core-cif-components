@@ -15,11 +15,13 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-    mutation($cartId: String!, $cartItemId: Int!, $quantity: Float!) {
-        updateCartItems(input: { cart_id: $cartId, cart_items: [{ cart_item_id: $cartItemId, quantity: $quantity }] }) {
+    mutation($cartId: String!, $cartItemUid: ID!, $quantity: Float!) {
+        updateCartItems(
+            input: { cart_id: $cartId, cart_items: [{ cart_item_uid: $cartItemUid, quantity: $quantity }] }
+        ) {
             cart {
                 items {
-                    id
+                    uid
                     quantity
                     product {
                         name
