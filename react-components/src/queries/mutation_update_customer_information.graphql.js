@@ -14,6 +14,9 @@
 
 import { gql } from '@apollo/client';
 
+// TODO: updateCustomer mutation is deprecated and needs to be changed to updateCustomerV2. This new mutation doesn't
+//       allow to change passwords or email address. Use updateCustomerEmail and changeCustomerPassword for this.
+
 export default gql`
     mutation UpdateCustomerInformation($firstname: String, $lastname: String, $email: String, $password: String) {
         updateCustomer(input: { firstname: $firstname, lastname: $lastname, email: $email, password: $password }) {
