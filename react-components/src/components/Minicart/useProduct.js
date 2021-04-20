@@ -33,9 +33,9 @@ export default props => {
         dispatch({ type: 'beginEditing', item: item });
     };
 
-    const removeItem = async itemId => {
+    const removeItem = async itemUid => {
         dispatch({ type: 'beginLoading' });
-        await removeItemFromCart({ cartId, itemId, dispatch, cartDetailsQuery, removeItemMutation });
+        await removeItemFromCart({ cartId, itemUid, dispatch, cartDetailsQuery, removeItemMutation });
         dispatch({ type: 'endLoading' });
         dataLayerUtils.pushEvent('cif:removeFromCart', {
             '@id': await dataLayerUtils.generateDataLayerId('product', item.product.sku),

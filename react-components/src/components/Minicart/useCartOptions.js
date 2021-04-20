@@ -23,7 +23,7 @@ const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
             cartDetailsQuery,
             updateCartItemMutation,
             cartId,
-            cartItemId: editItem.id,
+            cartItemUid: editItem.uid,
             itemQuantity: newQuantity,
             dispatch
         });
