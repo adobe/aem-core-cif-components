@@ -35,7 +35,7 @@
                                             <showMainCategories cq:showOnCreate="{Boolean}true" 
                                                 jcr:primaryType="nt:unstructured" 
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/checkbox" 
-                                                fieldDescription="If checked the navigation includes the catalog page, otherwise the navigation includes the child categories of the category provided in the field 'Root category ID'." 
+                                                fieldDescription="If checked the navigation includes the catalog page, otherwise the navigation includes the child categories of the category provided in the field 'Root Category Identifier'."
                                                 name="./showMainCategories" 
                                                 renderReadOnly="{Boolean}true" 
                                                 deleteHint="{Boolean}false" 
@@ -66,7 +66,7 @@
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                 fieldDescription="Select the root category to be used in navigation."
-                                                fieldLabel="Root category ID"
+                                                fieldLabel="Root Category Identifier"
                                                 name="./magentoRootCategoryId"
                                                 renderReadOnly="{Boolean}true"
                                                 translateOptions="{Boolean}false">
