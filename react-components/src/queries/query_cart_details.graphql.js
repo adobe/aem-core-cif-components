@@ -95,7 +95,7 @@ export default gql`
             total_quantity
             items {
                 __typename
-                id
+                uid
                 quantity
                 prices {
                     price {
