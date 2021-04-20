@@ -12,7 +12,8 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.item="${@ item}">
-    <a class="item__images" href="${item.URL}">
+    <div role="img" aria-label="${item.title}"></div>
+    <a class="item__images" href="${item.URL}" aria-hidden="true">
         <img
             class="item__imagePlaceholder item__image"
             alt=""
