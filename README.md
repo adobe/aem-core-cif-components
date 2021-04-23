@@ -48,9 +48,11 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
-### AEM Commerce connector for Magento
+### AEM CIF Add-On
 
-For AEM on-prem installations, this project requires the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed separately as part of the customer project.
+For AEM as a Cloud Service deployments this project requires the CIF Add-On provisioned on each [AEM as a Cloud Service](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content-and-commerce/home.html?lang=en) environment. The CIF Add-On is installed automatically, no extra deployment is needed. The CIF Add-On is also available for local development with AEM SDK from [Software Distribution portal](https://experience.adobe.com/#/downloads/content/software-distribution/en/aemcloud.html).
+
+For AEM on-prem installations, this project requires the AEM Commerce Add-On for AEM 6.5 to improve the authoring experience by leveraging the product pickers, product assets view, and product consoles provided by the connector package. The AEM Commerce Add-On for AEM 6.5 is also available on the [Software Distribution portal](https://experience.adobe.com/#/downloads/content/software-distribution/en/aem.html). It must be installed separately.
 
 ### AEM Sites Core Components
 
