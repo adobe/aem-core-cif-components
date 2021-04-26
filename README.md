@@ -23,7 +23,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
 -   [Product Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcarousel/v1/productcarousel)
 -   [Related Products](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/relatedproducts/v1/relatedproducts)
--   [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v1/navigation)
+-   [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v2/navigation)
 -   [Breadcrumb](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/breadcrumb/v1/breadcrumb)
 -   [Search Results](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
 -   [Searchbar](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchbar/v1/searchbar)
@@ -44,13 +44,15 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento | Java  |
 | ------------------- | ---------------------- | ------- | ------- | ------- | ----- |
-| 1.9.0               | Continual              | 6.5.7   | 6.4.4.0 | 2.4.0 - 2.4.2   | 8, 11 |
+| 1.10.0              | Continual              | 6.5.7   | 6.4.4.0 | 2.4.2   | 8, 11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
-### AEM Commerce connector for Magento
+### AEM CIF Add-On
 
-For AEM on-prem installations, this project requires the [AEM Commerce connector for Magento](https://github.com/adobe/commerce-cif-connector) to improve the authoring experience by leveraging the product pickers, product assets view and consoles provided by the connector package. The AEM Commerce connector must be installed separately as part of the customer project.
+For AEM as a Cloud Service deployments this project requires the CIF Add-On provisioned on each [AEM as a Cloud Service](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content-and-commerce/home.html?lang=en) environment. The CIF Add-On is installed automatically, no extra deployment is needed. The CIF Add-On is also available for local development with AEM SDK from [Software Distribution portal](https://experience.adobe.com/#/downloads/content/software-distribution/en/aemcloud.html).
+
+For AEM on-prem installations, this project requires the AEM Commerce Add-On for AEM 6.5 to improve the authoring experience by leveraging the product pickers, product assets view, and product consoles provided by the connector package. The AEM Commerce Add-On for AEM 6.5 is also available on the [Software Distribution portal](https://experience.adobe.com/#/downloads/content/software-distribution/en/aem.html). It must be installed separately.
 
 ### AEM Sites Core Components
 

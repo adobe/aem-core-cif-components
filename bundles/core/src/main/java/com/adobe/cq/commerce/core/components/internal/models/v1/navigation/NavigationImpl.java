@@ -32,6 +32,7 @@ import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.via.ForcedResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class NavigationImpl implements Navigation {
     private Page currentPage = null;
 
     @Self
-    @Via
+    @Via(type = ForcedResourceType.class, value = "core/wcm/components/navigation/v1/navigation")
     private com.adobe.cq.wcm.core.components.models.Navigation wcmNavigation = null;
 
     @Self
