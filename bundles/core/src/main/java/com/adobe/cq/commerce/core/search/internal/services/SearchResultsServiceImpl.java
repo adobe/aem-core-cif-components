@@ -143,11 +143,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             return new ImmutablePair<>(null, searchResultsSet);
         }
 
-        // We will use the search filter service to retrieve all of the potential available filters the commerce system
-        // has available for querying against
-        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
-        SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
-
         // Next we generate the graphql category query and actually query the commerce system
         CategoryTree category = null;
         if (generateCategoryQueryString(categoryRetriever).isPresent()) {
@@ -164,6 +159,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 }
             }
         }
+
+        // We will use the search filter service to retrieve all of the potential available filters the commerce system
+        // has available for querying against
+        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
+        SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
+
         String productsQueryString = generateProductsQueryString(searchOptions, availableFilters, productQueryHook, currentSorterKey);
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);

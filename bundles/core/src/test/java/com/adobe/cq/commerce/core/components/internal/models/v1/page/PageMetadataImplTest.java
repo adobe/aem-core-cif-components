@@ -196,9 +196,9 @@ public class PageMetadataImplTest {
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
 
-        // Verify that GraphQL client is only called 3 times, so Sling model caching works as expected
-        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 3 queries
-        verify(graphqlClient, times(3)).execute(any(), any(), any(), any());
+        // Verify that GraphQL client is only called 4 times, so Sling model caching works as expected
+        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 4 queries
+        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right productlist resource is used when PageMetadataImpl adapts the request to the ProductList component
@@ -236,7 +236,9 @@ public class PageMetadataImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("6");
