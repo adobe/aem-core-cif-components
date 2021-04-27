@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
@@ -29,7 +30,13 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
 
@@ -43,18 +50,13 @@ public class ButtonImpl implements Button {
     protected static final String RESOURCE_TYPE = "core/cif/components/content/button/v1/button";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ButtonImpl.class);
-
     private static final String DEFAULT_LABEL = "Label";
-
     private static final String DEFAULT_LINK = "#";
-
     private static final String PRODUCT = "product";
-
     private static final String CATEGORY = "category";
-
     private static final String EXTERNAL_LINK = "externalLink";
-
     private static final String LINK_TO = "linkTo";
+    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     @ValueMapValue
     @Default(values = DEFAULT_LINK)
@@ -65,8 +67,16 @@ public class ButtonImpl implements Button {
     private String productSlug;
 
     @ValueMapValue
+    @Default(values = "slug")
+    private String productSlugType;
+
+    @ValueMapValue
     @Default(values = DEFAULT_LINK)
     private String categoryId;
+
+    @ValueMapValue
+    @Default(values = "id")
+    private String categoryIdType;
 
     @ValueMapValue
     @Default(values = DEFAULT_LINK)
@@ -79,55 +89,83 @@ public class ButtonImpl implements Button {
     @ValueMapValue
     private String linkType;
 
+    @Self
+    private SlingHttpServletRequest request;
+
+    @Inject
+    private UrlProvider urlProvider;
+
     @Inject
     private Page currentPage;
 
+    @Inject
+    protected Resource resource;
+
     private Page productPage;
-
     private Page categoryPage;
-
     private String url;
 
     @PostConstruct
     private void initModel() {
-
         if (linkType != null) {
             assignUrl(linkType);
         }
     }
 
     private String assignUrl(final String linkType) {
+        Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
+        ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
+        boolean enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
 
         switch (linkType) {
-
             case PRODUCT: {
-
                 if (!productSlug.equals(DEFAULT_LINK)) {
                     productPage = SiteNavigation.getProductPage(currentPage);
                     if (productPage == null) {
                         productPage = currentPage;
                     }
-                    url = this.constructUrl(productPage.getPath(), productSlug);
+                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
+                    url = urlProvider.toProductUrl(request, productPage, params.map());
+                    // url = this.constructUrl(productPage.getPath(), productSlug);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
                 break;
             }
-            case CATEGORY: {
 
+            case CATEGORY: {
                 if (!categoryId.equals(DEFAULT_LINK)) {
                     categoryPage = SiteNavigation.getCategoryPage(currentPage);
                     if (categoryPage == null) {
                         categoryPage = currentPage;
                     }
-                    url = this.constructUrl(categoryPage.getPath(), categoryId);
+
+                    CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
+                    ParamsBuilder params = new ParamsBuilder();
+                    if (StringUtils.equalsIgnoreCase(categoryIdType, "id")) {
+                        params.id(categoryId);
+                    } else {
+                        params.uid(categoryId);
+                        categoryIdentifierType = CategoryIdentifierType.UID;
+                    }
+
+                    MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+                    if (magentoGraphqlClient != null) {
+                        CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient, enableUIDSupport);
+                        categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
+                        CategoryInterface category = categoryRetriever.fetchCategory();
+                        if (category != null) {
+                            params.urlPath(category.getUrlPath());
+                        }
+                    }
+                    url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
                 } else {
-                    LOGGER.debug("Can not get Category Id!");
+                    LOGGER.debug("Can not get Category identifier!");
                 }
                 break;
             }
-            case EXTERNAL_LINK: {
 
+            case EXTERNAL_LINK: {
                 if (!externalLink.equals(DEFAULT_LINK)) {
                     url = this.externalLink;
                 } else {
@@ -135,8 +173,8 @@ public class ButtonImpl implements Button {
                 }
                 break;
             }
-            case LINK_TO: {
 
+            case LINK_TO: {
                 if (!linkTo.equals(DEFAULT_LINK)) {
                     url = this.linkTo + ".html";
                 } else {
@@ -167,9 +205,4 @@ public class ButtonImpl implements Button {
     public String getExportedType() {
         return button.getExportedType();
     }
-
-    private String constructUrl(final String pagePath, final String urlKey) {
-        return String.format("%s.%s.html", pagePath, urlKey);
-    }
-
 }

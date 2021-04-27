@@ -17,8 +17,11 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
@@ -34,6 +37,8 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDef
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoryRetriever.class);
 
     /**
      * Lambda that extends the category query.
@@ -202,13 +207,22 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     public String generateQuery(String identifier) {
-        Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> args = generateQueryArgs(identifier);
-        QueryQuery.CategoryArgumentsDefinition searchArgs = args.getLeft();
+        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
+        return Operations.query(query -> {
+            FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setEq(identifier);
+            CategoryFilterInput filter;
+            if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
+                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
+            } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
+                filter = new CategoryFilterInput().setIds(identifiersFilter);
+            } else {
+                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
+                filter = new CategoryFilterInput().setIds(identifiersFilter);
+            }
 
-        CategoryTreeQueryDefinition queryArgs = args.getRight();
-
-        return Operations.query(query -> query
-            .category(searchArgs, queryArgs)).toString();
+            QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
+            query.categoryList(searchArgs, queryArgs);
+        }).toString();
     }
 
     /**
@@ -285,6 +299,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
-        category = rootQuery.getCategory();
+        if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
+            category = rootQuery.getCategoryList().get(0);
+        }
     }
 }
