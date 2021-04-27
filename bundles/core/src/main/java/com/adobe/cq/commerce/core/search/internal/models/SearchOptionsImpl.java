@@ -29,7 +29,6 @@ public class SearchOptionsImpl implements SearchOptions {
     public static final Integer PAGE_SIZE_DEFAULT = 6;
     public static final String CATEGORY_ID_PARAMETER_ID = "category_id";
     public static final String CATEGORY_UID_PARAMETER_ID = "category_uid";
-
     public static final String SEARCH_QUERY_PARAMETER_ID = "search_query";
     public static final String CURRENT_PAGE_PARAMETER_ID = "page";
 

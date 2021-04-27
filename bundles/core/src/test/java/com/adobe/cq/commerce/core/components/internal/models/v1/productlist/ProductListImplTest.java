@@ -231,6 +231,29 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testUrlPathIdentifier() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.URL_PATH);
+        config.setCategoryUrlTemplate("{{page}}.{{url_path}}.html");
+
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("running");
+        context.request().setServletPath(PAGE + ".running.html"); // used by context.request().getRequestURI();
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + PAGE + ".running.html", productListModel.getCanonicalUrl());
+    }
+
+    @Test
     public void getImage() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getImage(), productListModel.getImage());
