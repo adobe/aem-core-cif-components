@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
@@ -56,7 +55,6 @@ public class ButtonImpl implements Button {
     private static final String CATEGORY = "category";
     private static final String EXTERNAL_LINK = "externalLink";
     private static final String LINK_TO = "linkTo";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     @ValueMapValue
     @Default(values = DEFAULT_LINK)
@@ -113,10 +111,6 @@ public class ButtonImpl implements Button {
     }
 
     private String assignUrl(final String linkType) {
-        Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-        ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-        boolean enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-
         switch (linkType) {
             case PRODUCT: {
                 if (!productSlug.equals(DEFAULT_LINK)) {
@@ -142,20 +136,19 @@ public class ButtonImpl implements Button {
 
                     CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
                     ParamsBuilder params = new ParamsBuilder();
-                    if (StringUtils.equalsIgnoreCase(categoryIdType, "id")) {
-                        params.id(categoryId);
-                    } else {
-                        params.uid(categoryId);
+                    if (StringUtils.equalsIgnoreCase(categoryIdType, "uid")) {
                         categoryIdentifierType = CategoryIdentifierType.UID;
                     }
 
                     MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                     if (magentoGraphqlClient != null) {
-                        CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient, enableUIDSupport);
+                        CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                         categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
                             params.urlPath(category.getUrlPath());
+                            params.id(category.getId().toString());
+                            params.uid(category.getUid().toString());
                         }
                     }
                     url = urlProvider.toCategoryUrl(request, categoryPage, params.map());

@@ -15,28 +15,17 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.button;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
 public class CategoryRetriever extends AbstractCategoryRetriever {
-    private boolean enableUIDSupport;
-
     CategoryRetriever(MagentoGraphqlClient client) {
         super(client);
-    }
-
-    CategoryRetriever(MagentoGraphqlClient client, boolean enableUIDSupport) {
-        super(client);
-        this.enableUIDSupport = enableUIDSupport;
     }
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> {
-            q.id().urlPath();
-            if (enableUIDSupport || categoryIdentifierType == UrlProvider.CategoryIdentifierType.UID) {
-                q.uid();
-            }
+            q.id().uid().urlPath();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);
