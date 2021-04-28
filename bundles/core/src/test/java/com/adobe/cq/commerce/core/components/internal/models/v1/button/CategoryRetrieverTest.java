@@ -50,16 +50,38 @@ public class CategoryRetrieverTest {
         retriever = new CategoryRetriever(mockClient);
     }
 
-    @Test
-    public void testCategoryUrlPathQueryById() {
-        retriever.setIdentifier(CategoryIdentifierType.ID, "77");
+    private void testDefaultCategoryQuery(String identifier) {
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{ids:{eq:\"77\"}}){id,url_path}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
+        String expectedQuery = "{categoryList(filters:{ids:{eq:\"" + identifier + "\"}}){id,url_path";
+        Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
+    }
+
+    @Test
+    public void testCategoryUrlPathQuery() {
+        retriever.setIdentifier("75");
+        testDefaultCategoryQuery("75");
+    }
+
+    @Test
+    public void testCategoryUrlPathQueryById() {
+        retriever.setIdentifier(CategoryIdentifierType.ID, "76");
+        testDefaultCategoryQuery("76");
+    }
+
+    @Test
+    public void testCategoryUrlPathQueryFallback() {
+        retriever.setIdentifier(null, "77");
+        testDefaultCategoryQuery("77");
+    }
+
+    @Test
+    public void testExtendCategoryQuery() {
+        retriever.setIdentifier(CategoryIdentifierType.ID, "78");
+        testDefaultCategoryQuery("78");
     }
 
     @Test
@@ -71,19 +93,6 @@ public class CategoryRetrieverTest {
         verify(mockClient, times(1)).execute(captor.capture());
 
         String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){id,url_path,uid}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
-    }
-
-    @Test
-    public void testExtendCategoryQuery() {
-        retriever.setIdentifier(CategoryIdentifierType.ID, "77");
-        retriever.extendCategoryQueryWith(c -> c.name());
-        retriever.fetchCategory();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        String expectedQuery = "{categoryList(filters:{ids:{eq:\"77\"}}){id,url_path,name}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 }
