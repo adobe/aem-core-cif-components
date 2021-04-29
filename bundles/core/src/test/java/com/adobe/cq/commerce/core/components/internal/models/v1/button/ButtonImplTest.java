@@ -14,45 +14,94 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.button;
 
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.sightly.WCMBindings;
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
+import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class ButtonImplTest {
 
-    @Rule
-    public AemContext context = new AemContext();
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
+    @Rule
+    public final AemContext context = createContext("/context/jcr-content.json");
+
+    private static AemContext createContext(String contentPath) {
+
+        class MockUrlProviderConfigurationCategory extends MockUrlProviderConfiguration {
+            @Override
+            public String categoryUrlTemplate() {
+                return "${page}.${id}.html/${url_path}";
+            }
+        }
+
+        return new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json(contentPath, "/content");
+
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfigurationCategory());
+                context.registerService(UrlProvider.class, urlProvider);
+            },
+            ResourceResolverType.JCR_MOCK);
+    }
+
+    private static final String PAGE = "/content/pageA";
     private Button button;
 
     @Before
     public void setUp() throws Exception {
-        Page currentPage = mock(Page.class);
-        when(currentPage.getPath()).thenReturn("/content/sample-page");
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-uid-result.json");
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        Page page = spy(context.currentPage(PAGE));
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindings.CURRENT_PAGE, currentPage);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+
+        Resource pageResource = spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         context.addModelsForClasses(ButtonImpl.class);
-        context.load().json("/context/jcr-content-button.json", "/content");
+    }
 
+    private void setUpTestResource(final String resourcePath) {
+        context.currentResource(resourcePath);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(context.currentResource());
     }
 
     @Test
     public void testGetLinkForProduct() {
-
-        final String expResult = "/content/sample-page.blast-mini-pump.html";
-        context.currentResource("/content/linkTypeProduct");
+        final String expResult = "/content/product-page.blast-mini-pump.html";
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeProduct");
         button = context.request().adaptTo(Button.class);
 
         String result = button.getLink();
@@ -61,21 +110,18 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForCategory() {
-
-        final String expResult = "/content/sample-page.11.html";
-        context.currentResource("/content/linkTypeCategory");
+        final String expResult = "/content/category-page.5.html/equipment";
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeCategory");
         button = context.request().adaptTo(Button.class);
 
         String result = button.getLink();
         assertEquals(expResult, result);
-
     }
 
     @Test
     public void testGetLinkForExternalLink() {
-
         final String expResult = "http://sample-link.com";
-        context.currentResource("/content/linkTypeExternalLink");
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeExternalLink");
         button = context.request().adaptTo(Button.class);
 
         String result = button.getLink();
@@ -84,25 +130,21 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForLinkTo() {
-
         final String expResult = "/content/venia/language-masters/en.html";
-        context.currentResource("/content/linkTypeLinkToPage");
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeToPage");
         button = context.request().adaptTo(Button.class);
+
         String result = button.getLink();
         assertEquals(expResult, result);
-
     }
 
     @Test
     public void testDefaultLink() {
-
         final String expResult = "#";
-        context.currentResource("/content/defaultUrl");
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonDefaultUrl");
         button = context.request().adaptTo(Button.class);
 
         String result = button.getLink();
         assertEquals(expResult, result);
-
     }
-
 }

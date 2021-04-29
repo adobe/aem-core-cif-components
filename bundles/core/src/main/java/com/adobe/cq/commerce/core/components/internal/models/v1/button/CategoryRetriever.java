@@ -11,24 +11,27 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.core.components.internal.models.v1.button;
 
-import { gql } from '@apollo/client';
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-export default gql`
-    mutation($cartId: String!, $cartItems: [VirtualProductCartItemInput]!) {
-        addVirtualProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
-            cart {
-                items {
-                    uid
-                    quantity
-                    product {
-                        name
-                        thumbnail {
-                            url
-                        }
-                    }
-                }
-            }
-        }
+public class CategoryRetriever extends AbstractCategoryRetriever {
+    CategoryRetriever(MagentoGraphqlClient client) {
+        super(client);
     }
-`;
+
+    @Override
+    protected CategoryTreeQueryDefinition generateCategoryQuery() {
+        CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> {
+            q.id().uid().urlPath();
+
+            if (categoryQueryHook != null) {
+                categoryQueryHook.accept(q);
+            }
+        };
+
+        return categoryTreeQueryDefinition;
+    }
+}

@@ -19,7 +19,7 @@ export default gql`
         addSimpleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
             cart {
                 items {
-                    id
+                    uid
                     quantity
                     product {
                         name
