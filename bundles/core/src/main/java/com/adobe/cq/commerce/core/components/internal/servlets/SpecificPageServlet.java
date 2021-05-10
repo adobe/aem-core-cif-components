@@ -15,6 +15,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -58,7 +60,7 @@ public class SpecificPageServlet extends SlingSafeMethodsServlet {
 
         if (WCMMode.DISABLED.equals(wcmMode)) {
             LOGGER.debug("Checking sub-pages for {} {}", request.getRequestURI(), page.getPath());
-            Resource subPage = UrlProviderImpl.toSpecificPage(page.getParent(), selectors[1], request);
+            Resource subPage = UrlProviderImpl.toSpecificPage(page.getParent(), new HashSet<String>(Arrays.asList(selectors[1])), request);
             if (subPage != null) {
                 page = subPage;
             }

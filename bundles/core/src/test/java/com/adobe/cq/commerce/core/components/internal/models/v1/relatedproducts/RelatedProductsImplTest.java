@@ -158,12 +158,6 @@ public class RelatedProductsImplTest {
     }
 
     @Test
-    public void testNoProductIdentifiersYet() throws Exception {
-        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
-        Assert.assertEquals(0, relatedProducts.getProductIdentifiers().size());
-    }
-
-    @Test
     public void testRelatedProductsWithoutRelationType() throws Exception {
         setUp(null, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
@@ -212,6 +206,18 @@ public class RelatedProductsImplTest {
 
         String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
+    public void testJsonExportForRelatedProducts() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
+        Utils.testJSONExport(relatedProducts, "/exporter/related-products.json");
+    }
+
+    @Test
+    public void testJsonExportForUpsellProducts() throws Exception {
+        setUp(RelationType.UPSELL_PRODUCTS, "graphql/magento-graphql-upsellproducts-result.json", true);
+        Utils.testJSONExport(relatedProducts, "/exporter/upsell-products.json");
     }
 
     private void assertProducts() {

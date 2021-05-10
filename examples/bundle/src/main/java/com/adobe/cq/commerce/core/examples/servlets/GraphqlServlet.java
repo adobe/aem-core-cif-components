@@ -111,6 +111,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
     private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
+    private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
@@ -479,6 +480,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             filters.get("ids").get("eq").equals("1")) {
             // The ProductList example will require 1 item
             graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
+        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
+            filters.get("ids").get("eq").equals("2")) {
+            // The navigation example will require item 2
+            graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
         } else {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
         }

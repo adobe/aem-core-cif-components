@@ -32,7 +32,7 @@ const Product = props => {
     const { item } = props;
     const [t] = useTranslation('cart');
 
-    const { product = {}, quantity = 0, id = '', prices, bundle_options = [] } = item;
+    const { product = {}, quantity = 0, uid = '', prices, bundle_options = [] } = item;
     const { thumbnail, name, __typename } = product;
     const [, { removeItem, editItem }] = useProduct({ item });
 
@@ -47,8 +47,8 @@ const Product = props => {
     });
 
     const handleRemoveItem = useCallback(() => {
-        removeItem(id);
-    }, [id, removeItem]);
+        removeItem(uid);
+    }, [uid, removeItem]);
 
     return (
         <li className={classes.root} data-testid="cart-item">
@@ -89,7 +89,7 @@ const Product = props => {
 
 Product.propTypes = {
     item: shape({
-        id: string.isRequired,
+        uid: string.isRequired,
         quantity: number.isRequired,
         prices: shape({
             price: shape({

@@ -37,7 +37,7 @@ describe('<ChangePassword />', () => {
                 result: {
                     data: {
                         changeCustomerPassword: {
-                            id: 4
+                            __typename: 'Customer'
                         }
                     }
                 }

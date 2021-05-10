@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,20 +71,22 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return toUrl(request, page, params, productUrlTemplate, UrlProvider.URL_KEY_PARAM);
+        return toUrl(request, page, params, productUrlTemplate);
     }
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return toUrl(request, page, params, categoryUrlTemplate, UrlProvider.ID_PARAM);
+        return toUrl(request, page, params, categoryUrlTemplate);
     }
 
-    private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template, String selectorFilter) {
+    private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template) {
         if (page != null) {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-            if (deepLink && params.containsKey(selectorFilter)) {
-                Resource subPageResource = toSpecificPage(pageResource, params.get(selectorFilter), request, params);
+            Set<String> selectorValues = new HashSet<>(params.values());
+            ;
+            if (deepLink) {
+                Resource subPageResource = toSpecificPage(pageResource, selectorValues, request, params);
                 if (subPageResource != null) {
                     pageResource = subPageResource;
                 }
@@ -126,12 +129,12 @@ public class UrlProviderImpl implements UrlProvider {
      * of the given <code>selector</code>.
      * 
      * @param page The page resource, from where children pages will be checked.
-     * @param selector The searched value for the <code>selectorFilter</code> property.
+     * @param selectors The searched value for the <code>selectorFilter</code> property.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
      *         If not found, this method returns null.
      */
-    public static Resource toSpecificPage(Resource page, String selector) {
-        return toSpecificPage(page, selector, null);
+    public static Resource toSpecificPage(Resource page, Set<String> selectors) {
+        return toSpecificPage(page, selectors, null);
     }
 
     /**
@@ -140,16 +143,17 @@ public class UrlProviderImpl implements UrlProvider {
      * of the given <code>selector</code>.
      * 
      * @param page The page resource, from where children pages will be checked.
-     * @param selector The searched value for the <code>selectorFilter</code> property.
+     * @param selectors The searched value for the <code>selectorFilter</code> property.
      * @param request The current Sling HTTP Servlet request.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
      *         If not found, this method returns null.
      */
-    public static Resource toSpecificPage(Resource page, String selector, SlingHttpServletRequest request) {
-        return toSpecificPage(page, selector, request, null);
+    public static Resource toSpecificPage(Resource page, Set<String> selectors, SlingHttpServletRequest request) {
+        return toSpecificPage(page, selectors, request, null);
     }
 
-    private static Resource toSpecificPage(Resource page, String selector, SlingHttpServletRequest request, Map<String, String> params) {
+    private static Resource toSpecificPage(Resource page, Set<String> selectors, SlingHttpServletRequest request,
+        Map<String, String> params) {
 
         ProductList productList = null;
         String currentUrlPath = null;
@@ -162,7 +166,7 @@ public class UrlProviderImpl implements UrlProvider {
             }
 
             if (child.hasChildren()) {
-                final Resource grandChild = toSpecificPage(child, selector, request, params);
+                final Resource grandChild = toSpecificPage(child, selectors, request, params);
                 if (grandChild != null) {
                     return grandChild;
                 }
@@ -183,14 +187,16 @@ public class UrlProviderImpl implements UrlProvider {
 
             // When used with the category picker and the 'idAndUrlPath' option, the values might have a format like '12|men/men-tops'
             // --> so we split them to first extract the category ids
-            Set<String> selectors = Arrays.asList(selectorFilters)
+            Set<String> selectorFiltersSet = Arrays.asList(selectorFilters)
                 .stream()
                 .map(s -> StringUtils.substringBefore(s, ID_AND_URL_PATH_SEPARATOR))
                 .collect(Collectors.toSet());
 
-            if (selectors.contains(selector)) {
-                LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
-                return child;
+            for (String selector : selectors) {
+                if (selectorFiltersSet.contains(selector)) {
+                    LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
+                    return child;
+                }
             }
 
             boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
