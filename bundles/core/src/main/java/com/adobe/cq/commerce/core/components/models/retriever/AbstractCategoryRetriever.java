@@ -260,12 +260,21 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier.replaceAll("_", "/"));
         CategoryFilterInput filter;
-        if (CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setIds(identifierFilter);
-        } else {
-            filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+
+        switch (categoryIdentifierType) {
+            case ID:
+                filter = new CategoryFilterInput().setIds(identifierFilter);
+                break;
+            case UID:
+                filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+                break;
+            case URL_PATH:
+                filter = new CategoryFilterInput().setUrlPath(identifierFilter);
+                break;
+            default:
+                throw new RuntimeException("Category identifier type is not supported");
         }
 
         CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);

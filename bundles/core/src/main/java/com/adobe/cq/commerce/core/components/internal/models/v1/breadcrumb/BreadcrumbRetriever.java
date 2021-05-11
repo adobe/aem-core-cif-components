@@ -178,12 +178,19 @@ public class BreadcrumbRetriever extends AbstractRetriever {
     protected String generateCategoryQuery() {
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier);
         CategoryFilterInput filter;
-        if (CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setIds(identifierFilter);
-        } else if (CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
-        } else {
-            throw new RuntimeException("Category identifier type is not supported");
+
+        switch (categoryIdentifierType) {
+            case ID:
+                filter = new CategoryFilterInput().setIds(identifierFilter);
+                break;
+            case UID:
+                filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+                break;
+            case URL_PATH:
+                filter = new CategoryFilterInput().setUrlPath(identifierFilter);
+                break;
+            default:
+                throw new RuntimeException("Category identifier type is not supported");
         }
 
         CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);

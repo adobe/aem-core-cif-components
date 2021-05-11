@@ -140,8 +140,8 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
-        category = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getCategoryList().get(0);
-        products = Utils.getQueryFromResource("graphql/magento-graphql-search-result-with-category.json").getProducts();
+        category = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-category.json").getCategoryList().get(0);
+        products = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-products.json").getProducts();
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
         when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
@@ -153,7 +153,9 @@ public class ProductListImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
 
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
@@ -226,6 +228,29 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
         Assert.assertEquals("https://author" + PAGE + ".MTM=.html", productListModel.getCanonicalUrl());
+    }
+
+    @Test
+    public void testUrlPathIdentifier() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setCategoryIdentifierType(CategoryIdentifierType.URL_PATH);
+        config.setCategoryUrlTemplate("{{page}}.{{url_path}}.html");
+
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("running");
+        context.request().setServletPath(PAGE + ".running.html"); // used by context.request().getRequestURI();
+
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + PAGE + ".running.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -310,7 +335,9 @@ public class ProductListImplTest {
         Mockito.reset(httpClient);
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-result-with-category.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList");
 
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Collection<ProductListItem> productList = productListModel.getProducts();
@@ -411,6 +438,7 @@ public class ProductListImplTest {
 
         Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
         Assert.assertNotNull(currentOrderParameters);
+        Map<String, String> appliedQueryParameters = resultSet.getAppliedQueryParameters();
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
         resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
         Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));

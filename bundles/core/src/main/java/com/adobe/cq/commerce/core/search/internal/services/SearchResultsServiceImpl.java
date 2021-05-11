@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRe
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
+import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
@@ -141,20 +143,34 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             return new ImmutablePair<>(null, searchResultsSet);
         }
 
+        // Next we generate the graphql category query and actually query the commerce system
+        CategoryTree category = null;
+        if (generateCategoryQueryString(categoryRetriever).isPresent()) {
+            String categoryQueryString = generateCategoryQueryString(categoryRetriever).get();
+            LOGGER.debug("Generated category query string {}", categoryQueryString);
+            GraphqlResponse<Query, Error> categoryResponse = magentoGraphqlClient.execute(categoryQueryString);
+            Query categoryData = categoryResponse.getData();
+
+            if (categoryData != null) {
+                List<CategoryTree> categories = categoryData.getCategoryList();
+                if (CollectionUtils.isNotEmpty(categories)) {
+                    category = categories.get(0);
+                    ((SearchOptionsImpl) searchOptions).setCategoryId(category.getId().toString());
+                }
+            }
+        }
+
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
         SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
 
-        // Next we generate the graphql query and actually query the commerce system
-        String queryString = generateQueryString(searchOptions, availableFilters, productQueryHook, categoryRetriever, currentSorterKey);
-        LOGGER.debug("Generated query string {}", queryString);
-        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
+        String productsQueryString = generateProductsQueryString(searchOptions, availableFilters, productQueryHook, currentSorterKey);
+        LOGGER.debug("Generated products query string {}", productsQueryString);
+        GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
         Query data = response.getData();
         Products products = data != null ? data.getProducts() : null;
-        List<CategoryTree> categories = data != null ? data.getCategoryList() : null;
-        CategoryTree category = CollectionUtils.isNotEmpty(categories) ? categories.get(0) : null;
 
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
@@ -244,20 +260,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return resultSorterKey;
     }
 
-    /**
-     * Generates a query string for the specified search term. This query string condition is 'like'.
-     *
-     * @param searchOptions options for searching
-     * @param availableFilters available filters
-     * @param productQueryHook
-     * @return the query string
-     */
-    @Nonnull
-    private String generateQueryString(
+    private String generateProductsQueryString(
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
         final Consumer<ProductInterfaceQuery> productQueryHook,
-        final AbstractCategoryRetriever categoryRetriever,
         final SorterKey sorterKey) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
@@ -347,14 +353,26 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .count()
                 .label());
 
+        return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
+    }
+
+    /**
+     * Generates a query string for the category specified in the retriever.
+     * 
+     * 
+     * @param categoryRetriever
+     * @return the query string
+     */
+    @Nonnull
+    private Optional<String> generateCategoryQueryString(final AbstractCategoryRetriever categoryRetriever) {
+
         if (categoryRetriever != null) {
             Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateCategoryQueryArgs();
-            return Operations.query(query -> query
-                .products(searchArgs, queryArgs)
-                .categoryList(categoryArgs.getLeft(), categoryArgs.getRight())).toString();
+            return Optional.of(Operations.query(query -> query
+                .categoryList(categoryArgs.getLeft(), categoryArgs.getRight())).toString());
         }
 
-        return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
+        return Optional.empty();
     }
 
     /**
