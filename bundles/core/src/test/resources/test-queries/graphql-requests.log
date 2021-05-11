@@ -46,6 +46,10 @@
 
 {products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key,name,categories{__typename,id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}}}
 
+{products(filter:{url_key:{eq:"url-key-xf1"}}){items{__typename,sku}}}
+
+{categoryList(filters:{category_uid:{eq:"catid-xf2"}}){id}}
+
 {categoryList(filters:{ids:{in:["5","6","7","9999"]}}){id,name,url_path,position,image}}
 
 {categoryList(filters:{category_uid:{in:["UID1","UID2","UID3"]}}){id,name,url_path,position,image,uid}}
