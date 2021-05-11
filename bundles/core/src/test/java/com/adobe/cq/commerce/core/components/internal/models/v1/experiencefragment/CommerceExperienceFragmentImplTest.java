@@ -63,11 +63,6 @@ public class CommerceExperienceFragmentImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content-experiencefragment.json");
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store", "enableUIDSupport", "false"));
-
-    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
-
     private static final String PAGE = "/content/mysite/page";
     private static final String PRODUCT_PAGE = PAGE + "/product-page";
     private static final String CATEGORY_PAGE = PAGE + "/category-page";
@@ -106,6 +101,10 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     private void setup(String pagePath, String resourcePath) throws IOException {
+        setup(pagePath, resourcePath, false);
+    }
+
+    private void setup(String pagePath, String resourcePath, boolean uidSupport) throws IOException {
         setupUrlProvider(ProductIdentifierType.URL_KEY);
 
         Page page = Mockito.spy(context.currentPage(pagePath));
@@ -128,21 +127,24 @@ public class CommerceExperienceFragmentImplTest {
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "xf1\"}}){uid}}");
+            "1\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category-id.json", httpClient, HttpStatus.SC_OK,
-            "xf1\"}}){id}}");
+            "1\"}}){id}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,
-            "xf1\"}}){items{__typename,sku}}}");
+            "1\"}}){items{__typename,sku}}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "xf2\"}}){uid}}");
+            "2\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-category-id.json", httpClient, HttpStatus.SC_OK,
-            "xf2\"}}){id}}");
+            "2\"}}){id}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-product.json", httpClient, HttpStatus.SC_OK,
-            "xf2\"}}){items{__typename,sku}}}");
+            "2\"}}){items{__typename,sku}}}");
+
+        ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store", "enableUIDSupport", String.valueOf(uidSupport)));
 
         Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(mockConfig));
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
@@ -182,7 +184,8 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf1");
 
-        verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1-uid",
+            "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test
@@ -193,8 +196,8 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf2");
 
-        verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2",
-            "/content/experience-fragments/mysite/page/xf-2/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2-uid",
+            "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
     }
 
     @Test
@@ -206,7 +209,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("url-key-xf1");
 
-        verifyFragment(XF_ROOT, "sku-xf1", null, null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
+        verifyFragment(XF_ROOT, "sku-xf1", null, null, "xf-1-uid", "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test
@@ -245,9 +248,9 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("catid-xf1");
+        requestPathInfo.setSelectorString("1");
 
-        verifyFragment(SITE_XF_ROOT, null, "catid-xf1", null, "xf-1", "/content/experience-fragments/mysite/page/xf-1/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, null, "1", null, "xf-1-id", "/content/experience-fragments/mysite/page/xf-1-id/master/jcr:content");
     }
 
     @Test
@@ -255,10 +258,10 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("catid-xf2");
+        requestPathInfo.setSelectorString("2");
 
-        verifyFragment(SITE_XF_ROOT, null, "catid-xf2", "location-xf2", "xf-2",
-            "/content/experience-fragments/mysite/page/xf-2/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, null, "2", "location-xf2", "xf-2-id",
+            "/content/experience-fragments/mysite/page/xf-2-id/master/jcr:content");
     }
 
     @Test
@@ -267,7 +270,7 @@ public class CommerceExperienceFragmentImplTest {
         setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.UID);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("catid-xf2");
+        requestPathInfo.setSelectorString("uid2");
 
         verifyFragment(SITE_XF_ROOT, null, "2", "location-xf2", "xf-2-id",
             "/content/experience-fragments/mysite/page/xf-2-id/master/jcr:content");
@@ -278,9 +281,9 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("catid-xf3");
+        requestPathInfo.setSelectorString("3");
 
-        verifyFragmentResourceIsNull(XF_ROOT, null, "catid-xf3", "location-xf2");
+        verifyFragmentResourceIsNull(XF_ROOT, null, "3", "location-xf2");
     }
 
     @Test
@@ -288,6 +291,30 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         verifyFragmentResourceIsNull(XF_ROOT, null, null, null);
+    }
+
+    @Test
+    public void testUIDSupportWithIDSelector() throws IOException {
+        setup(CATEGORY_PAGE, RESOURCE_XF1, true);
+        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.ID);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("1");
+
+        verifyFragment(SITE_XF_ROOT, null, "uid1", null, "xf-1-uid",
+            "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
+    }
+
+    @Test
+    public void testUIDSupportWithURLPathSelector() throws IOException {
+        setup(CATEGORY_PAGE, RESOURCE_XF2, true);
+        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.URL_PATH);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("url_path2");
+
+        verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
+            "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
     }
 
     private void verifyFragment(String xfRootPath, String productSku, String categoryId, String fragmentLocation, String expectedXFName,
