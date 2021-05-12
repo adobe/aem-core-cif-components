@@ -15,11 +15,11 @@
 import { gql } from '@apollo/client';
 
 export default gql`
-    mutation($cartId: String!, $itemId: Int!) {
-        removeItemFromCart(input: { cart_id: $cartId, cart_item_id: $itemId }) {
+    mutation($cartId: String!, $itemUid: ID!) {
+        removeItemFromCart(input: { cart_id: $cartId, cart_item_uid: $itemUid }) {
             cart {
                 items {
-                    id
+                    uid
                 }
             }
         }

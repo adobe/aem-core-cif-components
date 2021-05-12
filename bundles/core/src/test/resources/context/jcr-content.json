@@ -164,7 +164,7 @@
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
-                "categoryId": "UID1",
+                "categoryId": "UID3",
                 "categoryIdType": "uid"
               },
               "item1": {
@@ -172,7 +172,7 @@
                 "categoryIdType": "id"
               },
               "item2": {
-                "categoryId": "UID3",
+                "categoryId": "UID1",
                 "categoryIdType": "uid"
               }
             }
@@ -199,6 +199,34 @@
             "pageSize": 8,
             "paginationType": "loadmorebutton",
             "sling:resourceType": "venia/components/commerce/productcollection"
+          },
+          "buttonTypeProduct": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "product",
+            "productSlug": "blast-mini-pump"
+          },
+          "buttonTypeCategory": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "category",
+            "categoryId": "5"
+          },
+          "buttonTypeToPage": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "linkTo",
+            "linkTo": "/content/venia/language-masters/en"
+          },
+          "buttonTypeExternalLink": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "externalLink",
+            "externalLink": "http://sample-link.com"
+          },
+          "buttonDefaultUrl": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button"
           }
         }
       }

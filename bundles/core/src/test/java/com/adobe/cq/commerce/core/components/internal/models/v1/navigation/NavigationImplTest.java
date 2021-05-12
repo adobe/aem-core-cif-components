@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
@@ -41,6 +42,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
 import com.google.common.collect.ImmutableMap;
+import com.shopify.graphql.support.ID;
 
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
@@ -50,6 +52,7 @@ import static com.adobe.cq.commerce.core.components.models.navigation.Navigation
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,7 +100,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any(), anyBoolean())).thenReturn(categoryList);
 
         // URL provider
         UrlProviderImpl urlProvider = new UrlProviderImpl();
@@ -109,6 +112,14 @@ public class NavigationImplTest {
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
 
+        Map<String, Object> props = new HashMap<>();
+        props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
+        ValueMapDecorator vm = new ValueMapDecorator(props);
+        ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
+        Resource resource = mock((Resource.class));
+        Whitebox.setInternalState(navigation, "resource", resource);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
+
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
         Whitebox.setInternalState(navigationModel, "request", request);
@@ -118,6 +129,10 @@ public class NavigationImplTest {
     public void testStructureDepthProperty() {
 
         // set up
+        when(request.getRequestURI()).thenReturn("/page1/page11");
+        RequestPathInfo rpi = mock(RequestPathInfo.class);
+        when(rpi.getSelectors()).thenReturn(new String[0]);
+        when(request.getRequestPathInfo()).thenReturn(rpi);
         ValueMapDecorator properties = new ValueMapDecorator(new HashMap<>());
         Whitebox.setInternalState(navigation, "properties", properties);
         Style style = mock(Style.class);
@@ -357,6 +372,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -389,6 +405,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -397,6 +414,7 @@ public class NavigationImplTest {
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
         when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -440,6 +458,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getId()).thenReturn(categoryId);
+        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -448,6 +467,7 @@ public class NavigationImplTest {
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
         when(childCategory.getId()).thenReturn(childCategoryId);
+        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -511,6 +531,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getName()).thenReturn(categoryTitle);
+        when(category.getUid()).thenReturn(new ID("0"));
         categoryList.add(category);
 
         if (pageBeforeCategory) {
