@@ -36,12 +36,12 @@ public class ComponentJSONExporterIT extends CommerceTestBase {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final CustomComparator jsonComparator = new CustomComparator(JSONCompareMode.STRICT,
-        new Customization("repo:modifyDate", (o1, o2) -> true));
+        new Customization("**.repo:modifyDate", (o1, o2) -> true));
     private static final String[] componentKeys = new String[] { "categorycarousel", "featuredcategorylist", "productteaser",
         "productcarousel", "relatedproducts", "teaser" };
 
     @Test
-    public void testProductBreadcrumbWithPlaceholderData() throws ClientException, IOException, JSONException {
+    public void testComponentsJsonOutput() throws ClientException, IOException, JSONException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/json/exporter.model.json", 200);
 
         JsonNode jsonOutput = mapper.readTree(response.getContent());
