@@ -1,0 +1,87 @@
+{
+  "id": "categorycarousel-526952b825",
+  "configured": true,
+  "categoryItems": [
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "15",
+        "type": "ID"
+      }
+    },
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "24",
+        "type": "ID"
+      }
+    },
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "28",
+        "type": "ID"
+      }
+    },
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "32",
+        "type": "ID"
+      }
+    }
+  ],
+  ":type": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist",
+  "dataLayer": {
+    "categorycarousel-526952b825": {
+      "xdm:categories": [
+        {
+          "repo:id": "category-e629fa6598",
+          "xdm:name": "Men's Jackets",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-d729234d5e",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg/jcr:content/renditions/original"
+          }
+        },
+        {
+          "repo:id": "category-c2356069e9",
+          "xdm:name": "Women's Jackets",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-cf3f8d3d90",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg/jcr:content/renditions/original"
+          }
+        },
+        {
+          "repo:id": "category-59e19706d5",
+          "xdm:name": "Accessories",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-c66677f65d",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg/jcr:content/renditions/original"
+          }
+        },
+        {
+          "repo:id": "category-e29c9c180c",
+          "xdm:name": "Watches",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-ac90268788",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg/jcr:content/renditions/original"
+          }
+        }
+      ],
+      "repo:modifyDate": "2021-05-12T14:29:46Z",
+      "@type": "cif-components-examples/components/categorycarousel"
+    }
+  }
+}

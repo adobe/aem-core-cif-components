@@ -11,15 +11,35 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 
 import { useUserContext } from '../../context/UserContext';
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
+
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
+
 const AccountContainer = props => {
-    const [{ currentUser, isSignedIn }] = useUserContext();
+    const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
+
+    console.log("AuthBar")
+    useEffect(() => {
+        if (isSignedIn && currentUser.email === '') {
+            getUserDetails();
+        }
+    }, [getUserDetails]);
+
+    useEffect(() => {
+        console.log("checking if signed in")
+        if (!isSignedIn) {
+            dataLayerUtils.pushData({ user: null });
+        } else if (isSignedIn && currentUser.email !== '') {
+            dataLayerUtils.pushData({ user: currentUser });
+        }
+    }, [isSignedIn, currentUser]);
+
     const [t] = useTranslation('account');
 
     const label = isSignedIn ? (
