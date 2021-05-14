@@ -24,7 +24,6 @@ import * as dataLayerUtils from '../../utils/dataLayerUtils';
 const AuthBar = ({ showMyAccount, showSignIn }) => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
 
-    console.log('AuthBar');
     useEffect(() => {
         if (isSignedIn && currentUser.email === '') {
             getUserDetails();
@@ -32,7 +31,6 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
     }, [getUserDetails]);
 
     useEffect(() => {
-        console.log('checking if signed in');
         if (!isSignedIn) {
             dataLayerUtils.pushData({ user: null });
         } else if (isSignedIn && currentUser.email !== '') {
