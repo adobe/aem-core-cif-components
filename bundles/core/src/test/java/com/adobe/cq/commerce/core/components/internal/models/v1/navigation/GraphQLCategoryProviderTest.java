@@ -90,19 +90,24 @@ public class GraphQLCategoryProviderTest {
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
         Whitebox.setInternalState(categoryProvider, "magentoGraphqlClient", graphqlClient);
 
-        // test category not found
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
-        when(graphqlClient.execute(anyString())).thenReturn(response);
         Query rootQuery = mock(Query.class);
+        List<CategoryTree> list = mock(List.class);
+        CategoryTree category = mock(CategoryTree.class);
+
+        // test category not found
+        when(graphqlClient.execute(anyString())).thenReturn(response);
         when(response.getData()).thenReturn(rootQuery);
-        Assert.assertNull(rootQuery.getCategory());
+        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10, false).isEmpty());
+
+        // test category found but null
+        when(rootQuery.getCategoryList()).thenReturn(list);
+        when(rootQuery.getCategoryList().get(0)).thenReturn(null);
         Assert.assertTrue(categoryProvider.getChildCategories("-10", 10, false).isEmpty());
 
         // test category children not found
-        CategoryTree category = mock(CategoryTree.class);
-        when(rootQuery.getCategory()).thenReturn(category);
+        when(rootQuery.getCategoryList().get(0)).thenReturn(category);
         when(category.getChildren()).thenReturn(null);
-        Assert.assertNull(category.getChildren());
         Assert.assertTrue(categoryProvider.getChildCategories("13", 10, false).isEmpty());
     }
 
