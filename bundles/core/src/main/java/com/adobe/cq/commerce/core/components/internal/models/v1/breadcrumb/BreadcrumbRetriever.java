@@ -176,7 +176,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateCategoryQuery() {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier);
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier.replaceAll("_", "/"));
         CategoryFilterInput filter;
 
         switch (categoryIdentifierType) {
