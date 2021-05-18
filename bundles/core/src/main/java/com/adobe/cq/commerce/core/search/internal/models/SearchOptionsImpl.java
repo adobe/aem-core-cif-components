@@ -62,8 +62,8 @@ public class SearchOptionsImpl implements SearchOptions {
             categoryUid = attributeFilters.get(CATEGORY_UID_PARAMETER_ID);
         }
 
-        if (attributeFilters.containsKey(SEARCH_QUERY_PARAMETER_ID)) {
-            searchQuery = attributeFilters.get(SEARCH_QUERY_PARAMETER_ID);
+        if (searchOptions.getSearchQuery().isPresent()) {
+            searchQuery = searchOptions.getSearchQuery().get();
         }
 
     }

@@ -38,21 +38,6 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
-    public static CategoryFilterInput generateCategoryFilter(FilterEqualTypeInput identifiersFilter, UrlProvider.CategoryIdentifierType categoryIdentifierType) {
-        CategoryFilterInput filter;
-
-        if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
-        } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setIds(identifiersFilter);
-        } else {
-            LoggerFactory.getLogger(CategoryRetriever.class).error("Category identifier type is not supported. Falling back to ID based categoryList query");
-            filter = new CategoryFilterInput().setIds(identifiersFilter);
-        }
-
-        return filter;
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoryRetriever.class);
 
     /**
@@ -95,6 +80,28 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Page size for pagination of products in a category.
      */
     protected int pageSize = 6;
+
+    /**
+     * Generates the filter for a category or categoryList query
+     *
+     * @param identifiersFilter The filter portion to be used by CategoryFilterInput.
+     * @param categoryIdentifierType The category identifiers used byt the identifiersFilter
+     */
+    public static CategoryFilterInput generateCategoryFilter(FilterEqualTypeInput identifiersFilter,
+        UrlProvider.CategoryIdentifierType categoryIdentifierType) {
+        CategoryFilterInput filter;
+
+        if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
+        } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setIds(identifiersFilter);
+        } else {
+            LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
+            filter = new CategoryFilterInput().setIds(identifiersFilter);
+        }
+
+        return filter;
+    }
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
