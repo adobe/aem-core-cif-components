@@ -38,6 +38,21 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
+    public static CategoryFilterInput generateCategoryFilter(FilterEqualTypeInput identifiersFilter, UrlProvider.CategoryIdentifierType categoryIdentifierType) {
+        CategoryFilterInput filter;
+
+        if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
+        } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
+            filter = new CategoryFilterInput().setIds(identifiersFilter);
+        } else {
+            LoggerFactory.getLogger(CategoryRetriever.class).error("Category identifier type is not supported. Falling back to ID based categoryList query");
+            filter = new CategoryFilterInput().setIds(identifiersFilter);
+        }
+
+        return filter;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoryRetriever.class);
 
     /**
@@ -210,16 +225,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
             FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setEq(identifier);
-            CategoryFilterInput filter;
-            if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
-                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
-            } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-            } else {
-                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-            }
-
+            CategoryFilterInput filter = generateCategoryFilter(identifiersFilter, categoryIdentifierType);
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
         }).toString();
@@ -261,21 +267,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier.replaceAll("_", "/"));
-        CategoryFilterInput filter;
-
-        switch (categoryIdentifierType) {
-            case ID:
-                filter = new CategoryFilterInput().setIds(identifierFilter);
-                break;
-            case UID:
-                filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
-                break;
-            case URL_PATH:
-                filter = new CategoryFilterInput().setUrlPath(identifierFilter);
-                break;
-            default:
-                throw new RuntimeException("Category identifier type is not supported");
-        }
+        CategoryFilterInput filter = generateCategoryFilter(identifierFilter, categoryIdentifierType);
 
         CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
