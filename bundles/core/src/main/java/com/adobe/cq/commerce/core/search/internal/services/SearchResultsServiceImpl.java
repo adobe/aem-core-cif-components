@@ -130,7 +130,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
-        searchResultsSet.setSearchOptions(searchOptions);
+        SearchOptionsImpl mutableSearchOptions = new SearchOptionsImpl(searchOptions);
+        searchResultsSet.setSearchOptions(mutableSearchOptions);
 
         Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
 
@@ -155,7 +156,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    ((SearchOptionsImpl) searchOptions).setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryId(category.getId().toString());
                 }
             }
         }
