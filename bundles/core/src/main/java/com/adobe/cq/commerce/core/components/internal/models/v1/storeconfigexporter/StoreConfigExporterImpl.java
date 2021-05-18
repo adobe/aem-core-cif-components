@@ -30,7 +30,6 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
-import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 
 @Model(
@@ -61,14 +60,8 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @PostConstruct
     void initModel() {
         // Get configuration from CIF Sling CA config
-        Resource pageContent = currentPage.getContentResource();
-        ComponentsConfiguration properties = null;
-        if (LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
-            properties = LaunchUtils.getTargetResource(pageContent, null).adaptTo(ComponentsConfiguration.class);
-        } else {
-            properties = pageContent.adaptTo(ComponentsConfiguration.class);
-        }
-
+        Resource configResource = currentPage.getContentResource();
+        ComponentsConfiguration properties = configResource.adaptTo(ComponentsConfiguration.class);
         storeView = properties.get(STORE_CODE_PROPERTY, "default");
         graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, "/magento/graphql");
 
