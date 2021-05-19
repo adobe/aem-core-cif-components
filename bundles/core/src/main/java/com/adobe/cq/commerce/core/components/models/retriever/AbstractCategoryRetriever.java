@@ -91,6 +91,11 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         UrlProvider.CategoryIdentifierType categoryIdentifierType) {
         CategoryFilterInput filter;
 
+        if (categoryIdentifierType == null) {
+            LOGGER.error("Category identifier type is not set. Falling back to ID based categoryList query");
+            return new CategoryFilterInput().setIds(identifiersFilter);
+        }
+
         switch (categoryIdentifierType) {
             case ID:
                 filter = new CategoryFilterInput().setIds(identifiersFilter);
@@ -102,7 +107,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
                 filter = new CategoryFilterInput().setUrlPath(identifiersFilter);
                 break;
             default:
-                throw new RuntimeException("Category identifier type is not supported");
+                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
+                filter = new CategoryFilterInput().setIds(identifiersFilter);
         }
 
         return filter;
