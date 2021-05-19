@@ -15,8 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -71,8 +69,6 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
-    private static final List<CategoryIdentifierType> VALID_CATEGORY_IDENTIFIERS = Collections.unmodifiableList(Arrays.asList(
-        CategoryIdentifierType.ID, CategoryIdentifierType.UID));
     private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     @Self
