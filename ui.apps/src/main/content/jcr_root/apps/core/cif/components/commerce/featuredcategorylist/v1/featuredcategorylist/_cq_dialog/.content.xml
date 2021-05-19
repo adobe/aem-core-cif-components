@@ -44,8 +44,7 @@
                                     sling:resourceType="commerce/gui/components/common/cifcategoryfield" 
                                     fieldLabel="Category" 
                                     multiple="{Boolean}false" 
-                                    name="./categoryId" 
-                                    selectionId="id" />
+                                    name="./categoryId" />
                                 <asset jcr:primaryType="nt:unstructured" 
                                     sling:resourceType="granite/ui/components/coral/foundation/form/pathfield" 
                                     fieldDescription="If set, the category image is replaced by the selected asset." 

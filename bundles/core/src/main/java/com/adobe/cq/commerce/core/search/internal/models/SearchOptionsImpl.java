@@ -50,6 +50,26 @@ public class SearchOptionsImpl implements SearchOptions {
         attributeFilters = new HashMap<>();
     }
 
+    public SearchOptionsImpl(SearchOptions searchOptions) {
+        attributeFilters = searchOptions.getAttributeFilters();
+        sorterKeys = searchOptions.getSorterKeys();
+
+        Map<String, String> allFilters = searchOptions.getAllFilters();
+
+        if (allFilters.containsKey(CATEGORY_ID_PARAMETER_ID)) {
+            categoryId = allFilters.get(CATEGORY_ID_PARAMETER_ID);
+        }
+
+        if (allFilters.containsKey(CATEGORY_UID_PARAMETER_ID)) {
+            categoryUid = allFilters.get(CATEGORY_UID_PARAMETER_ID);
+        }
+
+        if (searchOptions.getSearchQuery().isPresent()) {
+            searchQuery = searchOptions.getSearchQuery().get();
+        }
+
+    }
+
     @Override
     public Map<String, String> getAllFilters() {
         Map<String, String> allFilters = new HashMap<>(getAttributeFilters());

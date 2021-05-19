@@ -34,7 +34,7 @@
 
 {products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,crosssell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
-{categoryList(filters:{url_path:{eq:"running"}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
+{categoryList(filters:{ids:{eq:"running"}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
 
 {categoryList(filters:{category_uid:{eq:"MTM="}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
 

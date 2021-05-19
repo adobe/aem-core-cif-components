@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -176,22 +177,8 @@ public class BreadcrumbRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateCategoryQuery() {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier);
-        CategoryFilterInput filter;
-
-        switch (categoryIdentifierType) {
-            case ID:
-                filter = new CategoryFilterInput().setIds(identifierFilter);
-                break;
-            case UID:
-                filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
-                break;
-            case URL_PATH:
-                filter = new CategoryFilterInput().setUrlPath(identifierFilter);
-                break;
-            default:
-                throw new RuntimeException("Category identifier type is not supported");
-        }
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier.replaceAll("_", "/"));
+        CategoryFilterInput filter = AbstractCategoryRetriever.generateCategoryFilter(identifierFilter, categoryIdentifierType);
 
         CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
 

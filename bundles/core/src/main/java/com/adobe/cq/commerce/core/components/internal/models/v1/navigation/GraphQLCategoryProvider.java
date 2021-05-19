@@ -67,8 +67,8 @@ class GraphQLCategoryProvider {
 
         Query rootQuery = response.getData();
         List<CategoryTree> category = rootQuery.getCategoryList();
-        if (category.isEmpty()) {
-            LOGGER.warn("Magento category not found for identifier: " + categoryIdentifier);
+        if (category.isEmpty() || category.get(0) == null) {
+            LOGGER.warn("Category not found for identifier: " + categoryIdentifier);
             return Collections.emptyList();
         }
 

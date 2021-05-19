@@ -130,7 +130,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
-        searchResultsSet.setSearchOptions(searchOptions);
+        SearchOptionsImpl mutableSearchOptions = new SearchOptionsImpl(searchOptions);
+        searchResultsSet.setSearchOptions(mutableSearchOptions);
 
         Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
 
@@ -155,7 +156,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    ((SearchOptionsImpl) searchOptions).setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryId(category.getId().toString());
                 }
             }
         }
@@ -163,9 +164,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
-        SorterKey currentSorterKey = prepareSorting(searchOptions, searchResultsSet);
+        SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
 
-        String productsQueryString = generateProductsQueryString(searchOptions, availableFilters, productQueryHook, currentSorterKey);
+        String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
+            currentSorterKey);
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
@@ -188,7 +190,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             resource);
 
         final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
-            searchOptions.getAllFilters(), availableFilters);
+            mutableSearchOptions.getAllFilters(), availableFilters);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
