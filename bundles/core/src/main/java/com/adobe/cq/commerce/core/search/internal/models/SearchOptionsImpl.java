@@ -54,12 +54,14 @@ public class SearchOptionsImpl implements SearchOptions {
         attributeFilters = searchOptions.getAttributeFilters();
         sorterKeys = searchOptions.getSorterKeys();
 
-        if (attributeFilters.containsKey(CATEGORY_ID_PARAMETER_ID)) {
-            categoryId = attributeFilters.get(CATEGORY_ID_PARAMETER_ID);
+        Map<String, String> allFilters = searchOptions.getAllFilters();
+
+        if (allFilters.containsKey(CATEGORY_ID_PARAMETER_ID)) {
+            categoryId = allFilters.get(CATEGORY_ID_PARAMETER_ID);
         }
 
-        if (attributeFilters.containsKey(CATEGORY_UID_PARAMETER_ID)) {
-            categoryUid = attributeFilters.get(CATEGORY_UID_PARAMETER_ID);
+        if (allFilters.containsKey(CATEGORY_UID_PARAMETER_ID)) {
+            categoryUid = allFilters.get(CATEGORY_UID_PARAMETER_ID);
         }
 
         if (searchOptions.getSearchQuery().isPresent()) {

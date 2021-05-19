@@ -91,13 +91,18 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         UrlProvider.CategoryIdentifierType categoryIdentifierType) {
         CategoryFilterInput filter;
 
-        if (UrlProvider.CategoryIdentifierType.UID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
-        } else if (UrlProvider.CategoryIdentifierType.ID.equals(categoryIdentifierType)) {
-            filter = new CategoryFilterInput().setIds(identifiersFilter);
-        } else {
-            LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
-            filter = new CategoryFilterInput().setIds(identifiersFilter);
+        switch (categoryIdentifierType) {
+            case ID:
+                filter = new CategoryFilterInput().setIds(identifiersFilter);
+                break;
+            case UID:
+                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
+                break;
+            case URL_PATH:
+                filter = new CategoryFilterInput().setUrlPath(identifiersFilter);
+                break;
+            default:
+                throw new RuntimeException("Category identifier type is not supported");
         }
 
         return filter;
