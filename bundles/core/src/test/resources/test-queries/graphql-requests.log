@@ -56,7 +56,7 @@
 
 {categoryList(filters:{category_uid:{eq:"uid2"}}){id}}
 
-{categoryList(filters:{ids:{eq:"url_path2"}}){uid}}
+{categoryList(filters:{url_path:{eq:"url_path2"}}){uid}}
 
 {categoryList(filters:{ids:{in:["5","6","7","9999"]}}){id,name,url_path,position,image}}
 
