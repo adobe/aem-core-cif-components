@@ -125,8 +125,7 @@
                                                                 jcr:primaryType="nt:unstructured"
                                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                                 fieldLabel="Category"
-                                                                name="./categoryId"
-                                                                selectionId="id"/>
+                                                                name="./categoryId" />
                                                         </items>
                                                     </well>
                                                 </items>
