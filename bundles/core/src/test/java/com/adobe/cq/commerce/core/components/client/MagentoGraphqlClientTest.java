@@ -28,6 +28,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
@@ -51,8 +54,7 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MagentoGraphqlClientTest {
 
@@ -199,9 +201,16 @@ public class MagentoGraphqlClientTest {
     public void testPreviewVersionHeaderOnLaunchPage() {
         context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
 
+        context.registerService(ServiceUserMapped.class, mock(ServiceUserMapped.class), ServiceUserMapped.SUBSERVICENAME,
+            "cif-components-configuration");
+        context.registerInjectActivateService(new ComponentsConfigurationAdapterFactory());
         // We configure the adapter to get a config for PAGE_A, so we test that the code gets the config from the Launch production page
-        context.registerAdapter(Resource.class, ComponentsConfiguration.class, (Function<Resource, ComponentsConfiguration>) resource -> {
-            return resource.getPath().equals(PAGE_A) ? MOCK_CONFIGURATION_OBJECT : ComponentsConfiguration.EMPTY;
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, (Function<Resource, ConfigurationBuilder>) resource -> {
+            ConfigurationBuilder configBuilder = mock(ConfigurationBuilder.class);
+            ValueMap data = resource.getPath().equals(PAGE_A) ? MOCK_CONFIGURATION : ValueMap.EMPTY;
+            when(configBuilder.name(anyString())).thenReturn(configBuilder);
+            when(configBuilder.asValueMap()).thenReturn(data);
+            return configBuilder;
         });
 
         // We test that a component rendered on an AEM Launch page will add the Preview-Version header
