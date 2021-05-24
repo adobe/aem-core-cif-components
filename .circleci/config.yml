@@ -107,6 +107,7 @@ jobs:
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
             - examples/ui.content/target/*.zip
+            - it/content/target/*.zip
       - store_test_results:
           path: test-results
       - store_artifacts:
