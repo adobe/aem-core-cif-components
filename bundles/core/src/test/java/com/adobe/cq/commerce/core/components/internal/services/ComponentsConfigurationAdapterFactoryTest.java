@@ -30,7 +30,10 @@ import org.mockito.Mockito;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import com.adobe.cq.commerce.core.components.client.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.launches.api.Launch;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
@@ -64,7 +67,7 @@ public class ComponentsConfigurationAdapterFactoryTest {
     @Before
     public void setup() {
         context.load().json("/context/jcr-conf.json", "/conf/testing");
-        context.load().json("/context/jcr-content.json", "/content/my-site");
+        context.load().json("/context/jcr-content.json", "/content");
         ResourceResolverFactory resourceResolverFactory = Mockito.mock(ResourceResolverFactory.class);
         ServiceUserMapped serviceUserMapped = Mockito.mock(ServiceUserMapped.class);
 
@@ -78,7 +81,7 @@ public class ComponentsConfigurationAdapterFactoryTest {
 
     @Test
     public void testAdaptFromResource() {
-        Resource resource = context.resourceResolver().getResource("/content/my-site/pageH");
+        Resource resource = context.resourceResolver().getResource("/content/pageH");
         ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
 
         Assert.assertNotNull("Configuration is not null", configuration);
@@ -90,12 +93,30 @@ public class ComponentsConfigurationAdapterFactoryTest {
 
     @Test
     public void testAdaptFromResourceWithoutContextConfig() {
-        Resource resource = context.resourceResolver().getResource("/content/my-site/pageD");
+        Resource resource = context.resourceResolver().getResource("/content/pageD");
 
         ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
 
         Assert.assertNotNull("Configuration is not null", configuration);
         Assert.assertEquals("The configuration has no data in it", 0, configuration.size());
+    }
+
+    @Test
+    public void testAdaptFromResourceWithinLaunch() {
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
+
+        Resource existingResource = context.resourceResolver().getResource("/content/launches/2020/09/14/mylaunch/content/pageH");
+        Resource newResource = context.create().resource("/content/launches/2020/09/14/mylaunch/content/pageH/new-page");
+
+        for (Resource resource : new Resource[] { existingResource, newResource }) {
+            ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
+
+            Assert.assertNotNull("Configuration is not null", configuration);
+            Assert.assertTrue("The configuration has some data in it", configuration.size() > 0);
+
+            String unrelatedProperty = configuration.get("aTotallyUnrelatedProperty", String.class);
+            Assert.assertEquals("The configuration is correct", unrelatedProperty, "true");
+        }
     }
 
     @Test

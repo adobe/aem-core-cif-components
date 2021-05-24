@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.utils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -269,21 +270,16 @@ public class SiteNavigation {
      * <br>
      * <code>page = SiteNavigation.toLaunchProductionPage(page);</code>
      * 
-     * @param page The page to be checked.
+     * @param givenPage The page to be checked.
      * @return The production version of the page if it is a Launch page, or the page itself.
      */
-    public static Page toLaunchProductionPage(Page page) {
-        if (page == null || page.getPath() == null) {
-            return page;
-        }
-
-        PageManager pageManager = page.getPageManager();
-        if (pageManager != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            Resource targetResource = LaunchUtils.getTargetResource(page.adaptTo(Resource.class), null);
-            Page targetPage = pageManager.getPage(targetResource.getPath());
-            page = targetPage != null ? targetPage : page;
-        }
-        return page;
+    public static Page toLaunchProductionPage(Page givenPage) {
+        return Optional.ofNullable(givenPage)
+            .map(page -> page.adaptTo(Resource.class))
+            .filter(resource -> LaunchUtils.isLaunchBasedPath(resource.getPath()))
+            .map(resource -> LaunchUtils.getTargetResource(resource, null))
+            .map(productionResource -> productionResource.adaptTo(Page.class))
+            .orElse(givenPage);
     }
 
     /**
