@@ -22,6 +22,7 @@ ci.stage('Project Configuration');
 const config = ci.restoreConfiguration();
 console.log(config);
 const qpPath = '/home/circleci/cq';
+const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
 
 try {
@@ -39,9 +40,9 @@ try {
         	// The core components are already installed in the Cloud SDK
         	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM == 'addon') {
-        	// Download the CIF Add-On
-        	ci.sh(`curl -s "${process.env.CIF_ADDON_URL}" -o cif-addon.far`);
-        	extras = '--install-file cif-addon.far';
+            // Download latest add-on release from artifactory
+            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
+            extras = ` --install-file ${buildPath}/addon.far`;
         }
         
         // Start CQ
