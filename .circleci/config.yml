@@ -6,7 +6,7 @@ orbs:
 common:
   restore_cache: &restore_cache
     restore_cache:
-      keys: 
+      keys:
         - maven-repo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
         - maven-repo-v2-{{ arch }}-{{ .Branch }}
         - maven-repo-v2-
@@ -70,7 +70,7 @@ executors:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5104-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5181-azul
         <<: *docker_auth
   test_executor_655:
     docker:
@@ -153,7 +153,7 @@ jobs:
           path: ui.apps/karma-junit
       - codecov/upload:
           flags: karma
-          
+
   jest:
     docker:
       - image: circleci/node:lts-browsers
@@ -176,7 +176,7 @@ jobs:
           path: ./react-components/test-results
       - codecov/upload:
           flags: jest
- 
+
   integration-test-655:
     executor: test_executor_655
     environment:
@@ -185,7 +185,7 @@ jobs:
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
- 
+
   integration-test-cloudready:
     executor: test_executor_cloudready
     environment:
@@ -193,7 +193,7 @@ jobs:
     resource_class: large
     working_directory: /home/circleci/build
     <<: *integration_test_steps
-    
+
   integration-test-cloudready-with-addon:
     executor: test_executor_cloudready
     environment:
