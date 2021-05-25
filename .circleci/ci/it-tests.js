@@ -59,6 +59,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
+            ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
             --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 

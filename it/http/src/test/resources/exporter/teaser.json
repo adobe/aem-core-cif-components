@@ -1,0 +1,27 @@
+{
+  "actions": [
+    {
+      "title": "Find out more",
+      "url": "/content/core-components-examples/library/commerce/product.montana-wind-jacket.html",
+      "entityIdentifier": {
+        "entityType": "PRODUCT",
+        "value": "montana-wind-jacket",
+        "type": "URL_KEY"
+      }
+    }
+  ],
+  "id": "teaser-28faf4b577",
+  "assetPath": "/content/dam/core-components-examples/library/sample-assets/snowy-mountain-glacier.jpg",
+  "title": "Get ready for the cold !",
+  "actionsEnabled": true,
+  "imageLinkHidden": false,
+  "titleLinkHidden": false,
+  "dataLayer": {
+    "teaser-28faf4b577": {
+      "@type": "core/wcm/components/teaser/v1/teaser",
+      "repo:modifyDate": "2020-06-02T09:59:07Z",
+      "dc:title": "Get ready for the cold !"
+    }
+  },
+  ":type": "core/cif/components/content/teaser/v1/teaser"
+}
