@@ -42,11 +42,12 @@ export const pushData = data => {
 };
 
 // https://github.com/adobe/adobe-client-data-layer/wiki#push
-export const pushEvent = (eventName, eventData) => {
+export const pushEvent = (eventName, eventInfo, extraData) => {
     if (isDataLayerEnabled()) {
         getDataLayer().push({
             event: eventName,
-            eventInfo: eventData
+            eventInfo: eventInfo,
+            ...extraData
         });
     }
 };
