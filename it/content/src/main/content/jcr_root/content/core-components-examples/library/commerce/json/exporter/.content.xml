@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="cq:Page">
+    <jcr:content
+        cq:lastModified="{Date}2021-05-12T17:29:46.866+03:00"
+        cq:lastModifiedBy="admin"
+        cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
+        jcr:isCheckedOut="{Boolean}true"
+        jcr:mixinTypes="[mix:versionable]"
+        jcr:primaryType="cq:PageContent"
+        jcr:title="JSON Testing"
+        jcr:uuid="fe4b9997-1831-46dc-b3fb-1b92ed656813"
+        sling:resourceType="core-components-examples/components/page">
+        <root
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="wcm/foundation/components/responsivegrid">
+            <responsivegrid
+                cq:styleIds="[1545309110033]"
+                jcr:created="{Date}2018-12-20T12:31:03.201Z"
+                jcr:createdBy="admin"
+                jcr:lastModified="{Date}2018-12-20T14:47:57.433Z"
+                jcr:lastModifiedBy="admin"
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="wcm/foundation/components/responsivegrid">
+                <categorycarousel
+                    jcr:created="{Date}2021-05-12T17:29:46.862+03:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2021-05-12T17:29:46.862+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/categorycarousel">
+                    <items jcr:primaryType="nt:unstructured">
+                        <item0
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
+                            categoryId="15"/>
+                        <item1
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
+                            categoryId="24"/>
+                        <item2
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
+                            categoryId="28"/>
+                        <item3
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"
+                            categoryId="32"/>
+                    </items>
+                </categorycarousel>
+                <featuredcategorylist
+                    jcr:created="{Date}2020-06-02T16:34:08.610+02:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2020-06-02T16:57:03.741+02:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Jackets for men and women!"
+                    sling:resourceType="cif-components-examples/components/featuredcategorylist">
+                    <items jcr:primaryType="nt:unstructured">
+                        <item0
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
+                            categoryId="15"/>
+                        <item1
+                            jcr:primaryType="nt:unstructured"
+                            asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
+                            categoryId="24"/>
+                    </items>
+                </featuredcategorylist>
+                <productteaser
+                    jcr:created="{Date}2020-05-11T11:24:38.524+02:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2020-05-11T11:25:24.590+02:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/productteaser"
+                    selection="24-MG03"/>
+                <productcarousel
+                    jcr:created="{Date}2020-05-11T14:27:49.051+02:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2020-05-11T15:34:00.026+02:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Summer promotions!"
+                    sling:resourceType="cif-components-examples/components/productcarousel"
+                    product="[24-MB02,WJ04#WJ04-XS-Orange,MH01,MH01#MH01-XS-Orange]"/>
+                <relatedproducts
+                    jcr:created="{Date}2020-05-11T14:27:49.051+02:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2020-05-18T14:58:10.473+02:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Upsells for the Summit Backback!"
+                    sling:resourceType="cif-components-examples/components/relatedproducts"
+                    product="24-MB02"
+                    relationType="UPSELL_PRODUCTS"/>
+                <teaser
+                    jcr:created="{Date}2020-06-02T11:57:56.285+02:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2020-06-02T11:59:07.889+02:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Get ready for the cold !"
+                    sling:resourceType="cif-components-examples/components/teaser"
+                    actionsEnabled="true"
+                    descriptionFromPage="false"
+                    fileReference="/content/dam/core-components-examples/library/sample-assets/snowy-mountain-glacier.jpg"
+                    textIsRich="true"
+                    titleFromPage="false">
+                    <actions jcr:primaryType="nt:unstructured">
+                        <item0
+                            jcr:primaryType="nt:unstructured"
+                            productSlug="montana-wind-jacket"
+                            text="Find out more"/>
+                    </actions>
+                    <featuredcategorylist
+                        jcr:created="{Date}2020-06-02T16:34:08.610+02:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2020-06-02T16:57:03.741+02:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Jackets for men and women!"
+                        sling:resourceType="cif-components-examples/components/featuredcategorylist">
+                        <items jcr:primaryType="nt:unstructured">
+                            <item0
+                                jcr:primaryType="nt:unstructured"
+                                asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
+                                categoryId="15"/>
+                            <item1
+                                jcr:primaryType="nt:unstructured"
+                                asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
+                                categoryId="24"/>
+                        </items>
+                    </featuredcategorylist>
+                </teaser>
+            </responsivegrid>
+        </root>
+    </jcr:content>
+</jcr:root>

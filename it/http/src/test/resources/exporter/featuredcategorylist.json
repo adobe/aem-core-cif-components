@@ -1,0 +1,51 @@
+{
+  "id": "featuredcategorylist-5a0d0f1ba2",
+  "configured": true,
+  "categoryItems": [
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "15",
+        "type": "ID"
+      }
+    },
+    {
+      "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg",
+      "categoryIdentifier": {
+        "entityType": "CATEGORY",
+        "value": "24",
+        "type": "ID"
+      }
+    }
+  ],
+  ":type": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist",
+  "dataLayer": {
+    "featuredcategorylist-5a0d0f1ba2": {
+      "xdm:categories": [
+        {
+          "repo:id": "category-e629fa6598",
+          "xdm:name": "Men's Jackets",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-d729234d5e",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg/jcr:content/renditions/original"
+          }
+        },
+        {
+          "repo:id": "category-c2356069e9",
+          "xdm:name": "Women's Jackets",
+          "xdm:asset": {
+            "xdm:tags": [],
+            "@type": "image",
+            "repo:id": "image-cf3f8d3d90",
+            "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg/jcr:content/renditions/original"
+          }
+        }
+      ],
+      "repo:modifyDate": "2020-06-02T14:57:03Z",
+      "@type": "cif-components-examples/components/featuredcategorylist"
+    }
+  }
+}

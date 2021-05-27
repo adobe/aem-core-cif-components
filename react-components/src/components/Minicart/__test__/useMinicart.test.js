@@ -31,12 +31,14 @@ describe('useMinicart', () => {
     const addVirtualItemMutation = jest.fn();
     const createCartMutation = jest.fn();
     const addSimpleAndVirtualItemMutation = jest.fn();
+    const addBundleItemMutation = jest.fn();
 
     const queries = {
         cartDetailsQuery,
         addToCartMutation,
         addVirtualItemMutation,
         addSimpleAndVirtualItemMutation,
+        addBundleItemMutation,
         createCartMutation
     };
 
@@ -55,8 +57,19 @@ describe('useMinicart', () => {
         );
     };
 
+    beforeAll(() => {
+        window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+
+        window.adobeDataLayer = [];
+        window.adobeDataLayer.push = jest.fn();
+    });
+
+    beforeEach(() => {
+        window.adobeDataLayer.push.mockClear();
+    });
+
     it('adds an item to cart', async () => {
-        const mockEvent = { detail: [{ sku: '123', quantity: 2 }] };
+        const mockEvent = { detail: [{ productId: 'test-id', sku: '123', quantity: 2 }] };
 
         const { getByRole, getByTestId } = render(
             <CartProvider initialState={{ cartId: 'guest123' }}>
@@ -70,6 +83,16 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addToCartMutation).toHaveBeenCalledTimes(1);
+
+        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: {
+                '@id': 'test-id',
+                'xdm:SKU': '123',
+                'xdm:quantity': 2
+            }
+        });
     });
 
     it('adds multiple items to cart', async () => {
@@ -89,5 +112,46 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
+        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
+    });
+
+    it('adds Bundle Product to cart', async () => {
+        const mockEvent = {
+            detail: [
+                {
+                    productId: 'test-id',
+                    sku: '123',
+                    virtual: false,
+                    bundle: true,
+                    quantity: 1,
+                    options: {
+                        id: 1,
+                        quantity: 1,
+                        value: 'option'
+                    }
+                }
+            ]
+        };
+
+        const { getByRole } = render(
+            <CartProvider initialState={{ cartId: 'guest123' }}>
+                <MockComponent event={mockEvent} />
+            </CartProvider>
+        );
+
+        await act(async () => fireEvent.click(getByRole('button')));
+
+        expect(addBundleItemMutation).toHaveBeenCalledTimes(1);
+
+        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: {
+                '@id': 'test-id',
+                'xdm:SKU': '123',
+                'xdm:quantity': 1,
+                bundle: true
+            }
+        });
     });
 });
