@@ -33,7 +33,8 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
-        Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+        Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
+            + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
         Assert.assertEquals(1, elements.size());
     }
 }
