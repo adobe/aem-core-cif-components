@@ -18,10 +18,10 @@
  We may need to update this client library as the above client library evolves.
  */
 (function(window, $, channel, Granite, Coral) {
-    "use strict";
+    'use strict';
 
     // class of the edit dialog content
-    var CLASS_EDIT_DIALOG = "cmp-contentfragment__editor";
+    var CLASS_EDIT_DIALOG = 'cmp-contentfragment__editor';
 
     // field selectors
     var SELECTOR_MODEL_PATH = "[name='./modelPath']";
@@ -29,27 +29,29 @@
     var SELECTOR_ELEMENT_NAMES_CONTAINER = "[data-element-names-container='true']";
     var SELECTOR_ELEMENT_NAMES = "[data-granite-coral-multifield-name='./elementNames']";
     var SELECTOR_SINGLE_TEXT_ELEMENT = "[data-single-text-selector='true']";
-    var SELECTOR_ELEMENT_NAMES_ADD = SELECTOR_ELEMENT_NAMES + " > [is=coral-button]";
+    var SELECTOR_ELEMENT_NAMES_ADD = SELECTOR_ELEMENT_NAMES + ' > [is=coral-button]';
     var SELECTOR_DISPLAY_MODE_RADIO_GROUP = "[data-display-mode-radio-group='true']";
     var SELECTOR_DISPLAY_MODE_CHECKED = "[name='./displayMode']:checked";
-    var SELECTOR_PARAGRAPH_CONTROLS = ".cmp-contentfragment__editor-paragraph-controls";
+    var SELECTOR_PARAGRAPH_CONTROLS = '.cmp-contentfragment__editor-paragraph-controls';
     var SELECTOR_PARAGRAPH_SCOPE = "[name='./paragraphScope']";
     var SELECTOR_PARAGRAPH_RANGE = "[name='./paragraphRange']";
     var SELECTOR_PARAGRAPH_HEADINGS = "[name='./paragraphHeadings']";
 
     // mode in which only one multiline text element could be selected for display
-    var SINGLE_TEXT_DISPLAY_MODE = "singleText";
+    var SINGLE_TEXT_DISPLAY_MODE = 'singleText';
 
     // ui helper
-    var ui = $(window).adaptTo("foundation-ui");
+    var ui = $(window).adaptTo('foundation-ui');
 
     // dialog texts
-    var confirmationDialogTitle = Granite.I18n.get("Warning");
-    var confirmationDialogMessage = Granite.I18n.get("Please confirm replacing the current content fragment model configuration");
-    var confirmationDialogCancel = Granite.I18n.get("Cancel");
-    var confirmationDialogConfirm = Granite.I18n.get("Confirm");
-    var errorDialogTitle = Granite.I18n.get("Error");
-    var errorDialogMessage = Granite.I18n.get("Failed to load the elements of the selected content fragment model");
+    var confirmationDialogTitle = Granite.I18n.get('Warning');
+    var confirmationDialogMessage = Granite.I18n.get(
+        'Please confirm replacing the current content fragment model configuration'
+    );
+    var confirmationDialogCancel = Granite.I18n.get('Cancel');
+    var confirmationDialogConfirm = Granite.I18n.get('Confirm');
+    var errorDialogTitle = Granite.I18n.get('Error');
+    var errorDialogMessage = Granite.I18n.get('Failed to load the elements of the selected content fragment model');
 
     // the model path field
     var modelPath;
@@ -102,13 +104,13 @@
      */
     ElementsController.prototype.disableFields = function() {
         if (this.addElement) {
-            this.addElement.setAttribute("disabled", "");
+            this.addElement.setAttribute('disabled', '');
         }
         if (this.singleTextSelector) {
-            this.singleTextSelector.setAttribute("disabled", "");
+            this.singleTextSelector.setAttribute('disabled', '');
         }
         if (this.linkElements) {
-            this.linkElements.setAttribute("disabled", "");
+            this.linkElements.setAttribute('disabled', '');
         }
     };
 
@@ -117,13 +119,13 @@
      */
     ElementsController.prototype.enableFields = function() {
         if (this.addElement) {
-            this.addElement.removeAttribute("disabled");
+            this.addElement.removeAttribute('disabled');
         }
         if (this.singleTextSelector) {
-            this.singleTextSelector.removeAttribute("disabled");
+            this.singleTextSelector.removeAttribute('disabled');
         }
         if (this.linkElements) {
-            this.linkElements.removeAttribute("disabled");
+            this.linkElements.removeAttribute('disabled');
         }
     };
 
@@ -136,7 +138,7 @@
             this.elementNames.value = null;
         }
         if (this.singleTextSelector) {
-            this.singleTextSelector.value = "";
+            this.singleTextSelector.value = '';
         }
         if (this.linkElements) {
             this.linkElements.items.clear();
@@ -157,7 +159,7 @@
      * @returns {Object} the resulting request
      */
     ElementsController.prototype.prepareRequest = function(displayMode, type) {
-        if (typeof displayMode === "undefined") {
+        if (typeof displayMode === 'undefined') {
             displayMode = editDialog.querySelector(SELECTOR_DISPLAY_MODE_CHECKED).value;
         }
         var data = {
@@ -165,10 +167,10 @@
             displayMode: displayMode
         };
         var url;
-        if (type === "linkElements") {
-            url = Granite.HTTP.externalize(this.linkElementsPath) + ".html";
-        } else if (type === "elements") {
-            url = Granite.HTTP.externalize(this.elementsContainerPath) + ".html";
+        if (type === 'linkElements') {
+            url = Granite.HTTP.externalize(this.linkElementsPath) + '.html';
+        } else if (type === 'elements') {
+            url = Granite.HTTP.externalize(this.elementsContainerPath) + '.html';
         }
         var request = $.get({
             url: url,
@@ -184,33 +186,35 @@
      * @param {Function} callback - function to execute when response is received
      */
     ElementsController.prototype.testGetHTML = function(displayMode, callback) {
-        var elementNamesRequest = this.prepareRequest(displayMode, "elements");
-        var linkElementsRequest = this.prepareRequest(displayMode, "linkElements");
+        var elementNamesRequest = this.prepareRequest(displayMode, 'elements');
+        var linkElementsRequest = this.prepareRequest(displayMode, 'linkElements');
         var self = this;
         // wait for requests to load
-        $.when(elementNamesRequest, linkElementsRequest).then(function(result1, result2) {
-            var newElementNames = $(result1[0]).find(SELECTOR_ELEMENT_NAMES)[0];
-            var newSingleTextSelector = $(result1[0]).find(SELECTOR_SINGLE_TEXT_ELEMENT)[0];
-            var newLinkElement = $(result2[0]).find(SELECTOR_LINK_ELEMENT)[0];
-            // get the fields from the resulting markup and create a test state
-            Coral.commons.ready(newElementNames, function() {
-                Coral.commons.ready(newSingleTextSelector, function() {
-                    Coral.commons.ready(newLinkElement, function() {
-                        self.fetchedState = {
-                            elementNames: newElementNames,
-                            singleTextSelector: newSingleTextSelector,
-                            linkElement: newLinkElement,
-                            elementNamesContainerHTML: result1[0],
-                        };
-                        callback();
+        $.when(elementNamesRequest, linkElementsRequest).then(
+            function(result1, result2) {
+                var newElementNames = $(result1[0]).find(SELECTOR_ELEMENT_NAMES)[0];
+                var newSingleTextSelector = $(result1[0]).find(SELECTOR_SINGLE_TEXT_ELEMENT)[0];
+                var newLinkElement = $(result2[0]).find(SELECTOR_LINK_ELEMENT)[0];
+                // get the fields from the resulting markup and create a test state
+                Coral.commons.ready(newElementNames, function() {
+                    Coral.commons.ready(newSingleTextSelector, function() {
+                        Coral.commons.ready(newLinkElement, function() {
+                            self.fetchedState = {
+                                elementNames: newElementNames,
+                                singleTextSelector: newSingleTextSelector,
+                                linkElement: newLinkElement,
+                                elementNamesContainerHTML: result1[0]
+                            };
+                            callback();
+                        });
                     });
                 });
-            });
-
-        }, function() {
-            // display error dialog if one of the requests failed
-            ui.prompt(errorDialogTitle, errorDialogMessage, "error");
-        });
+            },
+            function() {
+                // display error dialog if one of the requests failed
+                ui.prompt(errorDialogTitle, errorDialogMessage, 'error');
+            }
+        );
     };
 
     /**
@@ -274,15 +278,18 @@
      * @param {String} displayMode - selected display mode of the component
      */
     ElementsController.prototype.fetchAndUpdateElementsHTML = function(displayMode) {
-        var elementNamesRequest = this.prepareRequest(displayMode, "elements");
+        var elementNamesRequest = this.prepareRequest(displayMode, 'elements');
         var self = this;
         // wait for requests to load
-        $.when(elementNamesRequest).then(function(result) {
-            self._updateElementsHTML(result);
-        }, function() {
-            // display error dialog if one of the requests failed
-            ui.prompt(errorDialogTitle, errorDialogMessage, "error");
-        });
+        $.when(elementNamesRequest).then(
+            function(result) {
+                self._updateElementsHTML(result);
+            },
+            function() {
+                // display error dialog if one of the requests failed
+                ui.prompt(errorDialogTitle, errorDialogMessage, 'error');
+            }
+        );
     };
 
     /**
@@ -303,14 +310,14 @@
      * @param {HTMLElement} dom - new dom
      */
     ElementsController.prototype._updateElementsDOM = function(dom) {
-        if (dom.tagName === "CORAL-MULTIFIELD") {
+        if (dom.tagName === 'CORAL-MULTIFIELD') {
             // replace the element names multifield's template
             this.elementNames.template = dom.template;
         } else {
             dom.value = this.singleTextSelector.value;
             this.singleTextSelector.parentNode.replaceChild(dom, this.singleTextSelector);
             this.singleTextSelector = dom;
-            this.singleTextSelector.removeAttribute("disabled");
+            this.singleTextSelector.removeAttribute('disabled');
         }
         this._updateFields();
     };
@@ -325,7 +332,7 @@
         dom.value = this.linkElements.value;
         this.linkElements.parentNode.replaceChild(dom, this.linkElements);
         this.linkElements = dom;
-        this.linkElements.removeAttribute("disabled");
+        this.linkElements.removeAttribute('disabled');
         this._updateFields();
     };
 
@@ -336,7 +343,7 @@
         // get the fields
         modelPath = dialog.querySelector(SELECTOR_MODEL_PATH);
         paragraphControls = dialog.querySelector(SELECTOR_PARAGRAPH_CONTROLS);
-        paragraphControlsTab = dialog.querySelector("coral-tabview").tabList.items.getAll()[1];
+        paragraphControlsTab = dialog.querySelector('coral-tabview').tabList.items.getAll()[1];
 
         // initialize state variables
         currentModelPath = modelPath.value;
@@ -352,10 +359,10 @@
         updateParagraphControlTabState();
 
         // register change listener
-        $(modelPath).on("foundation-field-change", onModelPathChange);
-        $(document).on("change", SELECTOR_PARAGRAPH_SCOPE, setParagraphControlsState);
+        $(modelPath).on('foundation-field-change', onModelPathChange);
+        $(document).on('change', SELECTOR_PARAGRAPH_SCOPE, setParagraphControlsState);
         var $radioGroup = $(dialog).find(SELECTOR_DISPLAY_MODE_RADIO_GROUP);
-        $radioGroup.on("change", function(e) {
+        $radioGroup.on('change', function(e) {
             elementsController.fetchAndUpdateElementsHTML(e.target.value);
             updateParagraphControlTabState();
         });
@@ -394,8 +401,12 @@
                 return;
             }
             // else show a confirmation dialog
-            confirmModelChange(elementsController.discardFetchedState, elementsController,
-                elementsController.saveFetchedState, elementsController);
+            confirmModelChange(
+                elementsController.discardFetchedState,
+                elementsController,
+                elementsController.saveFetchedState,
+                elementsController
+            );
         });
     }
 
@@ -409,32 +420,34 @@
      * @param {Object} confirmCallbackScope - the scope (value of "this" keyword) to use for confirmCallback
      */
     function confirmModelChange(cancelCallback, cancelCallbackScope, confirmCallback, confirmCallbackScope) {
-
-        ui.prompt(confirmationDialogTitle, confirmationDialogMessage, "warning", [{
-            text: confirmationDialogCancel,
-            handler: function() {
-                // reset the model path to its previous value
-                requestAnimationFrame(function() {
-                    modelPath.value = currentModelPath;
-                });
-                if (cancelCallback) {
-                    cancelCallback.call(cancelCallbackScope);
+        ui.prompt(confirmationDialogTitle, confirmationDialogMessage, 'warning', [
+            {
+                text: confirmationDialogCancel,
+                handler: function() {
+                    // reset the model path to its previous value
+                    requestAnimationFrame(function() {
+                        modelPath.value = currentModelPath;
+                    });
+                    if (cancelCallback) {
+                        cancelCallback.call(cancelCallbackScope);
+                    }
+                }
+            },
+            {
+                text: confirmationDialogConfirm,
+                primary: true,
+                handler: function() {
+                    // reset the current configuration
+                    elementsController.resetFields();
+                    // update the current model path
+                    currentModelPath = modelPath.value;
+                    // execute callback
+                    if (confirmCallback) {
+                        confirmCallback.call(confirmCallbackScope);
+                    }
                 }
             }
-        }, {
-            text: confirmationDialogConfirm,
-            primary: true,
-            handler: function() {
-                // reset the current configuration
-                elementsController.resetFields();
-                // update the current model path
-                currentModelPath = modelPath.value;
-                // execute callback
-                if (confirmCallback) {
-                    confirmCallback.call(confirmCallbackScope);
-                }
-            }
-        }]);
+        ]);
     }
 
     /**
@@ -442,17 +455,17 @@
      */
     function setParagraphControlsState() {
         // get the selected scope radio button (might not be present at all)
-        var scope = paragraphControls.querySelector(SELECTOR_PARAGRAPH_SCOPE + "[checked]");
+        var scope = paragraphControls.querySelector(SELECTOR_PARAGRAPH_SCOPE + '[checked]');
         if (scope) {
             // enable or disable range and headings fields according to the scope value
             var range = paragraphControls.querySelector(SELECTOR_PARAGRAPH_RANGE);
             var headings = paragraphControls.querySelector(SELECTOR_PARAGRAPH_HEADINGS);
-            if (scope.value === "range") {
-                range.removeAttribute("disabled");
-                headings.removeAttribute("disabled");
+            if (scope.value === 'range') {
+                range.removeAttribute('disabled');
+                headings.removeAttribute('disabled');
             } else {
-                range.setAttribute("disabled", "");
-                headings.setAttribute("disabled", "");
+                range.setAttribute('disabled', '');
+                headings.setAttribute('disabled', '');
             }
         }
     }
@@ -470,12 +483,11 @@
     /**
      * Initializes the dialog after it has loaded.
      */
-    channel.on("foundation-contentloaded", function(e) {
+    channel.on('foundation-contentloaded', function(e) {
         if (e.target.getElementsByClassName(CLASS_EDIT_DIALOG).length > 0) {
             Coral.commons.ready(e.target, function(dialog) {
                 initialize(dialog);
             });
         }
     });
-
 })(window, jQuery, jQuery(document), Granite, Coral);
