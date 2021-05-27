@@ -23,6 +23,7 @@ import {
     signOutUser as signOutUserAction,
     deleteAddress as deleteAddressAction
 } from '../actions/user';
+import * as dataLayerUtils from '../utils/dataLayerUtils';
 
 import MUTATION_DELETE_CUSTOMER_ADDRESS from '../queries/mutation_delete_customer_address.graphql';
 import MUTATION_REVOKE_TOKEN from '../queries/mutation_revoke_customer_token.graphql';
@@ -34,6 +35,7 @@ const reducerFactory = () => {
     return (state, action) => {
         switch (action.type) {
             case 'setUserDetails':
+                dataLayerUtils.pushData({ user: action.userDetails });
                 return {
                     ...state,
                     inProgress: false,
@@ -53,6 +55,7 @@ const reducerFactory = () => {
                 };
             }
             case 'setToken':
+                dataLayerUtils.pushEvent('cif:userSignIn');
                 return {
                     ...state,
                     isSignedIn: true,
@@ -172,6 +175,7 @@ const reducerFactory = () => {
                 };
             }
             case 'signOut':
+                dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
                 return {
                     ...state,
                     isSignedIn: false,
