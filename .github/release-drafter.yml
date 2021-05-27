@@ -11,6 +11,7 @@ categories:
       - "bug"
 exclude-labels:
   - "releng"
+  - "dependencies"
 template: |
   ## Changes
   This release introduces the following new features and bug fixes:
