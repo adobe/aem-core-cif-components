@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>1.10.1-SNAPSHOT</version>
+        <version>1.11.1-SNAPSHOT</version>
         <relativePath>parent/pom.xml</relativePath>
     </parent>
 
@@ -58,6 +58,7 @@
                 </property>
             </activation>
             <modules>
+                <module>it/content</module>
                 <module>it/http</module>
                 <module>ui.tests</module>
             </modules>

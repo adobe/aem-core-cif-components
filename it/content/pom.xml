@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2019 Adobe. All rights reserved.
+    Copyright 2021 Adobe. All rights reserved.
     This file is licensed to you under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License. You may obtain a copy
     of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -15,24 +15,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ====================================================================== -->
-    <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
-    <!-- ====================================================================== -->
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
         <version>1.11.1-SNAPSHOT</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-    <!-- ====================================================================== -->
-    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
-    <!-- ====================================================================== -->
-    <artifactId>core-cif-components-all</artifactId>
+    <artifactId>core-cif-components-it-tests-content</artifactId>
     <packaging>content-package</packaging>
 
-    <name>AEM CIF Core Components - All</name>
-    <description>All-in-one content package for AEM CIF Core Components</description>
+    <name>AEM CIF Core Components - Integration Tests Content Package</name>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <scm>
@@ -57,6 +50,7 @@
     <!-- ====================================================================== -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vault.package.version>${project.version}</vault.package.version>
     </properties>
 
     <!-- ====================================================================== -->
@@ -67,72 +61,47 @@
             <plugin>
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>filevault-package-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
-                    <group>cif-components-library</group>
-                    <packageType>container</packageType>
-                    <allowIndexDefinitions>true</allowIndexDefinitions>
-                    <embeddedTarget>/apps/core/cif/install</embeddedTarget>
-                    <embeddeds>
-                        <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-core</artifactId>
-                            <filter>true</filter>
-                            <target>/apps/core/cif/install</target>
-                        </embedded>
-                    </embeddeds>
-                    <subPackages>
-                        <subPackage>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>core-cif-components-apps</artifactId>
-                            <filter>true</filter>
-                        </subPackage>
-                        <subPackage>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>core-cif-components-config</artifactId>
-                            <filter>true</filter>
-                        </subPackage>
-                    </subPackages>
+                    <group>${vault.package.group}</group>
+                    <packageType>content</packageType>
                     <properties>
+                        <acHandling>overwrite</acHandling>
+                        <description>${project.description}</description>
+                        <created>${buildNumber}</created>
+                        <createdBy>${vault.package.company}</createdBy>
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
+                    <validatorsSettings>
+                        <jackrabbit-nodetypes>
+                            <isDisabled>true</isDisabled>
+                        </jackrabbit-nodetypes>
+                    </validatorsSettings>
+                    <dependencies>
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>core-cif-components-examples-content</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.day.jcr.vault</groupId>
-                <artifactId>content-package-maven-plugin</artifactId>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
     <!-- ====================================================================== -->
-    <!-- D E P E N D E N C I E S                                                -->
+    <!-- P R O F I L E S                                                        -->
     <!-- ====================================================================== -->
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>core-cif-components-core</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>core-cif-components-apps</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>core-cif-components-config</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <profiles>
         <profile>
-            <id>autoInstallAll</id>
+            <id>autoInstallPackage</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -157,6 +126,44 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>autoInstallPackagePublish</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.day.jcr.vault</groupId>
+                        <artifactId>content-package-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-package-publish</id>
+                                <goals>
+                                    <goal>install</goal>
+                                </goals>
+                                <configuration>
+                                    <targetURL>${quickstart.publish.url}/crx/packmgr/service.jsp</targetURL>
+                                    <failOnError>true</failOnError>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
+    <!-- ====================================================================== -->
+    <!-- D E P E N D E N C I E S                                                -->
+    <!-- ====================================================================== -->
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-examples-content</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

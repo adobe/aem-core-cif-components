@@ -14,7 +14,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConfigContext } from '../../context/ConfigContext';
-import * as dataLayerUtils from '../../utils/dataLayerUtils';
 import Checkbox from './checkbox';
 import Radio from './radio';
 import Select from './select';
@@ -151,6 +150,7 @@ const BundleProductOptions = () => {
     const addToCart = () => {
         const { selections, quantity } = bundleState;
         const productData = {
+            productId,
             sku,
             virtual: false,
             bundle: true,
@@ -167,13 +167,6 @@ const BundleProductOptions = () => {
             detail: [productData]
         });
         document.dispatchEvent(customEvent);
-        // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
-        dataLayerUtils.pushEvent('cif:addToCart', {
-            '@id': productId,
-            'xdm:SKU': productData.sku,
-            'xdm:quantity': productData.quantity,
-            bundle: true
-        });
     };
 
     const getTotalPrice = () => {

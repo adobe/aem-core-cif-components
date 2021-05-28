@@ -464,6 +464,27 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testPagination() {
+        context.request().getParameterMap().put("page", new String[] { "3" });
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        productListModel.getProducts();
+
+        ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        verify(graphqlClient, atLeastOnce()).execute(captor.capture(), any(), any(), any());
+
+        // Check the "products" query
+        List<GraphqlRequest> requests = captor.getAllValues();
+        String productsQuery = null;
+        for (GraphqlRequest request : requests) {
+            if (request.getQuery().startsWith("{products")) {
+                productsQuery = request.getQuery();
+                break;
+            }
+        }
+        Assert.assertTrue(productsQuery.contains("currentPage:3"));
+    }
+
+    @Test
     public void testClientLoadingIsDisabledOnLaunchPage() {
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertTrue(productListModel.loadClientPrice());
