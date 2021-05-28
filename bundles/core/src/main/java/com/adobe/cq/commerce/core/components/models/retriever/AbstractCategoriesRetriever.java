@@ -136,15 +136,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
             FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
-            CategoryFilterInput filter;
-            if (UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
-                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
-            } else if (UrlProvider.CategoryIdentifierType.ID.equals(identifierType)) {
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-            } else {
-                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-            }
+            CategoryFilterInput filter = AbstractCategoryRetriever.generateCategoryFilter(identifiersFilter, identifierType);
 
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
