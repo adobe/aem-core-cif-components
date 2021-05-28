@@ -51,8 +51,10 @@ public class SearchOptionsImpl implements SearchOptions {
     }
 
     public SearchOptionsImpl(SearchOptions searchOptions) {
-        attributeFilters = searchOptions.getAttributeFilters();
-        sorterKeys = searchOptions.getSorterKeys();
+        this.currentPage = searchOptions.getCurrentPage();
+        this.pageSize = searchOptions.getPageSize();
+        this.attributeFilters = searchOptions.getAttributeFilters();
+        this.sorterKeys = searchOptions.getSorterKeys();
 
         Map<String, String> allFilters = searchOptions.getAllFilters();
 
