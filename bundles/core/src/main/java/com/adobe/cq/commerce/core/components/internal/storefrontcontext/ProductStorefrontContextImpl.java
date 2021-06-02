@@ -11,14 +11,26 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.schemas;
+package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public interface CommerceSchema {
+public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontContext implements ProductStorefrontContext {
 
-    @JsonIgnore
-    String getJson();
+    private final Product product;
+
+    public ProductStorefrontContextImpl(Product product) {
+        this.product = product;
+    }
+
+    @Override
+    public String getSku() {
+        return product.getSku();
+    }
+
+    @Override
+    public String getName() {
+        return product.getName();
+    }
 }

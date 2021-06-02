@@ -11,9 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.schemas;
+package com.adobe.cq.commerce.core.components.storefrontcontext;
 
-public interface ProductSchema extends CommerceSchema {
+public interface ProductStorefrontContext extends CommerceStorefrontContext {
 
     String getSku();
 

@@ -44,7 +44,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
-import com.adobe.cq.commerce.core.components.internal.schema.ProductSchemaImpl;
+import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
@@ -53,7 +53,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.schemas.ProductSchema;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
@@ -494,7 +494,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
-    public ProductSchema getProductData() {
-        return new ProductSchemaImpl(this);
+    public ProductStorefrontContext getProductData() {
+        return new ProductStorefrontContextImpl(this);
     }
 }

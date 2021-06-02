@@ -11,18 +11,18 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.schema;
+package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.schemas.CommerceSchema;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CommerceStorefrontContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class AbstractCommerceSchema implements CommerceSchema {
+public class AbstractCommerceStorefrontContext implements CommerceStorefrontContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommerceSchema.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommerceStorefrontContext.class);
 
     @Override
     public String getJson() {
