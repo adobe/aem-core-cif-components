@@ -11,8 +11,9 @@
  *     governing permissions and limitations under the License.
  *
  ******************************************************************************/
- 'use strict';
+'use strict';
 
-import mse from "@adobe/magento-storefront-events-sdk";
+import mse from '@adobe/magento-storefront-events-sdk';
 
+// Expose Magento Storefront Events SDK on the global window object
 window.magentoStorefrontEvents = mse;
