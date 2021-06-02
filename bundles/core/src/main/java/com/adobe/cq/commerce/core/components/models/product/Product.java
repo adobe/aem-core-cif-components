@@ -19,6 +19,7 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.schemas.ProductSchema;
 import com.adobe.cq.wcm.core.components.models.Component;
 
 /**
@@ -87,4 +88,6 @@ public interface Product extends Component, PageMetadata {
     Boolean loadClientPrice();
 
     AbstractProductRetriever getProductRetriever();
+
+    ProductSchema getProductData();
 }
