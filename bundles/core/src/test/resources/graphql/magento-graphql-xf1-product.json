@@ -1,0 +1,12 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "sku": "sku-xf1"
+        }
+      ]
+    }
+  }
+}

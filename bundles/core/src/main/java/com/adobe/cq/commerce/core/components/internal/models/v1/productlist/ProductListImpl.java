@@ -130,12 +130,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             searchOptions.setPageSize(navPageSize);
             searchOptions.setAttributeFilters(searchFilters);
 
-            if (CategoryIdentifierType.UID.equals(identifier.getLeft())) {
-                searchOptions.setCategoryUid(identifier.getRight());
-            } else {
-                searchOptions.setCategoryId(identifier.getRight());
-            }
-
             // configure sorting
             searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
             searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
