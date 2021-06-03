@@ -14,6 +14,7 @@
 import { useEffect } from 'react';
 import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 export default ({ queries }) => {
     const {
@@ -38,11 +39,10 @@ export default ({ queries }) => {
         if (!event.detail) return;
 
         const mapper = item => {
-            let quantity = parseFloat(item.quantity);
             return {
                 data: {
                     sku: item.sku,
-                    quantity
+                    quantity: parseFloat(item.quantity)
                 }
             };
         };
@@ -81,6 +81,23 @@ export default ({ queries }) => {
             virtualCartItems,
             bundleCartItems
         });
+
+        // Push add to cart dataLayer events
+        event.detail.forEach(item => {
+            // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
+            let eventInfo = {
+                '@id': item.productId,
+                'xdm:SKU': item.sku,
+                'xdm:quantity': item.quantity
+            };
+
+            if (item.bundle) {
+                eventInfo['bundle'] = true;
+            }
+
+            dataLayerUtils.pushEvent('cif:addToCart', eventInfo);
+        });
+
         dispatch({ type: 'endLoading' });
     };
 

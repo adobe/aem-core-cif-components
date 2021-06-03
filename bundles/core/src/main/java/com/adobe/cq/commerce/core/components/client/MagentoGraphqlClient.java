@@ -140,7 +140,6 @@ public class MagentoGraphqlClient {
         if (page != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
             Resource launchResource = LaunchUtils.getLaunchResource(configurationResource);
             launch = launchResource.adaptTo(Launch.class);
-            configurationResource = LaunchUtils.getTargetResource(configurationResource, null);
         }
 
         LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());

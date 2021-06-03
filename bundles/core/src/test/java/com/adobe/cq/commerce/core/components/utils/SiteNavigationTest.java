@@ -115,4 +115,14 @@ public class SiteNavigationTest {
         Page pageNotFound = SiteNavigation.getGenericPage("cq:notfound", page);
         Assert.assertNull(pageNotFound);
     }
+
+    @Test
+    public void testNavigationWithLaunchAndNewlyCreatedContent() {
+        Page launchPage = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/another-page");
+        Page productionPage = context.pageManager().getPage("/content/venia/us/en/another-page");
+        Assert.assertEquals(productionPage, SiteNavigation.toLaunchProductionPage(launchPage));
+
+        launchPage = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/new-content-page");
+        Assert.assertSame(launchPage, SiteNavigation.toLaunchProductionPage(launchPage));
+    }
 }

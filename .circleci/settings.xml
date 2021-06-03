@@ -16,6 +16,54 @@
 
     <profiles>
         <profile>
+            <id>artifactory-cloud</id>
+
+            <properties>
+                <releaseRepository-Id>maven-adobe-cif-release</releaseRepository-Id>
+                <releaseRepository-Name>maven-adobe-cif-release</releaseRepository-Name>
+                <releaseRepository-URL>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</releaseRepository-URL>
+                
+                <snapshotRepository-Id>maven-adobe-cif-snapshot</snapshotRepository-Id>
+                <snapshotRepository-Name>maven-adobe-cif-snapshot</snapshotRepository-Name>
+                <snapshotRepository-URL>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</snapshotRepository-URL>
+            </properties>
+
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>maven-adobe-cif-release</id>
+                    <name>maven-adobe-cif-release</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</url>
+                </repository>
+                <repository>
+                    <snapshots />
+                    <id>maven-adobe-cif-snapshot</id>
+                    <name>maven-adobe-cif-snapshot</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</url>
+                </repository>
+            </repositories>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>maven-adobe-cif-release</id>
+                    <name>maven-adobe-cif-release</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <snapshots />
+                    <id>maven-adobe-cif-snapshot</id>
+                    <name>maven-adobe-cif-snapshot</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</url>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+
+        <profile>
             <id>ossrh</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -32,6 +80,16 @@
             <id>ossrh</id>
             <username>${env.SONATYPE_USER}</username>
             <password>${env.SONATYPE_PASSWORD}</password>
+        </server>
+        <server>
+            <id>maven-adobe-cif-release</id>
+            <username>${env.DOCKER_USER}</username>
+            <password>${env.DOCKER_PASS}</password>
+        </server>
+        <server>
+            <id>maven-adobe-cif-snapshot</id>
+            <username>${env.DOCKER_USER}</username>
+            <password>${env.DOCKER_PASS}</password>
         </server>
     </servers>
 
