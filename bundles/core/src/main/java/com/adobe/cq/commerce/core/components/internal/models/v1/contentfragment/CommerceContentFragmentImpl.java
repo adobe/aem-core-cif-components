@@ -13,7 +13,6 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.models.v1.contentfragment;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,14 +30,24 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.*;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.factory.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
@@ -69,13 +78,9 @@ import static com.day.cq.dam.api.DamConstants.NT_DAM_ASSET;
     resourceType = CommerceContentFragmentImpl.RESOURCE_TYPE)
 public class CommerceContentFragmentImpl implements ContentFragment {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceContentFragmentImpl.class);
-    private static final List<UrlProvider.CategoryIdentifierType> VALID_CATEGORY_IDENTIFIERS = Collections.unmodifiableList(Arrays.asList(
-        UrlProvider.CategoryIdentifierType.ID, UrlProvider.CategoryIdentifierType.UID));
-    /**
-     * The resource type of the component associated with this Sling model.
-     */
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
     public static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
+    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     public static final String DEFAULT_DAM_PARENT_PATH = "/content/dam";
     public static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
     @ValueMapValue(name = ContentFragmentList.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -104,7 +109,6 @@ public class CommerceContentFragmentImpl implements ContentFragment {
     private Resource resource;
     @ValueMapValue(name = "linkElement", injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkElement;
-    private String linkValue;
 
     @PostConstruct
     void initModel() {
@@ -118,14 +122,14 @@ public class CommerceContentFragmentImpl implements ContentFragment {
             return;
         }
 
-        Resource result = findContentFragment();
-        if (result != null) {
+        Resource resource = findContentFragment();
+        if (resource != null) {
             ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(request.getResource(), CORE_WCM_CONTENTFRAGMENT_RT);
             resourceWrapper.getValueMap().putAll(request.getResource().getValueMap());
-            resourceWrapper.getValueMap().put("fragmentPath", result.getPath());
-            contentFragment = modelFactory.getModelFromWrappedRequest(request, resourceWrapper, ContentFragment.class);
-            if (contentFragment == null) {
-                contentFragment = EMPTY_CONTENT_FRAGMENT;
+            resourceWrapper.getValueMap().put("fragmentPath", resource.getPath());
+            ContentFragment contentFragment = modelFactory.getModelFromWrappedRequest(request, resourceWrapper, ContentFragment.class);
+            if (contentFragment != null) {
+                this.contentFragment = contentFragment;
             }
         }
     }
@@ -143,33 +147,11 @@ public class CommerceContentFragmentImpl implements ContentFragment {
             return null;
         }
 
+        String linkValue = null;
         if (SiteNavigation.isProductPage(currentPage)) {
-            String sku = null;
-            Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-            if (UrlProvider.ProductIdentifierType.SKU.equals(identifier.getLeft())) {
-                sku = identifier.getRight();
-            } else {
-                Product product = request.adaptTo(Product.class);
-                if (product != null && product.getFound()) {
-                    sku = product.getSku();
-                }
-            }
-            if (StringUtils.isBlank(sku)) {
-                LOGGER.warn("Cannot find sku or product for current request");
-            } else {
-                linkValue = sku;
-            }
+            linkValue = findProductSku();
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
-            String categoryIdentifier = null;
-            Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-            if (VALID_CATEGORY_IDENTIFIERS.contains(identifier.getLeft())) {
-                categoryIdentifier = identifier.getRight();
-            }
-            if (StringUtils.isBlank(categoryIdentifier)) {
-                LOGGER.warn("Cannot find category identifier for current request");
-            } else {
-                linkValue = categoryIdentifier;
-            }
+            linkValue = findCategoryIdentifier();
         }
 
         if (StringUtils.isBlank(linkValue)) {
@@ -192,8 +174,61 @@ public class CommerceContentFragmentImpl implements ContentFragment {
         return searchResult.getTotalMatches() > 0 ? searchResult.getResources().next() : null;
     }
 
+    private String findCategoryIdentifier() {
+        String categoryIdentifier = null;
+        Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
+        UrlProvider.CategoryIdentifierType identifierType = identifier.getLeft();
+        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType)) {
+            MagentoGraphqlClient graphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(graphqlClient) {
+                @Override
+                protected CategoryTreeQueryDefinition generateCategoryQuery() {
+                    return (CategoryTreeQuery q) -> q.id().uid();
+                }
+            };
+            categoryRetriever.setIdentifier(identifierType, identifier.getRight());
+            Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
+            if (configurationResource != null) {
+                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
+                if (componentsConfiguration != null) {
+                    CategoryInterface category = categoryRetriever.fetchCategory();
+                    if (category != null) {
+                        boolean uidSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
+                        categoryIdentifier = uidSupport ? category.getUid().toString() : String.valueOf(category.getId());
+                    }
+                }
+            }
+        } else if (UrlProvider.CategoryIdentifierType.ID.equals(identifierType) ||
+            UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
+            categoryIdentifier = identifier.getRight();
+        }
+
+        if (StringUtils.isBlank(categoryIdentifier)) {
+            LOGGER.warn("Cannot find category identifier for current request");
+        }
+
+        return categoryIdentifier;
+    }
+
+    private String findProductSku() {
+        String sku = null;
+        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
+        if (UrlProvider.ProductIdentifierType.SKU.equals(identifier.getLeft())) {
+            sku = identifier.getRight();
+        } else {
+            Product product = request.adaptTo(Product.class);
+            if (product != null && product.getFound()) {
+                sku = product.getSku();
+            }
+        }
+        if (StringUtils.isBlank(sku)) {
+            LOGGER.warn("Cannot find sku or product for current request");
+        }
+        return sku;
+    }
+
     /*
-     * Adapted from Core WCM components to support paragraph rendering of single text field content fragments with customer URL format.
+     * Adapted from Core WCM components to support paragraph rendering of single text field content fragments with custom URL format.
      */
     @Override
     public String[] getParagraphs() {
@@ -206,36 +241,28 @@ public class CommerceContentFragmentImpl implements ContentFragment {
         }
 
         DAMContentElement damContentElement = contentFragment.getElements().get(0);
-
         // restrict this method to text elements
         if (!damContentElement.isMultiLine()) {
             return null;
         }
 
-        if (StringUtils.isBlank(linkValue)) {
+        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
+        String value = identifier.getRight();
+        if (StringUtils.isBlank(value)) {
             return null;
         }
 
-        String selector;
-        if (SiteNavigation.isProductPage(currentPage)) {
-            Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-            if (UrlProvider.ProductIdentifierType.URL_KEY.equals(identifier.getLeft())) {
-                selector = identifier.getRight();
-            } else {
-                selector = linkValue;
-            }
-        } else {
-            selector = linkValue;
-        }
-
-        if (StringUtils.isBlank(selector)) {
+        // check for missing selectors (URL suffix is not supported)
+        String[] selectors = request.getRequestPathInfo().getSelectors();
+        if (selectors.length == 0 || selectors.length == 1 && "rawcontent".equals(selectors[0])) {
             return null;
         }
 
-        // rawcontent selector fist for raw content rendering
-        // CIF product SKU or category identifier selector last as mandated by the CIF URL Provider
+        // rawcontent selector first for raw content rendering
+        // CIF product or category selector last as mandated by the CIF URL Provider
+        // suffix is not supported by the rawcontent renderer
         ValueMap config = new ValueMapDecorator(new HashMap<>());
-        config.put("dam.cfm.useSelector", "rawcontent." + selector);
+        config.put("dam.cfm.useSelector", "rawcontent." + value);
 
         // render the fragment
         String content = renderService.render(resource, config);

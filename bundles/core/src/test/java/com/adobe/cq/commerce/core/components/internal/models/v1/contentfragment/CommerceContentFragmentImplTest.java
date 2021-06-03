@@ -19,10 +19,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -33,14 +36,21 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.DataType;
 import com.adobe.cq.dam.cfm.FragmentData;
@@ -57,6 +67,8 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -158,7 +170,7 @@ public class CommerceContentFragmentImplTest {
         when(res.adaptTo(com.adobe.cq.dam.cfm.ContentFragment.class)).thenReturn(cf);
     }
 
-    private void prepareRequest(String path) {
+    private Page prepareRequest(String path) {
         context.currentResource(path);
         SlingBindings slingBindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
         ResourceResolver resolver = (ResourceResolver) slingBindings.get(SlingBindings.RESOLVER);
@@ -166,11 +178,13 @@ public class CommerceContentFragmentImplTest {
         slingBindings.setResource(resource);
         request.setResource(resource);
 
-        Page page = context.pageManager().getContainingPage(path);
+        Page page = Mockito.spy(context.pageManager().getContainingPage(path));
         context.currentPage(page.getPath());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(SlingBindings.RESOURCE, resource);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.adaptTo(ValueMap.class));
+
+        return page;
     }
 
     @Test
@@ -301,6 +315,43 @@ public class CommerceContentFragmentImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSelectorString("id");
+
+        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        Assert.assertNotNull(contentFragment);
+        Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
+    }
+
+    @Test
+    public void testContentFragmentForCategoryPageUrlPath() throws Exception {
+        Page page = prepareRequest(CONTENT_FRAGMENT_PATH_3);
+
+        // setup graphql client
+        HttpClient httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK,
+            "url_path\"}}){id,uid}}");
+        ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store", "enableUIDSupport", String.valueOf(false)));
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(mockConfig));
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        // setup url provider
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
+        urlProvider.activate(new MockUrlProviderConfiguration() {
+            @Override
+            public UrlProvider.CategoryIdentifierType categoryIdentifierType() {
+                return UrlProvider.CategoryIdentifierType.URL_PATH;
+            }
+        });
+        requestPathInfo.setSelectorString("url_path");
 
         ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
         Assert.assertNotNull(contentFragment);
