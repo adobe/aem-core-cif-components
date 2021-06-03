@@ -20,7 +20,16 @@ import { useAwaitQuery } from '../../utils/hooks';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 describe('UserContext test', () => {
+    beforeAll(() => {
+        window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+
+        window.adobeDataLayer = [];
+        window.adobeDataLayer.push = jest.fn();
+    });
+
     beforeEach(() => {
+        window.adobeDataLayer.push.mockClear();
+
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
             value: ''
@@ -29,11 +38,18 @@ describe('UserContext test', () => {
 
     it('updates the user token in state', async () => {
         const ContextWrapper = () => {
-            const [{ token, isSignedIn }, { setToken }] = useUserContext();
+            const [{ currentUser, token, isSignedIn }, { setToken, getUserDetails }] = useUserContext();
 
             let content;
-            if (isSignedIn) {
-                content = <div data-testid="success">{token}</div>;
+            if (isSignedIn && currentUser.email === '') {
+                content = (
+                    <div>
+                        <div data-testid="success">{token}</div>
+                        <button onClick={getUserDetails}>Get User</button>
+                    </div>
+                );
+            } else if (isSignedIn && currentUser.email !== '') {
+                content = <div data-testid="user-details">{currentUser.email}</div>;
             } else {
                 content = <button onClick={() => setToken('guest123')}>Sign in</button>;
             }
@@ -46,9 +62,26 @@ describe('UserContext test', () => {
         expect(getByRole('button')).not.toBeUndefined();
 
         fireEvent.click(getByRole('button'));
-        const result = await waitForElement(() => getByTestId('success'));
+        let result = await waitForElement(() => getByTestId('success'));
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('guest123');
+
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+            event: 'cif:userSignIn'
+        });
+
+        fireEvent.click(getByRole('button'));
+        result = await waitForElement(() => getByTestId('user-details'));
+        expect(result).not.toBeUndefined();
+        expect(result.textContent).toEqual('imccoy@weretail.net');
+
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+            user: {
+                firstname: 'Iris',
+                lastname: 'McCoy',
+                email: 'imccoy@weretail.net'
+            }
+        });
     });
 
     it('updates the cart id of the user', async () => {
@@ -135,6 +168,12 @@ describe('UserContext test', () => {
         //...but we're not in a browser
         const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
         expect(document.cookie).toEqual(expectedCookieValue);
+
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+            event: 'cif:userSignOut',
+            eventInfo: null,
+            user: null
+        });
     });
 
     it('opens account dropdown', async () => {
