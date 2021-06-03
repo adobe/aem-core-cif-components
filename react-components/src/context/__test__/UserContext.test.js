@@ -14,14 +14,20 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
 import { render } from 'test-utils';
-import { useUserContext } from '../UserContext';
+import { render as renderPure } from '@testing-library/react';
+import UserContextProvider, { useUserContext } from '../UserContext';
 import { useAwaitQuery } from '../../utils/hooks';
+import mockMagentoStorefrontEvents from '../../utils/mocks/mockMagentoStorefrontEvents';
 
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
+import { MockedProvider } from '@apollo/client/testing';
 
 describe('UserContext test', () => {
+    let mse;
+
     beforeAll(() => {
         window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
 
         window.adobeDataLayer = [];
         window.adobeDataLayer.push = jest.fn();
@@ -29,6 +35,7 @@ describe('UserContext test', () => {
 
     beforeEach(() => {
         window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
 
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
@@ -69,6 +76,7 @@ describe('UserContext test', () => {
         expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
             event: 'cif:userSignIn'
         });
+        expect(mse.publish.signIn).toHaveBeenCalledTimes(1);
 
         fireEvent.click(getByRole('button'));
         result = await waitForElement(() => getByTestId('user-details'));
@@ -82,6 +90,7 @@ describe('UserContext test', () => {
                 email: 'imccoy@weretail.net'
             }
         });
+        expect(mse.context.setShopper).toHaveBeenCalledWith({ shopperId: 'logged-in' });
     });
 
     it('updates the cart id of the user', async () => {
@@ -174,6 +183,8 @@ describe('UserContext test', () => {
             eventInfo: null,
             user: null
         });
+        expect(mse.publish.signOut).toHaveBeenCalledTimes(1);
+        expect(mse.context.setShopper).toHaveBeenCalledWith({ shopperId: 'guest' });
     });
 
     it('opens account dropdown', async () => {
@@ -198,6 +209,65 @@ describe('UserContext test', () => {
         const result = await waitForElement(() => getByTestId('account-dropdown-open'));
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Account dropdown opened');
+    });
+
+    it('initializes in logged out state', async () => {
+        const ContextWrapper = () => {
+            const [{ isSignedIn }] = useUserContext();
+            if (isSignedIn) {
+                return <div data-testid="status">logged in</div>;
+            }
+            return <div data-testid="status">logged out</div>;
+        };
+
+        const { getByTestId } = renderPure(
+            <MockedProvider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        let status = await waitForElement(() => getByTestId('status'));
+        expect(status.textContent).toEqual('logged out');
+
+        expect(mse.context.setShopper).toHaveBeenLastCalledWith({ shopperId: 'guest' });
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({ user: null });
+    });
+
+    it('initializes in logged in state', async () => {
+        const ContextWrapper = () => {
+            const [{ isSignedIn }] = useUserContext();
+            if (isSignedIn) {
+                return <div data-testid="status">logged in</div>;
+            }
+            return <div data-testid="status">logged out</div>;
+        };
+
+        const initialState = {
+            currentUser: {
+                email: 'imccoy@weretail.net'
+            },
+            isSignedIn: true
+        };
+
+        const { getByTestId } = renderPure(
+            <MockedProvider>
+                <UserContextProvider initialState={initialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        let status = await waitForElement(() => getByTestId('status'));
+        expect(status.textContent).toEqual('logged in');
+
+        expect(mse.context.setShopper).toHaveBeenLastCalledWith({ shopperId: 'logged-in' });
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+            user: {
+                email: 'imccoy@weretail.net'
+            }
+        });
     });
 
     it('shows sign in and forgot password views in account dropdown', async () => {
