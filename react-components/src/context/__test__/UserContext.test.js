@@ -169,7 +169,7 @@ describe('UserContext test', () => {
         const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
         expect(document.cookie).toEqual(expectedCookieValue);
 
-        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:userSignOut',
             eventInfo: null,
             user: null

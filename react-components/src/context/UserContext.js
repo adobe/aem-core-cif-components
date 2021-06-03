@@ -11,10 +11,10 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useContext, useReducer, useCallback } from 'react';
+import React, { useContext, useReducer, useCallback, useEffect } from 'react';
 import { object, func } from 'prop-types';
 
-import { useCookieValue } from '../utils/hooks';
+import { useCookieValue, useStorefrontEvents } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
 import parseError from '../utils/parseError';
 import { useAwaitQuery } from '../utils/hooks';
@@ -35,7 +35,6 @@ const reducerFactory = () => {
     return (state, action) => {
         switch (action.type) {
             case 'setUserDetails':
-                dataLayerUtils.pushData({ user: action.userDetails });
                 return {
                     ...state,
                     inProgress: false,
@@ -55,7 +54,6 @@ const reducerFactory = () => {
                 };
             }
             case 'setToken':
-                dataLayerUtils.pushEvent('cif:userSignIn');
                 return {
                     ...state,
                     isSignedIn: true,
@@ -175,7 +173,6 @@ const reducerFactory = () => {
                 };
             }
             case 'signOut':
-                dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
                 return {
                     ...state,
                     isSignedIn: false,
@@ -219,7 +216,11 @@ const reducerFactory = () => {
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
-    const isSignedIn = () => !!userCookie;
+    const isSignedInFunc = () => !!userCookie;
+    const mse = useStorefrontEvents();
+    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
+    const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
+    const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
     const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
@@ -230,7 +231,7 @@ const UserContextProvider = props => {
             addresses: []
         },
         token: userCookie,
-        isSignedIn: isSignedIn(),
+        isSignedIn: isSignedInFunc(),
         isAccountDropdownOpen: false,
         isShowAddressForm: false,
         addressFormError: null,
@@ -245,15 +246,25 @@ const UserContextProvider = props => {
         cartId: null,
         accountDropdownView: null
     };
-
     const [userState, dispatch] = useReducer(factory(), initialState);
 
-    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
-    const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
-    const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
+    const { isSignedIn, currentUser } = userState;
+
+    useEffect(() => {
+        if (!isSignedIn) {
+            mse && mse.context.setShopper({ shopperId: 'guest' });
+            dataLayerUtils.pushData({ user: null });
+        } else if (isSignedIn && currentUser && currentUser.email !== '') {
+            mse && mse.context.setShopper({ shopperId: 'logged-in' });
+            dataLayerUtils.pushData({ user: currentUser });
+        }
+    }, [isSignedIn, currentUser]);
 
     const setToken = token => {
         setUserCookie(token);
+        dataLayerUtils.pushEvent('cif:userSignIn');
+        mse && mse.context.setShopper({ shopperId: 'logged-in' });
+        mse && mse.publish.signIn();
         dispatch({ type: 'setToken', token });
     };
 
@@ -266,6 +277,9 @@ const UserContextProvider = props => {
     };
 
     const signOut = async () => {
+        dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
+        mse && mse.context.setShopper({ shopperId: 'guest' });
+        mse && mse.publish.signOut();
         await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
 
