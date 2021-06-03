@@ -44,7 +44,7 @@ public interface UrlProvider {
      * Defines the category identifier type used in category page urls.
      */
     public static enum CategoryIdentifierType {
-        ID, UID
+        ID, UID, URL_PATH
     }
 
     /**
