@@ -99,7 +99,7 @@ public class UrlProviderImpl implements UrlProvider {
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (!PAGE_PARAM.equals(entry.getKey()) && entry.getValue() != null) {
                 try {
-                    entry.setValue(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name()));
+                    entry.setValue(URLEncoder.encode(entry.getValue().replaceAll("\\/", "_"), StandardCharsets.UTF_8.name()));
                 } catch (UnsupportedEncodingException e) {
                     LOGGER.warn("Cannot URL-encode {}", entry.getValue());
                 }

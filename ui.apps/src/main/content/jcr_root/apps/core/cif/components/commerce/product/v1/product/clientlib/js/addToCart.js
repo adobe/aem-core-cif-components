@@ -13,9 +13,6 @@
  ******************************************************************************/
 'use strict';
 
-const dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
-const dataLayer = dataLayerEnabled ? (window.adobeDataLayer = window.adobeDataLayer || []) : undefined;
-
 /**
  * Add to cart button component.
  */
@@ -99,6 +96,7 @@ class AddToCart {
         });
         let items = selections.map(selection => {
             return {
+                productId: selection.dataset.productId,
                 sku: selection.dataset.productSku,
                 virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
                 quantity: selection.value
@@ -110,20 +108,6 @@ class AddToCart {
                 detail: items
             });
             document.dispatchEvent(customEvent);
-
-            if (dataLayerEnabled) {
-                selections.forEach(function(selection) {
-                    // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
-                    dataLayer.push({
-                        event: 'cif:addToCart',
-                        eventInfo: {
-                            '@id': selection.dataset.productId,
-                            'xdm:SKU': selection.dataset.productSku,
-                            'xdm:quantity': parseInt(selection.value)
-                        }
-                    });
-                });
-            }
         }
     }
 }

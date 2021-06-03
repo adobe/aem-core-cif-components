@@ -16,42 +16,15 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
 class ProductRetriever extends AbstractProductRetriever {
 
     ProductRetriever(MagentoGraphqlClient client) {
         super(client);
-    }
-
-    /* --- GraphQL queries --- */
-    @Override
-    protected String generateQuery(String identifier) {
-        // Adds the store config query to the generic query of AbstractProductRetriever
-
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        ProductAttributeFilterInput filter;
-        if (ProductIdentifierType.URL_KEY.equals(productIdentifierType)) {
-            filter = new ProductAttributeFilterInput().setUrlKey(identifierFilter);
-        } else {
-            filter = new ProductAttributeFilterInput().setSku(identifierFilter);
-        }
-
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-        // GraphQL query
-        ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-        return Operations.query(query -> query
-            .products(searchArgs, queryArgs)).toString();
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {
