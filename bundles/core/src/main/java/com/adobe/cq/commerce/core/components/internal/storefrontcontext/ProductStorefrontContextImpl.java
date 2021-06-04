@@ -13,14 +13,14 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
-import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
 public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontContext implements ProductStorefrontContext {
 
-    private final Product product;
+    private final ProductInterface product;
 
-    public ProductStorefrontContextImpl(Product product) {
+    public ProductStorefrontContextImpl(ProductInterface product) {
         this.product = product;
     }
 
