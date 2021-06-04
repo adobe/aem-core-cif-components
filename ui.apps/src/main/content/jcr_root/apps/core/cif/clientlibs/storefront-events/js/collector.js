@@ -31,4 +31,17 @@ const processProductStorefrontData = () => {
     }
 };
 
+const processSearchInputStorefrontData = () => {
+    const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
+    if (searchInputCtxElement) {
+        try {
+            const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
+            mse.context.setSearchInput(searchInputCtx);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
 processProductStorefrontData();
+processSearchInputStorefrontData();

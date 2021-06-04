@@ -1,0 +1,20 @@
+{
+  "pageSize": 6,
+  "phrase": "glove",
+  "queryTypes": [
+    "products"
+  ],
+  "sort": [
+    {
+      "attribute": "price",
+      "direction": "ASC"
+    }
+  ],
+  "currentPage": 1,
+  "filter": [
+    {
+      "eq": "21",
+      "attribute": "category_id"
+    }
+  ]
+}
