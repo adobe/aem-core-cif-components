@@ -9,7 +9,8 @@
 	    "meta_description": "Some category meta description",
 	    "meta_keywords": "Some category meta keywords",
 	    "meta_title": "Some category meta title",
-	    "url_path": "running"
+	    "url_path": "running",
+		"staged": true
 	  }
     ]
   }

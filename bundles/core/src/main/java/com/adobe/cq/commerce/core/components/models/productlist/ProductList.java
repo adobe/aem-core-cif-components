@@ -65,7 +65,7 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      * at least Magento version 2.4.2.
      * 
      * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
-     * @since com.adobe.cq.commerce.core.components.models.productlist 3.1.0
+     * @since com.adobe.cq.commerce.core.components.models.productlist 3.2.0
      */
     default Boolean isStaged() {
         return false;
