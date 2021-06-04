@@ -29,6 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.models.spi.ImplementationPicker;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
@@ -386,6 +387,7 @@ public class GraphqlServletTest {
 
     @Test
     public void testRelatedProductsModel() throws ServletException {
+        context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
         prepareModel(RELATED_PRODUCTS_RESOURCE);
         ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
         Assert.assertEquals(3, relatedProductsModel.getProducts().size());
