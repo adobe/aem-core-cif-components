@@ -54,6 +54,7 @@ import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragmentList;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
 import com.day.cq.commons.jcr.JcrConstants;
+import com.day.cq.dam.api.DamConstants;
 import com.day.cq.search.PredicateGroup;
 import com.day.cq.search.Query;
 import com.day.cq.search.QueryBuilder;
@@ -77,16 +78,15 @@ import static com.day.cq.dam.api.DamConstants.NT_DAM_ASSET;
     adapters = ContentFragment.class,
     resourceType = CommerceContentFragmentImpl.RESOURCE_TYPE)
 public class CommerceContentFragmentImpl implements ContentFragment {
+    static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceContentFragmentImpl.class);
-    public static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
-    public static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
+    private static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
     private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
-    public static final String DEFAULT_DAM_PARENT_PATH = "/content/dam";
-    public static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
+    private static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
     @ValueMapValue(name = ContentFragmentList.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String modelPath;
     @ValueMapValue(name = ContentFragmentList.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
-    private String parentPath = DEFAULT_DAM_PARENT_PATH;
+    private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
 
     @Inject
     private ModelFactory modelFactory;
