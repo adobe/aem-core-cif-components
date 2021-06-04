@@ -89,5 +89,5 @@ public interface Product extends Component, PageMetadata {
 
     AbstractProductRetriever getProductRetriever();
 
-    ProductStorefrontContext getProductData();
+    ProductStorefrontContext getStorefrontContext();
 }

@@ -17,3 +17,18 @@ import mse from '@adobe/magento-storefront-events-sdk';
 
 // Expose Magento Storefront Events SDK on the global window object
 window.magentoStorefrontEvents = mse;
+
+const processProductStorefrontData = () => {
+    const productCtxElement = document.querySelector("[data-cif-product-context]");
+    if (productCtxElement) {
+        try {
+            const productCtx = JSON.parse(productCtxElement.dataset.cifProductContext);
+            mse.context.setProduct(productCtx);
+            mse.publish.productPageView();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+}
+
+processProductStorefrontData();

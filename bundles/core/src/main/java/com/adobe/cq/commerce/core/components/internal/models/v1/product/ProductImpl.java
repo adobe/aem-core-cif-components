@@ -494,7 +494,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
-    public ProductStorefrontContext getProductData() {
+    public ProductStorefrontContext getStorefrontContext() {
         return new ProductStorefrontContextImpl(this);
     }
 }

@@ -25,6 +25,11 @@ public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontCont
     }
 
     @Override
+    public Integer getId() {
+        return 0;
+    }
+
+    @Override
     public String getSku() {
         return product.getSku();
     }

@@ -13,7 +13,12 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.storefrontcontext;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public interface ProductStorefrontContext extends CommerceStorefrontContext {
+
+    @JsonProperty("productId")
+    Integer getId();
 
     String getSku();
 
