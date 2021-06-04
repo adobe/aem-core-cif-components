@@ -19,7 +19,7 @@ import mse from '@adobe/magento-storefront-events-sdk';
 window.magentoStorefrontEvents = mse;
 
 const processProductStorefrontData = () => {
-    const productCtxElement = document.querySelector("[data-cif-product-context]");
+    const productCtxElement = document.querySelector('[data-cif-product-context]');
     if (productCtxElement) {
         try {
             const productCtx = JSON.parse(productCtxElement.dataset.cifProductContext);
@@ -29,6 +29,6 @@ const processProductStorefrontData = () => {
             console.error(e);
         }
     }
-}
+};
 
 processProductStorefrontData();
