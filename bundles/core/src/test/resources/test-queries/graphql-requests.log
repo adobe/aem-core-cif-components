@@ -40,9 +40,13 @@
 
 {products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,crosssell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
+{categoryList(filters:{url_path:{eq:"running"}}){id,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_path}}
+
 {products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {products(currentPage:1,pageSize:6,filter:{category_id:{eq:"6"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+
+{products(currentPage:3,pageSize:6,filter:{category_id:{eq:"6"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {categoryList(filters:{category_uid:{eq:"MTM="}}){id,uid,url_path,name,breadcrumbs{category_id,category_uid,category_url_path,category_name}}}
 
