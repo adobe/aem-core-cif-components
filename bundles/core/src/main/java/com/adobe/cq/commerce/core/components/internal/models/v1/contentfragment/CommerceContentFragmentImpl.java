@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -51,7 +52,6 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
-import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragmentList;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.dam.api.DamConstants;
@@ -75,17 +75,17 @@ import static com.day.cq.dam.api.DamConstants.NT_DAM_ASSET;
  */
 @Model(
     adaptables = SlingHttpServletRequest.class,
-    adapters = ContentFragment.class,
+    adapters = { ContentFragment.class, CommerceContentFragment.class },
     resourceType = CommerceContentFragmentImpl.RESOURCE_TYPE)
-public class CommerceContentFragmentImpl implements ContentFragment {
+public class CommerceContentFragmentImpl implements CommerceContentFragment {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceContentFragmentImpl.class);
     private static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
     private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
-    @ValueMapValue(name = ContentFragmentList.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
+    @ValueMapValue(name = CommerceContentFragment.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String modelPath;
-    @ValueMapValue(name = ContentFragmentList.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
+    @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
 
     @Inject
@@ -107,8 +107,10 @@ public class CommerceContentFragmentImpl implements ContentFragment {
     private FragmentRenderService renderService;
     @ScriptVariable
     private Resource resource;
-    @ValueMapValue(name = "linkElement", injectionStrategy = InjectionStrategy.OPTIONAL)
+    @ValueMapValue(name = CommerceContentFragment.PN_LINK_ELEMENT, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkElement;
+
+    private String modelTitle = "";
 
     @PostConstruct
     void initModel() {
@@ -120,6 +122,11 @@ public class CommerceContentFragmentImpl implements ContentFragment {
         if (StringUtils.isBlank(linkElement)) {
             LOGGER.warn("Please provide a link element");
             return;
+        }
+
+        Resource modelResource = resourceResolver.getResource(modelPath);
+        if (modelResource != null) {
+            modelTitle = modelResource.getValueMap().get("jcr:content/jcr:title", "");
         }
 
         Resource resource = findContentFragment();
@@ -272,6 +279,11 @@ public class CommerceContentFragmentImpl implements ContentFragment {
 
         // split into paragraphs
         return content.split("(?=(<p>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>))");
+    }
+
+    @Override
+    public String getModelTitle() {
+        return modelTitle;
     }
 
     @Override

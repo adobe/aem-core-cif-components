@@ -42,6 +42,7 @@ import org.mockito.stubbing.Answer;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -57,7 +58,6 @@ import com.adobe.cq.dam.cfm.FragmentData;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.dam.cfm.converter.ContentTypeConverter;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
 import com.adobe.cq.wcm.core.components.testing.MockLanguageManager;
 import com.day.cq.search.Query;
 import com.day.cq.search.QueryBuilder;
@@ -129,7 +129,7 @@ public class CommerceContentFragmentImplTest {
         FragmentRenderService renderService = mock((FragmentRenderService.class));
         context.registerService(FragmentRenderService.class, renderService);
         when(renderService.render(any(), any())).thenAnswer(invocationOnMock -> {
-            ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+            CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
             return contentFragment.getElements().get(0).getValue();
         });
         ContentTypeConverter converter = mock(ContentTypeConverter.class);
@@ -168,6 +168,13 @@ public class CommerceContentFragmentImplTest {
         });
         when(cf.getAssociatedContent()).thenReturn(Collections.emptyIterator());
         when(res.adaptTo(com.adobe.cq.dam.cfm.ContentFragment.class)).thenReturn(cf);
+
+        // prepare model
+        Resource model = mock(Resource.class);
+        when(resourceResolver.getResource("/model")).thenReturn(model);
+        ValueMap properties = mock(ValueMap.class);
+        when(model.getValueMap()).thenReturn(properties);
+        when(properties.get("jcr:content/jcr:title", "")).thenReturn("Test Model");
     }
 
     private Page prepareRequest(String path) {
@@ -191,7 +198,7 @@ public class CommerceContentFragmentImplTest {
     public void testContentFragmentNoConfig() {
         prepareRequest(CONTENT_FRAGMENT_PATH_0);
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
 
         // empty content fragment model
         Assert.assertNotNull(contentFragment);
@@ -216,7 +223,7 @@ public class CommerceContentFragmentImplTest {
     public void testContentFragmentPartialConfig() {
         prepareRequest(CONTENT_FRAGMENT_PATH_1);
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
 
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
@@ -229,7 +236,7 @@ public class CommerceContentFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSelectorString("slug");
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
 
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
@@ -247,8 +254,9 @@ public class CommerceContentFragmentImplTest {
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
         // valid content fragment
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
+        Assert.assertEquals("Test Model", contentFragment.getModelTitle());
         Assert.assertEquals("name", contentFragment.getName());
         Assert.assertEquals("description", contentFragment.getDescription());
         Assert.assertEquals("title", contentFragment.getTitle());
@@ -277,7 +285,7 @@ public class CommerceContentFragmentImplTest {
             }
         });
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
     }
@@ -295,7 +303,7 @@ public class CommerceContentFragmentImplTest {
         });
         requestPathInfo.setSelectorString("sku");
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
     }
@@ -304,7 +312,7 @@ public class CommerceContentFragmentImplTest {
     public void testContentFragmentForCategoryPageNoSelector() {
         prepareRequest(CONTENT_FRAGMENT_PATH_3);
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
     }
@@ -316,7 +324,7 @@ public class CommerceContentFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSelectorString("id");
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
     }
@@ -353,7 +361,7 @@ public class CommerceContentFragmentImplTest {
         });
         requestPathInfo.setSelectorString("url_path");
 
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
     }
@@ -387,7 +395,7 @@ public class CommerceContentFragmentImplTest {
         contentFragmentElements.add(element);
 
         // single text field content fragment
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());
@@ -420,7 +428,7 @@ public class CommerceContentFragmentImplTest {
         requestPathInfo.setSelectorString("id");
 
         // single text field content fragment
-        ContentFragment contentFragment = request.adaptTo(ContentFragment.class);
+        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());

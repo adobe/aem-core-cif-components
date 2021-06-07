@@ -31,8 +31,8 @@ The content fragment is selected dynamically based on:
 
 ### Use Object
 
-The Content Fragment component uses the `com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment` 
-Sling model ehanced with commerce specific functions as its Use-object.
+The Content Fragment component uses the `com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment` 
+Sling model which extends `com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment` with commerce specific functions.
 
 ### Properties
 
@@ -40,12 +40,13 @@ The component has the following JCR properties:
 
 1. `./modelPath` - defines the path to the Content Fragment Model defining the content fragments to be displayed
 2. `./linkElement` - defines the element to be used to match the content fragment to the product SKU or category identifier
-3. `./elementNames` - multi-valued property defining the elements to be rendered and in which order (optional: if not present, all elements are rendered)
-4. `./parentPath` - parent path of the content fragments to be displayed    
-5. `./paragraphScope` - defines if all or a range of paragraphs are to be rendered (only used in paragraph mode)
-6. `./paragraphRange` - defines the range(s) of paragraphs to be rendered (only used in paragraph mode and if paragraphs are restricted to ranges)
-7. `./paragraphHeadings` - defines if headings should count as paragraphs (only used in paragraph mode and if paragraphs are restricted to ranges)
-8. `./id` - defines the component HTML ID attribute.
+3. `./displayMode` - defines whether a single text element (`singleText`) or multiple elements (`multi`) are displayed    
+4. `./elementNames` - multi-valued property defining the elements to be rendered and in which order (optional: if not present, all elements are rendered)
+5. `./parentPath` - parent path of the content fragments to be displayed    
+6. `./paragraphScope` - defines if all or a range of paragraphs are to be rendered (only used in paragraph mode)
+7. `./paragraphRange` - defines the range(s) of paragraphs to be rendered (only used in paragraph mode and if paragraphs are restricted to ranges)
+8. `./paragraphHeadings` - defines if headings should count as paragraphs (only used in paragraph mode and if paragraphs are restricted to ranges)
+9. `./id` - defines the component HTML ID attribute.
 
 ## BEM Description
 

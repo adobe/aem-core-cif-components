@@ -13,10 +13,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.fragment="com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment"
+<sly data-sly-use.fragment="com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment"
      data-sly-use.template="core/wcm/components/commons/v1/templates.html"
      data-sly-test="${fragment.name}" data-sly-use.cfTemplates="templates.html">
     <sly data-sly-call="${cfTemplates.contentFragment @ fragment=fragment, fragmentPath=properties.fragmentPath, wcmmode=wcmmode}"></sly>
 </sly>
-<sly data-sly-test.hasModel="${properties.modelPath}" data-sly-set.emptyText="Configured" />
+<sly data-sly-test.hasModel="${properties.modelPath}" data-sly-set.emptyText="Configured for ${fragment.modelTitle}" />
 <sly data-sly-call="${template.placeholder @ isEmpty=!fragment.name, classAppend='cq-dd-contentfragment', emptyTextAppend = emptyText}"></sly>
