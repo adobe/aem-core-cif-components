@@ -86,7 +86,7 @@ export default ({ queries }) => {
         });
 
         // Push add to cart dataLayer events
-        mse.publish.addToCart();
+        mse && mse.publish.addToCart();
         event.detail.forEach(item => {
             // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
             let eventInfo = {

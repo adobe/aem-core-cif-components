@@ -39,7 +39,7 @@ export default props => {
         await removeItemFromCart({ cartId, itemUid, dispatch, cartDetailsQuery, removeItemMutation });
         dispatch({ type: 'endLoading' });
 
-        mse.publish.removeFromCart();
+        mse && mse.publish.removeFromCart();
         dataLayerUtils.pushEvent('cif:removeFromCart', {
             '@id': await dataLayerUtils.generateDataLayerId('product', item.product.sku),
             'xdm:SKU': item.product.sku,

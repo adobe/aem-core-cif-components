@@ -79,7 +79,7 @@ export const reducerFactory = (setCartCookie, mse) => {
                     cart: null
                 };
             case 'cart': {
-                mse.context.setShoppingCart(transformCart(transformGraphqlResponse(action.cart)));
+                mse && mse.context.setShoppingCart(transformCart(transformGraphqlResponse(action.cart)));
                 return {
                     ...state,
                     cart: action.cart,

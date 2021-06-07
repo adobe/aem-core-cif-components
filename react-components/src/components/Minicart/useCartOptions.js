@@ -30,7 +30,7 @@ const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
             dispatch
         });
 
-        mse.publish.updateCart();
+        mse && mse.publish.updateCart();
 
         dispatch({ type: 'endLoading' });
     };
