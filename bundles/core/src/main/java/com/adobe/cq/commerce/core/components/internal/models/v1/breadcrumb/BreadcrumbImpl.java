@@ -177,15 +177,15 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     }
 
     private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive) {
-        addCategoryItem(b.getCategoryId(), b.getCategoryUid(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(),
+        addCategoryItem(b.getCategoryUid(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(),
             isActive);
     }
 
     private void addCategoryItem(CategoryInterface category, boolean isActive) {
-        addCategoryItem(category.getId(), category.getUid(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
+        addCategoryItem(category.getUid(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
     }
 
-    private void addCategoryItem(Integer id, ID uid, String urlKey, String urlPath, String name, boolean isActive) {
+    private void addCategoryItem(ID uid, String urlKey, String urlPath, String name, boolean isActive) {
         Map<String, String> params = new ParamsBuilder()
             .uid(uid.toString())
             .urlKey(urlKey)
@@ -209,18 +209,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
      */
     private Function<CategoryInterface, Integer> depthKey = c -> c.getUrlPath().split("/").length;
 
-    /**
-     * Orders the categories with smallest id first.
-     */
-    private Function<CategoryInterface, Integer> idKey = c -> c.getId();
-
     @Override
     public Comparator<CategoryInterface> getCategoryInterfaceComparator() {
         return Comparator
             .comparing(structureDepthKey)
             .thenComparing(depthKey)
-            .reversed()
-            .thenComparing(idKey);
+            .reversed();
     }
 
     private List<? extends CategoryInterface> fetchProductBreadcrumbs() {

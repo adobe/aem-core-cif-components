@@ -28,7 +28,6 @@ public interface Breadcrumb extends com.adobe.cq.wcm.core.components.models.Brea
      * <li>if the <code>structureDepth</code> property is set on the breadcrumb component resource,
      * categories with a depth smaller or equal than the property value are chosen first
      * <li>the categories with deepest depth are then chosen first
-     * <li>the category with smaller id is then chosen
      * </ul>
      * 
      * @return The comparator.

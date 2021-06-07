@@ -54,6 +54,7 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -336,37 +337,37 @@ public class BreadcrumbImplTest {
     public void testCategoryInterfaceComparator() {
         CategoryTree c1 = new CategoryTree();
         c1.setUrlPath("men");
-        c1.setId(1);
+        c1.setUid(new ID("1"));
 
         CategoryTree c2 = new CategoryTree();
         c2.setUrlPath("men/tops");
-        c2.setId(2);
+        c2.setUid(new ID("2"));
 
         CategoryTree c3 = new CategoryTree();
         c3.setUrlPath("men/tops/tanks");
-        c3.setId(3);
+        c3.setUid(new ID("3"));
 
         CategoryTree c4 = new CategoryTree();
         c4.setUrlPath("women/tops");
-        c4.setId(4);
+        c4.setUid(new ID("4"));
 
         BreadcrumbImpl breadcrumb = new BreadcrumbImpl();
         List<CategoryInterface> categories = Arrays.asList(c4, c3, c2, c1);
 
         Whitebox.setInternalState(breadcrumb, "structureDepth", 1);
         categories.sort(breadcrumb.getCategoryInterfaceComparator());
-        // [men, men/tops/tanks, men/tops, women/tops]
-        assertThat(categories).containsExactly(c1, c3, c2, c4);
+        // [men, men/tops/tanks, women/tops, men/tops]
+        assertThat(categories).containsExactly(c1, c3, c4, c2);
 
         Whitebox.setInternalState(breadcrumb, "structureDepth", 2);
         categories.sort(breadcrumb.getCategoryInterfaceComparator());
         // [men/tops, women/tops, men, men/tops/tanks]
-        assertThat(categories).containsExactly(c2, c4, c1, c3);
+        assertThat(categories).containsExactly(c4, c2, c1, c3);
 
         Whitebox.setInternalState(breadcrumb, "structureDepth", 3);
         categories.sort(breadcrumb.getCategoryInterfaceComparator());
-        // [men/tops/tanks, men/tops, women/tops, men]
-        assertThat(categories).containsExactly(c3, c2, c4, c1);
+        // [men/tops/tanks, women/tops, men/tops, men]
+        assertThat(categories).containsExactly(c3, c4, c2, c1);
     }
 
     @Test
