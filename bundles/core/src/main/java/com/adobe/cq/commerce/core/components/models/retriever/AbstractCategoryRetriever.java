@@ -93,13 +93,10 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
         if (categoryIdentifierType == null) {
             LOGGER.error("Category identifier type is not set. Falling back to ID based categoryList query");
-            return new CategoryFilterInput().setIds(identifiersFilter);
+            return new CategoryFilterInput().setCategoryUid(identifiersFilter);
         }
 
         switch (categoryIdentifierType) {
-            case ID:
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-                break;
             case UID:
                 filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
                 break;
@@ -107,8 +104,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
                 filter = new CategoryFilterInput().setUrlPath(identifiersFilter);
                 break;
             default:
-                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
+                LOGGER.error("Category identifier type is not supported. Falling back to UID based categoryList query");
+                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
         }
 
         return filter;
@@ -146,18 +143,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
-    }
-
-    /**
-     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
-     *
-     * @param identifier Category identifier
-     * @deprecated Use {@link #setIdentifier(CategoryIdentifierType, String)} instead.
-     */
-    @Deprecated
-    public void setIdentifier(String identifier) {
-        setIdentifier(CategoryIdentifierType.ID, identifier);
     }
 
     /**

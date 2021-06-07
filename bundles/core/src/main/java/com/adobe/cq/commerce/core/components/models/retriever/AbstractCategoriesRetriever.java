@@ -18,11 +18,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -35,7 +35,6 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoriesRetriever.class);
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
@@ -83,7 +82,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * @param identifiers Category identifiers
      */
     public void setIdentifiers(List<String> identifiers) {
-        setIdentifiers(identifiers, UrlProvider.CategoryIdentifierType.ID);
+        setIdentifiers(identifiers, UrlProvider.CategoryIdentifierType.UID);
     }
 
     /**
@@ -91,7 +90,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * Setting the identifiers, removes any cached data.
      *
      * @param identifiers Category identifiers
-     * @param identifierType Which kind of identifier is used: ID, UID
+     * @param identifierType Which kind of identifier is used: UID
      */
     public void setIdentifiers(List<String> identifiers, UrlProvider.CategoryIdentifierType identifierType) {
         categories = null;
@@ -164,13 +163,16 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     private String getCategoryIdentifierValue(CategoryTree category) {
-        switch (identifierType) {
-            case ID:
-                return category.getId().toString();
-            case UID:
-                return category.getUid().toString();
-            default:
-                return "";
+        if (identifierType.equals(CategoryIdentifierType.UID)) {
+            return category.getUid().toString();
         }
+        return StringUtils.EMPTY;
+
+        // switch (identifierType) {
+        // case UID:
+        // return category.getUid().toString();
+        // default:
+        // return "";
+        // }
     }
 }

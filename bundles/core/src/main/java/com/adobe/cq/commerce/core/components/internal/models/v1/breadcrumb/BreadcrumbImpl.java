@@ -187,7 +187,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     private void addCategoryItem(Integer id, ID uid, String urlKey, String urlPath, String name, boolean isActive) {
         Map<String, String> params = new ParamsBuilder()
-            .id(id.toString())
             .uid(uid.toString())
             .urlKey(urlKey)
             .urlPath(urlPath)

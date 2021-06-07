@@ -11,20 +11,20 @@
     },
     {
       "title": "A category",
-      "url": "/content/category-page.5.html/equipment",
+      "url": "/content/category-page.UID-5.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
-        "value":"5",
-        "type": "ID"
+        "value":"UID-5",
+        "type": "UID"
       }
     },
     {
       "title": "A category",
-      "url": "/content/category-page.6.html/equipment_running",
+      "url": "/content/category-page.UID-6.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
-        "value":"6",
-        "type": "ID"
+        "value":"UID-6",
+        "type": "UID"
       }
     },
     {

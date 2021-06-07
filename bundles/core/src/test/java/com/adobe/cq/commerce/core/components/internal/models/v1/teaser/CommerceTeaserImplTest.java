@@ -59,21 +59,13 @@ public class CommerceTeaserImplTest {
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-
-        class MockUrlProviderConfigurationCategory extends MockUrlProviderConfiguration {
-            @Override
-            public String categoryUrlTemplate() {
-                return "${page}.${id}.html/${url_path}";
-            }
-        }
-
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfigurationCategory());
+                urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
@@ -151,15 +143,15 @@ public class CommerceTeaserImplTest {
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
-        Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".UID-5.html", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
-        Assert.assertEquals("The action points to the right category id", "5",
+        Assert.assertEquals("The action points to the right category id", "UID-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment_running", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".UID-6.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
-        Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
+        Assert.assertEquals("The action points to the right category id", "UID-6", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used

@@ -78,7 +78,7 @@ public class GraphQLCategoryProviderTest {
         Page page = Mockito.spy(context.currentPage("/content/pageA"));
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
         Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
-        Assert.assertTrue(categoryProvider.getChildCategories("10", 10, false).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
     }
 
     @Test
@@ -98,17 +98,17 @@ public class GraphQLCategoryProviderTest {
         // test category not found
         when(graphqlClient.execute(anyString())).thenReturn(response);
         when(response.getData()).thenReturn(rootQuery);
-        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10, false).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("not-existing", 10).isEmpty());
 
         // test category found but null
         when(rootQuery.getCategoryList()).thenReturn(list);
         when(rootQuery.getCategoryList().get(0)).thenReturn(null);
-        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10, false).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10).isEmpty());
 
         // test category children not found
         when(rootQuery.getCategoryList().get(0)).thenReturn(category);
         when(category.getChildren()).thenReturn(null);
-        Assert.assertTrue(categoryProvider.getChildCategories("13", 10, false).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories("13", 10).isEmpty());
     }
 
     @Test
@@ -123,10 +123,10 @@ public class GraphQLCategoryProviderTest {
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
 
         // Test null categoryId
-        Assert.assertTrue(categoryProvider.getChildCategories(null, 5, false).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());
 
         // Test category children found
-        List<CategoryTree> categories = categoryProvider.getChildCategories("2", 5, false);
+        List<CategoryTree> categories = categoryProvider.getChildCategories("Mg==", 5);
         Assert.assertEquals(6, categories.size());
     }
 

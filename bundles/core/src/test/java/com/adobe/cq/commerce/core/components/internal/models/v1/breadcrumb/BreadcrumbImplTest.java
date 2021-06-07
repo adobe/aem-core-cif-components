@@ -39,7 +39,6 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -145,7 +144,7 @@ public class BreadcrumbImplTest {
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
 
         NavigationItem menCategory = items.get(1);
-        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.11.html");
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.MTI%3D.html");
         assertThat(menCategory.isActive()).isFalse();
 
         NavigationItem product = items.get(3);
@@ -208,37 +207,6 @@ public class BreadcrumbImplTest {
         prepareModel("/content/venia/us/en/products/category-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("12");
-
-        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
-        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
-        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
-
-        NavigationItem menCategory = items.get(1);
-        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.11.html");
-        assertThat(menCategory.isActive()).isFalse();
-
-        NavigationItem topsCategory = items.get(2);
-        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.12.html");
-        assertThat(topsCategory.isActive()).isTrue();
-    }
-
-    @Test
-    public void testCategoryPageWithUid() throws Exception {
-        graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-breadcrumb-result.json");
-        prepareModel("/content/venia/us/en/products/category-page");
-
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
-        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
-
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        // The value is not URL-encoded here because in AEM this is properly URL-decoded by Jetty/Sling
-        // but with the Sling testing code this is not URL-decoded
         requestPathInfo.setSelectorString("MTM=");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
@@ -263,14 +231,14 @@ public class BreadcrumbImplTest {
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("12");
+        requestPathInfo.setSelectorString("MTM=");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
 
         NavigationItem product = items.get(2);
-        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/category-page/category-specific-page.12.html");
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/category-page/category-specific-page.MTM%3D.html");
         assertThat(product.isActive()).isTrue();
     }
 

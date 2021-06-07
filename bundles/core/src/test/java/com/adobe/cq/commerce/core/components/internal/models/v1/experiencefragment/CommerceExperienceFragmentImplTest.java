@@ -128,14 +128,10 @@ public class CommerceExperienceFragmentImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category-uid.json", httpClient, HttpStatus.SC_OK,
             "1\"}}){uid}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-xf1-category-id.json", httpClient, HttpStatus.SC_OK,
-            "1\"}}){id}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,
             "1\"}}){items{__typename,sku}}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-category-uid.json", httpClient, HttpStatus.SC_OK,
             "2\"}}){uid}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-xf2-category-id.json", httpClient, HttpStatus.SC_OK,
-            "2\"}}){id}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-product.json", httpClient, HttpStatus.SC_OK,
             "2\"}}){items{__typename,sku}}}");
 
@@ -152,7 +148,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     private void setupUrlProvider(ProductIdentifierType productIdentifierType) {
-        setupUrlProvider(productIdentifierType, CategoryIdentifierType.ID);
+        setupUrlProvider(productIdentifierType, CategoryIdentifierType.UID);
     }
 
     private void setupUrlProvider(ProductIdentifierType productIdentifierType, CategoryIdentifierType categoryIdentifierType) {
@@ -248,61 +244,38 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSelectorString("uid1");
 
-        verifyFragment(SITE_XF_ROOT, null, "1", null, "xf-1-id", "/content/experience-fragments/mysite/page/xf-1-id/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, null, "uid1", null, "xf-1-uid",
+            "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithLocationPropertyAndIdInRequest() throws IOException {
+    public void testFragmentOnCategoryPageWithLocationProperty() throws IOException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("2");
-
-        verifyFragment(SITE_XF_ROOT, null, "2", "location-xf2", "xf-2-id",
-            "/content/experience-fragments/mysite/page/xf-2-id/master/jcr:content");
-    }
-
-    @Test
-    public void testFragmentOnCategoryPageWithLocationPropertyAndUIDInRequest() throws IOException {
-        setup(CATEGORY_PAGE, RESOURCE_XF2);
-        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.UID);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("uid2");
 
-        verifyFragment(SITE_XF_ROOT, null, "2", "location-xf2", "xf-2-id",
-            "/content/experience-fragments/mysite/page/xf-2-id/master/jcr:content");
+        verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
+            "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithoutMatchingIds() throws IOException {
+    public void testFragmentOnCategoryPageWithoutMatchingUids() throws IOException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("3");
+        requestPathInfo.setSelectorString("uid3");
 
-        verifyFragmentResourceIsNull(XF_ROOT, null, "3", "location-xf2");
+        verifyFragmentResourceIsNull(XF_ROOT, null, "uid3", "location-xf2");
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithInvalidId() throws IOException {
+    public void testFragmentOnCategoryPageWithInvalidUid() throws IOException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         verifyFragmentResourceIsNull(XF_ROOT, null, null, null);
-    }
-
-    @Test
-    public void testUIDSupportWithIDSelector() throws IOException {
-        setup(CATEGORY_PAGE, RESOURCE_XF1, true);
-        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.ID);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
-
-        verifyFragment(SITE_XF_ROOT, null, "uid1", null, "xf-1-uid",
-            "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test

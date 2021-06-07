@@ -45,7 +45,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -99,26 +98,12 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     private String name;
     private AbstractCategoryRetriever categoryRetriever;
     private AbstractProductRetriever productRetriever;
-    private CategoryIdentifierType categoryIdentifierType;
-    private boolean uidSupport;
 
     @PostConstruct
     private void initModel() {
-        uidSupport = false;
-
-        Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-        if (configurationResource != null) {
-            ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-            if (componentsConfiguration != null) {
-                uidSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-            }
-        }
-
-        categoryIdentifierType = uidSupport ? CategoryIdentifierType.UID : CategoryIdentifierType.ID;
-
         MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
-            categoryRetriever = new CategoryRetriever(magentoGraphqlClient, uidSupport);
+            categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
             productRetriever = new ProductRetriever(magentoGraphqlClient);
         }
 
@@ -187,18 +172,14 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         String categoriesIdentifier = null;
 
         if (identifier.getRight() != null) {
-            if (categoryIdentifierType.equals(identifier.getLeft())) {
+            if (CategoryIdentifierType.UID.equals(identifier.getLeft())) {
                 categoriesIdentifier = identifier.getRight();
             } else if (categoryRetriever != null) {
                 categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
                 CategoryInterface category = categoryRetriever.fetchCategory();
 
                 if (category != null) {
-                    if (uidSupport) {
-                        categoriesIdentifier = category.getUid().toString();
-                    } else {
-                        categoriesIdentifier = category.getId().toString();
-                    }
+                    categoriesIdentifier = category.getUid().toString();
                 }
             }
         }

@@ -31,8 +31,6 @@ import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
@@ -45,7 +43,6 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
@@ -70,13 +67,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class FeaturedCategoryListImpl extends DataLayerComponent implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
 
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
     private static final String CATEGORY_IDENTIFIER = "categoryId";
-    private static final String SELECTION_TYPE = "categoryIdType";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
 
@@ -95,8 +89,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
-    private CategoryIdentifierType categoryIdentifierType;
-    private boolean enableUIDSupport;
 
     @PostConstruct
     private void initModel() {
@@ -108,6 +100,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         // Each identifier list will be held under a specific key
         // After the identifier type has been determined, the specific list will be used further
         Map<CategoryIdentifierType, ArrayList<String>> categoryIdentifiers = new HashMap<>();
+        categoryIdentifiers.put(CategoryIdentifierType.UID, new ArrayList<>());
         assetOverride = new HashMap<>();
 
         // Iterate entries of composite multifield
@@ -115,23 +108,15 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // The identifier type to be used in the categoryList query.
         // The value of the last item configured in the component will be used
-        categoryIdentifierType = CategoryIdentifierType.ID;
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
 
-                // Get the category identifier type. Could be ID or UID. This will be used in
-                // the GraphQL query as filter param
-                categoryIdentifierType = CategoryIdentifierType.valueOf(props.get(SELECTION_TYPE, "id").toUpperCase());
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
-
-                if (!categoryIdentifiers.containsKey(categoryIdentifierType)) {
-                    categoryIdentifiers.put(categoryIdentifierType, new ArrayList<>());
-                }
-                categoryIdentifiers.get(categoryIdentifierType).add(categoryIdentifier);
+                categoryIdentifiers.get(CategoryIdentifierType.UID).add(categoryIdentifier);
 
                 // Check if an override asset was set. If yes, store it in a map for later use.
                 String assetPath = props.get(ASSET_PROP, String.class);
@@ -148,16 +133,13 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(categoryIdentifierType).isEmpty()) {
+            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(CategoryIdentifierType.UID).isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
-                Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-                enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
                 if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient, enableUIDSupport);
+                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                     // Setting the identifiers list based on the determined identifier type
-                    categoriesRetriever.setIdentifiers(categoryIdentifiers.get(categoryIdentifierType), categoryIdentifierType);
+                    categoriesRetriever.setIdentifiers(categoryIdentifiers.get(CategoryIdentifierType.UID));
                 }
             }
         }
@@ -173,20 +155,16 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             ParamsBuilder paramsBuilder = new ParamsBuilder()
-                .id(category.getId().toString())
+                .uid(category.getUid().toString())
                 .urlPath(category.getUrlPath());
-
-            if (enableUIDSupport || categoryIdentifierType == CategoryIdentifierType.UID) {
-                paramsBuilder.uid(category.getUid().toString());
-            }
 
             Map<String, String> params = paramsBuilder.map();
             category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
-            String id = category.getId().toString();
-            if (assetOverride.containsKey(id)) {
-                Asset asset = assetOverride.get(id);
+            String uid = category.getUid().toString();
+            if (assetOverride.containsKey(uid)) {
+                Asset asset = assetOverride.get(uid);
                 Rendition rendition = asset.getRendition(RENDITION_WEB);
                 if (rendition == null) {
                     rendition = asset.getRendition(RENDITION_ORIGINAL);
@@ -213,7 +191,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             String assetPath = props.get(ASSET_PROP, String.class);
             if (StringUtils.isNotEmpty(categoryId)) {
                 categories.add(
-                    new FeaturedCategoryListItemImpl(new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                    new FeaturedCategoryListItemImpl(new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY), assetPath));
             }
         });
@@ -242,7 +220,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Override
     public CategoryData[] getDataLayerCategories() {
         return getCategories().stream()
-            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 

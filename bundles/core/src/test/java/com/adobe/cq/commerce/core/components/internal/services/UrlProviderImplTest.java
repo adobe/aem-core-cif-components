@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -66,19 +65,6 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrl() {
-        testProductUrlImpl();
-    }
-
-    @Test
-    public void testProductUrlWithOldSyntax() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration(true);
-        Assert.assertTrue(config.productUrlTemplate().contains("${"));
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-        testProductUrlImpl();
-    }
-
-    public void testProductUrlImpl() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
@@ -92,62 +78,6 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrl() {
-        testCategoryUrlImpl();
-    }
-
-    @Test
-    public void testCategoryUrlMissingParams() {
-        class MockUrlProviderConfigurationMissingParams extends MockUrlProviderConfiguration {
-            @Override
-            public String categoryUrlTemplate() {
-                return "${page}.${id}.html/${url_path}";
-            }
-        }
-
-        MockUrlProviderConfigurationMissingParams config = new MockUrlProviderConfigurationMissingParams();
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-
-        Page page = context.currentPage("/content/category-page");
-        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-        Map<String, String> params = new ParamsBuilder()
-            .id("42")
-            .map();
-
-        String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.42.html/${url_path}", url);
-    }
-
-    @Test
-    public void testCategoryUrlWithOldSyntax() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration(true);
-        Assert.assertTrue(config.categoryUrlTemplate().contains("${"));
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-        testCategoryUrlImpl();
-    }
-
-    public void testCategoryUrlImpl() {
-        Page page = context.currentPage("/content/category-page");
-        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
-        Map<String, String> params = new ParamsBuilder()
-            .id("42")
-            .map();
-
-        String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.42.html", url);
-    }
-
-    @Test
-    public void testCategoryUrlWithUid() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
-        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
-
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
@@ -160,53 +90,40 @@ public class UrlProviderImplTest {
     }
 
     @Test
-    public void testCategoryUrlWithSubpage() {
-        Page page = context.currentPage("/content/category-page");
-        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+    public void testCategoryUrlMissingParams() {
+        class MockUrlProviderConfigurationMissingParams extends MockUrlProviderConfiguration {
+            @Override
+            public String categoryUrlTemplate() {
+                return "${page}.${uid}.html/${url_path}";
+            }
+        }
 
-        Map<String, String> params = new ParamsBuilder()
-            .id("42")
-            .urlPath("men/tops/shirts")
-            .map();
-
-        String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.42.html", url);
-    }
-
-    @Test
-    public void testCategoryUrlWithSubpageUID() {
-        Page page = context.currentPage("/content/category-page");
-        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
-        Map<String, String> params = new ParamsBuilder()
-            .id("42")
-            .uid("MTE=")
-            .map();
-
-        String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-uid.42.html", url);
-    }
-
-    @Test
-    public void testCategoryUrlWithSubpageUIDTemplate() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
-        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
-
+        MockUrlProviderConfigurationMissingParams config = new MockUrlProviderConfigurationMissingParams();
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
 
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
         Map<String, String> params = new ParamsBuilder()
-            .id("42")
-            .urlPath("men/tops/shirts")
-            .uid("MTM=")
+            .uid("UID-42")
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.MTM%3D.html", url);
+        Assert.assertEquals("/content/category-page.UID-42.html/${url_path}", url);
+    }
+
+    @Test
+    public void testCategoryUrlWithSubpage() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .uid("MTE=")
+            .urlPath("men/tops/shirts")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.MTE%3D.html", url);
     }
 
     @Test
@@ -215,7 +132,7 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         Map<String, String> params = new ParamsBuilder()
-            .id("categoryId1.1")
+            .uid("categoryId1.1")
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);

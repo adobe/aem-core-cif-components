@@ -47,12 +47,11 @@ import com.shopify.graphql.support.ID;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MIN_STRUCTURE_DEPTH;
-import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_ID;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.PN_SHOW_MAIN_CATEGORIES;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +99,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any(), anyBoolean())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
 
         // URL provider
         UrlProviderImpl urlProvider = new UrlProviderImpl();
@@ -112,13 +111,13 @@ public class NavigationImplTest {
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
 
-        Map<String, Object> props = new HashMap<>();
-        props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
-        ValueMapDecorator vm = new ValueMapDecorator(props);
-        ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
-        Resource resource = mock((Resource.class));
-        Whitebox.setInternalState(navigation, "resource", resource);
-        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
+        // Map<String, Object> props = new HashMap<>();
+        // props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
+        // ValueMapDecorator vm = new ValueMapDecorator(props);
+        // ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
+        // Resource resource = mock((Resource.class));
+        // Whitebox.setInternalState(navigation, "resource", resource);
+        // when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
 
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
@@ -567,10 +566,10 @@ public class NavigationImplTest {
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
 
         if (!useCaConfig) {
-            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
+            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
         }
         when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
-            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4))));
+            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -580,7 +579,7 @@ public class NavigationImplTest {
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
         when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
 
-        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4));
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
     }
