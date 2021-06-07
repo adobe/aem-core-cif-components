@@ -132,11 +132,11 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         Map<String, String> params = new ParamsBuilder()
-            .uid("categoryId1.1")
+            .uid("category-uid-1.1")
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page/nested-page.categoryId1.1.html", url);
+        Assert.assertEquals("/content/category-page/sub-page/nested-page.category-uid-1.1.html", url);
     }
 
     @Test

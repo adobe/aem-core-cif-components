@@ -116,8 +116,6 @@ public class FeaturedCategoryListImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{in:[\"uid-5");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-list-sort-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid:{in:[\"uid-8");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null

@@ -11,19 +11,19 @@
     },
     {
       "title": "A category",
-      "url": "/content/category-page.UID-5.html",
+      "url": "/content/category-page.uid-5.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
-        "value":"UID-5",
+        "value":"uid-5",
         "type": "UID"
       }
     },
     {
       "title": "A category",
-      "url": "/content/category-page.UID-6.html",
+      "url": "/content/category-page.uid-6.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
-        "value":"UID-6",
+        "value":"uid-6",
         "type": "UID"
       }
     },

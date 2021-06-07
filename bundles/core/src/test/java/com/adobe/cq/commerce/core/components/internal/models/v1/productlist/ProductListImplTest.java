@@ -172,8 +172,8 @@ public class ProductListImplTest {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
-        context.request().setServletPath(PAGE + ".6.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSelectorString("MTI==");
+        context.request().setServletPath(PAGE + ".MTI==.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -209,7 +209,7 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".6.html", productListModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".MTI==.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -335,7 +335,7 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
-        Assert.assertEquals(7, searchAggregations.size()); // category_id is excluded
+        Assert.assertEquals(8, searchAggregations.size());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();

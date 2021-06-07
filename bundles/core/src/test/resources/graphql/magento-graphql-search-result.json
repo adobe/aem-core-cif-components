@@ -5,7 +5,7 @@
       "items": [
         {
           "__typename": "SimpleProduct",
-          "id": 8,
+          "uid": "MzQ3OA==",
           "sku": "24-WB01",
           "staged": true,
           "name": "Voyage Yoga Bag",
@@ -32,7 +32,7 @@
         },
         {
           "__typename": "SimpleProduct",
-          "id": 14,
+          "uid": "MzQ5OQ==",
           "sku": "24-WB04",
           "staged": true,
           "name": "Push It Messenger Bag",
@@ -59,7 +59,7 @@
         },
         {
           "__typename": "SimpleProduct",
-          "id": 9,
+          "uid": "MzQ5Mw==",
           "sku": "24-WB02",
           "staged": true,
           "name": "Compete Track Tote",
@@ -86,7 +86,7 @@
         },
 	    {
 	      "__typename": "GroupedProduct",
-	      "id": 45,
+	      "uid": "Mzc=",
 	      "sku": "24-WG085_Group",
 	      "staged": true,
 	      "name": "Set of Sprite Yoga Straps",
@@ -113,7 +113,7 @@
 	    },
 	    {
 	      "__typename": "SimpleProduct",
-	      "id": 4242,
+	      "uid": "MzE=",
 	      "sku": "faultyproduct",
 	      "staged": true,
 	      "name": "Faulty product without price",

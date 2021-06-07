@@ -156,7 +156,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    mutableSearchOptions.setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryUid(category.getUid().toString());
                 }
             }
         }

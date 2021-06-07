@@ -259,8 +259,8 @@ public class PageMetadataImplTest {
             "{categoryList");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
-        context.request().setServletPath(pagePath + ".6.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSelectorString("MTI==");
+        context.request().setServletPath(pagePath + ".MTI==.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -268,7 +268,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some category meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some category meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".6.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".MTI==.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test

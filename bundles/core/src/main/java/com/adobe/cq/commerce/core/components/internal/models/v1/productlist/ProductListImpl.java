@@ -195,7 +195,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
                 searchResultsSet.getSearchAggregations()
                     .stream()
-                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
                     .collect(Collectors.toList()));
         }
         return searchResultsSet;

@@ -44,7 +44,7 @@ public class SearchResultsSetImplTest {
 
         // setup some example search options
         searchOptions.setSearchQuery("test");
-        searchOptions.setCategoryId("23");
+        searchOptions.setCategoryUid("uid-23");
         searchOptions.setAttributeFilters(parameterMap);
 
         SearchAggregation appliedColorAggregation = mock(SearchAggregation.class);

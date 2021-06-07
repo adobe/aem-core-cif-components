@@ -111,14 +111,6 @@ public class NavigationImplTest {
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
 
-        // Map<String, Object> props = new HashMap<>();
-        // props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
-        // ValueMapDecorator vm = new ValueMapDecorator(props);
-        // ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
-        // Resource resource = mock((Resource.class));
-        // Whitebox.setInternalState(navigation, "resource", resource);
-        // when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
-
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
         Whitebox.setInternalState(navigationModel, "request", request);

@@ -91,11 +91,11 @@
                 "text": "A product"
               },
               "item1": {
-                "categoryId": "UID-5",
+                "categoryId": "uid-5",
                 "text": "A category"
               },
               "item2": {
-                "categoryId": "UID-6",
+                "categoryId": "uid-6",
                 "productSlug": "beaumont-summit-kit",
                 "text": "A category"
               },
