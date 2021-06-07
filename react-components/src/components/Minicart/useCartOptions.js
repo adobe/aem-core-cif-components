@@ -13,9 +13,11 @@
  ******************************************************************************/
 import { useCartState } from './cartContext';
 import { updateCartItem } from '../../actions/cart';
+import { useStorefrontEvents } from '../../utils/hooks';
 
 const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
     const [{ editItem, cartId }, dispatch] = useCartState();
+    const mse = useStorefrontEvents();
 
     const updateCart = async newQuantity => {
         dispatch({ type: 'beginLoading' });
@@ -27,6 +29,9 @@ const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
             itemQuantity: newQuantity,
             dispatch
         });
+
+        mse.publish.updateCart();
+
         dispatch({ type: 'endLoading' });
     };
 

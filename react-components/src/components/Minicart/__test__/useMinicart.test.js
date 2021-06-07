@@ -20,8 +20,11 @@ import { render } from '../../../utils/test-utils';
 import { act } from 'react-dom/test-utils';
 import useMinicart from '../useMinicart';
 import { CartProvider } from '../cartContext';
+import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefrontEvents';
 
 describe('useMinicart', () => {
+    let mse;
+
     const cartDetailsQuery = jest.fn(async args => {
         const cartId = args ? args.variables.cartId : 'guest123';
         return { data: { cart: { id: cartId, email: 'dummy@example.com' } } };
@@ -59,6 +62,7 @@ describe('useMinicart', () => {
 
     beforeAll(() => {
         window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
 
         window.adobeDataLayer = [];
         window.adobeDataLayer.push = jest.fn();
@@ -66,6 +70,7 @@ describe('useMinicart', () => {
 
     beforeEach(() => {
         window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
     });
 
     it('adds an item to cart', async () => {

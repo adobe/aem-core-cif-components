@@ -14,7 +14,8 @@
 
 import React, { createContext, useContext, useReducer } from 'react';
 import { object, func } from 'prop-types';
-import { useCookieValue } from '../../utils/hooks';
+import { useCookieValue, useStorefrontEvents } from '../../utils/hooks';
+import { transformCart, transformGraphqlResponse } from '../../utils/dataLayerUtils';
 
 export const initialState = {
     isOpen: false,
@@ -28,7 +29,7 @@ export const initialState = {
     couponError: null
 };
 
-export const reducerFactory = setCartCookie => {
+export const reducerFactory = (setCartCookie, mse) => {
     return (state, action) => {
         switch (action.type) {
             case 'close':
@@ -77,13 +78,15 @@ export const reducerFactory = setCartCookie => {
                     couponError: null,
                     cart: null
                 };
-            case 'cart':
+            case 'cart': {
+                mse.context.setShoppingCart(transformCart(transformGraphqlResponse(action.cart)));
                 return {
                     ...state,
                     cart: action.cart,
                     isLoading: false,
                     couponError: !action.cart.applied_coupon ? state.couponError : null
                 };
+            }
             case 'register': {
                 return {
                     ...state,
@@ -119,8 +122,9 @@ export const CartProvider = props => {
     const factory = props.reducerFactory || reducerFactory;
     const state = props.initialState || initialState;
 
+    const mse = useStorefrontEvents();
     const [, setCartCookie] = useCookieValue('cif.cart');
-    const contextValue = useReducer(factory(setCartCookie), state);
+    const contextValue = useReducer(factory(setCartCookie, mse), state);
 
     return <CartContext.Provider value={contextValue}>{props.children}</CartContext.Provider>;
 };
