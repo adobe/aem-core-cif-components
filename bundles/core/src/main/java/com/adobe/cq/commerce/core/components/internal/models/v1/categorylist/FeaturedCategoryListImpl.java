@@ -44,7 +44,6 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -99,8 +98,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // Each identifier list will be held under a specific key
         // After the identifier type has been determined, the specific list will be used further
-        Map<CategoryIdentifierType, ArrayList<String>> categoryIdentifiers = new HashMap<>();
-        categoryIdentifiers.put(CategoryIdentifierType.UID, new ArrayList<>());
+        List<String> categoryIdentifiers = new ArrayList<>();
         assetOverride = new HashMap<>();
 
         // Iterate entries of composite multifield
@@ -116,7 +114,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
-                categoryIdentifiers.get(CategoryIdentifierType.UID).add(categoryIdentifier);
+                categoryIdentifiers.add(categoryIdentifier);
 
                 // Check if an override asset was set. If yes, store it in a map for later use.
                 String assetPath = props.get(ASSET_PROP, String.class);
@@ -133,13 +131,13 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(CategoryIdentifierType.UID).isEmpty()) {
+            if (!categoryIdentifiers.isEmpty()) {
                 MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
                 if (magentoGraphqlClient != null) {
                     categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                     // Setting the identifiers list based on the determined identifier type
-                    categoriesRetriever.setIdentifiers(categoryIdentifiers.get(CategoryIdentifierType.UID));
+                    categoriesRetriever.setIdentifiers(categoryIdentifiers);
                 }
             }
         }
