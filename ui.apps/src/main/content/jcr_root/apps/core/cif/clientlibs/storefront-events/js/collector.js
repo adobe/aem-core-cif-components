@@ -33,10 +33,10 @@ const processProductStorefrontData = () => {
 
 const onDocumentReady = () => {
     processProductStorefrontData();
-}
+};
 
-if (document.readyState !== "loading") {
+if (document.readyState !== 'loading') {
     onDocumentReady();
 } else {
-    document.addEventListener("DOMContentLoaded", onDocumentReady);
+    document.addEventListener('DOMContentLoaded', onDocumentReady);
 }
