@@ -80,9 +80,8 @@ public class PageMetadataImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content-breadcrumb.json");
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
-
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {

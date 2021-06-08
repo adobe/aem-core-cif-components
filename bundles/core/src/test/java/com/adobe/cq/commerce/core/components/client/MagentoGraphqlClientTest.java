@@ -59,7 +59,7 @@ import static org.mockito.Mockito.*;
 public class MagentoGraphqlClientTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
+        "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 

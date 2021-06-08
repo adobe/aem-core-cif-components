@@ -41,9 +41,8 @@ import static org.mockito.Mockito.when;
 
 public class StoreConfigExporterTest {
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "cq:graphqlClient",
-            "my-graphql-client"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
@@ -65,7 +64,7 @@ public class StoreConfigExporterTest {
     public void testStoreView() {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+        Assert.assertEquals("my-store", storeConfigExporter.getStoreView());
     }
 
     @Test
@@ -74,7 +73,7 @@ public class StoreConfigExporterTest {
 
         setupWithPage("/content/launches/2020/09/14/mylaunch/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+        Assert.assertEquals("my-store", storeConfigExporter.getStoreView());
     }
 
     @Test
@@ -90,7 +89,7 @@ public class StoreConfigExporterTest {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
-        Assert.assertEquals("/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test

@@ -107,9 +107,8 @@ public class SearchResultsImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String SEARCHRESULTS = "/content/pageA/jcr:content/root/responsivegrid/searchresults";
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private SearchResultsImpl searchResultsModel;

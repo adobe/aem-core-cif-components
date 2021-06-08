@@ -101,10 +101,6 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     private void setup(String pagePath, String resourcePath) throws IOException {
-        setup(pagePath, resourcePath, false);
-    }
-
-    private void setup(String pagePath, String resourcePath, boolean uidSupport) throws IOException {
         setupUrlProvider(ProductIdentifierType.URL_KEY);
 
         Page page = Mockito.spy(context.currentPage(pagePath));
@@ -136,7 +132,7 @@ public class CommerceExperienceFragmentImplTest {
             "2\"}}){items{__typename,sku}}}");
 
         ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store", "enableUIDSupport", String.valueOf(uidSupport)));
+            "my-store", "enableUIDSupport", "true"));
 
         Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
@@ -280,7 +276,7 @@ public class CommerceExperienceFragmentImplTest {
 
     @Test
     public void testUIDSupportWithURLPathSelector() throws IOException {
-        setup(CATEGORY_PAGE, RESOURCE_XF2, true);
+        setup(CATEGORY_PAGE, RESOURCE_XF2);
         setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.URL_PATH);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
