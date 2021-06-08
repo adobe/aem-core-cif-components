@@ -352,7 +352,7 @@ public class NavigationImplTest {
     public void testNavigationCategoriesOnly() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, false);
@@ -362,8 +362,7 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -385,7 +384,7 @@ public class NavigationImplTest {
     public void testNavigationCategoryHierarchy() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, true);
@@ -395,17 +394,15 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
         List<CategoryTree> children = new ArrayList<>();
-        Integer childCategoryId = 1;
+        String childCategoryId = "uid-1";
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
-        when(childCategory.getId()).thenReturn(childCategoryId);
-        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
+        when(childCategory.getUid()).thenReturn(new ID(childCategoryId));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -438,7 +435,7 @@ public class NavigationImplTest {
     public void testNavigationCategoryHierarchySelection() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, false);
@@ -448,17 +445,15 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
         List<CategoryTree> children = new ArrayList<>();
-        Integer childCategoryId = 1;
+        String childCategoryId = "uid-1";
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
-        when(childCategory.getId()).thenReturn(childCategoryId);
-        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
+        when(childCategory.getUid()).thenReturn(new ID(childCategoryId));
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -522,7 +517,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getName()).thenReturn(categoryTitle);
-        when(category.getUid()).thenReturn(new ID("0"));
+        when(category.getUid()).thenReturn(new ID("uid-0"));
         categoryList.add(category);
 
         if (pageBeforeCategory) {
