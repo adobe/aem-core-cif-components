@@ -58,7 +58,6 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
 public class NavigationImpl implements Navigation {
 
     static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
-    // static final String PN_MAGENTO_ROOT_CATEGORY_ID_TYPE = PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + "Type";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;

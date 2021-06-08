@@ -83,4 +83,17 @@ public class CategoryRetrieverTest {
         String expectedQuery = "{categoryList(filters:{url_path:{eq:\"category/category\"}}){uid,url_path}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
+
+    @Test
+    public void testExtendedButtonQuery() {
+        retriever.setIdentifier(CategoryIdentifierType.UID, "Mg==");
+        retriever.extendCategoryQueryWith(c -> c.image());
+        retriever.fetchCategory();
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path,image";
+        Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
+    }
 }
