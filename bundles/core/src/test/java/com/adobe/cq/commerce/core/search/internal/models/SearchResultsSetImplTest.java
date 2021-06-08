@@ -86,4 +86,18 @@ public class SearchResultsSetImplTest {
             .size());
     }
 
+    @Test
+    public void testSearchResultsSetTotal() {
+        Assert.assertEquals(Integer.valueOf(9), modelUnderTest.getTotalResults());
+    }
+
+    @Test
+    public void testSearchResultsSetPagination() {
+        Assert.assertTrue(modelUnderTest.hasPagination());
+    }
+
+    @Test
+    public void testSearchResultsSetHasAggregations() {
+        Assert.assertTrue(modelUnderTest.hasAggregations());
+    }
 }
