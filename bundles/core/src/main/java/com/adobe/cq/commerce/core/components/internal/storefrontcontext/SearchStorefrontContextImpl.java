@@ -37,6 +37,16 @@ public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontConte
     }
 
     @Override
+    public String getSearchUnitId() {
+        return "";
+    }
+
+    @Override
+    public String getSearchRequestId() {
+        return "";
+    }
+
+    @Override
     public List<QueryType> getQueryTypes() {
         return Collections.singletonList(QueryType.products);
     }

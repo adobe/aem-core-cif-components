@@ -1,4 +1,6 @@
 {
+  "searchUnitId":"",
+  "searchRequestId":"",
   "pageSize": 6,
   "phrase": "glove",
   "queryTypes": [

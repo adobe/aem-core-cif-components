@@ -17,6 +17,10 @@ import java.util.List;
 
 public interface SearchStorefrontContext extends CommerceStorefrontContext {
 
+    String getSearchUnitId();
+
+    String getSearchRequestId();
+
     List<QueryType> getQueryTypes();
 
     String getPhrase();

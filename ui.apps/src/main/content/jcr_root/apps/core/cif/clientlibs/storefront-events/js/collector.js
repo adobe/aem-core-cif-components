@@ -36,7 +36,7 @@ const processSearchInputStorefrontData = () => {
     if (searchInputCtxElement) {
         try {
             const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
-            mse.context.setSearchInput(searchInputCtx);
+            mse.context.setSearchInput({ units: [searchInputCtx] });
         } catch (e) {
             console.error(e);
         }
