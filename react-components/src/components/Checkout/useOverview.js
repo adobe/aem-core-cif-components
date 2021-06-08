@@ -70,7 +70,7 @@ export default () => {
             const {
                 prices: {
                     email,
-                    applied_coupon: { code: appliedCupon = '' },
+                    applied_coupon,
                     subtotal_excluding_tax: { value: subtotalExcludingTax },
                     subtotal_including_tax: { value: subtotalIncludingTax },
                     grand_total: { currency, value: priceTotal }
@@ -106,7 +106,7 @@ export default () => {
 
             mse &&
                 mse.context.setOrder({
-                    appliedCouponCode: appliedCupon,
+                    appliedCouponCode: applied_coupon ? applied_coupon.code : '',
                     email: email,
                     grandTotal: priceTotal,
                     orderId: order_id,

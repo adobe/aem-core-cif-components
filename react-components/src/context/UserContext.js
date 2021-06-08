@@ -14,10 +14,9 @@
 import React, { useContext, useReducer, useCallback } from 'react';
 import { object, func } from 'prop-types';
 
-import { useCookieValue } from '../utils/hooks';
+import { useCookieValue, useAwaitQuery } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
 import parseError from '../utils/parseError';
-import { useAwaitQuery } from '../utils/hooks';
 import {
     resetCustomerCart as resetCustomerCartAction,
     signOutUser as signOutUserAction,
