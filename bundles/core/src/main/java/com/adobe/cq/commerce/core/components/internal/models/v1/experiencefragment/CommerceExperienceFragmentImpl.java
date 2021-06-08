@@ -68,7 +68,6 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     @Self
     private SlingHttpServletRequest request;

@@ -27,7 +27,7 @@ class CategoryRetriever extends AbstractCategoryRetriever {
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = (CategoryTreeQuery q) -> {
-            q.id()
+            q.uid()
                 .description()
                 .name()
                 .image()

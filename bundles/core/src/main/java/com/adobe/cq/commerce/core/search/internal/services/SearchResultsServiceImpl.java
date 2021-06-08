@@ -388,8 +388,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private ProductInterfaceQueryDefinition generateProductQuery(
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
-            q.id()
-                .sku()
+            q.sku()
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()

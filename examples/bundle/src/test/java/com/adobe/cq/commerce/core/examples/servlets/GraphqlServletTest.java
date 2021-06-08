@@ -573,9 +573,9 @@ public class GraphqlServletTest {
                 .priceView()
                 .shipBundleItems()
                 .items(i -> i
-                    .optionId()
+                    .uid()
                     .options(o -> o
-                        .id()
+                        .uid()
                         .product(p -> p
                             .priceRange(r -> r
                                 .maximumPrice(generatePriceQuery()))))));

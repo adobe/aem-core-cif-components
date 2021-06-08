@@ -40,7 +40,7 @@ import com.day.cq.wcm.api.Page;
 class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
-    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.id().uid().name().urlPath().position();
+    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.uid().name().urlPath().position();
     private MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(Resource resource, Page page, SlingHttpServletRequest request) {
