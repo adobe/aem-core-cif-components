@@ -7,7 +7,7 @@
       "categoryIdentifier": {
         "entityType": "CATEGORY",
         "value": "15",
-        "type": "ID"
+        "type": "UID"
       }
     },
     {
@@ -15,7 +15,7 @@
       "categoryIdentifier": {
         "entityType": "CATEGORY",
         "value": "24",
-        "type": "ID"
+        "type": "UID"
       }
     }
   ],

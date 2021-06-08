@@ -153,11 +153,11 @@ public class GraphqlServletTest {
 
     @Test
     public void testGetRequestWithVariables() throws ServletException, IOException {
-        String query = "query rootCategory($catId: Int!) {category(id: $catId){id,name,url_path}}";
+        String query = "query rootCategory($id: String!) {categoryList(filters:{category_uid:{eq:$id}}){uid,name,url_path}}";
 
         Map<String, Object> params = new HashMap<>();
         params.put("query", query);
-        params.put("variables", Collections.singletonMap("catId", 2));
+        params.put("variables", Collections.singletonMap("id", "MTU%3D"));
         params.put("operationName", "rootCategory");
         request.setParameterMap(params);
 
@@ -166,17 +166,17 @@ public class GraphqlServletTest {
 
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-        CategoryTree category = graphqlResponse.getData().getCategory();
+        CategoryTree category = graphqlResponse.getData().getCategoryList().get(0);
 
-        Assert.assertEquals(2, category.getId().intValue());
+        Assert.assertEquals("MTU=", category.getUid().toString());
     }
 
     @Test
     public void testPostRequestWithVariables() throws ServletException, IOException {
-        String query = "query rootCategory($catId: Int!) {category(id: $catId){id,name,url_path}}";
+        String query = "query rootCategory($id: String!) {categoryList(filters:{category_uid:{eq:$id}}){uid,name,url_path}}";
 
         GraphqlRequest graphqlRequest = new GraphqlRequest(query);
-        graphqlRequest.setVariables(Collections.singletonMap("catId", 2));
+        graphqlRequest.setVariables(Collections.singletonMap("id", "MTU="));
         graphqlRequest.setOperationName("rootCategory");
         String body = QueryDeserializer.getGson().toJson(graphqlRequest);
         request.setContent(body.getBytes());
@@ -186,9 +186,9 @@ public class GraphqlServletTest {
 
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-        CategoryTree category = graphqlResponse.getData().getCategory();
+        CategoryTree category = graphqlResponse.getData().getCategoryList().get(0);
 
-        Assert.assertEquals(2, category.getId().intValue());
+        Assert.assertEquals("MTU=", category.getUid().toString());
     }
 
     private Resource prepareModel(String resourcePath) throws ServletException {
@@ -317,7 +317,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSelectorString("uid-1");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
@@ -330,7 +330,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSelectorString("uid-1");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
@@ -440,10 +440,10 @@ public class GraphqlServletTest {
         Assert.assertEquals(4, categories.size());
 
         // Test that the servlet returns the expected categories in the correct order
-        Assert.assertEquals(15, categories.get(0).getId().intValue());
-        Assert.assertEquals(24, categories.get(1).getId().intValue());
-        Assert.assertEquals(28, categories.get(2).getId().intValue());
-        Assert.assertEquals(32, categories.get(3).getId().intValue());
+        Assert.assertEquals("MTU=", categories.get(0).getUid().toString());
+        Assert.assertEquals("MjQ=", categories.get(1).getUid().toString());
+        Assert.assertEquals("NA==", categories.get(2).getUid().toString());
+        Assert.assertEquals("Ng==", categories.get(3).getUid().toString());
     }
 
     @Test
@@ -454,8 +454,8 @@ public class GraphqlServletTest {
         Assert.assertEquals(2, categories.size());
 
         // Test that the Servlet didn't return 2 times the catalog category tree
-        Assert.assertEquals(15, categories.get(0).getId().intValue());
-        Assert.assertEquals(24, categories.get(1).getId().intValue());
+        Assert.assertEquals("MTU=", categories.get(0).getUid().toString());
+        Assert.assertEquals("MjQ=", categories.get(1).getUid().toString());
     }
 
     @Test
