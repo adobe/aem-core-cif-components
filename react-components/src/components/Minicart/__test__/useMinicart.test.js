@@ -98,6 +98,7 @@ describe('useMinicart', () => {
                 'xdm:quantity': 2
             }
         });
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
     });
 
     it('adds multiple items to cart', async () => {
@@ -118,6 +119,7 @@ describe('useMinicart', () => {
 
         expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
     });
 
     it('adds Bundle Product to cart', async () => {
@@ -158,5 +160,6 @@ describe('useMinicart', () => {
                 bundle: true
             }
         });
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
     });
 });
