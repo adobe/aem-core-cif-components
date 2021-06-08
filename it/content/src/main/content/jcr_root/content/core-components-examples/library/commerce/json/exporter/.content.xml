@@ -41,7 +41,7 @@
                         <item2
                             jcr:primaryType="nt:unstructured"
                             asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
-                            categoryId="Mjg="/>
+                            categoryId="NA=="/>
                         <item3
                             jcr:primaryType="nt:unstructured"
                             asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"

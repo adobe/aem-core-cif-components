@@ -22,7 +22,7 @@
       "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "Mjg=",
+        "value": "NA==",
         "type": "UID"
       }
     },
@@ -40,7 +40,7 @@
     "categorycarousel-526952b825": {
       "xdm:categories": [
         {
-          "repo:id": "category-e629fa6598",
+          "repo:id": "category-d20c7c8fb5",
           "xdm:name": "Men's Jackets",
           "xdm:asset": {
             "xdm:tags": [],
@@ -50,7 +50,7 @@
           }
         },
         {
-          "repo:id": "category-c2356069e9",
+          "repo:id": "category-08f34c4a7b",
           "xdm:name": "Women's Jackets",
           "xdm:asset": {
             "xdm:tags": [],
@@ -60,7 +60,7 @@
           }
         },
         {
-          "repo:id": "category-59e19706d5",
+          "repo:id": "category-9d94de2282",
           "xdm:name": "Accessories",
           "xdm:asset": {
             "xdm:tags": [],
@@ -70,7 +70,7 @@
           }
         },
         {
-          "repo:id": "category-e29c9c180c",
+          "repo:id": "category-25f95c8508",
           "xdm:name": "Watches",
           "xdm:asset": {
             "xdm:tags": [],
