@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.search.models.Pager;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 
 import static org.mockito.Mockito.mock;
@@ -94,6 +95,14 @@ public class SearchResultsSetImplTest {
     @Test
     public void testSearchResultsSetPagination() {
         Assert.assertTrue(modelUnderTest.hasPagination());
+    }
+
+    @Test
+    public void testSearchResultsSetPager() {
+        Pager pager = modelUnderTest.getPager();
+        Assert.assertNotNull(pager);
+        Assert.assertEquals(2, pager.getTotalPages());
+        Assert.assertEquals(1, pager.getCurrentPage());
     }
 
     @Test
