@@ -31,4 +31,12 @@ const processProductStorefrontData = () => {
     }
 };
 
-processProductStorefrontData();
+const onDocumentReady = () => {
+    processProductStorefrontData();
+}
+
+if (document.readyState !== "loading") {
+    onDocumentReady();
+} else {
+    document.addEventListener("DOMContentLoaded", onDocumentReady);
+}
