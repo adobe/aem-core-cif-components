@@ -377,7 +377,9 @@ describe('useOverview', () => {
                     postcode: '012321',
                     telephone: '000000000'
                 },
-                applied_coupon: null,
+                applied_coupon: {
+                    code: 'somecoupon'
+                },
                 total_quantity: 1,
                 items: [
                     {
@@ -427,6 +429,18 @@ describe('useOverview', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(mse.context.setOrder).toHaveBeenCalledTimes(1);
+        expect(mse.context.setOrder).toHaveBeenCalledWith({
+            appliedCouponCode: 'somecoupon',
+            email: 'user@example.com',
+            grandTotal: 27,
+            orderId: '000000005',
+            otherTax: 5,
+            paymentMethodCode: 'checkmo',
+            paymentMethodName: 'Check / Money order',
+            salesTax: 0,
+            subtotalExcludingTax: 22,
+            subtotalIncludingTax: 22
+        });
         expect(mse.publish.placeOrder).toHaveBeenCalledTimes(1);
     });
 });

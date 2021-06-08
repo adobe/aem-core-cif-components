@@ -68,9 +68,9 @@ export default () => {
             } = data;
 
             const {
+                email,
+                applied_coupon,
                 prices: {
-                    email,
-                    applied_coupon,
                     subtotal_excluding_tax: { value: subtotalExcludingTax },
                     subtotal_including_tax: { value: subtotalIncludingTax },
                     grand_total: { currency, value: priceTotal }
@@ -78,6 +78,7 @@ export default () => {
                 selected_payment_method: { code: paymentCode, title: paymentName },
                 items
             } = cart;
+
             dataLayerUtils.pushEvent('cif:placeOrder', {
                 'xdm:purchaseOrderNumber': order_id,
                 'xdm:currencyCode': currency,
