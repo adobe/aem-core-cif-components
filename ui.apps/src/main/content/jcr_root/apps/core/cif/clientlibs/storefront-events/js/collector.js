@@ -43,10 +43,9 @@ const processSearchInputStorefrontData = () => {
     }
 };
 
-processProductStorefrontData();
-processSearchInputStorefrontData();
 const onDocumentReady = () => {
     processProductStorefrontData();
+    processSearchInputStorefrontData();
 };
 
 if (document.readyState !== 'loading') {
