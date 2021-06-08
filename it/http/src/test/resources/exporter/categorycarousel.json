@@ -6,7 +6,7 @@
       "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "15",
+        "value": "MTU=",
         "type": "UID"
       }
     },
@@ -14,7 +14,7 @@
       "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "24",
+        "value": "MjQ=",
         "type": "UID"
       }
     },
@@ -22,7 +22,7 @@
       "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "28",
+        "value": "Mjg=",
         "type": "UID"
       }
     },
@@ -30,7 +30,7 @@
       "assetPath": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "32",
+        "value": "Ng==",
         "type": "UID"
       }
     }
