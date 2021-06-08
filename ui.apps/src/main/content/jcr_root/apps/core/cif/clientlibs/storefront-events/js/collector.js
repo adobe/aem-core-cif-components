@@ -45,3 +45,12 @@ const processCategoryStorefrontData = () => {
 
 processProductStorefrontData();
 processCategoryStorefrontData();
+const onDocumentReady = () => {
+    processProductStorefrontData();
+};
+
+if (document.readyState !== 'loading') {
+    onDocumentReady();
+} else {
+    document.addEventListener('DOMContentLoaded', onDocumentReady);
+}
