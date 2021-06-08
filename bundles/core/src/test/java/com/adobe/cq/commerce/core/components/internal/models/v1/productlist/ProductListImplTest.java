@@ -518,9 +518,7 @@ public class ProductListImplTest {
 
         String expected = Utils.getResource("storefront-context/result-storefront-context-productlist-component.json");
         CategoryStorefrontContext storefrontContext = productListModel.getStorefrontContext();
-        storefrontContext.getName();
-        storefrontContext.getUrlKey();
-        storefrontContext.getUrlPath();
+
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(storefrontContext.getJson()));
     }
 }
