@@ -14,6 +14,7 @@
         sling:configPropertyInherit="true"
         sling:resourceType="commerce/gui/components/configuration/page"
         magentoGraphqlEndpoint="/apps/cif-components-examples/graphql"
-        magentoRootCategoryId="2"
-        magentoStore="default"/>
+        magentoRootCategoryId="Mg=="
+        magentoStore="default"
+        enableUIDSupport="true"/>
 </jcr:root>
