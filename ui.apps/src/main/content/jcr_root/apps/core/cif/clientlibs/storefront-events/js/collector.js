@@ -43,10 +43,9 @@ const processCategoryStorefrontData = () => {
     }
 };
 
-processProductStorefrontData();
-processCategoryStorefrontData();
 const onDocumentReady = () => {
     processProductStorefrontData();
+    processCategoryStorefrontData();
 };
 
 if (document.readyState !== 'loading') {
