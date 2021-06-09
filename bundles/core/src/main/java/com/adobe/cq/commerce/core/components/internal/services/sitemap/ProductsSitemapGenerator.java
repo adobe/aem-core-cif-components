@@ -1,0 +1,131 @@
+/*******************************************************************************
+ *
+ *    Copyright 2021 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
+package com.adobe.cq.commerce.core.components.internal.services.sitemap;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.sitemap.SitemapException;
+import org.apache.sling.sitemap.builder.Sitemap;
+import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.generator.SitemapGenerator;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.day.cq.wcm.api.Page;
+
+@Component(
+    service = SitemapGenerator.class,
+    property = {
+        Constants.SERVICE_RANKING + ":Integer=100"
+    })
+public class ProductsSitemapGenerator implements SitemapGenerator {
+
+    private static final String PN_NEXT_PAGE = "nextPage";
+    private static final String PN_MAXIMUM_PAGES = "maxPages";
+
+    @Reference
+    private SearchResultsService searchResultsService;
+    @Reference
+    private UrlProvider urlProvider;
+    @Reference
+    private SitemapLinkExternalizer externalizer;
+
+    private int pageSize = 100;
+    private boolean includeVariants = true;
+
+    @Override
+    public Set<String> getNames(Resource sitemapRoot) {
+        Page page = sitemapRoot.adaptTo(Page.class);
+        Page specificPage = page != null ? SiteNavigation.getProductPage(page) : null;
+        return specificPage != null && specificPage.getPath().equals(page.getPath())
+            ? Collections.singleton(SitemapGenerator.DEFAULT_SITEMAP)
+            : Collections.emptySet();
+    }
+
+    @Override
+    public void generate(Resource sitemapRoot, String name, Sitemap sitemap, GenerationContext context) throws SitemapException {
+        MagentoGraphqlClient graphql = MagentoGraphqlClient.create(sitemapRoot, sitemapRoot.adaptTo(Page.class), null);
+        Page productPage = sitemapRoot.adaptTo(Page.class);
+
+        if (graphql == null || productPage == null) {
+            throw new SitemapException("Failed to build product sitemap at: " + sitemapRoot.getPath());
+        }
+
+        int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
+        int maxPages = context.getProperty(PN_MAXIMUM_PAGES, Integer.MAX_VALUE);
+        // parameter map to be reused while iterating
+        UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder()
+            .page(externalizer.externalize(sitemapRoot));
+
+        while (currentPageIndex <= maxPages) {
+            String query = Operations.query(productsQueryFor(currentPageIndex, pageSize)).toString();
+            GraphqlResponse<Query, Error> resp = graphql.execute(query);
+
+            if (resp.getErrors() != null && resp.getErrors().size() > 0) {
+                SitemapException ex = new SitemapException("Failed to execute graphql query.");
+                resp.getErrors().forEach(error -> ex.addSuppressed(new Exception(error.getMessage())));
+                throw ex;
+            }
+
+            Products products = resp.getData().getProducts();
+            maxPages = products.getTotalCount() / pageSize;
+
+            if (products.getTotalCount() % pageSize > 0) {
+                // there is a fractional part of items left on the last page
+                maxPages++;
+            }
+
+            for (ProductInterface product : products.getItems()) {
+                // TODO: handle variants?
+                Map<String, String> params = paramsBuilder
+                    .sku(product.getSku()).urlKey(product.getUrlKey())
+                    .variantSku(null).variantUrlKey(null)
+                    .map();
+                String location = urlProvider.toProductUrl(null, null, params);
+                sitemap.addUrl(location);
+            }
+
+            context.setProperty(PN_NEXT_PAGE, ++currentPageIndex);
+            context.setProperty(PN_MAXIMUM_PAGES, maxPages);
+        }
+    }
+
+    private static QueryQueryDefinition productsQueryFor(int pageIndex, int pageSize) {
+        return q -> q.products(
+            arguments -> arguments
+                .filter(new ProductAttributeFilterInput()
+                    .setPrice(new FilterRangeTypeInput()
+                        .setFrom("0").setTo(String.valueOf(Long.MAX_VALUE))))
+                .pageSize(pageSize)
+                .currentPage(pageIndex),
+            resultSet -> resultSet
+                .totalCount()
+                .items(product -> product
+                    .urlKey()
+                    .sku()
+                    .onConfigurableProduct(configurableProduct -> configurableProduct
+                        .variants(variant -> variant.product(simpleProduct -> simpleProduct.sku())))));
+    }
+}
