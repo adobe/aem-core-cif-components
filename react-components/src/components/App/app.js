@@ -22,11 +22,13 @@ import { graphqlAuthLink } from '../../utils/authUtils';
 import compressQueryFetch from '../../utils/compressQueryFetch';
 import useCustomUrlEvent from '../../utils/useCustomUrlEvent';
 import useReferrerEvent from '../../utils/useReferrerEvent';
+import usePageEvent from '../../utils/usePageEvent';
 
 const App = props => {
     const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
     useCustomUrlEvent();
     useReferrerEvent();
+    usePageEvent();
 
     const clientConfig = {
         link: from([
