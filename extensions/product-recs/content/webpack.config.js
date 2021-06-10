@@ -17,7 +17,7 @@ const glob = require('glob');
 
 const JCR_ROOT = './src/main/content/jcr_root/';
 const LIB = {
-    EVENTS_COLLECTOR: 'apps/core/cif/clientlibs/storefront-events-collector',
+    EVENTS_COLLECTOR: 'apps/core/cif/extensions/product-recs/clientlibs/storefront-events-collector',
 };
 
 function generateBaseConfig() {

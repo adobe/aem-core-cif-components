@@ -84,9 +84,9 @@
                             <version>(1.0.138,)</version>
                         </dependency>
                         <dependency>
-                            <group>adobe/cq60</group>
-                            <name>core.wcm.components.content</name>
-                            <version>${core.wcm.components.version}</version>
+                            <group>com.adobe.commerce.cif</group>
+                            <name>core-cif-components-apps</name>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                 </configuration>
@@ -149,7 +149,7 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>src/main/content/jcr_root/apps/core/cif/clientlibs/storefront-events-collector/dist</directory>
+                            <directory>src/main/content/jcr_root/apps/core/cif/extensions/product-recs/clientlibs/storefront-events-collector/dist</directory>
                         </fileset>
                     </filesets>
                 </configuration>
@@ -159,7 +159,7 @@
                 <artifactId>htl-maven-plugin</artifactId>
                 <version>2.0.2-1.4.0</version>
                 <configuration>
-                    <sourceDirectory>src/main/content/jcr_root/apps/core/cif/components</sourceDirectory>
+                    <sourceDirectory>src/main/content/jcr_root/apps/core/cif/extensions/product-recs/components</sourceDirectory>
                 </configuration>
                 <executions>
                     <execution>
