@@ -17,7 +17,7 @@ import { useEffect, useRef } from 'react';
 const documentScrollTop = () => document.body.scrollTop || document.documentElement.scrollTop;
 const documentScrollLeft = () => document.body.scrollLeft || document.documentElement.scrollLeft;
 
-const useViewOffsets = () => {
+const useViewedOffsets = () => {
     const minXOffset = useRef(0);
     const maxXOffset = useRef(0);
     const minYOffset = useRef(0);
@@ -27,9 +27,9 @@ const useViewOffsets = () => {
         const currentXOffset = documentScrollLeft();
         const currentYOffset = documentScrollTop();
         minXOffset.current = Math.min(currentXOffset, minXOffset.current);
-        maxXOffset.current = Math.max(currentXOffset, maxXOffset.current);
+        maxXOffset.current = Math.max(currentXOffset + window.innerWidth, maxXOffset.current);
         minYOffset.current = Math.min(currentYOffset, minYOffset.current);
-        maxYOffset.current = Math.max(currentYOffset, maxYOffset.current);
+        maxYOffset.current = Math.max(currentYOffset + window.innerHeight, maxYOffset.current);
     };
 
     useEffect(() => {
@@ -51,4 +51,4 @@ const useViewOffsets = () => {
     return { minXOffset, maxXOffset, minYOffset, maxYOffset };
 };
 
-export default useViewOffsets;
+export default useViewedOffsets;

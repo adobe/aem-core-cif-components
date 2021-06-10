@@ -16,11 +16,17 @@ class MagentoStorefrontEventsMock {
     constructor() {
         this._methods = [];
         this.context = {
-            setShopper: this._createMock()
+            setShopper: this._createMock(),
+            setReferrerUrl: this._createMock(),
+            setCustomUrl: this._createMock(),
+            setPage: this._createMock()
         };
         this.publish = {
             signIn: this._createMock(),
-            signOut: this._createMock()
+            signOut: this._createMock(),
+            referrerUrl: this._createMock(),
+            customUrl: this._createMock(),
+            pageView: this._createMock()
         };
     }
 

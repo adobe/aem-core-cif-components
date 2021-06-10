@@ -15,7 +15,7 @@
 import { useEffect } from 'react';
 
 import { useStorefrontEvents } from './hooks';
-import useViewOffsets from './useViewedOffsets';
+import useViewedOffsets from './useViewedOffsets';
 
 // Currently only using CMS, Category and Product. Added other types for completeness
 // and to be used in the future.
@@ -29,7 +29,7 @@ const PageTypes = {
 
 const usePageEvent = () => {
     const mse = useStorefrontEvents();
-    const { minXOffset, maxXOffset, minYOffset, maxYOffset } = useViewOffsets();
+    const { minXOffset, maxXOffset, minYOffset, maxYOffset } = useViewedOffsets();
 
     const getPageType = () => {
         if (document.querySelector('[data-cif-product-context]')) {

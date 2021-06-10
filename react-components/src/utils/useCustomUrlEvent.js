@@ -20,7 +20,7 @@ const useCustomUrlEvent = () => {
     const mse = useStorefrontEvents();
 
     useEffect(() => {
-        const customUrl = window.location.href;
+        const customUrl = window.location && window.location.href;
 
         if (!customUrl || !mse) {
             return;
