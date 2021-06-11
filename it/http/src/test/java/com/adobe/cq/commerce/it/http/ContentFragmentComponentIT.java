@@ -16,24 +16,35 @@ package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
+import org.codehaus.jackson.JsonNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class NavigationV1ComponentIT extends CommerceTestBase {
+public class ContentFragmentComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
-    private static final String NAVIGATION_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .navigation ";
+    private static final String CONTENT_FRAGMENT_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .contentfragment ";
+
+    // Skip test for AEM 6.5
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        JsonNode info = adminAuthor.doGetJson("/system/console/status-productinfo.json", 0);
+        Assume.assumeFalse(info.get(6).getValueAsText().split("[\\(\\)]")[1].startsWith("6.5"));
+    }
 
     @Test
-    public void testNavigationWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/navigation_v1_test.html", 200);
+    public void testContentFragmenWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.chaz-kangeroo-hoodie.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Check the number of elements in the navigation menu
-        Elements elements = doc.select(NAVIGATION_SELECTOR + ".categoryTree__root > .categoryTree__tree > .cmp-navigation__item");
-        Assert.assertEquals(16, elements.size());
+        // Check the number of content fragment elements in the content fragment component
+        Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
+            + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+        Assert.assertEquals(1, elements.size());
     }
 }
