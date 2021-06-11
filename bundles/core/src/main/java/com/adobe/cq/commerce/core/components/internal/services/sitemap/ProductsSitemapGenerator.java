@@ -23,8 +23,11 @@ import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -42,6 +45,13 @@ import com.day.cq.wcm.api.Page;
     })
 public class ProductsSitemapGenerator implements SitemapGenerator {
 
+    @ObjectClassDefinition(name = "CIF Product Sitemap Generator")
+    @interface Configuration {
+
+        @AttributeDefinition(name = "Page Size", description = "The number of products queried from the commerce per iteration.")
+        int pageSize() default 10;
+    }
+
     private static final String PN_NEXT_PAGE = "nextPage";
     private static final String PN_MAXIMUM_PAGES = "maxPages";
 
@@ -53,7 +63,11 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     private SitemapLinkExternalizer externalizer;
 
     private int pageSize = 100;
-    private boolean includeVariants = true;
+
+    @Activate
+    protected void activate(Configuration configuration) {
+        this.pageSize = configuration.pageSize();
+    }
 
     @Override
     public Set<String> getNames(Resource sitemapRoot) {
@@ -93,12 +107,12 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             maxPages = products.getTotalCount() / pageSize;
 
             if (products.getTotalCount() % pageSize > 0) {
-                // there is a fractional part of items left on the last page
+                // there is a fractional part of items on the last page
                 maxPages++;
             }
 
             for (ProductInterface product : products.getItems()) {
-                // TODO: handle variants?
+                // TODO: should we handle variants? Currently we ignore them as crawlers will ignore the fragment in the urls anyway.
                 Map<String, String> params = paramsBuilder
                     .sku(product.getSku()).urlKey(product.getUrlKey())
                     .variantSku(null).variantUrlKey(null)
@@ -115,6 +129,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     private static QueryQueryDefinition productsQueryFor(int pageIndex, int pageSize) {
         return q -> q.products(
             arguments -> arguments
+                // TODO: figure out a better way to query for all products
                 .filter(new ProductAttributeFilterInput()
                     .setPrice(new FilterRangeTypeInput()
                         .setFrom("0").setTo(String.valueOf(Long.MAX_VALUE))))
@@ -126,6 +141,6 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                     .urlKey()
                     .sku()
                     .onConfigurableProduct(configurableProduct -> configurableProduct
-                        .variants(variant -> variant.product(simpleProduct -> simpleProduct.sku())))));
+                        .variants(variant -> variant.product(SimpleProductQuery::sku)))));
     }
 }
