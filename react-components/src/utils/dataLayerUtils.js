@@ -13,7 +13,8 @@
  ******************************************************************************/
 let dataLayerEnabled = null;
 let dataLayer = null;
-const isDataLayerEnabled = () => {
+
+export const isDataLayerEnabled = () => {
     if (dataLayerEnabled === null) {
         dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
     }
