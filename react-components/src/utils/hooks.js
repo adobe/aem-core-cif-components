@@ -12,9 +12,8 @@
  *
  ******************************************************************************/
 import { useEffect, useCallback } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
-import { useApolloClient } from '@apollo/client';
 import { isDataLayerEnabled } from './dataLayerUtils';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';

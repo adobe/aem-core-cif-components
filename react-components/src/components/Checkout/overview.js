@@ -24,7 +24,6 @@ import LoadingIndicator from '../LoadingIndicator';
 import Section from './section';
 import Button from '../Button';
 import useOverview from './useOverview';
-import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 /**
  * The Overview component renders summaries for each section of the editable
@@ -45,43 +44,7 @@ const Overview = props => {
         return <LoadingIndicator message="Placing order"></LoadingIndicator>;
     }
     const submitOrder = async () => {
-        const {
-            placeOrder: {
-                order: { order_id }
-            }
-        } = await placeOrder(cart.id);
-        const {
-            prices: {
-                grand_total: { currency, value }
-            },
-            selected_payment_method: { code },
-            items
-        } = cart;
-        dataLayerUtils.pushEvent('cif:placeOrder', {
-            'xdm:purchaseOrderNumber': order_id,
-            'xdm:currencyCode': currency,
-            'xdm:priceTotal': value,
-            'xdm:payments': [
-                {
-                    'xdm:paymentAmount': value,
-                    'xdm:paymentType': code,
-                    'xdm:currencyCode': currency
-                }
-            ],
-            'xdm:products': await Promise.all(
-                items.map(async item => {
-                    const {
-                        product: { sku },
-                        quantity
-                    } = item;
-                    return {
-                        '@id': await dataLayerUtils.generateDataLayerId('product', sku),
-                        'xdm:SKU': sku,
-                        'xdm:quantity': quantity
-                    };
-                })
-            )
-        });
+        await placeOrder(cart.id);
     };
 
     return (

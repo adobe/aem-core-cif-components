@@ -12,33 +12,38 @@
  *
  ******************************************************************************/
 
-class MagentoStorefrontEventsMock {
-    constructor() {
-        this._methods = [];
-        this.context = {
-            setShopper: this._createMock(),
-            setReferrerUrl: this._createMock(),
-            setCustomUrl: this._createMock(),
-            setPage: this._createMock()
-        };
-        this.publish = {
-            signIn: this._createMock(),
-            signOut: this._createMock(),
-            referrerUrl: this._createMock(),
-            customUrl: this._createMock(),
-            pageView: this._createMock()
-        };
-    }
+const methods = {
+    context: {},
+    publish: {}
+};
 
-    _createMock() {
-        let mock = jest.fn();
-        this._methods.push(mock);
-        return mock;
+const getMock = (prop, method) => {
+    if (methods[prop][method]) {
+        return methods[prop][method];
     }
+    let mock = jest.fn();
+    methods[prop][method] = mock;
+    return mock;
+};
 
-    mockClear() {
-        this._methods.forEach(m => m.mockClear());
+const mockClear = () => {
+    Object.keys(methods.context).forEach(k => methods.context[k].mockClear());
+    Object.keys(methods.publish).forEach(k => methods.publish[k].mockClear());
+};
+
+const propHandler = {
+    get: (target, prop) => {
+        if (['context', 'publish'].includes(prop)) {
+            const methodHandler = {
+                get: (t, method) => {
+                    return getMock(prop, method);
+                }
+            };
+            return new Proxy({}, methodHandler);
+        } else if (prop === 'mockClear') {
+            return mockClear;
+        }
     }
-}
+};
 
-export default new MagentoStorefrontEventsMock();
+export default new Proxy({}, propHandler);
