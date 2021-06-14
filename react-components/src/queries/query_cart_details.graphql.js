@@ -27,6 +27,13 @@ export default gql`
                     }
                     label
                 }
+                applied_taxes {
+                    amount {
+                        currency
+                        value
+                    }
+                    label
+                }
                 subtotal_with_discount_excluding_tax {
                     currency
                     value
@@ -100,7 +107,6 @@ export default gql`
             total_quantity
             items {
                 __typename
-                uid
                 quantity
                 prices {
                     price {

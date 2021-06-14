@@ -27,12 +27,13 @@ import MUTATION_SET_PAYMENT_METHOD from '../../../queries/mutation_set_payment_m
 import MUTATION_SET_SHIPPING_ADDRESS from '../../../queries/mutation_set_shipping_address.graphql';
 import MUTATION_SET_SHIPPING_METHOD from '../../../queries/mutation_set_shipping_method.graphql';
 import QUERY_COUNTRIES from '../../../queries/query_countries.graphql';
-import { gql } from '@apollo/client';
 
 describe('<EditableForm />', () => {
+    /* eslint-disable no-unused-vars */
     const checkoutReducer = jest.fn((state, action) => state);
     const cartReducer = jest.fn((state, action) => state);
     const cartReducerFactory = jest.fn(setCartCookie => cartReducer);
+    /* eslint-enable no-unused-vars */
 
     afterEach(() => {
         checkoutReducer.mockClear();
