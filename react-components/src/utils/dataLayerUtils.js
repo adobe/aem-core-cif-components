@@ -111,30 +111,29 @@ const toCamel = s =>
 export const transformCart = cart => {
     let newCart = {};
     try {
-        const {
-            id,
-            prices: { subtotalExcludingTax, subtotalIncludingTax },
-            totalQuantity
-        } = cart;
+        const { id, prices, totalQuantity } = cart;
+        const { subtotalExcludingTax, subtotalIncludingTax } = prices || {};
 
-        const items = cart.items.map(item => {
-            const { price } = item.prices;
-            const { value, currency } = price;
-            return {
-                prices: {
-                    price
-                },
-                canApplyMsrp: false,
-                id: item.uid,
-                formattedPrice: `${value} ${currency}`,
-                quantity: item.quantity,
-                product: {
-                    productId: 0,
-                    name: item.product.name,
-                    sku: item.product.sku
-                }
-            };
-        });
+        const items = cart.items
+            ? cart.items.map(item => {
+                  const { price } = item.prices;
+                  const { value, currency } = price;
+                  return {
+                      prices: {
+                          price
+                      },
+                      canApplyMsrp: false,
+                      id: item.uid,
+                      formattedPrice: `${value} ${currency}`,
+                      quantity: item.quantity,
+                      product: {
+                          productId: 0,
+                          name: item.product.name,
+                          sku: item.product.sku
+                      }
+                  };
+              })
+            : [];
 
         newCart = {
             id,
