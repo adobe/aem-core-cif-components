@@ -18,7 +18,11 @@
      data-sly-use.productList="com.adobe.cq.commerce.core.components.models.productlist.ProductList"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page"></sly>
 
-<article class="category__root" data-locale="${page.language}" data-cmp-is="productcollection" data-load-client-price="${productList.loadClientPrice}">
+<article class="category__root"
+         data-locale="${page.language}"
+         data-cmp-is="productcollection"
+         data-load-client-price="${productList.loadClientPrice}"
+         data-cif-category-context="${productList.storefrontContext.json}">
     <sly data-sly-test="${productList.showTitle && productList.title}" data-sly-call="${titleTemplate.listTitle @ productList = productList}"/>
     <sly data-sly-test="${productList.showImage && productList.image}" data-sly-call="${imageTemplate.listImage @ productList = productList}"/>
     <sly data-sly-call="${collectionTemplate.productCollection @ productCollection = productList}"></sly>
