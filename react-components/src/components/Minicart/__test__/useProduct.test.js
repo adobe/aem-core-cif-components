@@ -78,7 +78,6 @@ describe('useProduct', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(mse.publish.removeFromCart).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:removeFromCart',
             eventInfo: {

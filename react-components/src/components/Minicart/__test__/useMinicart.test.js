@@ -88,8 +88,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addToCartMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
@@ -118,8 +116,15 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
         expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: { '@id': undefined, 'xdm:SKU': '4566', 'xdm:quantity': 2 }
+        });
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: { '@id': undefined, 'xdm:SKU': '123', 'xdm:quantity': 3 }
+        });
     });
 
     it('adds Bundle Product to cart', async () => {
@@ -149,8 +154,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addBundleItemMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
