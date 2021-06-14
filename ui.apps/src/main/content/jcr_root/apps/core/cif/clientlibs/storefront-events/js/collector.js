@@ -31,6 +31,18 @@ const processProductStorefrontData = () => {
     }
 };
 
+const processSearchInputStorefrontData = () => {
+    const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
+    if (searchInputCtxElement) {
+        try {
+            const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
+            mse.context.setSearchInput({ units: [searchInputCtx] });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
 const processCategoryStorefrontData = () => {
     const categoryCtxElement = document.querySelector('[data-cif-category-context]');
     if (categoryCtxElement) {
@@ -45,6 +57,7 @@ const processCategoryStorefrontData = () => {
 
 const onDocumentReady = () => {
     processProductStorefrontData();
+    processSearchInputStorefrontData();
     processCategoryStorefrontData();
 };
 
