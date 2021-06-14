@@ -12,33 +12,21 @@
  *
  ******************************************************************************/
 
-class MagentoStorefrontEventsMock {
-    constructor() {
-        this._methods = [];
-        this.context = {
-            setShopper: this._createMock(),
-            setReferrerUrl: this._createMock(),
-            setCustomUrl: this._createMock(),
-            setPage: this._createMock()
-        };
-        this.publish = {
-            signIn: this._createMock(),
-            signOut: this._createMock(),
-            referrerUrl: this._createMock(),
-            customUrl: this._createMock(),
-            pageView: this._createMock()
-        };
-    }
+import { useEffect } from 'react';
 
-    _createMock() {
-        let mock = jest.fn();
-        this._methods.push(mock);
-        return mock;
-    }
+import { useStorefrontEvents } from './hooks';
 
-    mockClear() {
-        this._methods.forEach(m => m.mockClear());
-    }
-}
+const useReferrerEvent = () => {
+    const mse = useStorefrontEvents();
 
-export default new MagentoStorefrontEventsMock();
+    useEffect(() => {
+        if (!document.referrer || !mse) {
+            return;
+        }
+
+        mse.context.setReferrerUrl({ referrerUrl: document.referrer });
+        mse.publish.referrerUrl();
+    }, []);
+};
+
+export default useReferrerEvent;
