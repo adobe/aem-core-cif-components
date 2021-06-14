@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.adobe.cq.commerce.core.components.storefrontcontext.QueryType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.Range;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchFilter;
@@ -38,12 +40,12 @@ public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontConte
 
     @Override
     public String getSearchUnitId() {
-        return "";
+        return StringUtils.EMPTY;
     }
 
     @Override
     public String getSearchRequestId() {
-        return "";
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontConte
     @Override
     public String getPhrase() {
         Optional<String> searchQuery = searchOptions.getSearchQuery();
-        return searchQuery.orElse("");
+        return searchQuery.orElse(StringUtils.EMPTY);
     }
 
     @Override

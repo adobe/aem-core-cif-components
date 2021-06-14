@@ -16,6 +16,8 @@
 
 {products(search:"glove",currentPage:1,pageSize:6,filter:{category_id:{eq:"21"}},sort:{price:ASC}){total_count,items{__typename,id,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
+{categoryList(filters:{url_path:{eq:"url_path"}}){id,uid}}
+
 {categoryList(filters:{ids:{eq:"2"}}){id,uid,name,url_path,position,children{id,uid,name,url_path,position,children{id,uid,name,url_path,position,children{id,uid,name,url_path,position,children{id,uid,name,url_path,position,children{id,uid,name,url_path,position}}}}}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,name,image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
