@@ -17,6 +17,7 @@ import { gql } from '@apollo/client';
 export default gql`
     query cartDetails($cartId: String!) {
         cart(cart_id: $cartId) {
+            id
             is_virtual
             prices {
                 discounts {
