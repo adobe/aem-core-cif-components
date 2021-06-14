@@ -167,12 +167,5 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
             return category.getUid().toString();
         }
         return StringUtils.EMPTY;
-
-        // switch (identifierType) {
-        // case UID:
-        // return category.getUid().toString();
-        // default:
-        // return "";
-        // }
     }
 }

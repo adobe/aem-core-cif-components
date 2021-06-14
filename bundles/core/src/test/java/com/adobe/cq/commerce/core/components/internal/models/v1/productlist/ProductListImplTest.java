@@ -191,9 +191,6 @@ public class ProductListImplTest {
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
-
-        // context.request().adaptTo(ProductListImpl.class); is moved to each test because it uses an internal cache
-        // and we want to override the "slug" in testEditModePlaceholderData()
     }
 
     protected void adaptToProductList() {
