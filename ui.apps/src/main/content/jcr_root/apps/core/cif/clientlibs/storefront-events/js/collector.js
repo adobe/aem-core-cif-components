@@ -43,9 +43,22 @@ const processSearchInputStorefrontData = () => {
     }
 };
 
+const processCategoryStorefrontData = () => {
+    const categoryCtxElement = document.querySelector('[data-cif-category-context]');
+    if (categoryCtxElement) {
+        try {
+            const categoryCtx = JSON.parse(categoryCtxElement.dataset.cifCategoryContext);
+            mse.context.setCategory(categoryCtx);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
 const onDocumentReady = () => {
     processProductStorefrontData();
     processSearchInputStorefrontData();
+    processCategoryStorefrontData();
 };
 
 if (document.readyState !== 'loading') {

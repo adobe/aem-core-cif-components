@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.wcm.core.components.models.Component;
 
 public interface ProductList extends Component, ProductCollection, PageMetadata {
@@ -58,4 +59,6 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      * @return category retriever instance
      */
     AbstractCategoryRetriever getCategoryRetriever();
+
+    CategoryStorefrontContext getStorefrontContext();
 }
