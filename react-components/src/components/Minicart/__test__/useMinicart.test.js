@@ -20,8 +20,11 @@ import { render } from '../../../utils/test-utils';
 import { act } from 'react-dom/test-utils';
 import useMinicart from '../useMinicart';
 import { CartProvider } from '../cartContext';
+import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefrontEvents';
 
 describe('useMinicart', () => {
+    let mse;
+
     const cartDetailsQuery = jest.fn(async args => {
         const cartId = args ? args.variables.cartId : 'guest123';
         return { data: { cart: { id: cartId, email: 'dummy@example.com' } } };
@@ -59,6 +62,7 @@ describe('useMinicart', () => {
 
     beforeAll(() => {
         window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
 
         window.adobeDataLayer = [];
         window.adobeDataLayer.push = jest.fn();
@@ -66,6 +70,7 @@ describe('useMinicart', () => {
 
     beforeEach(() => {
         window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
     });
 
     it('adds an item to cart', async () => {
@@ -83,8 +88,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addToCartMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
@@ -93,6 +96,7 @@ describe('useMinicart', () => {
                 'xdm:quantity': 2
             }
         });
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
     });
 
     it('adds multiple items to cart', async () => {
@@ -112,7 +116,15 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addSimpleAndVirtualItemMutation).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: { '@id': undefined, 'xdm:SKU': '4566', 'xdm:quantity': 2 }
+        });
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+            event: 'cif:addToCart',
+            eventInfo: { '@id': undefined, 'xdm:SKU': '123', 'xdm:quantity': 3 }
+        });
     });
 
     it('adds Bundle Product to cart', async () => {
@@ -142,8 +154,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addBundleItemMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
@@ -153,5 +163,6 @@ describe('useMinicart', () => {
                 bundle: true
             }
         });
+        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
     });
 });
