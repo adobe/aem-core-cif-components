@@ -3,6 +3,7 @@
     <filter root="/conf/core-components-examples/settings/cloudconfigs/commerce"/>
     <filter root="/conf/core-components-examples/settings/wcm/templates/content-page/structure/jcr:content/root/sidebar/accordion/" mode="update"/>
     <filter root="/conf/core-components-examples/settings/wcm/templates/content-page/structure/jcr:content/root/sidebar/accordion/item_1579021109269"/>
+    <filter root="/conf/core-components-examples/settings/dam/cfm/models/product-specs"/>
     <filter root="/content/core-components-examples/library/jcr:content/root/responsivegrid/container_1589240807"/>
     <filter root="/content/core-components-examples/library/commerce"/>
     <filter root="/content/dam/core-components-examples/library/cif-sample-assets/"/>
