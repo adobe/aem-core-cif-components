@@ -58,25 +58,6 @@ function generateBaseConfig() {
     };
 }
 
-function applyKarmaOptions() {
-    let karma = generateBaseConfig();
-
-    // Disable minification
-    karma.mode = 'development';
-
-    // Add coverage collection
-    let babelRule = karma.module.rules.find(r => r.use.loader == 'babel-loader');
-    babelRule.use.options.plugins = ['istanbul'];
-
-    return karma;
-}
-
 module.exports = function(env, argv) {
-    // Return karma specific configuration
-    if (env.karma) {
-        return applyKarmaOptions();
-
-    }
-
     return generateBaseConfig();
 }

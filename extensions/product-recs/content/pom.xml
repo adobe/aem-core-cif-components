@@ -79,11 +79,6 @@
                     </properties>
                     <dependencies>
                         <dependency>
-                            <group>day/cq60/product</group>
-                            <name>cq-ui-wcm-editor-content</name>
-                            <version>(1.0.138,)</version>
-                        </dependency>
-                        <dependency>
                             <group>com.adobe.commerce.cif</group>
                             <name>core-cif-components-apps</name>
                             <version>${project.version}</version>
@@ -121,6 +116,15 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-check-formatting</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run prettier:check</arguments>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>npm-webpack-development</id> <!-- webpack development mode -->
