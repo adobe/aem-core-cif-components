@@ -1,0 +1,49 @@
+{
+  "pageA": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:cifProductPage": "/content/pageA",
+      "jcr:primaryType": "cq:PageContent",
+      "root": {
+        "contentfragment0": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment"
+        },
+        "contentfragment1": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment",
+          "modelPath": "/model"
+        },
+        "contentfragment2": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment",
+          "modelPath": "/model",
+          "linkElement": "product"
+        },
+        "contentfragment3": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment",
+          "modelPath": "/model",
+          "linkElement": "category",
+          "displayMode": "singleText"
+        }
+      }
+    }
+  },
+  "pageB": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:cifCategoryPage": "/content/pageB",
+      "jcr:primaryType": "cq:PageContent",
+      "root": {
+        "contentfragment4": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment",
+          "modelPath": "/model",
+          "linkElement": "category"
+        },
+        "contentfragment5": {
+          "sling:resourceType": "core/cif/components/commerce/contentfragment/v1/contentfragment",
+          "modelPath": "/model",
+          "linkElement": "category",
+          "displayMode": "singleText"
+        }
+      }
+    }
+  }
+}
