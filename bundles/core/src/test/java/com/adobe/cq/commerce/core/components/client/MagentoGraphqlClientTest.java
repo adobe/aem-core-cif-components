@@ -61,15 +61,6 @@ public class MagentoGraphqlClientTest {
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
         "my-store"));
 
-    private static final List<Header> expectedHeaders = new ArrayList<>();
-
-    static {
-        expectedHeaders.add(new BasicHeader("Store", "my-store"));
-        expectedHeaders.add(new BasicHeader("customHeader-1", "value1"));
-        expectedHeaders.add(new BasicHeader("customHeader-2", "value2"));
-        expectedHeaders.add(new BasicHeader("customHeader-3", "=value3=3=3=3=3"));
-    }
-
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static final String PAGE_A = "/content/pageA";
@@ -116,6 +107,13 @@ public class MagentoGraphqlClientTest {
 
     @Test
     public void testCustomHeaders() {
+
+        List<Header> expectedHeaders = new ArrayList<>();
+        expectedHeaders.add(new BasicHeader("Store", "my-store"));
+        expectedHeaders.add(new BasicHeader("customHeader-1", "value1"));
+        expectedHeaders.add(new BasicHeader("customHeader-2", "value2"));
+        expectedHeaders.add(new BasicHeader("customHeader-3", "=value3=3=3=3=3"));
+
         ValueMap MOCK_CONFIGURATION_CUSTOM_HEADERS = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
             "my-store", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-3==value3=3=3=3=3",
                 "Authorization=099sx8x7v1" }));

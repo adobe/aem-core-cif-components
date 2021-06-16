@@ -43,7 +43,7 @@ public class StoreConfigExporterTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
         ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "cq:graphqlClient",
-            "my-graphql-client"));
+            "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
@@ -120,6 +120,15 @@ public class StoreConfigExporterTest {
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
         Assert.assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testCustomHttpHeaders() {
+        String[] expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        String[] actualHeaders = storeConfigExporter.getHttpHeaders().stream().sorted().toArray(String[]::new);
+        Assert.assertArrayEquals("The custom HTTP headers are correctly parsed", expectedHeaders, actualHeaders);
     }
 
     private void setupWithPage(String pagePath, HttpMethod method) {

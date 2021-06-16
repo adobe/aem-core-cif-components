@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -71,6 +72,8 @@ public class MagentoGraphqlClient {
     private GraphqlClient graphqlClient;
 
     private RequestOptions requestOptions;
+
+    private List<Header> httpHeaders;
 
     /**
      * Instantiates and returns a new MagentoGraphqlClient.
@@ -219,6 +222,8 @@ public class MagentoGraphqlClient {
         if (!headers.isEmpty()) {
             requestOptions.withHeaders(headers);
         }
+
+        this.httpHeaders = headers;
     }
 
     private List<Header> getCustomHttpHeaders(ComponentsConfiguration configuration) {
@@ -296,6 +301,15 @@ public class MagentoGraphqlClient {
      */
     public GraphqlClientConfiguration getConfiguration() {
         return graphqlClient.getConfiguration();
+    }
+
+    /**
+     * Returns the list of custom HTTP headers used by the GraphQL client.
+     * 
+     * @return a {@link Map} with header names as keys and header values as values
+     */
+    public Map<String, String> getHttpHeaders() {
+        return httpHeaders.stream().collect(Collectors.toMap(Header::getName, Header::getValue));
     }
 
     private String readFallBackConfiguration(Resource resource, String propertyName) {
