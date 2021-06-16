@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DataLayer utilities transforms a GraphQL response to camelCase 1`] = `
+Object {
+  "email": "my-private@email.com",
+  "id": "jg7LPugoxb4Av97cIgf80XL0sRPCaZ8Y",
+  "isVirtual": false,
+  "items": Array [
+    Object {
+      "prices": Object {
+        "price": Object {
+          "currency": "USD",
+          "value": 78,
+        },
+      },
+      "product": Object {
+        "name": "Honora Wide Leg Pants",
+        "sku": "VP05-MT-S",
+      },
+      "quantity": 1,
+      "uid": "MTM5Mg==",
+    },
+  ],
+  "prices": Object {
+    "subtotalExcludingTax": Object {
+      "currency": "USD",
+      "value": 78,
+    },
+    "subtotalIncludingTax": Object {
+      "currency": "USD",
+      "value": 78,
+    },
+  },
+  "totalQuantity": 1,
+}
+`;
+
+exports[`DataLayer utilities transforms a cart 1`] = `
+Object {
+  "id": "jg7LPugoxb4Av97cIgf80XL0sRPCaZ8Y",
+  "items": Array [
+    Object {
+      "canApplyMsrp": false,
+      "formattedPrice": "78 USD",
+      "id": "MTM5Mg==",
+      "prices": Object {
+        "price": Object {
+          "currency": "USD",
+          "value": 78,
+        },
+      },
+      "product": Object {
+        "name": "Honora Wide Leg Pants",
+        "productId": 0,
+        "sku": "VP05-MT-S",
+      },
+      "quantity": 1,
+    },
+  ],
+  "prices": Object {
+    "subtotalExcludingTax": Object {
+      "currency": "USD",
+      "value": 78,
+    },
+    "subtotalIncludingTax": Object {
+      "currency": "USD",
+      "value": 78,
+    },
+  },
+  "totalQuantity": 1,
+}
+`;

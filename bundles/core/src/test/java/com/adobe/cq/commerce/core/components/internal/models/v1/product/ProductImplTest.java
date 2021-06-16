@@ -553,4 +553,13 @@ public class ProductImplTest {
         String jsonResult = productModel.getData().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
+
+    @Test
+    public void testStorefrontContextRender() throws IOException {
+        productModel = context.request().adaptTo(ProductImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = Utils.getResource("storefront-context/result-storefront-context-product-component.json");
+        String jsonResult = productModel.getStorefrontContext().getJson();
+        assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
 }

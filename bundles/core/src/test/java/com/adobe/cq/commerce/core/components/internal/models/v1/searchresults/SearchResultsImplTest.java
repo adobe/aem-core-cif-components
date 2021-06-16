@@ -309,4 +309,29 @@ public class SearchResultsImplTest {
             .collect(Collectors.joining(",", "[", "]"));
         Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
     }
+
+    @Test
+    public void testStorefrontContextRender() throws IOException {
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("storefront-context/result-storefront-context-search-component.json");
+        String jsonResult = searchResultsModel.getStorefrontContext().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testStorefrontContextRenderWithAttrsAndSorting() throws IOException {
+        context.request().setParameterMap(
+            ImmutableMap.of("search_query", "glove", "category_id", "21", "sort_key", "price", "sort_order", "asc"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("storefront-context/result-storefront-context-search-sorting-component.json");
+        String jsonResult = searchResultsModel.getStorefrontContext().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
 }

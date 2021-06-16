@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 import { useEffect, useCallback } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
-import { useApolloClient } from '@apollo/client';
+import { isDataLayerEnabled } from './dataLayerUtils';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
@@ -79,4 +79,14 @@ export const useAwaitQuery = query => {
 export const useQueryParams = () => {
     // Better to use useLocation from react router here, but this doesn't work because of dependency mess up.
     return new URLSearchParams(window.location.search);
+};
+
+/**
+ * This hook provides access to the Magento Storefront Events SDK if enabled and available.
+ */
+export const useStorefrontEvents = () => {
+    if (isDataLayerEnabled && window.magentoStorefrontEvents) {
+        return window.magentoStorefrontEvents;
+    }
+    return false;
 };

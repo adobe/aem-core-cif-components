@@ -13,9 +13,8 @@
  ******************************************************************************/
 import React from 'react';
 import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider, MockLink } from '@apollo/client/testing';
 import { I18nextProvider } from 'react-i18next';
-import { MockLink } from '@apollo/client/testing';
 import { onError } from '@apollo/client/link/error';
 import { ApolloLink, from } from '@apollo/client';
 
@@ -74,6 +73,7 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
     let mockLink = new MockLink(mocks);
 
     let loggerLink = new ApolloLink((operation, forward) => {
+        // eslint-disable-next-line no-console
         console.log(
             `[GraphQL operation]: \n\tQuery: ${JSON.stringify(operation.query)} \n\tVariables: ${JSON.stringify(
                 operation.variables
@@ -85,9 +85,10 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
     let errorLoggingLink = onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors)
             graphQLErrors.map(({ message, locations, path }) =>
+                // eslint-disable-next-line no-console
                 console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
             );
-
+        // eslint-disable-next-line no-console
         if (networkError) console.log(`[Network error]: ${networkError}`);
     });
 
