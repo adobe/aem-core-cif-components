@@ -32,6 +32,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
 -   [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
 -   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser)
+-   [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v1/button)
 -   [Sign In](react-components/src/components/SignIn)
 -   [Create Account](react-components/src/components/CreateAccount)
 -   [AccountDetails](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v1/accountdetails)
@@ -39,6 +40,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [ResetPassword](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v1/resetpassword)
 -   [Category Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/categorycarousel/v1/categorycarousel)
 -   [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
+-   [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
 
 ## System Requirements
 

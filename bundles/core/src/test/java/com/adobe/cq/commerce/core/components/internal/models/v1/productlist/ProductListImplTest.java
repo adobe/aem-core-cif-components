@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRe
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -530,5 +531,16 @@ public class ProductListImplTest {
             .map(i -> i.getData().getJson())
             .collect(Collectors.joining(",", "[", "]"));
         Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
+    }
+
+    @Test
+    public void testStorefrontContextRender() throws IOException {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("storefront-context/result-storefront-context-productlist-component.json");
+        CategoryStorefrontContext storefrontContext = productListModel.getStorefrontContext();
+
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(storefrontContext.getJson()));
     }
 }

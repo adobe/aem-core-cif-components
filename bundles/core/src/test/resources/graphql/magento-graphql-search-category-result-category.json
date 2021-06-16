@@ -10,7 +10,8 @@
 	    "meta_keywords": "Some category meta keywords",
 	    "meta_title": "Some category meta title",
 	    "url_path": "running",
-		"staged": true
+  		"url_key": "running-key",
+      "staged": true
 	  }
     ]
   }

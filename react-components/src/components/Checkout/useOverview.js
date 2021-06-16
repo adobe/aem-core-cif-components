@@ -18,10 +18,11 @@ import MUTATION_PLACE_ORDER from '../../queries/mutation_place_order.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 
 import { useAddressForm } from '../AddressForm/useAddressForm';
-import { useAwaitQuery } from '../../utils/hooks';
+import { useAwaitQuery, useStorefrontEvents } from '../../utils/hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
+import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 export default () => {
     const [
@@ -35,6 +36,8 @@ export default () => {
 
     const [placeOrder] = useMutation(MUTATION_PLACE_ORDER);
     const [inProgress, setInProgress] = useState(false);
+
+    const mse = useStorefrontEvents();
 
     const editShippingAddress = address => {
         if (!findSavedAddress(address)) {
@@ -57,6 +60,65 @@ export default () => {
         try {
             const { data } = await placeOrder({ variables: { cartId } });
             checkoutDispatch({ type: 'placeOrder', order: data.placeOrder.order });
+
+            const {
+                placeOrder: {
+                    order: { order_id }
+                }
+            } = data;
+
+            const {
+                email,
+                applied_coupon,
+                prices: {
+                    subtotal_excluding_tax: { value: subtotalExcludingTax },
+                    subtotal_including_tax: { value: subtotalIncludingTax },
+                    grand_total: { currency, value: priceTotal }
+                },
+                selected_payment_method: { code: paymentCode, title: paymentName },
+                items
+            } = cart;
+
+            dataLayerUtils.pushEvent('cif:placeOrder', {
+                'xdm:purchaseOrderNumber': order_id,
+                'xdm:currencyCode': currency,
+                'xdm:priceTotal': priceTotal,
+                'xdm:payments': [
+                    {
+                        'xdm:paymentAmount': priceTotal,
+                        'xdm:paymentType': paymentCode,
+                        'xdm:currencyCode': currency
+                    }
+                ],
+                'xdm:products': await Promise.all(
+                    items.map(async item => {
+                        const {
+                            product: { sku },
+                            quantity
+                        } = item;
+                        return {
+                            '@id': await dataLayerUtils.generateDataLayerId('product', sku),
+                            'xdm:SKU': sku,
+                            'xdm:quantity': quantity
+                        };
+                    })
+                )
+            });
+
+            mse &&
+                mse.context.setOrder({
+                    appliedCouponCode: applied_coupon ? applied_coupon.code : '',
+                    email: email,
+                    grandTotal: priceTotal,
+                    orderId: order_id,
+                    otherTax: priceTotal - subtotalIncludingTax,
+                    paymentMethodCode: paymentCode,
+                    paymentMethodName: paymentName,
+                    salesTax: subtotalIncludingTax - subtotalExcludingTax,
+                    subtotalExcludingTax: subtotalExcludingTax,
+                    subtotalIncludingTax: subtotalIncludingTax
+                });
+            mse && mse.publish.placeOrder();
 
             // if user is signed in reset the cart
             if (isSignedIn) {
