@@ -17,8 +17,11 @@ import { render } from 'test-utils';
 import { CartProvider, useCartState } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 import useCart from '../useCart';
+import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefrontEvents';
 
 describe('useCart', () => {
+    let mse;
+
     const mockShippingAddress = {
         city: 'Calder',
         country_code: 'US',
@@ -31,6 +34,19 @@ describe('useCart', () => {
         street: ['cart shipping address'],
         telephone: '(555) 229-3326'
     };
+
+    beforeAll(() => {
+        window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
+
+        window.adobeDataLayer = [];
+        window.adobeDataLayer.push = jest.fn();
+    });
+
+    beforeEach(() => {
+        window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
+    });
 
     it('begins checkout when shipping address is set on cart', async () => {
         const Wrapper = () => {
@@ -96,6 +112,7 @@ describe('useCart', () => {
         );
         expect(billingAddressSaveAsShippingAddress).not.toBeUndefined();
         expect(billingAddressSaveAsShippingAddress.textContent).toEqual('false');
+        expect(mse.publish.initiateCheckout).toHaveBeenCalledTimes(1);
 
         const flowState = getByTestId('flow-state');
         expect(flowState).not.toBeUndefined();

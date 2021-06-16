@@ -19,12 +19,13 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
 import { removeItemFromCart } from '../../actions/cart';
 import { useCartState } from './cartContext';
-import { useAwaitQuery } from '../../utils/hooks';
+import { useAwaitQuery, useStorefrontEvents } from '../../utils/hooks';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
 export default props => {
     const { item } = props;
     const [{ cartId }, dispatch] = useCartState();
+    const mse = useStorefrontEvents();
 
     const [removeItemMutation] = useMutation(MUTATION_REMOVE_ITEM);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
@@ -37,6 +38,8 @@ export default props => {
         dispatch({ type: 'beginLoading' });
         await removeItemFromCart({ cartId, itemUid, dispatch, cartDetailsQuery, removeItemMutation });
         dispatch({ type: 'endLoading' });
+
+        mse && mse.publish.removeFromCart();
         dataLayerUtils.pushEvent('cif:removeFromCart', {
             '@id': await dataLayerUtils.generateDataLayerId('product', item.product.sku),
             'xdm:SKU': item.product.sku,

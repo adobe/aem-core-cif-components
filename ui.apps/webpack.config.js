@@ -18,6 +18,7 @@ const glob = require('glob');
 const JCR_ROOT = './src/main/content/jcr_root/';
 const LIB = {
     COMMON: 'apps/core/cif/clientlibs/common',
+    STOREFRONT_EVENTS: 'apps/core/cif/clientlibs/storefront-events',
     PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
     PRODUCTCOLLECTION: 'apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs',
@@ -35,6 +36,7 @@ function generateBaseConfig() {
             // key to specify the target destination of the packed code and the glob module to generate a list of JavaScript
             // files matching the given glob expression.
             [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
+            [LIB.STOREFRONT_EVENTS]: ['@adobe/magento-storefront-events-sdk', ...glob.sync(JCR_ROOT + LIB.STOREFRONT_EVENTS + '/js/**/*.js')],
             [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
             [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js'),
             [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
