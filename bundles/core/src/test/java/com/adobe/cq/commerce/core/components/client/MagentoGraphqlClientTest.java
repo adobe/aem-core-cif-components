@@ -59,7 +59,17 @@ import static org.mockito.Mockito.*;
 public class MagentoGraphqlClientTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
+        "my-store", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-3==value3=3=3=3=3",
+            "Authorization=099sx8x7v1" }));
+
+    private static final List<Header> expectedHeaders = new ArrayList<>();
+
+    static {
+        expectedHeaders.add(new BasicHeader("customHeader-1", "value1"));
+        expectedHeaders.add(new BasicHeader("customHeader-2", "value2"));
+        expectedHeaders.add(new BasicHeader("customHeader-3", "=value3=3=3=3=3"));
+        expectedHeaders.add(new BasicHeader("Authorization", "099sx8x7v1"));
+    }
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
@@ -102,6 +112,21 @@ public class MagentoGraphqlClientTest {
         // Verify setting a custom HTTP method
         client.execute("{dummy}", HttpMethod.GET);
         matcher = new RequestOptionsMatcher(headers, HttpMethod.GET);
+        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testCustomHeaders() {
+
+        Page pageWithConfig = Mockito.spy(context.pageManager().getPage(PAGE_A));
+        Resource pageResource = Mockito.spy(pageWithConfig.adaptTo(Resource.class));
+        when(pageWithConfig.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(expectedHeaders, HttpMethod.GET);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
+        client.execute("{dummy}", HttpMethod.GET);
         Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 

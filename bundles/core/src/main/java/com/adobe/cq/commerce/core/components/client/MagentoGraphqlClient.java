@@ -16,9 +16,11 @@ package com.adobe.cq.commerce.core.components.client;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 
@@ -150,6 +152,7 @@ public class MagentoGraphqlClient {
             graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
         } else {
             LOGGER.debug("Crafting a configuration resource and attempting to get a GraphQL client from it...");
+
             // The Context-Aware Configuration API does return a ValueMap with all the collected properties from /conf and /libs,
             // but if you ask it for a resource via ConfigurationResourceResolver#getConfigurationResource() you get the resource that
             // resolves first (e.g. /conf/.../settings/cloudonfigs/commerce). This resource might not contain the properties
@@ -171,7 +174,7 @@ public class MagentoGraphqlClient {
             .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST);
         requestOptions.withCachingStrategy(cachingStrategy);
 
-        List<Header> headers = new ArrayList<>();
+        List<Header> headers = configuration.size() > 0 ? getCustomHttpHeaders(configuration) : new ArrayList<>();
 
         String storeCode;
         if (configuration.size() > 0) {
@@ -215,6 +218,22 @@ public class MagentoGraphqlClient {
         if (!headers.isEmpty()) {
             requestOptions.withHeaders(headers);
         }
+    }
+
+    private List<Header> getCustomHttpHeaders(ComponentsConfiguration configuration) {
+        List<Header> headers = new ArrayList<>();
+
+        String[] customHeaders = configuration.get("httpHeaders", String[].class);
+
+        if (customHeaders != null) {
+            headers = Arrays.stream(customHeaders).map(headerConfig -> {
+                String name = headerConfig.substring(0, headerConfig.indexOf('='));
+                String value = headerConfig.substring(headerConfig.indexOf('=') + 1, headerConfig.length());
+                return new BasicHeader(name, value);
+            }).collect(Collectors.toList());
+        }
+
+        return headers;
     }
 
     private Long getTimeWarpEpoch(SlingHttpServletRequest request) {
