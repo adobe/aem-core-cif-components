@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -226,11 +227,17 @@ public class MagentoGraphqlClient {
         String[] customHeaders = configuration.get("httpHeaders", String[].class);
 
         if (customHeaders != null) {
-            headers = Arrays.stream(customHeaders).map(headerConfig -> {
-                String name = headerConfig.substring(0, headerConfig.indexOf('='));
-                String value = headerConfig.substring(headerConfig.indexOf('=') + 1, headerConfig.length());
-                return new BasicHeader(name, value);
-            }).collect(Collectors.toList());
+            headers = Arrays.stream(customHeaders)
+                .map(headerConfig -> {
+                    String name = headerConfig.substring(0, headerConfig.indexOf('='));
+                    if (DeniedHttpHeaders.DENYLIST.stream().noneMatch(name::equalsIgnoreCase)) {
+                        String value = headerConfig.substring(headerConfig.indexOf('=') + 1, headerConfig.length());
+                        return new BasicHeader(name, value);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         }
 
         return headers;
