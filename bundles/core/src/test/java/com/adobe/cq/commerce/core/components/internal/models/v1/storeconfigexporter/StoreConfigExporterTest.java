@@ -128,11 +128,8 @@ public class StoreConfigExporterTest {
 
     @Test
     public void testCustomHttpHeaders() throws IOException {
-        // String[] expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
-        // String expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        // String[] actualHeaders = storeConfigExporter.getHttpHeaders().stream().sorted().toArray(String[]::new);
         String expectedHeaders = "{\"Store\":\"my-magento-store\",\"customHeader-1\":\"value1\",\"customHeader-2\":\"value2\"}";
 
         ObjectMapper mapper = new ObjectMapper();
