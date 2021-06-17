@@ -14,6 +14,7 @@
 package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,11 +54,11 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
 
         @AttributeDefinition(
             name = "Pagination Size",
-            description = "The number of products to query from the commerce backend per "
-                + "iteration.")
+            description = "The number of products to query from the commerce backend per iteration.")
         int pageSize() default 10;
     }
 
+    private static final String PN_NEXT_PRODUCT = "nextProduct";
     private static final String PN_NEXT_PAGE = "nextPage";
     private static final String PN_MAXIMUM_PAGES = "maxPages";
     private static final Logger LOG = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
@@ -96,6 +97,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             throw new SitemapException("Failed to build product sitemap at: " + sitemapRoot.getPath());
         }
 
+        int currentIndex = context.getProperty(PN_NEXT_PRODUCT, 0);
         int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
         int maxPages = context.getProperty(PN_MAXIMUM_PAGES, Integer.MAX_VALUE);
         // parameter map to be reused while iterating
@@ -113,6 +115,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             }
 
             Products products = resp.getData().getProducts();
+            List<ProductInterface> items = products.getItems();
             maxPages = products.getTotalCount() / pageSize;
 
             if (products.getTotalCount() % pageSize > 0) {
@@ -120,7 +123,8 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                 maxPages++;
             }
 
-            for (ProductInterface product : products.getItems()) {
+            for (int i = currentIndex; i < items.size(); i++) {
+                ProductInterface product = items.get(i);
                 if (productFilter != null && !productFilter.shouldInclude(productPage, product)) {
                     LOG.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass().getSimpleName());
                     continue;
@@ -131,8 +135,10 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                     .variantSku(null).variantUrlKey(null)
                     .map();
                 sitemap.addUrl(urlProvider.toProductUrl(null, null, params));
+                context.setProperty(PN_NEXT_PRODUCT, i + 1);
             }
 
+            context.setProperty(PN_NEXT_PRODUCT, currentIndex = 0);
             context.setProperty(PN_NEXT_PAGE, ++currentPageIndex);
             context.setProperty(PN_MAXIMUM_PAGES, maxPages);
         }

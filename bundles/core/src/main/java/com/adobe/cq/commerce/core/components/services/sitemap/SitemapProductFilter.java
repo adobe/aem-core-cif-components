@@ -25,7 +25,7 @@ import com.day.cq.wcm.api.Page;
 public interface SitemapProductFilter {
 
     /**
-     * Implementations may return false then given {@link ProductInterface} should not be included in the product sitemap.
+     * Implementations may return false when the given {@link ProductInterface} should not be included in the product sitemap.
      *
      * @param productPage
      * @param product
