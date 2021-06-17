@@ -11,7 +11,10 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.extensions.recommendations;
+package com.adobe.cq.commerce.extensions.recommendations.models;
 
-public class ProductRecommendations {
+public interface ProductRecommendations {
+
+    List<String> getCategoryFilter();
+
 }
