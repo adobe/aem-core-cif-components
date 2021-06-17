@@ -95,6 +95,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         return method.toString();
     }
 
+    @Override
     public String getHttpHeaders() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
@@ -103,7 +104,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
             return mapper.writeValueAsString(objectNode);
         } catch (JsonProcessingException e) {
             LOGGER.error(e.getMessage(), e);
-            return "";
+            return "{}";
         }
     }
 
