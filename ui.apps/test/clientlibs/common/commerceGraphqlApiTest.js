@@ -28,10 +28,15 @@ describe('CommerceGraphqlApi', () => {
     let graphqlApi;
     let fetchSpy;
     let fetchGraphqlSpy;
-    let httpHeaders = "{\"custom-1\":\"one\",\"custom-2\":\"two\"}";
+    let httpHeaders = '{"custom-1":"one","custom-2":"two"}';
     beforeEach(() => {
         fetchSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetch');
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default', graphqlMethod: 'GET', headers: JSON.parse(httpHeaders) });
+        graphqlApi = new CommerceGraphqlApi({
+            endpoint: '/graphql',
+            storeView: 'default',
+            graphqlMethod: 'GET',
+            headers: JSON.parse(httpHeaders)
+        });
     });
 
     afterEach(() => {
@@ -100,7 +105,7 @@ describe('CommerceGraphqlApi', () => {
             assert.isTrue(fetchSpy.calledOnce);
             let options = fetchSpy.firstCall.args[1];
 
-            assert.include(options.headers, { "custom-1": "one", "custom-2":"two" });
+            assert.include(options.headers, { 'custom-1': 'one', 'custom-2': 'two' });
         });
     });
 

@@ -167,7 +167,12 @@ class CommerceGraphqlApi {
 (function() {
     function onDocumentReady() {
         const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.querySelector('body').dataset;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint: graphqlEndpoint, storeView, graphqlMethod, headers: JSON.parse(httpHeaders) });
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
+            endpoint: graphqlEndpoint,
+            storeView,
+            graphqlMethod,
+            headers: JSON.parse(httpHeaders)
+        });
     }
 
     if (document.readyState !== 'loading') {
