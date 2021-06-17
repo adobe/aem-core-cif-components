@@ -17,20 +17,23 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
+import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -48,12 +51,16 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     @ObjectClassDefinition(name = "CIF Product Sitemap Generator")
     @interface Configuration {
 
-        @AttributeDefinition(name = "Page Size", description = "The number of products queried from the commerce per iteration.")
+        @AttributeDefinition(
+            name = "Pagination Size",
+            description = "The number of products to query from the commerce backend per "
+                + "iteration.")
         int pageSize() default 10;
     }
 
     private static final String PN_NEXT_PAGE = "nextPage";
     private static final String PN_MAXIMUM_PAGES = "maxPages";
+    private static final Logger LOG = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
 
     @Reference
     private SearchResultsService searchResultsService;
@@ -61,6 +68,8 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     private UrlProvider urlProvider;
     @Reference
     private SitemapLinkExternalizer externalizer;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+    private SitemapProductFilter productFilter;
 
     private int pageSize = 100;
 
@@ -74,7 +83,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         Page page = sitemapRoot.adaptTo(Page.class);
         Page specificPage = page != null ? SiteNavigation.getProductPage(page) : null;
         return specificPage != null && specificPage.getPath().equals(page.getPath())
-            ? Collections.singleton(SitemapGenerator.DEFAULT_SITEMAP)
+            ? Collections.singleton(SitemapService.DEFAULT_SITEMAP_NAME)
             : Collections.emptySet();
     }
 
@@ -112,13 +121,16 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             }
 
             for (ProductInterface product : products.getItems()) {
+                if (productFilter != null && !productFilter.shouldInclude(productPage, product)) {
+                    LOG.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass().getSimpleName());
+                    continue;
+                }
                 // TODO: should we handle variants? Currently we ignore them as crawlers will ignore the fragment in the urls anyway.
                 Map<String, String> params = paramsBuilder
                     .sku(product.getSku()).urlKey(product.getUrlKey())
                     .variantSku(null).variantUrlKey(null)
                     .map();
-                String location = urlProvider.toProductUrl(null, null, params);
-                sitemap.addUrl(location);
+                sitemap.addUrl(urlProvider.toProductUrl(null, null, params));
             }
 
             context.setProperty(PN_NEXT_PAGE, ++currentPageIndex);
@@ -130,9 +142,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         return q -> q.products(
             arguments -> arguments
                 // TODO: figure out a better way to query for all products
-                .filter(new ProductAttributeFilterInput()
-                    .setPrice(new FilterRangeTypeInput()
-                        .setFrom("0").setTo(String.valueOf(Long.MAX_VALUE))))
+                .search(StringUtils.EMPTY)
                 .pageSize(pageSize)
                 .currentPage(pageIndex),
             resultSet -> resultSet
