@@ -13,7 +13,8 @@
  ******************************************************************************/
 let dataLayerEnabled = null;
 let dataLayer = null;
-const isDataLayerEnabled = () => {
+
+export const isDataLayerEnabled = () => {
     if (dataLayerEnabled === null) {
         dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
     }
@@ -73,3 +74,81 @@ export const removeEventListener = (eventName, handler) => {
         getDataLayer().removeEventListener(eventName, handler);
     }
 };
+
+/**
+ * Converts all keys of a given GraphQL response from kebab-case or snake_case into camelCase.
+ */
+const transformGraphqlResponse = o => {
+    const result = {};
+
+    Object.entries(o).forEach(([key, value]) => {
+        if (key === '__typename') {
+            return;
+        }
+
+        if (Array.isArray(value)) {
+            result[toCamel(key)] = value.map(item => transformGraphqlResponse(item));
+        } else if (typeof value === 'object' && value !== null) {
+            result[toCamel(key)] = transformGraphqlResponse(value);
+        } else {
+            result[toCamel(key)] = value;
+        }
+    });
+    return result;
+};
+
+const toCamel = s =>
+    s.replace(/([-_][a-z])/gi, group =>
+        group
+            .toUpperCase()
+            .replace('-', '')
+            .replace('_', '')
+    );
+
+/**
+ * Remove fields which are not required by MSE SDK and add fields which are unavailable in GraphQL.
+ */
+export const transformCart = cart => {
+    let newCart = {};
+    try {
+        const { id, prices, totalQuantity } = cart;
+        const { subtotalExcludingTax, subtotalIncludingTax } = prices || {};
+
+        const items = cart.items
+            ? cart.items.map(item => {
+                  const { price } = item.prices;
+                  const { value, currency } = price;
+                  return {
+                      prices: {
+                          price
+                      },
+                      canApplyMsrp: false,
+                      id: item.uid,
+                      formattedPrice: `${value} ${currency}`,
+                      quantity: item.quantity,
+                      product: {
+                          productId: 0,
+                          name: item.product.name,
+                          sku: item.product.sku
+                      }
+                  };
+              })
+            : [];
+
+        newCart = {
+            id,
+            items,
+            prices: {
+                subtotalExcludingTax,
+                subtotalIncludingTax
+            },
+            totalQuantity
+        };
+    } catch (e) {
+        console.error(e);
+    }
+
+    return newCart;
+};
+
+export { transformGraphqlResponse };

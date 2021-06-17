@@ -14,35 +14,10 @@
 import React from 'react';
 import { render } from 'test-utils';
 
-const { TextEncoder } = require('util');
-const { Crypto } = require('@peculiar/webcrypto');
-
 import AuthBar from '../authBar';
 import UserContextProvider from '../../../context/UserContext';
 
 describe('<AuthBar>', () => {
-    beforeAll(() => {
-        window.TextEncoder = TextEncoder;
-        window.crypto = new Crypto();
-
-        window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
-
-        window.adobeDataLayer = [];
-        window.adobeDataLayer.getState = jest.fn(ref => {
-            return { result: ref };
-        });
-        window.adobeDataLayer.push = jest.fn();
-        window.adobeDataLayer.addEventListener = jest.fn();
-        window.adobeDataLayer.removeEventListener = jest.fn();
-    });
-
-    beforeEach(() => {
-        window.adobeDataLayer.getState.mockClear();
-        window.adobeDataLayer.push.mockClear();
-        window.adobeDataLayer.addEventListener.mockClear();
-        window.adobeDataLayer.removeEventListener.mockClear();
-    });
-
     it('renders the component for anonymous user', () => {
         const handler = jest.fn(state => state);
 
@@ -53,8 +28,6 @@ describe('<AuthBar>', () => {
         );
 
         expect(asFragment()).toMatchSnapshot();
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({ user: null });
     });
 
     it('renders the component for logged user', () => {
@@ -75,15 +48,7 @@ describe('<AuthBar>', () => {
                 <AuthBar />
             </UserContextProvider>
         );
+
         expect(asFragment()).toMatchSnapshot();
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
-            user: {
-                firstname: 'Test',
-                lastname: 'User',
-                email: 'test_user@example.com',
-                addresses: []
-            }
-        });
     });
 });
