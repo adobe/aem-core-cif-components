@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
+import java.io.IOException;
+
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -31,6 +33,8 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -123,12 +127,19 @@ public class StoreConfigExporterTest {
     }
 
     @Test
-    public void testCustomHttpHeaders() {
-        String[] expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
+    public void testCustomHttpHeaders() throws IOException {
+        // String[] expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
+        // String expectedHeaders = new String[] { "Store=my-magento-store", "customHeader-1=value1", "customHeader-2=value2" };
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        String[] actualHeaders = storeConfigExporter.getHttpHeaders().stream().sorted().toArray(String[]::new);
-        Assert.assertArrayEquals("The custom HTTP headers are correctly parsed", expectedHeaders, actualHeaders);
+        // String[] actualHeaders = storeConfigExporter.getHttpHeaders().stream().sorted().toArray(String[]::new);
+        String expectedHeaders = "{\"Store\":\"my-magento-store\",\"customHeader-1\":\"value1\",\"customHeader-2\":\"value2\"}";
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode actualNode = mapper.readTree(storeConfigExporter.getHttpHeaders());
+        JsonNode expectedNode = mapper.readTree(expectedHeaders);
+
+        Assert.assertEquals("The custom HTTP headers are correctly parsed", expectedNode, actualNode);
     }
 
     private void setupWithPage(String pagePath, HttpMethod method) {

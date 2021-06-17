@@ -14,9 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -35,6 +33,9 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -94,9 +95,16 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         return method.toString();
     }
 
-    public List<String> getHttpHeaders() {
-        return httpHeaders.entrySet().stream().map(entry -> new String(entry.getKey() + "=" + entry.getValue()))
-            .collect(Collectors.toList());
+    public String getHttpHeaders() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        httpHeaders.entrySet().stream().forEach(entry -> objectNode.put(entry.getKey(), entry.getValue()));
+        try {
+            return mapper.writeValueAsString(objectNode);
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getMessage(), e);
+            return "";
+        }
     }
 
     @Override
