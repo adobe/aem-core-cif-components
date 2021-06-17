@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -31,6 +33,9 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -56,6 +61,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private String graphqlEndpoint = "/magento/graphql";
     private HttpMethod method = HttpMethod.POST;
     private Page storeRootPage;
+    private Map<String, String> httpHeaders;
 
     @PostConstruct
     void initModel() {
@@ -70,6 +76,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         if (magentoGraphqlClient != null) {
             GraphqlClientConfiguration graphqlClientConfiguration = magentoGraphqlClient.getConfiguration();
             method = graphqlClientConfiguration.httpMethod();
+            httpHeaders = magentoGraphqlClient.getHttpHeaders();
         }
     }
 
@@ -86,6 +93,19 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public String getMethod() {
         return method.toString();
+    }
+
+    @Override
+    public String getHttpHeaders() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        httpHeaders.entrySet().stream().forEach(entry -> objectNode.put(entry.getKey(), entry.getValue()));
+        try {
+            return mapper.writeValueAsString(objectNode);
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getMessage(), e);
+            return "{}";
+        }
     }
 
     @Override
