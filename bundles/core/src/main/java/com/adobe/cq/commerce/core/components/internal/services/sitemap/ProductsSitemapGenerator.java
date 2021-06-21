@@ -57,7 +57,8 @@ import com.day.cq.wcm.api.Page;
     })
 public class ProductsSitemapGenerator implements SitemapGenerator {
 
-    @ObjectClassDefinition(name = "CIF Product Sitemap Generator") @interface Configuration {
+    @ObjectClassDefinition(name = "CIF Product Sitemap Generator")
+    @interface Configuration {
 
         @AttributeDefinition(
             name = "Pagination Size",
@@ -65,8 +66,9 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         int pageSize() default 10;
     }
 
-    private static final String PN_NEXT_PRODUCT = "nextProduct";
-    private static final String PN_NEXT_PAGE = "nextPage";
+    static final String PN_NEXT_PRODUCT = "nextProduct";
+    static final String PN_NEXT_PAGE = "nextPage";
+
     private static final Logger LOG = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
 
     @Reference

@@ -31,13 +31,10 @@ import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.metatype.annotations.AttributeDefinition;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,17 +62,10 @@ import com.shopify.graphql.support.ID;
     })
 public class CategoriesSitemapGenerator implements SitemapGenerator {
 
-    @ObjectClassDefinition(name = "CIF Category Sitemap Generator") @interface Configuration {
+    static final String PN_PENDING_CATEGORIES = "pendingCategories";
+    static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
+    static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
-        @AttributeDefinition(
-            name = "Pagination Size",
-            description = "The number of products to query from the commerce backend per iteration.")
-        int pageSize() default 10;
-    }
-
-    private static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
-    private static final String PN_PENDING_CATEGORIES = "pendingCategories";
     private static final Logger LOG = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
 
     @Reference
@@ -84,13 +74,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     private SitemapLinkExternalizer externalizer;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapCategoryFilter categoryFilter;
-
-    private int pageSize = 100;
-
-    @Activate
-    protected void activate(Configuration configuration) {
-        this.pageSize = configuration.pageSize();
-    }
 
     @Override
     public Set<String> getNames(Resource sitemapRoot) {
@@ -117,8 +100,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         boolean enableUidSupport = configuration.get(PN_ENABLE_UID_SUPPORT, Boolean.FALSE);
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
         Deque<String> categoryIds = new LinkedList<>(Arrays.asList(
-            context.getProperty(PN_PENDING_CATEGORIES, new String[] { rootCategoryIdentifier })
-        ));
+            context.getProperty(PN_PENDING_CATEGORIES, new String[] { rootCategoryIdentifier })));
 
         while (!categoryIds.isEmpty()) {
             String categoryId = categoryIds.poll();

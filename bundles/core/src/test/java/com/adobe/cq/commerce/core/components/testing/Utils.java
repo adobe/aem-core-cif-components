@@ -129,6 +129,22 @@ public class Utils {
     }
 
     /**
+     * Returns a plain GraphqlClient instance mock.
+     */
+    public static GraphqlClient setupGraphqlClient() {
+        HttpClient httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        return graphqlClient;
+    }
+
+    /**
      * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
      *
      * @param filename The filename of the resource containing the JSON response.
@@ -148,17 +164,24 @@ public class Utils {
      * @throws IOException
      */
     public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename, String queryStartsWith) throws IOException {
-        HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, queryStartsWith);
+        GraphqlClient graphqlClient = setupGraphqlClient();
+        addHttpResponseFrom(graphqlClient, filename, queryStartsWith);
         return graphqlClient;
+    }
+
+    /**
+     * Adds another response to the already mocked graphql client.
+     *
+     * @param graphqlClient
+     * @param filename
+     * @param queryStartsWith
+     * @throws IOException
+     */
+    public static void addHttpResponseFrom(GraphqlClient graphqlClient, String filename, String... queryStartsWith) throws IOException {
+        HttpClient httpClient = (HttpClient) Whitebox.getInternalState(graphqlClient, "client");
+        for (String query : queryStartsWith) {
+            setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, query);
+        }
     }
 
     /**

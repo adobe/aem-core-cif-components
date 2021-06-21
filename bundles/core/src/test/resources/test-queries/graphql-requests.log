@@ -72,3 +72,53 @@
 
 {categoryList(filters:{ids:{in:["1","2","3"]}}){id,name,url_path,position,image}}
 
+{products(search:"",pageSize:2,currentPage:1){total_count,items{__typename,url_key,sku,... on ConfigurableProduct{variants{product{sku}}}}}}
+
+{products(search:"",pageSize:2,currentPage:2){total_count,items{__typename,url_key,sku,... on ConfigurableProduct{variants{product{sku}}}}}}
+
+{products(search:"",pageSize:2,currentPage:3){total_count,items{__typename,url_key,sku,... on ConfigurableProduct{variants{product{sku}}}}}}
+
+{products(search:"",pageSize:2,currentPage:999){total_count,items{__typename,url_key,sku,... on ConfigurableProduct{variants{product{sku}}}}}}
+
+{categories(filters:{ids:{eq:"2"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"3"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"31"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"32"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"4"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"41"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"42"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"5"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"51"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{ids:{eq:"52"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID2"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID3"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID31"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID32"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID4"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID41"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID42"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID5"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID51"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"UID52"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
+{categories(filters:{category_uid:{eq:"ERROR"}}){items{url_key,url_path,uid,id,children{uid,id}}}}
+
