@@ -11,7 +11,7 @@
 	    "meta_title": "Some category meta title",
 	    "url_path": "running",
   		"url_key": "running-key",
-      	"staged": true
+      "staged": true
 	  }
     ]
   }

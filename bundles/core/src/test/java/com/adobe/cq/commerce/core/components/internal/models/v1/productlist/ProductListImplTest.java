@@ -198,6 +198,10 @@ public class ProductListImplTest {
         productListModel = context.request().adaptTo(ProductListImpl.class);
     }
 
+    protected void adaptToProductList() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+    }
+
     @Test
     public void testTitleAndMetadata() {
         adaptToProductList();

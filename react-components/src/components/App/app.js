@@ -25,7 +25,7 @@ import useReferrerEvent from '../../utils/useReferrerEvent';
 import usePageEvent from '../../utils/usePageEvent';
 
 const App = props => {
-    const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST' } = useConfigContext();
+    const { graphqlEndpoint, storeView = 'default', graphqlMethod = 'POST', headers = {} } = useConfigContext();
     useCustomUrlEvent();
     useReferrerEvent();
     usePageEvent();
@@ -35,7 +35,7 @@ const App = props => {
             graphqlAuthLink,
             new HttpLink({
                 uri: graphqlEndpoint,
-                headers: { Store: storeView },
+                headers: { ...headers, Store: storeView },
                 useGETForQueries: graphqlMethod === 'GET',
                 fetch: compressQueryFetch
             })

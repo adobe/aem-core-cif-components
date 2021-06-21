@@ -106,6 +106,34 @@ public class MagentoGraphqlClientTest {
     }
 
     @Test
+    public void testCustomHeaders() {
+
+        List<Header> expectedHeaders = new ArrayList<>();
+        expectedHeaders.add(new BasicHeader("Store", "my-store"));
+        expectedHeaders.add(new BasicHeader("customHeader-1", "value1"));
+        expectedHeaders.add(new BasicHeader("customHeader-2", "value2"));
+        expectedHeaders.add(new BasicHeader("customHeader-3", "=value3=3=3=3=3"));
+
+        ValueMap MOCK_CONFIGURATION_CUSTOM_HEADERS = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-3==value3=3=3=3=3",
+                "Authorization=099sx8x7v1" }));
+        ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION_CUSTOM_HEADERS);
+
+        Page pageWithConfig = Mockito.spy(context.pageManager().getPage(PAGE_A));
+        Resource pageResource = Mockito.spy(pageWithConfig.adaptTo(Resource.class));
+        when(pageWithConfig.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(expectedHeaders, HttpMethod.GET);
+        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
+        client.execute("{dummy}", HttpMethod.GET);
+        graphqlClient.getConfiguration();
+
+        Mockito.verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
     public void testMagentoStorePropertyWithConfigBuilder() {
         Page pageWithConfig = Mockito.spy(context.pageManager().getPage(PAGE_A));
         Resource pageResource = Mockito.spy(pageWithConfig.adaptTo(Resource.class));
@@ -318,10 +346,16 @@ public class MagentoGraphqlClientTest {
                     return false;
                 }
 
+                List<Header> actualHeaders = requestOptions.getHeaders();
+
+                if (headers.size() != actualHeaders.size()) {
+                    return false;
+                }
+
                 for (Header header : headers) {
-                    if (!requestOptions.getHeaders()
+                    if (actualHeaders
                         .stream()
-                        .anyMatch(h -> h.getName()
+                        .noneMatch(h -> h.getName()
                             .equals(header.getName()) && h.getValue()
                                 .equals(header.getValue()))) {
                         return false;
