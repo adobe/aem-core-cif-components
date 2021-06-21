@@ -13,7 +13,14 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +31,11 @@ import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
@@ -35,9 +46,14 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
+import com.adobe.cq.commerce.magento.graphql.CategoryResult;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.shopify.graphql.support.ID;
@@ -49,8 +65,7 @@ import com.shopify.graphql.support.ID;
     })
 public class CategoriesSitemapGenerator implements SitemapGenerator {
 
-    @ObjectClassDefinition(name = "CIF Category Sitemap Generator")
-    @interface Configuration {
+    @ObjectClassDefinition(name = "CIF Category Sitemap Generator") @interface Configuration {
 
         @AttributeDefinition(
             name = "Pagination Size",
@@ -63,8 +78,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     private static final String PN_PENDING_CATEGORIES = "pendingCategories";
     private static final Logger LOG = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
 
-    @Reference
-    private SearchResultsService searchResultsService;
     @Reference
     private UrlProvider urlProvider;
     @Reference
@@ -95,22 +108,17 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         ComponentsConfiguration configuration = sitemapRoot.adaptTo(ComponentsConfiguration.class);
 
         if (graphql == null || categoryPage == null || configuration == null) {
-            throw new SitemapException("Failed to build product sitemap at: " + sitemapRoot.getPath());
+            throw new SitemapException("Failed to build category sitemap at: " + sitemapRoot.getPath());
         }
 
         // parameter map to be reused while iterating
         UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder().page(externalizer.externalize(sitemapRoot));
 
-        Deque<String> categoryIds = new LinkedList<>();
         boolean enableUidSupport = configuration.get(PN_ENABLE_UID_SUPPORT, Boolean.FALSE);
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
-        String[] pendingCategories = context.getProperty(PN_PENDING_CATEGORIES, String[].class);
-        if (pendingCategories != null) {
-            categoryIds.addAll(Arrays.asList(pendingCategories));
-        } else {
-            // to start with
-            categoryIds.add(rootCategoryIdentifier);
-        }
+        Deque<String> categoryIds = new LinkedList<>(Arrays.asList(
+            context.getProperty(PN_PENDING_CATEGORIES, new String[] { rootCategoryIdentifier })
+        ));
 
         while (!categoryIds.isEmpty()) {
             String categoryId = categoryIds.poll();

@@ -26,7 +26,11 @@ import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
@@ -36,9 +40,13 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.Products;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
@@ -49,8 +57,7 @@ import com.day.cq.wcm.api.Page;
     })
 public class ProductsSitemapGenerator implements SitemapGenerator {
 
-    @ObjectClassDefinition(name = "CIF Product Sitemap Generator")
-    @interface Configuration {
+    @ObjectClassDefinition(name = "CIF Product Sitemap Generator") @interface Configuration {
 
         @AttributeDefinition(
             name = "Pagination Size",
@@ -60,11 +67,8 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
 
     private static final String PN_NEXT_PRODUCT = "nextProduct";
     private static final String PN_NEXT_PAGE = "nextPage";
-    private static final String PN_MAXIMUM_PAGES = "maxPages";
     private static final Logger LOG = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
 
-    @Reference
-    private SearchResultsService searchResultsService;
     @Reference
     private UrlProvider urlProvider;
     @Reference
@@ -99,7 +103,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
 
         int currentIndex = context.getProperty(PN_NEXT_PRODUCT, 0);
         int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
-        int maxPages = context.getProperty(PN_MAXIMUM_PAGES, Integer.MAX_VALUE);
+        int maxPages = Integer.MAX_VALUE;
         // parameter map to be reused while iterating
         UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder()
             .page(externalizer.externalize(sitemapRoot));
@@ -129,7 +133,6 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                     LOG.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass().getSimpleName());
                     continue;
                 }
-                // TODO: should we handle variants? Currently we ignore them as crawlers will ignore the fragment in the urls anyway.
                 Map<String, String> params = paramsBuilder
                     .sku(product.getSku()).urlKey(product.getUrlKey())
                     .variantSku(null).variantUrlKey(null)
@@ -138,16 +141,15 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                 context.setProperty(PN_NEXT_PRODUCT, i + 1);
             }
 
-            context.setProperty(PN_NEXT_PRODUCT, currentIndex = 0);
+            currentIndex = 0;
+            context.setProperty(PN_NEXT_PRODUCT, currentIndex);
             context.setProperty(PN_NEXT_PAGE, ++currentPageIndex);
-            context.setProperty(PN_MAXIMUM_PAGES, maxPages);
         }
     }
 
     private static QueryQueryDefinition productsQueryFor(int pageIndex, int pageSize) {
         return q -> q.products(
             arguments -> arguments
-                // TODO: figure out a better way to query for all products
                 .search(StringUtils.EMPTY)
                 .pageSize(pageSize)
                 .currentPage(pageIndex),
