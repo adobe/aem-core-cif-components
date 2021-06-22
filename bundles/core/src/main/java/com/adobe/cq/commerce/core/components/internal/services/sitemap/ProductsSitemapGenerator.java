@@ -69,7 +69,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     static final String PN_NEXT_PRODUCT = "nextProduct";
     static final String PN_NEXT_PAGE = "nextPage";
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
 
     @Reference
     private UrlProvider urlProvider;
@@ -132,7 +132,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             for (int i = currentIndex; i < items.size(); i++) {
                 ProductInterface product = items.get(i);
                 if (productFilter != null && !productFilter.shouldInclude(productPage, product)) {
-                    LOG.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass().getSimpleName());
+                    LOGGER.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass().getSimpleName());
                     continue;
                 }
                 Map<String, String> params = paramsBuilder

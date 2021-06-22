@@ -66,7 +66,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
     static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
-    private static final Logger LOG = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
 
     @Reference
     private UrlProvider urlProvider;
@@ -141,8 +141,8 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                         .urlPath(category.getUrlPath())
                         .map();
                     sitemap.addUrl(urlProvider.toCategoryUrl(null, null, params));
-                } else if (ignoredByFilter && LOG.isDebugEnabled()) {
-                    LOG.debug("Ignore category {}, not allowed by filter: {}", category.getUid(),
+                } else if (ignoredByFilter && LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Ignore category {}, not allowed by filter: {}", category.getUid(),
                         categoryFilter.getClass().getSimpleName());
                 }
 
@@ -150,7 +150,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             }
 
             if (it.hasNext()) {
-                LOG.warn("More the one category returned for '{}': {}", categoryId, it.next().getUrlPath());
+                LOGGER.warn("More the one category returned for '{}': {}", categoryId, it.next().getUrlPath());
             }
         }
     }
