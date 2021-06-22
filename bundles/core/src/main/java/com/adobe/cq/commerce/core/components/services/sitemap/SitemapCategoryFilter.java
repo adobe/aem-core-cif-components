@@ -25,11 +25,12 @@ import com.day.cq.wcm.api.Page;
 public interface SitemapCategoryFilter {
 
     /**
-     * Implementations may return false when the given {@link CategoryInterface} should not be included in the category sitemap.
+     * Implementations may return {@code true} when the given {@link CategoryInterface} should be included in the category sitemap,
+     * {@code false} otherwise.
      *
-     * @param categoryPage
-     * @param category
-     * @return
+     * @param categoryPage the category {@link Page} giving the context in which the filter is called
+     * @param category the {@link CategoryInterface} to check for eligibility to be included in the category sitemap
+     * @return {@code true} to include the category in the sitemap at the given category {@link Page}, {@code false} otherwise
      */
     boolean shouldInclude(Page categoryPage, CategoryInterface category);
 }

@@ -25,11 +25,12 @@ import com.day.cq.wcm.api.Page;
 public interface SitemapProductFilter {
 
     /**
-     * Implementations may return false when the given {@link ProductInterface} should not be included in the product sitemap.
+     * Implementations may return {@code true} when the given {@link ProductInterface} should be included in the product sitemap,
+     * {@code false} otherwise.
      *
-     * @param productPage
-     * @param product
-     * @return
+     * @param productPage the product {@link Page} giving the context in which the filter is called
+     * @param product the {@link ProductInterface} to check for eligibility to be included in the product sitemap
+     * @return {@code true} to include the product in the sitemap at the given product {@link Page}, {@code false} otherwise
      */
     boolean shouldInclude(Page productPage, ProductInterface product);
 }
