@@ -78,7 +78,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapProductFilter productFilter;
 
-    private int pageSize = 100;
+    private int pageSize;
 
     @Activate
     protected void activate(Configuration configuration) {
