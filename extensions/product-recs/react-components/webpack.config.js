@@ -82,7 +82,8 @@ module.exports = {
         alias: {
             react: path.resolve(__dirname, './node_modules/react'),
             'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-            'react-i18next': path.resolve(__dirname, './node_modules/react-i18next')
+            'react-i18next': path.resolve(__dirname, './node_modules/react-i18next'),
+            '@apollo/client': path.resolve(__dirname, './node_modules/@apollo/client')
         }
     },
     externals: {
@@ -103,6 +104,12 @@ module.exports = {
             commonjs2: 'react-i18next',
             commonjs: 'react-i18next',
             amd: 'react-i18next'
+        },
+        '@apollo/client': {
+            root: '@apollo/client',
+            commonjs2: '@apollo/client',
+            commonjs: '@apollo/client',
+            amd: '@apollo/client'
         }
     }
 };

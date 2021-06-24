@@ -12,11 +12,26 @@
  *
  ******************************************************************************/
 import React from 'react';
+import { useQuery } from '@apollo/client';
+
+import QUERY_STOREFRONT_INSTANCE_CONTEXT from '../../queries/query_storefront_instance_context.graphql';
 
 import classes from './ProductRecsGallery.css';
 
 const ProductRecsGallery = () => {
-    return <div className={classes.root}>Hello World!</div>;
+    const { loading, data, error } = useQuery(QUERY_STOREFRONT_INSTANCE_CONTEXT);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        console.error(error);
+        return <div>Error</div>;
+    }
+
+    console.log('data', data);
+    return <div className={classes.root}>Loaded</div>;
 };
 
 export default ProductRecsGallery;
