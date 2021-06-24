@@ -11,10 +11,40 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.extensions.recommendations.models;
+package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
+
+import java.util.List;
+
+import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
 public interface ProductRecommendations {
 
-    List<String> getCategoryFilter();
+    String getTitle();
+
+    String getRecommendationType();
+
+    List<String> getCategoryInclusions();
+
+    List<String> getCategoryExclusions();
+
+    List<String> getProductInclusions();
+
+    List<String> getProductExclusions();
+
+    PriceRange getPriceRangeInclusions();
+
+    PriceRange getPriceRangeExclusions();
+
+    List<String> getTypeInclusions();
+
+    List<String> getTypeExclusions();
+
+    List<String> getVisibilityInclusions();
+
+    List<String> getVisibilityExclusions();
+
+    boolean excludeOutOfStock();
+
+    boolean excludeLowStock();
 
 }
