@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 
@@ -28,7 +28,6 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     private IdentifierLocation productIdentifierLocation;
     private IdentifierLocation categoryIdentifierLocation;
     private ProductIdentifierType productIdentifierType;
-    private CategoryIdentifierType categoryIdentifierType;
 
     @Override
     public String productUrlTemplate() {
@@ -56,11 +55,6 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     }
 
     @Override
-    public CategoryIdentifierType categoryIdentifierType() {
-        return ObjectUtils.firstNonNull(categoryIdentifierType, CategoryIdentifierType.UID);
-    }
-
-    @Override
     public Class<? extends Annotation> annotationType() {
         return UrlProviderConfiguration.class;
     }
@@ -77,7 +71,8 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
         this.productIdentifierType = productIdentifierType;
     }
 
-    public void setCategoryIdentifierType(CategoryIdentifierType categoryIdentifierType) {
-        this.categoryIdentifierType = categoryIdentifierType;
+    @Override
+    public String identifierQueryParamater() {
+        return UrlProvider.DEFAULT_QUERY_PARAMETER;
     }
 }
