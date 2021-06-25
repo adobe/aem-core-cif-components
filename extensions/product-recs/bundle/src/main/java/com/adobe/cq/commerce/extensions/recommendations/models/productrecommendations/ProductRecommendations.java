@@ -13,8 +13,6 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
 
-import java.util.List;
-
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
 public interface ProductRecommendations {
@@ -23,25 +21,25 @@ public interface ProductRecommendations {
 
     String getRecommendationType();
 
-    List<String> getCategoryInclusions();
+    String getCategoryInclusions();
 
-    List<String> getCategoryExclusions();
+    String getCategoryExclusions();
 
-    List<String> getProductInclusions();
+    String getProductInclusions();
 
-    List<String> getProductExclusions();
+    String getProductExclusions();
 
     PriceRange getPriceRangeInclusions();
 
     PriceRange getPriceRangeExclusions();
 
-    List<String> getTypeInclusions();
+    String getTypeInclusions();
 
-    List<String> getTypeExclusions();
+    String getTypeExclusions();
 
-    List<String> getVisibilityInclusions();
+    String getVisibilityInclusions();
 
-    List<String> getVisibilityExclusions();
+    String getVisibilityExclusions();
 
     boolean excludeOutOfStock();
 

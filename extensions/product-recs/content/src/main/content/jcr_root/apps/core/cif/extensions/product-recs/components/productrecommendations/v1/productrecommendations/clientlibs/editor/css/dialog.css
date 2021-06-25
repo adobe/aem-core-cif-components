@@ -11,11 +11,11 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.extensions.recommendations.models.common;
-
-public interface PriceRange {
-
-    Long getMinPrice();
-
-    Long getMaxPrice();
+.cif-product-recs__price-range {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+.cif-product-recs__price-range-label {
+    font-size: 12px;
+    color: #6e6e6e;
 }

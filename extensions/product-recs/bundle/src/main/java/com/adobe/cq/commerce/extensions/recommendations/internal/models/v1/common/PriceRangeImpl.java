@@ -11,11 +11,26 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.extensions.recommendations.models.common;
+package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.common;
 
-public interface PriceRange {
+import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
-    Long getMinPrice();
+public class PriceRangeImpl implements PriceRange {
+    private final Long minPrice;
+    private final Long maxPrice;
 
-    Long getMaxPrice();
+    public PriceRangeImpl(Long minPrice, Long maxPrice) {
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
+    }
+
+    @Override
+    public Long getMinPrice() {
+        return minPrice;
+    }
+
+    @Override
+    public Long getMaxPrice() {
+        return maxPrice;
+    }
 }

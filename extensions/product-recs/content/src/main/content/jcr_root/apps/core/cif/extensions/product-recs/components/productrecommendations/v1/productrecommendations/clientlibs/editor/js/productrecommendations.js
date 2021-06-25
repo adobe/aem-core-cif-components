@@ -15,12 +15,53 @@
     'use strict';
 
     var dialogContentSelector = '.cif-product-recs__editor';
+    var enableFilterSelector = '.cif-product-recs__enable-filter';
+
     $(document).on('dialog-loaded', function(e) {
         var $dialog = e.dialog;
         var $dialogContent = $dialog.find(dialogContentSelector);
         var dialogContent = $dialogContent.length > 0 ? $dialogContent[0] : undefined;
 
         if (dialogContent) {
+            init($dialogContent);
         }
     });
+
+    function enableFilter(target, enable, $dialogContent) {
+        if (target.data('targetId')) {
+            var targetedBy = $dialogContent.find('[target="[data-target-id=\'' + target.data('targetId') + '\']"]');
+            targetedBy.adaptTo('foundation-field').setDisabled(!enable);
+        } else {
+            target.adaptTo('foundation-field').setDisabled(!enable);
+        }
+    }
+
+    function init($dialogContent) {
+        var filters = $dialogContent.find(enableFilterSelector);
+
+        filters.each(function(index, element) {
+            var enabled =
+                $(element)
+                    .adaptTo('foundation-field')
+                    .getValue() === 'true';
+
+            var targets = element.dataset.target;
+
+            targets.split(',').forEach(function(target) {
+                var targetEl = $dialogContent.find('[name="' + target + '"]');
+                enableFilter(targetEl, enabled, $dialogContent);
+            });
+
+            $(element).on('change', function(e) {
+                var changeValue =
+                    $(e.target)
+                        .adaptTo('foundation-field')
+                        .getValue() === 'true';
+                targets.split(',').forEach(function(target) {
+                    var targetEl = $dialogContent.find('[name="' + target + '"]');
+                    enableFilter(targetEl, changeValue, $dialogContent);
+                });
+            });
+        });
+    }
 })(jQuery);

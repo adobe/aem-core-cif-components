@@ -21,7 +21,36 @@
                            fieldDescription="Optional title text. Leave empty to hide the title."
                            fieldLabel="Title"
                            name="./jcr:title"
-                           value="Recommended for you" />
+                           value="Recommended products" />
+                    <visibility
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                            fieldLabel="Recommendation type"
+                            multiple="{Boolean}false"
+                            name="./recommendationType">
+                        <items jcr:primaryType="nt:unstructured">
+                            <mostViewed
+                                    jcr:primaryType="nt:unstructured"
+                                    text="Most viewed"
+                                    value="most-viewed"/>
+                            <mostPurchased
+                                    jcr:primaryType="nt:unstructured"
+                                    text="Most purchased"
+                                    value="most-purchased"/>
+                            <mostAddedToCart
+                                    jcr:primaryType="nt:unstructured"
+                                    text="Most added to cart"
+                                    value="most-added-to-cart"/>
+                            <trending
+                                    jcr:primaryType="nt:unstructured"
+                                    text="Trending"
+                                    value="trending"/>
+                            <justForYou
+                                    jcr:primaryType="nt:unstructured"
+                                    text="Recommended for you"
+                                    value="just-for-you"/>
+                        </items>
+                    </visibility>
                     <tabs
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="granite/ui/components/coral/foundation/tabs"
@@ -57,11 +86,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./includeCategories"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./includedCategories" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -78,33 +112,52 @@
                                                             <label
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/text"
+                                                                    granite:class="cif-product-recs__price-range-label"
                                                                     text="Price">
                                                             </label>
                                                             <columns
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                                                    granite:class="cif-product-recs__price-range"
                                                                     margin="{Boolean}true">
                                                                 <items jcr:primaryType="nt:unstructured">
                                                                     <minPrinceInclusion
                                                                             jcr:primaryType="nt:unstructured"
                                                                             sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                                             fieldLabel="Min price"
-                                                                            name="./includeMinPrice"/>
+                                                                            name="./includedMinPrice"/>
+                                                                    <minPrinceInclusionTypeHint
+                                                                            jcr:primaryType="nt:unstructured"
+                                                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                                            ignoreData="{Boolean}true"
+                                                                            name="./includedMinPrice@TypeHint"
+                                                                            value="Long"/>
                                                                     <maxPrinceInclusion
                                                                             jcr:primaryType="nt:unstructured"
                                                                             sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                                             fieldLabel="Max price"
-                                                                            name="./includeMaxPrice"/>
+                                                                            name="./includedMaxPrice"/>
+                                                                    <maxPrinceInclusionTypeHint
+                                                                            jcr:primaryType="nt:unstructured"
+                                                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                                            ignoreData="{Boolean}true"
+                                                                            name="./includedMaxPrice@TypeHint"
+                                                                            value="Long"/>
                                                                 </items>
                                                             </columns>
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./includePriceRange"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./includedMinPrice,./includedMaxPrice" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -128,11 +181,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./includeProducts"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./includedProducts" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -186,11 +244,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./includeTypes"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./includedTypes" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -228,11 +291,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./includeVisibility"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./includedVisibility" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -277,11 +345,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./excludeCategories"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./excludedCategories" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -298,33 +371,52 @@
                                                             <label
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/text"
+                                                                    granite:class="cif-product-recs__price-range-label"
                                                                     text="Price">
                                                             </label>
                                                             <columns
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                                                    granite:class="cif-product-recs__price-range"
                                                                     margin="{Boolean}true">
                                                                 <items jcr:primaryType="nt:unstructured">
                                                                     <minPrinceExclusion
                                                                             jcr:primaryType="nt:unstructured"
                                                                             sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                                             fieldLabel="Min price"
-                                                                            name="./excludeMinPrice"/>
+                                                                            name="./excludedMinPrice"/>
+                                                                    <minPrinceExclusionTypeHint
+                                                                            jcr:primaryType="nt:unstructured"
+                                                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                                            ignoreData="{Boolean}true"
+                                                                            name="./excludedMinPrice@TypeHint"
+                                                                            value="Long"/>
                                                                     <maxPrinceExclusion
                                                                             jcr:primaryType="nt:unstructured"
                                                                             sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                                             fieldLabel="Max price"
-                                                                            name="./excludeMaxPrice"/>
+                                                                            name="./excludedMaxPrice"/>
+                                                                    <maxPrinceExclusionTypeHint
+                                                                            jcr:primaryType="nt:unstructured"
+                                                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                                            ignoreData="{Boolean}true"
+                                                                            name="./excludedMaxPrice@TypeHint"
+                                                                            value="Long"/>
                                                                 </items>
                                                             </columns>
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./excludePriceRange"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./excludedMinPrice,./excludedMaxPrice" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -348,11 +440,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./excludeProducts"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./excludedProducts" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -371,7 +468,8 @@
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
                                                                     name="./excludeOutOfStock"
                                                                     text="Exclude out of stock"
-                                                                    value="{Boolean}false"
+                                                                    checked="{Boolean}false"
+                                                                    value="{Boolean}true"
                                                                     uncheckedValue="{Boolean}false"/>
                                                             <outOfStockTypeHint
                                                                     jcr:primaryType="nt:unstructured"
@@ -391,7 +489,8 @@
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
                                                                     name="./excludeLowStock"
                                                                     text="Exclude low stock"
-                                                                    value="{Boolean}false"
+                                                                    checked="{Boolean}false"
+                                                                    value="{Boolean}true"
                                                                     uncheckedValue="{Boolean}false"/>
                                                             <lowStockTypeHint
                                                                     jcr:primaryType="nt:unstructured"
@@ -446,11 +545,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./excludeTypes"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./excludedTypes" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
@@ -488,11 +592,16 @@
                                                             <enableFilter
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                                    granite:class="cif-product-recs__enable-filter"
                                                                     name="./excludeVisibility"
                                                                     text="Enable Filter"
                                                                     checked="{Boolean}false"
                                                                     value="{Boolean}true"
-                                                                    uncheckedValue="{Boolean}false"/>
+                                                                    uncheckedValue="{Boolean}false">
+                                                                <granite:data
+                                                                        jcr:primaryType="nt:unstructured"
+                                                                        target="./excludedVisibility" />
+                                                            </enableFilter>
                                                             <enableFilterTypeHint
                                                                     jcr:primaryType="nt:unstructured"
                                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
