@@ -49,8 +49,7 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     protected List<ProductInterface> products;
 
     /**
-     * Identifier of the product that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
-     * specific and should be checked in subclass implementations.
+     * Product SKU identifiers of the product that should be fetched.
      */
     protected List<String> identifiers;
 
@@ -71,8 +70,7 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifiers of the products that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
+     * Set the identifiers of the products that should be fetched. Products are retrieved using the default identifier SKU.
      *
      * @param identifiers Product identifier
      */
@@ -123,7 +121,7 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     /**
      * Generate a complete product GraphQL query with a filter for the given product identifiers.
      *
-     * @param identifiers Product identifiers, usually SKU or slug
+     * @param identifiers product SKUs
      * @return GraphQL query as string
      */
     protected String generateQuery(List<String> identifiers) {

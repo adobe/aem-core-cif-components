@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 
@@ -26,7 +26,7 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentif
 public @interface UrlProviderConfiguration {
 
     String DEFAULT_PRODUCT_URL_TEMPLATE = "{{page}}.{{url_key}}.html#{{variant_sku}}";
-    String DEFAULT_CATEGORY_URL_TEMPLATE = "{{page}}.{{uid}}.html";
+    String DEFAULT_CATEGORY_URL_TEMPLATE = "{{page}}.{{url_path}}.html";
 
     @AttributeDefinition(
         name = "Product URL template",
@@ -56,13 +56,12 @@ public @interface UrlProviderConfiguration {
 
     @AttributeDefinition(
         name = "Category identifier location",
-        description = "Defines the location of the category identifier in the URL.",
+        description = "Defines the location of the category identifier (url_path) in the URL.",
         required = true)
     IdentifierLocation categoryIdentifierLocation() default IdentifierLocation.SELECTOR;
 
     @AttributeDefinition(
-        name = "Category identifier type",
-        description = "Defines the type of the category identifier in the URL.",
-        required = true)
-    CategoryIdentifierType categoryIdentifierType() default CategoryIdentifierType.UID;
+        name = "Query parameter name",
+        description = "Defines the name if the query parameter used for product & category page URLs.")
+    String identifierQueryParamater() default UrlProvider.DEFAULT_QUERY_PARAMETER;
 }

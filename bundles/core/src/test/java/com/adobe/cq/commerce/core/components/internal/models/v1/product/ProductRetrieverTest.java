@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
@@ -88,22 +87,12 @@ public class ProductRetrieverTest {
     }
 
     @Test
-    public void testSkuIdentifierType() {
-        retriever.setIdentifier(ProductIdentifierType.SKU, "my-sku");
+    public void testIdentifierType() {
+        retriever.setIdentifier("my-sku");
         retriever.fetchProduct();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
         String queryStartsWith = "{products(filter:{sku:{eq:\"my-sku\"}})";
-        Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
-    }
-
-    @Test
-    public void testUrlKeyIdentifierType() {
-        retriever.setIdentifier(ProductIdentifierType.URL_KEY, "my-slug");
-        retriever.fetchProduct();
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-        String queryStartsWith = "{products(filter:{url_key:{eq:\"my-slug\"}})";
         Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
     }
 }

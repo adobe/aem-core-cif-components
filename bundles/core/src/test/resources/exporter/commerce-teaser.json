@@ -11,7 +11,7 @@
     },
     {
       "title": "A category",
-      "url": "/content/category-page.uid-5.html",
+      "url": "/content/category-page.equipment.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
         "value":"uid-5",
@@ -20,7 +20,7 @@
     },
     {
       "title": "A category",
-      "url": "/content/category-page.uid-6.html",
+      "url": "/content/category-page.equipment_running.html",
       "entityIdentifier": {
         "entityType": "CATEGORY",
         "value":"uid-6",

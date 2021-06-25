@@ -75,7 +75,7 @@ public class FeaturedCategoryListImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
-    private static final String TEST_CATEGORY = "uid-5";
+    private static final String TEST_URL_PATH = "equipment";
     private static final String TEST_CATEGORY_NAME = "Equipment";
     private static final String TEST_ASSET_PATH = "/content/dam/venia/landing_page_image4.jpg";
     private static final String TEST_RENDITION_PATH = "/content/dam/venia/landing_page_image4.web.jpg";
@@ -177,7 +177,7 @@ public class FeaturedCategoryListImplTest {
         categories.stream().forEach(c -> Assert.assertNotNull(c));
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
-        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", CATEGORY_PAGE, TEST_CATEGORY));
+        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", CATEGORY_PAGE, TEST_URL_PATH));
     }
 
     @Test

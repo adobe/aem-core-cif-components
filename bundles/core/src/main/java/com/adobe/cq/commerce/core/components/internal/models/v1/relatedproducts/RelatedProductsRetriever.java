@@ -18,7 +18,6 @@ import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -47,23 +46,15 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
     }
 
     private RelationType relationtype;
-    private ProductIdentifierType productIdentifierType;
 
-    RelatedProductsRetriever(MagentoGraphqlClient client, RelationType relationType, ProductIdentifierType productIdentifierType) {
+    RelatedProductsRetriever(MagentoGraphqlClient client, RelationType relationType) {
         super(client);
         this.relationtype = relationType;
-        this.productIdentifierType = productIdentifierType;
     }
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        FilterEqualTypeInput input = new FilterEqualTypeInput().setEq(identifiers.get(0));
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
-        if (ProductIdentifierType.SKU.equals(productIdentifierType)) {
-            filter.setSku(input);
-        } else {
-            filter.setUrlKey(input);
-        }
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(new FilterEqualTypeInput().setEq(identifiers.get(0)));
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         ProductInterfaceQueryDefinition def;

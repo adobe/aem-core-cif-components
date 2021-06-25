@@ -36,9 +36,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
@@ -53,12 +56,16 @@ public class UrlProviderImpl implements UrlProvider {
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String ID_AND_URL_PATH_SEPARATOR = "|";
+    private static final String TEMPLATE_PREFIX = "{{";
+    private static final String TEMPLATE_SUFFIX = "}}";
 
     private String productUrlTemplate;
     private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
 
     private String categoryUrlTemplate;
-    private Pair<IdentifierLocation, CategoryIdentifierType> categoryIdentifierConfig;
+    private IdentifierLocation categoryIdentifierLocation;
+
+    private String queryParameterName;
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
@@ -66,7 +73,9 @@ public class UrlProviderImpl implements UrlProvider {
         productIdentifierConfig = Pair.of(conf.productIdentifierLocation(), conf.productIdentifierType());
 
         categoryUrlTemplate = conf.categoryUrlTemplate();
-        categoryIdentifierConfig = Pair.of(conf.categoryIdentifierLocation(), conf.categoryIdentifierType());
+        categoryIdentifierLocation = conf.categoryIdentifierLocation();
+
+        queryParameterName = conf.identifierQueryParamater();
     }
 
     @Override
@@ -75,8 +84,41 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
+    public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier, MagentoGraphqlClient graphqlClient) {
+        ParamsBuilder params = new ParamsBuilder();
+        if (graphqlClient != null && StringUtils.isNotBlank(productIdentifier)) {
+            params.sku(productIdentifier);
+            ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(graphqlClient);
+            retriever.setIdentifier(productIdentifier);
+            ProductInterface product = retriever.fetchProduct();
+            if (product != null) {
+                params.urlKey(product.getUrlKey());
+            } else {
+                LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
+            }
+        }
+        return toUrl(request, page, params.map(), productUrlTemplate);
+    }
+
+    @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
         return toUrl(request, page, params, categoryUrlTemplate);
+    }
+
+    @Override
+    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier, MagentoGraphqlClient graphqlClient) {
+        ParamsBuilder params = new ParamsBuilder().uid(categoryIdentifier);
+        if (graphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
+            CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(graphqlClient);
+            retriever.setIdentifier(categoryIdentifier);
+            CategoryInterface category = retriever.fetchCategory();
+            if (category != null) {
+                params.urlKey(category.getUrlKey()).urlPath(category.getUrlPath());
+            } else {
+                LOGGER.debug("Could not generate category page URL for {}.", categoryIdentifier);
+            }
+        }
+        return toUrl(request, page, params.map(), categoryUrlTemplate);
     }
 
     private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, String template) {
@@ -84,7 +126,7 @@ public class UrlProviderImpl implements UrlProvider {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             Set<String> selectorValues = new HashSet<>(params.values());
-            ;
+
             if (deepLink) {
                 Resource subPageResource = toSpecificPage(pageResource, selectorValues, request, params);
                 if (subPageResource != null) {
@@ -99,6 +141,7 @@ public class UrlProviderImpl implements UrlProvider {
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (!PAGE_PARAM.equals(entry.getKey()) && entry.getValue() != null) {
                 try {
+                    // TODO replaceAll removes all "/" but this should be only needed for url_path and only if used as selector string
                     entry.setValue(URLEncoder.encode(entry.getValue().replaceAll("\\/", "_"), StandardCharsets.UTF_8.name()));
                 } catch (UnsupportedEncodingException e) {
                     LOGGER.warn("Cannot URL-encode {}", entry.getValue());
@@ -106,17 +149,11 @@ public class UrlProviderImpl implements UrlProvider {
             }
         }
 
-        String prefix = "${", suffix = "}"; // variables have the format ${var}
-        if (template.contains("{{")) {
-            prefix = "{{";
-            suffix = "}}"; // variables have the format {{var}}
-        }
-
-        StringSubstitutor sub = new StringSubstitutor(params, prefix, suffix);
+        StringSubstitutor sub = new StringSubstitutor(params, TEMPLATE_PREFIX, TEMPLATE_SUFFIX);
         String url = sub.replace(template);
-        url = StringUtils.substringBeforeLast(url, "#" + prefix); // remove anchor if it hasn't been substituted
+        url = StringUtils.substringBeforeLast(url, "#" + TEMPLATE_PREFIX); // remove anchor if it hasn't been substituted
 
-        if (url.contains(prefix)) {
+        if (url.contains(TEMPLATE_PREFIX)) {
             LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
         }
 
@@ -239,13 +276,54 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public Pair<ProductIdentifierType, String> getProductIdentifier(SlingHttpServletRequest request) {
-        return Pair.of(productIdentifierConfig.getRight(), parseIdentifier(productIdentifierConfig.getLeft(), request));
+    public String getProductIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient) {
+        // get product identifier (url_key) from URL
+        String urlProductIdentifier = parseIdentifier(productIdentifierConfig.getKey(), request);
+        if (StringUtils.isBlank(urlProductIdentifier)) {
+            LOGGER.warn("Could not extract product identifier from URL {}.", request.getRequestURL().toString());
+            return null;
+        }
+
+        // if product URLs are configured to use SKU we can return it directly
+        if (productIdentifierConfig.getRight().equals(ProductIdentifierType.SKU)) {
+            return urlProductIdentifier;
+        }
+
+        // lookup internal product identifier (sku) based on URL product identifier (url_key)
+        if (graphqlClient != null) {
+            UrlToProductRetriever productRetriever = new UrlToProductRetriever(graphqlClient);
+            productRetriever.setIdentifier(urlProductIdentifier);
+            ProductInterface product = productRetriever.fetchProduct();
+            return product != null ? product.getSku() : null;
+        } else {
+            LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
+                .toString());
+        }
+
+        return null;
     }
 
     @Override
-    public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request) {
-        return Pair.of(categoryIdentifierConfig.getRight(), parseIdentifier(categoryIdentifierConfig.getLeft(), request));
+    public String getCategoryIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient) {
+        // get category identifier (url_path) from URL
+        String urlCategoryIdentifier = parseIdentifier(categoryIdentifierLocation, request);
+        if (StringUtils.isBlank(urlCategoryIdentifier)) {
+            LOGGER.warn("Could not extract category identifier from URL {}.", request.getRequestURL().toString());
+            return null;
+        }
+
+        // lookup internal category identifier (uid) based on URL category identifier (url_path)
+        if (graphqlClient != null) {
+            UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(graphqlClient);
+            categoryRetriever.setIdentifier(urlCategoryIdentifier);
+            CategoryInterface category = categoryRetriever.fetchCategory();
+            return category != null ? category.getUid().toString() : null;
+        } else {
+            LOGGER.warn("No backend GraphQL client provided, cannot retrieve category identifier for {}", request.getRequestURL()
+                .toString());
+        }
+
+        return null;
     }
 
     /**
@@ -260,6 +338,8 @@ public class UrlProviderImpl implements UrlProvider {
             return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
             return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+        } else if (IdentifierLocation.QUERY_PARAM.equals(identifierLocation)) {
+            return request.getRequestParameter(queryParameterName).getString();
         } else {
             throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
         }

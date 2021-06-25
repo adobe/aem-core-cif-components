@@ -156,7 +156,7 @@ public class PageMetadataImplTest {
         assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         // Verify that GraphQL client is only called once, so Sling model caching works as expected
-        verify(graphqlClient).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right product resource is used when PageMetadataImpl adapts the request to the Product component
@@ -183,7 +183,24 @@ public class PageMetadataImplTest {
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
+        // graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
+
+        HttpClient httpClient = Mockito.mock(HttpClient.class);
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
+            HttpStatus.SC_OK,
+            "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("beaumont-summit-kit");
@@ -207,9 +224,9 @@ public class PageMetadataImplTest {
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
         assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
-        // Verify that GraphQL client is only called 4 times, so Sling model caching works as expected
-        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 4 queries
-        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
+        // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
+        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 5 queries
+        verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right productlist resource is used when PageMetadataImpl adapts the request to the ProductList component
@@ -253,13 +270,16 @@ public class PageMetadataImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList");
+            "{categoryList(filters:{category_uid");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK,
+            "{products");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("MTI==");
-        context.request().setServletPath(pagePath + ".MTI==.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        context.request().setServletPath(pagePath + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -267,7 +287,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some category meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some category meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".MTI==.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
