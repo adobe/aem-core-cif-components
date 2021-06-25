@@ -33,7 +33,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListPageWithSampleData() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.uid-1.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.outdoor.html";
         SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
@@ -98,7 +98,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListBreadcrumbWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.1.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.outdoor.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce > Outdoor > Collection
