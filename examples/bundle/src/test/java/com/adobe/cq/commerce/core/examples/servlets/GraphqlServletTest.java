@@ -317,7 +317,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid-1");
+        requestPathInfo.setSelectorString("outdoor");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
@@ -330,7 +330,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid-1");
+        requestPathInfo.setSelectorString("outdoor");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
