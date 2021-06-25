@@ -64,12 +64,13 @@ public class CategoryRetrieverTest {
     public void testExtendCategoryQuery() {
         retriever.extendCategoryQueryWith(c -> c.childrenCount()
             .addCustomSimpleField("level"));
+        retriever.extendCategoryQueryWith(c -> c.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level}}"));
+        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level,staged}}"));
     }
 
 }

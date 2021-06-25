@@ -65,24 +65,26 @@ public class ProductRetrieverTest {
     public void testExtendedProductQuery() {
         retriever.extendProductQueryWith(p -> p.createdAt()
             .addCustomSimpleField("is_returnable"));
+        retriever.extendProductQueryWith(p -> p.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable}}}"));
+        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable,staged}}}"));
     }
 
     @Test
     public void testExtendedVariantQuery() {
         retriever.extendVariantQueryWith(p -> p.weight()
             .addCustomSimpleField("volume"));
+        retriever.extendVariantQueryWith(p -> p.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume}}},... on GroupedProduct"));
+        Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume,staged}}},... on GroupedProduct"));
     }
 
     @Test

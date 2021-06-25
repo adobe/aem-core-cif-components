@@ -17,3 +17,52 @@ import mse from '@adobe/magento-storefront-events-sdk';
 
 // Expose Magento Storefront Events SDK on the global window object
 window.magentoStorefrontEvents = mse;
+
+const processProductStorefrontData = () => {
+    const productCtxElement = document.querySelector('[data-cif-product-context]');
+    if (productCtxElement) {
+        try {
+            const productCtx = JSON.parse(productCtxElement.dataset.cifProductContext);
+            mse.context.setProduct(productCtx);
+            mse.publish.productPageView();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
+const processSearchInputStorefrontData = () => {
+    const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
+    if (searchInputCtxElement) {
+        try {
+            const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
+            mse.context.setSearchInput({ units: [searchInputCtx] });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
+const processCategoryStorefrontData = () => {
+    const categoryCtxElement = document.querySelector('[data-cif-category-context]');
+    if (categoryCtxElement) {
+        try {
+            const categoryCtx = JSON.parse(categoryCtxElement.dataset.cifCategoryContext);
+            mse.context.setCategory(categoryCtx);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};
+
+const onDocumentReady = () => {
+    processProductStorefrontData();
+    processSearchInputStorefrontData();
+    processCategoryStorefrontData();
+};
+
+if (document.readyState !== 'loading') {
+    onDocumentReady();
+} else {
+    document.addEventListener('DOMContentLoaded', onDocumentReady);
+}

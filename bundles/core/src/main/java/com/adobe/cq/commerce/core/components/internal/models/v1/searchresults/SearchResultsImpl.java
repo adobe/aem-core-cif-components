@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.storefrontcontext.SearchStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
+import com.adobe.cq.commerce.core.components.storefrontcontext.SearchStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
@@ -93,5 +95,10 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
             searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
         }
         return searchResultsSet;
+    }
+
+    @Override
+    public SearchStorefrontContext getStorefrontContext() {
+        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions());
     }
 }

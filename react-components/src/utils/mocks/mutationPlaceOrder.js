@@ -17,13 +17,15 @@ export default {
     request: {
         query: MUTATION_PLACE_ORDER,
         variables: {
-            cartId: ''
+            cartId: 'guest123'
         }
     },
     result: {
         data: {
-            order: {
-                order_id: 'orderid'
+            placeOrder: {
+                order: {
+                    order_id: '000000005'
+                }
             }
         }
     }

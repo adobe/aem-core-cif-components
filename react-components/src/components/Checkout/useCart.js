@@ -14,7 +14,7 @@
 import { useMutation } from '@apollo/client';
 
 import { useAddressForm } from '../AddressForm/useAddressForm';
-import { useAwaitQuery } from '../../utils/hooks';
+import { useAwaitQuery, useStorefrontEvents } from '../../utils/hooks';
 import { useCartState } from '../Minicart/cartContext';
 import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
@@ -31,6 +31,7 @@ export default () => {
     const [{ currentUser, isSignedIn }] = useUserContext();
     const [setShippingAddressesOnCart] = useMutation(MUTATION_SET_SHIPPING_ADDRESS);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
+    const mse = useStorefrontEvents();
 
     const beginCheckout = async () => {
         cartDispatch({ type: 'beginLoading' });
@@ -52,6 +53,8 @@ export default () => {
             await setShippingAddressesOnCart(addressVariables);
             await getCartDetails({ cartDetailsQuery, dispatch: cartDispatch, cartId });
         }
+
+        mse && mse.publish.initiateCheckout();
 
         cartDispatch({ type: 'endLoading' });
         dispatch({ type: 'beginCheckout' });
