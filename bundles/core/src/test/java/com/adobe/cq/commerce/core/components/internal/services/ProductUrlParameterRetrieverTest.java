@@ -11,9 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
-
-import java.util.Collections;
+package com.adobe.cq.commerce.core.components.internal.services;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -31,9 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CategoryRetrieverTest {
+public class ProductUrlParameterRetrieverTest {
 
-    private CategoryRetriever retriever;
+    private ProductUrlParameterRetriever retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
@@ -41,35 +40,24 @@ public class CategoryRetrieverTest {
         mockClient = mock(MagentoGraphqlClient.class);
         GraphqlResponse mockResponse = mock(GraphqlResponse.class);
         Query mockQuery = mock(Query.class, RETURNS_DEEP_STUBS);
+        ProductInterface mockProduct = mock(ProductInterface.class);
 
         when(mockClient.execute(any())).thenReturn(mockResponse);
         when(mockResponse.getData()).thenReturn(mockQuery);
-        when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
+        when(mockQuery.get(any())).thenReturn(mockProduct);
 
-        retriever = new CategoryRetriever(mockClient);
-        retriever.setIdentifier("Mg==");
+        retriever = new ProductUrlParameterRetriever(mockClient);
     }
 
     @Test
-    public void testQueryOverride() {
-        String sampleQuery = "{ my_sample_query }";
-        retriever.setQuery(sampleQuery);
-        retriever.fetchCategory();
-
-        verify(mockClient, times(1)).execute(sampleQuery);
-    }
-
-    @Test
-    public void testExtendCategoryQuery() {
-        retriever.extendCategoryQueryWith(c -> c.childrenCount()
-            .addCustomSimpleField("level"));
-        retriever.extendCategoryQueryWith(c -> c.staged()); // use extend method twice to test the "merge" feature
-        retriever.fetchCategory();
+    public void testProductUrlParamaterQuery() {
+        retriever.setIdentifier("SKU-1");
+        retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level,staged}}"));
+        String expectedQuery = "{products(filter:{sku:{eq:\"SKU-1\"}}){items{__typename,url_key}}}";
+        Assert.assertTrue(captor.getValue().equals(expectedQuery));
     }
-
 }

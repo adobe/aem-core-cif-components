@@ -141,13 +141,13 @@ public class CommerceTeaserImplTest {
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
-        Assert.assertEquals(CATEGORY_PAGE + ".uid-5.html", actionItems.get(1).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".equipment.html", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("The action points to the right category id", "uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".uid-6.html", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".equipment_running.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("The action points to the right category id", "uid-6", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());

@@ -38,8 +38,6 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -101,7 +99,10 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     private void setup(String pagePath, String resourcePath) throws IOException {
-        setupUrlProvider(ProductIdentifierType.URL_KEY);
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        urlProvider.activate(config);
+        context.registerService(UrlProvider.class, urlProvider);
 
         Page page = Mockito.spy(context.currentPage(pagePath));
         Resource xfResource = context.resourceResolver().getResource(pagePath + resourcePath);
@@ -122,14 +123,12 @@ public class CommerceExperienceFragmentImplTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse("graphql/magento-graphql-xf1-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "1\"}}){uid}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,
-            "1\"}}){items{__typename,sku}}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-xf2-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "2\"}}){uid}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-xf2-product.json", httpClient, HttpStatus.SC_OK,
-            "2\"}}){items{__typename,sku}}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf1-category.json", httpClient, HttpStatus.SC_OK, "1\"}}){uid}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK, "1\"}}){items{__typename,sku}}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf2-category.json", httpClient, HttpStatus.SC_OK, "2\"}}){uid}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf2-product.json", httpClient, HttpStatus.SC_OK, "2\"}}){items{__typename,sku}}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf3-category.json", httpClient, HttpStatus.SC_OK, "3\"}}){uid}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-xf3-product.json", httpClient, HttpStatus.SC_OK, "3\"}}){items{__typename,sku}}}");
 
         ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
             "my-store", "enableUIDSupport", "true"));
@@ -141,19 +140,6 @@ public class CommerceExperienceFragmentImplTest {
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
-    }
-
-    private void setupUrlProvider(ProductIdentifierType productIdentifierType) {
-        setupUrlProvider(productIdentifierType, CategoryIdentifierType.UID);
-    }
-
-    private void setupUrlProvider(ProductIdentifierType productIdentifierType, CategoryIdentifierType categoryIdentifierType) {
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setProductIdentifierType(productIdentifierType);
-        config.setCategoryIdentifierType(categoryIdentifierType);
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
     }
 
     private String buildQuery(String xfRoot, String productSku, String categoryId, String fragmentLocation) {
@@ -171,22 +157,19 @@ public class CommerceExperienceFragmentImplTest {
     public void testFragmentOnProductPageWithoutLocationProperty() throws IOException {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
-        setupUrlProvider(ProductIdentifierType.SKU);
-
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("sku-xf1");
+        requestPathInfo.setSelectorString("url-key-xf1");
 
         verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1-uid",
             "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test
-    public void testFragmentOnProductPageWithLocationPropertyAndSkuInRequest() throws IOException {
+    public void testFragmentOnProductPageWithLocationProperty() throws IOException {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
-        setupUrlProvider(ProductIdentifierType.SKU);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("sku-xf2");
+        requestPathInfo.setSelectorString("url-key-xf2");
 
         verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
@@ -195,7 +178,6 @@ public class CommerceExperienceFragmentImplTest {
     @Test
     public void testFragmentOnProductPageWithInvalidLanguageManager() throws IOException {
         Mockito.reset(languageManager);
-
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -207,7 +189,6 @@ public class CommerceExperienceFragmentImplTest {
     @Test
     public void testFragmentOnProductPageWithoutMatchingSkus() throws IOException {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
-        setupUrlProvider(ProductIdentifierType.SKU);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf3");
@@ -227,7 +208,6 @@ public class CommerceExperienceFragmentImplTest {
     @Test
     public void testFragmentOnNonProductOrCategoryPage() throws IOException {
         setup(ANOTHER_PAGE, RESOURCE_XF1);
-        setupUrlProvider(ProductIdentifierType.SKU);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf1");
@@ -277,7 +257,6 @@ public class CommerceExperienceFragmentImplTest {
     @Test
     public void testUIDSupportWithURLPathSelector() throws IOException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
-        setupUrlProvider(ProductIdentifierType.SKU, CategoryIdentifierType.URL_PATH);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("url_path2");

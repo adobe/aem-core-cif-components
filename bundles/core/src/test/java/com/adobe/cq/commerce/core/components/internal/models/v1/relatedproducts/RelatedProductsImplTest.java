@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -28,6 +30,7 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,9 +48,13 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.wcm.core.components.models.Title;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -110,6 +117,29 @@ public class RelatedProductsImplTest {
     private Resource relatedProductsResource;
     private RelatedProductsImpl relatedProducts;
     private List<ProductInterface> products;
+    private HttpClient httpClient;
+    private GraphqlClient graphqlClient;
+
+    @Before
+    public void setUp() throws Exception {
+        httpClient = mock(HttpClient.class);
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
+
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
+    }
 
     private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector) throws Exception {
         Page page = context.currentPage(PAGE);
@@ -117,34 +147,26 @@ public class RelatedProductsImplTest {
         context.currentResource(resourcePath);
         relatedProductsResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
-        if (addSlugInSelector) {
-            MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-            requestPathInfo.setSelectorString("endurance-watch");
-        }
-
-        GraphqlClient graphqlClient = null;
-        if (jsonResponsePath != null) {
-            Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
-            ProductInterface product = rootQuery.getProducts().getItems().get(0);
-            products = PRODUCTS_GETTER.get(relationType).apply(product);
-            graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
-            GraphqlClient finalGraphqlClient = graphqlClient;
-            context.registerAdapter(Resource.class, GraphqlClient.class,
-                (Function<Resource, GraphqlClient>) input -> input.getValueMap().get("cq:graphqlClient", String.class) != null
-                    ? finalGraphqlClient
-                    : null);
-        }
-
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(relatedProductsResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, relatedProductsResource.getValueMap());
 
-        Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
-        when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
+        if (addSlugInSelector) {
+            MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+            requestPathInfo.setSelectorString("endurance-watch");
+        }
+
+        if (jsonResponsePath != null) {
+            Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
+            ProductInterface product = rootQuery.getProducts().getItems().get(0);
+            products = PRODUCTS_GETTER.get(relationType).apply(product);
+
+            Utils.setupHttpResponse(jsonResponsePath, httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
+            context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap()
+                .get("cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        }
 
         relatedProducts = context.request().adaptTo(RelatedProductsImpl.class);
     }

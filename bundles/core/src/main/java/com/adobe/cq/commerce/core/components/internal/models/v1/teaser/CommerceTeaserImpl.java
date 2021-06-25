@@ -127,7 +127,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     if (categoriesRetriever != null) {
                         try {
                             Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getUid().equals(categoryId)).findAny();
+                                .filter(c -> c.getUid().toString().equals(categoryId)).findAny();
                             cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
                         } catch (RuntimeException x) {
                             LOGGER.warn("Failed to fetch category for id: {}", categoryId);

@@ -102,7 +102,7 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForCategory() {
-        final String expResult = "/content/category-page.uid-5.html";
+        final String expResult = "/content/category-page.equipment.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeCategory");
         button = context.request().adaptTo(Button.class);
 
