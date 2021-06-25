@@ -33,3 +33,4 @@ export { AccountLink } from './components/MyAccount';
 export { default as MyAccount } from './components/MyAccount';
 export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';
+export { useAwaitQuery, useStorefrontEvents } from './utils/hooks';

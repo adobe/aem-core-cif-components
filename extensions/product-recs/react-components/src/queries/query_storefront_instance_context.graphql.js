@@ -31,5 +31,8 @@ export default gql`
             website_id
             website_name
         }
+        storeConfig {
+            base_currency_code
+        }
     }
 `;
