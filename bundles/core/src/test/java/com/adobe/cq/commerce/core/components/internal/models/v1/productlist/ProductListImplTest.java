@@ -48,9 +48,11 @@ import com.adobe.cq.commerce.core.components.client.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -126,7 +128,7 @@ public class ProductListImplTest {
 
     private Resource productListResource;
     private Resource pageResource;
-    private ProductListImpl productListModel;
+    protected ProductListImpl productListModel;
     private CategoryTree category;
     private Products products;
     private GraphqlClient graphqlClient;
@@ -196,9 +198,13 @@ public class ProductListImplTest {
         // and we want to override the "slug" in testEditModePlaceholderData()
     }
 
+    protected void adaptToProductList() {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+    }
+
     @Test
     public void testTitleAndMetadata() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
@@ -208,6 +214,20 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testStagedData() {
+        testStagedDataImpl(false);
+    }
+
+    protected void testStagedDataImpl(boolean hasStagedData) {
+        adaptToProductList();
+        Assert.assertEquals(hasStagedData, productListModel.isStaged());
+        Collection<ProductListItem> products = productListModel.getProducts();
+
+        // We cannot differentiate if the items are created from a productlist v1 and v2
+        // and do not want to introduce a new mock JSON response for this, so this is always "true"
+        Assert.assertTrue(products.stream().allMatch(p -> p.isStaged().equals(true)));
+    }
+
     public void testUidIdentifier() {
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
         config.setCategoryIdentifierType(CategoryIdentifierType.UID);
@@ -255,13 +275,13 @@ public class ProductListImplTest {
 
     @Test
     public void getImage() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         Assert.assertEquals(category.getImage(), productListModel.getImage());
     }
 
     @Test
     public void getImageWhenMissingInResponse() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         ProductListImpl spyProductListModel = Mockito.spy(productListModel);
 
         CategoryTree category = mock(CategoryTree.class);
@@ -274,7 +294,7 @@ public class ProductListImplTest {
 
     @Test
     public void getProducts() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         Collection<ProductListItem> products = productListModel.getProducts();
         Assert.assertNotNull(products);
 
@@ -339,7 +359,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList");
 
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         Collection<ProductListItem> productList = productListModel.getProducts();
         Assert.assertEquals("Return the correct number of products", 4, productList.size());
 
@@ -351,7 +371,7 @@ public class ProductListImplTest {
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
 
         String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
@@ -371,7 +391,7 @@ public class ProductListImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString(null);
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
 
         // Check that we get an empty list of products and the GraphQL client is never called
         Assert.assertTrue(productListModel.getProducts().isEmpty());
@@ -388,7 +408,7 @@ public class ProductListImplTest {
         slingBindings.setResource(context.resourceResolver().getResource("/content/pageB"));
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.pageManager().getPage("/content/pageB"));
 
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
 
         Assert.assertTrue(productListModel.getTitle().isEmpty());
         Assert.assertTrue(productListModel.getImage().isEmpty());
@@ -401,8 +421,12 @@ public class ProductListImplTest {
 
     @Test
     public void testExtendProductQuery() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-        productListModel.getCategoryRetriever().extendProductQueryWith(p -> p.createdAt().stockStatus());
+        adaptToProductList();
+
+        AbstractCategoryRetriever retriever = productListModel.getCategoryRetriever();
+        retriever.extendProductQueryWith(p -> p.createdAt().stockStatus());
+        retriever.extendProductQueryWith(p -> p.staged()); // use extend method twice to test the "merge" feature
+
         productListModel.getProducts();
 
         ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
@@ -417,12 +441,12 @@ public class ProductListImplTest {
                 break;
             }
         }
-        Assert.assertTrue(productsQuery.contains("created_at,stock_status"));
+        Assert.assertTrue(productsQuery.contains("created_at,stock_status,staged"));
     }
 
     @Test
     public void testSorting() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         SearchResultsSet resultSet = productListModel.getSearchResultsSet();
         Assert.assertNotNull(resultSet);
         Assert.assertTrue(resultSet.hasSorting());
@@ -438,7 +462,6 @@ public class ProductListImplTest {
 
         Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
         Assert.assertNotNull(currentOrderParameters);
-        Map<String, String> appliedQueryParameters = resultSet.getAppliedQueryParameters();
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
         resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
         Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
@@ -486,7 +509,7 @@ public class ProductListImplTest {
 
     @Test
     public void testClientLoadingIsDisabledOnLaunchPage() {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         Assert.assertTrue(productListModel.loadClientPrice());
         Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
         Whitebox.setInternalState(productListModel, "currentPage", launch);
@@ -495,7 +518,7 @@ public class ProductListImplTest {
 
     @Test
     public void testJsonRender() throws IOException {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
         ObjectMapper mapper = new ObjectMapper();
 
         String expected = Utils.getResource("results/result-datalayer-productlist-component.json");
@@ -508,5 +531,16 @@ public class ProductListImplTest {
             .map(i -> i.getData().getJson())
             .collect(Collectors.joining(",", "[", "]"));
         Assert.assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
+    }
+
+    @Test
+    public void testStorefrontContextRender() throws IOException {
+        productListModel = context.request().adaptTo(ProductListImpl.class);
+        ObjectMapper mapper = new ObjectMapper();
+
+        String expected = Utils.getResource("storefront-context/result-storefront-context-productlist-component.json");
+        CategoryStorefrontContext storefrontContext = productListModel.getStorefrontContext();
+
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(storefrontContext.getJson()));
     }
 }

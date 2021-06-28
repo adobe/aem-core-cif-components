@@ -35,4 +35,9 @@ public interface StoreConfigExporter {
      * @return The URL of the storefront homepage
      */
     String getStoreRootUrl();
+
+    /**
+     * @return the list of custom HTTP headers configured in addition to the standard ones. This list is in JSON format.
+     */
+    String getHttpHeaders();
 }

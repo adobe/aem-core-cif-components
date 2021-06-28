@@ -40,6 +40,8 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -72,14 +74,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
 
-    private AbstractCategoryRetriever categoryRetriever;
+    protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
@@ -240,5 +242,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public String getCanonicalUrl() {
         return canonicalUrl;
+    }
+
+    @Override
+    public CategoryStorefrontContext getStorefrontContext() {
+        return new CategoryStorefrontContextImpl(getCategory());
     }
 }

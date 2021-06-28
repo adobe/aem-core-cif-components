@@ -5,6 +5,7 @@
         {
           "__typename": "ConfigurableProduct",
           "sku": "MH01",
+          "staged": false,
           "name": "Chaz Kangeroo Hoodie",
           "description": {
             "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -143,6 +144,7 @@
               ],
               "product": {
                 "sku": "MH01-XS-Black",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XS-Black",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -206,6 +208,7 @@
               ],
               "product": {
                 "sku": "MH01-XS-Gray",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XS-Gray",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -283,6 +286,7 @@
               ],
               "product": {
                 "sku": "MH01-XS-Orange",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XS-Orange",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -346,6 +350,7 @@
               ],
               "product": {
                 "sku": "MH01-S-Black",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-S-Black",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -409,6 +414,7 @@
               ],
               "product": {
                 "sku": "MH01-S-Gray",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-S-Gray",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -486,6 +492,7 @@
               ],
               "product": {
                 "sku": "MH01-S-Orange",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-S-Orange",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -549,6 +556,7 @@
               ],
               "product": {
                 "sku": "MH01-M-Black",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-M-Black",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -612,6 +620,7 @@
               ],
               "product": {
                 "sku": "MH01-M-Gray",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-M-Gray",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -689,6 +698,7 @@
               ],
               "product": {
                 "sku": "MH01-M-Orange",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-M-Orange",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -752,6 +762,7 @@
               ],
               "product": {
                 "sku": "MH01-L-Black",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-L-Black",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -815,6 +826,7 @@
               ],
               "product": {
                 "sku": "MH01-L-Gray",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-L-Gray",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -892,6 +904,7 @@
               ],
               "product": {
                 "sku": "MH01-L-Orange",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-L-Orange",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -955,6 +968,7 @@
               ],
               "product": {
                 "sku": "MH01-XL-Black",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XL-Black",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -1018,6 +1032,7 @@
               ],
               "product": {
                 "sku": "MH01-XL-Gray",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XL-Gray",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
@@ -1095,6 +1110,7 @@
               ],
               "product": {
                 "sku": "MH01-XL-Orange",
+                "staged": false,
                 "name": "Chaz Kangeroo Hoodie-XL-Orange",
                 "description": {
                   "html": "<p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>\n<p>&bull; Two-tone gray heather hoodie.<br />&bull; Drawstring-adjustable hood. <br />&bull; Machine wash/dry.</p>"
