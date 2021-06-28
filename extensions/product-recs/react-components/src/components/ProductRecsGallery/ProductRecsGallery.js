@@ -14,31 +14,17 @@
 import React, { useEffect, useState } from 'react';
 
 import classes from './ProductRecsGallery.css';
-import { useStorefrontInstanceContext } from '../../hooks/useStorefrontInstanceContext';
-import { useStorefrontEvents } from '@adobe/aem-core-cif-react-components/src/utils/hooks';
+import { useStorefrontEvents } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
+
+// TODO: Add npm link to components react components
+// TODO: Update version updating for releases
 
 const ProductRecsGallery = () => {
-    useStorefrontInstanceContext();
+    const storefrontInstance = useStorefrontInstanceContext();
     const mse = useStorefrontEvents();
-    const [storefrontContext, setStorefrontContext] = useState(null);
 
-    const handleStorefrontInstanceContextChange = () => {
-        const context = mse.context.getStorefrontInstance();
-        if (context) {
-            setStorefrontContext(context);
-        }
-    };
-
-    useEffect(() => {
-        // Observe mse for storefront context changes which will be pushed by useStorefrontInstanceContext hook.
-        mse &&
-            mse.subscribe.dataLayerChange(handleStorefrontInstanceContextChange, { path: 'storefrontInstanceContext' });
-        return () => {
-            mse && mse.unsubscribe.dataLayerChange(handleStorefrontInstanceContextChange);
-        };
-    }, []);
-
-    if (!storefrontContext) {
+    if (!storefrontInstance) {
         return <div>Loading...</div>;
     }
 

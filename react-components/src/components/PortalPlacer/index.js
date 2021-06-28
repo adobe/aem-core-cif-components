@@ -11,6 +11,4 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
-export { default as ProductRecsGallery } from './components/ProductRecsGallery';
-export { StorefrontInstanceContextProvider, useStorefrontInstanceContext } from './context/StorefrontInstanceContext';
+export { default } from './PortalPlacer';

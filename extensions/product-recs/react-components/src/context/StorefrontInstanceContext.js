@@ -11,21 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import { useEffect } from 'react';
-import { useAwaitQuery, useStorefrontEvents } from '@adobe/aem-core-cif-react-components/src/utils/hooks';
+import React, { useContext, useState, useEffect } from 'react';
+
+import { useAwaitQuery, useStorefrontEvents } from '@adobe/aem-core-cif-react-components';
 
 import QUERY_STOREFRONT_INSTANCE_CONTEXT from '../queries/query_storefront_instance_context.graphql';
 
 const STORAGE_KEY = 'CIF_STOREFRONT_INSTANCE_CONTEXT';
 
-export const useStorefrontInstanceContext = () => {
+export const StorefrontInstanceContext = React.createContext();
+
+export const StorefrontInstanceContextProvider = props => {
     const getStorefrontInstanceContext = useAwaitQuery(QUERY_STOREFRONT_INSTANCE_CONTEXT);
     const mse = useStorefrontEvents();
+    const [storefrontContext, setStorefrontContext] = useState(null);
 
     useEffect(() => {
         (async () => {
-            let error = null;
-
             // Try to read storefront context from session storage
             let data = sessionStorage.getItem(STORAGE_KEY);
             if (data !== null) {
@@ -41,11 +43,13 @@ export const useStorefrontInstanceContext = () => {
             // Get storefront context from GraphQL if not available in session storage
             if (data === null) {
                 const storefrontInstanceContext = await getStorefrontInstanceContext();
-                data = storefrontInstanceContext.data;
-                error = storefrontInstanceContext.error;
-                if (!error) {
-                    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                if (storefrontInstanceContext.error) {
+                    console.error('Could not fetch storefront instance context', storefrontInstanceContext.error);
+                    return;
                 }
+
+                data = storefrontInstanceContext.data;
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             }
 
             const {
@@ -65,25 +69,35 @@ export const useStorefrontInstanceContext = () => {
             } = data.dataServicesStorefrontInstanceContext;
             const { base_currency_code } = data.storeConfig;
 
+            const context = {
+                environmentId: environment_id,
+                environment,
+                storeUrl: store_url,
+                websiteId: website_id,
+                websiteCode: website_code,
+                storeId: store_id,
+                storeCode: store_code,
+                storeViewId: store_view_id,
+                storeViewCode: store_view_code,
+                websiteName: website_name,
+                storeName: store_name,
+                storeViewName: store_view_name,
+                baseCurrencyCode: base_currency_code,
+                storeViewCurrencyCode: base_currency_code,
+                catalogExtensionVersion: catalog_extension_version
+            };
+
             // Store storefront context in mse
-            mse &&
-                mse.context.setStorefrontInstance({
-                    environmentId: environment_id,
-                    environment,
-                    storeUrl: store_url,
-                    websiteId: website_id,
-                    websiteCode: website_code,
-                    storeId: store_id,
-                    storeCode: store_code,
-                    storeViewId: store_view_id,
-                    storeViewCode: store_view_code,
-                    websiteName: website_name,
-                    storeName: store_name,
-                    storeViewName: store_view_name,
-                    baseCurrencyCode: base_currency_code,
-                    storeViewCurrencyCode: base_currency_code,
-                    catalogExtensionVersion: catalog_extension_version
-                });
+            mse && mse.context.setStorefrontInstance(context);
+            setStorefrontContext(context);
         })();
     }, []);
+
+    return (
+        <StorefrontInstanceContext.Provider value={storefrontContext}>
+            {props.children}
+        </StorefrontInstanceContext.Provider>
+    );
 };
+
+export const useStorefrontInstanceContext = () => useContext(StorefrontInstanceContext);

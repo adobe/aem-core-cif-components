@@ -12,5 +12,28 @@
  *
  ******************************************************************************/
 
-export { default as ProductRecsGallery } from './components/ProductRecsGallery';
-export { StorefrontInstanceContextProvider, useStorefrontInstanceContext } from './context/StorefrontInstanceContext';
+import React from 'react';
+import PropTypes from 'prop-types';
+import Portal from '../Portal/Portal';
+
+const PortalPlacer = props => {
+    const { selector, component: Cmp } = props;
+    const elems = document.querySelectorAll(selector);
+
+    const children = [...elems].map((elem, index) => {
+        return (
+            <Portal key={index} selector={elem}>
+                <Cmp {...elem.dataset} />
+            </Portal>
+        );
+    });
+
+    return <>{children}</>;
+};
+
+PortalPlacer.propTypes = {
+    selector: PropTypes.string.isRequired,
+    component: PropTypes.func.isRequired
+};
+
+export default PortalPlacer;
