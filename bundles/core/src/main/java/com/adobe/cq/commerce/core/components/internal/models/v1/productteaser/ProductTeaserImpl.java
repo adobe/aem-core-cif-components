@@ -185,15 +185,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     @JsonIgnore
-    public String getFormattedPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFormattedFinalPrice();
-        }
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
     public String getUrl() {
         if (getProduct() != null) {
             Map<String, String> params = new ParamsBuilder()

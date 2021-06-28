@@ -119,27 +119,6 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         return name;
     }
 
-    @Nullable
-    @Override
-    @JsonIgnore
-    public Double getPrice() {
-        return price != null ? price.getFinalPrice() : 0;
-    }
-
-    @Nullable
-    @Override
-    @JsonIgnore
-    public String getCurrency() {
-        return price != null ? price.getCurrency() : "";
-    }
-
-    @Nullable
-    @Override
-    @JsonIgnore
-    public String getFormattedPrice() {
-        return price != null ? price.getFormattedFinalPrice() : "";
-    }
-
     @Override
     @JsonIgnore
     public Price getPriceRange() {
@@ -182,12 +161,12 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
 
     @Override
     public Double getDataLayerPrice() {
-        return this.getPrice();
+        return this.getPriceRange().getFinalPrice();
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return this.getCurrency();
+        return this.getPriceRange().getCurrency();
     }
 
     @Override

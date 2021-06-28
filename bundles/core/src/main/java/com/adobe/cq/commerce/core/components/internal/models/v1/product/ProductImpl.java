@@ -193,16 +193,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
-    public String getCurrency() {
-        return getPriceRange().getCurrency();
-    }
-
-    @Override
-    public Double getPrice() {
-        return getPriceRange().getFinalPrice();
-    }
-
-    @Override
     public Price getPriceRange() {
         return new PriceImpl(productRetriever.fetchProduct().getPriceRange(), locale);
     }
@@ -317,11 +307,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean loadClientPrice() {
         return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
-    }
-
-    @Override
-    public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
     }
 
     @Override
@@ -461,12 +446,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Double getDataLayerPrice() {
-        return this.getPrice();
+        return this.getPriceRange().getFinalPrice();
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return this.getCurrency();
+        return this.getPriceRange().getCurrency();
     }
 
     @Override

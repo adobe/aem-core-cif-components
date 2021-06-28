@@ -132,8 +132,7 @@ public class ProductCarouselImplTest {
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
 
-        List<String> productSkuList = Arrays.asList(productSkuArray)
-            .stream()
+        List<String> productSkuList = Arrays.stream(productSkuArray)
             .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
             .collect(Collectors.toList());
 
@@ -157,16 +156,13 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(productOrVariant.getName(), item.getTitle());
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
-
-            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-            SiteNavigation siteNavigation = new SiteNavigation(context.request());
-            Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), skus.getRight()), item.getURL());
+            Assert.assertEquals(toProductUrl(product, skus.getRight()), item.getURL());
 
             Money amount = productOrVariant.getPriceRange().getMinimumPrice().getFinalPrice();
-            Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
-            Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
+            Assert.assertEquals(amount.getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(amount.getCurrency().toString(), item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
+            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
 
             ProductImage thumbnail = productOrVariant.getThumbnail();
             if (thumbnail == null) {
@@ -195,5 +191,10 @@ public class ProductCarouselImplTest {
         }
         String variantSku = skus.getRight();
         return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
+    }
+
+    private String toProductUrl(ProductInterface product, String variantPart) {
+        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+        return productPage.getPath() + '.' + product.getUrlKey() + ".html" + (variantPart != null ? '#' + variantPart : "");
     }
 }
