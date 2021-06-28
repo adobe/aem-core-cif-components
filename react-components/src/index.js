@@ -21,6 +21,8 @@ export { default as BundleProductOptions } from './components/BundleProductOptio
 export { Portal } from './components/Portal';
 export { default as PortalPlacer } from './components/PortalPlacer';
 export { default as ResetPassword } from './components/ResetPassword';
+export { default as Price } from './components/Price';
+export { default as Trigger } from './components/Trigger';
 
 export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
 export { default as UserContextProvider, useUserContext } from './context/UserContext';
