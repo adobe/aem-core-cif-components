@@ -254,17 +254,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public Double getDataLayerPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFinalPrice();
-        }
-        return null;
+        return getPriceRange() != null ?  getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getCurrency();
-        }
-        return null;
+        return getPriceRange() != null ? getPriceRange().getCurrency() : null;
     }
 }
