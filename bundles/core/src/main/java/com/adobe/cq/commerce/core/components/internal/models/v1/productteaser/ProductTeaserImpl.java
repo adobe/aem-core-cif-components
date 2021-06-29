@@ -71,6 +71,9 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
 
@@ -111,9 +114,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
                 selection = StringUtils.substringAfterLast(selection, "/");
             }
             combinedSku = SiteNavigation.toProductSkus(selection);
-
-            // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {

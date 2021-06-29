@@ -84,6 +84,9 @@ public class ButtonImpl implements Button {
     @Via(type = ResourceSuperType.class)
     private Button button;
 
+    @Self
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @ValueMapValue
     private String linkType;
 
@@ -140,7 +143,6 @@ public class ButtonImpl implements Button {
                         categoryIdentifierType = CategoryIdentifierType.UID;
                     }
 
-                    MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                         categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);

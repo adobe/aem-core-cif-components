@@ -13,7 +13,6 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
-import com.adobe.cq.commerce.core.components.internal.storefrontcontext.AbstractCommerceStorefrontContext;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 

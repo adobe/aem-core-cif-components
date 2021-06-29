@@ -29,6 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
@@ -88,6 +89,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @ScriptVariable
     protected Style currentStyle;
@@ -149,8 +153,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             }
 
             if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(categoryIdentifierType).isEmpty()) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-
                 Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
                 ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
                 enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));

@@ -83,17 +83,19 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     private static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
     private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
+
     @ValueMapValue(name = CommerceContentFragment.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String modelPath;
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
-
     @Inject
     private ModelFactory modelFactory;
     @SlingObject
     private ResourceResolver resourceResolver;
     @Self
     private SlingHttpServletRequest request;
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
     @Inject
     private Page currentPage;
     @Inject
@@ -185,9 +187,8 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
         String categoryIdentifier = null;
         Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
         UrlProvider.CategoryIdentifierType identifierType = identifier.getLeft();
-        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType)) {
-            MagentoGraphqlClient graphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(graphqlClient) {
+        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType) && magentoGraphqlClient != null) {
+            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
                 @Override
                 protected CategoryTreeQueryDefinition generateCategoryQuery() {
                     return (CategoryTreeQuery q) -> q.id().uid();
