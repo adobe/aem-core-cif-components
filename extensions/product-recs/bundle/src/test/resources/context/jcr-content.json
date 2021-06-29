@@ -1,0 +1,44 @@
+{
+  "landingPage": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "product-recs": {
+            "jcr:primaryType": "nt:unstructured",
+            "jcr:title": "Recommended products",
+            "excludeProducts": false,
+            "includeCategories": true,
+            "excludeOutOfStock": false,
+            "excludeTypes": false,
+            "excludedCategoriesType": "slug",
+            "includeVisibility": false,
+            "jcr:lastModifiedBy": "admin",
+            "excludedMinPrice": 30,
+            "includedMinPrice": 10,
+            "includedCategories": "shorts-men",
+            "excludedCategories": "tops-women",
+            "includePriceRange": true,
+            "includeTypes": false,
+            "excludeCategories": false,
+            "includeProducts": false,
+            "excludedMaxPrice": 50,
+            "includedMaxPrice": 100,
+            "excludeVisibility": false,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludeLowStock": false,
+            "recommendationType": "most-viewed",
+            "excludePriceRange": true
+          }
+        }
+      }
+    }
+  }
+}
