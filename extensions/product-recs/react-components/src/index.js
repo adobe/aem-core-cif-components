@@ -14,3 +14,4 @@
 
 export { default as ProductRecsGallery } from './components/ProductRecsGallery';
 export { StorefrontInstanceContextProvider, useStorefrontInstanceContext } from './context/StorefrontInstanceContext';
+export { useRecommendations } from './hooks/useRecommendations';

@@ -11,59 +11,21 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-import RecommendationsClient from '@magento/recommendations-js-sdk';
-import { useStorefrontEvents, Price, Trigger } from '@adobe/aem-core-cif-react-components';
-
-import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
+import { useStorefrontEvents, Price, Trigger, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
 import classes from './ProductRecsGallery.css';
+import { useRecommendations } from '../../hooks/useRecommendations';
 
 // TODO: Add npm link to components react components
 // TODO: Update version updating for releases
 
 const ProductRecsGallery = props => {
-    const storefrontInstance = useStorefrontInstanceContext();
-
     // TODO: Add all the events
     const mse = useStorefrontEvents();
-
-    const [unit, setUnit] = useState(null);
-
-    useEffect(() => {
-        if (!storefrontInstance) {
-            return;
-        }
-
-        (async () => {
-            // If no parameters are passed, everything is automatically taken from MSE
-            // TODO: Remove PageType after source branch was updated
-            const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType: 'CMS' });
-
-            // TODO: Add filters
-            client.register({ name: props.title, type: props.recommendationType });
-
-            const { status, data } = await client.fetch();
-            console.log(status, data);
-
-            if (status !== 200 || !data || !data.units || data.units.length === 0) {
-                console.error('Could not load product recommendations', status);
-            }
-
-            setUnit(data.units[0]);
-
-            // TODO
-            // mse.context.setRecommendations({ units: recommendationsContext });
-            // mse.publish.recsResponseReceived();
-        })();
-    }, [storefrontInstance]);
-
-    if (!unit) {
-        // TODO Loading spinner
-        return <div>Loading...</div>;
-    }
+    const data = useRecommendations(props);
 
     const addToCart = product => {
         const { sku, type } = product;
@@ -84,7 +46,7 @@ const ProductRecsGallery = props => {
                     <Price value={product.prices.minimum.final} currencyCode={product.currency} />
                 </div>
                 {// Only display add to cart button for products that can be added to cart without further customization
-                ['simple', 'virtual'].includes(product.type) && (
+                ['simple', 'virtual', 'downloadable'].includes(product.type) && (
                     <Trigger action={() => addToCart(product)}>
                         <span className={classes.addToCart}>Add to cart</span>
                     </Trigger>
@@ -93,17 +55,35 @@ const ProductRecsGallery = props => {
         );
     };
 
-    return (
-        <div className={classes.root}>
-            <h2 className={classes.title}>{props.title}</h2>
-            <div className={classes.container}>{unit.products.map(renderCard)}</div>
-        </div>
-    );
+    let content = <LoadingIndicator />;
+
+    if (data) {
+        const unit = data.units[0];
+        if (unit.products.length > 0) {
+            content = (
+                <>
+                    <h2 className={classes.title}>{props.title}</h2>
+                    <div className={classes.container}>{unit.products.map(renderCard)}</div>
+                </>
+            );
+        } else {
+            // Display empty component if list of products is empty
+            content = '';
+        }
+    }
+
+    return <div className={classes.root}>{content}</div>;
 };
 
 ProductRecsGallery.propTypes = {
     title: PropTypes.string.isRequired,
-    recommendationType: PropTypes.string.isRequired
+    recommendationType: PropTypes.string.isRequired,
+    categoryExclusions: PropTypes.string,
+    categoryInclusions: PropTypes.string,
+    excludeMaxPrice: PropTypes.string,
+    excludeMinPrice: PropTypes.string,
+    includeMaxPrice: PropTypes.string,
+    includeMinPrice: PropTypes.string
 };
 
 export default ProductRecsGallery;
