@@ -454,8 +454,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             // The ProductList example will require 1 item
             graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
         } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
-            filters.get("category_uid").get("eq").equals("2")) {
-            // The navigation example will require item 2
+            filters.get("category_uid").get("eq").equals("Mg==")) {
+            // The navigation example will require item "Mg==" as the default root category
             graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
         } else {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);

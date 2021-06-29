@@ -90,7 +90,7 @@
     "catalogpage": {
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
-        "magentoRootCategoryId": "2",
+        "magentoRootCategoryId": "Mg==",
         "showMainCategories": true,
         "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
       },
