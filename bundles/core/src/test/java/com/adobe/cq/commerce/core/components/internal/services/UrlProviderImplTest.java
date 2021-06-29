@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
@@ -151,6 +152,9 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toProductUrl(request, page, "MJ01", magentoGraphqlClient);
         Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(magentoGraphqlClient, Mockito.times(1)).execute(captor.capture());
     }
 
     @Test
@@ -166,6 +170,9 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toProductUrl(request, page, "MJ02", magentoGraphqlClient);
         Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(magentoGraphqlClient, Mockito.times(1)).execute(captor.capture());
     }
 
     @Test
@@ -181,6 +188,28 @@ public class UrlProviderImplTest {
 
         url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY, Mockito.mock(MagentoGraphqlClient.class));
         Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
+    }
+
+    @Test
+    public void testProductUrlOnlySKU() throws IOException {
+        Page page = context.currentPage("/content/product-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setProductUrlTemplate("{{page}}.html/{{sku}}"); // configure sku pattern only, this should not do any graphql call
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
+            "graphql/magento-graphql-product-result.json"));
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
+        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
+
+        String url = urlProvider.toProductUrl(request, page, "MJ01", magentoGraphqlClient);
+        Assert.assertEquals("/content/product-page.html/MJ01", url);
+
+        Mockito.verify(magentoGraphqlClient, Mockito.never()).execute(Mockito.anyString());
     }
 
     @Test

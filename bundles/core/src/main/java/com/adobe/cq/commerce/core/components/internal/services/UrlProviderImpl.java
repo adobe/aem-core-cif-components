@@ -86,15 +86,17 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier, MagentoGraphqlClient graphqlClient) {
         ParamsBuilder params = new ParamsBuilder();
-        if (graphqlClient != null && StringUtils.isNotBlank(productIdentifier)) {
+        if (StringUtils.isNotBlank(productIdentifier)) {
             params.sku(productIdentifier);
-            ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(graphqlClient);
-            retriever.setIdentifier(productIdentifier);
-            ProductInterface product = retriever.fetchProduct();
-            if (product != null) {
-                params.urlKey(product.getUrlKey());
-            } else {
-                LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
+            if (graphqlClient != null && StringUtils.contains(productUrlTemplate, URL_KEY_PARAM)) {
+                ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(graphqlClient);
+                retriever.setIdentifier(productIdentifier);
+                ProductInterface product = retriever.fetchProduct();
+                if (product != null) {
+                    params.urlKey(product.getUrlKey());
+                } else {
+                    LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
+                }
             }
         }
         return toUrl(request, page, params.map(), productUrlTemplate);
