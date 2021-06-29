@@ -25,7 +25,7 @@ import { useRecommendations } from '../../hooks/useRecommendations';
 const ProductRecsGallery = props => {
     // TODO: Add all the events
     const mse = useStorefrontEvents();
-    const data = useRecommendations(props);
+    const { loading, data } = useRecommendations(props);
 
     const addToCart = product => {
         const { sku, type } = product;
@@ -55,7 +55,11 @@ const ProductRecsGallery = props => {
         );
     };
 
-    let content = <LoadingIndicator />;
+    let content = '';
+
+    if (loading) {
+        content = <LoadingIndicator />;
+    }
 
     if (data) {
         const unit = data.units[0];
@@ -66,9 +70,6 @@ const ProductRecsGallery = props => {
                     <div className={classes.container}>{unit.products.map(renderCard)}</div>
                 </>
             );
-        } else {
-            // Display empty component if list of products is empty
-            content = '';
         }
     }
 

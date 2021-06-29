@@ -19,8 +19,8 @@ import { useStorefrontInstanceContext } from '../context/StorefrontInstanceConte
 const commaToOrList = list => list.split(',').join(' OR ');
 
 export const useRecommendations = props => {
-    const storefrontInstance = useStorefrontInstanceContext();
-    const [data, setData] = useState(null);
+    const { context: storefrontInstance, error: storefrontInstanceError } = useStorefrontInstanceContext();
+    const [data, setData] = useState({ loading: true, data: null });
 
     const {
         title,
@@ -34,6 +34,12 @@ export const useRecommendations = props => {
     } = props;
 
     useEffect(() => {
+        // Stop loading if there is an error
+        if (storefrontInstanceError) {
+            setData({ loading: false, data: null });
+            return;
+        }
+
         // Skip if storefront instance context is not yet set
         if (!storefrontInstance) {
             return;
@@ -71,16 +77,17 @@ export const useRecommendations = props => {
             const { status, data } = await client.fetch();
             if (status !== 200 || !data || !data.units || data.units.length === 0) {
                 console.warn('Could not load product recommendations', status);
+                setData({ loading: false, data: null });
                 return;
             }
 
-            setData(data);
+            setData({ loading: false, data });
 
             // TODO
             // mse.context.setRecommendations({ units: recommendationsContext });
             // mse.publish.recsResponseReceived();
         })();
-    }, [storefrontInstance]);
+    }, [storefrontInstance, storefrontInstanceError]);
 
     return data;
 };

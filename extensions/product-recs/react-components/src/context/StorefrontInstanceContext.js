@@ -24,7 +24,7 @@ export const StorefrontInstanceContext = React.createContext();
 export const StorefrontInstanceContextProvider = props => {
     const getStorefrontInstanceContext = useAwaitQuery(QUERY_STOREFRONT_INSTANCE_CONTEXT);
     const mse = useStorefrontEvents();
-    const [storefrontContext, setStorefrontContext] = useState(null);
+    const [storefrontContext, setStorefrontContext] = useState({ context: null, error: null });
 
     useEffect(() => {
         (async () => {
@@ -42,9 +42,20 @@ export const StorefrontInstanceContextProvider = props => {
 
             // Get storefront context from GraphQL if not available in session storage
             if (data === null) {
-                const storefrontInstanceContext = await getStorefrontInstanceContext();
-                if (storefrontInstanceContext.error) {
-                    console.error('Could not fetch storefront instance context', storefrontInstanceContext.error);
+                let error;
+                let storefrontInstanceContext;
+                try {
+                    // We need a try/catch here, since Magento might return an invalid GraphQL response when sending
+                    // a product recs query to an instance that does not have product recs extensions installed.
+                    storefrontInstanceContext = await getStorefrontInstanceContext();
+                    error = storefrontInstanceContext.error;
+                } catch (err) {
+                    error = err;
+                }
+
+                if (error) {
+                    console.error('Could not fetch storefront instance context', error);
+                    setStorefrontContext({ context: null, error });
                     return;
                 }
 
@@ -89,7 +100,7 @@ export const StorefrontInstanceContextProvider = props => {
 
             // Store storefront context in mse
             mse && mse.context.setStorefrontInstance(context);
-            setStorefrontContext(context);
+            setStorefrontContext({ context, error: null });
         })();
     }, []);
 
