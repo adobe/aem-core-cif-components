@@ -26,7 +26,10 @@ import com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.commo
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 import com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations.ProductRecommendations;
 
-@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductRecommendations.class, resourceType = ProductRecommendationsImpl.RESOURCE_TYPE)
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = ProductRecommendations.class,
+    resourceType = ProductRecommendationsImpl.RESOURCE_TYPE)
 public class ProductRecommendationsImpl implements ProductRecommendations {
 
     protected static final String RESOURCE_TYPE = "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations";
@@ -119,7 +122,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     public PriceRange getPriceRangeInclusions() {
         if (props.get(INCLUDE_PRICE_RANGE, false)) {
             return new PriceRangeImpl(props.get(INCLUDED_MIN_PRICE, Long.class),
-                    props.get(INCLUDED_MAX_PRICE, Long.class));
+                props.get(INCLUDED_MAX_PRICE, Long.class));
         }
         return null;
     }
@@ -128,7 +131,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     public PriceRange getPriceRangeExclusions() {
         if (props.get(EXCLUDE_PRICE_RANGE, false)) {
             return new PriceRangeImpl(props.get(EXCLUDED_MIN_PRICE, Long.class),
-                    props.get(EXCLUDED_MAX_PRICE, Long.class));
+                props.get(EXCLUDED_MAX_PRICE, Long.class));
         }
         return null;
     }
