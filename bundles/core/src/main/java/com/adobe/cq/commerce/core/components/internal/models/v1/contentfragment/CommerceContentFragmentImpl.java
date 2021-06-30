@@ -43,7 +43,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -81,37 +80,45 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceContentFragmentImpl.class);
     private static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
 
     @ValueMapValue(name = CommerceContentFragment.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String modelPath;
+
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
     @Inject
     private ModelFactory modelFactory;
+
     @SlingObject
     private ResourceResolver resourceResolver;
+
     @Self
     private SlingHttpServletRequest request;
+
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
+
     @Inject
     private UrlProvider urlProvider;
-    private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
 
     // needed for rawcontent rendering
     @ValueMapValue(name = ContentFragment.PN_DISPLAY_MODE, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String displayMode;
+
     @Inject
     private FragmentRenderService renderService;
+
     @ScriptVariable
     private Resource resource;
+
     @ValueMapValue(name = CommerceContentFragment.PN_LINK_ELEMENT, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkElement;
 
+    private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
     private String modelTitle = "";
 
     @PostConstruct
@@ -191,23 +198,16 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
                 @Override
                 protected CategoryTreeQueryDefinition generateCategoryQuery() {
-                    return (CategoryTreeQuery q) -> q.id().uid();
+                    return (CategoryTreeQuery q) -> q.uid();
                 }
             };
             categoryRetriever.setIdentifier(identifierType, identifier.getRight());
-            Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-            if (configurationResource != null) {
-                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-                if (componentsConfiguration != null) {
-                    CategoryInterface category = categoryRetriever.fetchCategory();
-                    if (category != null) {
-                        boolean uidSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-                        categoryIdentifier = uidSupport ? category.getUid().toString() : String.valueOf(category.getId());
-                    }
-                }
+            CategoryInterface category = categoryRetriever.fetchCategory();
+            if (category != null) {
+                categoryIdentifier = category.getUid().toString();
             }
-        } else if (UrlProvider.CategoryIdentifierType.ID.equals(identifierType) ||
-            UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
+
+        } else if (UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
             categoryIdentifier = identifier.getRight();
         }
 

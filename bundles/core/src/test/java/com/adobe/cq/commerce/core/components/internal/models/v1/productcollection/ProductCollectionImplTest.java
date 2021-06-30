@@ -84,7 +84,7 @@ public class ProductCollectionImplTest {
         context.currentResource(PRODUCT_COLLECTION);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
+        requestPathInfo.setSelectorString("MTI==");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         Resource productCollectionResource = context.resourceResolver().getResource(PRODUCT_COLLECTION);

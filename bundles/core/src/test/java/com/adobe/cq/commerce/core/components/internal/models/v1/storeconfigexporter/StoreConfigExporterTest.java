@@ -46,7 +46,8 @@ import static org.mockito.Mockito.when;
 public class StoreConfigExporterTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "cq:graphqlClient",
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
+            "cq:graphqlClient",
             "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 

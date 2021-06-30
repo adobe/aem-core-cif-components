@@ -74,7 +74,7 @@ public class ButtonImpl implements Button {
     private String categoryId;
 
     @ValueMapValue
-    @Default(values = "id")
+    @Default(values = "uid")
     private String categoryIdType;
 
     @ValueMapValue
@@ -138,19 +138,13 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
                     ParamsBuilder params = new ParamsBuilder();
-                    if (StringUtils.equalsIgnoreCase(categoryIdType, "uid")) {
-                        categoryIdentifierType = CategoryIdentifierType.UID;
-                    }
-
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
+                        categoryRetriever.setIdentifier(CategoryIdentifierType.UID, categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
                             params.urlPath(category.getUrlPath());
-                            params.id(category.getId().toString());
                             params.uid(category.getUid().toString());
                         }
                     }

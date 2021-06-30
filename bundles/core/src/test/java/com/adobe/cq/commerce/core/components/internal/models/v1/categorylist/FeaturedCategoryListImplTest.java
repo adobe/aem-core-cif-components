@@ -65,7 +65,7 @@ import static org.mockito.Mockito.when;
 public class FeaturedCategoryListImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store", "enableUIDSupport", "false"));
+        "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
@@ -75,7 +75,7 @@ public class FeaturedCategoryListImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEST_IMAGE_URL = "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg";
-    private static final int TEST_CATEGORY = 5;
+    private static final String TEST_CATEGORY = "uid-5";
     private static final String TEST_CATEGORY_NAME = "Equipment";
     private static final String TEST_ASSET_PATH = "/content/dam/venia/landing_page_image4.jpg";
     private static final String TEST_RENDITION_PATH = "/content/dam/venia/landing_page_image4.web.jpg";
@@ -83,9 +83,7 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist";
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
     private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
-    private static final String COMPONENT_PATH_UID = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
-    private static final String COMPONENT_PATH_MIXED_IDS = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist5";
-    private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist6";
+    private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -117,11 +115,7 @@ public class FeaturedCategoryListImplTest {
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{ids");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-list-uid-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid:{in:[\"UID1");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-list-uid-sort-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid:{in:[\"UID3");
+            "{categoryList(filters:{category_uid:{in:[\"uid-5");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null
@@ -229,44 +223,6 @@ public class FeaturedCategoryListImplTest {
     }
 
     @Test
-    public void testUsingUID() throws Exception {
-        setupTest(COMPONENT_PATH_UID);
-        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
-
-        categories = featuredCategoryList.getCategories();
-        Assert.assertNotNull(categories);
-        Assert.assertEquals(3, categories.size());
-
-        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
-        retrieverQueryField.setAccessible(true);
-        String query = (String) retrieverQueryField.get(retriever);
-
-        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\",\"UID3\"]}})"));
-    }
-
-    @Test
-    public void testUsingMixedIDS() throws Exception {
-        setupTest(COMPONENT_PATH_MIXED_IDS);
-        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
-
-        categories = featuredCategoryList.getCategories();
-        Assert.assertNotNull(categories);
-        Assert.assertEquals(2, categories.size());
-
-        // Test sort order. The HTTP response returns "UID1" as first item
-        // The order of the categories returned should be aligned with the order of filter arguments
-        // by the Category retriever
-        // In this case "UID3" is the first item in the identifiers list
-        Assert.assertEquals("UID3", categories.get(0).getUid().toString());
-
-        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
-        retrieverQueryField.setAccessible(true);
-        String query = (String) retrieverQueryField.get(retriever);
-
-        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"UID3\",\"UID1\"]}})"));
-    }
-
-    @Test
     public void testFallbackCategoryType() throws Exception {
         setupTest(COMPONENT_PATH_FALLBACK_ID_TYPE);
         AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
@@ -278,7 +234,7 @@ public class FeaturedCategoryListImplTest {
         retrieverQueryField.setAccessible(true);
         String query = (String) retrieverQueryField.get(retriever);
 
-        Assert.assertTrue(query.contains("categoryList(filters:{ids:{in:[\"1\",\"2\",\"3\"]}})"));
+        Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\",\"uid-7\"]}})"));
     }
 
     @Test

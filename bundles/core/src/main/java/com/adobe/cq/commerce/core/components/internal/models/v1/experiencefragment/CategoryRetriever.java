@@ -19,22 +19,16 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
 class CategoryRetriever extends AbstractCategoryRetriever {
-    private boolean uidSupport;
 
-    CategoryRetriever(MagentoGraphqlClient client, boolean uidSupport) {
+    CategoryRetriever(MagentoGraphqlClient client) {
         super(client);
-        this.uidSupport = uidSupport;
     }
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
 
         return (CategoryTreeQuery q) -> {
-            if (uidSupport) {
-                q.uid();
-            } else {
-                q.id();
-            }
+            q.uid();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

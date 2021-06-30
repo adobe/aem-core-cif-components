@@ -51,29 +51,20 @@ import static org.mockito.Mockito.when;
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
-
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-
-        class MockUrlProviderConfigurationCategory extends MockUrlProviderConfiguration {
-            @Override
-            public String categoryUrlTemplate() {
-                return "${page}.${id}.html/${url_path}";
-            }
-        }
-
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfigurationCategory());
+                urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
@@ -84,7 +75,6 @@ public class CommerceTeaserImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
-    private static final String EXPORTED_TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser-exported";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
@@ -151,15 +141,15 @@ public class CommerceTeaserImplTest {
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
-        Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".uid-5.html", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
-        Assert.assertEquals("The action points to the right category id", "5",
+        Assert.assertEquals("The action points to the right category id", "uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment_running", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".uid-6.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
-        Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
+        Assert.assertEquals("The action points to the right category id", "uid-6", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used

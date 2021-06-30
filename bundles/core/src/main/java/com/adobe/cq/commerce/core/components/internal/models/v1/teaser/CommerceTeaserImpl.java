@@ -121,26 +121,26 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String title = properties.get(PN_ACTION_TEXT, String.class);
 
                 String actionUrl;
-                CommerceIdentifier id = null;
+                CommerceIdentifier identifier = null;
 
                 if (categoryId != null) {
-                    ParamsBuilder params = new ParamsBuilder().id(categoryId);
+                    ParamsBuilder params = new ParamsBuilder().uid(categoryId);
                     if (categoriesRetriever != null) {
                         try {
                             Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getId().equals(Integer.valueOf(categoryId))).findAny();
+                                .filter(c -> c.getUid().equals(categoryId)).findAny();
                             cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
                         } catch (RuntimeException x) {
                             LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
-                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                    identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
-                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
+                    identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
@@ -148,7 +148,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier));
             }
         }
     }

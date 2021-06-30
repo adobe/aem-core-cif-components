@@ -79,7 +79,7 @@
           "categories": [
             {
               "__typename": "CategoryTree",
-              "id": 10,
+              "uid": "Nw==",
               "name": "category-1",
               "image": "/url/to/image"
             }
@@ -188,7 +188,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -252,7 +252,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -330,7 +330,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -394,7 +394,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -458,7 +458,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -536,7 +536,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -600,7 +600,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -664,7 +664,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -742,7 +742,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -806,7 +806,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -870,7 +870,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -948,7 +948,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -1012,7 +1012,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -1076,7 +1076,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -1154,7 +1154,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }

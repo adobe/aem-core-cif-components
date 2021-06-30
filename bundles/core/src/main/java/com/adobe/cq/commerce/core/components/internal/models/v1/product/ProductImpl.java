@@ -471,7 +471,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         return productRetriever.fetchProduct().getCategories()
             .stream()
-            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 

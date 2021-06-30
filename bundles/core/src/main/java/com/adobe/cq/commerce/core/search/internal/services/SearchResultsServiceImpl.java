@@ -149,7 +149,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    mutableSearchOptions.setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryUid(category.getUid().toString());
                 }
             }
         }
@@ -380,8 +380,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private ProductInterfaceQueryDefinition generateProductQuery(
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
-            q.id()
-                .sku()
+            q.sku()
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()

@@ -4,7 +4,7 @@
         "xdm:listPrice": 58.0,
         "xdm:categories": [
             {
-                "repo:id": "category-4a44dc1536",
+                "repo:id": "category-8c01c593b9",
                 "xdm:name": "category-1",
                 "xdm:asset": {
                     "repo:path": "/url/to/image",
