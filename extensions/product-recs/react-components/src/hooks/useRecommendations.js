@@ -13,12 +13,16 @@
  ******************************************************************************/
 
 import { useEffect, useState } from 'react';
+
 import RecommendationsClient from '@magento/recommendations-js-sdk';
+import { useStorefrontEvents } from '@adobe/aem-core-cif-react-components';
+
 import { useStorefrontInstanceContext } from '../context/StorefrontInstanceContext';
 
 const commaToOrList = list => list.split(',').join(' OR ');
 
 export const useRecommendations = props => {
+    const mse = useStorefrontEvents();
     const { context: storefrontInstance, error: storefrontInstanceError } = useStorefrontInstanceContext();
     const [data, setData] = useState({ loading: true, data: null });
 
@@ -74,6 +78,7 @@ export const useRecommendations = props => {
 
             client.register({ name: title, type: recommendationType, filter });
 
+            mse && mse.publish.recsRequestSent();
             const { status, data } = await client.fetch();
             if (status !== 200 || !data || !data.units || data.units.length === 0) {
                 console.warn('Could not load product recommendations', status);
@@ -81,11 +86,13 @@ export const useRecommendations = props => {
                 return;
             }
 
-            setData({ loading: false, data });
+            if (mse) {
+                const { units = [] } = mse.context.getRecommendations() || {};
+                mse.context.setRecommendations({ units: [...units, ...data.units] });
+                mse.publish.recsResponseReceived();
+            }
 
-            // TODO
-            // mse.context.setRecommendations({ units: recommendationsContext });
-            // mse.publish.recsResponseReceived();
+            setData({ loading: false, data });
         })();
     }, [storefrontInstance, storefrontInstanceError]);
 

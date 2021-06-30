@@ -11,31 +11,39 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { useStorefrontEvents, Price, Trigger, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
-import classes from './ProductRecsGallery.css';
 import { useRecommendations } from '../../hooks/useRecommendations';
+import { useVisiblityObserver } from '../../hooks/useVisibilityObserver';
+
+import classes from './ProductRecsGallery.css';
 
 // TODO: Add npm link to components react components
 // TODO: Update version updating for releases
 
 const ProductRecsGallery = props => {
-    // TODO: Add all the events
     const mse = useStorefrontEvents();
+    const rendered = useRef(false);
     const { loading, data } = useRecommendations(props);
+    const { observeElement } = useVisiblityObserver();
 
-    const addToCart = product => {
-        const { sku, type } = product;
+    const addToCart = (unit, product) => {
+        const { sku, type, productId } = product;
+        const { unitId } = unit;
+
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
         });
         document.dispatchEvent(customEvent);
+
+        mse && mse.publish.recsItemAddToCartClick({ unitId, productId });
     };
 
-    const renderCard = product => {
+    const renderCard = (unit, product) => {
+        // CIF-2173: on click mse.publish.recsItemClick
         return (
             <div className={classes.card} key={product.sku}>
                 <div className={classes.cardImage}>
@@ -47,7 +55,7 @@ const ProductRecsGallery = props => {
                 </div>
                 {// Only display add to cart button for products that can be added to cart without further customization
                 ['simple', 'virtual', 'downloadable'].includes(product.type) && (
-                    <Trigger action={() => addToCart(product)}>
+                    <Trigger action={() => addToCart(unit, product)}>
                         <span className={classes.addToCart}>Add to cart</span>
                     </Trigger>
                 )}
@@ -64,12 +72,23 @@ const ProductRecsGallery = props => {
     if (data) {
         const unit = data.units[0];
         if (unit.products.length > 0) {
+            const isVisible = () => {
+                mse && mse.publish.recsUnitView({ unitId: unit.unitId });
+            };
+
             content = (
                 <>
                     <h2 className={classes.title}>{props.title}</h2>
-                    <div className={classes.container}>{unit.products.map(renderCard)}</div>
+                    <div className={classes.container} ref={e => observeElement(e, isVisible)}>
+                        {unit.products.map(p => renderCard(unit, p))}
+                    </div>
                 </>
             );
+
+            if (!rendered.current) {
+                mse && mse.publish.recsUnitRender({ unitId: unit.unitId });
+                rendered.current = true;
+            }
         }
     }
 
