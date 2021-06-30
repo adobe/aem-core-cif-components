@@ -22,6 +22,7 @@ buildNumber.properties
 # Ignore IDE files
 .idea/
 *.iml
+**/*.iml
 .metadata
 bin/
 tmp/
