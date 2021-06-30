@@ -87,7 +87,6 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
 
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
-
     @Inject
     private ModelFactory modelFactory;
 
@@ -96,6 +95,9 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private Page currentPage;
@@ -192,9 +194,8 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
         String categoryIdentifier = null;
         Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
         UrlProvider.CategoryIdentifierType identifierType = identifier.getLeft();
-        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType)) {
-            MagentoGraphqlClient graphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(graphqlClient) {
+        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType) && magentoGraphqlClient != null) {
+            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
                 @Override
                 protected CategoryTreeQueryDefinition generateCategoryQuery() {
                     return (CategoryTreeQuery q) -> q.uid();

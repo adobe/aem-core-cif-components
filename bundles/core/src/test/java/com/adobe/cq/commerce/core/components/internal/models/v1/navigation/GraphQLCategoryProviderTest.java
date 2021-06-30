@@ -25,10 +25,9 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -75,9 +74,7 @@ public class GraphQLCategoryProviderTest {
 
     @Test
     public void testMissingMagentoGraphqlClient() throws IOException {
-        Page page = Mockito.spy(context.currentPage("/content/pageA"));
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
-        Assert.assertNull(Whitebox.getInternalState(categoryProvider, "magentoGraphqlClient"));
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(null);
         Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
     }
 
@@ -85,10 +82,9 @@ public class GraphQLCategoryProviderTest {
     public void testCategoryNotOrNoChildren() throws IOException {
         Page page = mock(Page.class);
         Resource pageContent = mock(Resource.class);
-        when(page.getContentResource()).thenReturn(pageContent);
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
-        Whitebox.setInternalState(categoryProvider, "magentoGraphqlClient", graphqlClient);
+        when(page.getContentResource()).thenReturn(pageContent);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(graphqlClient);
 
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
         Query rootQuery = mock(Query.class);
@@ -120,7 +116,8 @@ public class GraphQLCategoryProviderTest {
         when(pageContent.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         when(pageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(page.getContentResource(), null, null);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(
+            new MagentoGraphqlClientImpl(page.getContentResource(), null, null));
 
         // Test null categoryId
         Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());

@@ -44,7 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
+import com.adobe.cq.commerce.core.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -310,14 +310,14 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
 
-            // Make sure deprecated methods still work
-            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPrice(), 0);
-            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(), item
-                .getCurrency());
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(),
+                item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(),
+                item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
                 .toString()));
-            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
-                .getFormattedPrice());
+            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()),
+                item.getPriceRange().getFormattedFinalPrice());
 
             ProductImage smallImage = productInterface.getSmallImage();
             if (smallImage == null) {

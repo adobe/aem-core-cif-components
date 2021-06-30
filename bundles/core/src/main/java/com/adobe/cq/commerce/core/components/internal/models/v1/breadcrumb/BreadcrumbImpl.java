@@ -33,6 +33,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
@@ -68,6 +69,9 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private UrlProvider urlProvider;
@@ -223,7 +227,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }
@@ -240,7 +243,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }
