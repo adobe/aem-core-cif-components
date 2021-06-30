@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-@Version("2.0.0")
-package com.adobe.cq.commerce.core.components.models.retriever;
+@Version("1.12.0")
+package com.adobe.cq.commerce.core.components.models.experiencefragment;
 
 import org.osgi.annotation.versioning.Version;

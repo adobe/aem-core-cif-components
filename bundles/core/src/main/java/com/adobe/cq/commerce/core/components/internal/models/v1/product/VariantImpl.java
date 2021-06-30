@@ -31,17 +31,11 @@ public class VariantImpl implements Variant {
 
     private String sku;
 
-    private String currency;
-
-    private Double price;
-
     private Boolean inStock;
 
     private Integer color;
 
     private List<Asset> assets;
-
-    private String formattedPrice;
 
     private Map<String, Integer> variantAttributes = new HashMap<>();
 
@@ -82,36 +76,6 @@ public class VariantImpl implements Variant {
     public void setSku(String sku) {
         this.sku = sku;
     }
-
-    @Override
-    public String getCurrency() {
-        return getPriceRange().getCurrency();
-    }
-
-    @Deprecated
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    @Override
-    public Double getPrice() {
-        return getPriceRange().getFinalPrice();
-    }
-
-    @Deprecated
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    @Override
-    public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
-    }
-
-    @Deprecated
-    public void setFormattedPrice(String formattedPrice) {
-        this.formattedPrice = formattedPrice;
-    };
 
     @Override
     public Price getPriceRange() {

@@ -56,12 +56,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     protected CategoryInterface category;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
      * Identifier of the category that should be fetched. Which kind of identifier is used is specified in {@link #categoryIdentifierType}
      */
     protected String identifier;
@@ -146,18 +140,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      */
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
-    }
-
-    /**
-     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
-     *
-     * @param identifier Category identifier
-     * @deprecated Use {@link #setIdentifier(CategoryIdentifierType, String)} instead.
-     */
-    @Deprecated
-    public void setIdentifier(String identifier) {
-        setIdentifier(CategoryIdentifierType.ID, identifier);
     }
 
     /**
@@ -259,34 +241,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
         }).toString();
-    }
-
-    /**
-     * Generates a pair of args for the category query for a given category identifier;
-     *
-     * @param identifier Category identifier, usually the category id
-     * @return GraphQL query as string
-     * @deprecated Use {@link #generateCategoryQueryArgs(String)} to use the GraphQL <code>categoryList</code> field.
-     */
-    @Deprecated
-    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs(String identifier) {
-        // Use 'categoryIdentifierType' when we switch to Query.categoryList
-        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(identifier));
-
-        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
-
-        return new ImmutablePair<>(searchArgs, queryArgs);
-    }
-
-    /**
-     * Generates a pair of args for the category query for the instance identifier;
-     *
-     * @return GraphQL query as string
-     * @deprecated Use {@link #generateCategoryQueryArgs()} to use the GraphQL <code>categoryList</code> field.
-     */
-    @Deprecated
-    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs() {
-        return generateQueryArgs(identifier);
     }
 
     /**

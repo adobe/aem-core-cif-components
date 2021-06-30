@@ -61,12 +61,6 @@ public class CategoryRetrieverTest {
     }
 
     @Test
-    public void testCategoryUrlPathQuery() {
-        retriever.setIdentifier("75");
-        testDefaultCategoryQuery("75");
-    }
-
-    @Test
     public void testCategoryUrlPathQueryById() {
         retriever.setIdentifier(CategoryIdentifierType.ID, "76");
         testDefaultCategoryQuery("76");
@@ -80,6 +74,7 @@ public class CategoryRetrieverTest {
 
     @Test
     public void testExtendCategoryQuery() {
+        // TODO: check if that is redundant with CategoryRetrieverTest#testCategoryUrlPathQueryById()
         retriever.setIdentifier(CategoryIdentifierType.ID, "78");
         testDefaultCategoryQuery("78");
     }

@@ -29,6 +29,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
@@ -81,6 +82,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Via(type = ResourceSuperType.class)
     private Teaser wcmTeaser;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @PostConstruct
     void initModel() {
         if (isActionsEnabled()) {
@@ -100,12 +104,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 .distinct().collect(Collectors.toList());
 
             AbstractCategoriesRetriever categoriesRetriever = null;
-            if (categoryIds.size() > 0) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-                if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                    categoriesRetriever.setIdentifiers(categoryIds);
-                }
+            if (categoryIds.size() > 0 && magentoGraphqlClient != null) {
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                categoriesRetriever.setIdentifiers(categoryIds);
             }
 
             Page productPage = SiteNavigation.getProductPage(currentPage);

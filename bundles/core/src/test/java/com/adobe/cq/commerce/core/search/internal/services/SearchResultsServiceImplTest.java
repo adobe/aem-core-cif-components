@@ -108,7 +108,6 @@ public class SearchResultsServiceImplTest {
 
     @Before
     public void setup() {
-
         resource = context.resourceResolver().getResource("/content/pageA");
 
         when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
@@ -130,6 +129,7 @@ public class SearchResultsServiceImplTest {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
         response.setData(query);
 
+        when(request.adaptTo(MagentoGraphqlClient.class)).thenReturn(magentoGraphqlClient);
         when(magentoGraphqlClient.execute(any())).thenReturn(response);
 
         context.registerService(SearchFilterService.class, searchFilterService);
@@ -137,9 +137,10 @@ public class SearchResultsServiceImplTest {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
+        context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, magentoGraphqlClient);
 
         prepareSearchOptions();
-        serviceUnderTest = context.registerInjectActivateService(new SearchResultsServiceImpl(magentoGraphqlClient));
+        serviceUnderTest = context.registerInjectActivateService(new SearchResultsServiceImpl());
     }
 
     private void prepareSearchOptions() {
@@ -221,7 +222,6 @@ public class SearchResultsServiceImplTest {
 
     @Test
     public void testSearchWithInvalidSortOrderParam() {
-
         searchOptions.addSorterKey("position", "Position", null);
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "position");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, "invalid");

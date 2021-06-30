@@ -74,6 +74,9 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @ValueMapValue(name = PN_FRAGMENT_LOCATION, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String fragmentLocation;
 
@@ -116,7 +119,6 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
         categoryIdentifierType = uidSupport ? CategoryIdentifierType.UID : CategoryIdentifierType.ID;
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
             categoryRetriever = new CategoryRetriever(magentoGraphqlClient, uidSupport);
             productRetriever = new ProductRetriever(magentoGraphqlClient);
