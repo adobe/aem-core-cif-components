@@ -342,7 +342,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return RuntimeWiring.newRuntimeWiring()
             .wiringFactory(wiringFactory)
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
-            .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("categoryList", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))

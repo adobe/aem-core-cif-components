@@ -25,6 +25,7 @@ class CommerceGraphqlApi {
         this.endpoint = props.endpoint;
         this.storeView = props.storeView;
         this.method = props.graphqlMethod;
+        this.headers = props.headers;
     }
 
     async _fetch(url, params) {
@@ -47,6 +48,7 @@ class CommerceGraphqlApi {
         let params = {
             method: this.method === 'GET' && !ignoreCache ? 'GET' : 'POST',
             headers: {
+                ...this.headers,
                 'Content-Type': 'application/json',
                 Store: this.storeView
             }
@@ -164,8 +166,13 @@ class CommerceGraphqlApi {
 
 (function() {
     function onDocumentReady() {
-        const { storeView, graphqlEndpoint, graphqlMethod } = document.querySelector('body').dataset;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ endpoint: graphqlEndpoint, storeView, graphqlMethod });
+        const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.querySelector('body').dataset;
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
+            endpoint: graphqlEndpoint,
+            storeView,
+            graphqlMethod,
+            headers: JSON.parse(httpHeaders)
+        });
     }
 
     if (document.readyState !== 'loading') {

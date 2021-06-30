@@ -79,7 +79,7 @@
                     </properties>
                     <dependencies>
                         <dependency>
-                            <group>com.adobe.commerce.cif</group>
+                            <group>${vault.package.group}</group>
                             <name>core-cif-components-apps</name>
                             <version>${project.version}</version>
                         </dependency>

@@ -19,6 +19,7 @@ import java.util.List;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.wcm.core.components.models.Component;
 
 /**
@@ -72,6 +73,18 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
+    /**
+     * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
+     * The version 2 of the product component does support this feature but it requires a Magento EE instance with
+     * at least Magento version 2.4.2.
+     * 
+     * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
+     * @since com.adobe.cq.commerce.core.components.models.product 3.1.0
+     */
+    default Boolean isStaged() {
+        return false;
+    };
+
     String getVariantsJson();
 
     List<Variant> getVariants();
@@ -87,4 +100,6 @@ public interface Product extends Component, PageMetadata {
     Boolean loadClientPrice();
 
     AbstractProductRetriever getProductRetriever();
+
+    ProductStorefrontContext getStorefrontContext();
 }

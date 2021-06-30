@@ -16,6 +16,47 @@ const { TextEncoder } = require('util');
 const { Crypto } = require('@peculiar/webcrypto');
 
 describe('DataLayer utilities', () => {
+    const sampleCart = {
+        id: 'jg7LPugoxb4Av97cIgf80XL0sRPCaZ8Y',
+        is_virtual: false,
+        prices: {
+            subtotal_excluding_tax: {
+                currency: 'USD',
+                value: 78,
+                __typename: 'Money'
+            },
+            subtotal_including_tax: {
+                currency: 'USD',
+                value: 78,
+                __typename: 'Money'
+            },
+            __typename: 'CartPrices'
+        },
+        email: 'my-private@email.com',
+        total_quantity: 1,
+        items: [
+            {
+                __typename: 'SimpleCartItem',
+                uid: 'MTM5Mg==',
+                quantity: 1,
+                prices: {
+                    price: {
+                        currency: 'USD',
+                        value: 78,
+                        __typename: 'Money'
+                    },
+                    __typename: 'CartItemPrices'
+                },
+                product: {
+                    name: 'Honora Wide Leg Pants',
+                    sku: 'VP05-MT-S',
+                    __typename: 'SimpleProduct'
+                }
+            }
+        ],
+        __typename: 'Cart'
+    };
+
     beforeAll(() => {
         window.TextEncoder = TextEncoder;
         window.crypto = new Crypto();
@@ -75,5 +116,16 @@ describe('DataLayer utilities', () => {
     it('generates dataLayer ID', async () => {
         const result = await dataLayerUtils.generateDataLayerId('product', 'SKU-24');
         expect(result).toBe('product-06851b6172');
+    });
+
+    it('transforms a GraphQL response to camelCase', () => {
+        const result = dataLayerUtils.transformGraphqlResponse(sampleCart);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('transforms a cart', () => {
+        const cart = dataLayerUtils.transformGraphqlResponse(sampleCart);
+        const result = dataLayerUtils.transformCart(cart);
+        expect(result).toMatchSnapshot();
     });
 });

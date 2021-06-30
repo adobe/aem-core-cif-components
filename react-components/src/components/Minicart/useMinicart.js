@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
+import { useStorefrontEvents } from '../../utils/hooks';
 
 export default ({ queries }) => {
     const {
@@ -27,6 +28,8 @@ export default ({ queries }) => {
     } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
+    const mse = useStorefrontEvents();
+
     useEffect(() => {
         async function fn() {
             await getCartDetails({ cartDetailsQuery, dispatch, cartId });
@@ -83,6 +86,7 @@ export default ({ queries }) => {
         });
 
         // Push add to cart dataLayer events
+        mse && mse.publish.addToCart();
         event.detail.forEach(item => {
             // https://github.com/adobe/xdm/blob/master/docs/reference/datatypes/productlistitem.schema.md
             let eventInfo = {
