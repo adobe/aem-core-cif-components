@@ -339,9 +339,17 @@ public class UrlProviderImpl implements UrlProvider {
             String[] selectors = request.getRequestPathInfo().getSelectors();
             return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+            if (StringUtils.isNotBlank(request.getRequestPathInfo().getSuffix())) {
+                return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+            } else {
+                return StringUtils.EMPTY;
+            }
         } else if (IdentifierLocation.QUERY_PARAM.equals(identifierLocation)) {
-            return request.getRequestParameter(queryParameterName).getString();
+            if (request.getRequestParameterMap().containsKey(queryParameterName)) {
+                return request.getRequestParameter(queryParameterName).getString();
+            } else {
+                return StringUtils.EMPTY;
+            }
         } else {
             throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
         }

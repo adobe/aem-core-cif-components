@@ -376,6 +376,17 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testProductIdentifierParsingInNoSuffix() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setProductIdentifierLocation(IdentifierLocation.SUFFIX);
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        String identifier = urlProvider.getProductIdentifier(context.request(), null);
+        Assert.assertNull(identifier);
+    }
+
+    @Test
     public void testProductIdentifierParsingInQueryParameterUrlKey() throws IOException {
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
         config.setProductIdentifierLocation(IdentifierLocation.QUERY_PARAM);
@@ -411,6 +422,23 @@ public class UrlProviderImplTest {
 
         String identifier = urlProvider.getProductIdentifier(request, null);
         Assert.assertEquals("MJ01", identifier);
+    }
+
+    @Test
+    public void testProductIdentifierParsingEmptyQueryParameter() {
+        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
+        config.setProductIdentifierLocation(IdentifierLocation.QUERY_PARAM);
+
+        urlProvider = new UrlProviderImpl();
+        urlProvider.activate(config);
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put(config.identifierQueryParamater(), StringUtils.EMPTY);
+        params.put("other", "abc");
+        request.setParameterMap(params);
+
+        String identifier = urlProvider.getProductIdentifier(request, null);
+        Assert.assertNull(identifier);
     }
 
     @Test
