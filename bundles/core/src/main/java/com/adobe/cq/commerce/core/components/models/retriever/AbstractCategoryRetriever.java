@@ -49,12 +49,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     protected CategoryInterface category;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
      * Identifier of the category that should be fetched. Categories are identfied by UID.
      */
     protected String identifier;

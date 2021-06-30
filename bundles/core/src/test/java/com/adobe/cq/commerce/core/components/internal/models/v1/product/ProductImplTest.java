@@ -15,10 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Currency;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
@@ -36,7 +33,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
+import com.adobe.cq.commerce.core.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -238,13 +235,6 @@ public class ProductImplTest {
         Assert.assertEquals(product.getName(), productModel.getName());
         Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
         Assert.assertEquals(loadClientPrice, productModel.loadClientPrice());
-
-        // Old pricing API should still work
-        NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        priceFormatter.setCurrency(Currency.getInstance(productModel.getCurrency()));
-        Assert.assertEquals(productModel.getPriceRange().getFinalPrice(), productModel.getPrice(), 0.001);
-        Assert.assertEquals(priceFormatter.format(productModel.getPrice()), productModel.getFormattedPrice());
-
         Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
 
         Assert.assertEquals(product.getMediaGallery().size(), productModel.getAssets().size());
@@ -269,10 +259,6 @@ public class ProductImplTest {
         ConfigurableProduct cp = (ConfigurableProduct) product;
         Assert.assertEquals(cp.getVariants().size(), variants.size());
 
-        // Old pricing should still work
-        NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
-        priceFormatter.setCurrency(Currency.getInstance(productModel.getCurrency()));
-
         for (int i = 0; i < variants.size(); i++) {
             Variant variant = variants.get(i);
             SimpleProduct sp = cp.getVariants().get(i).getProduct();
@@ -280,11 +266,6 @@ public class ProductImplTest {
             Assert.assertEquals(sp.getSku(), variant.getSku());
             Assert.assertEquals(sp.getName(), variant.getName());
             Assert.assertEquals(sp.getDescription().getHtml(), variant.getDescription());
-
-            // Old pricing API should still work
-            Assert.assertEquals(variant.getPriceRange().getFinalPrice(), variant.getPrice(), 0.001);
-            Assert.assertEquals(priceFormatter.format(variant.getPrice()), variant.getFormattedPrice());
-
             Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
             Assert.assertEquals(sp.getColor(), variant.getColor());
 

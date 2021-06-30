@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.client.MockLaunch;
+import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -142,6 +142,7 @@ public class StoreConfigExporterTest {
 
     private void setupWithPage(String pagePath, HttpMethod method) {
         Page page = context.pageManager().getPage(pagePath);
+        context.request().setResource(page.getContentResource());
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.setResource(page.getContentResource());

@@ -14,7 +14,7 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <!-- ====================================================================== -->
     <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
     <!-- ====================================================================== -->
@@ -45,6 +45,7 @@
         <module>ui.config</module>
         <module>bundles/core</module>
         <module>examples</module>
+        <module>extensions/product-recs</module>
         <module>all</module>
     </modules>
 
@@ -74,14 +75,14 @@
         <url>https://github.com/adobe/aem-core-cif-components</url>
         <tag>HEAD</tag>
     </scm>
-    
+
     <build>
         <plugins>
-        
+
             <!-- We do the git add and commit here because this is the only way to include the package.json and            -->
             <!-- package-lock.json files of the react-components folder in the tagged commit of the release:prepare plugin -->
-            <!-- Note that the commit/release tag is still set by the release:prepare plugin --> 
-            
+            <!-- Note that the commit/release tag is still set by the release:prepare plugin -->
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -113,7 +114,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>

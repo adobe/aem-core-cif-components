@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.xss.XSSAPI;
@@ -97,6 +98,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
 
@@ -134,7 +138,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         // Get product selection from dialog
         String sku = properties.get(SELECTION_PROPERTY, String.class);
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
             // If no product is selected via dialog, extract it from the URL
             if (StringUtils.isEmpty(sku)) {
@@ -184,16 +187,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public String getSku() {
         return productRetriever.fetchProduct().getSku();
-    }
-
-    @Override
-    public String getCurrency() {
-        return getPriceRange().getCurrency();
-    }
-
-    @Override
-    public Double getPrice() {
-        return getPriceRange().getFinalPrice();
     }
 
     @Override
@@ -311,11 +304,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean loadClientPrice() {
         return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
-    }
-
-    @Override
-    public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
     }
 
     @Override
@@ -455,12 +443,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Double getDataLayerPrice() {
-        return this.getPrice();
+        return this.getPriceRange() != null ? this.getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return this.getCurrency();
+        return this.getPriceRange() != null ? this.getPriceRange().getCurrency() : null;
     }
 
     @Override

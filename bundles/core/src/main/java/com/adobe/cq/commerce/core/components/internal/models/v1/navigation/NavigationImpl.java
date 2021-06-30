@@ -30,12 +30,14 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -73,7 +75,10 @@ public class NavigationImpl implements Navigation {
     private com.adobe.cq.wcm.core.components.models.Navigation wcmNavigation = null;
 
     @Self
-    private SlingHttpServletRequest request = null;
+    private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private Resource resource;
@@ -93,7 +98,7 @@ public class NavigationImpl implements Navigation {
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
+        graphQLCategoryProvider = new GraphQLCategoryProvider(magentoGraphqlClient);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,

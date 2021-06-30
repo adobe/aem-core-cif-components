@@ -81,7 +81,6 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
 
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
-
     @Inject
     private ModelFactory modelFactory;
 
@@ -90,6 +89,9 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private Page currentPage;
@@ -190,7 +192,6 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
         if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category identifier for current request");
         }
-
         return categoryUid;
     }
 

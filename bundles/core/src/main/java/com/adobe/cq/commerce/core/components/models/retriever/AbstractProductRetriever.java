@@ -53,12 +53,6 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected ProductInterface product;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
      * SKU identifier of the product that should be fetched.
      */
     protected String identifier;
@@ -77,20 +71,6 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
             populate();
         }
         return this.product;
-    }
-
-    /**
-     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
-     * returned.
-     *
-     * @return Media base url
-     */
-    @Deprecated
-    public String fetchMediaBaseUrl() {
-        if (this.mediaBaseUrl == null) {
-            populate();
-        }
-        return this.mediaBaseUrl;
     }
 
     /**

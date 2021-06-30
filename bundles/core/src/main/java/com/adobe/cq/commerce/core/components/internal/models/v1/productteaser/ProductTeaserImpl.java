@@ -70,6 +70,9 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
 
@@ -110,9 +113,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
                 selection = StringUtils.substringAfterLast(selection, "/");
             }
             combinedSku = SiteNavigation.toProductSkus(selection);
-
-            // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {
@@ -178,15 +178,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public Price getPriceRange() {
         if (getProduct() != null) {
             return new PriceImpl(getProduct().getPriceRange(), locale);
-        }
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getFormattedPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFormattedFinalPrice();
         }
         return null;
     }
@@ -262,17 +253,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public Double getDataLayerPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFinalPrice();
-        }
-        return null;
+        return getPriceRange() != null ? getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getCurrency();
-        }
-        return null;
+        return getPriceRange() != null ? getPriceRange().getCurrency() : null;
     }
 }

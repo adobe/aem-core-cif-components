@@ -29,6 +29,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
@@ -75,6 +76,9 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
 
@@ -88,7 +92,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     protected Style currentStyle;
 
     private Page productPage;
-    private MagentoGraphqlClient magentoGraphqlClient;
     private AbstractProductsRetriever productsRetriever;
     private Locale locale;
     private RelationType relationType;
@@ -100,7 +103,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
             return;
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
