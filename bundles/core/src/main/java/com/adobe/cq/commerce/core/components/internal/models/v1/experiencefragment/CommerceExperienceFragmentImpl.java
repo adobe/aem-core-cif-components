@@ -91,15 +91,9 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
     private Resource xfResource;
     private String name;
-    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     private void initModel() {
-        if (magentoGraphqlClient != null) {
-            categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-            productRetriever = new ProductRetriever(magentoGraphqlClient);
-        }
-
         String query = null;
         if (SiteNavigation.isProductPage(currentPage)) {
             query = getQueryForProduct();

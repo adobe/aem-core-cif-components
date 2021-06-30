@@ -121,8 +121,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             }
         }
 
-        // get the backend client
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
             // For product and category pages, we fetch the breadcrumbs
             boolean isProductPage = isProductPage(page);

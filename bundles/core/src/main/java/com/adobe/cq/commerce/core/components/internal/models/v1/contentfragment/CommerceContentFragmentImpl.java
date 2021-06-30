@@ -115,8 +115,6 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
     private String modelTitle = "";
 
-    private MagentoGraphqlClient magentoGraphqlClient;
-
     @PostConstruct
     void initModel() {
         if (StringUtils.isBlank(modelPath)) {
@@ -134,7 +132,6 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             modelTitle = modelResource.getValueMap().get("jcr:content/jcr:title", "");
         }
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         Resource resource = findContentFragment();
         if (resource != null) {
             ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(request.getResource(), CORE_WCM_CONTENTFRAGMENT_RT);

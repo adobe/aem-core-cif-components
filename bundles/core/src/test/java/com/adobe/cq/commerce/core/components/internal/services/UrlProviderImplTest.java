@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
@@ -146,7 +147,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-product-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -164,7 +165,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-product-not-found-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -202,7 +203,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-product-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -276,7 +277,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-category-list-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -291,7 +292,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-empty-data.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -320,7 +321,7 @@ public class UrlProviderImplTest {
         requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -353,7 +354,7 @@ public class UrlProviderImplTest {
         requestPathInfo.setSuffix("/MJ01");
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -394,7 +395,7 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -457,7 +458,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-category-uid.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
@@ -472,7 +473,7 @@ public class UrlProviderImplTest {
 
         GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
             "graphql/magento-graphql-empty-data.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClient.class);
+        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
         Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
         Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
 
