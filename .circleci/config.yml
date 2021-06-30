@@ -177,6 +177,29 @@ jobs:
       - codecov/upload:
           flags: jest
 
+  jest-extension:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision
+          command: |
+            node -v
+            npm -v
+            npm install
+          working_directory: ./extensions/product-recs/react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/product-recs/react-components
+      - store_test_results:
+          path: ./extensions/product-recs/react-components/test-results
+      - store_artifacts:
+          path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
   integration-test-655:
     executor: test_executor_655
     environment:
@@ -262,6 +285,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - jest-extension:
+          filters:
+            tags:
+              only: /.*/
       - integration-test-655:
           filters:
             tags:
@@ -271,6 +298,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - integration-test-cloudready:
           filters:
             tags:
@@ -280,6 +308,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - integration-test-cloudready-with-addon:
           filters:
             tags:
@@ -289,6 +318,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-655:
           filters:
             tags:
@@ -298,6 +328,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-cloudready-with-addon:
           filters:
             tags:
@@ -307,6 +338,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - release:
           requires:
             - build-java-11
