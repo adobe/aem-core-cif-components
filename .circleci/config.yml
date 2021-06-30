@@ -103,6 +103,8 @@ jobs:
             - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
+            - extensions/product-recs/bundle/target
+            - extensions/product-recs/content/target/*.zip
             - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
