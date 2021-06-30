@@ -43,8 +43,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
     adapters = { StoreConfigExporter.class },
     resourceType = StoreConfigExporterImpl.RESOURCE_TYPE)
 public class StoreConfigExporterImpl implements StoreConfigExporter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
+
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
+    private static final String EMPTY_JSON_OBJECT = "{}";
 
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
@@ -99,6 +102,10 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @Override
     public String getHttpHeaders() {
+        if (httpHeaders == null) {
+            return EMPTY_JSON_OBJECT;
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
         httpHeaders.entrySet().stream().forEach(entry -> objectNode.put(entry.getKey(), entry.getValue()));
@@ -106,7 +113,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
             return mapper.writeValueAsString(objectNode);
         } catch (JsonProcessingException e) {
             LOGGER.error(e.getMessage(), e);
-            return "{}";
+            return EMPTY_JSON_OBJECT;
         }
     }
 
