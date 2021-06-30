@@ -51,8 +51,11 @@ export const useRecommendations = props => {
 
         (async () => {
             // If no parameters are passed, everything is automatically taken from MSE
-            // TODO: Remove PageType after source branch was updated
-            const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType: 'CMS' });
+            // TODO: Double check the pageType here. It's available via ACDL, but there might be a timing issue, where it
+            // isn't set in time.
+            // See https://git.corp.adobe.com/magento-datalake/recommendations-js-sdk/blob/main/src/defaults.js#L38
+            // Might need a special hook that provides the pageType that can be exposed by the core react components
+            const client = new RecommendationsClient({ alternateEnvironmentId: '' });
 
             // Add filtering
             // This is currently limited to a single filter by the recommendations SDK

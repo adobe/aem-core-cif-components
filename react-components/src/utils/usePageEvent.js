@@ -41,7 +41,7 @@ const usePageEvent = () => {
         return PageTypes.CMS;
     };
 
-    const sendPageEvent = () => {
+    const setPageContext = () => {
         const context = {
             pageType: getPageType(),
             eventType: 'pageUnload',
@@ -54,6 +54,10 @@ const usePageEvent = () => {
         };
 
         mse.context.setPage(context);
+    };
+
+    const sendPageEvent = () => {
+        setPageContext();
         mse.publish.pageView();
     };
 
@@ -61,6 +65,9 @@ const usePageEvent = () => {
         if (!mse) {
             return;
         }
+
+        // Set page context in the beginning to make page type available
+        setPageContext();
 
         window.addEventListener('beforeunload', sendPageEvent);
         return () => {

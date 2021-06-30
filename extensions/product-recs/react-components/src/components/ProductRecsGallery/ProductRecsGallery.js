@@ -21,9 +21,6 @@ import { useVisiblityObserver } from '../../hooks/useVisibilityObserver';
 
 import classes from './ProductRecsGallery.css';
 
-// TODO: Add npm link to components react components
-// TODO: Update version updating for releases
-
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
