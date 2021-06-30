@@ -2,12 +2,7 @@
   "landingPage": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "sling:resourceType": "core/cif/components/structure/page/v1/page",
-      "cq:cifProductPage": "/content/product-page",
-      "cq:cifCategoryPage": "/content/category-page",
-      "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
-      "magentoStore": "my-store",
       "root": {
         "responsivegrid": {
           "product-recs": {
@@ -15,22 +10,33 @@
             "jcr:title": "Recommended products",
             "excludeProducts": false,
             "includeCategories": true,
-            "excludeOutOfStock": false,
+            "excludeOutOfStock": true,
+            "includedTypes": [
+              "configurable",
+              "grouped",
+              "downloadable"
+            ],
             "excludeTypes": false,
             "excludedCategoriesType": "slug",
             "includeVisibility": false,
             "jcr:lastModifiedBy": "admin",
             "excludedMinPrice": 30,
             "includedMinPrice": 10,
-            "includedCategories": "shorts-men",
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "includedProducts": "WJ08",
             "excludedCategories": "tops-women",
             "includePriceRange": true,
-            "includeTypes": false,
+            "includeTypes": true,
+            "excludedVisibility": "search",
             "excludeCategories": false,
-            "includeProducts": false,
+            "includeProducts": true,
             "excludedMaxPrice": 50,
+            "includedProductsType": "sku",
             "includedMaxPrice": 100,
-            "excludeVisibility": false,
+            "excludeVisibility": true,
             "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
             "includedCategoriesType": "slug",
             "excludeLowStock": false,

@@ -14,13 +14,12 @@
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.common.PriceRangeImpl;
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
@@ -48,8 +47,8 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     private static final String INCLUDED_TYPES = "includedTypes";
     private static final String EXCLUDE_TYPES = "excludeTypes";
     private static final String EXCLUDED_TYPES = "excludedTypes";
-    private static final String INCLUDE_VISIBILITY = "excludeVisibility";
-    private static final String INCLUDED_VISIBILITY = "excludedVisibility";
+    private static final String INCLUDE_VISIBILITY = "includeVisibility";
+    private static final String INCLUDED_VISIBILITY = "includedVisibility";
     private static final String EXCLUDE_VISIBILITY = "excludeVisibility";
     private static final String EXCLUDED_VISIBILITY = "excludedVisibility";
     private static final String INCLUDE_PRICE_RANGE = "includePriceRange";
@@ -61,27 +60,27 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     private static final String EXCLUDE_OUT_OF_STOCK = "excludeOutOfStock";
     private static final String EXCLUDE_LOW_STOCK = "excludeLowStock";
 
-    @Inject
-    protected Resource resource;
+    @Self
+    protected SlingHttpServletRequest request;
 
     private ValueMap props;
 
     @PostConstruct
     private void initModel() {
-        props = resource.adaptTo(ValueMap.class);
+        props = request.getResource().adaptTo(ValueMap.class);
     }
 
-    private String getProperty(String enabledProperty, String property) {
+    private String getProperty(String enabledProperty, String propertyName) {
         if (props.get(enabledProperty, false)) {
-            Object includedCategories = props.get(property);
-            if (includedCategories == null) {
+            Object property = props.get(propertyName);
+            if (property == null) {
                 return null;
             }
 
-            if (includedCategories instanceof String[]) {
-                return StringUtils.join((String[]) includedCategories, ",");
-            } else if (includedCategories instanceof String) {
-                return (String) includedCategories;
+            if (property instanceof String[]) {
+                return StringUtils.join((String[]) property, ",");
+            } else if (property instanceof String) {
+                return (String) property;
             }
 
         }
