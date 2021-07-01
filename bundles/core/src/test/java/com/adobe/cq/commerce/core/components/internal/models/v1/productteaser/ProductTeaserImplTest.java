@@ -58,9 +58,8 @@ public class ProductTeaserImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -92,8 +91,10 @@ public class ProductTeaserImplTest {
     private Resource pageResource;
     private ProductTeaserImpl productTeaser;
     private ProductInterface product;
+    private boolean deepLink;
 
     public void setUp(String resourcePath, boolean deepLink) throws Exception {
+        this.deepLink = deepLink;
         Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
@@ -145,17 +146,15 @@ public class ProductTeaserImplTest {
         setUp(resourcePath, true);
 
         Assert.assertEquals(product.getName(), productTeaser.getName());
-        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
 
         // There is a dedicated specific subpage for that product
         Assert.assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
-        SiteNavigation siteNavigation = new SiteNavigation(context.request());
-        Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), productTeaser.getUrl());
+        Assert.assertEquals(toProductUrl(product), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
+        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(product.getImage().getUrl(), productTeaser.getImage());
     }
@@ -176,14 +175,12 @@ public class ProductTeaserImplTest {
             .orElse(null);
 
         Assert.assertEquals(variant.getName(), productTeaser.getName());
-        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-        SiteNavigation siteNavigation = new SiteNavigation(context.request());
-        Assert.assertEquals(siteNavigation.toProductUrl(productPage, product.getUrlKey(), variantSku), productTeaser.getUrl());
+        Assert.assertEquals(toProductUrl(product, variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getFormattedPrice());
+        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
     }
@@ -256,5 +253,16 @@ public class ProductTeaserImplTest {
         String expected = Utils.getResource("results/result-datalayer-productteaser-component.json");
         String jsonResult = productTeaser.getData().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    private String toProductUrl(ProductInterface product) {
+        Page productPage = deepLink
+            ? context.pageManager().getPage(PRODUCT_SPECIFIC_PAGE)
+            : context.pageManager().getPage(PRODUCT_PAGE);
+        return productPage.getPath() + '.' + product.getUrlKey() + ".html";
+    }
+
+    private String toProductUrl(ProductInterface product, String variantPart) {
+        return toProductUrl(product) + '#' + variantPart;
     }
 }

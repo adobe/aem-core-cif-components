@@ -129,7 +129,6 @@ public class PreviewServletTest {
         when(urlProvider.toProductUrl(any(), any(), any())).thenReturn(PREVIEW_PRODUCT_URL);
 
         // mock request parameters
-        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
         when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
@@ -147,8 +146,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
-        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
@@ -179,7 +177,6 @@ public class PreviewServletTest {
             PREVIEW_CATEGORY_URL);
 
         // mock request parameters
-        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
         when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
@@ -197,8 +194,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
-        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));

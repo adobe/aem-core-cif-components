@@ -91,11 +91,11 @@
                 "text": "A product"
               },
               "item1": {
-                "categoryId": "5",
+                "categoryId": "uid-5",
                 "text": "A category"
               },
               "item2": {
-                "categoryId": "6",
+                "categoryId": "uid-6",
                 "productSlug": "beaumont-summit-kit",
                 "text": "A category"
               },
@@ -113,17 +113,17 @@
             "titleType": "h2",
             "items": {
               "item0": {
-                "categoryId": "5",
-                "categoryIdType": "id"
+                "categoryId": "uid-5",
+                "categoryIdType": "uid"
               },
               "item1": {
-                "categoryId": "6",
-                "categoryIdType": "id",
+                "categoryId": "uid-6",
+                "categoryIdType": "uid",
                 "asset": "/content/dam/venia/landing_page_image4.jpg"
               },
               "item2": {
-                "categoryId": "7",
-                "categoryIdType": "id",
+                "categoryId": "uid-7",
+                "categoryIdType": "uid",
                 "asset": "invalid-asset"
               },
               "item3": {},
@@ -139,7 +139,7 @@
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
-                "categoryId": "5"
+                "categoryId": "uid-5"
               }
             }
           },
@@ -147,47 +147,13 @@
             "sling:resourceType": "venia/components/commerce/featuredcategorylist",
             "items": {
               "item0": {
-                "categoryId": "UID1",
-                "categoryIdType": "uid"
+                "categoryId": "uid-5"
               },
               "item1": {
-                "categoryId": "UID2",
-                "categoryIdType": "uid"
+                "categoryId": "uid-6"
               },
               "item2": {
-                "categoryId": "UID3",
-                "categoryIdType": "uid"
-              }
-            }
-          },
-          "featuredcategorylist5": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "items": {
-              "item0": {
-                "categoryId": "UID3",
-                "categoryIdType": "uid"
-              },
-              "item1": {
-                "categoryId": "14",
-                "categoryIdType": "id"
-              },
-              "item2": {
-                "categoryId": "UID1",
-                "categoryIdType": "uid"
-              }
-            }
-          },
-          "featuredcategorylist6": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "items": {
-              "item0": {
-                "categoryId": "1"
-              },
-              "item1": {
-                "categoryId": "2"
-              },
-              "item2": {
-                "categoryId": "3"
+                "categoryId": "uid-7"
               }
             }
           },
@@ -210,7 +176,7 @@
             "jcr:primaryType": "nt:unstructured",
             "sling:resourceType": "core/cif/components/content/button/v1/button",
             "linkType": "category",
-            "categoryId": "5"
+            "categoryId": "MTI=="
           },
           "buttonTypeToPage": {
             "jcr:primaryType": "nt:unstructured",

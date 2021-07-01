@@ -33,7 +33,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListPageWithSampleData() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.1.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.uid-1.html";
         SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 

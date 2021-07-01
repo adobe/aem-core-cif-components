@@ -158,12 +158,10 @@ public class BreadcrumbRetriever extends AbstractRetriever {
             .urlKey()
             .name()
             .categories(c -> c
-                .id()
                 .uid()
                 .urlPath()
                 .name()
                 .breadcrumbs(b -> b
-                    .categoryId()
                     .categoryUid()
                     .categoryUrlPath()
                     .categoryName())));
@@ -183,12 +181,10 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
 
         CategoryTreeQueryDefinition queryArgs = q -> q
-            .id()
             .uid()
             .urlPath()
             .name()
             .breadcrumbs(b -> b
-                .categoryId()
                 .categoryUid()
                 .categoryUrlPath()
                 .categoryName());

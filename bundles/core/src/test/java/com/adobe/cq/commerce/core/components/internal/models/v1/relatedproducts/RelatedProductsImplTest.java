@@ -43,7 +43,6 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRe
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -67,9 +66,8 @@ public class RelatedProductsImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -232,19 +230,20 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getName(), item.getTitle());
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
-
-            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-            SiteNavigation siteNavigation = new SiteNavigation(context.request());
-            Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
+            Assert.assertEquals(toProductUrl(product), item.getURL());
 
             Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
-            Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
-            Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
+            Assert.assertEquals(amount.getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(amount.getCurrency().toString(), item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
+            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
 
             Assert.assertEquals(product.getThumbnail().getUrl(), item.getImageURL());
         }
     }
 
+    private String toProductUrl(ProductInterface product) {
+        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+        return productPage.getPath() + '.' + product.getUrlKey() + ".html";
+    }
 }

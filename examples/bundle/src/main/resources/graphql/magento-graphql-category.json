@@ -2,7 +2,7 @@
     "data": {
         "categoryList": [
             {
-                "id": 1,
+                "uid": "uid-1",
                 "description": "A collection of products for outdoor activities",
                 "name": "Outdoor Collection",
                 "image": null,

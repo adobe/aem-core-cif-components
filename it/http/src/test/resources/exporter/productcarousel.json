@@ -11,9 +11,7 @@
       },
       "dataLayer": {
         "productcarousel-17f70f37f7-item-d8f7aa6253": {
-          "xdm:currencyCode": "",
           "xdm:SKU": "24-MB02",
-          "xdm:listPrice": 0.0,
           "repo:modifyDate": "2021-05-12T11:20:51Z",
           "@type": "core/cif/components/commerce/productlistitem"
         }
@@ -28,9 +26,7 @@
       },
       "dataLayer": {
         "productcarousel-17f70f37f7-item-bb9507166d": {
-          "xdm:currencyCode": "",
           "xdm:SKU": "WJ04",
-          "xdm:listPrice": 0.0,
           "repo:modifyDate": "2021-05-12T11:20:51Z",
           "@type": "core/cif/components/commerce/productlistitem"
         }
@@ -45,9 +41,7 @@
       },
       "dataLayer": {
         "productcarousel-17f70f37f7-item-500741b9f1": {
-          "xdm:currencyCode": "",
           "xdm:SKU": "MH01",
-          "xdm:listPrice": 0.0,
           "repo:modifyDate": "2021-05-12T11:20:51Z",
           "@type": "core/cif/components/commerce/productlistitem"
         }

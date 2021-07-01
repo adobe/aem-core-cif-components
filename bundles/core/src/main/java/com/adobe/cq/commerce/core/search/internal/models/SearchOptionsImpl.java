@@ -27,14 +27,11 @@ import com.adobe.cq.commerce.core.search.models.SorterKey;
 public class SearchOptionsImpl implements SearchOptions {
 
     public static final Integer PAGE_SIZE_DEFAULT = 6;
-    public static final String CATEGORY_ID_PARAMETER_ID = "category_id";
     public static final String CATEGORY_UID_PARAMETER_ID = "category_uid";
     public static final String SEARCH_QUERY_PARAMETER_ID = "search_query";
     public static final String CURRENT_PAGE_PARAMETER_ID = "page";
 
     Map<String, String> attributeFilters;
-
-    String categoryId;
 
     String categoryUid;
 
@@ -58,10 +55,6 @@ public class SearchOptionsImpl implements SearchOptions {
 
         Map<String, String> allFilters = searchOptions.getAllFilters();
 
-        if (allFilters.containsKey(CATEGORY_ID_PARAMETER_ID)) {
-            categoryId = allFilters.get(CATEGORY_ID_PARAMETER_ID);
-        }
-
         if (allFilters.containsKey(CATEGORY_UID_PARAMETER_ID)) {
             categoryUid = allFilters.get(CATEGORY_UID_PARAMETER_ID);
         }
@@ -76,9 +69,6 @@ public class SearchOptionsImpl implements SearchOptions {
     public Map<String, String> getAllFilters() {
         Map<String, String> allFilters = new HashMap<>(getAttributeFilters());
 
-        if (getCategoryId().isPresent()) {
-            allFilters.put(CATEGORY_ID_PARAMETER_ID, getCategoryId().get());
-        }
         if (getCategoryUid().isPresent()) {
             allFilters.put(CATEGORY_UID_PARAMETER_ID, getCategoryUid().get());
         }
@@ -96,14 +86,6 @@ public class SearchOptionsImpl implements SearchOptions {
 
     public void setAttributeFilters(final Map<String, String> attributeFilters) {
         this.attributeFilters = attributeFilters;
-    }
-
-    public Optional<String> getCategoryId() {
-        return Optional.ofNullable(categoryId);
-    }
-
-    public void setCategoryId(final String categoryId) {
-        this.categoryId = categoryId;
     }
 
     public Optional<String> getCategoryUid() {

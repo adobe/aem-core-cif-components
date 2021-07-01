@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -50,7 +49,7 @@ public class CategoriesRetrieverTest {
         when(mockQuery.get(any())).thenReturn(mockCategory);
 
         retriever = new CategoriesRetriever(mockClient);
-        retriever.setIdentifiers(Arrays.asList("5", "6"));
+        retriever.setIdentifiers(Arrays.asList("uid-5", "uid-6"));
     }
 
     @Test
@@ -71,19 +70,8 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{ids:{in:[\"5\",\"6\"]}}){id,name,url_path,position,image,children_count,level_custom_:level}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}}){uid,name,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
-    }
-
-    @Test
-    public void testUsingUID() {
-        retriever.setIdentifiers(Arrays.asList("UID1", "UID2"), UrlProvider.CategoryIdentifierType.UID);
-        retriever.fetchCategories();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        Assert.assertTrue(captor.getValue().contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\"]}})"));
     }
 
     @Test
@@ -93,14 +81,14 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> firstCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(firstCaptor.capture());
 
-        retriever.setIdentifiers(Arrays.asList("6"));
+        retriever.setIdentifiers(Arrays.asList("uid-6"));
         retriever.fetchCategories();
 
         final ArgumentCaptor<String> secondCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(2)).execute(secondCaptor.capture());
 
-        Assert.assertTrue(firstCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"5\",\"6\"]}})"));
-        Assert.assertTrue(secondCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"6\"]}})"));
+        Assert.assertTrue(firstCaptor.getValue().contains("categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}})"));
+        Assert.assertTrue(secondCaptor.getValue().contains("categoryList(filters:{category_uid:{in:[\"uid-6\"]}})"));
     }
 
 }

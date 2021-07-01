@@ -52,16 +52,16 @@
           "categorycarousel": {
             "items": {
               "item0": {
-                "categoryId": "15"
+                "categoryId": "MTU="
               },
               "item1": {
-                "categoryId": "24"
+                "categoryId": "MjQ="
               },
               "item2": {
-                "categoryId": "28"
+                "categoryId": "NA=="
               },
               "item3": {
-                "categoryId": "32"
+                "categoryId": "Ng=="
               }
             },
             "sling:resourceType": "core/cif/components/commerce/categorycarousel/v1/categorycarousel"
@@ -69,10 +69,10 @@
           "featuredcategorylist": {
             "items": {
               "item0": {
-                "categoryId": "15"
+                "categoryId": "MTU="
               },
               "item1": {
-                "categoryId": "24"
+                "categoryId": "MjQ="
               }
             },
             "sling:resourceType": "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist"
@@ -90,7 +90,7 @@
     "catalogpage": {
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
-        "magentoRootCategoryId": "2",
+        "magentoRootCategoryId": "Mg==",
         "showMainCategories": true,
         "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
       },

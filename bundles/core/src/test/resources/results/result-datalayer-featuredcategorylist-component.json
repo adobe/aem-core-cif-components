@@ -2,7 +2,7 @@
   "featuredcategorylist-4295dd6c7a": {
     "xdm:categories": [
       {
-        "repo:id": "category-ef2d127de3",
+        "repo:id": "category-2193ce7b11",
         "xdm:name": "Equipment",
         "xdm:asset": {
           "xdm:tags": [],
@@ -12,7 +12,7 @@
         }
       },
       {
-        "repo:id": "category-e7f6c01177",
+        "repo:id": "category-0ca108fa0f",
         "xdm:name": "Running",
         "xdm:asset": {
           "xdm:tags": [],
@@ -22,7 +22,7 @@
         }
       },
       {
-        "repo:id": "category-7902699be4",
+        "repo:id": "category-4e437c752c",
         "xdm:name": "Bike",
         "xdm:asset": {
           "xdm:tags": [],

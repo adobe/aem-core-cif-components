@@ -85,7 +85,6 @@
             },
             {
               "__typename": "SimpleProduct",
-              "id": 4242,
               "sku": "faultyproduct",
               "name": "Faulty product without price",
               "url_key": "faulty-product"

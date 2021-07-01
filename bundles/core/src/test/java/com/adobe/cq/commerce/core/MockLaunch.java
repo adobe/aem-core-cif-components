@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.client;
+package com.adobe.cq.commerce.core;
 
 import java.util.Calendar;
 import java.util.List;
