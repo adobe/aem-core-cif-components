@@ -96,7 +96,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         // Extract category identifier from URL
-        String categoryUid = urlProvider.getCategoryIdentifier(request, magentoGraphqlClient);
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
 
         boolean isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
         if (isAuthorInstance) {

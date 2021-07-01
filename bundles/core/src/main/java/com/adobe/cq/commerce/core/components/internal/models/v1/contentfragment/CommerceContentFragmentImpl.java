@@ -185,7 +185,7 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     }
 
     private String findCategoryIdentifier() {
-        String categoryUid = urlProvider.getCategoryIdentifier(request, magentoGraphqlClient);
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
         if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category identifier for current request");
         }
@@ -193,7 +193,7 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     }
 
     private String findProductSku() {
-        String sku = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+        String sku = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(sku)) {
             LOGGER.warn("Cannot find sku or product for current request");
         }
@@ -219,7 +219,7 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             return null;
         }
 
-        String value = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+        String value = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(value)) {
             return null;
         }

@@ -130,7 +130,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         if (StringUtils.isNotBlank(product)) {
             productSku = product; // The picker is configured to return the SKU
         } else {
-            productSku = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+            productSku = urlProvider.getProductIdentifier(request);
         }
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;

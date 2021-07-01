@@ -128,13 +128,13 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             List<? extends CategoryInterface> categoriesBreadcrumbs = null;
             String productSku = null;
             if (isProductPage) {
-                productSku = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+                productSku = urlProvider.getProductIdentifier(request);
                 if (StringUtils.isEmpty(productSku)) {
                     return;
                 }
                 categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, magentoGraphqlClient);
             } else if (isCategoryPage) {
-                String categoryUid = urlProvider.getCategoryIdentifier(request, magentoGraphqlClient);
+                String categoryUid = urlProvider.getCategoryIdentifier(request);
                 if (StringUtils.isEmpty(categoryUid)) {
                     return;
                 }
@@ -171,7 +171,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
             // We finally add the product if it's a product page
             if (isProductPage && StringUtils.isNotBlank(productSku)) {
-                String url = urlProvider.toProductUrl(request, productPage, productSku, magentoGraphqlClient);
+                String url = urlProvider.toProductUrl(request, productPage, productSku);
                 NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true, this.getId(),
                     productPage.getContentResource());
                 items.add(productItem);

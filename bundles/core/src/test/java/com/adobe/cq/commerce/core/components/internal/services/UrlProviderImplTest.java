@@ -19,6 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -26,8 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
@@ -37,10 +39,17 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
+import com.google.common.base.Function;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static org.mockito.Mockito.*;
 
 public class UrlProviderImplTest {
 
@@ -58,17 +67,47 @@ public class UrlProviderImplTest {
 
     private UrlProviderImpl urlProvider;
     private MockSlingHttpServletRequest request;
+    private HttpClient httpClient;
+    private GraphqlClient graphqlClient;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
         Assert.assertTrue(config.productUrlTemplate().contains("{{"));
         Assert.assertTrue(config.categoryUrlTemplate().contains("{{"));
-
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
 
         request = new MockSlingHttpServletRequest(context.resourceResolver());
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        httpClient = mock(HttpClient.class);
+        graphqlClient = spy(new GraphqlClientImpl());
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        MagentoGraphqlClient mockClient = spy(new MagentoGraphqlClientImpl(request));
+        Whitebox.setInternalState(mockClient, "graphqlClient", graphqlClient);
+        context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ01\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ02\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{url_key:{eq:\"beaumont-summit-kit\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:\"uid-99\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
+            "categoryList(filters:{url_path:{eq:\"does/not/exist\"}");
     }
 
     @Test
@@ -145,17 +184,10 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-product-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String url = urlProvider.toProductUrl(request, page, "MJ01", magentoGraphqlClient);
+        String url = urlProvider.toProductUrl(request, page, "MJ01");
         Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
 
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(magentoGraphqlClient, Mockito.times(1)).execute(captor.capture());
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -163,17 +195,10 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-product-not-found-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String url = urlProvider.toProductUrl(request, page, "MJ02", magentoGraphqlClient);
+        String url = urlProvider.toProductUrl(request, page, "MJ02");
         Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
 
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(magentoGraphqlClient, Mockito.times(1)).execute(captor.capture());
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -181,13 +206,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        String url = urlProvider.toProductUrl(request, page, "MJ01", null);
-        Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
-
-        url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY, null);
-        Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
-
-        url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY, Mockito.mock(MagentoGraphqlClient.class));
+        String url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY);
         Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
     }
 
@@ -201,16 +220,10 @@ public class UrlProviderImplTest {
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-product-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String url = urlProvider.toProductUrl(request, page, "MJ01", magentoGraphqlClient);
+        String url = urlProvider.toProductUrl(request, page, "MJ01");
         Assert.assertEquals("/content/product-page.html/MJ01", url);
 
-        Mockito.verify(magentoGraphqlClient, Mockito.never()).execute(Mockito.anyString());
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -275,14 +288,10 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-category-list-result.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String url = urlProvider.toCategoryUrl(request, page, "uid-5", magentoGraphqlClient);
+        String url = urlProvider.toCategoryUrl(request, page, "uid-5");
         Assert.assertEquals("/content/category-page.equipment.html", url);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -290,14 +299,10 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-empty-data.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String url = urlProvider.toCategoryUrl(request, page, "MJ02", magentoGraphqlClient);
+        String url = urlProvider.toCategoryUrl(request, page, "uid-99");
         Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -305,13 +310,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
-        String url = urlProvider.toCategoryUrl(request, page, "MJ01", null);
-        Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
-
-        url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY, null);
-        Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
-
-        url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY, Mockito.mock(MagentoGraphqlClient.class));
+        String url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY);
         Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
     }
 
@@ -320,13 +319,10 @@ public class UrlProviderImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String identifier = urlProvider.getProductIdentifier(context.request(), magentoGraphqlClient);
+        String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -337,10 +333,12 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
+        requestPathInfo.setSelectorString("sku-1");
 
-        String identifier = urlProvider.getProductIdentifier(context.request(), null);
-        Assert.assertEquals("beaumont-summit-kit", identifier);
+        String identifier = urlProvider.getProductIdentifier(context.request());
+        Assert.assertEquals("sku-1", identifier);
+
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -351,15 +349,12 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSuffix("/MJ01");
+        requestPathInfo.setSuffix("/beaumont-summit-kit");
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String identifier = urlProvider.getProductIdentifier(context.request(), magentoGraphqlClient);
+        String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -372,8 +367,10 @@ public class UrlProviderImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01");
-        String identifier = urlProvider.getProductIdentifier(context.request(), null);
+        String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
+
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -383,8 +380,10 @@ public class UrlProviderImplTest {
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
 
-        String identifier = urlProvider.getProductIdentifier(context.request(), null);
+        String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertNull(identifier);
+
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -394,18 +393,15 @@ public class UrlProviderImplTest {
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(config);
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-sku.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(config.identifierQueryParamater(), "MJ01");
+        params.put(config.identifierQueryParamater(), "beaumont-summit-kit");
         params.put("other", "abc");
         request.setParameterMap(params);
 
-        String identifier = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+        String identifier = urlProvider.getProductIdentifier(request);
         Assert.assertEquals("MJ01", identifier);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -421,8 +417,10 @@ public class UrlProviderImplTest {
         params.put("other", "abc");
         request.setParameterMap(params);
 
-        String identifier = urlProvider.getProductIdentifier(request, null);
+        String identifier = urlProvider.getProductIdentifier(request);
         Assert.assertEquals("MJ01", identifier);
+
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -438,17 +436,10 @@ public class UrlProviderImplTest {
         params.put("other", "abc");
         request.setParameterMap(params);
 
-        String identifier = urlProvider.getProductIdentifier(request, null);
+        String identifier = urlProvider.getProductIdentifier(request);
         Assert.assertNull(identifier);
-    }
 
-    @Test
-    public void testProductIdentifierMissingGraphQlClient() {
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
-
-        String identifier = urlProvider.getProductIdentifier(context.request(), null);
-        Assert.assertNull(identifier);
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -456,38 +447,21 @@ public class UrlProviderImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("men_tops-men_jackets-men");
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-category-uid.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String identifier = urlProvider.getCategoryIdentifier(context.request(), magentoGraphqlClient);
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
         Assert.assertEquals("MTI==", identifier);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
     public void testCategoryIdentifierParsingUrlPathNotFound() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("men_tops-men_jackets-men");
+        requestPathInfo.setSelectorString("does_not_exist");
 
-        GraphqlClient graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom(
-            "graphql/magento-graphql-empty-data.json"));
-        MagentoGraphqlClient magentoGraphqlClient = Mockito.mock(MagentoGraphqlClientImpl.class);
-        Whitebox.setInternalState(magentoGraphqlClient, "graphqlClient", graphqlClient);
-        Mockito.when(magentoGraphqlClient.execute(Mockito.anyString())).thenCallRealMethod();
-
-        String identifier = urlProvider.getCategoryIdentifier(context.request(), magentoGraphqlClient);
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
         Assert.assertNull(identifier);
-    }
 
-    @Test
-    public void testCategoryIdentifierMissingGraphQlClient() {
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("men_tops-men_jackets-men");
-
-        String identifier = urlProvider.getCategoryIdentifier(context.request(), null);
-        Assert.assertNull(identifier);
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test

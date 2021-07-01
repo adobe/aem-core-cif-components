@@ -141,7 +141,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         if (magentoGraphqlClient != null) {
             // If no product is selected via dialog, extract it from the URL
             if (StringUtils.isEmpty(sku)) {
-                sku = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+                sku = urlProvider.getProductIdentifier(request);
             }
 
             // Load product data for component

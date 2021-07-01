@@ -114,7 +114,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
     private String getQueryForProduct() {
         // Extract product sku from request URL
-        String sku = urlProvider.getProductIdentifier(request, magentoGraphqlClient);
+        String sku = urlProvider.getProductIdentifier(request);
 
         if (StringUtils.isBlank(sku)) {
             LOGGER.warn("Cannot find product for current request");
@@ -142,7 +142,7 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
 
     private String getQueryForCategory() {
         // Extract category uid sku from request URL
-        String categoryUid = urlProvider.getCategoryIdentifier(request, magentoGraphqlClient);
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
 
         if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category for current request");

@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.day.cq.wcm.api.Page;
 
 public interface UrlProvider {
@@ -116,11 +115,9 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param productIdentifier The product identifier.
-     * @param graphqlClient The GraphQL client for backend requests.
      * @return The product URL.
      */
-    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, String productIdentifier,
-        MagentoGraphqlClient graphqlClient);
+    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, String productIdentifier);
 
     /**
      * Returns the category page URL. All required attributes to generate a valid category page URL must be provided via the
@@ -144,29 +141,25 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param categoryIdentifier The category identifier.
-     * @param graphqlClient The GraphQL client for backend requests.
      * @return The category URL.
      */
-    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier,
-        MagentoGraphqlClient graphqlClient);
+    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**
      * Returns the type and value of the product identifier used in the given Sling HTTP request.
      * 
      * @param request The current Sling HTTP request.
-     * @param graphqlClient The GraphQL client for backend requests.
      * @return The product sku identifier.
      */
-    public String getProductIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient);
+    public String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
      * Returns the type and value of the category identifier used in the given Sling HTTP request.
      * 
      * @param request The current Sling HTTP request.
-     * @param graphqlClient The GraphQL client for backend requests.
      * @return The type and value of the category identifier.
      */
-    public String getCategoryIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient);
+    public String getCategoryIdentifier(SlingHttpServletRequest request);
 
     /**
      * A helper class used to easily build parameters for the URL templates.

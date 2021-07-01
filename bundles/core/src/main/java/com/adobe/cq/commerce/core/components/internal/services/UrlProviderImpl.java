@@ -84,12 +84,14 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier, MagentoGraphqlClient graphqlClient) {
+    public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier) {
         ParamsBuilder params = new ParamsBuilder();
         if (StringUtils.isNotBlank(productIdentifier)) {
             params.sku(productIdentifier);
-            if (graphqlClient != null && StringUtils.contains(productUrlTemplate, URL_KEY_PARAM)) {
-                ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(graphqlClient);
+
+            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+            if (magentoGraphqlClient != null && StringUtils.contains(productUrlTemplate, URL_KEY_PARAM)) {
+                ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
                 retriever.setIdentifier(productIdentifier);
                 ProductInterface product = retriever.fetchProduct();
                 if (product != null) {
@@ -108,10 +110,11 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier, MagentoGraphqlClient graphqlClient) {
+    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
         ParamsBuilder params = new ParamsBuilder().uid(categoryIdentifier);
-        if (graphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
-            CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(graphqlClient);
+        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
+            CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
             retriever.setIdentifier(categoryIdentifier);
             CategoryInterface category = retriever.fetchCategory();
             if (category != null) {
@@ -278,7 +281,7 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String getProductIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient) {
+    public String getProductIdentifier(SlingHttpServletRequest request) {
         // get product identifier (url_key) from URL
         String urlProductIdentifier = parseIdentifier(productIdentifierConfig.getKey(), request);
         if (StringUtils.isBlank(urlProductIdentifier)) {
@@ -292,8 +295,9 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         // lookup internal product identifier (sku) based on URL product identifier (url_key)
-        if (graphqlClient != null) {
-            UrlToProductRetriever productRetriever = new UrlToProductRetriever(graphqlClient);
+        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        if (magentoGraphqlClient != null) {
+            UrlToProductRetriever productRetriever = new UrlToProductRetriever(magentoGraphqlClient);
             productRetriever.setIdentifier(urlProductIdentifier);
             ProductInterface product = productRetriever.fetchProduct();
             return product != null ? product.getSku() : null;
@@ -306,7 +310,7 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String getCategoryIdentifier(SlingHttpServletRequest request, MagentoGraphqlClient graphqlClient) {
+    public String getCategoryIdentifier(SlingHttpServletRequest request) {
         // get category identifier (url_path) from URL
         String urlCategoryIdentifier = parseIdentifier(categoryIdentifierLocation, request);
         if (StringUtils.isBlank(urlCategoryIdentifier)) {
@@ -315,8 +319,9 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         // lookup internal category identifier (uid) based on URL category identifier (url_path)
-        if (graphqlClient != null) {
-            UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(graphqlClient);
+        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        if (magentoGraphqlClient != null) {
+            UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(magentoGraphqlClient);
             categoryRetriever.setIdentifier(urlCategoryIdentifier);
             CategoryInterface category = categoryRetriever.fetchCategory();
             return category != null ? category.getUid().toString() : null;
