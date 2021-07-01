@@ -38,5 +38,6 @@
     <modules>
         <module>content</module>
         <module>react-components</module>
+        <module>bundle</module>
     </modules>
 </project>
