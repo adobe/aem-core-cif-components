@@ -39,7 +39,7 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.chaz-kangeroo-hoodie.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
