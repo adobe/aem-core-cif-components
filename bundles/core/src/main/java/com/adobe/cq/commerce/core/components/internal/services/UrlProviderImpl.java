@@ -84,7 +84,7 @@ public class UrlProviderImpl implements UrlProvider {
             Resource pageResource = page.adaptTo(Resource.class);
             boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             Set<String> selectorValues = new HashSet<>(params.values());
-            ;
+
             if (deepLink) {
                 Resource subPageResource = toSpecificPage(pageResource, selectorValues, request, params);
                 if (subPageResource != null) {
