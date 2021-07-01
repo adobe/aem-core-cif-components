@@ -59,40 +59,6 @@ public interface ProductListItem extends ListItem {
     CommerceIdentifier getCommerceIdentifier();
 
     /**
-     * Returns the price of this {@code ProductListItem}.
-     *
-     * @return the price of this list item or {@code null}
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    @Nullable
-    default Double getPrice() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the price currency of this {@code ProductListItem}.
-     *
-     * @return the currency of this list item or {@code null}
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    @Nullable
-    String getCurrency();
-
-    /**
-     * Returns the formatted price of this {@code ProductListItem}.
-     *
-     * @return the formatted price of this list item or {@code null}
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    @Nullable
-    default String getFormattedPrice() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Returns the price range of this {@code ProductListItem}.
      *
      * @return Price range instance.

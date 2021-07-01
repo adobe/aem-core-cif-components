@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.search.models.Pager;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ public class SearchResultsSetImplTest {
 
         // setup some example search options
         searchOptions.setSearchQuery("test");
-        searchOptions.setCategoryId("23");
+        searchOptions.setCategoryUid("uid-23");
         searchOptions.setAttributeFilters(parameterMap);
 
         SearchAggregation appliedColorAggregation = mock(SearchAggregation.class);
@@ -86,4 +87,26 @@ public class SearchResultsSetImplTest {
             .size());
     }
 
+    @Test
+    public void testSearchResultsSetTotal() {
+        Assert.assertEquals(Integer.valueOf(9), modelUnderTest.getTotalResults());
+    }
+
+    @Test
+    public void testSearchResultsSetPagination() {
+        Assert.assertTrue(modelUnderTest.hasPagination());
+    }
+
+    @Test
+    public void testSearchResultsSetPager() {
+        Pager pager = modelUnderTest.getPager();
+        Assert.assertNotNull(pager);
+        Assert.assertEquals(2, pager.getTotalPages());
+        Assert.assertEquals(1, pager.getCurrentPage());
+    }
+
+    @Test
+    public void testSearchResultsSetHasAggregations() {
+        Assert.assertTrue(modelUnderTest.hasAggregations());
+    }
 }

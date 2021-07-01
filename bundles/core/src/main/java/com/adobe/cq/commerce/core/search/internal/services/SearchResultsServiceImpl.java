@@ -83,20 +83,11 @@ import com.day.cq.wcm.api.PageManager;
 public class SearchResultsServiceImpl implements SearchResultsService {
 
     @Reference
-    SearchFilterService searchFilterService;
-
+    private SearchFilterService searchFilterService;
     @Reference
-    private UrlProvider urlProvider = null;
-
-    private MagentoGraphqlClient magentoGraphqlClient;
+    private UrlProvider urlProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsServiceImpl.class);
-
-    public SearchResultsServiceImpl() {}
-
-    public SearchResultsServiceImpl(final MagentoGraphqlClient magentoGraphqlClient) {
-        this.magentoGraphqlClient = magentoGraphqlClient;
-    }
 
     @Nonnull
     @Override
@@ -132,14 +123,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         SearchOptionsImpl mutableSearchOptions = new SearchOptionsImpl(searchOptions);
         searchResultsSet.setSearchOptions(mutableSearchOptions);
-
-        Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
-
-        if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, request);
+        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        Page page = resource.adaptTo(Page.class);
+        if (page == null) {
+            PageManager pageManager = resource.getResourceResolver().adaptTo(PageManager.class);
+            if (pageManager != null) {
+                page = pageManager.getContainingPage(resource);
+            }
         }
 
-        if (magentoGraphqlClient == null) {
+        if (magentoGraphqlClient == null || page == null) {
             LOGGER.error("The search result service was unable to create a new MagentoGraphqlClient.");
             return new ImmutablePair<>(null, searchResultsSet);
         }
@@ -156,13 +149,14 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    mutableSearchOptions.setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryUid(category.getUid().toString());
                 }
             }
         }
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
+
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
         SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
 
@@ -171,18 +165,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
-        Query data = response.getData();
-        Products products = data != null ? data.getProducts() : null;
-
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
 
             return new ImmutablePair<>(category, searchResultsSet);
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
+        Products products = response.getData().getProducts();
         final List<ProductListItem> productListItems = extractProductsFromResponse(
             products.getItems(),
             productPage,
@@ -388,8 +380,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private ProductInterfaceQueryDefinition generateProductQuery(
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
-            q.id()
-                .sku()
+            q.sku()
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()

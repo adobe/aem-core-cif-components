@@ -7,15 +7,15 @@
         }
     },
     {
-        "breadcrumb-bafb50b602-item-40cbc3dd2d": {
-            "xdm:linkURL": "/content/venia/us/en/products/category-page.11.html",
+        "breadcrumb-bafb50b602-item-271601d211": {
+            "xdm:linkURL": "/content/venia/us/en/products/category-page.MTI%3D.html",
             "dc:title": "Men",
             "@type": "venia/components/page"
         }
     },
     {
-        "breadcrumb-bafb50b602-item-524b1090db": {
-            "xdm:linkURL": "/content/venia/us/en/products/category-page.12.html",
+        "breadcrumb-bafb50b602-item-7f51cba286": {
+            "xdm:linkURL": "/content/venia/us/en/products/category-page.MTM%3D.html",
             "dc:title": "Tops",
             "@type": "venia/components/page"
         }

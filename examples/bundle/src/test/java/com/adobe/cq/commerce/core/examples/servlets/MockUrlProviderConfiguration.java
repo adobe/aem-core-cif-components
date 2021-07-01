@@ -57,7 +57,7 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public CategoryIdentifierType categoryIdentifierType() {
-        return ObjectUtils.firstNonNull(categoryIdentifierType, CategoryIdentifierType.ID);
+        return ObjectUtils.firstNonNull(categoryIdentifierType, CategoryIdentifierType.UID);
     }
 
     @Override

@@ -24,16 +24,16 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
 
     private final String title;
     private final String url;
-    private CommerceIdentifier id;
+    private CommerceIdentifier identifier;
 
     public CommerceTeaserActionItemImpl(String title, String url) {
         this.title = title;
         this.url = url;
     }
 
-    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier id) {
+    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier identifier) {
         this(title, url);
-        this.id = id;
+        this.identifier = identifier;
     }
 
     @Nonnull
@@ -50,6 +50,6 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
 
     @Nullable
     public CommerceIdentifier getEntityIdentifier() {
-        return id;
+        return identifier;
     }
 }

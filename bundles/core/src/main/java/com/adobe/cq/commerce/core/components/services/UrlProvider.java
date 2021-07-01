@@ -44,7 +44,7 @@ public interface UrlProvider {
      * Defines the category identifier type used in category page urls.
      */
     public static enum CategoryIdentifierType {
-        ID, UID, URL_PATH
+        UID, URL_PATH
     }
 
     /**
@@ -77,11 +77,6 @@ public interface UrlProvider {
      * be set to the url_key of the currently selected/chosen variant.
      */
     public static final String VARIANT_URL_KEY_PARAM = "variant_url_key";
-
-    /**
-     * The <code>id</code> of the category.
-     */
-    public static final String ID_PARAM = "id";
 
     /**
      * The <code>uid</code> of the category.
@@ -189,17 +184,6 @@ public interface UrlProvider {
          */
         public ParamsBuilder variantSku(String variantSku) {
             params.put(VARIANT_SKU_PARAM, variantSku);
-            return this;
-        }
-
-        /**
-         * Sets the <code>id</code> of the category.
-         * 
-         * @param id The <code>id</code> of the category.
-         * @return This ParamsBuilder.
-         */
-        public ParamsBuilder id(String id) {
-            params.put(ID_PARAM, id);
             return this;
         }
 

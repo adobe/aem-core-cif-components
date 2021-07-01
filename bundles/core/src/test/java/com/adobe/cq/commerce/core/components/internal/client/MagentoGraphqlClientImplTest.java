@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.client;
+package com.adobe.cq.commerce.core.components.internal.client;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +39,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.MockLaunch;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
@@ -56,10 +58,10 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.*;
 
-public class MagentoGraphqlClientTest {
+public class MagentoGraphqlClientImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
+        "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
@@ -87,7 +89,7 @@ public class MagentoGraphqlClientTest {
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(resource, null, null);
         Assert.assertNotNull("GraphQL client created successfully", client);
         executeAndCheck(withStoreHeader, client);
     }
@@ -126,7 +128,7 @@ public class MagentoGraphqlClientTest {
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(expectedHeaders, HttpMethod.GET);
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageWithConfig.adaptTo(Resource.class), pageWithConfig, null);
         client.execute("{dummy}", HttpMethod.GET);
         graphqlClient.getConfiguration();
 
@@ -141,7 +143,7 @@ public class MagentoGraphqlClientTest {
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageWithConfig.adaptTo(Resource.class), pageWithConfig);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageWithConfig.adaptTo(Resource.class), pageWithConfig, null);
         Assert.assertNotNull("GraphQL client created successfully", client);
         executeAndCheck(true, client);
     }
@@ -164,7 +166,7 @@ public class MagentoGraphqlClientTest {
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource, page);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(resource, page, null);
         Assert.assertNotNull("GraphQL client created successfully", client);
         client.execute("{dummy}");
 
@@ -217,12 +219,11 @@ public class MagentoGraphqlClientTest {
         testMagentoStoreProperty(resource, true);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testError() {
         // Get page which has the magentoStore property in its jcr:content node
         Resource resource = Mockito.spy(context.resourceResolver().getResource("/content/pageG"));
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(resource);
-        Assert.assertNull(client);
+        new MagentoGraphqlClientImpl(resource, null, null);
     }
 
     @Test
@@ -245,7 +246,7 @@ public class MagentoGraphqlClientTest {
         Page launchPage = context.pageManager().getPage(LAUNCH_PAGE_A);
         Resource launchProductResource = context.resourceResolver().getResource(LAUNCH_BASE_PATH + PRODUCT_COMPONENT_PATH);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(launchProductResource, launchPage);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(launchProductResource, launchPage, null);
 
         // Verify parameters with default execute() method and store property
         client.execute("{dummy}");
@@ -301,7 +302,7 @@ public class MagentoGraphqlClientTest {
         when(pageResource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        MagentoGraphqlClient client = MagentoGraphqlClient.create(pageResource, page, context.request());
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageResource, page, context.request());
 
         // Verify parameters with default execute() method and store property
         client.execute("{dummy}");

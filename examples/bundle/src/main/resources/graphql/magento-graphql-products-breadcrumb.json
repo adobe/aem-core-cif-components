@@ -10,13 +10,11 @@
           "categories": [
             {
               "__typename": "CategoryTree",
-              "id": 1,
               "uid": "uid1",
               "url_path": "outdoor/collection",
               "name": "Collection",
               "breadcrumbs": [
                 {
-                  "category_id": 2,
                   "category_uid": "uid2",
                   "category_url_path": "outdoor",
                   "category_name": "Outdoor"

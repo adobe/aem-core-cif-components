@@ -118,12 +118,12 @@ public class SpecificPageServletTest {
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId2");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-2");
 
         servlet.doGet(request, response);
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId2");
+        options.setReplaceSelectors("category-uid-2");
 
         // Check that the request dispatcher is called for the matching sub-page
         ResourcePathMatcher matcher = new ResourcePathMatcher("/content/category-page/sub-page");
@@ -140,14 +140,14 @@ public class SpecificPageServletTest {
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId3");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-3");
         servlet.doGet(request, response);
 
         // Check that the request dispatcher is called for the matching sub-page
         ResourcePathMatcher matcher = new ResourcePathMatcher("/content/category-page/sub-page-with-urlpath");
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId3");
+        options.setReplaceSelectors("category-uid-3");
 
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), eq(options));
     }
@@ -162,11 +162,11 @@ public class SpecificPageServletTest {
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId3");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-3");
         servlet.doGet(request, response);
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId3");
+        options.setReplaceSelectors("category-uid-3");
 
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(eq(request.getResource()), eq(options));
         Mockito.verify(request).adaptTo(ProductList.class); // verify that the model is only adapted once

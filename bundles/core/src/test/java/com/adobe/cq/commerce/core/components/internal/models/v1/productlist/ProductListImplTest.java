@@ -44,7 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
+import com.adobe.cq.commerce.core.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -95,10 +95,9 @@ public class ProductListImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -173,8 +172,8 @@ public class ProductListImplTest {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
-        context.request().setServletPath(PAGE + ".6.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSelectorString("MTI==");
+        context.request().setServletPath(PAGE + ".MTI==.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -193,9 +192,6 @@ public class ProductListImplTest {
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
-
-        // context.request().adaptTo(ProductListImpl.class); is moved to each test because it uses an internal cache
-        // and we want to override the "slug" in testEditModePlaceholderData()
     }
 
     protected void adaptToProductList() {
@@ -210,7 +206,7 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".6.html", productListModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".MTI==.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -314,14 +310,14 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
             Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
 
-            // Make sure deprecated methods still work
-            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPrice(), 0);
-            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(), item
-                .getCurrency());
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(),
+                item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(),
+                item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
                 .toString()));
-            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()), item
-                .getFormattedPrice());
+            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()),
+                item.getPriceRange().getFormattedFinalPrice());
 
             ProductImage smallImage = productInterface.getSmallImage();
             if (smallImage == null) {
@@ -336,7 +332,7 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
-        Assert.assertEquals(7, searchAggregations.size()); // category_id is excluded
+        Assert.assertEquals(8, searchAggregations.size());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
