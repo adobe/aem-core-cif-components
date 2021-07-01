@@ -19,7 +19,7 @@ const commons = require('../../lib/commons');
 
 describe('Product bundle in CIF components library', () => {
 
-    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.sprite-yoga-companion-kit.html`;
+    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.html/sprite-yoga-companion-kit`;
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {
