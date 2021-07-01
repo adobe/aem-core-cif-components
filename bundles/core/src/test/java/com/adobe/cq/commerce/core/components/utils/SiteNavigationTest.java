@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.client.MockLaunch;
+import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;

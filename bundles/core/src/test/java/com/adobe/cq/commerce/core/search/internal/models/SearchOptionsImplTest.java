@@ -58,17 +58,17 @@ public class SearchOptionsImplTest {
     }
 
     @Test
-    public void testIncludesCategoryIdIfSet() {
+    public void testIncludesCategoryUidIfSet() {
         modelUnderTest = new SearchOptionsImpl();
 
-        final String categoryId = "123";
+        final String categoryId = "uid-123";
 
         modelUnderTest.setAttributeFilters(testAttributeFilters);
-        modelUnderTest.setCategoryId(categoryId);
+        modelUnderTest.setCategoryUid(categoryId);
 
         assertThat(modelUnderTest.getAllFilters()).isNotNull();
         assertThat(modelUnderTest.getAllFilters().size()).isEqualTo(4);
-        assertThat(modelUnderTest.getCategoryId()).hasValue(categoryId);
+        assertThat(modelUnderTest.getCategoryUid()).hasValue(categoryId);
     }
 
     @Test

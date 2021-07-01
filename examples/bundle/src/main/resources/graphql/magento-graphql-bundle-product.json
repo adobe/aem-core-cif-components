@@ -62,7 +62,7 @@
           "categories": [
             {
               "__typename": "CategoryTree",
-              "id": 10,
+              "uid": "uid-1",
               "name": "category-1",
               "image": "/url/to/image"
             }

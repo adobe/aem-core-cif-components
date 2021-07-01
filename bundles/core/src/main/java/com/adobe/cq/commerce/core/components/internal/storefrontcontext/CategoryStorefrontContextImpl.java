@@ -11,9 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.storefrontcontext;
+package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
-import com.adobe.cq.commerce.core.components.internal.storefrontcontext.AbstractCommerceStorefrontContext;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 
 public class CategoryStorefrontContextImpl extends AbstractCommerceStorefrontContext implements CategoryStorefrontContext {

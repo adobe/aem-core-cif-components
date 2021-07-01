@@ -48,7 +48,7 @@ public class CategoryRetrieverTest {
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
 
         retriever = new CategoryRetriever(mockClient);
-        retriever.setIdentifier(CategoryIdentifierType.ID, "5");
+        retriever.setIdentifier(CategoryIdentifierType.UID, "Mg==");
     }
 
     @Test

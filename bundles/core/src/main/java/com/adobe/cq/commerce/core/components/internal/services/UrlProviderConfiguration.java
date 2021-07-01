@@ -25,11 +25,8 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentif
 @ObjectClassDefinition(name = "CIF URL Provider configuration")
 public @interface UrlProviderConfiguration {
 
-    String OLD_PRODUCT_URL_TEMPLATE = "${page}.${url_key}.html#${variant_sku}";
-    String OLD_CATEGORY_URL_TEMPLATE = "${page}.${id}.html";
-
     String DEFAULT_PRODUCT_URL_TEMPLATE = "{{page}}.{{url_key}}.html#{{variant_sku}}";
-    String DEFAULT_CATEGORY_URL_TEMPLATE = "{{page}}.{{id}}.html";
+    String DEFAULT_CATEGORY_URL_TEMPLATE = "{{page}}.{{uid}}.html";
 
     @AttributeDefinition(
         name = "Product URL template",
@@ -52,7 +49,7 @@ public @interface UrlProviderConfiguration {
 
     @AttributeDefinition(
         name = "Category URL template",
-        description = "Default variables are {{page}}, {{uid}}, {{id}}, {{url_key}} and {{url_path}}.",
+        description = "Default variables are {{page}}, {{uid}}, {{url_key}} and {{url_path}}.",
         type = AttributeType.STRING,
         required = true)
     String categoryUrlTemplate() default DEFAULT_CATEGORY_URL_TEMPLATE;
@@ -67,5 +64,5 @@ public @interface UrlProviderConfiguration {
         name = "Category identifier type",
         description = "Defines the type of the category identifier in the URL.",
         required = true)
-    CategoryIdentifierType categoryIdentifierType() default CategoryIdentifierType.ID;
+    CategoryIdentifierType categoryIdentifierType() default CategoryIdentifierType.UID;
 }

@@ -45,7 +45,7 @@ class ProductRetriever extends AbstractProductRetriever {
                     .label()
                     .position())
                 .categories(c -> c
-                    .id()
+                    .uid()
                     .name()
                     .image());
 
@@ -77,7 +77,7 @@ class ProductRetriever extends AbstractProductRetriever {
                     .label()
                     .position())
                 .categories(c -> c
-                    .id()
+                    .uid()
                     .name()
                     .image())
                 .onConfigurableProduct(cp -> cp
