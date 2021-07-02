@@ -15,18 +15,25 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { useTranslation } from 'react-i18next';
-import { useStorefrontEvents, Price, Trigger, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
+import {
+    useStorefrontEvents,
+    Price,
+    Trigger,
+    LoadingIndicator,
+    createProductPageUrl
+} from '@adobe/aem-core-cif-react-components';
 
 import { useRecommendations } from '../../hooks/useRecommendations';
-import { useVisiblityObserver } from '../../hooks/useVisibilityObserver';
+import { useVisibilityObserver } from '../../hooks/useVisibilityObserver';
 
 import classes from './ProductRecsGallery.css';
+import {} from '@adobe/aem-core-cif-react-components/src';
 
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
     const { loading, data } = useRecommendations(props);
-    const { observeElement } = useVisiblityObserver();
+    const { observeElement } = useVisibilityObserver();
     const [t] = useTranslation();
 
     const addToCart = (unit, product) => {
@@ -38,7 +45,7 @@ const ProductRecsGallery = props => {
         });
         document.dispatchEvent(customEvent);
 
-        mse && mse.publish.recsItemAddToCartClick({ unitId, productId });
+        mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
 
     const renderPrice = (prices, currency) => {
@@ -57,16 +64,20 @@ const ProductRecsGallery = props => {
     };
 
     const renderCard = (unit, product) => {
-        // CIF-2173: on click mse.publish.recsItemClick
+        const { unitId } = unit;
+        const { sku, name, type, productId, currency, prices, smallImage } = product;
+
         return (
-            <div className={classes.card} key={product.sku}>
-                <div className={classes.cardImage}>
-                    <img className={classes.productImage} src={product.smallImage.url} alt={product.name} />
-                </div>
-                <div>{product.name}</div>
-                <div className={classes.price}>{renderPrice(product.prices, product.currency)}</div>
+            <div className={classes.card} key={sku}>
+                <a href={createProductPageUrl(sku)} onClick={() => mse && mse.publish.recsItemClick(unitId, productId)}>
+                    <div className={classes.cardImage}>
+                        <img className={classes.productImage} src={smallImage.url} alt={name} />
+                    </div>
+                    <div>{product.name}</div>
+                    <div className={classes.price}>{renderPrice(prices, currency)}</div>
+                </a>
                 {// Only display add to cart button for products that can be added to cart without further customization
-                ['simple', 'virtual', 'downloadable'].includes(product.type) && (
+                ['simple', 'virtual', 'downloadable'].includes(type) && (
                     <Trigger action={() => addToCart(unit, product)}>
                         <span className={classes.addToCart}>{t('productrecs:add-to-cart', 'Add to cart')}</span>
                     </Trigger>
@@ -85,7 +96,7 @@ const ProductRecsGallery = props => {
         const unit = data.units[0];
         if (unit.products.length > 0) {
             const isVisible = () => {
-                mse && mse.publish.recsUnitView({ unitId: unit.unitId });
+                mse && mse.publish.recsUnitView(unit.unitId);
             };
 
             content = (
@@ -98,7 +109,7 @@ const ProductRecsGallery = props => {
             );
 
             if (!rendered.current) {
-                mse && mse.publish.recsUnitRender({ unitId: unit.unitId });
+                mse && mse.publish.recsUnitRender(unit.unitId);
                 rendered.current = true;
             }
         }

@@ -38,3 +38,4 @@ export { default as MyAccount } from './components/MyAccount';
 export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';
 export { useAwaitQuery, useStorefrontEvents, usePageType } from './utils/hooks';
+export { createProductPageUrl } from './utils/createProductPageUrl';

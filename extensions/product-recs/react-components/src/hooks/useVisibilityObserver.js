@@ -14,7 +14,7 @@
 
 let cleared = {};
 
-export const useVisiblityObserver = props => {
+export const useVisibilityObserver = props => {
     const {
         options = {
             threshold: [0.0, 0.5]
