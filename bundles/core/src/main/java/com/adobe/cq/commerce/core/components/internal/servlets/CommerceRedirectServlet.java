@@ -83,13 +83,13 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
         String suffix = request.getRequestPathInfo().getSuffix();
 
         if (suffix == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The redirect info is incomplete.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing redirect suffix.");
             return;
         }
 
         String[] suffixInfo = suffix.substring(1).split("/");
         if (suffixInfo.length != 2) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The redirect info is incomplete.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Redirect suffix has wrong format.");
             return;
         }
 
