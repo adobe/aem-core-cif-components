@@ -39,13 +39,6 @@ public interface ProductTeaser extends Component {
     String getName();
 
     /**
-     * @return The formatted price including the currency.
-     * @deprecated Please use getPriceRange() instead.
-     */
-    @Deprecated
-    String getFormattedPrice();
-
-    /**
      * Returns url of swatch image of the product for display for this {@code ProductTeaser}
      *
      * @return url of the swatch image for the product or {@code null}

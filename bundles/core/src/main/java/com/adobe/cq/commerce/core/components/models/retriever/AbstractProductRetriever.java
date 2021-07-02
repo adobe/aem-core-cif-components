@@ -54,12 +54,6 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected ProductInterface product;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
      * Identifier of the product that should be fetched. Which kind of identifier is used is specified in {@link #productIdentifierType}
      */
     protected String identifier;
@@ -83,32 +77,6 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
             populate();
         }
         return this.product;
-    }
-
-    /**
-     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
-     * returned.
-     *
-     * @return Media base url
-     */
-    @Deprecated
-    public String fetchMediaBaseUrl() {
-        if (this.mediaBaseUrl == null) {
-            populate();
-        }
-        return this.mediaBaseUrl;
-    }
-
-    /**
-     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
-     *
-     * @param identifier Product identifier
-     * @deprecated Use {@link #setIdentifier(ProductIdentifierType, String)} instead.
-     */
-    @Deprecated
-    public void setIdentifier(String identifier) {
-        setIdentifier(ProductIdentifierType.SKU, identifier); // Backwards compatibility, default identifier was SKU
     }
 
     /**

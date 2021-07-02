@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
+import com.adobe.cq.commerce.core.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -84,7 +84,7 @@ public class ProductCollectionImplTest {
         context.currentResource(PRODUCT_COLLECTION);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
+        requestPathInfo.setSelectorString("MTI==");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         Resource productCollectionResource = context.resourceResolver().getResource(PRODUCT_COLLECTION);

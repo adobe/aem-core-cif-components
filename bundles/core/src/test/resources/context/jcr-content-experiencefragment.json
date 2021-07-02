@@ -96,24 +96,6 @@
                         }
                     }
                 },
-                "xf-1-id" :{
-                    "jcr:primaryType": "cq:Page",
-                    "jcr:content": {
-                        "jcr:primaryType": "cq:PageContent",
-                        "jcr:title": "Test XF",
-                        "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
-                    },
-                    "master": {
-                        "jcr:primaryType": "cq:Page",
-                        "jcr:content": {
-                            "jcr:primaryType": "cq:PageContent",
-                            "jcr:title": "Text XF Master",
-                            "cq:xfVariantType": "web",
-                            "cq:xfMasterVariation": "true",
-                            "cq:categories": "1"
-                        }
-                    }
-                },
                 "xf-2-uid" :{
                     "jcr:primaryType": "cq:Page",
                     "jcr:content": {
@@ -130,25 +112,6 @@
                             "cq:xfMasterVariation": "true",
                             "cq:products": "sku-xf2",
                             "cq:categories": "uid2",
-                            "fragmentLocation": "location-xf2"
-                        }
-                    }
-                },
-                "xf-2-id" :{
-                    "jcr:primaryType": "cq:Page",
-                    "jcr:content": {
-                        "jcr:primaryType": "cq:PageContent",
-                        "jcr:title": "Test XF",
-                        "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
-                    },
-                    "master": {
-                        "jcr:primaryType": "cq:Page",
-                        "jcr:content": {
-                            "jcr:primaryType": "cq:PageContent",
-                            "jcr:title": "Text XF Master",
-                            "cq:xfVariantType": "web",
-                            "cq:xfMasterVariation": "true",
-                            "cq:categories": "2",
                             "fragmentLocation": "location-xf2"
                         }
                     }

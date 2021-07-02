@@ -5,7 +5,6 @@
       "items": [
         {
           "__typename": "SimpleProduct",
-          "id": 6,
           "staged": false,
           "sku": "24-MB02",
           "name": "Fusion Backpack",
@@ -32,7 +31,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "id": 38,
           "staged": false,
           "sku": "24-MG03",
           "name": "Summit Watch",
@@ -59,7 +57,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "id": 42,
           "staged": false,
           "sku": "24-WG01",
           "name": "Bolo Sport Watch",
@@ -86,7 +83,6 @@
         },
         {
           "__typename": "ConfigurableProduct",
-          "id": 70,
           "staged": false,
           "sku": "MH01",
           "name": "Chaz Kangeroo Hoodie",
@@ -127,7 +123,6 @@
         },
         {
           "__typename": "ConfigurableProduct",
-          "id": 102,
           "staged": false,
           "sku": "MH03",
           "name": "Bruno Compete Hoodie",
@@ -168,7 +163,6 @@
         },
         {
           "__typename": "ConfigurableProduct",
-          "id": 1276,
           "staged": false,
           "sku": "WJ04",
           "name": "Ingrid Running Jacket",

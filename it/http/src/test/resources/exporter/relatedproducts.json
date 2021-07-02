@@ -17,9 +17,7 @@
       },
       "dataLayer": {
         "relatedproducts-e9a4c0745d-item-746a9ae1b7": {
-          "xdm:currencyCode": "",
           "xdm:SKU": "24-MG03",
-          "xdm:listPrice": 0.0,
           "repo:modifyDate": "2021-05-12T11:20:51Z",
           "@type": "core/cif/components/commerce/productlistitem"
         }
@@ -34,9 +32,7 @@
       },
       "dataLayer": {
         "relatedproducts-e9a4c0745d-item-e38fb02cec": {
-          "xdm:currencyCode": "",
           "xdm:SKU": "24-WG01",
-          "xdm:listPrice": 0.0,
           "repo:modifyDate": "2021-05-12T11:20:51Z",
           "@type": "core/cif/components/commerce/productlistitem"
         }

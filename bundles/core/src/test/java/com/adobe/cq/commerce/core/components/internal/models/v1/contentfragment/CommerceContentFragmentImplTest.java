@@ -84,6 +84,10 @@ public class CommerceContentFragmentImplTest {
     private static final String CONTENT_FRAGMENT_PATH_4 = "/content/pageA/jcr:content/root/contentfragment3";
     private static final String CONTENT_FRAGMENT_PATH_5 = "/content/pageB/jcr:content/root/contentfragment5";
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
     @Rule
     public final AemContext context = createContext("/context/jcr-content-content-fragment.json");
     MockSlingHttpServletRequest request;
@@ -276,8 +280,6 @@ public class CommerceContentFragmentImplTest {
     @Test
     public void testContentFragmentForProductPageNoSku() {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         urlProvider.activate(new MockUrlProviderConfiguration() {
             @Override
             public UrlProvider.ProductIdentifierType productIdentifierType() {
@@ -322,7 +324,7 @@ public class CommerceContentFragmentImplTest {
         prepareRequest(CONTENT_FRAGMENT_PATH_3);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("id");
+        requestPathInfo.setSelectorString("uid");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
@@ -342,12 +344,11 @@ public class CommerceContentFragmentImplTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
         Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK,
-            "url_path\"}}){id,uid}}");
-        ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store", "enableUIDSupport", String.valueOf(false)));
+            "url_path\"}}){uid}}");
+
         Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(mockConfig));
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -425,7 +426,7 @@ public class CommerceContentFragmentImplTest {
         contentFragmentElements.add(element);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("id");
+        requestPathInfo.setSelectorString("uid");
 
         // single text field content fragment
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);

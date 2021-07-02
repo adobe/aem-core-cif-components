@@ -33,6 +33,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
@@ -68,6 +69,9 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private UrlProvider urlProvider;
@@ -177,17 +181,16 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     }
 
     private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive) {
-        addCategoryItem(b.getCategoryId(), b.getCategoryUid(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(),
+        addCategoryItem(b.getCategoryUid(), b.getCategoryUrlKey(), b.getCategoryUrlPath(), b.getCategoryName(),
             isActive);
     }
 
     private void addCategoryItem(CategoryInterface category, boolean isActive) {
-        addCategoryItem(category.getId(), category.getUid(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
+        addCategoryItem(category.getUid(), category.getUrlKey(), category.getUrlPath(), category.getName(), isActive);
     }
 
-    private void addCategoryItem(Integer id, ID uid, String urlKey, String urlPath, String name, boolean isActive) {
+    private void addCategoryItem(ID uid, String urlKey, String urlPath, String name, boolean isActive) {
         Map<String, String> params = new ParamsBuilder()
-            .id(id.toString())
             .uid(uid.toString())
             .urlKey(urlKey)
             .urlPath(urlPath)
@@ -210,18 +213,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
      */
     private Function<CategoryInterface, Integer> depthKey = c -> c.getUrlPath().split("/").length;
 
-    /**
-     * Orders the categories with smallest id first.
-     */
-    private Function<CategoryInterface, Integer> idKey = c -> c.getId();
-
     @Override
     public Comparator<CategoryInterface> getCategoryInterfaceComparator() {
         return Comparator
             .comparing(structureDepthKey)
             .thenComparing(depthKey)
-            .reversed()
-            .thenComparing(idKey);
+            .reversed();
     }
 
     private List<? extends CategoryInterface> fetchProductBreadcrumbs() {
@@ -230,7 +227,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }
@@ -247,7 +243,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return null;
         }
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             return null;
         }

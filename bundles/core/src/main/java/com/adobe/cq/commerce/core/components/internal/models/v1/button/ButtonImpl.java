@@ -24,6 +24,7 @@ import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
@@ -73,7 +74,7 @@ public class ButtonImpl implements Button {
     private String categoryId;
 
     @ValueMapValue
-    @Default(values = "id")
+    @Default(values = "uid")
     private String categoryIdType;
 
     @ValueMapValue
@@ -83,6 +84,9 @@ public class ButtonImpl implements Button {
     @Self
     @Via(type = ResourceSuperType.class)
     private Button button;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @ValueMapValue
     private String linkType;
@@ -134,20 +138,13 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
                     ParamsBuilder params = new ParamsBuilder();
-                    if (StringUtils.equalsIgnoreCase(categoryIdType, "uid")) {
-                        categoryIdentifierType = CategoryIdentifierType.UID;
-                    }
-
-                    MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
+                        categoryRetriever.setIdentifier(CategoryIdentifierType.UID, categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
                             params.urlPath(category.getUrlPath());
-                            params.id(category.getId().toString());
                             params.uid(category.getUid().toString());
                         }
                     }

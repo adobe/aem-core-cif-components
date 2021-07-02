@@ -29,6 +29,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
@@ -81,6 +82,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Via(type = ResourceSuperType.class)
     private Teaser wcmTeaser;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @PostConstruct
     void initModel() {
         if (isActionsEnabled()) {
@@ -100,12 +104,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 .distinct().collect(Collectors.toList());
 
             AbstractCategoriesRetriever categoriesRetriever = null;
-            if (categoryIds.size() > 0) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-                if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                    categoriesRetriever.setIdentifiers(categoryIds);
-                }
+            if (categoryIds.size() > 0 && magentoGraphqlClient != null) {
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                categoriesRetriever.setIdentifiers(categoryIds);
             }
 
             Page productPage = SiteNavigation.getProductPage(currentPage);
@@ -120,26 +121,26 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String title = properties.get(PN_ACTION_TEXT, String.class);
 
                 String actionUrl;
-                CommerceIdentifier id = null;
+                CommerceIdentifier identifier = null;
 
                 if (categoryId != null) {
-                    ParamsBuilder params = new ParamsBuilder().id(categoryId);
+                    ParamsBuilder params = new ParamsBuilder().uid(categoryId);
                     if (categoriesRetriever != null) {
                         try {
                             Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getId().equals(Integer.valueOf(categoryId))).findAny();
+                                .filter(c -> c.getUid().equals(categoryId)).findAny();
                             cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
                         } catch (RuntimeException x) {
                             LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
-                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                    identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
-                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
+                    identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
@@ -147,7 +148,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier));
             }
         }
     }
