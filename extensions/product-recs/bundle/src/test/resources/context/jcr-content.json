@@ -5,9 +5,9 @@
       "jcr:primaryType": "cq:PageContent",
       "root": {
         "responsivegrid": {
+          "product-recs-empty": {},
           "product-recs": {
             "jcr:primaryType": "nt:unstructured",
-            "jcr:title": "Recommended products",
             "excludeProducts": false,
             "includeCategories": true,
             "excludeOutOfStock": true,

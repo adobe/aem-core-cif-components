@@ -59,6 +59,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     private static final String EXCLUDED_MAX_PRICE = "excludedMaxPrice";
     private static final String EXCLUDE_OUT_OF_STOCK = "excludeOutOfStock";
     private static final String EXCLUDE_LOW_STOCK = "excludeLowStock";
+    private static final String DEFAULT_TITLE = "Recommended products";
 
     @Self
     protected SlingHttpServletRequest request;
@@ -89,7 +90,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public String getTitle() {
-        return props.get(TITLE_PROP, StringUtils.EMPTY);
+        return props.get(TITLE_PROP, DEFAULT_TITLE);
     }
 
     @Override

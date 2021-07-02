@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.prod
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -36,6 +35,7 @@ public class ProductRecommendationsImplTest {
     private ProductRecommendationsImpl productRecommendations;
 
     private static final String PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs";
+    private static final String EMPTY_PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -47,10 +47,9 @@ public class ProductRecommendationsImplTest {
         }, ResourceResolverType.JCR_MOCK);
     }
 
-    @Before
-    public void setupTest() {
+    private void setupTest(String componentPath) {
         // Mock resource and resolver
-        Resource resource = Mockito.spy(context.resourceResolver().getResource(PRODUCT_RECS_PATH));
+        Resource resource = Mockito.spy(context.resourceResolver().getResource(componentPath));
         ResourceResolver resolver = Mockito.spy(resource.getResourceResolver());
         when(resource.getResourceResolver()).thenReturn(resolver);
         context.currentResource(resource);
@@ -58,7 +57,14 @@ public class ProductRecommendationsImplTest {
     }
 
     @Test
+    public void testEmptyTitle() {
+        setupTest(EMPTY_PRODUCT_RECS_PATH);
+        assertEquals("Recommended products", productRecommendations.getTitle());
+    }
+
+    @Test
     public void testFiltersEnabled() {
+        setupTest(PRODUCT_RECS_PATH);
         assertNull(productRecommendations.getCategoryExclusions());
         assertNotNull(productRecommendations.getCategoryInclusions());
         assertEquals("shorts-men,pants-men", productRecommendations.getCategoryInclusions());
@@ -66,12 +72,14 @@ public class ProductRecommendationsImplTest {
 
     @Test
     public void testPriceRange() {
+        setupTest(PRODUCT_RECS_PATH);
         assertNotNull(productRecommendations.getPriceRangeExclusions());
         assertNotNull(productRecommendations.getPriceRangeInclusions());
     }
 
     @Test
     public void testStringProperties() {
+        setupTest(PRODUCT_RECS_PATH);
         assertEquals("Recommended products", productRecommendations.getTitle());
         assertEquals("most-viewed", productRecommendations.getRecommendationType());
         assertEquals("configurable,grouped,downloadable", productRecommendations.getTypeInclusions());
@@ -84,6 +92,7 @@ public class ProductRecommendationsImplTest {
 
     @Test
     public void testBooleanProperties() {
+        setupTest(PRODUCT_RECS_PATH);
         assertFalse(productRecommendations.excludeLowStock());
         assertTrue(productRecommendations.excludeOutOfStock());
     }
