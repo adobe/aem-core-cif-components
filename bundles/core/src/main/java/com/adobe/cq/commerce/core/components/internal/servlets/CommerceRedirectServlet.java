@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,25 +32,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.PageManagerFactory;
 
 @Component(
     service = Servlet.class,
     immediate = true,
     property = {
-        "sling.servlet.methods=GET",
-        "sling.servlet.resources=core/cif/components/structure/page/v1/page",
-        "sling.servlet.selectors=" + CommerceRedirectServlet.SELECTOR,
-        "sling.servlet.extensions=" + CommerceRedirectServlet.EXTENSION
+        ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + CommerceRedirectServlet.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + CommerceRedirectServlet.SELECTOR,
+        ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + CommerceRedirectServlet.EXTENSION
     })
 @Designate(ocd = UrlProviderConfiguration.class)
 public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
@@ -57,12 +62,16 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
 
     protected static final String SELECTOR = "cifredirect";
     protected static final String EXTENSION = "html";
+    protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
     private Page productPage;
 
     @Reference
     private UrlProvider urlProvider;
+
+    @Reference
+    PageManagerFactory pageManagerFactory;
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
@@ -84,7 +93,10 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
             return;
         }
 
-        productPage = request.getResource().adaptTo(Page.class);
+        PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
+
+        Page currentPage = pageManager.getContainingPage(request.getResource());
+        productPage = SiteNavigation.getProductPage(currentPage);
 
         if ("product".equals(suffixInfo[0])) {
             redirectToProductPage(request, response, suffixInfo[1]);
@@ -99,7 +111,7 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
         if (productIdentifierConfig.getRight().equals(ProductIdentifierType.SKU)) {
             params.sku(sku);
         } else {
-            MagentoGraphqlClient magentoGraphqlClient = new MagentoGraphqlClientImpl(request);
+            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             AbstractProductRetriever productRetriever = new ProductRetriever(magentoGraphqlClient);
 
             productRetriever.setIdentifier(ProductIdentifierType.SKU, sku);
@@ -108,7 +120,8 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
             params.urlKey(product.getUrlKey());
         }
 
-        response.sendRedirect(urlProvider.toProductUrl(request, productPage, params.map()));
+        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        response.setHeader("Location", urlProvider.toProductUrl(request, productPage, params.map()));
     }
 
     private static class ProductRetriever extends AbstractProductRetriever {
@@ -119,15 +132,7 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
 
         @Override
         protected ProductInterfaceQueryDefinition generateProductQuery() {
-            return q -> {
-                q.sku()
-                    .urlKey();
-
-                // Apply product query hook
-                if (productQueryHook != null) {
-                    productQueryHook.accept(q);
-                }
-            };
+            return ProductInterfaceQuery::urlKey;
         }
     };
 }
