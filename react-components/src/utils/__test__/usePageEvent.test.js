@@ -42,8 +42,8 @@ describe('usePageEvent', () => {
             window.dispatchEvent(new CustomEvent('beforeunload'));
         });
 
-        expect(mse.context.setPage).toHaveBeenCalledTimes(2);
-        expect(mse.context.setPage.mock.calls[1][0]).toMatchObject({
+        expect(mse.context.setPage).toHaveBeenCalledTimes(1);
+        expect(mse.context.setPage.mock.calls[0][0]).toMatchObject({
             pageType: 'CMS',
             eventType: 'pageUnload',
             ping_interval: 0,
@@ -60,8 +60,8 @@ describe('usePageEvent', () => {
             window.dispatchEvent(new CustomEvent('beforeunload'));
         });
 
-        expect(mse.context.setPage).toHaveBeenCalledTimes(2);
-        expect(mse.context.setPage.mock.calls[1][0]).toMatchObject({
+        expect(mse.context.setPage).toHaveBeenCalledTimes(1);
+        expect(mse.context.setPage.mock.calls[0][0]).toMatchObject({
             pageType: 'Product',
             eventType: 'pageUnload',
             ping_interval: 0,
@@ -78,8 +78,8 @@ describe('usePageEvent', () => {
             window.dispatchEvent(new CustomEvent('beforeunload'));
         });
 
-        expect(mse.context.setPage).toHaveBeenCalledTimes(2);
-        expect(mse.context.setPage.mock.calls[1][0]).toMatchObject({
+        expect(mse.context.setPage).toHaveBeenCalledTimes(1);
+        expect(mse.context.setPage.mock.calls[0][0]).toMatchObject({
             pageType: 'Category',
             eventType: 'pageUnload',
             ping_interval: 0,

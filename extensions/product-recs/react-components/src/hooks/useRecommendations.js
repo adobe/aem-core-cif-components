@@ -15,7 +15,7 @@
 import { useEffect, useState } from 'react';
 
 import RecommendationsClient from '@magento/recommendations-js-sdk';
-import { useStorefrontEvents } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontEvents, usePageType } from '@adobe/aem-core-cif-react-components';
 
 import { useStorefrontInstanceContext } from '../context/StorefrontInstanceContext';
 
@@ -25,6 +25,7 @@ export const useRecommendations = props => {
     const mse = useStorefrontEvents();
     const { context: storefrontInstance, error: storefrontInstanceError } = useStorefrontInstanceContext();
     const [data, setData] = useState({ loading: true, data: null });
+    const pageType = usePageType();
 
     const {
         title,
@@ -51,11 +52,7 @@ export const useRecommendations = props => {
 
         (async () => {
             // If no parameters are passed, everything is automatically taken from MSE
-            // TODO: Double check the pageType here. It's available via ACDL, but there might be a timing issue, where it
-            // isn't set in time.
-            // See https://git.corp.adobe.com/magento-datalake/recommendations-js-sdk/blob/main/src/defaults.js#L38
-            // Might need a special hook that provides the pageType that can be exposed by the core react components
-            const client = new RecommendationsClient({ alternateEnvironmentId: '' });
+            const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType });
 
             // Add filtering
             // This is currently limited to a single filter by the recommendations SDK
