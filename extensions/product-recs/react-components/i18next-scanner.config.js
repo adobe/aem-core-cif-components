@@ -38,9 +38,9 @@ module.exports = {
             }
         },
         lngs: ['en'],
-        ns: ['common', 'product-recs'],
+        ns: ['productrecs'],
         defaultLng: 'en',
-        defaultNs: 'common',
+        defaultNs: 'productrecs',
         defaultValue: '__STRING_NOT_TRANSLATED__',
         resource: {
             loadPath: 'i18n/{{lng}}/{{ns}}.json',

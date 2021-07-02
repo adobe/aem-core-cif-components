@@ -14,6 +14,7 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { useTranslation } from 'react-i18next';
 import { useStorefrontEvents, Price, Trigger, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
 import { useRecommendations } from '../../hooks/useRecommendations';
@@ -26,6 +27,7 @@ const ProductRecsGallery = props => {
     const rendered = useRef(false);
     const { loading, data } = useRecommendations(props);
     const { observeElement } = useVisiblityObserver();
+    const [t] = useTranslation();
 
     const addToCart = (unit, product) => {
         const { sku, type, productId } = product;
@@ -39,6 +41,21 @@ const ProductRecsGallery = props => {
         mse && mse.publish.recsItemAddToCartClick({ unitId, productId });
     };
 
+    const renderPrice = (prices, currency) => {
+        const { minimum, maximum } = prices;
+        const isRange = !!(Math.round(minimum.final * 100) != Math.round(maximum.final * 100));
+
+        if (isRange) {
+            return (
+                <>
+                    {t('productrecs:price-from', 'from')} <Price value={minimum.final} currencyCode={currency} />
+                </>
+            );
+        }
+
+        return <Price value={minimum.final} currencyCode={currency} />;
+    };
+
     const renderCard = (unit, product) => {
         // CIF-2173: on click mse.publish.recsItemClick
         return (
@@ -47,13 +64,11 @@ const ProductRecsGallery = props => {
                     <img className={classes.productImage} src={product.smallImage.url} alt={product.name} />
                 </div>
                 <div>{product.name}</div>
-                <div className={classes.price}>
-                    <Price value={product.prices.minimum.final} currencyCode={product.currency} />
-                </div>
+                <div className={classes.price}>{renderPrice(product.prices, product.currency)}</div>
                 {// Only display add to cart button for products that can be added to cart without further customization
                 ['simple', 'virtual', 'downloadable'].includes(product.type) && (
                     <Trigger action={() => addToCart(unit, product)}>
-                        <span className={classes.addToCart}>Add to cart</span>
+                        <span className={classes.addToCart}>{t('productrecs:add-to-cart', 'Add to cart')}</span>
                     </Trigger>
                 )}
             </div>
