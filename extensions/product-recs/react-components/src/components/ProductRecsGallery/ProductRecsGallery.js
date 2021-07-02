@@ -27,7 +27,6 @@ import { useRecommendations } from '../../hooks/useRecommendations';
 import { useVisibilityObserver } from '../../hooks/useVisibilityObserver';
 
 import classes from './ProductRecsGallery.css';
-import {} from '@adobe/aem-core-cif-react-components/src';
 
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
