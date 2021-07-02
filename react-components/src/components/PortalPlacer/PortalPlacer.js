@@ -14,10 +14,14 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import Portal from '../Portal/Portal';
+import useEditorEvents from '../../utils/useEditorEvents';
 
 const PortalPlacer = props => {
     const { selector, component: Cmp } = props;
+    useEditorEvents();
+
     const elems = document.querySelectorAll(selector);
 
     const children = [...elems].map((elem, index) => {
