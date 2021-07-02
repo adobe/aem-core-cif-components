@@ -146,7 +146,7 @@ public interface UrlProvider {
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**
-     * Returns the type and value of the product identifier used in the given Sling HTTP request.
+     * Returns the product identifier (sku) used in the given Sling HTTP request. The product identifier can be used to load product data.
      * 
      * @param request The current Sling HTTP request.
      * @return The product sku identifier.
@@ -154,12 +154,30 @@ public interface UrlProvider {
     public String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
-     * Returns the type and value of the category identifier used in the given Sling HTTP request.
+     * Parses and returns the product sku or url_key used in the given Sling HTTP request based on the URLProvider configuration for product
+     * page URLs.
      * 
      * @param request The current Sling HTTP request.
-     * @return The type and value of the category identifier.
+     * @return The product sku or url_key from the URL.
+     */
+    public String parseProductUrlIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Returns the category identifier used in the given Sling HTTP request. The category identifier can be used to load category data.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The category uid identifier.
      */
     public String getCategoryIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Parses and returns the category url_path used in the given Sling HTTP request based on the URLProvider configuration for product
+     * page URLs.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The category url_path from the URL.
+     */
+    public String parseCategoryUrlIdentifier(SlingHttpServletRequest request);
 
     /**
      * A helper class used to easily build parameters for the URL templates.

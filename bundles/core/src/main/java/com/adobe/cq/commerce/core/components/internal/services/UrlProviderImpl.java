@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ public class UrlProviderImpl implements UrlProvider {
 
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
-    private static final String ID_AND_URL_PATH_SEPARATOR = "|";
+    private static final String UID_AND_URL_PATH_SEPARATOR = "|";
     private static final String TEMPLATE_PREFIX = "{{";
     private static final String TEMPLATE_SUFFIX = "}}";
 
@@ -227,52 +226,45 @@ public class UrlProviderImpl implements UrlProvider {
             // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
             String[] selectorFilters = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
 
-            // When used with the category picker and the 'idAndUrlPath' option, the values might have a format like '12|men/men-tops'
+            // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like 'Mjg=|men/men-tops'
             // --> so we split them to first extract the category ids
             Set<String> selectorFiltersSet = Arrays.asList(selectorFilters)
                 .stream()
-                .map(s -> StringUtils.substringBefore(s, ID_AND_URL_PATH_SEPARATOR))
+                .map(s -> (StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR) ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
+                    : s))
+                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
 
-            for (String selector : selectors) {
-                if (selectorFiltersSet.contains(selector)) {
-                    LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
-                    return child;
-                }
-            }
-
-            boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
-            if (includesSubCategories) {
-
-                List<String> urlPaths = Arrays.asList(selectorFilters)
-                    .stream()
-                    .map(s -> StringUtils.substringAfter(s, ID_AND_URL_PATH_SEPARATOR))
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-
-                if (urlPaths.isEmpty()) {
-                    continue;
-                }
-
-                // The currentUrlPath being processed is either coming from:
-                // 1) the ProductList model when a category page is being rendered
-                // 2) the params map when the any model renders a category link
-
-                if (currentUrlPath == null) {
-                    if (params != null && params.containsKey(UrlProvider.URL_PATH_PARAM)) {
-                        currentUrlPath = params.get(UrlProvider.URL_PATH_PARAM);
-                    } else if (request != null && productList == null) {
-                        productList = request.adaptTo(ProductList.class);
-                        if (productList instanceof ProductListImpl) {
-                            currentUrlPath = ((ProductListImpl) productList).getUrlPath();
-                        }
+            if (!selectorFiltersSet.isEmpty()) {
+                for (String selector : selectors) {
+                    if (selectorFiltersSet.contains(selector)) {
+                        LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
+                        return child;
                     }
                 }
 
-                for (String urlPath : urlPaths) {
-                    if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
-                        LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
-                        return child;
+                boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+                if (includesSubCategories) {
+                    // The currentUrlPath being processed is either coming from:
+                    // 1) the ProductList model when a category page is being rendered
+                    // 2) the params map when the any model renders a category link
+
+                    if (currentUrlPath == null) {
+                        if (params != null && params.containsKey(UrlProvider.URL_PATH_PARAM)) {
+                            currentUrlPath = params.get(UrlProvider.URL_PATH_PARAM);
+                        } else if (request != null && productList == null) {
+                            productList = request.adaptTo(ProductList.class);
+                            if (productList instanceof ProductListImpl) {
+                                currentUrlPath = ((ProductListImpl) productList).getUrlPath();
+                            }
+                        }
+                    }
+
+                    for (String urlPath : selectorFiltersSet) {
+                        if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
+                            LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
+                            return child;
+                        }
                     }
                 }
             }
@@ -331,6 +323,16 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         return null;
+    }
+
+    @Override
+    public String parseProductUrlIdentifier(SlingHttpServletRequest request) {
+        return parseIdentifier(productIdentifierConfig.getLeft(), request);
+    }
+
+    @Override
+    public String parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
+        return parseIdentifier(categoryIdentifierLocation, request);
     }
 
     /**

@@ -232,11 +232,11 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         Map<String, String> params = new ParamsBuilder()
-            .urlPath("men/tops")
+            .urlPath("men")
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.men_tops.html", url);
+        Assert.assertEquals("/content/category-page.men.html", url);
     }
 
     @Test

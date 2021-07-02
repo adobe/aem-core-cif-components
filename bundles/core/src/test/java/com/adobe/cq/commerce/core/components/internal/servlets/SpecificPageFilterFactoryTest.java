@@ -31,7 +31,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
@@ -62,6 +65,11 @@ public class SpecificPageFilterFactoryTest {
     @Before
     public void setUp() throws Exception {
         filter = new SpecificPageFilterFactory();
+
+        UrlProviderImpl urlProvider = new UrlProviderImpl();
+        urlProvider.activate(new MockUrlProviderConfiguration());
+        Whitebox.setInternalState(filter, "urlProvider", urlProvider);
+
         request = new MockSlingHttpServletRequest(context.resourceResolver());
 
         requestDispatcherFactory = Mockito.spy(new MockRequestDispatcherFactoryImpl());
