@@ -249,7 +249,7 @@ public interface UrlProvider {
          * @return The map of parameters.
          */
         public Map<String, String> map() {
-            return params;
+            return new HashMap<>(params);
         }
     }
 }
