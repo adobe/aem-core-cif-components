@@ -1,0 +1,22 @@
+{
+    "data": {
+        "products": {
+            "items": [
+                {
+                    "name": "Test Bundle Product",
+                    "id": 44,
+                    "__typename": "BundleProduct",
+                    "url_key": "test-bundle",
+                    "sku": "abc"
+                },
+                {
+                    "name": "Test Simple Product",
+                    "id": 22,
+                    "__typename": "SimpleProduct",
+                    "url_key": "test-simple",
+                    "sku": "xyz"
+                }
+            ]
+        }
+    }
+}
