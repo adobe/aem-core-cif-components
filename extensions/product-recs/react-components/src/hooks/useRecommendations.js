@@ -24,7 +24,7 @@ const commaToOrList = list => list.split(',').join(' OR ');
 export const useRecommendations = props => {
     const mse = useStorefrontEvents();
     const { context: storefrontInstance, error: storefrontInstanceError } = useStorefrontInstanceContext();
-    const [data, setData] = useState({ loading: true, data: null });
+    const [data, setData] = useState({ loading: true, units: null });
     const pageType = usePageType();
 
     const {
@@ -38,10 +38,35 @@ export const useRecommendations = props => {
         includeMinPrice
     } = props;
 
+    let preconfigured = true;
+
+    const getFilter = () => {
+        // This is currently limited to a single filter by the recommendations SDK
+        if (categoryInclusions) {
+            return `categories: (${commaToOrList(categoryInclusions)})`;
+        }
+        if (categoryExclusions) {
+            return `-categories: (${commaToOrList(categoryExclusions)})`;
+        }
+        if (includeMinPrice) {
+            return `prices.minimum.final: >${includeMinPrice}`;
+        }
+        if (includeMaxPrice) {
+            return `prices.maximum.final: <${includeMaxPrice}`;
+        }
+        if (excludeMinPrice) {
+            return `prices.minimum.final: <${excludeMinPrice}`;
+        }
+        if (excludeMaxPrice) {
+            return `prices.minimum.final: >${excludeMaxPrice}`;
+        }
+        return '';
+    };
+
     useEffect(() => {
         // Stop loading if there is an error
         if (storefrontInstanceError) {
-            setData({ loading: false, data: null });
+            setData({ loading: false, units: null });
             return;
         }
 
@@ -54,45 +79,34 @@ export const useRecommendations = props => {
             // If no parameters are passed, everything is automatically taken from MSE
             const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType });
 
-            // Add filtering
-            // This is currently limited to a single filter by the recommendations SDK
-            let filter;
-            if (categoryExclusions) {
-                filter = `-categories: (${commaToOrList(categoryExclusions)})`;
+            if (!preconfigured) {
+                // Register recommendation as configured in AEM
+                client.register({ name: title, type: recommendationType, filter: getFilter() });
             }
-            if (includeMinPrice) {
-                filter = `prices.minimum.final: >${includeMinPrice}`;
-            }
-            if (includeMaxPrice) {
-                filter = `prices.maximum.final: <${includeMaxPrice}`;
-            }
-            if (excludeMinPrice) {
-                filter = `prices.minimum.final: <${excludeMinPrice}`;
-            }
-            if (excludeMaxPrice) {
-                filter = `prices.minimum.final: >${excludeMaxPrice}`;
-            }
-            if (categoryInclusions) {
-                filter = `categories: (${commaToOrList(categoryInclusions)})`;
-            }
-
-            client.register({ name: title, type: recommendationType, filter });
 
             mse && mse.publish.recsRequestSent();
-            const { status, data } = await client.fetch();
-            if (status !== 200 || !data || !data.units || data.units.length === 0) {
+            const { status, data } = await (preconfigured ? client.fetchPreconfigured() : client.fetch());
+
+            if (
+                status !== 200 ||
+                !data ||
+                ((!data.units || data.units.length === 0) && (!data.results || data.results.length === 0))
+            ) {
                 console.warn('Could not load product recommendations', status);
-                setData({ loading: false, data: null });
+                setData({ loading: false, units: null });
                 return;
             }
 
+            // Fix inconsistency in result API
+            const newUnits = preconfigured ? data.results : data.units;
+
             if (mse) {
                 const { units = [] } = mse.context.getRecommendations() || {};
-                mse.context.setRecommendations({ units: [...units, ...data.units] });
+                mse.context.setRecommendations({ units: [...units, ...newUnits] });
                 mse.publish.recsResponseReceived();
             }
 
-            setData({ loading: false, data });
+            setData({ loading: false, units: newUnits });
         })();
     }, [storefrontInstance, storefrontInstanceError]);
 

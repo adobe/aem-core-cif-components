@@ -15,4 +15,4 @@
 export { default as ProductRecsGallery } from './components/ProductRecsGallery';
 export { StorefrontInstanceContextProvider, useStorefrontInstanceContext } from './context/StorefrontInstanceContext';
 export { useRecommendations } from './hooks/useRecommendations';
-export { useVisiblityObserver } from './hooks/useVisibilityObserver';
+export { useVisibilityObserver } from './hooks/useVisibilityObserver';

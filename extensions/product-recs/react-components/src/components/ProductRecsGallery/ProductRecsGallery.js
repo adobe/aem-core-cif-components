@@ -31,7 +31,7 @@ import classes from './ProductRecsGallery.css';
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
-    const { loading, data } = useRecommendations(props);
+    const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
     const [t] = useTranslation();
 
@@ -91,26 +91,25 @@ const ProductRecsGallery = props => {
         content = <LoadingIndicator />;
     }
 
-    if (data) {
-        const unit = data.units[0];
-        if (unit.products.length > 0) {
-            const isVisible = () => {
-                mse && mse.publish.recsUnitView(unit.unitId);
-            };
+    if (units && units.length > 0 && units[0].products.length > 0) {
+        const unit = units[0];
 
-            content = (
-                <>
-                    <h2 className={classes.title}>{props.title}</h2>
-                    <div className={classes.container} ref={e => observeElement(e, isVisible)}>
-                        {unit.products.map(p => renderCard(unit, p))}
-                    </div>
-                </>
-            );
+        const isVisible = () => {
+            mse && mse.publish.recsUnitView(unit.unitId);
+        };
 
-            if (!rendered.current) {
-                mse && mse.publish.recsUnitRender(unit.unitId);
-                rendered.current = true;
-            }
+        content = (
+            <>
+                <h2 className={classes.title}>{unit.unitName || props.title}</h2>
+                <div className={classes.container} ref={e => observeElement(e, isVisible)}>
+                    {unit.products.map(p => renderCard(unit, p))}
+                </div>
+            </>
+        );
+
+        if (!rendered.current) {
+            mse && mse.publish.recsUnitRender(unit.unitId);
+            rendered.current = true;
         }
     }
 
@@ -125,7 +124,8 @@ ProductRecsGallery.propTypes = {
     excludeMaxPrice: PropTypes.string,
     excludeMinPrice: PropTypes.string,
     includeMaxPrice: PropTypes.string,
-    includeMinPrice: PropTypes.string
+    includeMinPrice: PropTypes.string,
+    preconfigured: PropTypes.bool
 };
 
 export default ProductRecsGallery;
