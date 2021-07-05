@@ -46,7 +46,7 @@ import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 
-@Component(service = UrlProvider.class, immediate = true)
+@Component(service = { UrlProvider.class, UrlProviderImpl.class })
 @Designate(ocd = UrlProviderConfiguration.class)
 public class UrlProviderImpl implements UrlProvider {
 
@@ -325,12 +325,24 @@ public class UrlProviderImpl implements UrlProvider {
         return null;
     }
 
-    @Override
+    /**
+     * Parses and returns the product sku or url_key used in the given Sling HTTP request based on the URLProvider configuration for product
+     * page URLs.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The product sku or url_key from the URL.
+     */
     public String parseProductUrlIdentifier(SlingHttpServletRequest request) {
         return parseIdentifier(productIdentifierConfig.getLeft(), request);
     }
 
-    @Override
+    /**
+     * Parses and returns the category url_path used in the given Sling HTTP request based on the URLProvider configuration for product
+     * page URLs.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The category url_path from the URL.
+     */
     public String parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
         return parseIdentifier(categoryIdentifierLocation, request);
     }

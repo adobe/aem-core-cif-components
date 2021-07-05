@@ -34,7 +34,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.day.cq.wcm.api.WCMMode;
 
 @Component(
@@ -50,7 +50,7 @@ public class SpecificPageFilterFactory implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpecificPageFilterFactory.class);
 
     @Reference
-    private UrlProvider urlProvider;
+    private UrlProviderImpl urlProvider;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
