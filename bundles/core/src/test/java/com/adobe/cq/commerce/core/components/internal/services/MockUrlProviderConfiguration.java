@@ -92,7 +92,7 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
     }
 
     @Override
-    public String identifierQueryParamater() {
+    public String identifierQueryParameter() {
         return UrlProvider.DEFAULT_QUERY_PARAMETER;
     }
 }

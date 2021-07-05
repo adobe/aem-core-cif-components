@@ -74,7 +74,7 @@ public class UrlProviderImpl implements UrlProvider {
         categoryUrlTemplate = conf.categoryUrlTemplate();
         categoryIdentifierLocation = conf.categoryIdentifierLocation();
 
-        queryParameterName = conf.identifierQueryParamater();
+        queryParameterName = conf.identifierQueryParameter();
     }
 
     @Override

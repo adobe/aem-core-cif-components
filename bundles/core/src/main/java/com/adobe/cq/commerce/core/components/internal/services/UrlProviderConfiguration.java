@@ -63,5 +63,5 @@ public @interface UrlProviderConfiguration {
     @AttributeDefinition(
         name = "Query parameter name",
         description = "Defines the name if the query parameter used for product & category page URLs.")
-    String identifierQueryParamater() default UrlProvider.DEFAULT_QUERY_PARAMETER;
+    String identifierQueryParameter() default UrlProvider.DEFAULT_QUERY_PARAMETER;
 }

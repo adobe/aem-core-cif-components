@@ -394,7 +394,7 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(config.identifierQueryParamater(), "beaumont-summit-kit");
+        params.put(config.identifierQueryParameter(), "beaumont-summit-kit");
         params.put("other", "abc");
         request.setParameterMap(params);
 
@@ -413,7 +413,7 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(config.identifierQueryParamater(), "MJ01");
+        params.put(config.identifierQueryParameter(), "MJ01");
         params.put("other", "abc");
         request.setParameterMap(params);
 
@@ -432,7 +432,7 @@ public class UrlProviderImplTest {
         urlProvider.activate(config);
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put(config.identifierQueryParamater(), StringUtils.EMPTY);
+        params.put(config.identifierQueryParameter(), StringUtils.EMPTY);
         params.put("other", "abc");
         request.setParameterMap(params);
 
