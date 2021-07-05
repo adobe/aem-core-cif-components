@@ -35,10 +35,9 @@ export const useRecommendations = props => {
         excludeMaxPrice,
         excludeMinPrice,
         includeMaxPrice,
-        includeMinPrice
+        includeMinPrice,
+        preconfigured = false
     } = props;
-
-    let preconfigured = true;
 
     const getFilter = () => {
         // This is currently limited to a single filter by the recommendations SDK
@@ -64,13 +63,13 @@ export const useRecommendations = props => {
     };
 
     useEffect(() => {
-        // Stop loading if there is an error
+        // Stop loading if there is an error while retrieving the storefront instance context
         if (storefrontInstanceError) {
             setData({ loading: false, units: null });
             return;
         }
 
-        // Skip if storefront instance context is not yet set
+        // Skip if storefront instance context is not yet available
         if (!storefrontInstance) {
             return;
         }
@@ -80,7 +79,7 @@ export const useRecommendations = props => {
             const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType });
 
             if (!preconfigured) {
-                // Register recommendation as configured in AEM
+                // Register recommendation as configured in component dialog
                 client.register({ name: title, type: recommendationType, filter: getFilter() });
             }
 
