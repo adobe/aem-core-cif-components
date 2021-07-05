@@ -277,7 +277,7 @@ public class UrlProviderImpl implements UrlProvider {
         // get product identifier (url_key) from URL
         String urlProductIdentifier = parseIdentifier(productIdentifierConfig.getKey(), request);
         if (StringUtils.isBlank(urlProductIdentifier)) {
-            LOGGER.warn("Could not extract product identifier from URL {}.", request.getRequestURL().toString());
+            LOGGER.warn("Could not extract product identifier from URL {}", request.getRequestURL().toString());
             return null;
         }
 
