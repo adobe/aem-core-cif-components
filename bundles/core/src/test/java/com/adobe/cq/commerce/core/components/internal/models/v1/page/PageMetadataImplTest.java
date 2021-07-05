@@ -197,7 +197,7 @@ public class PageMetadataImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient,
             HttpStatus.SC_OK,
             "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{sku");

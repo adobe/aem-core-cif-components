@@ -186,10 +186,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         // Return first product in list unless the identifier type is 'url_key',
         // then return the product whose 'url_key' matches the identifier
         if (products.size() > 0) {
-            if (products.size() > 1 && productIdentifierType.equals(ProductIdentifierType.URL_KEY)) {
+            if (products.size() > 1) {
                 for (ProductInterface productInterface : products) {
                     if (identifier.equals(productInterface.getUrlKey())) {
                         product = productInterface;
+                        return;
                     }
                 }
             } else {
