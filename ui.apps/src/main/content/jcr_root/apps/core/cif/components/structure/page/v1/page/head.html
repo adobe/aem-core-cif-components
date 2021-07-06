@@ -18,7 +18,7 @@
     data-sly-use.metadata="com.adobe.cq.commerce.core.components.models.page.PageMetadata"
 >
     <meta charset="UTF-8" />
-    <title>${metadata.metaTitle}</title>
+    <title>${metadata.title}${page.brandSlug ? ' | ' : ''}${page.brandSlug}</title>
     <meta data-sly-test.keywords="${metadata.metaKeywords}" name="keywords" content="${keywords}" />
     <meta data-sly-test.description="${metadata.metaDescription}" name="description" content="${description}" />
     <meta data-sly-test.templateName="${page.templateName}" name="template" content="${templateName}" />
