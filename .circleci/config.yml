@@ -164,6 +164,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision
           command: |
             node -v
@@ -187,6 +190,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision (Core)
           command: |
             node -v
@@ -197,8 +203,6 @@ jobs:
       - run:
           name: Provision (Extension)
           command: |
-            node -v
-            npm -v
             npm install
             npm link @adobe/aem-core-cif-react-components
           working_directory: ./extensions/product-recs/react-components
