@@ -187,11 +187,20 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Provision
+          name: Provision (Core)
           command: |
             node -v
             npm -v
             npm install
+            npm link
+          working_directory: ./react-components
+      - run:
+          name: Provision (Extension)
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm link @adobe/aem-core-cif-react-components
           working_directory: ./extensions/product-recs/react-components
       - run:
           name: Run Unit Tests (Jest)
