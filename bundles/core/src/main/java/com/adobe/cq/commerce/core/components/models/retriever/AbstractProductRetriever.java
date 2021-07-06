@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -54,14 +53,9 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected ProductInterface product;
 
     /**
-     * Identifier of the product that should be fetched. Which kind of identifier is used is specified in {@link #productIdentifierType}
+     * SKU identifier of the product that should be fetched.
      */
     protected String identifier;
-
-    /**
-     * The type of the product identifier.
-     */
-    protected ProductIdentifierType productIdentifierType;
 
     public AbstractProductRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -80,16 +74,14 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifier and the identifier type of the product that should be fetched. Setting the identifier, removes any cached data.
+     * Set the identifier of the product that should be fetched. Products are retrieved using the default identifier SKU.
      *
-     * @param productIdentifierType The product identifier type.
-     * @param identifier The product identifier.
+     * @param identifier Product SKU identifier
      */
-    public void setIdentifier(ProductIdentifierType productIdentifierType, String identifier) {
+    public void setIdentifier(String identifier) {
         product = null;
         query = null;
         this.identifier = identifier;
-        this.productIdentifierType = productIdentifierType;
     }
 
     /**
@@ -150,12 +142,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      */
     protected String generateQuery(String identifier) {
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        ProductAttributeFilterInput filter;
-        if (ProductIdentifierType.URL_KEY.equals(productIdentifierType)) {
-            filter = new ProductAttributeFilterInput().setUrlKey(identifierFilter);
-        } else {
-            filter = new ProductAttributeFilterInput().setSku(identifierFilter);
-        }
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
 
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
@@ -199,10 +186,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         // Return first product in list unless the identifier type is 'url_key',
         // then return the product whose 'url_key' matches the identifier
         if (products.size() > 0) {
-            if (products.size() > 1 && productIdentifierType.equals(ProductIdentifierType.URL_KEY)) {
+            if (products.size() > 1) {
                 for (ProductInterface productInterface : products) {
                     if (identifier.equals(productInterface.getUrlKey())) {
                         product = productInterface;
+                        return;
                     }
                 }
             } else {

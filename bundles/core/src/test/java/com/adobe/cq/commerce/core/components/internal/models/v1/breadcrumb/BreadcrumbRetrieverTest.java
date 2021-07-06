@@ -22,7 +22,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -44,15 +43,7 @@ public class BreadcrumbRetrieverTest {
 
     @Test
     public void testProductQueryWithSku() throws Exception {
-        testProductQuery(ProductIdentifierType.SKU, "sku");
-    }
-
-    @Test
-    public void testProductQueryWithUrlKey() throws Exception {
-        testProductQuery(ProductIdentifierType.URL_KEY, "url_key");
-    }
-
-    private void testProductQuery(ProductIdentifierType productIdentierType, String identifier) throws Exception {
+        String testSKU = "sku";
         String json = Utils.getResource("graphql/magento-graphql-product-breadcrumb-result.json");
 
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
@@ -63,7 +54,7 @@ public class BreadcrumbRetrieverTest {
 
         BreadcrumbRetriever retriever = new BreadcrumbRetriever(client);
 
-        retriever.setProductIdentifier(productIdentierType, identifier);
+        retriever.setProductIdentifier(testSKU);
         retriever.fetchCategoriesBreadcrumbs();
         retriever.fetchCategoriesBreadcrumbs();
         retriever.fetchProductName();
@@ -75,6 +66,6 @@ public class BreadcrumbRetrieverTest {
         Mockito.verify(client).execute(captor.capture());
 
         // Checks that the query is done with the SKU
-        Assert.assertTrue(captor.getValue().startsWith("{products(filter:{" + identifier + ":{eq:\"" + identifier + "\"}})"));
+        Assert.assertTrue(captor.getValue().startsWith("{products(filter:{sku:{eq:\"" + testSKU + "\"}})"));
     }
 }

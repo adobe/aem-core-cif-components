@@ -93,6 +93,7 @@ public class CommerceContentFragmentImplTest {
     MockSlingHttpServletRequest request;
     private UrlProviderImpl urlProvider;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
+    private HttpClient httpClient;
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -110,6 +111,22 @@ public class CommerceContentFragmentImplTest {
 
         ResourceResolver originalResourceResolver = context.resourceResolver();
         ResourceResolver resourceResolver = Mockito.spy(originalResourceResolver);
+
+        // setup graphql client
+        httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK, "url_path\"}}){uid}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path");
 
         prepareContentFragment(resourceResolver);
 
@@ -195,6 +212,10 @@ public class CommerceContentFragmentImplTest {
         slingBindings.put(SlingBindings.RESOURCE, resource);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.adaptTo(ValueMap.class));
 
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
         return page;
     }
 
@@ -251,7 +272,7 @@ public class CommerceContentFragmentImplTest {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("slug");
+        requestPathInfo.setSelectorString("sku");
         Product product = mock(Product.class);
         when(product.getFound()).thenReturn(true);
         when(product.getSku()).thenReturn("sku");
@@ -280,34 +301,11 @@ public class CommerceContentFragmentImplTest {
     @Test
     public void testContentFragmentForProductPageNoSku() {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.ProductIdentifierType productIdentifierType() {
-                return UrlProvider.ProductIdentifierType.SKU;
-            }
-        });
+        urlProvider.activate(new MockUrlProviderConfiguration());
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
-    }
-
-    @Test
-    public void testContentFragmentForProductPageWithSku() {
-        prepareRequest(CONTENT_FRAGMENT_PATH_2);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.ProductIdentifierType productIdentifierType() {
-                return UrlProvider.ProductIdentifierType.SKU;
-            }
-        });
-        requestPathInfo.setSelectorString("sku");
-
-        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
-        Assert.assertNotNull(contentFragment);
-        Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
     }
 
     @Test
@@ -335,31 +333,9 @@ public class CommerceContentFragmentImplTest {
     public void testContentFragmentForCategoryPageUrlPath() throws Exception {
         Page page = prepareRequest(CONTENT_FRAGMENT_PATH_3);
 
-        // setup graphql client
-        HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK,
-            "url_path\"}}){uid}}");
-
-        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
-        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
-
         // setup url provider
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.CategoryIdentifierType categoryIdentifierType() {
-                return UrlProvider.CategoryIdentifierType.URL_PATH;
-            }
-        });
+        urlProvider.activate(new MockUrlProviderConfiguration());
         requestPathInfo.setSelectorString("url_path");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
@@ -368,7 +344,7 @@ public class CommerceContentFragmentImplTest {
     }
 
     @Test
-    public void testContentFragmentParagraphsProductPage() {
+    public void testContentFragmentParagraphsProductPage() throws Exception {
         prepareRequest(CONTENT_FRAGMENT_PATH_4);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
@@ -397,6 +373,7 @@ public class CommerceContentFragmentImplTest {
 
         // single text field content fragment
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
+        Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());
@@ -426,7 +403,7 @@ public class CommerceContentFragmentImplTest {
         contentFragmentElements.add(element);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid");
+        requestPathInfo.setSelectorString("slug");
 
         // single text field content fragment
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);

@@ -144,7 +144,8 @@ public class ProductImplTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{sku");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
@@ -184,13 +185,8 @@ public class ProductImplTest {
     public void testGetIdentifierFromSelector() {
         adaptToProduct();
 
-        // Check which identifier was set in the product retriever
-        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
-            .getProductRetriever(), "productIdentifierType");
-        String urlKey = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-
-        Assert.assertEquals(UrlProvider.ProductIdentifierType.URL_KEY, type);
-        Assert.assertEquals("beaumont-summit-kit", urlKey);
+        String identifier = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
+        Assert.assertEquals("MJ01", identifier);
     }
 
     @Test
@@ -207,12 +203,7 @@ public class ProductImplTest {
 
         adaptToProduct();
 
-        // Check which identifier was set in the product retriever
-        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
-            .getProductRetriever(), "productIdentifierType");
         String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-
-        Assert.assertEquals(UrlProvider.ProductIdentifierType.SKU, type);
         Assert.assertEquals("MJ01", sku);
     }
 
@@ -421,8 +412,8 @@ public class ProductImplTest {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-groupedproduct-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200);
-
+        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
 
         List<GroupItem> items = productModel.getGroupedProductItems();
@@ -451,8 +442,10 @@ public class ProductImplTest {
 
     @Test
     public void testVirtualProduct() throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
+
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isVirtualProduct());
         Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
@@ -464,8 +457,10 @@ public class ProductImplTest {
     }
 
     public void testBundleProductImpl(boolean hasStagedData) throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
+
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isBundleProduct());
 
@@ -491,7 +486,13 @@ public class ProductImplTest {
 
     @Test
     public void testProductNotFound() throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(true);
+        slingBindings.put("wcmmode", wcmMode);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
         Assert.assertFalse("Product is not found", productModel.getFound());
     }

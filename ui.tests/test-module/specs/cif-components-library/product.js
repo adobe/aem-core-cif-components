@@ -19,7 +19,7 @@ const commons = require('../../lib/commons');
 
 describe('Product component in CIF components library', () => {
 
-    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.chaz-kangeroo-hoodie.html`;
+    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.html/chaz-kangeroo-hoodie`;
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {

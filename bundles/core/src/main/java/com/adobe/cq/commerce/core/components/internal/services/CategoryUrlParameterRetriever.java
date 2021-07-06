@@ -11,21 +11,23 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
-package com.adobe.cq.commerce.core.components.models.retriever;
+package com.adobe.cq.commerce.core.components.internal.services;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-class TestProductRetriever extends AbstractProductRetriever {
+class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
 
-    TestProductRetriever(MagentoGraphqlClient client) {
+    CategoryUrlParameterRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
     @Override
-    protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return ProductInterfaceQuery::sku;
+    protected CategoryTreeQueryDefinition generateCategoryQuery() {
+        return (CategoryTreeQuery q) -> {
+            q.urlPath().urlKey();
+        };
     }
 }

@@ -19,7 +19,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.day.cq.wcm.api.Page;
@@ -30,7 +29,7 @@ public interface UrlProvider {
      * Defines the location of the product or ctegory identifier in the URL.
      */
     public static enum IdentifierLocation {
-        SELECTOR, SUFFIX
+        SELECTOR, SUFFIX, QUERY_PARAM
     }
 
     /**
@@ -44,7 +43,7 @@ public interface UrlProvider {
      * Defines the category identifier type used in category page urls.
      */
     public static enum CategoryIdentifierType {
-        UID, URL_PATH
+        URL_PATH
     }
 
     /**
@@ -90,7 +89,15 @@ public interface UrlProvider {
     public static final String PAGE_PARAM = "page";
 
     /**
-     * Returns the product page URL.
+     * The default query parameter name if identifier are configured to be extracted from query parameters.
+     */
+    public static final String DEFAULT_QUERY_PARAMETER = "identifier";
+
+    /**
+     * Returns the product page URL. All required attributes to generate a valid category page URL must be provided via the
+     * <code>${params}</code> parameter.
+     * 
+     * This method should be used if the component already loaded the URL attributes.
      * 
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
@@ -100,30 +107,59 @@ public interface UrlProvider {
     public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
-     * Returns the category page URL.
+     * Returns the product page URL. Only the product identifier must be provided, the implementation will query the needed URL
+     * attributes to generate a complete URL based on the configuration.
+     * 
+     * This method should be used if the component only can provide the product identifier.
+     * 
+     * @param request The current Sling HTTP request.
+     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param productIdentifier The product identifier.
+     * @return The product URL.
+     */
+    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, String productIdentifier);
+
+    /**
+     * Returns the category page URL. All required attributes to generate a valid category page URL must be provided via the
+     * <code>${params}</code> parameter.
+     * 
+     * This method should be used if the component already loaded the URL attributes.
      * 
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param params The parameters used in the URL template.
      * @return The category URL.
      */
-    public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params);
+    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
-     * Returns the type and value of the product identifier used in the given Sling HTTP request.
+     * Returns the category page URL. Only the category identifier must be provided, the implementation will query the needed URL
+     * attributes to generate a complete URL based on the configuration.
+     * 
+     * This method should be used if the component only can provide the category identifier.
      * 
      * @param request The current Sling HTTP request.
-     * @return The type and value of the product identifier.
+     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param categoryIdentifier The category identifier.
+     * @return The category URL.
      */
-    public Pair<ProductIdentifierType, String> getProductIdentifier(SlingHttpServletRequest request);
+    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**
-     * Returns the type and value of the category identifier used in the given Sling HTTP request.
+     * Returns the product identifier (sku) used in the given Sling HTTP request. The product identifier can be used to load product data.
      * 
      * @param request The current Sling HTTP request.
-     * @return The type and value of the category identifier.
+     * @return The product sku identifier.
      */
-    public Pair<CategoryIdentifierType, String> getCategoryIdentifier(SlingHttpServletRequest request);
+    public String getProductIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Returns the category identifier used in the given Sling HTTP request. The category identifier can be used to load category data.
+     * 
+     * @param request The current Sling HTTP request.
+     * @return The category uid identifier.
+     */
+    public String getCategoryIdentifier(SlingHttpServletRequest request);
 
     /**
      * A helper class used to easily build parameters for the URL templates.
@@ -213,7 +249,7 @@ public interface UrlProvider {
          * @return The map of parameters.
          */
         public Map<String, String> map() {
-            return params;
+            return new HashMap<>(params);
         }
     }
 }

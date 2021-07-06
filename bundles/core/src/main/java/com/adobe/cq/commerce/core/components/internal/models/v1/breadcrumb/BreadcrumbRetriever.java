@@ -17,10 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -41,10 +38,8 @@ public class BreadcrumbRetriever extends AbstractRetriever {
     private String productName;
 
     private String productIdentifier;
-    private ProductIdentifierType productIdentifierType;
 
     private String categoryIdentifier;
-    private CategoryIdentifierType categoryIdentifierType;
 
     BreadcrumbRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -65,7 +60,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
 
     /**
      * Executes the GraphQL query and returns the name of the product.
-     * This assumes that {@link #setProductIdentifier(ProductIdentifierType, String)} has been called before.
+     * This assumes that {@link #setProductIdentifier(String)} has been called before.
      * For subsequent calls of this method, a cached response is returned.
      *
      * @return The product name.
@@ -78,25 +73,22 @@ public class BreadcrumbRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifier and the identifier type of the product that should be fetched. Setting the identifier, removes any cached data.
+     * Set the sku of the product that should be fetched. Setting the a new product, removes any cached data.
      *
-     * @param productIdentifierType The product identifier type.
-     * @param productIdentifier The product identifier.
+     * @param productIdentifier The product sku.
      */
-    protected void setProductIdentifier(ProductIdentifierType productIdentifierType, String productIdentifier) {
+    protected void setProductIdentifier(String productIdentifier) {
         this.productIdentifier = productIdentifier;
-        this.productIdentifierType = productIdentifierType;
     }
 
     /**
-     * Set the identifier and the identifier type of the category that should be fetched. Setting the identifier, removes any cached data.
+     * Set the category uid of the category that should be fetched. Setting the a new category, removes any cached
+     * data.
      *
-     * @param categoryIdentifierType The category identifier type.
-     * @param categoryIdentifier The category identifier.
+     * @param categoryIdentifier The category uid.
      */
-    protected void setCategoryIdentifier(CategoryIdentifierType categoryIdentifierType, String categoryIdentifier) {
+    protected void setCategoryIdentifier(String categoryIdentifier) {
         this.categoryIdentifier = categoryIdentifier;
-        this.categoryIdentifierType = categoryIdentifierType;
     }
 
     @Override
@@ -142,14 +134,7 @@ public class BreadcrumbRetriever extends AbstractRetriever {
      */
     protected String generateProductQuery() {
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(productIdentifier);
-        ProductAttributeFilterInput filter;
-        if (ProductIdentifierType.URL_KEY.equals(productIdentifierType)) {
-            filter = new ProductAttributeFilterInput().setUrlKey(identifierFilter);
-        } else if (ProductIdentifierType.SKU.equals(productIdentifierType)) {
-            filter = new ProductAttributeFilterInput().setSku(identifierFilter);
-        } else {
-            throw new RuntimeException("Product identifier type is not supported");
-        }
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
 
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
@@ -175,8 +160,8 @@ public class BreadcrumbRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateCategoryQuery() {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier.replaceAll("_", "/"));
-        CategoryFilterInput filter = AbstractCategoryRetriever.generateCategoryFilter(identifierFilter, categoryIdentifierType);
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier);
+        CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
 
         CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
 

@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.button;
+package com.adobe.cq.commerce.core.components.internal.services;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -30,9 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CategoryRetrieverTest {
+public class CategoryUrlParameterRetrieverTest {
 
-    private CategoryRetriever retriever;
+    private CategoryUrlParameterRetriever retriever;
     private MagentoGraphqlClient mockClient;
 
     @Before
@@ -40,59 +40,24 @@ public class CategoryRetrieverTest {
         mockClient = mock(MagentoGraphqlClient.class);
         GraphqlResponse mockResponse = mock(GraphqlResponse.class);
         Query mockQuery = mock(Query.class, RETURNS_DEEP_STUBS);
-        CategoryTree mockCategory = mock(CategoryTree.class);
+        CategoryInterface mockCategory = mock(CategoryInterface.class);
 
         when(mockClient.execute(any())).thenReturn(mockResponse);
         when(mockResponse.getData()).thenReturn(mockQuery);
         when(mockQuery.get(any())).thenReturn(mockCategory);
 
-        retriever = new CategoryRetriever(mockClient);
+        retriever = new CategoryUrlParameterRetriever(mockClient);
     }
 
-    private void testDefaultCategoryQuery(String identifier) {
+    @Test
+    public void testProductUrlParamaterQuery() {
+        retriever.setIdentifier("uid-5");
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"" + identifier + "\"}}){uid,url_path";
-        Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
-    }
-
-    @Test
-    public void testCategoryUrlPathQueryFallback() {
-        retriever.setIdentifier("Mg==");
-        testDefaultCategoryQuery("Mg==");
-    }
-
-    @Test
-    public void testCategoryUrlPathQueryByUID() {
-        retriever.setIdentifier("Mg==");
-        testDefaultCategoryQuery("Mg==");
-    }
-
-    @Test
-    public void testCategoryUrlPathQuery() {
-        retriever.setIdentifier("Mg==");
-        retriever.fetchCategory();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path}}";
-        Assert.assertEquals(expectedQuery, captor.getValue());
-    }
-
-    @Test
-    public void testExtendedButtonQuery() {
-        retriever.setIdentifier("Mg==");
-        retriever.extendCategoryQueryWith(c -> c.image());
-        retriever.fetchCategory();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path,image";
-        Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}){url_path,url_key}}";
+        Assert.assertTrue(captor.getValue().equals(expectedQuery));
     }
 }

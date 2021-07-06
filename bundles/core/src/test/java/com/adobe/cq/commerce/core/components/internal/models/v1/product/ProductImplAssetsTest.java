@@ -140,7 +140,8 @@ public class ProductImplAssetsTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse(graphqlResponse, httpClient, 200);
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{sku");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
