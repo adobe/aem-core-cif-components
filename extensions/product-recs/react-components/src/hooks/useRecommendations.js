@@ -54,7 +54,7 @@ export const useRecommendations = props => {
             return `prices.maximum.final: <${includeMaxPrice}`;
         }
         if (excludeMinPrice) {
-            return `prices.minimum.final: <${excludeMinPrice}`;
+            return `prices.maximum.final: <${excludeMinPrice}`;
         }
         if (excludeMaxPrice) {
             return `prices.minimum.final: >${excludeMaxPrice}`;

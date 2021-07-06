@@ -14,7 +14,7 @@
 // eslint-disable-next-line no-undef
 module.exports = {
     collectCoverage: true,
-    moduleDirectories: ['node_modules', 'src/utils'],
+    moduleDirectories: ['<rootDir>/node_modules', 'node_modules'],
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
     coveragePathIgnorePatterns: ['<rootDir>/src/queries', '\\.(gql|graphql)$'],
