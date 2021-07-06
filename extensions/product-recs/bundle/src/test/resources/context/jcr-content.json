@@ -8,38 +8,21 @@
           "product-recs-empty": {},
           "product-recs": {
             "jcr:primaryType": "nt:unstructured",
-            "excludeProducts": false,
             "includeCategories": true,
-            "excludeOutOfStock": true,
-            "includedTypes": [
-              "configurable",
-              "grouped",
-              "downloadable"
-            ],
-            "excludeTypes": false,
-            "excludedCategoriesType": "slug",
-            "includeVisibility": false,
-            "jcr:lastModifiedBy": "admin",
             "excludedMinPrice": 30,
             "includedMinPrice": 10,
             "includedCategories": [
               "shorts-men",
               "pants-men"
             ],
-            "includedProducts": "WJ08",
             "excludedCategories": "tops-women",
             "includePriceRange": true,
-            "includeTypes": true,
-            "excludedVisibility": "search",
             "excludeCategories": false,
-            "includeProducts": true,
             "excludedMaxPrice": 50,
-            "includedProductsType": "sku",
             "includedMaxPrice": 100,
-            "excludeVisibility": true,
             "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
             "includedCategoriesType": "slug",
-            "excludeLowStock": false,
+            "excludedCategoriesType": "slug",
             "recommendationType": "most-viewed",
             "excludePriceRange": true
           }

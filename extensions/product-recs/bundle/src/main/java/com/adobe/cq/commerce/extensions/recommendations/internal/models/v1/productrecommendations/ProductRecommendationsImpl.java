@@ -35,31 +35,17 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     private static final String TITLE_PROP = "jcr:title";
     private static final String TYPE_PROP = "recommendationType";
-    private static final String INCLUDE_CATEGORIES = "includeCategories";
+    private static final String PRECONFIGURED_PROP = "preconfigured";
     private static final String INCLUDED_CATEGORIES = "includedCategories";
-    private static final String EXCLUDE_CATEGORIES = "excludeCategories";
     private static final String EXCLUDED_CATEGORIES = "excludedCategories";
-    private static final String INCLUDE_PRODUCTS = "includeProducts";
-    private static final String INCLUDED_PRODUCTS = "includedProducts";
-    private static final String EXCLUDE_PRODUCTS = "excludeProducts";
-    private static final String EXCLUDED_PRODUCTS = "excludedProducts";
-    private static final String INCLUDE_TYPES = "includeTypes";
-    private static final String INCLUDED_TYPES = "includedTypes";
-    private static final String EXCLUDE_TYPES = "excludeTypes";
-    private static final String EXCLUDED_TYPES = "excludedTypes";
-    private static final String INCLUDE_VISIBILITY = "includeVisibility";
-    private static final String INCLUDED_VISIBILITY = "includedVisibility";
-    private static final String EXCLUDE_VISIBILITY = "excludeVisibility";
-    private static final String EXCLUDED_VISIBILITY = "excludedVisibility";
-    private static final String INCLUDE_PRICE_RANGE = "includePriceRange";
-    private static final String INCLUDED_MIN_PRICE = "includedMinPrice";
-    private static final String INCLUDED_MAX_PRICE = "includedMaxPrice";
-    private static final String EXCLUDE_PRICE_RANGE = "excludePriceRange";
-    private static final String EXCLUDED_MIN_PRICE = "excludedMinPrice";
-    private static final String EXCLUDED_MAX_PRICE = "excludedMaxPrice";
-    private static final String EXCLUDE_OUT_OF_STOCK = "excludeOutOfStock";
-    private static final String EXCLUDE_LOW_STOCK = "excludeLowStock";
+    private static final String INCLUDED_PRICE_RANGE = "includedPriceRange";
+    private static final String INCLUDED_MIN_PRICE = "includedPriceRangeMin";
+    private static final String INCLUDED_MAX_PRICE = "includedPriceRangeMax";
+    private static final String EXCLUDED_PRICE_RANGE = "excludedPriceRange";
+    private static final String EXCLUDED_MIN_PRICE = "excludedPriceRangeMin";
+    private static final String EXCLUDED_MAX_PRICE = "excludedPriceRangeMax";
     private static final String DEFAULT_TITLE = "Recommended products";
+    private static final String USED_FILTER = "usedFilter";
 
     @Self
     protected SlingHttpServletRequest request;
@@ -71,99 +57,76 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
         props = request.getResource().adaptTo(ValueMap.class);
     }
 
-    private String getProperty(String enabledProperty, String propertyName) {
-        if (props.get(enabledProperty, false)) {
-            Object property = props.get(propertyName);
-            if (property == null) {
-                return null;
-            }
-
-            if (property instanceof String[]) {
-                return StringUtils.join((String[]) property, ",");
-            } else if (property instanceof String) {
-                return (String) property;
-            }
-
+    private String getStringListProperty(String propertyName) {
+        Object property = props.get(propertyName);
+        if (property == null) {
+            return null;
         }
+
+        if (property instanceof String[]) {
+            return StringUtils.join((String[]) property, ",");
+        } else if (property instanceof String) {
+            return (String) property;
+        }
+
         return null;
     }
 
     @Override
+    public boolean getPreconfigured() {
+        return props.get(PRECONFIGURED_PROP, true);
+    }
+
+    @Override
     public String getTitle() {
+        if (getPreconfigured()) {
+            return null;
+        }
         return props.get(TITLE_PROP, DEFAULT_TITLE);
     }
 
     @Override
     public String getRecommendationType() {
+        if (getPreconfigured()) {
+            return null;
+        }
         return props.get(TYPE_PROP, StringUtils.EMPTY);
     }
 
     @Override
     public String getCategoryInclusions() {
-        return getProperty(INCLUDE_CATEGORIES, INCLUDED_CATEGORIES);
+        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_CATEGORIES)) {
+            return null;
+        }
+        return getStringListProperty(INCLUDED_CATEGORIES);
     }
 
     @Override
     public String getCategoryExclusions() {
-        return getProperty(EXCLUDE_CATEGORIES, EXCLUDED_CATEGORIES);
-    }
-
-    @Override
-    public String getProductInclusions() {
-        return getProperty(INCLUDE_PRODUCTS, INCLUDED_PRODUCTS);
-    }
-
-    @Override
-    public String getProductExclusions() {
-        return getProperty(EXCLUDE_PRODUCTS, EXCLUDED_PRODUCTS);
+        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_CATEGORIES)) {
+            return null;
+        }
+        return getStringListProperty(EXCLUDED_CATEGORIES);
     }
 
     @Override
     public PriceRange getPriceRangeInclusions() {
-        if (props.get(INCLUDE_PRICE_RANGE, false)) {
-            return new PriceRangeImpl(props.get(INCLUDED_MIN_PRICE, Long.class),
-                props.get(INCLUDED_MAX_PRICE, Long.class));
+        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_PRICE_RANGE)) {
+            return null;
         }
-        return null;
+
+        return new PriceRangeImpl(props.get(INCLUDED_MIN_PRICE, Long.class),
+            props.get(INCLUDED_MAX_PRICE, Long.class));
     }
 
     @Override
     public PriceRange getPriceRangeExclusions() {
-        if (props.get(EXCLUDE_PRICE_RANGE, false)) {
-            return new PriceRangeImpl(props.get(EXCLUDED_MIN_PRICE, Long.class),
-                props.get(EXCLUDED_MAX_PRICE, Long.class));
+        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_PRICE_RANGE)) {
+            return null;
         }
-        return null;
-    }
 
-    @Override
-    public String getTypeInclusions() {
-        return getProperty(INCLUDE_TYPES, INCLUDED_TYPES);
-    }
-
-    @Override
-    public String getTypeExclusions() {
-        return getProperty(EXCLUDE_TYPES, EXCLUDED_TYPES);
-    }
-
-    @Override
-    public String getVisibilityInclusions() {
-        return getProperty(INCLUDE_VISIBILITY, INCLUDED_VISIBILITY);
-    }
-
-    @Override
-    public String getVisibilityExclusions() {
-        return getProperty(EXCLUDE_VISIBILITY, EXCLUDED_VISIBILITY);
-    }
-
-    @Override
-    public boolean excludeOutOfStock() {
-        return props.get(EXCLUDE_OUT_OF_STOCK, false);
-    }
-
-    @Override
-    public boolean excludeLowStock() {
-        return props.get(EXCLUDE_LOW_STOCK, false);
+        return new PriceRangeImpl(props.get(EXCLUDED_MIN_PRICE, Long.class),
+            props.get(EXCLUDED_MAX_PRICE, Long.class));
     }
 
 }

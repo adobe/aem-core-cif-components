@@ -12,8 +12,8 @@
  *
  ******************************************************************************/
 .cif-product-recs__price-range {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 .cif-product-recs__price-range-label {
     font-size: 12px;

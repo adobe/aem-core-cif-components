@@ -15,7 +15,10 @@ package com.adobe.cq.commerce.extensions.recommendations.models.productrecommend
 
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
+
 public interface ProductRecommendations {
+
+    boolean getPreconfigured();
 
     String getTitle();
 
@@ -25,24 +28,8 @@ public interface ProductRecommendations {
 
     String getCategoryExclusions();
 
-    String getProductInclusions();
-
-    String getProductExclusions();
-
     PriceRange getPriceRangeInclusions();
 
     PriceRange getPriceRangeExclusions();
-
-    String getTypeInclusions();
-
-    String getTypeExclusions();
-
-    String getVisibilityInclusions();
-
-    String getVisibilityExclusions();
-
-    boolean excludeOutOfStock();
-
-    boolean excludeLowStock();
 
 }
