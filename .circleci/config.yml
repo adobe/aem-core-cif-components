@@ -198,6 +198,7 @@ jobs:
             node -v
             npm -v
             npm install
+            npm run webpack:dev
             npm link
           working_directory: ./react-components
       - run:
