@@ -12,16 +12,15 @@
  *
  ******************************************************************************/
 
-export const createProductPageUrl = sku => {
-    const url = new URL(window.location);
+import { createProductPageUrl } from '../createProductPageUrl';
 
-    // Provided by StoreConfigExporter
-    const pathname = document.body.dataset.storeRootUrl;
+describe('createProductPageUrl', () => {
+    it('creates a product page url for a product sku', () => {
+        document.body.dataset.storeRootUrl = '/content/venia/us/en.html';
+        const sku = 'my-product';
 
-    const extension = pathname.substr(pathname.lastIndexOf('.'));
-    const path = pathname.substr(0, pathname.lastIndexOf('.'));
+        const url = createProductPageUrl(sku);
 
-    url.pathname = `${path}.cifredirect${extension}/product/${sku}`;
-
-    return url.toString();
-};
+        expect(url).toEqual('http://localhost/content/venia/us/en.cifredirect.html/product/my-product');
+    });
+});

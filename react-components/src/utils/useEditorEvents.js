@@ -35,7 +35,7 @@ const useEditorEvents = () => {
         }
 
         // Skip commands that do not require a re-render
-        if (event.data.data.cmd === 'toggleClass') {
+        if (event.data.data && event.data.data.cmd && event.data.data.cmd === 'toggleClass') {
             return;
         }
 
