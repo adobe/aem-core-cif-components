@@ -15,7 +15,10 @@ package com.adobe.cq.commerce.extensions.recommendations.models.productrecommend
 
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
-
+/**
+ * Sling model for a product recommendation component
+ * The model holds all the configured options
+ */
 public interface ProductRecommendations {
 
     boolean getPreconfigured();

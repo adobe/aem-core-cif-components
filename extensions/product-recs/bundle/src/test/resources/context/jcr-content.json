@@ -6,25 +6,96 @@
       "root": {
         "responsivegrid": {
           "product-recs-empty": {},
-          "product-recs": {
+          "product-recs-preconfigured": {
             "jcr:primaryType": "nt:unstructured",
-            "includeCategories": true,
-            "excludedMinPrice": 30,
-            "includedMinPrice": 10,
+            "preconfigured": true,
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
             "includedCategories": [
               "shorts-men",
               "pants-men"
             ],
             "excludedCategories": "tops-women",
-            "includePriceRange": true,
-            "excludeCategories": false,
-            "excludedMaxPrice": 50,
-            "includedMaxPrice": 100,
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
             "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
             "includedCategoriesType": "slug",
             "excludedCategoriesType": "slug",
-            "recommendationType": "most-viewed",
-            "excludePriceRange": true
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-include-category": {
+            "jcr:primaryType": "nt:unstructured",
+            "jcr:title": "Product Recs",
+            "preconfigured": false,
+            "usedFilter": "./includedCategories",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+
+          },
+          "product-recs-exclude-category": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./excludedCategories",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-include-price": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./includedPriceRange",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-exclude-price": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./excludedPriceRange",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
           }
         }
       }

@@ -95,7 +95,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public String getCategoryInclusions() {
-        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_CATEGORIES)) {
+        if (getPreconfigured() || !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_CATEGORIES)) {
             return null;
         }
         return getStringListProperty(INCLUDED_CATEGORIES);
@@ -103,7 +103,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public String getCategoryExclusions() {
-        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_CATEGORIES)) {
+        if (getPreconfigured() || !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_CATEGORIES)) {
             return null;
         }
         return getStringListProperty(EXCLUDED_CATEGORIES);
@@ -111,7 +111,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public PriceRange getPriceRangeInclusions() {
-        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_PRICE_RANGE)) {
+        if (getPreconfigured() || !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + INCLUDED_PRICE_RANGE)) {
             return null;
         }
 
@@ -121,7 +121,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public PriceRange getPriceRangeExclusions() {
-        if (getPreconfigured() && !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_PRICE_RANGE)) {
+        if (getPreconfigured() || !props.get(USED_FILTER, StringUtils.EMPTY).equals("./" + EXCLUDED_PRICE_RANGE)) {
             return null;
         }
 

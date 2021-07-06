@@ -22,15 +22,21 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductRecommendationsImplTest {
 
     private ProductRecommendationsImpl productRecommendations;
 
     private static final String PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs";
-    private static final String EMPTY_PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs";
+    private static final String EMPTY_PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-empty";
+    private static final String PRECONFIGURED_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-preconfigured";
+    private static final String INCLUDE_CATEGORY_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-include-category";
+    private static final String EXCLUDE_CATEGORY_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-exclude-category";
+    private static final String INCLUDE_PRICE_RANGE_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-include-price";
+    private static final String EXCLUDE_PRICE_RANGE_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-exclude-price";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -50,30 +56,77 @@ public class ProductRecommendationsImplTest {
     }
 
     @Test
-    public void testEmptyTitle() {
+    public void testEmptyComponent() {
         setupTest(EMPTY_PRODUCT_RECS_PATH);
-        assertEquals("Recommended products", productRecommendations.getTitle());
-    }
-
-    @Test
-    public void testFiltersEnabled() {
-        setupTest(PRODUCT_RECS_PATH);
+        assertTrue(productRecommendations.getPreconfigured());
+        assertNull(productRecommendations.getTitle());
+        assertNull(productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
         assertNull(productRecommendations.getCategoryExclusions());
-        assertNotNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testPreconfigured() {
+        setupTest(PRECONFIGURED_RECS_PATH);
+        assertTrue(productRecommendations.getPreconfigured());
+        assertNull(productRecommendations.getTitle());
+        assertNull(productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testCategoryInclusion() {
+        setupTest(INCLUDE_CATEGORY_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Product Recs", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
         assertEquals("shorts-men,pants-men", productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
     }
 
     @Test
-    public void testPriceRange() {
-        setupTest(PRODUCT_RECS_PATH);
-        assertNotNull(productRecommendations.getPriceRangeExclusions());
-        assertNotNull(productRecommendations.getPriceRangeInclusions());
-    }
-
-    @Test
-    public void testStringProperties() {
-        setupTest(PRODUCT_RECS_PATH);
+    public void testCategoryExclusion() {
+        setupTest(EXCLUDE_CATEGORY_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
         assertEquals("Recommended products", productRecommendations.getTitle());
         assertEquals("most-viewed", productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertEquals("tops-women", productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testPriceRangeInclusion() {
+        setupTest(INCLUDE_PRICE_RANGE_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Recommended products", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertEquals(Long.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
+        assertEquals(Long.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testPriceRangeExclusion() {
+        setupTest(EXCLUDE_PRICE_RANGE_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Recommended products", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertEquals(Long.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
+        assertEquals(Long.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
+
     }
 }
