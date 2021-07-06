@@ -16,83 +16,22 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.lang.annotation.Annotation;
 
-import org.apache.commons.lang3.ObjectUtils;
-
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
-
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
-    private IdentifierLocation productIdentifierLocation;
-    private IdentifierLocation categoryIdentifierLocation;
-    private ProductIdentifierType productIdentifierType;
-
-    private String productUrlTemplate;
-    private String categoryUrlTemplate;
-
     public MockUrlProviderConfiguration() {}
-
-    @Override
-    public String productUrlTemplate() {
-        if (productUrlTemplate != null) {
-            return productUrlTemplate;
-        } else {
-            return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
-        }
-    }
-
-    @Override
-    public IdentifierLocation productIdentifierLocation() {
-        return ObjectUtils.firstNonNull(productIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
-
-    @Override
-    public ProductIdentifierType productIdentifierType() {
-        return ObjectUtils.firstNonNull(productIdentifierType, ProductIdentifierType.URL_KEY);
-    }
-
-    @Override
-    public String categoryUrlTemplate() {
-        if (categoryUrlTemplate != null) {
-            return categoryUrlTemplate;
-        } else {
-            return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
-        }
-    }
-
-    @Override
-    public IdentifierLocation categoryIdentifierLocation() {
-        return ObjectUtils.firstNonNull(categoryIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
 
     @Override
     public Class<? extends Annotation> annotationType() {
         return UrlProviderConfiguration.class;
     }
 
-    public void setProductIdentifierLocation(IdentifierLocation productIdentifierLocation) {
-        this.productIdentifierLocation = productIdentifierLocation;
-    }
-
-    public void setCategoryIdentifierLocation(IdentifierLocation categoryIdentifierLocation) {
-        this.categoryIdentifierLocation = categoryIdentifierLocation;
-    }
-
-    public void setProductIdentifierType(ProductIdentifierType productIdentifierType) {
-        this.productIdentifierType = productIdentifierType;
-    }
-
-    public void setProductUrlTemplate(String productUrlTemplate) {
-        this.productUrlTemplate = productUrlTemplate;
-    }
-
-    public void setCategoryUrlTemplate(String categoryUrlTemplate) {
-        this.categoryUrlTemplate = categoryUrlTemplate;
+    @Override
+    public String productPageUrlFormat() {
+        return UrlFormat.ProductPageWithUrlKey.PATTERN;
     }
 
     @Override
-    public String identifierQueryParameter() {
-        return UrlProvider.DEFAULT_QUERY_PARAMETER;
+    public String categoryPageUrlFormat() {
+        return UrlFormat.CategoryPageWithUrlPath.PATTERN;
     }
 }

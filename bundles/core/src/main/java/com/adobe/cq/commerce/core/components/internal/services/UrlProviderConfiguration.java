@@ -15,53 +15,18 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
-import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 
 @ObjectClassDefinition(name = "CIF URL Provider configuration")
 public @interface UrlProviderConfiguration {
 
-    String DEFAULT_PRODUCT_URL_TEMPLATE = "{{page}}.{{url_key}}.html#{{variant_sku}}";
-    String DEFAULT_CATEGORY_URL_TEMPLATE = "{{page}}.{{url_path}}.html";
+    // TODO these should be dropdown, add "options" to annotation
 
     @AttributeDefinition(
-        name = "Product URL template",
-        description = "Default variables are {{page}}, {{sku}}, {{variant_sku}}, {{url_key}} and {{variant_url_key}}.",
-        type = AttributeType.STRING,
-        required = true)
-    String productUrlTemplate() default DEFAULT_PRODUCT_URL_TEMPLATE;
+        name = "Product page url format")
+    String productPageUrlFormat() default UrlFormat.ProductPageWithUrlKey.PATTERN;
 
     @AttributeDefinition(
-        name = "Product identifier location",
-        description = "Defines the location of the product identifier in the URL.",
-        required = true)
-    IdentifierLocation productIdentifierLocation() default IdentifierLocation.SELECTOR;
-
-    @AttributeDefinition(
-        name = "Product identifier type",
-        description = "Defines the type of the product identifier in the URL.",
-        required = true)
-    ProductIdentifierType productIdentifierType() default ProductIdentifierType.URL_KEY;
-
-    @AttributeDefinition(
-        name = "Category URL template",
-        description = "Default variables are {{page}}, {{uid}}, {{url_key}} and {{url_path}}.",
-        type = AttributeType.STRING,
-        required = true)
-    String categoryUrlTemplate() default DEFAULT_CATEGORY_URL_TEMPLATE;
-
-    @AttributeDefinition(
-        name = "Category identifier location",
-        description = "Defines the location of the category identifier (url_path) in the URL.",
-        required = true)
-    IdentifierLocation categoryIdentifierLocation() default IdentifierLocation.SELECTOR;
-
-    @AttributeDefinition(
-        name = "Query parameter name",
-        description = "Defines the name if the query parameter used for product & category page URLs.")
-    String identifierQueryParameter() default UrlProvider.DEFAULT_QUERY_PARAMETER;
+        name = "Category page url format")
+    String categoryPageUrlFormat() default UrlFormat.CategoryPageWithUrlPath.PATTERN;
 }
