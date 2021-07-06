@@ -259,7 +259,12 @@ public class UrlProviderImpl implements UrlProvider {
             String[] selectors = request.getRequestPathInfo().getSelectors();
             return selectors.length == 0 ? null : selectors[selectors.length - 1];
         } else if (IdentifierLocation.SUFFIX.equals(identifierLocation)) {
-            return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+            if (StringUtils.isNotEmpty(request.getRequestPathInfo().getSuffix())) {
+                return request.getRequestPathInfo().getSuffix().substring(1); // Remove leading /
+            } else {
+                // allowed
+                return null;
+            }
         } else {
             throw new RuntimeException("Identifier location " + identifierLocation + " is not supported");
         }
