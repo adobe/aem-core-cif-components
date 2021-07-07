@@ -202,7 +202,8 @@ public class BreadcrumbImplTest {
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
 
         NavigationItem product = items.get(3);
-        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page/product-specific-page.html/tiberius-gym-tank.html");
+        assertThat(product.getURL()).isEqualTo(
+            "/content/venia/us/en/products/product-page/product-specific-page.html/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
