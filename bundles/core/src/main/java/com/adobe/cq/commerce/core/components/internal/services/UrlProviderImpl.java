@@ -252,7 +252,12 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String getProductIdentifier(SlingHttpServletRequest request) {
-        String identifier = getIdentifierFromFragmentRenderRequest(request);
+        String identifier = getIdentifierFromRequest(request);
+        if (identifier != null) {
+            return identifier;
+        }
+
+        identifier = getIdentifierFromFragmentRenderRequest(request);
         if (identifier != null) {
             return identifier;
         }
@@ -261,54 +266,68 @@ public class UrlProviderImpl implements UrlProvider {
 
         // if we get the product sku from URL no extra lookup is needed
         if (productIdentifiers.containsKey(SKU_PARAM)) {
-            return productIdentifiers.get(SKU_PARAM);
-        }
+            identifier = productIdentifiers.get(SKU_PARAM);
+        } else {
+            String urlKey = null;
+            if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
+                urlKey = productIdentifiers.get(URL_KEY_PARAM);
+            }
 
-        String urlKey = null;
-        if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
-            urlKey = productIdentifiers.get(URL_KEY_PARAM);
-        }
-
-        if (StringUtils.isNotBlank(urlKey)) {
-            // lookup internal product identifier (sku) based on URL product identifier (url_key)
-            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
-            if (magentoGraphqlClient != null) {
-                UrlToProductRetriever productRetriever = new UrlToProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(urlKey);
-                ProductInterface product = productRetriever.fetchProduct();
-                return product != null ? product.getSku() : null;
-            } else {
-                LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
-                    .toString());
+            if (StringUtils.isNotBlank(urlKey)) {
+                // lookup internal product identifier (sku) based on URL product identifier (url_key)
+                MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+                if (magentoGraphqlClient != null) {
+                    UrlToProductRetriever productRetriever = new UrlToProductRetriever(magentoGraphqlClient);
+                    productRetriever.setIdentifier(urlKey);
+                    ProductInterface product = productRetriever.fetchProduct();
+                    identifier = product != null ? product.getSku() : null;
+                } else {
+                    LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
+                        .toString());
+                }
             }
         }
 
-        return null;
+        if (identifier != null) {
+            request.setAttribute(CIF_IDENTIFIER_ATTR, identifier);
+        }
+
+        return identifier;
     }
 
     @Override
     public String getCategoryIdentifier(SlingHttpServletRequest request) {
-        String identifier = getIdentifierFromFragmentRenderRequest(request);
+        String identifier = getIdentifierFromRequest(request);
+        if (identifier != null) {
+            return identifier;
+        }
+
+        identifier = getIdentifierFromFragmentRenderRequest(request);
         if (identifier != null) {
             return identifier;
         }
 
         Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestPathInfo());
 
-        if (categoryIdentifiers.containsKey(URL_PATH_PARAM)) {
+        if (categoryIdentifiers.containsKey(URL_KEY_PARAM)) {
             // lookup internal product identifier (sku) based on URL product identifier (url_key)
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient != null) {
                 UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryIdentifiers.get(URL_PATH_PARAM));
+                categoryRetriever.setIdentifier(categoryIdentifiers.get(URL_KEY_PARAM));
                 CategoryInterface category = categoryRetriever.fetchCategory();
-                return category != null ? category.getUid().toString() : null;
+                identifier = category != null ? category.getUid().toString() : null;
             } else {
                 LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
                     .toString());
             }
         }
-        return null;
+
+        if (identifier != null) {
+            request.setAttribute(CIF_IDENTIFIER_ATTR, identifier);
+        }
+
+        return identifier;
     }
 
     /**
@@ -328,6 +347,22 @@ public class UrlProviderImpl implements UrlProvider {
             }
         }
 
+        return null;
+    }
+
+    /**
+     * When the FragmentRenderService executes an internal request it passes its configuration as attribute to the internal request.
+     * As this request may not be formatted in the way the UrlProvider was configured we have to pass the identifier parsed from the
+     * original request as attribute in this configuration.
+     *
+     * @param request
+     * @return
+     */
+    private String getIdentifierFromRequest(SlingHttpServletRequest request) {
+        Object cachedIdentifier = request.getAttribute(CIF_IDENTIFIER_ATTR);
+        if (cachedIdentifier instanceof String) {
+            return (String) cachedIdentifier;
+        }
         return null;
     }
 

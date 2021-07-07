@@ -32,9 +32,7 @@ class UrlToCategoryRetriever extends AbstractCategoryRetriever {
     public String generateQuery(String identifier) {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
-            CategoryFilterInput filter = new CategoryFilterInput().setUrlPath(
-                // replaceAll is needed to support the special CIF format of url_key
-                new FilterEqualTypeInput().setEq(identifier.replaceAll("_", "/")));
+            CategoryFilterInput filter = new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(identifier));
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
         }).toString();

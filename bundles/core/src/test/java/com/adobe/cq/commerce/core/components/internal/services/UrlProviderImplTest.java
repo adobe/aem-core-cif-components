@@ -100,10 +100,12 @@ public class UrlProviderImplTest {
             "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"uid-99\"}}");
+        // from url_path men/tops-men/jackets-men
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
+            "{categoryList(filters:{url_key:{eq:\"jackets-men\"}}");
+        // from url_path does/not/exist
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
-            "categoryList(filters:{url_path:{eq:\"does/not/exist\"}");
+            "categoryList(filters:{url_key:{eq:\"exist\"}");
     }
 
     @Test
@@ -305,6 +307,9 @@ public class UrlProviderImplTest {
 
         String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
+        // second access should be cached in request attributes
+        identifier = urlProvider.getProductIdentifier(context.request());
+        Assert.assertEquals("MJ01", identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -331,6 +336,9 @@ public class UrlProviderImplTest {
 
         String identifier = urlProvider.getCategoryIdentifier(context.request());
         Assert.assertEquals("MTI==", identifier);
+        // second access should be cached in request attributes
+        identifier = urlProvider.getCategoryIdentifier(context.request());
+        Assert.assertEquals("MTI==", identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -338,7 +346,7 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryIdentifierParsingUrlPathNotFound() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSuffix("/does_not_exist.html");
+        requestPathInfo.setSuffix("/does/not/exist.html");
 
         String identifier = urlProvider.getCategoryIdentifier(context.request());
         Assert.assertNull(identifier);

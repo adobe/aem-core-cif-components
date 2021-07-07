@@ -63,7 +63,12 @@ public interface UrlFormat {
     String format(Map<String, String> parameters);
 
     /**
-     * Parses a givven request URI using the internal configured pattern.
+     * Parses a given request URI using the internal configured pattern.
+     * <p>
+     * Returns a {@link Map} with up to all the parameter names returned by {@link UrlFormat#getParameterNames()}.
+     * <p>
+     * Passing the returned {@link Map} of parameters into {@link UrlFormat#format(Map)} must return the same pathInfo as used as input
+     * before.
      *
      * @param requestPathInfo the request path info object used to extra the URL information from
      * @return a map containing the parsed URL elements
@@ -71,7 +76,9 @@ public interface UrlFormat {
     Map<String, String> parse(RequestPathInfo requestPathInfo);
 
     /**
-     * Returns a set of all parameter names the url format implementation supports.
+     * Returns a set of all parameter names the url format implementation supports when parsing a pathinfo.
+     * <p>
+     * This may return more parameters, than the url fromat uses in {@link UrlFormat#format(Map)}.
      *
      * @return all supported parameter names.
      */

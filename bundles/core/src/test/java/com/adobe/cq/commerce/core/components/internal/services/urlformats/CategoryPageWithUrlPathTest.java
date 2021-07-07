@@ -46,11 +46,12 @@ public class CategoryPageWithUrlPathTest {
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        pathInfo.setSuffix("/foo-bar.html");
+        pathInfo.setSuffix("/foo-bar/foobar.html");
         Map<String, String> parameters = subject.parse(pathInfo);
 
         assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("url_path"));
+        assertEquals("foobar", parameters.get("url_key"));
+        assertEquals("foo-bar/foobar", parameters.get("url_path"));
     }
 
     @Test
