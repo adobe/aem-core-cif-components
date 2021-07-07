@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductPageWithSkuTest {
 
@@ -50,6 +51,12 @@ public class ProductPageWithSkuTest {
 
         assertEquals("/page/path", parameters.get("page"));
         assertEquals("foo-bar", parameters.get("sku"));
+    }
+
+    @Test
+    public void testParseNull() {
+        Map<String, String> parameters = subject.parse(null);
+        assertTrue( parameters.isEmpty());
     }
 
     @Test

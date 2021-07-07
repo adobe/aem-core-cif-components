@@ -60,7 +60,7 @@ public class ProductPageWithSkuAndUrlKey extends AbstractUrlFormat {
                         put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
                         put(URL_KEY_PARAM, StringUtils.substringAfter(suffix, "/"));
                     } else {
-                        put(URL_KEY_PARAM, suffix);
+                        put(SKU_PARAM, suffix);
                     }
                 }
             }
