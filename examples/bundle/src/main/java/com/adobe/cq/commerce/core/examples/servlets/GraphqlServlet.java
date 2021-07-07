@@ -87,10 +87,15 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCTS_FILTER_ARG = "filter";
     private static final String PRODUCTS_SEARCH_ARG = "search";
 
-    private static final String CATEGORY_UID_REGEX = "\\{category_uid=\\{eq=.+\\}\\}";
+    private static final Pattern CATEGORY_UID_EQ_PATTERN = Pattern.compile("\\{category_uid=\\{eq=(.+)\\}\\}");
     private static final Pattern SKU_IN_PATTERN = Pattern.compile("\\{sku=\\{in=\\[(.+)\\]\\}\\}");
     private static final Pattern SKU_EQ_PATTERN = Pattern.compile("\\{sku=\\{eq=(.+)\\}\\}");
     private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
+
+    private static final String CATEGORY_UID = "uid-1";
+    private static final String CATEGORY_STAGED_PRODUCTS_UID = "uid-2";
+
+    private static final String STAGED_PRODUCT_URL_KEY = "chaz-crocodile-hoodie";
 
     private static final String PRODUCT_SKU = "MH01";
 
@@ -107,16 +112,19 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCT_CAROUSEL_JSON = "magento-graphql-productcarousel.json";
     private static final String PRODUCT_TEASER_JSON = "magento-graphql-productteaser.json";
     private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
+    private static final String PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-products-collection-with-staged-products.json";
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
     private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
+    private static final String CATEGORY_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-category-with-staged-products.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
     private static final String CATEGORYLIST_BREADCRUMB_JSON = "magento-graphql-categorylist-breadcrumb.json";
     private static final String BUNDLE_PRODUCT_JSON = "magento-graphql-bundle-product.json";
     private static final String BUNDLE_PRODUCT_ITEMS_JSON = "magento-graphql-bundle-product-items.json";
+    private static final String STAGED_PRODUCT_JSON = "magento-graphql-products-staged.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -171,7 +179,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Executes the given GraphQL <code>query</code> with the optional <code>operationName</code> and <code>variables</code> parameters.
-     * 
+     *
      * @param query The GraphQL query.
      * @param operationName An optional operation name for that query.
      * @param variables An optional map of variables for the query.
@@ -191,7 +199,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Write the result of a GraphQL query execution in the given Servlet response.
-     * 
+     *
      * @param executionResult The GraphQL query execution result.
      * @param response The Servlet response.
      * @throws IOException If an I/O error occurs.
@@ -205,7 +213,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads the given resource file and returns the content.
-     * 
+     *
      * @param filename The name of the file.
      * @return The string content of the file.
      * @throws IOException If an I/O error occurs.
@@ -216,7 +224,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads and parses the GraphQL response from the given filename.
-     * 
+     *
      * @param filename The file with the GraphQL JSON response.
      * @return A parsed GraphQL response object.
      */
@@ -240,7 +248,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Initialises and parses the GraphQL schema.
-     * 
+     *
      * @return The registry of type definitions.
      * @throws IOException If an I/O error occurs.
      */
@@ -259,7 +267,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Configures and builds the execution engine of the GraphQL server.
-     * 
+     *
      * @return The runtime wiring of the server.
      * @throws IOException If an I/O error occurs.
      */
@@ -348,7 +356,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
      * specific JSON response. Luckily, each GraphQL query sent by each component is different so
      * we can "detect" what response should be returned.
-     * 
+     *
      * @param env The metadata of the GraphQL query.
      * @return A Magento <code>Products</code> object.
      */
@@ -373,6 +381,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             Matcher skuInMatcher = SKU_IN_PATTERN.matcher(filter);
             Matcher skuEqMatcher = SKU_EQ_PATTERN.matcher(filter);
             Matcher urlKeyEqPattern = URL_KEY_EQ_PATTERN.matcher(filter);
+            Matcher uidPattern = CATEGORY_UID_EQ_PATTERN.matcher(filter);
 
             if (skuInMatcher.matches()) {
                 // The filter {sku:{in:[...]}} can be a query for the carousel (3 skus) or a client-side query to fetch prices
@@ -397,13 +406,20 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(PRODUCTS_JSON);
                 }
                 return readProductsFrom(PRODUCT_TEASER_JSON);
-            } else if (filter.matches(CATEGORY_UID_REGEX)) {
-                return readProductsFrom(PRODUCTS_COLLECTION_JSON);
+            } else if (uidPattern.matches()) {
+                if (CATEGORY_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_JSON);
+                } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
+                }
+
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (BUNDLE_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                } else if (STAGED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(STAGED_PRODUCT_JSON);
                 }
             }
         }
@@ -417,7 +433,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads the JSON of the given file and deserialises the content in a Magento <code>Products</code> object.
-     * 
+     *
      * @param filename The file that contains the products JSON response.
      * @return A Magento <code>Products</code> object.
      */
@@ -431,13 +447,13 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
      * specific JSON response. Luckily, each GraphQL query sent by each component is different so
      * we can "detect" what response should be returned.
-     * 
+     *
      * @param env The metadata of the GraphQL query.
      * @return A list of Magento <code>CategoryTree</code> objects.
      */
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
 
-        GraphqlResponse<Query, Error> graphqlResponse;
+        GraphqlResponse<Query, Error> graphqlResponse = null;
         Map<String, Map<String, Object>> filters = env.getArgument("filters");
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
 
@@ -449,15 +465,20 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 .size() == 4)) {
             // The CategoriesCarousel example will require 4 items
             graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
-        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
-            filters.get("category_uid").get("eq").equals("uid-1")) {
-            // The ProductList example will require 1 item
-            graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
-        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
-            filters.get("category_uid").get("eq").equals("Mg==")) {
-            // The navigation example will require item "Mg==" as the default root category
-            graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
-        } else {
+        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq")) {
+            if (filters.get("category_uid").get("eq").equals("uid-1")) {
+                // The ProductList example will require 1 item
+                graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
+            } else if (filters.get("category_uid").get("eq").equals("uid-2")) {
+                graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
+            } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
+                filters.get("category_uid").get("eq").equals("Mg==")) {
+                // The navigation example will require item "Mg==" as the default root category
+                graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
+            }
+        }
+
+        if (graphqlResponse == null) {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
         }
 

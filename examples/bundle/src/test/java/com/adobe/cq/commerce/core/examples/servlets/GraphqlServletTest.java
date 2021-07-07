@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -277,6 +278,20 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testProductModelV2Staged() throws ServletException {
+        prepareModel(PRODUCT_V2_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("chaz-crocodile-hoodie");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
+
+        Assert.assertEquals("MH02", productModel.getSku());
+        Assert.assertTrue(productModel.isStaged());
+    }
+
+    @Test
     public void testGroupedProductModel() throws ServletException {
         prepareModel(PRODUCT_V1_RESOURCE);
 
@@ -354,6 +369,23 @@ public class GraphqlServletTest {
         Assert.assertEquals("Meta description for Outdoor Collection", productListModel.getMetaDescription());
         Assert.assertEquals("Meta keywords for Outdoor Collection", productListModel.getMetaKeywords());
         Assert.assertEquals("Meta title for Outdoor Collection", productListModel.getMetaTitle());
+    }
+
+    @Test
+    public void testProductListModelV2Staged() throws ServletException {
+        prepareModel(PRODUCT_LIST_V2_RESOURCE);
+
+        // The category data is coming from magento-graphql-category.json
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSelectorString("uid-2");
+
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
+        // anything else is already asserted in testProductListModelV2 with uid-1
+        Assert.assertEquals("Outdoor Collection (staged)", productListModel.getTitle());
+        List<ProductListItem> items = new ArrayList<>(productListModel.getProducts());
+        Assert.assertTrue(items.get(1).isStaged());
+        Assert.assertTrue(items.get(5).isStaged());
     }
 
     @Test
