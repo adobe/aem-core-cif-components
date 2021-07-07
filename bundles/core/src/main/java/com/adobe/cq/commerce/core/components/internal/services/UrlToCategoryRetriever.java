@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -40,8 +39,6 @@ class UrlToCategoryRetriever extends AbstractCategoryRetriever {
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        return (CategoryTreeQuery q) -> {
-            q.uid();
-        };
+        return q -> q.uid();
     }
 }

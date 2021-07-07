@@ -8,7 +8,7 @@
 
 {products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(filter:{url_key:{eq:"beaumont-summit-kit"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"beaumont-summit-kit"}}){items{__typename,sku,url_key}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,meta_description,meta_keyword,meta_title,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},staged}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged}}}
 
@@ -28,11 +28,11 @@
 
 {categoryList(filters:{url_key:{eq:"url_path"}}){uid}}
 
-{products(filter:{url_key:{eq:"sku"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"sku"}}){items{__typename,sku,url_key}}}
 
 {categoryList(filters:{url_key:{eq:"slug"}}){uid}}
 
-{products(filter:{url_key:{eq:"slug"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"slug"}}){items{__typename,sku,url_key}}}
 
 {categoryList(filters:{url_key:{eq:"uid"}}){uid}}
 
@@ -42,7 +42,7 @@
 
 {products(filter:{sku:{eq:"VVP01"}}){items{__typename,name,image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
-{products(filter:{url_key:{eq:"no-asset"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"no-asset"}}){items{__typename,sku,url_key}}}
 
 {products(filter:{sku:{eq:"incomplete_asset"}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,meta_description,meta_keyword,meta_title,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image}}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
@@ -60,7 +60,7 @@
 
 {products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}
 
-{products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,sku,url_key}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,upsell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
@@ -80,7 +80,7 @@
 
 {categoryList(filters:{category_uid:{eq:"MTI=="}}){uid,url_path,name,breadcrumbs{category_uid,category_url_path,category_name}}}
 
-{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"tiberius-gym-tank"}}){items{__typename,sku,url_key}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,sku,url_key,name,categories{__typename,uid,url_path,name,breadcrumbs{category_uid,category_url_path,category_name}}}}}
 
@@ -88,9 +88,9 @@
 
 {categoryList(filters:{url_key:{eq:"uid3"}}){uid}}
 
-{products(filter:{url_key:{eq:"url-key-xf1"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"url-key-xf1"}}){items{__typename,sku,url_key}}}
 
-{products(filter:{url_key:{eq:"sku-xf3"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"sku-xf3"}}){items{__typename,sku,url_key}}}
 
 {categoryList(filters:{url_key:{eq:"uid2"}}){uid}}
 
@@ -98,7 +98,7 @@
 
 {categoryList(filters:{url_key:{eq:"url_path2"}}){uid}}
 
-{products(filter:{url_key:{eq:"url-key-xf2"}}){items{__typename,sku}}}
+{products(filter:{url_key:{eq:"url-key-xf2"}}){items{__typename,sku,url_key}}}
 
 {categoryList(filters:{category_uid:{in:["uid-5","uid-6","uid-7","9999"]}}){uid,name,url_path,position,image}}
 

@@ -40,8 +40,6 @@ class UrlToProductRetriever extends AbstractProductRetriever {
 
     @Override
     protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> {
-            q.sku();
-        };
+        return q -> q.sku().urlKey();
     }
 }
