@@ -13,17 +13,25 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.request.RequestPathInfo;
+
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.PAGE_PARAM;
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.SKU_PARAM;
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_KEY_PARAM;
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_PATH_PARAM;
+import static com.adobe.cq.commerce.core.components.services.UrlProvider.VARIANT_SKU_PARAM;
 
 public interface UrlFormat {
-
     Map<String, UrlFormat> DEFAULT_PRODUCTURL_FORMATS = new HashMap<String, UrlFormat>() {
         {
             put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
             put(ProductPageWithUrlKey.PATTERN, ProductPageWithUrlKey.INSTANCE);
+            put(ProductPageWithUrlPath.PATTERN, ProductPageWithUrlPath.INSTANCE);
         }
     };
 
@@ -36,38 +44,27 @@ public interface UrlFormat {
     /**
      * Formats an URL with the given parameters.
      * 
-     * @param parameters
-     * @return
+     * @param parameters the URL parameters to be applied to the URL according to the internal format
+     * @return the formated URL
      */
     String format(Map<String, String> parameters);
 
     /**
      * Parses a givven request URI using the internal configured pattern.
      * 
-     * @param requestUri
-     * @return
+     * @param requestPathInfo the request path info object used to extra the URL information from
+     * @return a map containing the parsed URL elements
      */
-    Map<String, String> parse(String requestUri);
+    Map<String, String> parse(RequestPathInfo requestPathInfo);
 
     abstract class AbstractUrlFormat implements UrlFormat {
+        static final String HTML_EXTENSION = ".html";
 
-        private static final String TEMPLATE_PREFIX = "{{";
-        private static final String TEMPLATE_SUFFIX = "}}";
-
-        abstract String getPattern();
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            StringSubstitutor sub = new StringSubstitutor(parameters, TEMPLATE_PREFIX, TEMPLATE_SUFFIX);
-            String url = sub.replace(getPattern());
-            url = StringUtils.substringBeforeLast(url, "#" + TEMPLATE_PREFIX); // remove anchor if it hasn't been substituted
-            return url;
-        }
-
-        @Override
-        public Map<String, String> parse(String requestUri) {
-            // TODO Auto-generated method stub
-            return null;
+        String format(Map<String, String> parameters, String identifier) {
+            return parameters.getOrDefault(PAGE_PARAM, "{{page}}") + HTML_EXTENSION + "/" + parameters.getOrDefault(identifier,
+                "{{" + identifier + "}}")
+                + HTML_EXTENSION + (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM)
+                    : "");
         }
     }
 
@@ -76,8 +73,23 @@ public interface UrlFormat {
         public static final String PATTERN = "{{page}}.html/{{sku}}.html#{{variant_sku}}";
 
         @Override
-        String getPattern() {
-            return PATTERN;
+        public String format(Map<String, String> parameters) {
+            return super.format(parameters, SKU_PARAM);
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put(PAGE_PARAM, requestPathInfo.getResourcePath());
+            String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+            if (StringUtils.isNotBlank(suffix)) {
+                parameters.put(SKU_PARAM, suffix);
+            }
+            return parameters;
         }
     }
 
@@ -86,8 +98,51 @@ public interface UrlFormat {
         public static final String PATTERN = "{{page}}.html/{{url_key}}.html#{{variant_sku}}";
 
         @Override
-        String getPattern() {
-            return PATTERN;
+        public String format(Map<String, String> parameters) {
+            return super.format(parameters, URL_KEY_PARAM);
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            return new HashMap<String, String>() {
+                {
+                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
+                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+                    if (StringUtils.isNotBlank(suffix)) {
+                        put(URL_KEY_PARAM, suffix);
+                    }
+                }
+            };
+        }
+    }
+
+    class ProductPageWithUrlPath extends AbstractUrlFormat {
+        public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
+        public static final String PATTERN = "{{page}}.html/{{url_path}}.html#{{variant_sku}}";
+
+        @Override
+        public String format(Map<String, String> parameters) {
+            return super.format(parameters, URL_PATH_PARAM);
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put(PAGE_PARAM, requestPathInfo.getResourcePath());
+            String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+            if (StringUtils.isNotBlank(suffix)) {
+                parameters.put(URL_PATH_PARAM, suffix);
+                parameters.put(URL_KEY_PARAM, suffix.indexOf("/") > 0 ? StringUtils.substringAfterLast(suffix, "/") : suffix);
+            }
+            return parameters;
         }
     }
 
@@ -96,27 +151,23 @@ public interface UrlFormat {
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html";
 
         @Override
-        String getPattern() {
-            return PATTERN;
+        public String format(Map<String, String> parameters) {
+            return super.format(parameters, URL_PATH_PARAM);
         }
-    }
 
-    static class StringSubstitutor {
-        private final String[] searchList;
-        private final String[] replacementList;
-
-        public StringSubstitutor(Map<String, String> params, String prefix, String suffix) {
-            replacementList = params.values().toArray(new String[0]);
-            searchList = params.keySet().toArray(new String[0]);
-            if (StringUtils.isNotBlank(prefix) && StringUtils.isNotBlank(suffix)) {
-                for (int i = 0; i < searchList.length; ++i) {
-                    searchList[i] = prefix + searchList[i] + suffix;
-                }
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
             }
-        }
 
-        public String replace(String source) {
-            return StringUtils.replaceEach(source, searchList, replacementList);
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put(PAGE_PARAM, requestPathInfo.getResourcePath());
+            String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+            if (StringUtils.isNotBlank(suffix)) {
+                parameters.put(URL_PATH_PARAM, suffix);
+            }
+            return parameters;
         }
     }
 }

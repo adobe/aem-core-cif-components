@@ -246,7 +246,7 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String getProductIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestURI());
+        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestPathInfo());
 
         // if we get the product sku from URL no extra lookup is needed
         if (productIdentifiers.containsKey(SKU_PARAM)) {
@@ -279,14 +279,14 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String getCategoryIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestURI());
+        Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestPathInfo());
 
         if (categoryIdentifiers.containsKey(URL_PATH_PARAM)) {
             // lookup internal product identifier (sku) based on URL product identifier (url_key)
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient != null) {
                 UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryIdentifiers.get(URL_KEY_PARAM));
+                categoryRetriever.setIdentifier(categoryIdentifiers.get(URL_PATH_PARAM));
                 CategoryInterface category = categoryRetriever.fetchCategory();
                 return category != null ? category.getUid().toString() : null;
             } else {
@@ -305,7 +305,7 @@ public class UrlProviderImpl implements UrlProvider {
      * @return The product sku or url_key from the URL.
      */
     public String parseProductUrlIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestURI());
+        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestPathInfo());
         if (productIdentifiers.containsKey(SKU_PARAM)) {
             return productIdentifiers.get(SKU_PARAM);
         } else if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
@@ -324,7 +324,7 @@ public class UrlProviderImpl implements UrlProvider {
      * @return The category url_path from the URL.
      */
     public String parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestURI());
+        Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestPathInfo());
         return categoryIdentifiers.get(URL_PATH_PARAM);
     }
 }
