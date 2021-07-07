@@ -13,31 +13,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ProductPageWithUrlPathTest {
+public class ProductPageWithSkuAndUrlKeyTest {
 
-    public final UrlFormat subject = ProductPageWithUrlPath.INSTANCE;
+    public final UrlFormat subject = ProductPageWithSkuAndUrlKey.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        assertEquals("{{page}}.html/{{url_path}}.html", subject.format(Collections.emptyMap()));
+        assertEquals("{{page}}.html/{{sku}}/{{url_key}}.html", subject.format(Collections.emptyMap()));
     }
 
     @Test
     public void testFormat() {
-        assertEquals("/page/path.html/foo-bar.html", subject.format(ImmutableMap.of(
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(ImmutableMap.of(
             "page", "/page/path",
-            "url_path", "foo-bar")));
+            "sku", "foo-bar",
+            "url_key", "next-generation-foo-bar2021")));
     }
 
     @Test
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        pathInfo.setSuffix("/foo-bar.html");
+        pathInfo.setSuffix("/foo-bar/next-generation-foo-bar2021.html");
         Map<String, String> parameters = subject.parse(pathInfo);
 
         assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("url_path"));
+        assertEquals("foo-bar", parameters.get("sku"));
+        assertEquals("next-generation-foo-bar2021", parameters.get("url_key"));
     }
 
     @Test
@@ -53,6 +55,19 @@ public class ProductPageWithUrlPathTest {
         Map<String, String> parameters = subject.parse(pathInfo);
 
         assertEquals("/page/path", parameters.get("page"));
-        assertNull(parameters.get("url_path"));
+        assertNull(parameters.get("sku"));
+        assertNull(parameters.get("url_key"));
+    }
+
+    @Test
+    public void testParseSuffixNoSlash() {
+        MockRequestPathInfo pathInfo = new MockRequestPathInfo();
+        pathInfo.setResourcePath("/page/path");
+        pathInfo.setSuffix("/foo-bar.html");
+        Map<String, String> parameters = subject.parse(pathInfo);
+
+        assertEquals("/page/path", parameters.get("page"));
+        assertEquals("foo-bar", parameters.get("sku"));
+        assertNull(parameters.get("url_key"));
     }
 }

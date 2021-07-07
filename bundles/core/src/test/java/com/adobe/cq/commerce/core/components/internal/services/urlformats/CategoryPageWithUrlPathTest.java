@@ -13,9 +13,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ProductPageWithUrlPathTest {
+public class CategoryPageWithUrlPathTest {
 
-    public final UrlFormat subject = ProductPageWithUrlPath.INSTANCE;
+    public final UrlFormat subject = CategoryPageWithUrlPath.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {

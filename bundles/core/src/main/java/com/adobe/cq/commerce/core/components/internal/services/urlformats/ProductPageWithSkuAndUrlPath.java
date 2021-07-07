@@ -50,7 +50,7 @@ public class ProductPageWithSkuAndUrlPath extends AbstractUrlFormat {
                         put(URL_PATH_PARAM, urlPath);
                         put(URL_KEY_PARAM, urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
                     } else {
-                        put(URL_PATH_PARAM, suffix);
+                        put(SKU_PARAM, suffix);
                     }
                 }
             }
