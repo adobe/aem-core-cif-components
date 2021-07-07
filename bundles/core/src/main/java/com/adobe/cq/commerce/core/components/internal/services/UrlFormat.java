@@ -27,6 +27,8 @@ import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_PAT
 import static com.adobe.cq.commerce.core.components.services.UrlProvider.VARIANT_SKU_PARAM;
 
 public interface UrlFormat {
+
+    static final String HTML_EXTENSION = ".html";
     Map<String, UrlFormat> DEFAULT_PRODUCTURL_FORMATS = new HashMap<String, UrlFormat>() {
         {
             put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
@@ -57,24 +59,15 @@ public interface UrlFormat {
      */
     Map<String, String> parse(RequestPathInfo requestPathInfo);
 
-    abstract class AbstractUrlFormat implements UrlFormat {
-        static final String HTML_EXTENSION = ".html";
-
-        String format(Map<String, String> parameters, String identifier) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{page}}") + HTML_EXTENSION + "/" + parameters.getOrDefault(identifier,
-                "{{" + identifier + "}}")
-                + HTML_EXTENSION + (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM)
-                    : "");
-        }
-    }
-
-    class ProductPageWithSku extends AbstractUrlFormat {
+    class ProductPageWithSku implements UrlFormat {
         public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
         public static final String PATTERN = "{{page}}.html/{{sku}}.html#{{variant_sku}}";
 
         @Override
         public String format(Map<String, String> parameters) {
-            return super.format(parameters, SKU_PARAM);
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + HTML_EXTENSION +
+                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
         }
 
         @Override
@@ -93,13 +86,15 @@ public interface UrlFormat {
         }
     }
 
-    class ProductPageWithUrlKey extends AbstractUrlFormat {
+    class ProductPageWithUrlKey implements UrlFormat {
         public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
         public static final String PATTERN = "{{page}}.html/{{url_key}}.html#{{variant_sku}}";
 
         @Override
         public String format(Map<String, String> parameters) {
-            return super.format(parameters, URL_KEY_PARAM);
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION +
+                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
         }
 
         @Override
@@ -120,13 +115,15 @@ public interface UrlFormat {
         }
     }
 
-    class ProductPageWithUrlPath extends AbstractUrlFormat {
+    class ProductPageWithUrlPath implements UrlFormat {
         public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html#{{variant_sku}}";
 
         @Override
         public String format(Map<String, String> parameters) {
-            return super.format(parameters, URL_PATH_PARAM);
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION +
+                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
         }
 
         @Override
@@ -146,13 +143,14 @@ public interface UrlFormat {
         }
     }
 
-    class CategoryPageWithUrlPath extends AbstractUrlFormat {
+    class CategoryPageWithUrlPath implements UrlFormat {
         public static final CategoryPageWithUrlPath INSTANCE = new CategoryPageWithUrlPath();
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html";
 
         @Override
         public String format(Map<String, String> parameters) {
-            return super.format(parameters, URL_PATH_PARAM);
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION;
         }
 
         @Override
