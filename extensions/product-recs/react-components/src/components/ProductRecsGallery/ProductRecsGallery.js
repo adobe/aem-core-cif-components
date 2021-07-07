@@ -14,76 +14,19 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { useTranslation } from 'react-i18next';
-import {
-    useStorefrontEvents,
-    Price,
-    Trigger,
-    LoadingIndicator,
-    createProductPageUrl
-} from '@adobe/aem-core-cif-react-components';
+import { useStorefrontEvents, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
 import { useRecommendations } from '../../hooks/useRecommendations';
 import { useVisibilityObserver } from '../../hooks/useVisibilityObserver';
 
 import classes from './ProductRecsGallery.css';
+import ProductCard from './ProductCard';
 
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
-    const [t] = useTranslation();
-
-    const addToCart = (unit, product) => {
-        const { sku, type, productId } = product;
-        const { unitId } = unit;
-
-        const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
-        });
-        document.dispatchEvent(customEvent);
-
-        mse && mse.publish.recsItemAddToCartClick(unitId, productId);
-    };
-
-    const renderPrice = (prices, currency) => {
-        const { minimum, maximum } = prices;
-        const isRange = !!(Math.round(minimum.final * 100) != Math.round(maximum.final * 100));
-
-        if (isRange) {
-            return (
-                <>
-                    {t('productrecs:price-from', 'from')} <Price value={minimum.final} currencyCode={currency} />
-                </>
-            );
-        }
-
-        return <Price value={minimum.final} currencyCode={currency} />;
-    };
-
-    const renderCard = (unit, product) => {
-        const { unitId } = unit;
-        const { sku, name, type, productId, currency, prices, smallImage } = product;
-
-        return (
-            <div className={classes.card} key={sku}>
-                <a href={createProductPageUrl(sku)} onClick={() => mse && mse.publish.recsItemClick(unitId, productId)}>
-                    <div className={classes.cardImage}>
-                        <img className={classes.productImage} src={smallImage.url} alt={name} />
-                    </div>
-                    <div>{product.name}</div>
-                    <div className={classes.price}>{renderPrice(prices, currency)}</div>
-                </a>
-                {// Only display add to cart button for products that can be added to cart without further customization
-                ['simple', 'virtual', 'downloadable'].includes(type) && (
-                    <Trigger action={() => addToCart(unit, product)}>
-                        <span className={classes.addToCart}>{t('productrecs:add-to-cart', 'Add to cart')}</span>
-                    </Trigger>
-                )}
-            </div>
-        );
-    };
 
     let content = '';
 
@@ -102,7 +45,9 @@ const ProductRecsGallery = props => {
             <>
                 <h2 className={classes.title}>{unit.unitName || props.title}</h2>
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
-                    {unit.products.map(p => renderCard(unit, p))}
+                    {unit.products.map(product => (
+                        <ProductCard unit={unit} product={product} key={product.sku} />
+                    ))}
                 </div>
             </>
         );

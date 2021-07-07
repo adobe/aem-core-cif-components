@@ -15,11 +15,20 @@
 import { createProductPageUrl } from '../createProductPageUrl';
 
 describe('createProductPageUrl', () => {
+    beforeEach(() => {
+        delete document.body.dataset.storeRootUrl;
+    });
+
+    it('returns null if storeRootUrl is not set', () => {
+        const url = createProductPageUrl('my-product');
+
+        expect(url).toBeNull();
+    });
+
     it('creates a product page url for a product sku', () => {
         document.body.dataset.storeRootUrl = '/content/venia/us/en.html';
-        const sku = 'my-product';
 
-        const url = createProductPageUrl(sku);
+        const url = createProductPageUrl('my-product');
 
         expect(url).toEqual('http://localhost/content/venia/us/en.cifredirect.html/product/my-product');
     });

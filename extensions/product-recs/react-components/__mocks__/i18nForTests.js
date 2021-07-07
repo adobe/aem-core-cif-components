@@ -15,7 +15,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import common from '../i18n/en/common.json';
+import common from './common.json'
+import productrecs from '../i18n/en/productrecs.json';
 
 i18n.use(initReactI18next).init({
     fallbackLng: 'en',
@@ -34,7 +35,8 @@ i18n.use(initReactI18next).init({
 
     resources: {
         en: {
-            common
+            common,
+            productrecs
         }
     }
 });

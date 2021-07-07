@@ -17,6 +17,9 @@ export const createProductPageUrl = sku => {
 
     // Provided by StoreConfigExporter
     const pathname = document.body.dataset.storeRootUrl;
+    if (!pathname) {
+        return null;
+    }
 
     const extension = pathname.substr(pathname.lastIndexOf('.'));
     const path = pathname.substr(0, pathname.lastIndexOf('.'));
