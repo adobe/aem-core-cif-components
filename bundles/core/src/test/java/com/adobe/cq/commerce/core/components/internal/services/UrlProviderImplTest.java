@@ -115,7 +115,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
+        Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, null, params);
-        Assert.assertEquals("/content/custom-page.beaumont-summit-kit.html", url);
+        Assert.assertEquals("/content/custom-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page-2.productId2.html#variantSku", url);
+        Assert.assertEquals("/content/product-page/sub-page-2.html/productId2.html#variantSku", url);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page/nested-page.productId1.1.html#variantSku", url);
+        Assert.assertEquals("/content/product-page/sub-page/nested-page.html/productId1.1.html#variantSku", url);
     }
 
     @Test
@@ -166,27 +166,27 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page.MJ01.html/{{something}}", url);
+        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
     }
 
     @Test
-    public void testProductUrlWithGraphQLClient() throws IOException {
+    public void testProductUrlWithGraphQLClient() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
-        Assert.assertEquals("/content/product-page.beaumont-summit-kit.html", url);
+        Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
-    public void testProductUrlNotFoundWithGraphQLClient() throws IOException {
+    public void testProductUrlNotFoundWithGraphQLClient() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
+        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -197,17 +197,20 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY);
-        Assert.assertEquals("/content/product-page.{{url_key}}.html", url);
+        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
     }
 
     @Test
-    public void testProductUrlOnlySKU() throws IOException {
+    public void testProductUrlOnlySKU() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
+        MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
+        newConfig.setProductPageUrlFormat(UrlFormat.ProductPageWithSku.PATTERN);
+        urlProvider.activate(newConfig);
         String url = urlProvider.toProductUrl(request, page, "MJ01");
-        Assert.assertEquals("/content/product-page.html/MJ01", url);
+        Assert.assertEquals("/content/product-page.html/MJ01.html", url);
 
+        // not required when only sku is used
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
@@ -221,7 +224,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.men.html", url);
+        Assert.assertEquals("/content/category-page.html/men.html", url);
     }
 
     @Test
@@ -235,7 +238,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.men_tops_shirts.html", url);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.html/men/tops/shirts.html", url);
     }
 
     @Test
@@ -248,7 +251,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page/nested-page.category-uid-1.1.html", url);
+        Assert.assertEquals("/content/category-page/sub-page/nested-page.html/category-uid-1.1.html", url);
     }
 
     @Test
@@ -260,7 +263,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.html/{{url_path}}", url);
+        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
     }
 
     @Test
@@ -269,44 +272,33 @@ public class UrlProviderImplTest {
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        Assert.assertEquals("/content/category-page.equipment.html", url);
+        Assert.assertEquals("/content/category-page.html/equipment.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
-    public void testCategoryUrlNotFoundWithGraphQLClient() throws IOException {
+    public void testCategoryUrlNotFoundWithGraphQLClient() {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-99");
-        Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
+        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
-    public void testCategoryUrlWithGraphQLClientMissingParameters() throws IOException {
+    public void testCategoryUrlWithGraphQLClientMissingParameters() {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         String url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY);
-        Assert.assertEquals("/content/category-page.{{url_path}}.html", url);
+        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
     }
 
     @Test
-    public void testProductIdentifierParsingInSelectorUrlKey() throws IOException {
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("lazy.beaumont-summit-kit");
-
-        String identifier = urlProvider.getProductIdentifier(context.request());
-        Assert.assertEquals("MJ01", identifier);
-
-        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
-    }
-
-    @Test
-    public void testProductIdentifierParsingInSuffixUrlKey() throws IOException {
+    public void testProductIdentifierParsingInSuffixUrlKey() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
@@ -321,50 +313,35 @@ public class UrlProviderImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");
 
+        MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
+        newConfig.setProductPageUrlFormat(UrlFormat.ProductPageWithSku.PATTERN);
+        urlProvider.activate(newConfig);
+
         String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
 
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
 
-    // @Test
-    // public void testCategoryIdentifierParsingUrlPath() throws IOException {
-    // MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-    // requestPathInfo.setSelectorString("men_tops-men_jackets-men");
+    @Test
+    public void testCategoryIdentifierParsingUrlPath() {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/men/tops-men/jackets-men");
 
-    // String identifier = urlProvider.getCategoryIdentifier(context.request());
-    // Assert.assertEquals("MTI==", identifier);
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        Assert.assertEquals("MTI==", identifier);
 
-    // verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
-    // }
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
 
-    // @Test
-    // public void testCategoryIdentifierParsingUrlPathNotFound() throws IOException {
-    // MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-    // requestPathInfo.setSelectorString("does_not_exist");
+    @Test
+    public void testCategoryIdentifierParsingUrlPathNotFound() {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/does_not_exist.html");
 
-    // String identifier = urlProvider.getCategoryIdentifier(context.request());
-    // Assert.assertNull(identifier);
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        Assert.assertNull(identifier);
 
-    // verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
-    // }
-
-    // TODO move to URLFormat tests
-    // @Test
-    // public void testStringSubstitutor() {
-    // Map<String, String> params = new HashMap<>();
-
-    // // empty params, valid prefix & suffix
-    // UrlProviderImpl.StringSubstitutor sub = new UrlProviderImpl.StringSubstitutor(params, "${", "}");
-    // Assert.assertEquals("Wrong substitution", "${test}", sub.replace("${test}"));
-
-    // // valid params, no prefix & suffix
-    // params.put("test", "value");
-    // sub = new UrlProviderImpl.StringSubstitutor(params, null, null);
-    // Assert.assertEquals("Wrong substitution", "${value}-value", sub.replace("${test}-test"));
-
-    // // valid params, prefix & suffix
-    // sub = new UrlProviderImpl.StringSubstitutor(params, "${", "}");
-    // Assert.assertEquals("Wrong substitution", "value-value", sub.replace("${test}-${test}"));
-    // }
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
 }
