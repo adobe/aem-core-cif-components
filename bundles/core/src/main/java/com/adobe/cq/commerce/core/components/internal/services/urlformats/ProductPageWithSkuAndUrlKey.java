@@ -51,20 +51,18 @@ public class ProductPageWithSkuAndUrlKey extends AbstractUrlFormat {
             return Collections.emptyMap();
         }
 
-        return new HashMap<String, String>() {
-            {
-                put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                if (StringUtils.isNotBlank(suffix)) {
-                    if (suffix.indexOf("/") > 0) {
-                        put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
-                        put(URL_KEY_PARAM, StringUtils.substringAfter(suffix, "/"));
-                    } else {
-                        put(SKU_PARAM, suffix);
-                    }
-                }
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
+        String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+        if (StringUtils.isNotBlank(suffix)) {
+            if (suffix.indexOf("/") > 0) {
+                parameters.put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
+                parameters.put(URL_KEY_PARAM, StringUtils.substringAfter(suffix, "/"));
+            } else {
+                parameters.put(SKU_PARAM, suffix);
             }
-        };
+        }
+        return parameters;
     }
 
     @Override

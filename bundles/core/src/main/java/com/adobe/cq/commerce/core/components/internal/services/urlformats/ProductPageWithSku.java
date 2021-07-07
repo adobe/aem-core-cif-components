@@ -49,15 +49,13 @@ public class ProductPageWithSku extends AbstractUrlFormat {
             return Collections.emptyMap();
         }
 
-        return new HashMap<String, String>() {
-            {
-                put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                if (StringUtils.isNotBlank(suffix)) {
-                    put(SKU_PARAM, suffix);
-                }
-            }
-        };
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
+        String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+        if (StringUtils.isNotBlank(suffix)) {
+            parameters.put(SKU_PARAM, suffix);
+        }
+        return parameters;
     }
 
     @Override

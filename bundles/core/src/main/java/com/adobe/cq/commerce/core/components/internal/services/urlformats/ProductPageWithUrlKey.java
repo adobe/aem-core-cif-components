@@ -49,8 +49,8 @@ public class ProductPageWithUrlKey extends AbstractUrlFormat {
             return Collections.emptyMap();
         }
 
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PAGE_PARAM, requestPathInfo.getResourcePath());
+        Map<String, String> params = new HashMap<>();
+        params.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
             params.put(URL_KEY_PARAM, suffix);

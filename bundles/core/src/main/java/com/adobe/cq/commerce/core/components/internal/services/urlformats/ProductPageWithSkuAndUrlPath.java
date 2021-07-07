@@ -52,22 +52,20 @@ public class ProductPageWithSkuAndUrlPath extends AbstractUrlFormat {
             return Collections.emptyMap();
         }
 
-        return new HashMap<String, String>() {
-            {
-                put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                if (StringUtils.isNotBlank(suffix)) {
-                    if (suffix.indexOf("/") > 0) {
-                        put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
-                        String urlPath = StringUtils.substringAfter(suffix, "/");
-                        put(URL_PATH_PARAM, urlPath);
-                        put(URL_KEY_PARAM, urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
-                    } else {
-                        put(SKU_PARAM, suffix);
-                    }
-                }
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
+        String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+        if (StringUtils.isNotBlank(suffix)) {
+            if (suffix.indexOf("/") > 0) {
+                parameters.put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
+                String urlPath = StringUtils.substringAfter(suffix, "/");
+                parameters.put(URL_PATH_PARAM, urlPath);
+                parameters.put(URL_KEY_PARAM, urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
+            } else {
+                parameters.put(SKU_PARAM, suffix);
             }
-        };
+        }
+        return parameters;
     }
 
     @Override

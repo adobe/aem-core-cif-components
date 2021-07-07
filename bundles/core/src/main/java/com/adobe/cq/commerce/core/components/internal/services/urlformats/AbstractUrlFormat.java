@@ -13,8 +13,21 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import org.apache.jackrabbit.JcrConstants;
+import org.apache.sling.api.resource.ResourceUtil;
+
 import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
 
 abstract class AbstractUrlFormat implements UrlFormat {
     protected static final String HTML_EXTENSION = ".html";
+
+    protected static String removeJcrContent(String path) {
+        if (path == null) {
+            return null;
+        } else if (JcrConstants.JCR_CONTENT.equals(ResourceUtil.getName(path))) {
+            return ResourceUtil.getParent(path);
+        } else {
+            return path;
+        }
+    }
 }
