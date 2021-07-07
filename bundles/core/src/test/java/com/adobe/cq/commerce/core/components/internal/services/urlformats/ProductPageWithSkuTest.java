@@ -56,7 +56,7 @@ public class ProductPageWithSkuTest {
     @Test
     public void testParseNull() {
         Map<String, String> parameters = subject.parse(null);
-        assertTrue( parameters.isEmpty());
+        assertTrue(parameters.isEmpty());
     }
 
     @Test
