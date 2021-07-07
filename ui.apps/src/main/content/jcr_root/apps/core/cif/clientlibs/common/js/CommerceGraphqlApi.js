@@ -171,7 +171,7 @@ class CommerceGraphqlApi {
             endpoint: graphqlEndpoint,
             storeView,
             graphqlMethod,
-            headers: JSON.parse(httpHeaders)
+            headers: httpHeaders ? JSON.parse(httpHeaders) : {}
         });
     }
 
