@@ -18,6 +18,9 @@ import java.lang.annotation.Annotation;
 
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
+    private String productPageUrlFormat = UrlFormat.ProductPageWithUrlKey.PATTERN;
+    private String categoryPageUrlFormat = UrlFormat.CategoryPageWithUrlPath.PATTERN;
+
     public MockUrlProviderConfiguration() {}
 
     @Override
@@ -27,11 +30,19 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public String productPageUrlFormat() {
-        return UrlFormat.ProductPageWithUrlKey.PATTERN;
+        return productPageUrlFormat;
+    }
+
+    public void setProductPageUrlFormat(String productPageUrlFormat) {
+        this.productPageUrlFormat = productPageUrlFormat;
     }
 
     @Override
     public String categoryPageUrlFormat() {
-        return UrlFormat.CategoryPageWithUrlPath.PATTERN;
+        return categoryPageUrlFormat;
+    }
+
+    public void setCategoryPageUrlFormat(String categoryPageUrlFormat) {
+        this.categoryPageUrlFormat = categoryPageUrlFormat;
     }
 }
