@@ -78,15 +78,16 @@ public class UrlProviderImpl implements UrlProvider {
 
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
 
-            // for all non sku only formats we need to lookup the url_key, meaning if multiple parameters are needed, or for a single
-            // parameter that is not sku we have to query graphql
+            // for formats that require url_path or url_key we have to lookup them up
+            Set<String> formatParameters = productPageUrlFormat.getParameterNames();
             if (magentoGraphqlClient != null &&
-                (productPageUrlFormat.getParameterNames().size() > 1 || !productPageUrlFormat.getParameterNames().contains(SKU_PARAM))) {
+                (formatParameters.contains(URL_KEY_PARAM) || formatParameters.contains(URL_PATH_PARAM))) {
                 ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
                 retriever.setIdentifier(productIdentifier);
                 ProductInterface product = retriever.fetchProduct();
                 if (product != null) {
-                    params.urlKey(product.getUrlKey());
+                    params.urlKey(product.getUrlKey())
+                        .urlPath(product.getUrlPath());
                 } else {
                     LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
                 }

@@ -151,8 +151,8 @@ public class ProductImplTest {
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
-        context.request().setServletPath(PAGE + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -226,7 +226,7 @@ public class ProductImplTest {
         Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
         Assert.assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
         Assert.assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".beaumont-summit-kit.html", productModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {
@@ -367,7 +367,7 @@ public class ProductImplTest {
     @Test
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         adaptToProduct();
 
         String json = Utils.getResource(ProductImpl.PLACEHOLDER_DATA);
@@ -507,14 +507,14 @@ public class ProductImplTest {
     }
 
     @Test
-    public void testMissingSelectorOnPublish() throws IOException {
+    public void testMissingSuffixOnPublish() {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(true);
         slingBindings.put("wcmmode", wcmMode);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         adaptToProduct();
 
