@@ -37,6 +37,7 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -128,7 +129,8 @@ public class CommerceRedirectServletTest {
 
     @Test
     public void testUnimplementedRedirect() throws IOException {
-        when(requestPathInfo.getSuffix()).thenReturn("/category/women-tops");
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { "notMySelector" });
+        when(requestPathInfo.getSuffix()).thenReturn("/women-tops");
 
         servlet.doGet(request, response);
         verify(response).sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "The requested redirect is not available.");
@@ -136,13 +138,13 @@ public class CommerceRedirectServletTest {
 
     @Test
     public void testSkuMatchingUrlProviderConfig() throws IOException {
-        when(requestPathInfo.getSuffix()).thenReturn("/product/test_sku");
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CommerceRedirectServlet.PRODUCT_SELECTOR });
+        when(requestPathInfo.getSuffix()).thenReturn("/test_sku");
 
         config.setProductIdentifierType(UrlProvider.ProductIdentifierType.SKU);
         config.setProductUrlTemplate("{{page}}.{{sku}}.html");
 
         urlProvider.activate(config);
-        servlet.activate(config);
 
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
@@ -151,13 +153,13 @@ public class CommerceRedirectServletTest {
 
     @Test
     public void testSkuNotMatchingUrlProviderConfig() throws IOException {
-        when(requestPathInfo.getSuffix()).thenReturn("/product/test_sku");
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CommerceRedirectServlet.PRODUCT_SELECTOR });
+        when(requestPathInfo.getSuffix()).thenReturn("/test_sku");
 
         config.setProductIdentifierType(UrlProvider.ProductIdentifierType.URL_KEY);
         config.setProductUrlTemplate("{{page}}.{{url_key}}.html");
 
         urlProvider.activate(config);
-        servlet.activate(config);
 
         MagentoGraphqlClient mockClient = mock(MagentoGraphqlClient.class);
         Query mockQuery = mock(Query.class);
@@ -178,5 +180,75 @@ public class CommerceRedirectServletTest {
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.test_url_key.html");
+    }
+
+    @Test
+    public void testUidMatchingUrlProviderConfig() throws IOException {
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CommerceRedirectServlet.CATEGORY_SELECTOR });
+        when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
+
+        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
+
+        urlProvider.activate(config);
+
+        servlet.doGet(request, response);
+        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_uid.html");
+    }
+
+    @Test
+    public void testUrlPathMatchingUrlProviderConfig() throws IOException {
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CommerceRedirectServlet.CATEGORY_SELECTOR });
+        when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
+
+        config.setCategoryUrlTemplate("{{page}}.{{url_path}}.html");
+
+        urlProvider.activate(config);
+
+        MagentoGraphqlClient mockClient = mock(MagentoGraphqlClient.class);
+        Query mockQuery = mock(Query.class);
+        CategoryTree categoryTree = mock(CategoryTree.class);
+
+        when(categoryTree.getUrlKey()).thenReturn("test_url_key");
+        when(categoryTree.getUrlPath()).thenReturn("test_url_path");
+        when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
+
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
+        graphQlResponse.setData(mockQuery);
+
+        when(request.adaptTo(MagentoGraphqlClient.class)).thenReturn(mockClient);
+        when(mockClient.execute(any())).thenReturn(graphQlResponse);
+
+        servlet.doGet(request, response);
+        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_url_path.html");
+    }
+
+    @Test
+    public void testUrlKeyMatchingUrlProviderConfig() throws IOException {
+        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CommerceRedirectServlet.CATEGORY_SELECTOR });
+        when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
+
+        config.setCategoryUrlTemplate("{{page}}.{{url_key}}.html");
+
+        urlProvider.activate(config);
+
+        MagentoGraphqlClient mockClient = mock(MagentoGraphqlClient.class);
+        Query mockQuery = mock(Query.class);
+        CategoryTree categoryTree = mock(CategoryTree.class);
+
+        when(categoryTree.getUrlKey()).thenReturn("test_url_key");
+        when(categoryTree.getUrlPath()).thenReturn("test_url_path");
+        when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
+
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
+        graphQlResponse.setData(mockQuery);
+
+        when(request.adaptTo(MagentoGraphqlClient.class)).thenReturn(mockClient);
+        when(mockClient.execute(any())).thenReturn(graphQlResponse);
+
+        servlet.doGet(request, response);
+        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_url_key.html");
     }
 }

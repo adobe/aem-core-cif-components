@@ -24,24 +24,13 @@ import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
@@ -52,20 +41,20 @@ import com.day.cq.wcm.api.PageManagerFactory;
     property = {
         ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
         ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + CommerceRedirectServlet.RESOURCE_TYPE,
-        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + CommerceRedirectServlet.SELECTOR,
+        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + CommerceRedirectServlet.PRODUCT_SELECTOR + ","
+            + CommerceRedirectServlet.CATEGORY_SELECTOR,
         ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + CommerceRedirectServlet.EXTENSION
     })
-@Designate(ocd = UrlProviderConfiguration.class)
 public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceRedirectServlet.class);
-
-    protected static final String SELECTOR = "cifredirect";
+    protected static final String PRODUCT_SELECTOR = "cifproductredirect";
+    protected static final String CATEGORY_SELECTOR = "cifcategoryredirect";
     protected static final String EXTENSION = "html";
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     private Pair<IdentifierLocation, ProductIdentifierType> productIdentifierConfig;
     private Page productPage;
+    private Page categoryPage;
 
     @Reference
     private UrlProvider urlProvider;
@@ -73,14 +62,10 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
     @Reference
     PageManagerFactory pageManagerFactory;
 
-    @Activate
-    public void activate(UrlProviderConfiguration conf) {
-        productIdentifierConfig = Pair.of(conf.productIdentifierLocation(), conf.productIdentifierType());
-    }
-
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         String suffix = request.getRequestPathInfo().getSuffix();
+        String[] selectors = request.getRequestPathInfo().getSelectors();
 
         if (suffix == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing redirect suffix.");
@@ -88,7 +73,7 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
         }
 
         String[] suffixInfo = suffix.substring(1).split("/");
-        if (suffixInfo.length != 2) {
+        if (suffixInfo.length != 1) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Redirect suffix has wrong format.");
             return;
         }
@@ -97,42 +82,24 @@ public class CommerceRedirectServlet extends SlingSafeMethodsServlet {
 
         Page currentPage = pageManager.getContainingPage(request.getResource());
         productPage = SiteNavigation.getProductPage(currentPage);
+        categoryPage = SiteNavigation.getCategoryPage(currentPage);
 
-        if ("product".equals(suffixInfo[0])) {
-            redirectToProductPage(request, response, suffixInfo[1]);
+        if (PRODUCT_SELECTOR.equals(selectors[0])) {
+            redirectToProductPage(request, response, suffixInfo[0]);
+        } else if (CATEGORY_SELECTOR.equals(selectors[0])) {
+            redirectToCategoryPage(request, response, suffixInfo[0]);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "The requested redirect is not available.");
         }
     }
 
-    private void redirectToProductPage(SlingHttpServletRequest request, SlingHttpServletResponse response, String sku) throws IOException {
-        ParamsBuilder params = new ParamsBuilder();
-
-        if (productIdentifierConfig.getRight().equals(ProductIdentifierType.SKU)) {
-            params.sku(sku);
-        } else {
-            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
-            AbstractProductRetriever productRetriever = new ProductRetriever(magentoGraphqlClient);
-
-            productRetriever.setIdentifier(ProductIdentifierType.SKU, sku);
-            ProductInterface product = productRetriever.fetchProduct();
-
-            params.urlKey(product.getUrlKey());
-        }
-
+    private void redirectToProductPage(SlingHttpServletRequest request, SlingHttpServletResponse response, String sku) {
         response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        response.setHeader("Location", urlProvider.toProductUrl(request, productPage, params.map()));
+        response.setHeader("Location", urlProvider.toProductUrl(request, productPage, sku));
     }
 
-    private static class ProductRetriever extends AbstractProductRetriever {
-
-        ProductRetriever(MagentoGraphqlClient client) {
-            super(client);
-        }
-
-        @Override
-        protected ProductInterfaceQueryDefinition generateProductQuery() {
-            return ProductInterfaceQuery::urlKey;
-        }
-    };
+    private void redirectToCategoryPage(SlingHttpServletRequest request, SlingHttpServletResponse response, String categoryUid) {
+        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        response.setHeader("Location", urlProvider.toCategoryUrl(request, categoryPage, categoryUid));
+    }
 }
