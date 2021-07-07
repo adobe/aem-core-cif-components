@@ -158,7 +158,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("url-key-xf1");
+        requestPathInfo.setSuffix("/url-key-xf1.html");
 
         verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1-uid",
             "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
@@ -169,7 +169,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("url-key-xf2");
+        requestPathInfo.setSuffix("/url-key-xf2.html");
 
         verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
@@ -181,7 +181,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("url-key-xf1");
+        requestPathInfo.setSuffix("/url-key-xf1.html");
 
         verifyFragment(XF_ROOT, "sku-xf1", null, null, "xf-1-uid", "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
@@ -191,7 +191,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("sku-xf3");
+        requestPathInfo.setSuffix("/sku-xf3.html");
 
         verifyFragmentResourceIsNull(XF_ROOT, "sku-xf3", null, "location-xf2");
     }
@@ -220,7 +220,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid1");
+        requestPathInfo.setSuffix("/uid1.html");
 
         verifyFragment(SITE_XF_ROOT, null, "uid1", null, "xf-1-uid",
             "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
@@ -231,7 +231,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid2");
+        requestPathInfo.setSuffix("/uid2.html");
 
         verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
@@ -242,7 +242,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid3");
+        requestPathInfo.setSuffix("/uid3.html");
 
         verifyFragmentResourceIsNull(XF_ROOT, null, "uid3", "location-xf2");
     }
@@ -259,7 +259,7 @@ public class CommerceExperienceFragmentImplTest {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("url_path2");
+        requestPathInfo.setSuffix("/url_path2.html");
 
         verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
