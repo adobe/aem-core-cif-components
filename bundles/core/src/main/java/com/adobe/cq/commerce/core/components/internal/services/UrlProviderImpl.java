@@ -146,10 +146,10 @@ public class UrlProviderImpl implements UrlProvider {
      * is a page with a <code>selectorFilter</code> property set with the value
      * of the given <code>selector</code>.
      *
-     * @param page      The page resource, from where children pages will be checked.
+     * @param page The page resource, from where children pages will be checked.
      * @param selectors The searched value for the <code>selectorFilter</code> property.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     * If not found, this method returns null.
+     *         If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, Set<String> selectors) {
         return toSpecificPage(page, selectors, null);
@@ -160,11 +160,11 @@ public class UrlProviderImpl implements UrlProvider {
      * is a page with a <code>selectorFilter</code> property set with the value
      * of the given <code>selector</code>.
      *
-     * @param page      The page resource, from where children pages will be checked.
+     * @param page The page resource, from where children pages will be checked.
      * @param selectors The searched value for the <code>selectorFilter</code> property.
-     * @param request   The current Sling HTTP Servlet request.
+     * @param request The current Sling HTTP Servlet request.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     * If not found, this method returns null.
+     *         If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, Set<String> selectors, SlingHttpServletRequest request) {
         return toSpecificPage(page, selectors, request, null);
@@ -266,9 +266,6 @@ public class UrlProviderImpl implements UrlProvider {
         String urlKey = null;
         if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
             urlKey = productIdentifiers.get(URL_KEY_PARAM);
-        }
-        if (StringUtils.isNotBlank(urlKey) && productIdentifiers.containsKey(URL_PATH_PARAM)) {
-            urlKey = StringUtils.substringAfterLast(productIdentifiers.get(URL_PATH_PARAM), "/");
         }
 
         if (StringUtils.isNotBlank(urlKey)) {
