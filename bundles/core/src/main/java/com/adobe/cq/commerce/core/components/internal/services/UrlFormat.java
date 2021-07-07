@@ -137,6 +137,46 @@ public interface UrlFormat {
         }
     }
 
+    class ProductPageWithSkuAndUrlKey implements UrlFormat {
+        public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
+        public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_key}}.html#{{variant_sku}}";
+
+        @Override
+        public String format(Map<String, String> parameters) {
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + "/" +
+                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION +
+                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            return new HashMap<String, String>() {
+                {
+                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
+                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+                    if (StringUtils.isNotBlank(suffix)) {
+                        if (suffix.indexOf("/") > 0) {
+                            put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
+                            put(URL_KEY_PARAM, StringUtils.substringAfter(suffix, "/"));
+                        } else {
+                            put(URL_KEY_PARAM, suffix);
+                        }
+                    }
+                }
+            };
+        }
+
+        @Override
+        public Set<String> getParameterNames() {
+            return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, URL_KEY_PARAM, VARIANT_SKU_PARAM);
+        }
+    }
+
     class ProductPageWithUrlPath implements UrlFormat {
         public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html#{{variant_sku}}";
@@ -172,6 +212,48 @@ public interface UrlFormat {
         }
     }
 
+    class ProductPageWithSkuAndUrlPath implements UrlFormat {
+        public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
+        public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
+
+        @Override
+        public String format(Map<String, String> parameters) {
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + "/" +
+                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION +
+                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            return new HashMap<String, String>() {
+                {
+                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
+                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+                    if (StringUtils.isNotBlank(suffix)) {
+                        if (suffix.indexOf("/") > 0) {
+                            put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
+                            String urlPath = StringUtils.substringAfter(suffix, "/");
+                            put(URL_PATH_PARAM, urlPath);
+                            put(URL_KEY_PARAM, urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
+                        } else {
+                            put(URL_PATH_PARAM, suffix);
+                        }
+                    }
+                }
+            };
+        }
+
+        @Override
+        public Set<String> getParameterNames() {
+            return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, URL_KEY_PARAM, URL_PATH_PARAM, VARIANT_SKU_PARAM);
+        }
+    }
+
     class CategoryPageWithUrlPath implements UrlFormat {
         public static final CategoryPageWithUrlPath INSTANCE = new CategoryPageWithUrlPath();
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html";
@@ -194,6 +276,40 @@ public interface UrlFormat {
                     String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
                     if (StringUtils.isNotBlank(suffix)) {
                         put(URL_PATH_PARAM, suffix);
+                        put(URL_KEY_PARAM, suffix.indexOf("/") > 0 ? StringUtils.substringAfterLast(suffix, "/") : suffix);
+                    }
+                }
+            };
+        }
+
+        @Override
+        public Set<String> getParameterNames() {
+            return Sets.newHashSet(PAGE_PARAM, URL_PATH_PARAM, URL_KEY_PARAM);
+        }
+    }
+
+    class CategoryPageWithUrlKey implements UrlFormat {
+        public static final CategoryPageWithUrlPath INSTANCE = new CategoryPageWithUrlPath();
+        public static final String PATTERN = "{{page}}.html/{{url_key}}.html";
+
+        @Override
+        public String format(Map<String, String> parameters) {
+            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
+                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION;
+        }
+
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+            if (requestPathInfo == null) {
+                return Collections.emptyMap();
+            }
+
+            return new HashMap<String, String>() {
+                {
+                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
+                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
+                    if (StringUtils.isNotBlank(suffix)) {
+                        put(URL_KEY_PARAM, suffix);
                     }
                 }
             };
