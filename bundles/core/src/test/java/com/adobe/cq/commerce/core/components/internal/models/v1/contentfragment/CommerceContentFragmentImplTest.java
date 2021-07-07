@@ -15,7 +15,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.contentfragment
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,13 +33,10 @@ import org.apache.sling.xss.XSSAPI;
 import org.hamcrest.CustomMatcher;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -370,9 +366,10 @@ public class CommerceContentFragmentImplTest {
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());
-        
+
         verify(renderService).render(any(), argThat(new CustomMatcher<ValueMap>("ValueMap containing cif.identifier=MJ01") {
-            @Override public boolean matches(Object o) {
+            @Override
+            public boolean matches(Object o) {
                 return o instanceof ValueMap && "MJ01".equals(((ValueMap) o).get(UrlProviderImpl.CIF_IDENTIFIER_ATTR, String.class));
             }
         }));
