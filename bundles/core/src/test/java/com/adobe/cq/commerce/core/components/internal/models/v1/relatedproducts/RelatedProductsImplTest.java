@@ -154,7 +154,7 @@ public class RelatedProductsImplTest {
 
         if (addSlugInSelector) {
             MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-            requestPathInfo.setSelectorString("endurance-watch");
+            requestPathInfo.setSuffix("/endurance-watch.html");
         }
 
         if (jsonResponsePath != null) {
@@ -266,6 +266,6 @@ public class RelatedProductsImplTest {
 
     private String toProductUrl(ProductInterface product) {
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-        return productPage.getPath() + '.' + product.getUrlKey() + ".html";
+        return productPage.getPath() + ".html/" + product.getUrlKey() + ".html";
     }
 }
