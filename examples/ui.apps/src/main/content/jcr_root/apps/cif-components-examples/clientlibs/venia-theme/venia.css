@@ -12,7 +12,9 @@
  *
  ******************************************************************************/
 /*
- * To prefix the css classes with .cif-demo use: ^([ ]*)\. $1\.cif-demo \.
+ * - To prefix the css classes with .cif-demo use: ^([ ]*)\. $1\.cif-demo \.
+ * - Also remove all body, html stylings and prefix any other element style with .cif-demo as well
+ * - move the :root {} variable definitions to the top
  */
 @import url(https://fonts.googleapis.com/css?family=Muli);
 
