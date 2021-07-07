@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -224,17 +225,11 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             return null;
         }
 
-        // check for missing selectors (URL suffix is not supported)
-        String[] selectors = request.getRequestPathInfo().getSelectors();
-        if (selectors.length == 0 || selectors.length == 1 && "rawcontent".equals(selectors[0])) {
-            return null;
-        }
-
-        // rawcontent selector first for raw content rendering
-        // CIF product or category selector last as mandated by the CIF URL Provider
-        // suffix is not supported by the rawcontent renderer
+        // we pass the identifier as the FragmentRenderService uses an internal request
+        // that not necessarily supports the format the UrlProvider is configured for
+        // see: com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl#getIdentifierFromFragmentRenderRequest(request)
         ValueMap config = new ValueMapDecorator(new HashMap<>());
-        config.put("dam.cfm.useSelector", "rawcontent." + value);
+        config.put(UrlProviderImpl.CIF_IDENTIFIER_ATTR, value);
 
         // render the fragment
         String content = renderService.render(resource, config);

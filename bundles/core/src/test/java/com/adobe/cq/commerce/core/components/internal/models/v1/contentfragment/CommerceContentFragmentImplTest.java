@@ -31,6 +31,7 @@ import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.xss.XSSAPI;
+import org.hamcrest.CustomMatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -74,7 +75,9 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CommerceContentFragmentImplTest {
@@ -95,6 +98,7 @@ public class CommerceContentFragmentImplTest {
     private UrlProviderImpl urlProvider;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
     private HttpClient httpClient;
+    private FragmentRenderService renderService;
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -148,12 +152,10 @@ public class CommerceContentFragmentImplTest {
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
-        FragmentRenderService renderService = mock((FragmentRenderService.class));
+        renderService = mock((FragmentRenderService.class));
         context.registerService(FragmentRenderService.class, renderService);
-        when(renderService.render(any(), any())).thenAnswer(invocationOnMock -> {
-            CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
-            return contentFragment.getElements().get(0).getValue();
-        });
+        when(renderService.render(any(), any())).thenAnswer(inv -> request.adaptTo(CommerceContentFragment.class)
+            .getElements().get(0).getValue());
         ContentTypeConverter converter = mock(ContentTypeConverter.class);
         context.registerService(ContentTypeConverter.class, converter);
 
@@ -182,12 +184,7 @@ public class CommerceContentFragmentImplTest {
         when(cf.getName()).thenReturn("name");
         when(cf.getDescription()).thenReturn("description");
         when(cf.getTitle()).thenReturn("title");
-        when(cf.getElements()).thenAnswer(new Answer<Iterator<ContentElement>>() {
-            @Override
-            public Iterator<ContentElement> answer(InvocationOnMock invocationOnMock) {
-                return new ArrayList<>(contentFragmentElements).iterator();
-            }
-        });
+        when(cf.getElements()).thenAnswer(inv -> contentFragmentElements.iterator());
         when(cf.getAssociatedContent()).thenReturn(Collections.emptyIterator());
         when(res.adaptTo(com.adobe.cq.dam.cfm.ContentFragment.class)).thenReturn(cf);
 
@@ -345,7 +342,6 @@ public class CommerceContentFragmentImplTest {
     }
 
     @Test
-    @Ignore("CIF-2062: according to the CommerceContentFragmentImpl#getParagraphs(), URL suffix is not supported")
     public void testContentFragmentParagraphsProductPage() throws Exception {
         prepareRequest(CONTENT_FRAGMENT_PATH_4);
 
@@ -374,12 +370,17 @@ public class CommerceContentFragmentImplTest {
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());
+        
+        verify(renderService).render(any(), argThat(new CustomMatcher<ValueMap>("ValueMap containing cif.identifier=MJ01") {
+            @Override public boolean matches(Object o) {
+                return o instanceof ValueMap && "MJ01".equals(((ValueMap) o).get(UrlProviderImpl.CIF_IDENTIFIER_ATTR, String.class));
+            }
+        }));
 
         contentFragmentElements.clear();
     }
 
     @Test
-    @Ignore("CIF-2062: according to the CommerceContentFragmentImpl#getParagraphs(), URL suffix is not supported")
     public void testContentFragmentParagraphsCategoryPage() {
         prepareRequest(CONTENT_FRAGMENT_PATH_5);
 

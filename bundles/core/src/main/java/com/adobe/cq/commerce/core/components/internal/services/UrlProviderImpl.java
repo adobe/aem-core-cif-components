@@ -25,6 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.metatype.annotations.Designate;
@@ -37,6 +38,7 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
@@ -46,8 +48,9 @@ import com.day.cq.wcm.api.WCMMode;
 @Designate(ocd = UrlProviderConfiguration.class)
 public class UrlProviderImpl implements UrlProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
+    public static final String CIF_IDENTIFIER_ATTR = "cif.identifier";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
@@ -141,11 +144,11 @@ public class UrlProviderImpl implements UrlProvider {
      * This method checks if any of the children of the given <code>page</code> resource
      * is a page with a <code>selectorFilter</code> property set with the value
      * of the given <code>selector</code>.
-     * 
-     * @param page The page resource, from where children pages will be checked.
+     *
+     * @param page      The page resource, from where children pages will be checked.
      * @param selectors The searched value for the <code>selectorFilter</code> property.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     *         If not found, this method returns null.
+     * If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, Set<String> selectors) {
         return toSpecificPage(page, selectors, null);
@@ -155,12 +158,12 @@ public class UrlProviderImpl implements UrlProvider {
      * This method checks if any of the children of the given <code>page</code> resource
      * is a page with a <code>selectorFilter</code> property set with the value
      * of the given <code>selector</code>.
-     * 
-     * @param page The page resource, from where children pages will be checked.
+     *
+     * @param page      The page resource, from where children pages will be checked.
      * @param selectors The searched value for the <code>selectorFilter</code> property.
-     * @param request The current Sling HTTP Servlet request.
+     * @param request   The current Sling HTTP Servlet request.
      * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     *         If not found, this method returns null.
+     * If not found, this method returns null.
      */
     public static Resource toSpecificPage(Resource page, Set<String> selectors, SlingHttpServletRequest request) {
         return toSpecificPage(page, selectors, request, null);
@@ -247,6 +250,11 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String getProductIdentifier(SlingHttpServletRequest request) {
+        String identifier = getIdentifierFromFragmentRenderRequest(request);
+        if (identifier != null) {
+            return identifier;
+        }
+
         Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestPathInfo());
 
         // if we get the product sku from URL no extra lookup is needed
@@ -275,11 +283,17 @@ public class UrlProviderImpl implements UrlProvider {
                     .toString());
             }
         }
+
         return null;
     }
 
     @Override
     public String getCategoryIdentifier(SlingHttpServletRequest request) {
+        String identifier = getIdentifierFromFragmentRenderRequest(request);
+        if (identifier != null) {
+            return identifier;
+        }
+
         Map<String, String> categoryIdentifiers = categoryPageUrlFormat.parse(request.getRequestPathInfo());
 
         if (categoryIdentifiers.containsKey(URL_PATH_PARAM)) {
@@ -299,9 +313,29 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     /**
+     * When the FragmentRenderService executes an internal request it passes its configuration as attribute to the internal request.
+     * As this request may not be formatted in the way the UrlProvider was configured we have to pass the identifier parsed from the
+     * original request as attribute in this configuration.
+     *
+     * @param request
+     * @return
+     */
+    private String getIdentifierFromFragmentRenderRequest(SlingHttpServletRequest request) {
+        Object fragmentRenderConfig = request.getAttribute(FragmentRenderService.class.getName() + ".config");
+        if (fragmentRenderConfig instanceof ValueMap) {
+            String identifier = ((ValueMap) fragmentRenderConfig).get(CIF_IDENTIFIER_ATTR, String.class);
+            if (StringUtils.isNotEmpty(identifier)) {
+                return identifier;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Parses and returns the product sku or url_key used in the given Sling HTTP request based on the URLProvider configuration for product
      * page URLs.
-     * 
+     *
      * @param request The current Sling HTTP request.
      * @return The product sku or url_key from the URL.
      */
@@ -320,7 +354,7 @@ public class UrlProviderImpl implements UrlProvider {
     /**
      * Parses and returns the category url_path used in the given Sling HTTP request based on the URLProvider configuration for product
      * page URLs.
-     * 
+     *
      * @param request The current Sling HTTP request.
      * @return The category url_path from the URL.
      */
