@@ -36,13 +36,16 @@ public interface UrlFormat {
         {
             put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
             put(ProductPageWithUrlKey.PATTERN, ProductPageWithUrlKey.INSTANCE);
+            put(ProductPageWithSkuAndUrlKey.PATTERN, ProductPageWithSkuAndUrlKey.INSTANCE);
             put(ProductPageWithUrlPath.PATTERN, ProductPageWithUrlPath.INSTANCE);
+            put(ProductPageWithSkuAndUrlPath.PATTERN, ProductPageWithSkuAndUrlPath.INSTANCE);
         }
     };
 
     Map<String, UrlFormat> DEFAULT_CATEGORYURL_FORMATS = new HashMap<String, UrlFormat>() {
         {
             put(CategoryPageWithUrlPath.PATTERN, CategoryPageWithUrlPath.INSTANCE);
+            put(CategoryPageWithUrlKey.PATTERN, CategoryPageWithUrlKey.INSTANCE);
         }
     };
 
@@ -138,7 +141,7 @@ public interface UrlFormat {
     }
 
     class ProductPageWithSkuAndUrlKey implements UrlFormat {
-        public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
+        public static final ProductPageWithSkuAndUrlKey INSTANCE = new ProductPageWithSkuAndUrlKey();
         public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_key}}.html#{{variant_sku}}";
 
         @Override
@@ -178,7 +181,7 @@ public interface UrlFormat {
     }
 
     class ProductPageWithUrlPath implements UrlFormat {
-        public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
+        public static final ProductPageWithUrlPath INSTANCE = new ProductPageWithUrlPath();
         public static final String PATTERN = "{{page}}.html/{{url_path}}.html#{{variant_sku}}";
 
         @Override
@@ -213,7 +216,7 @@ public interface UrlFormat {
     }
 
     class ProductPageWithSkuAndUrlPath implements UrlFormat {
-        public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
+        public static final ProductPageWithSkuAndUrlPath INSTANCE = new ProductPageWithSkuAndUrlPath();
         public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
 
         @Override
@@ -289,7 +292,7 @@ public interface UrlFormat {
     }
 
     class CategoryPageWithUrlKey implements UrlFormat {
-        public static final CategoryPageWithUrlPath INSTANCE = new CategoryPageWithUrlPath();
+        public static final CategoryPageWithUrlKey INSTANCE = new CategoryPageWithUrlKey();
         public static final String PATTERN = "{{page}}.html/{{url_key}}.html";
 
         @Override
@@ -317,7 +320,7 @@ public interface UrlFormat {
 
         @Override
         public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, URL_PATH_PARAM);
+            return Sets.newHashSet(PAGE_PARAM, URL_KEY_PARAM);
         }
     }
 }
