@@ -61,8 +61,8 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
-        productPageUrlFormat = UrlFormat.DEFAULT_PRODUCTURL_FORMATS.get(conf.productPageUrlFormat());
-        categoryPageUrlFormat = UrlFormat.DEFAULT_CATEGORYURL_FORMATS.get(conf.categoryPageUrlFormat());
+        productPageUrlFormat = UrlFormat.DEFAULT_PRODUCT_URL_FORMATS.get(conf.productPageUrlFormat());
+        categoryPageUrlFormat = UrlFormat.DEFAULT_CATEGORY_URL_FORMATS.get(conf.categoryPageUrlFormat());
     }
 
     @Override

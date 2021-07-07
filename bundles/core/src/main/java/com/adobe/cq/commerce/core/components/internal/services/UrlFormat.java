@@ -13,26 +13,27 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.google.common.collect.Sets;
-
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.PAGE_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.SKU_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_KEY_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_PATH_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.VARIANT_SKU_PARAM;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 
 public interface UrlFormat {
 
-    static final String HTML_EXTENSION = ".html";
-    Map<String, UrlFormat> DEFAULT_PRODUCTURL_FORMATS = new HashMap<String, UrlFormat>() {
+    /**
+     * A {@link Map} of default patterns for product pages supported by the default implementation of
+     * {@link com.adobe.cq.commerce.core.components.services.UrlProvider}.
+     */
+    Map<String, UrlFormat> DEFAULT_PRODUCT_URL_FORMATS = new HashMap<String, UrlFormat>() {
         {
             put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
             put(ProductPageWithUrlKey.PATTERN, ProductPageWithUrlKey.INSTANCE);
@@ -42,7 +43,11 @@ public interface UrlFormat {
         }
     };
 
-    Map<String, UrlFormat> DEFAULT_CATEGORYURL_FORMATS = new HashMap<String, UrlFormat>() {
+    /**
+     * A {@link Map} of default patterns for category pages supported by the default implementation of
+     * {@link com.adobe.cq.commerce.core.components.services.UrlProvider}.
+     */
+    Map<String, UrlFormat> DEFAULT_CATEGORY_URL_FORMATS = new HashMap<String, UrlFormat>() {
         {
             put(CategoryPageWithUrlPath.PATTERN, CategoryPageWithUrlPath.INSTANCE);
             put(CategoryPageWithUrlKey.PATTERN, CategoryPageWithUrlKey.INSTANCE);
@@ -51,7 +56,7 @@ public interface UrlFormat {
 
     /**
      * Formats an URL with the given parameters.
-     * 
+     *
      * @param parameters the URL parameters to be applied to the URL according to the internal format
      * @return the formated URL
      */
@@ -59,7 +64,7 @@ public interface UrlFormat {
 
     /**
      * Parses a givven request URI using the internal configured pattern.
-     * 
+     *
      * @param requestPathInfo the request path info object used to extra the URL information from
      * @return a map containing the parsed URL elements
      */
@@ -67,260 +72,9 @@ public interface UrlFormat {
 
     /**
      * Returns a set of all parameter names the url format implementation supports.
-     * 
+     *
      * @return all supported parameter names.
      */
     Set<String> getParameterNames();
 
-    class ProductPageWithSku implements UrlFormat {
-        public static final ProductPageWithSku INSTANCE = new ProductPageWithSku();
-        public static final String PATTERN = "{{page}}.html/{{sku}}.html#{{variant_sku}}";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + HTML_EXTENSION +
-                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        put(SKU_PARAM, suffix);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, VARIANT_SKU_PARAM);
-        }
-    }
-
-    class ProductPageWithUrlKey implements UrlFormat {
-        public static final ProductPageWithUrlKey INSTANCE = new ProductPageWithUrlKey();
-        public static final String PATTERN = "{{page}}.html/{{url_key}}.html#{{variant_sku}}";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION +
-                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        put(URL_KEY_PARAM, suffix);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, URL_KEY_PARAM, VARIANT_SKU_PARAM);
-        }
-    }
-
-    class ProductPageWithSkuAndUrlKey implements UrlFormat {
-        public static final ProductPageWithSkuAndUrlKey INSTANCE = new ProductPageWithSkuAndUrlKey();
-        public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_key}}.html#{{variant_sku}}";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + "/" +
-                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION +
-                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        if (suffix.indexOf("/") > 0) {
-                            put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
-                            put(URL_KEY_PARAM, StringUtils.substringAfter(suffix, "/"));
-                        } else {
-                            put(URL_KEY_PARAM, suffix);
-                        }
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, URL_KEY_PARAM, VARIANT_SKU_PARAM);
-        }
-    }
-
-    class ProductPageWithUrlPath implements UrlFormat {
-        public static final ProductPageWithUrlPath INSTANCE = new ProductPageWithUrlPath();
-        public static final String PATTERN = "{{page}}.html/{{url_path}}.html#{{variant_sku}}";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION +
-                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        put(URL_PATH_PARAM, suffix);
-                        put(URL_KEY_PARAM, suffix.indexOf("/") > 0 ? StringUtils.substringAfterLast(suffix, "/") : suffix);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, URL_PATH_PARAM, VARIANT_SKU_PARAM);
-        }
-    }
-
-    class ProductPageWithSkuAndUrlPath implements UrlFormat {
-        public static final ProductPageWithSkuAndUrlPath INSTANCE = new ProductPageWithSkuAndUrlPath();
-        public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + "/" +
-                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION +
-                (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        if (suffix.indexOf("/") > 0) {
-                            put(SKU_PARAM, StringUtils.substringBefore(suffix, "/"));
-                            String urlPath = StringUtils.substringAfter(suffix, "/");
-                            put(URL_PATH_PARAM, urlPath);
-                            put(URL_KEY_PARAM, urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
-                        } else {
-                            put(URL_PATH_PARAM, suffix);
-                        }
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, URL_KEY_PARAM, URL_PATH_PARAM, VARIANT_SKU_PARAM);
-        }
-    }
-
-    class CategoryPageWithUrlPath implements UrlFormat {
-        public static final CategoryPageWithUrlPath INSTANCE = new CategoryPageWithUrlPath();
-        public static final String PATTERN = "{{page}}.html/{{url_path}}.html";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION;
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        put(URL_PATH_PARAM, suffix);
-                        put(URL_KEY_PARAM, suffix.indexOf("/") > 0 ? StringUtils.substringAfterLast(suffix, "/") : suffix);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, URL_PATH_PARAM, URL_KEY_PARAM);
-        }
-    }
-
-    class CategoryPageWithUrlKey implements UrlFormat {
-        public static final CategoryPageWithUrlKey INSTANCE = new CategoryPageWithUrlKey();
-        public static final String PATTERN = "{{page}}.html/{{url_key}}.html";
-
-        @Override
-        public String format(Map<String, String> parameters) {
-            return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-                parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION;
-        }
-
-        @Override
-        public Map<String, String> parse(RequestPathInfo requestPathInfo) {
-            if (requestPathInfo == null) {
-                return Collections.emptyMap();
-            }
-
-            return new HashMap<String, String>() {
-                {
-                    put(PAGE_PARAM, requestPathInfo.getResourcePath());
-                    String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-                    if (StringUtils.isNotBlank(suffix)) {
-                        put(URL_KEY_PARAM, suffix);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public Set<String> getParameterNames() {
-            return Sets.newHashSet(PAGE_PARAM, URL_KEY_PARAM);
-        }
-    }
 }

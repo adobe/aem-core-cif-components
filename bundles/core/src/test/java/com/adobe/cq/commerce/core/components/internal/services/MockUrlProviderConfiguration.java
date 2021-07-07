@@ -16,10 +16,13 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.lang.annotation.Annotation;
 
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
+
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
-    private String productPageUrlFormat = UrlFormat.ProductPageWithUrlKey.PATTERN;
-    private String categoryPageUrlFormat = UrlFormat.CategoryPageWithUrlPath.PATTERN;
+    private String productPageUrlFormat = ProductPageWithUrlKey.PATTERN;
+    private String categoryPageUrlFormat = CategoryPageWithUrlPath.PATTERN;
 
     public MockUrlProviderConfiguration() {}
 

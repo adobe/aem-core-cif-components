@@ -33,6 +33,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -205,7 +206,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
         MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
-        newConfig.setProductPageUrlFormat(UrlFormat.ProductPageWithSku.PATTERN);
+        newConfig.setProductPageUrlFormat(ProductPageWithSku.PATTERN);
         urlProvider.activate(newConfig);
         String url = urlProvider.toProductUrl(request, page, "MJ01");
         Assert.assertEquals("/content/product-page.html/MJ01.html", url);
@@ -314,7 +315,7 @@ public class UrlProviderImplTest {
         requestPathInfo.setSuffix("/MJ01.html");
 
         MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
-        newConfig.setProductPageUrlFormat(UrlFormat.ProductPageWithSku.PATTERN);
+        newConfig.setProductPageUrlFormat(ProductPageWithSku.PATTERN);
         urlProvider.activate(newConfig);
 
         String identifier = urlProvider.getProductIdentifier(context.request());

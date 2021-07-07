@@ -17,6 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
+
 @ObjectClassDefinition(name = "CIF URL Provider configuration")
 public @interface UrlProviderConfiguration {
 
@@ -24,9 +27,9 @@ public @interface UrlProviderConfiguration {
 
     @AttributeDefinition(
         name = "Product page url format")
-    String productPageUrlFormat() default UrlFormat.ProductPageWithUrlKey.PATTERN;
+    String productPageUrlFormat() default ProductPageWithUrlKey.PATTERN;
 
     @AttributeDefinition(
         name = "Category page url format")
-    String categoryPageUrlFormat() default UrlFormat.CategoryPageWithUrlPath.PATTERN;
+    String categoryPageUrlFormat() default CategoryPageWithUrlPath.PATTERN;
 }

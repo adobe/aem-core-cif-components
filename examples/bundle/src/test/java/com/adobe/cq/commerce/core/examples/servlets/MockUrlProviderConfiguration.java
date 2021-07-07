@@ -16,8 +16,9 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.lang.annotation.Annotation;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
@@ -30,11 +31,11 @@ public class MockUrlProviderConfiguration implements Annotation, UrlProviderConf
 
     @Override
     public String productPageUrlFormat() {
-        return UrlFormat.ProductPageWithUrlKey.PATTERN;
+        return ProductPageWithUrlKey.PATTERN;
     }
 
     @Override
     public String categoryPageUrlFormat() {
-        return UrlFormat.CategoryPageWithUrlPath.PATTERN;
+        return CategoryPageWithUrlPath.PATTERN;
     }
 }
