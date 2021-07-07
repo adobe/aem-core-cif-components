@@ -15,7 +15,9 @@
     'use strict';
 
     var dialogContentSelector = '.cif-product-recs__editor';
-    var enableFilterSelector = '.cif-product-recs__enable-filter';
+    var enableFilterSelector = '[name="./usedFilter"]';
+    var usePredefinedSelector = '.cif-product-recs__use-predefined';
+    var recsOptions = '.cif-product-recs__editor-options';
 
     $(document).on('dialog-loaded', function(e) {
         var $dialog = e.dialog;
@@ -36,32 +38,66 @@
         }
     }
 
+    function handleFilterSelection(target, enabled, $dialogContent) {
+        console.log('target', target, enabled);
+
+        if (target.indexOf('Range') > -1) {
+            var minEl = $dialogContent.find('[name="' + target + 'Min' + '"]');
+            enableFilter(minEl, enabled, $dialogContent);
+
+            var maxEl = $dialogContent.find('[name="' + target + 'Max' + '"]');
+            enableFilter(maxEl, enabled, $dialogContent);
+        } else {
+            var targetEl = $dialogContent.find('[name="' + target + '"]');
+            enableFilter(targetEl, enabled, $dialogContent);
+        }
+    }
+
+    function displayRecsOptions(hide, $dialogContent) {
+        var optionsContainer = $dialogContent.find(recsOptions);
+        if (hide) {
+            $(optionsContainer).hide();
+        } else {
+            $(optionsContainer).show();
+        }
+    }
+
     function init($dialogContent) {
         var filters = $dialogContent.find(enableFilterSelector);
 
         filters.each(function(index, element) {
-            var enabled =
-                $(element)
+            var enabled = $(element).is(':checked');
+            var target = element.value;
+
+            handleFilterSelection(target, enabled, $dialogContent);
+
+            $(element).on('change', function(e) {
+                var enabled = $(e.target).is(':checked');
+                var target = e.target.value;
+
+                for (var i = 0; i < filters.length; i++) {
+                    handleFilterSelection(filters[i].value, false, $dialogContent);
+                }
+
+                handleFilterSelection(target, enabled, $dialogContent);
+            });
+        });
+
+        var usePreconfiguredElement = $dialogContent.find(usePredefinedSelector);
+        var usePreconfigured =
+            $(usePreconfiguredElement)
+                .adaptTo('foundation-field')
+                .getValue() === 'true';
+
+        displayRecsOptions(usePreconfigured, $dialogContent);
+
+        $(usePreconfiguredElement).on('change', function(e) {
+            var changeValue =
+                $(e.target)
                     .adaptTo('foundation-field')
                     .getValue() === 'true';
 
-            var targets = element.dataset.target;
-
-            targets.split(',').forEach(function(target) {
-                var targetEl = $dialogContent.find('[name="' + target + '"]');
-                enableFilter(targetEl, enabled, $dialogContent);
-            });
-
-            $(element).on('change', function(e) {
-                var changeValue =
-                    $(e.target)
-                        .adaptTo('foundation-field')
-                        .getValue() === 'true';
-                targets.split(',').forEach(function(target) {
-                    var targetEl = $dialogContent.find('[name="' + target + '"]');
-                    enableFilter(targetEl, changeValue, $dialogContent);
-                });
-            });
+            displayRecsOptions(changeValue, $dialogContent);
         });
     }
 })(jQuery);

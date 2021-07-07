@@ -196,9 +196,18 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         Query rootQuery = response.getData();
         List<ProductInterface> products = rootQuery.getProducts().getItems();
 
-        // Return first product in list
+        // Return first product in list unless the identifier type is 'url_key',
+        // then return the product whose 'url_key' matches the identifier
         if (products.size() > 0) {
-            product = products.get(0);
+            if (products.size() > 1 && productIdentifierType.equals(ProductIdentifierType.URL_KEY)) {
+                for (ProductInterface productInterface : products) {
+                    if (identifier.equals(productInterface.getUrlKey())) {
+                        product = productInterface;
+                    }
+                }
+            } else {
+                product = products.get(0);
+            }
         }
     }
 

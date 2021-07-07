@@ -5,43 +5,97 @@
       "jcr:primaryType": "cq:PageContent",
       "root": {
         "responsivegrid": {
-          "product-recs": {
+          "product-recs-empty": {},
+          "product-recs-preconfigured": {
             "jcr:primaryType": "nt:unstructured",
-            "jcr:title": "Recommended products",
-            "excludeProducts": false,
-            "includeCategories": true,
-            "excludeOutOfStock": true,
-            "includedTypes": [
-              "configurable",
-              "grouped",
-              "downloadable"
-            ],
-            "excludeTypes": false,
-            "excludedCategoriesType": "slug",
-            "includeVisibility": false,
-            "jcr:lastModifiedBy": "admin",
-            "excludedMinPrice": 30,
-            "includedMinPrice": 10,
+            "preconfigured": true,
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
             "includedCategories": [
               "shorts-men",
               "pants-men"
             ],
-            "includedProducts": "WJ08",
             "excludedCategories": "tops-women",
-            "includePriceRange": true,
-            "includeTypes": true,
-            "excludedVisibility": "search",
-            "excludeCategories": false,
-            "includeProducts": true,
-            "excludedMaxPrice": 50,
-            "includedProductsType": "sku",
-            "includedMaxPrice": 100,
-            "excludeVisibility": true,
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
             "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
             "includedCategoriesType": "slug",
-            "excludeLowStock": false,
-            "recommendationType": "most-viewed",
-            "excludePriceRange": true
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-include-category": {
+            "jcr:primaryType": "nt:unstructured",
+            "jcr:title": "Product Recs",
+            "preconfigured": false,
+            "usedFilter": "./includedCategories",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+
+          },
+          "product-recs-exclude-category": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./excludedCategories",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-include-price": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./includedPriceRange",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
+          },
+          "product-recs-exclude-price": {
+            "jcr:primaryType": "nt:unstructured",
+            "preconfigured": false,
+            "usedFilter": "./excludedPriceRange",
+            "excludedPriceRangeMin": 30,
+            "includedPriceRangeMin": 10,
+            "includedCategories": [
+              "shorts-men",
+              "pants-men"
+            ],
+            "excludedCategories": "tops-women",
+            "excludedPriceRangeMax": 50,
+            "includedPriceRangeMax": 100,
+            "sling:resourceType": "core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "includedCategoriesType": "slug",
+            "excludedCategoriesType": "slug",
+            "recommendationType": "most-viewed"
           }
         }
       }

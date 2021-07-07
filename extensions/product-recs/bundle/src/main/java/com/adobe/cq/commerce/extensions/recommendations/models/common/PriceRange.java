@@ -13,6 +13,9 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.extensions.recommendations.models.common;
 
+/**
+ * A representation of a price range for the price filters of a product recommendation
+ */
 public interface PriceRange {
 
     Long getMinPrice();

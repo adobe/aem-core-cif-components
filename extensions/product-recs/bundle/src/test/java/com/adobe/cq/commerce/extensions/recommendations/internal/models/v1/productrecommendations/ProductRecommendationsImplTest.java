@@ -14,28 +14,29 @@
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 public class ProductRecommendationsImplTest {
 
     private ProductRecommendationsImpl productRecommendations;
 
     private static final String PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs";
+    private static final String EMPTY_PRODUCT_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-empty";
+    private static final String PRECONFIGURED_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-preconfigured";
+    private static final String INCLUDE_CATEGORY_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-include-category";
+    private static final String EXCLUDE_CATEGORY_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-exclude-category";
+    private static final String INCLUDE_PRICE_RANGE_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-include-price";
+    private static final String EXCLUDE_PRICE_RANGE_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-exclude-price";
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
@@ -47,44 +48,85 @@ public class ProductRecommendationsImplTest {
         }, ResourceResolverType.JCR_MOCK);
     }
 
-    @Before
-    public void setupTest() {
+    private void setupTest(String componentPath) {
         // Mock resource and resolver
-        Resource resource = Mockito.spy(context.resourceResolver().getResource(PRODUCT_RECS_PATH));
-        ResourceResolver resolver = Mockito.spy(resource.getResourceResolver());
-        when(resource.getResourceResolver()).thenReturn(resolver);
+        Resource resource = context.resourceResolver().getResource(componentPath);
         context.currentResource(resource);
         productRecommendations = context.request().adaptTo(ProductRecommendationsImpl.class);
     }
 
     @Test
-    public void testFiltersEnabled() {
+    public void testEmptyComponent() {
+        setupTest(EMPTY_PRODUCT_RECS_PATH);
+        assertTrue(productRecommendations.getPreconfigured());
+        assertNull(productRecommendations.getTitle());
+        assertNull(productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
         assertNull(productRecommendations.getCategoryExclusions());
-        assertNotNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testPreconfigured() {
+        setupTest(PRECONFIGURED_RECS_PATH);
+        assertTrue(productRecommendations.getPreconfigured());
+        assertNull(productRecommendations.getTitle());
+        assertNull(productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testCategoryInclusion() {
+        setupTest(INCLUDE_CATEGORY_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Product Recs", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
         assertEquals("shorts-men,pants-men", productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
     }
 
     @Test
-    public void testPriceRange() {
-        assertNotNull(productRecommendations.getPriceRangeExclusions());
-        assertNotNull(productRecommendations.getPriceRangeInclusions());
-    }
-
-    @Test
-    public void testStringProperties() {
+    public void testCategoryExclusion() {
+        setupTest(EXCLUDE_CATEGORY_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
         assertEquals("Recommended products", productRecommendations.getTitle());
         assertEquals("most-viewed", productRecommendations.getRecommendationType());
-        assertEquals("configurable,grouped,downloadable", productRecommendations.getTypeInclusions());
-        assertNull("", productRecommendations.getTypeExclusions());
-        assertEquals("search", productRecommendations.getVisibilityExclusions());
-        assertNull(productRecommendations.getVisibilityInclusions());
-        assertEquals("WJ08", productRecommendations.getProductInclusions());
-        assertNull(productRecommendations.getProductExclusions());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertEquals("tops-women", productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertNull(productRecommendations.getPriceRangeExclusions());
     }
 
     @Test
-    public void testBooleanProperties() {
-        assertFalse(productRecommendations.excludeLowStock());
-        assertTrue(productRecommendations.excludeOutOfStock());
+    public void testPriceRangeInclusion() {
+        setupTest(INCLUDE_PRICE_RANGE_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Recommended products", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertEquals(Long.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
+        assertEquals(Long.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
+        assertNull(productRecommendations.getPriceRangeExclusions());
+    }
+
+    @Test
+    public void testPriceRangeExclusion() {
+        setupTest(EXCLUDE_PRICE_RANGE_RECS_PATH);
+        assertFalse(productRecommendations.getPreconfigured());
+        assertEquals("Recommended products", productRecommendations.getTitle());
+        assertEquals("most-viewed", productRecommendations.getRecommendationType());
+        assertNull(productRecommendations.getCategoryInclusions());
+        assertNull(productRecommendations.getCategoryExclusions());
+        assertNull(productRecommendations.getPriceRangeInclusions());
+        assertEquals(Long.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
+        assertEquals(Long.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
+
     }
 }
