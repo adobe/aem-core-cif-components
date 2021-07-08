@@ -116,6 +116,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
     private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
+    private static final String CATEGORY_UID_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-category-with-staged-products.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
@@ -401,7 +402,12 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 return readProductsFrom(PRODUCT_CAROUSEL_JSON);
             } else if (skuEqMatcher.matches()) {
                 if (skuEqMatcher.group(1).equals(BUNDLE_PRODUCT_SKU)) {
+                    if (selectionSet.contains("items/description")) {
+                        return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                    }
                     return readProductsFrom(BUNDLE_PRODUCT_ITEMS_JSON);
+                } else if (skuEqMatcher.group(1).equals(GROUPED_PRODUCT_SKU)) {
+                    return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (skuEqMatcher.group(1).equals(PRODUCT_SKU)) {
                     return readProductsFrom(PRODUCTS_JSON);
                 }
@@ -460,6 +466,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
+            filters.get("url_key").get("eq").equals("outdoor")) {
+            // The URLProvider example will return category uid
+            graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
         } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get(
             "category_uid").get("in")))
                 .size() == 4)) {

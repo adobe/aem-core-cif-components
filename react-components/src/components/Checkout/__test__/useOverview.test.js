@@ -426,9 +426,11 @@ describe('useOverview', () => {
         );
 
         expect(getByRole('button')).not.toBeUndefined();
-        await act(async () => fireEvent.click(getByRole('button')));
+        act(() => {
+            fireEvent.click(getByRole('button'));
+        });
 
-        expect(mse.context.setOrder).toHaveBeenCalledTimes(1);
+        await wait(() => expect(mse.context.setOrder).toHaveBeenCalledTimes(1));
         expect(mse.context.setOrder).toHaveBeenCalledWith({
             appliedCouponCode: 'somecoupon',
             email: 'user@example.com',

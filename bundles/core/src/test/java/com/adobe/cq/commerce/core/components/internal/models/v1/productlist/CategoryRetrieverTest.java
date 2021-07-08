@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
@@ -48,7 +47,7 @@ public class CategoryRetrieverTest {
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
 
         retriever = new CategoryRetriever(mockClient);
-        retriever.setIdentifier(CategoryIdentifierType.UID, "Mg==");
+        retriever.setIdentifier("Mg==");
     }
 
     @Test

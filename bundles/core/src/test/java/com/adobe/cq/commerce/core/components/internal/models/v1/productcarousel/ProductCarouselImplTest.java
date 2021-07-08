@@ -194,6 +194,6 @@ public class ProductCarouselImplTest {
 
     private String toProductUrl(ProductInterface product, String variantPart) {
         Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-        return productPage.getPath() + '.' + product.getUrlKey() + ".html" + (variantPart != null ? '#' + variantPart : "");
+        return productPage.getPath() + ".html/" + product.getUrlKey() + ".html" + (variantPart != null ? '#' + variantPart : "");
     }
 }
