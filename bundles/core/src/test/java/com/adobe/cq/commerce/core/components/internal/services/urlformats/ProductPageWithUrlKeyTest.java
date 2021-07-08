@@ -43,6 +43,21 @@ public class ProductPageWithUrlKeyTest {
     }
 
     @Test
+    public void testFormatWithUrlKeyAndUrlPath() {
+        assertEquals("/page/path.html/foo-bar.html", subject.format(ImmutableMap.of(
+            "page", "/page/path",
+            "url_key", "foo-bar",
+            "url_path", "foo-bar2")));
+    }
+
+    @Test
+    public void testFormatWithUrlPath() {
+        assertEquals("/page/path.html/foo-bar2.html", subject.format(ImmutableMap.of(
+            "page", "/page/path",
+            "url_path", "foo-bar2")));
+    }
+
+    @Test
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");

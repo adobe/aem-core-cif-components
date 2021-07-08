@@ -44,6 +44,23 @@ public class ProductPageWithSkuAndUrlKeyTest {
     }
 
     @Test
+    public void testFormatWithUrlKeyAndUrlPath() {
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(ImmutableMap.of(
+            "page", "/page/path",
+            "sku", "foo-bar",
+            "url_key", "next-generation-foo-bar2021",
+            "url_path", "next-generation-foo-bar2022")));
+    }
+
+    @Test
+    public void testFormatWithUrlPath() {
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2022.html", subject.format(ImmutableMap.of(
+            "page", "/page/path",
+            "sku", "foo-bar",
+            "url_path", "next-generation-foo-bar2022")));
+    }
+
+    @Test
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");

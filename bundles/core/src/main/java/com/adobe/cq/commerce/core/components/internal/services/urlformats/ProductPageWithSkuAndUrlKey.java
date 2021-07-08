@@ -39,9 +39,10 @@ public class ProductPageWithSkuAndUrlKey extends AbstractUrlFormat {
 
     @Override
     public String format(Map<String, String> parameters) {
+        String urlKey = getUrlKey(parameters);
         return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
             parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + "/" +
-            parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION +
+            urlKey + HTML_EXTENSION +
             (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
     }
 
