@@ -82,7 +82,7 @@
                                             name="./usedFilter"
                                             text="No filter"
                                             deleteHint="{Boolean}false"
-                                            value="delete"/>
+                                            value="none"/>
                                 </items>
                             </noFilterContainer>
                             <categoryInclusion
