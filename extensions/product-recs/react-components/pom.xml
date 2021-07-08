@@ -15,7 +15,7 @@
     <artifactId>core-cif-components-extensions-product-recs-react-components</artifactId>
     <packaging>pom</packaging>
 
-    <name>AEM CIF Core Components Products Recommendations React Components</name>
+    <name>AEM CIF Core Components - Products Recommendations React Components</name>
     <description>React Components for AEM CIF Core Components Product Recommendations</description>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
