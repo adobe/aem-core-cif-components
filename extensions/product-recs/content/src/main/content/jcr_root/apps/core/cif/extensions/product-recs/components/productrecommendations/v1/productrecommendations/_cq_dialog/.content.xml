@@ -72,8 +72,20 @@
                                             value="just-for-you"/>
                                 </items>
                             </recommendationType>
+                            <noFilterContainer
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <noFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="No filter"
+                                            deleteHint="{Boolean}false"
+                                            value="delete"/>
+                                </items>
+                            </noFilterContainer>
                             <categoryInclusion
-                                    granite:hide="${cqDesign.titleHidden}"
                                     jcr:primaryType="nt:unstructured"
                                     sling:resourceType="granite/ui/components/coral/foundation/well">
                                 <items jcr:primaryType="nt:unstructured">
@@ -89,19 +101,12 @@
                                             sling:resourceType="granite/ui/components/foundation/form/radio"
                                             name="./usedFilter"
                                             text="Use filter"
-                                            checked="{Boolean}false"
+                                            deleteHint="{Boolean}false"
                                             value="./includedCategories">
                                     </useFilter>
-                                    <useFilterTypeHint
-                                            jcr:primaryType="nt:unstructured"
-                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
-                                            ignoreData="{Boolean}true"
-                                            name="./includeCategories@TypeHint"
-                                            value="Boolean"/>
                                 </items>
                             </categoryInclusion>
                             <priceRangeInclusion
-                                    granite:hide="${cqDesign.titleHidden}"
                                     jcr:primaryType="nt:unstructured"
                                     sling:resourceType="granite/ui/components/coral/foundation/well">
                                 <items  jcr:primaryType="nt:unstructured">
@@ -148,19 +153,12 @@
                                             sling:resourceType="granite/ui/components/foundation/form/radio"
                                             name="./usedFilter"
                                             text="Use filter"
-                                            checked="{Boolean}false"
+                                            deleteHint="{Boolean}false"
                                             value="./includedPriceRange">
                                     </useFilter>
-                                    <useFilterTypeHint
-                                            jcr:primaryType="nt:unstructured"
-                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
-                                            ignoreData="{Boolean}true"
-                                            name="./includePriceRange@TypeHint"
-                                            value="Boolean"/>
                                 </items>
                             </priceRangeInclusion>
                             <categoryExclusion
-                                    granite:hide="${cqDesign.titleHidden}"
                                     jcr:primaryType="nt:unstructured"
                                     sling:resourceType="granite/ui/components/coral/foundation/well">
                                 <items jcr:primaryType="nt:unstructured">
@@ -176,19 +174,12 @@
                                             sling:resourceType="granite/ui/components/foundation/form/radio"
                                             name="./usedFilter"
                                             text="Use filter"
-                                            checked="{Boolean}false"
+                                            deleteHint="{Boolean}false"
                                             value="./excludedCategories">
                                     </useFilter>
-                                    <useFilterTypeHint
-                                            jcr:primaryType="nt:unstructured"
-                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
-                                            ignoreData="{Boolean}true"
-                                            name="./excludeCategories@TypeHint"
-                                            value="Boolean"/>
                                 </items>
                             </categoryExclusion>
                             <priceRangeExclusion
-                                    granite:hide="${cqDesign.titleHidden}"
                                     jcr:primaryType="nt:unstructured"
                                     sling:resourceType="granite/ui/components/coral/foundation/well">
                                 <items  jcr:primaryType="nt:unstructured">
@@ -235,15 +226,9 @@
                                             sling:resourceType="granite/ui/components/foundation/form/radio"
                                             name="./usedFilter"
                                             text="Use filter"
-                                            checked="{Boolean}false"
+                                            deleteHint="{Boolean}false"
                                             value="./excludedPriceRange">
                                     </useFilter>
-                                    <useFilterTypeHint
-                                            jcr:primaryType="nt:unstructured"
-                                            sling:resourceType="granite/ui/components/foundation/form/hidden"
-                                            ignoreData="{Boolean}true"
-                                            name="./excludePriceRange@TypeHint"
-                                            value="Boolean"/>
                                 </items>
                             </priceRangeExclusion>
                         </items>

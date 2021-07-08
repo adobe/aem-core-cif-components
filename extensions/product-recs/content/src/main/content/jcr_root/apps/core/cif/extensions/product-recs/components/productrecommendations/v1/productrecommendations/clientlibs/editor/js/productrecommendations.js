@@ -15,7 +15,7 @@
     'use strict';
 
     var dialogContentSelector = '.cif-product-recs__editor';
-    var enableFilterSelector = '[name="./usedFilter"]';
+    var enableFilterSelector = '[name="./usedFilter"],[name="./usedFilter@Delete"]';
     var usePredefinedSelector = '.cif-product-recs__use-predefined';
     var recsOptions = '.cif-product-recs__editor-options';
 
@@ -30,6 +30,7 @@
     });
 
     function enableFilter(target, enable, $dialogContent) {
+        if (target.length === 0) return;
         if (target.data('targetId')) {
             var targetedBy = $dialogContent.find('[target="[data-target-id=\'' + target.data('targetId') + '\']"]');
             targetedBy.adaptTo('foundation-field').setDisabled(!enable);
@@ -39,8 +40,6 @@
     }
 
     function handleFilterSelection(target, enabled, $dialogContent) {
-        console.log('target', target, enabled);
-
         if (target.indexOf('Range') > -1) {
             var minEl = $dialogContent.find('[name="' + target + 'Min' + '"]');
             enableFilter(minEl, enabled, $dialogContent);
