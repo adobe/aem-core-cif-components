@@ -15,7 +15,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.contentfragment
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,14 +30,13 @@ import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.xss.XSSAPI;
+import org.hamcrest.CustomMatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -73,7 +71,9 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CommerceContentFragmentImplTest {
@@ -84,11 +84,17 @@ public class CommerceContentFragmentImplTest {
     private static final String CONTENT_FRAGMENT_PATH_4 = "/content/pageA/jcr:content/root/contentfragment3";
     private static final String CONTENT_FRAGMENT_PATH_5 = "/content/pageB/jcr:content/root/contentfragment5";
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
     @Rule
     public final AemContext context = createContext("/context/jcr-content-content-fragment.json");
     MockSlingHttpServletRequest request;
     private UrlProviderImpl urlProvider;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
+    private HttpClient httpClient;
+    private FragmentRenderService renderService;
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -106,6 +112,22 @@ public class CommerceContentFragmentImplTest {
 
         ResourceResolver originalResourceResolver = context.resourceResolver();
         ResourceResolver resourceResolver = Mockito.spy(originalResourceResolver);
+
+        // setup graphql client
+        httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK, "url_key\"}}){uid}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_key");
 
         prepareContentFragment(resourceResolver);
 
@@ -126,12 +148,10 @@ public class CommerceContentFragmentImplTest {
         urlProvider = new UrlProviderImpl();
         urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
-        FragmentRenderService renderService = mock((FragmentRenderService.class));
+        renderService = mock((FragmentRenderService.class));
         context.registerService(FragmentRenderService.class, renderService);
-        when(renderService.render(any(), any())).thenAnswer(invocationOnMock -> {
-            CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
-            return contentFragment.getElements().get(0).getValue();
-        });
+        when(renderService.render(any(), any())).thenAnswer(inv -> request.adaptTo(CommerceContentFragment.class)
+            .getElements().get(0).getValue());
         ContentTypeConverter converter = mock(ContentTypeConverter.class);
         context.registerService(ContentTypeConverter.class, converter);
 
@@ -160,12 +180,7 @@ public class CommerceContentFragmentImplTest {
         when(cf.getName()).thenReturn("name");
         when(cf.getDescription()).thenReturn("description");
         when(cf.getTitle()).thenReturn("title");
-        when(cf.getElements()).thenAnswer(new Answer<Iterator<ContentElement>>() {
-            @Override
-            public Iterator<ContentElement> answer(InvocationOnMock invocationOnMock) {
-                return new ArrayList<>(contentFragmentElements).iterator();
-            }
-        });
+        when(cf.getElements()).thenAnswer(inv -> contentFragmentElements.iterator());
         when(cf.getAssociatedContent()).thenReturn(Collections.emptyIterator());
         when(res.adaptTo(com.adobe.cq.dam.cfm.ContentFragment.class)).thenReturn(cf);
 
@@ -190,6 +205,10 @@ public class CommerceContentFragmentImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(SlingBindings.RESOURCE, resource);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.adaptTo(ValueMap.class));
+
+        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         return page;
     }
@@ -247,7 +266,7 @@ public class CommerceContentFragmentImplTest {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("slug");
+        requestPathInfo.setSuffix("/sku.html");
         Product product = mock(Product.class);
         when(product.getFound()).thenReturn(true);
         when(product.getSku()).thenReturn("sku");
@@ -276,36 +295,11 @@ public class CommerceContentFragmentImplTest {
     @Test
     public void testContentFragmentForProductPageNoSku() {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.ProductIdentifierType productIdentifierType() {
-                return UrlProvider.ProductIdentifierType.SKU;
-            }
-        });
+        urlProvider.activate(new MockUrlProviderConfiguration());
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getName()));
-    }
-
-    @Test
-    public void testContentFragmentForProductPageWithSku() {
-        prepareRequest(CONTENT_FRAGMENT_PATH_2);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.ProductIdentifierType productIdentifierType() {
-                return UrlProvider.ProductIdentifierType.SKU;
-            }
-        });
-        requestPathInfo.setSelectorString("sku");
-
-        CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
-        Assert.assertNotNull(contentFragment);
-        Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
     }
 
     @Test
@@ -322,7 +316,7 @@ public class CommerceContentFragmentImplTest {
         prepareRequest(CONTENT_FRAGMENT_PATH_3);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("id");
+        requestPathInfo.setSuffix("/uid.html");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
@@ -330,36 +324,13 @@ public class CommerceContentFragmentImplTest {
     }
 
     @Test
-    public void testContentFragmentForCategoryPageUrlPath() throws Exception {
+    public void testContentFragmentForCategoryPageUrlPath() {
         Page page = prepareRequest(CONTENT_FRAGMENT_PATH_3);
-
-        // setup graphql client
-        HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK,
-            "url_path\"}}){id,uid}}");
-        ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store", "enableUIDSupport", String.valueOf(false)));
-        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
-        when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(mockConfig));
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // setup url provider
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration() {
-            @Override
-            public UrlProvider.CategoryIdentifierType categoryIdentifierType() {
-                return UrlProvider.CategoryIdentifierType.URL_PATH;
-            }
-        });
-        requestPathInfo.setSelectorString("url_path");
+        urlProvider.activate(new MockUrlProviderConfiguration());
+        requestPathInfo.setSuffix("/url_path.html");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
@@ -367,23 +338,18 @@ public class CommerceContentFragmentImplTest {
     }
 
     @Test
-    public void testContentFragmentParagraphsProductPage() {
+    public void testContentFragmentParagraphsProductPage() throws Exception {
         prepareRequest(CONTENT_FRAGMENT_PATH_4);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("slug");
+        requestPathInfo.setSuffix("/slug.html");
         Product product = mock(Product.class);
         when(product.getFound()).thenReturn(true);
         when(product.getSku()).thenReturn("sku");
         context.registerAdapter(MockSlingHttpServletRequest.class, Product.class, product);
 
         ContentElement element = mock(ContentElement.class);
-        when(element.getName()).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return "text";
-            }
-        });
+        when(element.getName()).thenReturn("text");
         FragmentData fragmentData = mock(FragmentData.class);
         when(fragmentData.getContentType()).thenReturn("text/multi");
         when(fragmentData.getValue()).thenReturn("text fragment");
@@ -396,9 +362,17 @@ public class CommerceContentFragmentImplTest {
 
         // single text field content fragment
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
+        Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
         Assert.assertNotNull(contentFragment);
         Assert.assertTrue(StringUtils.isNotBlank(contentFragment.getName()));
         Assert.assertArrayEquals(new String[] { "text fragment" }, contentFragment.getParagraphs());
+
+        verify(renderService).render(any(), argThat(new CustomMatcher<ValueMap>("ValueMap containing cif.identifier=MJ01") {
+            @Override
+            public boolean matches(Object o) {
+                return o instanceof ValueMap && "MJ01".equals(((ValueMap) o).get(UrlProviderImpl.CIF_IDENTIFIER_ATTR, String.class));
+            }
+        }));
 
         contentFragmentElements.clear();
     }
@@ -408,12 +382,7 @@ public class CommerceContentFragmentImplTest {
         prepareRequest(CONTENT_FRAGMENT_PATH_5);
 
         ContentElement element = mock(ContentElement.class);
-        when(element.getName()).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return "text";
-            }
-        });
+        when(element.getName()).thenReturn("text");
         FragmentData fragmentData = mock(FragmentData.class);
         when(fragmentData.getContentType()).thenReturn("text/multi");
         when(fragmentData.getValue()).thenReturn("text fragment");
@@ -425,7 +394,7 @@ public class CommerceContentFragmentImplTest {
         contentFragmentElements.add(element);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        requestPathInfo.setSelectorString("id");
+        requestPathInfo.setSuffix("/slug.html");
 
         // single text field content fragment
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);

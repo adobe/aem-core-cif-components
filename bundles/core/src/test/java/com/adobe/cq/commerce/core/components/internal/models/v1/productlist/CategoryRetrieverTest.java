@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
@@ -48,7 +47,7 @@ public class CategoryRetrieverTest {
         when(mockQuery.getProducts().getItems()).thenReturn(Collections.emptyList());
 
         retriever = new CategoryRetriever(mockClient);
-        retriever.setIdentifier(CategoryIdentifierType.ID, "5");
+        retriever.setIdentifier("Mg==");
     }
 
     @Test
@@ -64,12 +63,13 @@ public class CategoryRetrieverTest {
     public void testExtendCategoryQuery() {
         retriever.extendCategoryQueryWith(c -> c.childrenCount()
             .addCustomSimpleField("level"));
+        retriever.extendCategoryQueryWith(c -> c.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level}}"));
+        Assert.assertTrue(captor.getValue().endsWith("children_count,level_custom_:level,staged}}"));
     }
 
 }

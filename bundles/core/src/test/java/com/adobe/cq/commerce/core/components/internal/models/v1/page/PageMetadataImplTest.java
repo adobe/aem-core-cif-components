@@ -36,8 +36,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
-import com.adobe.cq.commerce.core.components.client.MockLaunch;
+import com.adobe.cq.commerce.core.MockExternalizer;
+import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -66,6 +66,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -79,9 +80,8 @@ public class PageMetadataImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content-breadcrumb.json");
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
-
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -151,10 +151,12 @@ public class PageMetadataImplTest {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page");
 
         Product productModel = context.request().adaptTo(Product.class);
+        assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
         assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
+        assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         // Verify that GraphQL client is only called once, so Sling model caching works as expected
-        verify(graphqlClient).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right product resource is used when PageMetadataImpl adapts the request to the Product component
@@ -166,6 +168,13 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnProductSpecificPage() throws Exception {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page/product-specific-page");
+
+        // see jcr-content-breadcrumb.json : this product component is configured to be version 2
+        // so we test that the adaptation in PageMetadataImpl is done with the right resource type
+        Product productModel = context.request().adaptTo(Product.class);
+        assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
+        assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
+        assertTrue("The product has staged data", productModel.isStaged());
     }
 
     @Test
@@ -174,11 +183,28 @@ public class PageMetadataImplTest {
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
+        // graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
+
+        HttpClient httpClient = Mockito.mock(HttpClient.class);
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient,
+            HttpStatus.SC_OK,
+            "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
-        context.request().setServletPath(pagePath + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(pagePath + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -186,7 +212,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some product meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some product meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some product meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".html/beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
@@ -194,11 +220,13 @@ public class PageMetadataImplTest {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
+        assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
+        assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
-        // Verify that GraphQL client is only called 4 times, so Sling model caching works as expected
-        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 4 queries
-        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
+        // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
+        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 5 queries
+        verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right productlist resource is used when PageMetadataImpl adapts the request to the ProductList component
@@ -216,6 +244,12 @@ public class PageMetadataImplTest {
     @Test
     public void testPageMetadataModelOnCategorySpecificPage() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page/category-specific-page");
+
+        // see jcr-content-breadcrumb.json : this productlist component is configured to be version 2
+        // so we test that the adaptation in PageMetadataImpl is done with the right resource type
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
+        assertTrue("The category has staged data", productListModel.isStaged());
     }
 
     @Test
@@ -236,13 +270,16 @@ public class PageMetadataImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList");
+            "{categoryList(filters:{category_uid");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK,
+            "{products");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("6");
-        context.request().setServletPath(pagePath + ".6.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(pagePath + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -250,7 +287,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some category meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some category meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".6.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".html/beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test

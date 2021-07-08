@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -56,43 +55,44 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{ids:{eq:\"" + identifier + "\"}}){id,uid,url_path";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"" + identifier + "\"}}){uid,url_path";
         Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
     }
 
     @Test
-    public void testCategoryUrlPathQuery() {
-        retriever.setIdentifier("75");
-        testDefaultCategoryQuery("75");
-    }
-
-    @Test
-    public void testCategoryUrlPathQueryById() {
-        retriever.setIdentifier(CategoryIdentifierType.ID, "76");
-        testDefaultCategoryQuery("76");
-    }
-
-    @Test
     public void testCategoryUrlPathQueryFallback() {
-        retriever.setIdentifier(null, "77");
-        testDefaultCategoryQuery("77");
-    }
-
-    @Test
-    public void testExtendCategoryQuery() {
-        retriever.setIdentifier(CategoryIdentifierType.ID, "78");
-        testDefaultCategoryQuery("78");
+        retriever.setIdentifier("Mg==");
+        testDefaultCategoryQuery("Mg==");
     }
 
     @Test
     public void testCategoryUrlPathQueryByUID() {
-        retriever.setIdentifier(CategoryIdentifierType.UID, "Mg==");
+        retriever.setIdentifier("Mg==");
+        testDefaultCategoryQuery("Mg==");
+    }
+
+    @Test
+    public void testCategoryUrlPathQuery() {
+        retriever.setIdentifier("Mg==");
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){id,uid,url_path}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
+    public void testExtendedButtonQuery() {
+        retriever.setIdentifier("Mg==");
+        retriever.extendCategoryQueryWith(c -> c.image());
+        retriever.fetchCategory();
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path,image";
+        Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
     }
 }

@@ -86,9 +86,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     private static final String PRODUCTS_FILTER_ARG = "filter";
     private static final String PRODUCTS_SEARCH_ARG = "search";
-    private static final String CATEGORY_ID_ARG = "id";
 
-    private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
+    private static final String CATEGORY_UID_REGEX = "\\{category_uid=\\{eq=.+\\}\\}";
     private static final Pattern SKU_IN_PATTERN = Pattern.compile("\\{sku=\\{in=\\[(.+)\\]\\}\\}");
     private static final Pattern SKU_EQ_PATTERN = Pattern.compile("\\{sku=\\{eq=(.+)\\}\\}");
     private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
@@ -110,8 +109,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
-    private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
     private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
+    private static final String CATEGORY_UID_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
@@ -323,9 +322,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     case "products": {
                         return readProductsResponse(env);
                     }
-                    case "category": {
-                        return readCategoryResponse(env);
-                    }
                     case "categoryList": {
                         return readCategoryListResponse(env);
                     }
@@ -342,7 +338,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return RuntimeWiring.newRuntimeWiring()
             .wiringFactory(wiringFactory)
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
-            .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("categoryList", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))
@@ -398,12 +393,17 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 return readProductsFrom(PRODUCT_CAROUSEL_JSON);
             } else if (skuEqMatcher.matches()) {
                 if (skuEqMatcher.group(1).equals(BUNDLE_PRODUCT_SKU)) {
+                    if (selectionSet.contains("items/description")) {
+                        return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                    }
                     return readProductsFrom(BUNDLE_PRODUCT_ITEMS_JSON);
+                } else if (skuEqMatcher.group(1).equals(GROUPED_PRODUCT_SKU)) {
+                    return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (skuEqMatcher.group(1).equals(PRODUCT_SKU)) {
                     return readProductsFrom(PRODUCTS_JSON);
                 }
                 return readProductsFrom(PRODUCT_TEASER_JSON);
-            } else if (filter.matches(CATEGORY_ID_REGEX)) {
+            } else if (filter.matches(CATEGORY_UID_REGEX)) {
                 return readProductsFrom(PRODUCTS_COLLECTION_JSON);
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
@@ -433,28 +433,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     }
 
     /**
-     * Based on the GraphQL query, this method returns a Magento <code>CategoryTree</code> object
-     * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
-     * specific JSON response. Luckily, each GraphQL query sent by each component is different so
-     * we can "detect" what response should be returned.
-     * 
-     * @param env The metadata of the GraphQL query.
-     * @return A Magento <code>CategoryTree</code> object.
-     */
-    private CategoryTree readCategoryResponse(DataFetchingEnvironment env) {
-
-        // Default query is fetching the category tree except if the category id is not "2"
-        String filename = CATEGORY_TREE_JSON;
-        Object id = env.getArgument(CATEGORY_ID_ARG);
-        if (id != null && !id.toString().equals("2")) {
-            filename = CATEGORY_JSON; // Query to only fetch some category data
-        }
-
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
-        return graphqlResponse.getData().getCategory();
-    }
-
-    /**
      * Based on the GraphQL query, this method returns a list of Magento <code>CategoryTree</code> objects
      * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
      * specific JSON response. Luckily, each GraphQL query sent by each component is different so
@@ -472,17 +450,22 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("in") && (((List<String>) (filters.get("ids").get("in")))
-            .size() == 4)) {
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
+            filters.get("url_key").get("eq").equals("outdoor")) {
+            // The URLProvider example will return category uid
+            graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
+        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get(
+            "category_uid").get("in")))
+                .size() == 4)) {
             // The CategoriesCarousel example will require 4 items
             graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
-            filters.get("ids").get("eq").equals("1")) {
+        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
+            filters.get("category_uid").get("eq").equals("uid-1")) {
             // The ProductList example will require 1 item
             graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
-            filters.get("ids").get("eq").equals("2")) {
-            // The navigation example will require item 2
+        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
+            filters.get("category_uid").get("eq").equals("Mg==")) {
+            // The navigation example will require item "Mg==" as the default root category
             graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
         } else {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);

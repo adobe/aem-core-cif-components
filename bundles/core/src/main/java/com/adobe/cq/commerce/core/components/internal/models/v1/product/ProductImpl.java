@@ -27,10 +27,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.xss.XSSAPI;
@@ -54,7 +54,6 @@ import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -99,6 +98,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @Inject
     private Page currentPage;
 
@@ -127,32 +129,25 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean loadClientPrice;
     private String canonicalUrl;
 
-    private AbstractProductRetriever productRetriever;
+    protected AbstractProductRetriever productRetriever;
 
     private Locale locale;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // Get product selection from dialog
-        String selection = properties.get(SELECTION_PROPERTY, String.class);
+        String sku = properties.get(SELECTION_PROPERTY, String.class);
 
-        // If no product is selected via dialog, take the one from the URL
-        Pair<ProductIdentifierType, String> identifier;
-        if (StringUtils.isEmpty(selection)) {
-            // Parse identifier in URL
-            identifier = urlProvider.getProductIdentifier(request);
-        } else {
-            identifier = Pair.of(ProductIdentifierType.SKU, selection);
-        }
-
-        locale = currentPage.getLanguage(false);
-
-        // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
-            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
+            // If no product is selected via dialog, extract it from the URL
+            if (StringUtils.isEmpty(sku)) {
+                sku = urlProvider.getProductIdentifier(request);
+            }
+
+            // Load product data for component
+            if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
+                productRetriever.setIdentifier(sku);
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -164,6 +159,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
                 loadClientPrice = false;
             }
         }
+
+        locale = currentPage.getLanguage(false);
 
         if (!wcmMode.isDisabled()) {
             canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
@@ -190,16 +187,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public String getSku() {
         return productRetriever.fetchProduct().getSku();
-    }
-
-    @Override
-    public String getCurrency() {
-        return getPriceRange().getCurrency();
-    }
-
-    @Override
-    public Double getPrice() {
-        return getPriceRange().getFinalPrice();
     }
 
     @Override
@@ -317,11 +304,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean loadClientPrice() {
         return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
-    }
-
-    @Override
-    public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
     }
 
     @Override
@@ -461,12 +443,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Double getDataLayerPrice() {
-        return this.getPrice();
+        return this.getPriceRange() != null ? this.getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return this.getCurrency();
+        return this.getPriceRange() != null ? this.getPriceRange().getCurrency() : null;
     }
 
     @Override
@@ -484,7 +466,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         return productRetriever.fetchProduct().getCategories()
             .stream()
-            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 

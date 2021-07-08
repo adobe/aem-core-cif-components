@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.client.MockExternalizer;
+import com.adobe.cq.commerce.core.MockExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
@@ -62,9 +62,9 @@ public class ProductImplAssetsTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore", "my-store"));
 
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -140,13 +140,14 @@ public class ProductImplAssetsTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse(graphqlResponse, httpClient, 200);
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{sku");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("no-asset");
+        requestPathInfo.setSuffix("/no-asset.html");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

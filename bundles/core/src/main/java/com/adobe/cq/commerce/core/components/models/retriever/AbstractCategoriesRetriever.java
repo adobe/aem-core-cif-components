@@ -18,11 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -35,7 +31,6 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoriesRetriever.class);
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
@@ -49,16 +44,10 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected List<CategoryTree> categories;
 
     /**
-     * Identifiers of the categories that should be fetched. Which kind of identifier is used (usually id) is implementation
+     * Identifiers of the categories that should be fetched. Which kind of identifier is used (usually uid) is implementation
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
-
-    /**
-     * Identifiers of the categories that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations.
-     */
-    protected UrlProvider.CategoryIdentifierType identifierType;
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -77,27 +66,14 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifiers of the categories that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifiers, removes any cached data.
+     * Set the identifiers of the categories that should be fetched. Categories are retrieved using the default identifier UID.
      *
      * @param identifiers Category identifiers
      */
     public void setIdentifiers(List<String> identifiers) {
-        setIdentifiers(identifiers, UrlProvider.CategoryIdentifierType.ID);
-    }
-
-    /**
-     * Set the identifiers and identifier types of the categories that should be fetched
-     * Setting the identifiers, removes any cached data.
-     *
-     * @param identifiers Category identifiers
-     * @param identifierType Which kind of identifier is used: ID, UID
-     */
-    public void setIdentifiers(List<String> identifiers, UrlProvider.CategoryIdentifierType identifierType) {
         categories = null;
         query = null;
         this.identifiers = identifiers;
-        this.identifierType = identifierType;
     }
 
     /**
@@ -127,16 +103,16 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     abstract protected CategoryTreeQueryDefinition generateCategoryQuery();
 
     /**
-     * Generates a complete category GraphQL query with a selection of the given category identifiers.
+     * Generates a complete category GraphQL query with a selection of the given category UIDs.
      *
-     * @param identifiers Category identifiers, usually the category id
+     * @param identifiers category UID identifiers
      * @return GraphQL query as string
      */
     protected String generateQuery(List<String> identifiers) {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
             FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
-            CategoryFilterInput filter = AbstractCategoryRetriever.generateCategoryFilter(identifiersFilter, identifierType);
+            CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
 
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
@@ -160,17 +136,6 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
         categories = rootQuery.getCategoryList();
-        categories.sort(Comparator.comparing(c -> identifiers.indexOf(getCategoryIdentifierValue(c))));
-    }
-
-    private String getCategoryIdentifierValue(CategoryTree category) {
-        switch (identifierType) {
-            case ID:
-                return category.getId().toString();
-            case UID:
-                return category.getUid().toString();
-            default:
-                return "";
-        }
+        categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
     }
 }

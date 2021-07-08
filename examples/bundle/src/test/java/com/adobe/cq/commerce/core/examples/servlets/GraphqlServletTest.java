@@ -94,8 +94,7 @@ public class GraphqlServletTest {
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
-
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     private static AemContext createContext(String contentPath) {
@@ -103,7 +102,6 @@ public class GraphqlServletTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
                 urlProvider.activate(new MockUrlProviderConfiguration());
@@ -123,8 +121,10 @@ public class GraphqlServletTest {
     private static final String PRODUCT_PAGE = "/content/page/catalogpage/product-page";
     private static final String CATEGORY_PAGE = "/content/page/catalogpage/category-page";
 
-    private static final String PRODUCT_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product";
-    private static final String PRODUCT_LIST_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist";
+    private static final String PRODUCT_V1_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v1";
+    private static final String PRODUCT_V2_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/product-v2";
+    private static final String PRODUCT_LIST_V1_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist-v1";
+    private static final String PRODUCT_LIST_V2_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productlist-v2";
     private static final String PRODUCT_CAROUSEL_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productcarousel";
     private static final String PRODUCT_TEASER_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/productteaser";
     private static final String RELATED_PRODUCTS_RESOURCE = PAGE + "/jcr:content/root/responsivegrid/relatedproducts";
@@ -153,11 +153,11 @@ public class GraphqlServletTest {
 
     @Test
     public void testGetRequestWithVariables() throws ServletException, IOException {
-        String query = "query rootCategory($catId: Int!) {category(id: $catId){id,name,url_path}}";
+        String query = "query rootCategory($id: String!) {categoryList(filters:{category_uid:{eq:$id}}){uid,name,url_path}}";
 
         Map<String, Object> params = new HashMap<>();
         params.put("query", query);
-        params.put("variables", Collections.singletonMap("catId", 2));
+        params.put("variables", Collections.singletonMap("id", "MTU%3D"));
         params.put("operationName", "rootCategory");
         request.setParameterMap(params);
 
@@ -166,17 +166,17 @@ public class GraphqlServletTest {
 
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-        CategoryTree category = graphqlResponse.getData().getCategory();
+        CategoryTree category = graphqlResponse.getData().getCategoryList().get(0);
 
-        Assert.assertEquals(2, category.getId().intValue());
+        Assert.assertEquals("MTU=", category.getUid().toString());
     }
 
     @Test
     public void testPostRequestWithVariables() throws ServletException, IOException {
-        String query = "query rootCategory($catId: Int!) {category(id: $catId){id,name,url_path}}";
+        String query = "query rootCategory($id: String!) {categoryList(filters:{category_uid:{eq:$id}}){uid,name,url_path}}";
 
         GraphqlRequest graphqlRequest = new GraphqlRequest(query);
-        graphqlRequest.setVariables(Collections.singletonMap("catId", 2));
+        graphqlRequest.setVariables(Collections.singletonMap("id", "MTU="));
         graphqlRequest.setOperationName("rootCategory");
         String body = QueryDeserializer.getGson().toJson(graphqlRequest);
         request.setContent(body.getBytes());
@@ -186,9 +186,9 @@ public class GraphqlServletTest {
 
         Type type = TypeToken.getParameterized(GraphqlResponse.class, Query.class, Error.class).getType();
         GraphqlResponse<Query, Error> graphqlResponse = QueryDeserializer.getGson().fromJson(output, type);
-        CategoryTree category = graphqlResponse.getData().getCategory();
+        CategoryTree category = graphqlResponse.getData().getCategoryList().get(0);
 
-        Assert.assertEquals(2, category.getId().intValue());
+        Assert.assertEquals("MTU=", category.getUid().toString());
     }
 
     private Resource prepareModel(String resourcePath) throws ServletException {
@@ -232,14 +232,32 @@ public class GraphqlServletTest {
     }
 
     @Test
-    public void testProductModel() throws ServletException {
-        prepareModel(PRODUCT_RESOURCE);
+    public void testProductModelV1() throws ServletException {
+        prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
+        testProductModelImpl(productModel);
+    }
+
+    @Test
+    public void testProductModelV2() throws ServletException {
+        prepareModel(PRODUCT_V2_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
+        testProductModelImpl(productModel);
+    }
+
+    private void testProductModelImpl(Product productModel) throws ServletException {
         Assert.assertEquals("MH01", productModel.getSku());
+        Assert.assertFalse(productModel.isStaged());
         Assert.assertEquals(15, productModel.getVariants().size());
 
         // We make sure that all assets in the sample JSON response point to the DAM
@@ -260,10 +278,10 @@ public class GraphqlServletTest {
 
     @Test
     public void testGroupedProductModel() throws ServletException {
-        prepareModel(PRODUCT_RESOURCE);
+        prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
+        requestPathInfo.setSuffix("/set-of-sprite-yoga-straps.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertEquals("24-WG085_Group", productModel.getSku());
@@ -277,14 +295,51 @@ public class GraphqlServletTest {
     }
 
     @Test
-    public void testProductListModel() throws ServletException {
-        prepareModel(PRODUCT_LIST_RESOURCE);
+    public void testBundleProductModel() throws ServletException {
+        prepareModel(PRODUCT_V1_RESOURCE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/sprite-yoga-companion-kit.html");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertEquals("24-WG080", productModel.getSku());
+        Assert.assertTrue(productModel.isBundleProduct());
+
+        // We make sure that all assets in the sample JSON response point to the DAM
+        for (Asset asset : productModel.getAssets()) {
+            Assert.assertTrue(asset.getPath().startsWith(CIF_DAM_ROOT));
+        }
+    }
+
+    @Test
+    public void testProductListModelV1() throws ServletException {
+        prepareModel(PRODUCT_LIST_V1_RESOURCE);
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSuffix("/outdoor.html");
+
         ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
+        testProductListModelImpl(productListModel);
+    }
+
+    @Test
+    public void testProductListModelV2() throws ServletException {
+        prepareModel(PRODUCT_LIST_V2_RESOURCE);
+
+        // The category data is coming from magento-graphql-category.json
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/outdoor.html");
+
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
+        testProductListModelImpl(productListModel);
+    }
+
+    private void testProductListModelImpl(ProductList productListModel) {
         Assert.assertEquals("Outdoor Collection", productListModel.getTitle());
+        Assert.assertFalse(productListModel.isStaged());
 
         // The products are coming from magento-graphql-category-products.json
         Assert.assertEquals(6, productListModel.getProducts().size());
@@ -292,6 +347,7 @@ public class GraphqlServletTest {
         // We make sure that all assets in the sample JSON response point to the DAM
         for (ProductListItem product : productListModel.getProducts()) {
             Assert.assertTrue(product.getImageURL().startsWith(CIF_DAM_ROOT));
+            Assert.assertFalse(product.isStaged());
         }
 
         // These are used in the Venia ITs
@@ -330,6 +386,7 @@ public class GraphqlServletTest {
 
     @Test
     public void testRelatedProductsModel() throws ServletException {
+        context.registerService(ImplementationPicker.class, new ResourceTypeImplementationPicker());
         prepareModel(RELATED_PRODUCTS_RESOURCE);
         ProductCarousel relatedProductsModel = context.request().adaptTo(ProductCarousel.class);
         Assert.assertEquals(3, relatedProductsModel.getProducts().size());
@@ -383,10 +440,10 @@ public class GraphqlServletTest {
         Assert.assertEquals(4, categories.size());
 
         // Test that the servlet returns the expected categories in the correct order
-        Assert.assertEquals(15, categories.get(0).getId().intValue());
-        Assert.assertEquals(24, categories.get(1).getId().intValue());
-        Assert.assertEquals(28, categories.get(2).getId().intValue());
-        Assert.assertEquals(32, categories.get(3).getId().intValue());
+        Assert.assertEquals("MTU=", categories.get(0).getUid().toString());
+        Assert.assertEquals("MjQ=", categories.get(1).getUid().toString());
+        Assert.assertEquals("NA==", categories.get(2).getUid().toString());
+        Assert.assertEquals("Ng==", categories.get(3).getUid().toString());
     }
 
     @Test
@@ -397,8 +454,8 @@ public class GraphqlServletTest {
         Assert.assertEquals(2, categories.size());
 
         // Test that the Servlet didn't return 2 times the catalog category tree
-        Assert.assertEquals(15, categories.get(0).getId().intValue());
-        Assert.assertEquals(24, categories.get(1).getId().intValue());
+        Assert.assertEquals("MTU=", categories.get(0).getUid().toString());
+        Assert.assertEquals("MjQ=", categories.get(1).getUid().toString());
     }
 
     @Test
@@ -418,7 +475,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCTPAGE_BREADCRUMB_RESOURCE, PRODUCT_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
         Assert.assertEquals(4, breadcrumbModel.getItems().size()); // The base page, 2 categories and the product
@@ -429,7 +486,7 @@ public class GraphqlServletTest {
         prepareModel(CATEGORYPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSuffix("/1.html");
 
         Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
         Assert.assertEquals(3, breadcrumbModel.getItems().size()); // The base page and 2 categories
@@ -515,9 +572,9 @@ public class GraphqlServletTest {
                 .priceView()
                 .shipBundleItems()
                 .items(i -> i
-                    .optionId()
+                    .uid()
                     .options(o -> o
-                        .id()
+                        .uid()
                         .product(p -> p
                             .priceRange(r -> r
                                 .maximumPrice(generatePriceQuery()))))));

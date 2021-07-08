@@ -31,17 +31,17 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
-import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -74,14 +74,17 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
 
-    private AbstractCategoryRetriever categoryRetriever;
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
+    protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
@@ -92,23 +95,20 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+        // Extract category identifier from URL
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
 
-        // Parse category identifier from URL
-        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
         boolean isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
-
         if (isAuthorInstance) {
             canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
         } else {
             canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
         }
 
-        // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
+            if (StringUtils.isNotBlank(categoryUid)) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
+                categoryRetriever.setIdentifier(categoryUid);
             } else if (isAuthorInstance) {
                 usePlaceholderData = true;
                 loadClientPrice = false;
@@ -197,7 +197,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
                 searchResultsSet.getSearchAggregations()
                     .stream()
-                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
                     .collect(Collectors.toList()));
         }
         return searchResultsSet;

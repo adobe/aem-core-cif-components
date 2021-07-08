@@ -47,12 +47,11 @@ import com.shopify.graphql.support.ID;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MIN_STRUCTURE_DEPTH;
-import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_ID;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.PN_SHOW_MAIN_CATEGORIES;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +99,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any(), anyBoolean())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
 
         // URL provider
         UrlProviderImpl urlProvider = new UrlProviderImpl();
@@ -111,14 +110,6 @@ public class NavigationImplTest {
         request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
-
-        Map<String, Object> props = new HashMap<>();
-        props.put(NavigationImpl.PN_ENABLE_UID_SUPPORT, false);
-        ValueMapDecorator vm = new ValueMapDecorator(props);
-        ComponentsConfiguration configuration = new ComponentsConfiguration(vm);
-        Resource resource = mock((Resource.class));
-        Whitebox.setInternalState(navigation, "resource", resource);
-        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(configuration);
 
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
@@ -361,7 +352,8 @@ public class NavigationImplTest {
     public void testNavigationCategoriesOnly() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
+        String categoryUrlPath = "category-1";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, false);
@@ -371,8 +363,8 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
+        when(category.getUrlPath()).thenReturn(categoryUrlPath);
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
@@ -380,7 +372,7 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
         Navigation activeNavigation = navigationModel.getActiveNavigation();
         Assert.assertEquals(navigation, activeNavigation);
@@ -394,7 +386,8 @@ public class NavigationImplTest {
     public void testNavigationCategoryHierarchy() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
+        String categoryUrlPath = "category-1";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, true);
@@ -404,17 +397,18 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
+        when(category.getUrlPath()).thenReturn(categoryUrlPath);
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
         List<CategoryTree> children = new ArrayList<>();
-        Integer childCategoryId = 1;
+        String childCategoryId = "uid-1";
+        String childCategoryUrlPath = "category-1-1";
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
-        when(childCategory.getId()).thenReturn(childCategoryId);
-        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
+        when(childCategory.getUid()).thenReturn(new ID(childCategoryId));
+        when(childCategory.getUrlPath()).thenReturn(childCategoryUrlPath);
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -424,7 +418,7 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
         Navigation activeNavigation = navigationModel.getActiveNavigation();
         Assert.assertEquals(navigation, activeNavigation);
@@ -439,7 +433,7 @@ public class NavigationImplTest {
 
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
         Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html", childNavigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html", childNavigationItem.getURL());
 
     }
 
@@ -447,7 +441,8 @@ public class NavigationImplTest {
     public void testNavigationCategoryHierarchySelection() {
         // check the properties of a navigation item related to a category
 
-        Integer categoryId = 0;
+        String categoryId = "uid-0";
+        String categoryUrlPath = "category-1";
         String categoryName = "Category 1";
 
         initCatalogPage(true, true, false);
@@ -457,17 +452,18 @@ public class NavigationImplTest {
         navigationItems.add(item);
 
         CategoryTree category = mock(CategoryTree.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(category.getUid()).thenReturn(new ID(String.valueOf(categoryId)));
+        when(category.getUid()).thenReturn(new ID(categoryId));
+        when(category.getUrlPath()).thenReturn(categoryUrlPath);
         when(category.getName()).thenReturn(categoryName);
         categoryList.add(category);
 
         List<CategoryTree> children = new ArrayList<>();
-        Integer childCategoryId = 1;
+        String childCategoryId = "uid-1";
+        String childCategoryUrlPath = "category-1-1";
         String childCategoryName = "Category 1 1";
         CategoryTree childCategory = mock(CategoryTree.class);
-        when(childCategory.getId()).thenReturn(childCategoryId);
-        when(childCategory.getUid()).thenReturn(new ID(String.valueOf(childCategoryId)));
+        when(childCategory.getUid()).thenReturn(new ID(childCategoryId));
+        when(childCategory.getUrlPath()).thenReturn(childCategoryUrlPath);
         when(childCategory.getName()).thenReturn(childCategoryName);
         children.add(childCategory);
 
@@ -477,9 +473,9 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryId + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
-        when(request.getRequestURI()).thenReturn(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html");
+        when(request.getRequestURI()).thenReturn(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html");
 
         List<Navigation> navigationList = navigationModel.getNavigationList();
         Assert.assertEquals(2, navigationList.size());
@@ -500,7 +496,7 @@ public class NavigationImplTest {
 
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
         Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryId + ".html", childNavigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html", childNavigationItem.getURL());
         Assert.assertTrue(childNavigationItem.isActive());
 
     }
@@ -531,7 +527,7 @@ public class NavigationImplTest {
 
         CategoryTree category = mock(CategoryTree.class);
         when(category.getName()).thenReturn(categoryTitle);
-        when(category.getUid()).thenReturn(new ID("0"));
+        when(category.getUid()).thenReturn(new ID("uid-0"));
         categoryList.add(category);
 
         if (pageBeforeCategory) {
@@ -567,10 +563,10 @@ public class NavigationImplTest {
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
 
         if (!useCaConfig) {
-            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_ID, 4);
+            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
         }
         when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
-            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4))));
+            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -580,7 +576,7 @@ public class NavigationImplTest {
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
         when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
 
-        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_ID, 4));
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
     }

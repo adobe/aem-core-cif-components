@@ -44,28 +44,20 @@ import static org.mockito.Mockito.when;
 public class ButtonImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
     private static AemContext createContext(String contentPath) {
-
-        class MockUrlProviderConfigurationCategory extends MockUrlProviderConfiguration {
-            @Override
-            public String categoryUrlTemplate() {
-                return "${page}.${id}.html/${url_path}";
-            }
-        }
-
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfigurationCategory());
+                urlProvider.activate(new MockUrlProviderConfiguration());
                 context.registerService(UrlProvider.class, urlProvider);
             },
             ResourceResolverType.JCR_MOCK);
@@ -76,7 +68,7 @@ public class ButtonImplTest {
 
     @Before
     public void setUp() throws Exception {
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-uid-result.json");
+        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -100,7 +92,7 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForProduct() {
-        final String expResult = "/content/product-page.blast-mini-pump.html";
+        final String expResult = "/content/product-page.html/blast-mini-pump.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeProduct");
         button = context.request().adaptTo(Button.class);
 
@@ -110,7 +102,7 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForCategory() {
-        final String expResult = "/content/category-page.5.html/equipment";
+        final String expResult = "/content/category-page.html/equipment.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeCategory");
         button = context.request().adaptTo(Button.class);
 

@@ -103,11 +103,11 @@
                                 <item0
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
-                                    categoryId="15"/>
+                                    categoryId="MTU="/>
                                 <item1
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
-                                    categoryId="24"/>
+                                    categoryId="MjQ="/>
                             </items>
                         </featuredcategorylist>
                     </component>

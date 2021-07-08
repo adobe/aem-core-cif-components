@@ -16,97 +16,36 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.lang.annotation.Annotation;
 
-import org.apache.commons.lang3.ObjectUtils;
-
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
-    private IdentifierLocation productIdentifierLocation;
-    private IdentifierLocation categoryIdentifierLocation;
-    private ProductIdentifierType productIdentifierType;
-    private CategoryIdentifierType categoryIdentifierType;
-    private boolean useOldSyntax = false;
-
-    private String productUrlTemplate;
-    private String categoryUrlTemplate;
+    private String productPageUrlFormat = ProductPageWithUrlKey.PATTERN;
+    private String categoryPageUrlFormat = CategoryPageWithUrlPath.PATTERN;
 
     public MockUrlProviderConfiguration() {}
-
-    public MockUrlProviderConfiguration(boolean useOldSyntax) {
-        this.useOldSyntax = useOldSyntax;
-    }
-
-    @Override
-    public String productUrlTemplate() {
-        if (productUrlTemplate != null) {
-            return productUrlTemplate;
-        } else if (useOldSyntax) {
-            return UrlProviderConfiguration.OLD_PRODUCT_URL_TEMPLATE;
-        } else {
-            return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
-        }
-    }
-
-    @Override
-    public IdentifierLocation productIdentifierLocation() {
-        return ObjectUtils.firstNonNull(productIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
-
-    @Override
-    public ProductIdentifierType productIdentifierType() {
-        return ObjectUtils.firstNonNull(productIdentifierType, ProductIdentifierType.URL_KEY);
-    }
-
-    @Override
-    public String categoryUrlTemplate() {
-        if (categoryUrlTemplate != null) {
-            return categoryUrlTemplate;
-        } else if (useOldSyntax) {
-            return UrlProviderConfiguration.OLD_CATEGORY_URL_TEMPLATE;
-        } else {
-            return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
-        }
-    }
-
-    @Override
-    public IdentifierLocation categoryIdentifierLocation() {
-        return ObjectUtils.firstNonNull(categoryIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
-
-    @Override
-    public CategoryIdentifierType categoryIdentifierType() {
-        return ObjectUtils.firstNonNull(categoryIdentifierType, CategoryIdentifierType.ID);
-    }
 
     @Override
     public Class<? extends Annotation> annotationType() {
         return UrlProviderConfiguration.class;
     }
 
-    public void setProductIdentifierLocation(IdentifierLocation productIdentifierLocation) {
-        this.productIdentifierLocation = productIdentifierLocation;
+    @Override
+    public String productPageUrlFormat() {
+        return productPageUrlFormat;
     }
 
-    public void setCategoryIdentifierLocation(IdentifierLocation categoryIdentifierLocation) {
-        this.categoryIdentifierLocation = categoryIdentifierLocation;
+    public void setProductPageUrlFormat(String productPageUrlFormat) {
+        this.productPageUrlFormat = productPageUrlFormat;
     }
 
-    public void setProductIdentifierType(ProductIdentifierType productIdentifierType) {
-        this.productIdentifierType = productIdentifierType;
+    @Override
+    public String categoryPageUrlFormat() {
+        return categoryPageUrlFormat;
     }
 
-    public void setCategoryIdentifierType(CategoryIdentifierType categoryIdentifierType) {
-        this.categoryIdentifierType = categoryIdentifierType;
-    }
-
-    public void setProductUrlTemplate(String productUrlTemplate) {
-        this.productUrlTemplate = productUrlTemplate;
-    }
-
-    public void setCategoryUrlTemplate(String categoryUrlTemplate) {
-        this.categoryUrlTemplate = categoryUrlTemplate;
+    public void setCategoryPageUrlFormat(String categoryPageUrlFormat) {
+        this.categoryPageUrlFormat = categoryPageUrlFormat;
     }
 }

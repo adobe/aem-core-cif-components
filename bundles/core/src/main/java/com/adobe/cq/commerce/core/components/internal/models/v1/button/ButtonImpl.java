@@ -24,6 +24,7 @@ import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -73,7 +73,7 @@ public class ButtonImpl implements Button {
     private String categoryId;
 
     @ValueMapValue
-    @Default(values = "id")
+    @Default(values = "uid")
     private String categoryIdType;
 
     @ValueMapValue
@@ -83,6 +83,9 @@ public class ButtonImpl implements Button {
     @Self
     @Via(type = ResourceSuperType.class)
     private Button button;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @ValueMapValue
     private String linkType;
@@ -113,6 +116,7 @@ public class ButtonImpl implements Button {
     private String assignUrl(final String linkType) {
         switch (linkType) {
             case PRODUCT: {
+                // TODO this must use SKU to identify the product !!!
                 if (!productSlug.equals(DEFAULT_LINK)) {
                     productPage = SiteNavigation.getProductPage(currentPage);
                     if (productPage == null) {
@@ -120,7 +124,6 @@ public class ButtonImpl implements Button {
                     }
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     url = urlProvider.toProductUrl(request, productPage, params.map());
-                    // url = this.constructUrl(productPage.getPath(), productSlug);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
@@ -134,23 +137,18 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
                     ParamsBuilder params = new ParamsBuilder();
-                    if (StringUtils.equalsIgnoreCase(categoryIdType, "uid")) {
-                        categoryIdentifierType = CategoryIdentifierType.UID;
-                    }
-
-                    MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
+                        categoryRetriever.setIdentifier(categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
                             params.urlPath(category.getUrlPath());
-                            params.id(category.getId().toString());
                             params.uid(category.getUid().toString());
                         }
                     }
+                    // TODO refactor let URL provider do the work only use categoryId here,
+                    // this will make the CategoryRetriever obsolete as well
                     url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");

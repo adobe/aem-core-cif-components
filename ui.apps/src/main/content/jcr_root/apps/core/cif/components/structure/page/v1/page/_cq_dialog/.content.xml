@@ -110,7 +110,7 @@
                                                 fieldLabel="Category ids for which this page will be used."
                                                 multiple="{Boolean}true"
                                                 name="./selectorFilter"
-                                                selectionId="idAndUrlPath">
+                                                selectionId="uidAndUrlPath">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="category"/>

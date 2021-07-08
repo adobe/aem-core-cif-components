@@ -76,6 +76,9 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @ValueMapValue(
         name = "product",
         injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -91,7 +94,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     protected Style currentStyle;
 
     private Page productPage;
-    private MagentoGraphqlClient magentoGraphqlClient;
     private List<String> baseProductSkus;
     private Locale locale;
 
@@ -120,7 +122,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
             .distinct()
             .collect(Collectors.toList());
 
-        magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
@@ -179,7 +180,8 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                         skus.getRight(),
                         request,
                         urlProvider,
-                        this.getId()));
+                        this.getId(),
+                        product.getStaged()));
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate product " + combinedSku, e);
                 }

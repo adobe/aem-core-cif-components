@@ -416,7 +416,7 @@
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.models.impl</artifactId>
-            <version>1.4.4</version>
+            <version>1.4.16</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -430,6 +430,18 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.testing.sling-mock</artifactId>
+            <exclusions>
+                <!-- Exclude the older version of the API -->
+                <exclusion>
+                    <groupId>org.apache.sling</groupId>
+                    <artifactId>org.apache.sling.models.api</artifactId>
                 </exclusion>
             </exclusions>
             <scope>test</scope>

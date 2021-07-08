@@ -30,12 +30,14 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -49,7 +51,6 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
 
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType.UID;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
 @Model(
@@ -58,15 +59,14 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
 
-    static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String PN_MAGENTO_ROOT_CATEGORY_ID_TYPE = PN_MAGENTO_ROOT_CATEGORY_ID + "Type";
-    static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
+    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
     static final int MIN_STRUCTURE_DEPTH = 1;
     static final int MAX_STRUCTURE_DEPTH = 10;
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
+
     @ScriptVariable
     private Page currentPage = null;
 
@@ -75,7 +75,10 @@ public class NavigationImpl implements Navigation {
     private com.adobe.cq.wcm.core.components.models.Navigation wcmNavigation = null;
 
     @Self
-    private SlingHttpServletRequest request = null;
+    private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @Inject
     private Resource resource;
@@ -95,7 +98,7 @@ public class NavigationImpl implements Navigation {
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
+        graphQLCategoryProvider = new GraphQLCategoryProvider(magentoGraphqlClient);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
@@ -181,22 +184,18 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final boolean enableUIDSupport;
-        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
-            enableUIDSupport = Boolean.parseBoolean(properties.get(PN_ENABLE_UID_SUPPORT, String.class));
-        } else {
-            enableUIDSupport = UID.name().equals(readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID_TYPE));
+            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
         }
 
         if (rootCategoryIdentifier == null) {
-            LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
+            LOGGER.warn("Magento root category UID property (" + PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth, enableUIDSupport);
+        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -207,7 +206,6 @@ public class NavigationImpl implements Navigation {
 
         for (CategoryTree child : children) {
             Map<String, String> params = new ParamsBuilder()
-                .id(child.getId().toString())
                 .uid(child.getUid().toString())
                 .urlKey(child.getUrlKey())
                 .urlPath(child.getUrlPath())
@@ -310,7 +308,6 @@ public class NavigationImpl implements Navigation {
 
             for (CategoryTree child : children) {
                 Map<String, String> params = new ParamsBuilder()
-                    .id(child.getId().toString())
                     .uid(child.getUid().toString())
                     .urlKey(child.getUrlKey())
                     .urlPath(child.getUrlPath())
