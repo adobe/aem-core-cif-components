@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
@@ -74,10 +75,13 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest {
@@ -309,7 +313,7 @@ public class ProductImplTest {
     @Test
     public void testSimpleProduct() {
         adaptToProduct();
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", new SimpleProduct());
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(new SimpleProduct()));
         Assert.assertTrue(productModel.getVariants().isEmpty());
         Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
     }
@@ -319,7 +323,7 @@ public class ProductImplTest {
         adaptToProduct();
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
         Assert.assertNull(productModel.getDescription());
     }
 
@@ -331,7 +335,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(null);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertNull(productModel.getDescription());
     }
@@ -345,7 +349,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }
@@ -359,7 +363,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }
@@ -495,6 +499,9 @@ public class ProductImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
         Assert.assertFalse("Product is not found", productModel.getFound());
+
+        // verify that graphql was called only once
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
