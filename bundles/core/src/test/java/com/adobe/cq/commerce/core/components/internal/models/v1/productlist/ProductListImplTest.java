@@ -311,7 +311,7 @@ public class ProductListImplTest {
         // We want to make sure the category_id aggregation is not present
         Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("category_id"))
             .findAny();
-        Assert.assertTrue(categoryIdAggregation.isEmpty());
+        Assert.assertFalse(categoryIdAggregation.isPresent());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
