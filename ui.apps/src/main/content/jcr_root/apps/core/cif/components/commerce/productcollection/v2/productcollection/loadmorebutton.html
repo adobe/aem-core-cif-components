@@ -15,10 +15,11 @@
 
 <button data-sly-test="${pager.currentPage < pager.totalPages}" class="productcollection__loadmore-button"
      data-load-more="${resource.path @
-         selectors=addLazy ? ['lazy', request.requestPathInfo.selectorString] : request.requestPathInfo.selectorString,
-         extension='html',
-         context='uri',
-         query=pager.nextPageParameters}">${'Load more' @ i18n}</button>
+        context='uri',
+        selectors=addLazy ? ['lazy', request.requestPathInfo.selectorString] : request.requestPathInfo.selectorString,
+        extension=request.requestPathInfo.extension,
+        suffix=request.requestPathInfo.suffix,
+        query=pager.nextPageParameters}">${'Load more' @ i18n}</button>
 <div class="productcollection__loadmore-spinner"></div>
 
 </template>
