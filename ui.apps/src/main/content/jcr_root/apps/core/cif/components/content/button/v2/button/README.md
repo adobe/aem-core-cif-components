@@ -17,7 +17,7 @@ limitations under the License.
 # Button(v2) 
 
 Button Component v2 meant to be placed on AEM pages and have the option to link it to 1) AEM pages 2) Product 3) Category
-4) External Link. The components extents CIF Button Component v1 but changes the default referencing and lookup for products.
+4) External Link.
 
 ## Features
 
@@ -43,9 +43,11 @@ The following properties are written to JCR for this component and are expected 
 ## BEM Description
 
 ```
-1)button
-2)button--secondary
-
+BLOCK cmp-button
+    ELEMENT cmp-button__text
+    ELEMENT cmp-button__icon
+        MOD cmp-button__icon--<icon>
+```
 
 ## Information
 
