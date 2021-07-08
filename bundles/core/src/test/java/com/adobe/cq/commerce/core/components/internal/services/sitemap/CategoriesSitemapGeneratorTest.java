@@ -75,8 +75,7 @@ public class CategoriesSitemapGeneratorTest {
     public void setup() throws IOException {
         MockitoAnnotations.initMocks(this);
 
-        configuration.put(CategoriesSitemapGenerator.PN_MAGENTO_ROOT_CATEGORY_ID, 2);
-        configuration.put(CategoriesSitemapGenerator.PN_ENABLE_UID_SUPPORT, Boolean.FALSE);
+        configuration.put(CategoriesSitemapGenerator.PN_MAGENTO_ROOT_CATEGORY_ID, "UID2");
 
         homePage = aemContext.create().page(
             "/content/site/en",
@@ -99,43 +98,33 @@ public class CategoriesSitemapGeneratorTest {
         // mock category tree, 3 1st level, for each 2 2nd level
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-2.json",
-            "{categories(filters:{ids:{eq:\"2\"",
             "{categories(filters:{category_uid:{eq:\"UID2\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-3.json",
-            "{categories(filters:{ids:{eq:\"3\"",
             "{categories(filters:{category_uid:{eq:\"UID3\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-31.json",
-            "{categories(filters:{ids:{eq:\"31\"",
             "{categories(filters:{category_uid:{eq:\"UID31\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-32.json",
-            "{categories(filters:{ids:{eq:\"32\"",
             "{categories(filters:{category_uid:{eq:\"UID32\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-4.json",
-            "{categories(filters:{ids:{eq:\"4\"",
             "{categories(filters:{category_uid:{eq:\"UID4\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-41.json",
-            "{categories(filters:{ids:{eq:\"41\"",
             "{categories(filters:{category_uid:{eq:\"UID41\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-42.json",
-            "{categories(filters:{ids:{eq:\"42\"",
             "{categories(filters:{category_uid:{eq:\"UID42\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-5.json",
-            "{categories(filters:{ids:{eq:\"5\"",
             "{categories(filters:{category_uid:{eq:\"UID5\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-51.json",
-            "{categories(filters:{ids:{eq:\"51\"",
             "{categories(filters:{category_uid:{eq:\"UID51\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-tree-52.json",
-            "{categories(filters:{ids:{eq:\"52\"",
             "{categories(filters:{category_uid:{eq:\"UID52\"");
         Utils.addHttpResponseFrom(graphqlClient,
             "graphql/sitemap/magento-graphql-sitemap-category-error.json",
@@ -166,7 +155,6 @@ public class CategoriesSitemapGeneratorTest {
     public void testAnyErrorRethrown() throws SitemapException {
         // given
         configuration.put(CategoriesSitemapGenerator.PN_MAGENTO_ROOT_CATEGORY_ID, "ERROR");
-        configuration.put(CategoriesSitemapGenerator.PN_ENABLE_UID_SUPPORT, Boolean.TRUE);
         aemContext.registerAdapter(Resource.class, ComponentsConfiguration.class, new ComponentsConfiguration(configuration));
 
         // when
@@ -177,22 +165,6 @@ public class CategoriesSitemapGeneratorTest {
     public void testSitemapContainsAllButRootCategory() throws SitemapException {
         // given
         ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
-        aemContext.registerAdapter(Resource.class, ComponentsConfiguration.class, new ComponentsConfiguration(configuration));
-
-        // when
-        subject.generate(categoryPage.adaptTo(Resource.class), "<default>", sitemap, context);
-
-        // then
-        verify(sitemap, atLeastOnce()).addUrl(locations.capture());
-        assertEquals("9 locations expected", 9, locations.getAllValues().size());
-    }
-
-    @Test
-    public void testSitemapContainsAllButRootCategoryWithUidSupportEnabled() throws SitemapException {
-        // given
-        ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
-        configuration.put(CategoriesSitemapGenerator.PN_MAGENTO_ROOT_CATEGORY_ID, "UID2");
-        configuration.put(CategoriesSitemapGenerator.PN_ENABLE_UID_SUPPORT, Boolean.TRUE);
         aemContext.registerAdapter(Resource.class, ComponentsConfiguration.class, new ComponentsConfiguration(configuration));
 
         // when
@@ -259,7 +231,7 @@ public class CategoriesSitemapGeneratorTest {
         ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
         aemContext.registerAdapter(Resource.class, ComponentsConfiguration.class, new ComponentsConfiguration(configuration));
         when(context.getProperty(eq(CategoriesSitemapGenerator.PN_PENDING_CATEGORIES), any(String[].class))).thenReturn(
-            new String[] { "42", "5" });
+            new String[] { "UID42", "UID5" });
 
         // when
         subject.generate(categoryPage.adaptTo(Resource.class), "<default>", sitemap, context);

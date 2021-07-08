@@ -64,7 +64,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
 
     static final String PN_PENDING_CATEGORIES = "pendingCategories";
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
 
@@ -97,14 +96,13 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         // parameter map to be reused while iterating
         UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder().page(externalizer.externalize(sitemapRoot));
 
-        boolean enableUidSupport = configuration.get(PN_ENABLE_UID_SUPPORT, Boolean.FALSE);
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
         Deque<String> categoryIds = new LinkedList<>(Arrays.asList(
             context.getProperty(PN_PENDING_CATEGORIES, new String[] { rootCategoryIdentifier })));
 
         while (!categoryIds.isEmpty()) {
             String categoryId = categoryIds.poll();
-            String query = Operations.query(categoryQueryFor(categoryId, enableUidSupport)).toString();
+            String query = Operations.query(categoryQueryFor(categoryId)).toString();
             GraphqlResponse<Query, Error> resp = graphql.execute(query);
 
             if (resp.getErrors() != null && resp.getErrors().size() > 0) {
@@ -120,9 +118,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             if (it.hasNext()) {
                 CategoryTree category = it.next();
                 Stream<CategoryTree> children = category.getChildren().stream();
-                List<String> childIds = (enableUidSupport
-                    ? children.map(CategoryTree::getUid).map(ID::toString)
-                    : children.map(CategoryTree::getId).map(Object::toString)).collect(Collectors.toList());
+                List<String> childIds = children.map(CategoryTree::getUid).map(ID::toString).collect(Collectors.toList());
 
                 for (int i = childIds.size() - 1; i >= 0; i--) {
                     // adding the children in reverse order to the front of the dequeue wil implement a depth first traversal keeping
@@ -154,14 +150,12 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         }
     }
 
-    private static QueryQueryDefinition categoryQueryFor(String categoryId, boolean uidSupport) {
-        FilterEqualTypeInput equalToCategoryId = new FilterEqualTypeInput().setEq(categoryId);
-        CategoryFilterInput categoryFilter = uidSupport
-            ? new CategoryFilterInput().setCategoryUid(equalToCategoryId)
-            : new CategoryFilterInput().setIds(equalToCategoryId);
+    private static QueryQueryDefinition categoryQueryFor(String categoryId) {
         return q -> q.categories(
             arguments -> arguments
-                .filters(categoryFilter),
+                .filters(new CategoryFilterInput()
+                    .setCategoryUid(new FilterEqualTypeInput()
+                        .setEq(categoryId))),
             resultSet -> resultSet
                 .items(category -> category
                     .urlKey()
