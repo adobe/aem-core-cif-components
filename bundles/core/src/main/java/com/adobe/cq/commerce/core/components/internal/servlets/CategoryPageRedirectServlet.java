@@ -29,9 +29,9 @@ import org.osgi.service.component.annotations.Component;
     immediate = true,
     property = {
         ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
-        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + ProductPageRedirectServlet.RESOURCE_TYPE,
-        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + ProductPageRedirectServlet.SELECTOR,
-        ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + ProductPageRedirectServlet.EXTENSION
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + CategoryPageRedirectServlet.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + CategoryPageRedirectServlet.SELECTOR,
+        ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + CategoryPageRedirectServlet.EXTENSION
     })
 public class CategoryPageRedirectServlet extends AbstractCommerceRedirectServlet {
     protected static final String SELECTOR = "cifcategoryredirect";
