@@ -4,8 +4,8 @@
   "configured": true,
   "commerceIdentifier": {
     "entityType": "PRODUCT",
-    "value": "endurance-watch",
-    "type": "URL_KEY"
+    "value": "MJ01",
+    "type": "SKU"
   },
   "titleType": "h3",
   ":type": "core/cif/components/commerce/relatedproducts/v1/relatedproducts",

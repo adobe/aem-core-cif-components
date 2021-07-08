@@ -11,28 +11,34 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
+package com.adobe.cq.commerce.core.components.internal.services;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 
-class CategoryRetriever extends AbstractCategoryRetriever {
+class UrlToCategoryRetriever extends AbstractCategoryRetriever {
 
-    CategoryRetriever(MagentoGraphqlClient client) {
+    UrlToCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 
     @Override
+    public String generateQuery(String identifier) {
+        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
+        return Operations.query(query -> {
+            CategoryFilterInput filter = new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(identifier));
+            QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
+            query.categoryList(searchArgs, queryArgs);
+        }).toString();
+    }
+
+    @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-
-        return (CategoryTreeQuery q) -> {
-            q.uid();
-
-            if (categoryQueryHook != null) {
-                categoryQueryHook.accept(q);
-            }
-        };
+        return q -> q.uid();
     }
 }

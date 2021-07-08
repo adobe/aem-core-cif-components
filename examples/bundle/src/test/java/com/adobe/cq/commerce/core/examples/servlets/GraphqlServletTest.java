@@ -236,7 +236,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
@@ -248,7 +248,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_V2_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
@@ -281,7 +281,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("set-of-sprite-yoga-straps");
+        requestPathInfo.setSuffix("/set-of-sprite-yoga-straps.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertEquals("24-WG085_Group", productModel.getSku());
@@ -299,7 +299,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_V1_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("sprite-yoga-companion-kit");
+        requestPathInfo.setSuffix("/sprite-yoga-companion-kit.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertEquals("24-WG080", productModel.getSku());
@@ -317,7 +317,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid-1");
+        requestPathInfo.setSuffix("/outdoor.html");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
@@ -330,7 +330,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid-1");
+        requestPathInfo.setSuffix("/outdoor.html");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
@@ -475,7 +475,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCTPAGE_BREADCRUMB_RESOURCE, PRODUCT_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
         Assert.assertEquals(4, breadcrumbModel.getItems().size()); // The base page, 2 categories and the product
@@ -486,7 +486,7 @@ public class GraphqlServletTest {
         prepareModel(CATEGORYPAGE_BREADCRUMB_RESOURCE, CATEGORY_PAGE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("1");
+        requestPathInfo.setSuffix("/1.html");
 
         Breadcrumb breadcrumbModel = context.request().adaptTo(Breadcrumb.class);
         Assert.assertEquals(3, breadcrumbModel.getItems().size()); // The base page and 2 categories
