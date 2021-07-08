@@ -35,6 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -109,7 +111,7 @@ public class CategoryPageRedirectServletTest {
     }
 
     @Test
-    public void testMissingProductSuffix() throws IOException {
+    public void testMissingCategorySuffix() throws IOException {
         when(requestPathInfo.getSuffix()).thenReturn(null);
 
         servlet.doGet(request, response);
@@ -125,25 +127,11 @@ public class CategoryPageRedirectServletTest {
     }
 
     @Test
-    public void testUidMatchingUrlProviderConfig() throws IOException {
-        when(requestPathInfo.getSelectors()).thenReturn(new String[] { CategoryPageRedirectServlet.SELECTOR });
-        when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
-
-        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
-
-        urlProvider.activate(config);
-
-        servlet.doGet(request, response);
-        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_uid.html");
-    }
-
-    @Test
     public void testUrlPathMatchingUrlProviderConfig() throws IOException {
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { CategoryPageRedirectServlet.SELECTOR });
         when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
 
-        config.setCategoryUrlTemplate("{{page}}.{{url_path}}.html");
+        config.setCategoryPageUrlFormat(CategoryPageWithUrlPath.PATTERN);
 
         urlProvider.activate(config);
 
@@ -163,7 +151,7 @@ public class CategoryPageRedirectServletTest {
 
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_url_path.html");
+        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.html/test_url_path.html");
     }
 
     @Test
@@ -171,7 +159,7 @@ public class CategoryPageRedirectServletTest {
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { CategoryPageRedirectServlet.SELECTOR });
         when(requestPathInfo.getSuffix()).thenReturn("/test_uid");
 
-        config.setCategoryUrlTemplate("{{page}}.{{url_key}}.html");
+        config.setCategoryPageUrlFormat(CategoryPageWithUrlKey.PATTERN);
 
         urlProvider.activate(config);
 
@@ -191,7 +179,7 @@ public class CategoryPageRedirectServletTest {
 
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.test_url_key.html");
+        verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.html/test_url_key.html");
     }
 
 }

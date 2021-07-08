@@ -35,7 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
@@ -131,14 +132,13 @@ public class ProductPageRedirectServletTest {
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { ProductPageRedirectServlet.SELECTOR });
         when(requestPathInfo.getSuffix()).thenReturn("/test_sku");
 
-        config.setProductIdentifierType(UrlProvider.ProductIdentifierType.SKU);
-        config.setProductUrlTemplate("{{page}}.{{sku}}.html");
+        config.setProductPageUrlFormat(ProductPageWithSku.PATTERN);
 
         urlProvider.activate(config);
 
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.test_sku.html");
+        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.html/test_sku.html");
     }
 
     @Test
@@ -146,8 +146,7 @@ public class ProductPageRedirectServletTest {
         when(requestPathInfo.getSelectors()).thenReturn(new String[] { ProductPageRedirectServlet.SELECTOR });
         when(requestPathInfo.getSuffix()).thenReturn("/test_sku");
 
-        config.setProductIdentifierType(UrlProvider.ProductIdentifierType.URL_KEY);
-        config.setProductUrlTemplate("{{page}}.{{url_key}}.html");
+        config.setProductPageUrlFormat(ProductPageWithUrlKey.PATTERN);
 
         urlProvider.activate(config);
 
@@ -169,6 +168,6 @@ public class ProductPageRedirectServletTest {
 
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.test_url_key.html");
+        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.html/test_url_key.html");
     }
 }
