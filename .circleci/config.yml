@@ -32,6 +32,8 @@ common:
       - store_artifacts:
           path: bundles/core/target/site/jacoco
       - store_artifacts:
+          path: extensions/product-recs/bundle/target/site/jacoco
+      - store_artifacts:
           path: examples/bundle/target/site/jacoco
 
   selenium_test_steps: &selenium_test_steps
@@ -103,6 +105,8 @@ jobs:
             - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
+            - extensions/product-recs/bundle/target
+            - extensions/product-recs/content/target/*.zip
             - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
