@@ -16,63 +16,26 @@ package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.lang.annotation.Annotation;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.IdentifierLocation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 
 public class MockUrlProviderConfiguration implements Annotation, UrlProviderConfiguration {
 
-    private IdentifierLocation productIdentifierLocation;
-    private IdentifierLocation categoryIdentifierLocation;
-    private ProductIdentifierType productIdentifierType;
-
-    @Override
-    public String productUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_PRODUCT_URL_TEMPLATE;
-    }
-
-    @Override
-    public IdentifierLocation productIdentifierLocation() {
-        return ObjectUtils.firstNonNull(productIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
-
-    @Override
-    public ProductIdentifierType productIdentifierType() {
-        return ObjectUtils.firstNonNull(productIdentifierType, ProductIdentifierType.URL_KEY);
-    }
-
-    @Override
-    public String categoryUrlTemplate() {
-        return UrlProviderConfiguration.DEFAULT_CATEGORY_URL_TEMPLATE;
-    }
-
-    @Override
-    public IdentifierLocation categoryIdentifierLocation() {
-        return ObjectUtils.firstNonNull(categoryIdentifierLocation, IdentifierLocation.SELECTOR);
-    }
+    public MockUrlProviderConfiguration() {}
 
     @Override
     public Class<? extends Annotation> annotationType() {
         return UrlProviderConfiguration.class;
     }
 
-    public void setProductIdentifierLocation(IdentifierLocation productIdentifierLocation) {
-        this.productIdentifierLocation = productIdentifierLocation;
-    }
-
-    public void setCategoryIdentifierLocation(IdentifierLocation categoryIdentifierLocation) {
-        this.categoryIdentifierLocation = categoryIdentifierLocation;
-    }
-
-    public void setProductIdentifierType(ProductIdentifierType productIdentifierType) {
-        this.productIdentifierType = productIdentifierType;
+    @Override
+    public String productPageUrlFormat() {
+        return ProductPageWithUrlKey.PATTERN;
     }
 
     @Override
-    public String identifierQueryParameter() {
-        return UrlProvider.DEFAULT_QUERY_PARAMETER;
+    public String categoryPageUrlFormat() {
+        return CategoryPageWithUrlPath.PATTERN;
     }
 }

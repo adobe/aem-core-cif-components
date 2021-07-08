@@ -372,7 +372,7 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryUrlPath + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
         Navigation activeNavigation = navigationModel.getActiveNavigation();
         Assert.assertEquals(navigation, activeNavigation);
@@ -418,7 +418,7 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryUrlPath + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
         Navigation activeNavigation = navigationModel.getActiveNavigation();
         Assert.assertEquals(navigation, activeNavigation);
@@ -433,7 +433,7 @@ public class NavigationImplTest {
 
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
         Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryUrlPath + ".html", childNavigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html", childNavigationItem.getURL());
 
     }
 
@@ -473,9 +473,9 @@ public class NavigationImplTest {
         Assert.assertEquals(1, items.size());
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
         Assert.assertEquals(categoryName, navigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + categoryUrlPath + ".html", navigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
 
-        when(request.getRequestURI()).thenReturn(CATEGORY_PAGE_PATH + "." + childCategoryUrlPath + ".html");
+        when(request.getRequestURI()).thenReturn(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html");
 
         List<Navigation> navigationList = navigationModel.getNavigationList();
         Assert.assertEquals(2, navigationList.size());
@@ -496,7 +496,7 @@ public class NavigationImplTest {
 
         com.adobe.cq.commerce.core.components.models.navigation.NavigationItem childNavigationItem = childItems.get(0);
         Assert.assertEquals(childCategoryName, childNavigationItem.getTitle());
-        Assert.assertEquals(CATEGORY_PAGE_PATH + "." + childCategoryUrlPath + ".html", childNavigationItem.getURL());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + childCategoryUrlPath + ".html", childNavigationItem.getURL());
         Assert.assertTrue(childNavigationItem.isActive());
 
     }

@@ -20,29 +20,31 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.osgi.annotation.versioning.ProviderType;
 
 import com.day.cq.wcm.api.Page;
 
+@ProviderType
 public interface UrlProvider {
 
     /**
      * Defines the location of the product or ctegory identifier in the URL.
      */
-    public static enum IdentifierLocation {
+    enum IdentifierLocation {
         SELECTOR, SUFFIX, QUERY_PARAM
     }
 
     /**
      * Defines the product identifier type used in product page urls.
      */
-    public static enum ProductIdentifierType {
+    enum ProductIdentifierType {
         URL_KEY, SKU
     }
 
     /**
      * Defines the category identifier type used in category page urls.
      */
-    public static enum CategoryIdentifierType {
+    enum CategoryIdentifierType {
         URL_PATH
     }
 
@@ -51,47 +53,42 @@ public interface UrlProvider {
      * this must hold the url_key of the configurable product and the variant url_key must be set with the
      * <code>variant_url_key</code> parameter.
      */
-    public static final String URL_KEY_PARAM = "url_key";
+    String URL_KEY_PARAM = "url_key";
 
     /**
      * The <code>url_path</code> parameter of the product or category.
      */
-    public static final String URL_PATH_PARAM = "url_path";
+    String URL_PATH_PARAM = "url_path";
 
     /**
      * The <code>sku</code> parameter of the product. In the case of a <code>ConfigurableProduct</code>,
      * this must hold the sku of the configurable product and the variant sku must be set with the
      * <code>variant_sku</code> parameter.
      */
-    public static final String SKU_PARAM = "sku";
+    String SKU_PARAM = "sku";
 
     /**
      * In the case of a <code>ConfigurableProduct</code>, the <code>variant_sku</code> parameter must
      * be set to the sku of the currently selected/chosen variant.
      */
-    public static final String VARIANT_SKU_PARAM = "variant_sku";
+    String VARIANT_SKU_PARAM = "variant_sku";
 
     /**
      * In the case of a <code>ConfigurableProduct</code>, the <code>variant_url_key</code> parameter must
      * be set to the url_key of the currently selected/chosen variant.
      */
-    public static final String VARIANT_URL_KEY_PARAM = "variant_url_key";
+    String VARIANT_URL_KEY_PARAM = "variant_url_key";
 
     /**
      * The <code>uid</code> of the category.
      */
-    public static final String UID_PARAM = "uid";
+    String UID_PARAM = "uid";
 
     /**
      * Use this parameter name to set the <b>page</b> part of the URL. This ensures that implementations of the
      * UrlProvider can easily "find out" if the page part of the URL is being statically set.
      */
-    public static final String PAGE_PARAM = "page";
-
-    /**
-     * The default query parameter name if identifier are configured to be extracted from query parameters.
-     */
-    public static final String DEFAULT_QUERY_PARAMETER = "identifier";
+    String PAGE_PARAM = "page";
 
     /**
      * Returns the product page URL. All required attributes to generate a valid category page URL must be provided via the
@@ -104,7 +101,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The product URL.
      */
-    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
+    String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
      * Returns the product page URL. Only the product identifier must be provided, the implementation will query the needed URL
@@ -117,7 +114,7 @@ public interface UrlProvider {
      * @param productIdentifier The product identifier.
      * @return The product URL.
      */
-    public String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, String productIdentifier);
+    String toProductUrl(SlingHttpServletRequest request, @Nullable Page page, String productIdentifier);
 
     /**
      * Returns the category page URL. All required attributes to generate a valid category page URL must be provided via the
@@ -130,7 +127,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The category URL.
      */
-    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
+    String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
      * Returns the category page URL. Only the category identifier must be provided, the implementation will query the needed URL
@@ -143,7 +140,7 @@ public interface UrlProvider {
      * @param categoryIdentifier The category identifier.
      * @return The category URL.
      */
-    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
+    String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**
      * Returns the product identifier (sku) used in the given Sling HTTP request. The product identifier can be used to load product data.
@@ -151,7 +148,7 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @return The product sku identifier.
      */
-    public String getProductIdentifier(SlingHttpServletRequest request);
+    String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
      * Returns the category identifier used in the given Sling HTTP request. The category identifier can be used to load category data.
@@ -159,12 +156,12 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @return The category uid identifier.
      */
-    public String getCategoryIdentifier(SlingHttpServletRequest request);
+    String getCategoryIdentifier(SlingHttpServletRequest request);
 
     /**
      * A helper class used to easily build parameters for the URL templates.
      */
-    public static class ParamsBuilder {
+    class ParamsBuilder {
 
         private Map<String, String> params = new HashMap<>();
 

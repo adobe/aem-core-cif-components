@@ -1,30 +1,30 @@
 [
-    {
-        "breadcrumb-bafb50b602-item-88fb9dce60": {
-            "xdm:linkURL": "null/content/venia/us/en.html",
-            "dc:title": "en",
-            "@type": "venia/components/page"
-        }
-    },
-    {
-        "breadcrumb-bafb50b602-item-f0e9dafc71": {
-            "xdm:linkURL": "/content/venia/us/en/products/category-page.men.html",
-            "dc:title": "Men",
-            "@type": "venia/components/page"
-        }
-    },
-    {
-        "breadcrumb-bafb50b602-item-5847437ddb": {
-            "xdm:linkURL": "/content/venia/us/en/products/category-page.men_tops-men.html",
-            "dc:title": "Tops",
-            "@type": "venia/components/page"
-        }
-    },
-    {
-        "breadcrumb-bafb50b602-item-436747cde8": {
-            "xdm:linkURL": "/content/venia/us/en/products/product-page.tiberius-gym-tank.html",
-            "dc:title": "Tiberius Gym Tank",
-            "@type": "venia/components/page"
-        }
+  {
+    "breadcrumb-bafb50b602-item-88fb9dce60": {
+      "xdm:linkURL": "null/content/venia/us/en.html",
+      "dc:title": "en",
+      "@type": "venia/components/page"
     }
+  },
+  {
+    "breadcrumb-bafb50b602-item-2709c5218f": {
+      "xdm:linkURL": "/content/venia/us/en/products/category-page.html/men.html",
+      "dc:title": "Men",
+      "@type": "venia/components/page"
+    }
+  },
+  {
+    "breadcrumb-bafb50b602-item-c6c1b0799f": {
+      "xdm:linkURL": "/content/venia/us/en/products/category-page.html/men/tops-men.html",
+      "dc:title": "Tops",
+      "@type": "venia/components/page"
+    }
+  },
+  {
+    "breadcrumb-bafb50b602-item-3882865108": {
+      "xdm:linkURL": "/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html",
+      "dc:title": "Tiberius Gym Tank",
+      "@type": "venia/components/page"
+    }
+  }
 ]

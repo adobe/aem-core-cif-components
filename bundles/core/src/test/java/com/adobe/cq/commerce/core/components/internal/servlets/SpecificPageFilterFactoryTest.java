@@ -85,7 +85,7 @@ public class SpecificPageFilterFactoryTest {
     public void testFilterForwarding() throws IOException, ServletException {
         request.setResource(context.resourceResolver().resolve("/content/product-page"));
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString("productId1");
+        pathInfo.setSuffix("/productId1.html");
         filter.doFilter(request, null, chain);
 
         // Check that the request dispatcher adds the extra selector and forwards to the same page

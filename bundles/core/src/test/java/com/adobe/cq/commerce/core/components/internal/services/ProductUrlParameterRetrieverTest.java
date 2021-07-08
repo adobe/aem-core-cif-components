@@ -57,7 +57,7 @@ public class ProductUrlParameterRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{eq:\"SKU-1\"}}){items{__typename,url_key}}}";
+        String expectedQuery = "{products(filter:{sku:{eq:\"SKU-1\"}}){items{__typename,url_key,url_path}}}";
         Assert.assertTrue(captor.getValue().equals(expectedQuery));
     }
 }

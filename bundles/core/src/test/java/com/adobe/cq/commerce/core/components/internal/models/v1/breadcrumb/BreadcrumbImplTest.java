@@ -167,18 +167,18 @@ public class BreadcrumbImplTest {
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
 
         NavigationItem menCategory = items.get(1);
-        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.men.html");
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.html/men.html");
         assertThat(menCategory.isActive()).isFalse();
 
         NavigationItem product = items.get(3);
-        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.tiberius-gym-tank.html");
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
@@ -195,14 +195,15 @@ public class BreadcrumbImplTest {
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops", "Tiberius Gym Tank");
 
         NavigationItem product = items.get(3);
-        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page/product-specific-page.tiberius-gym-tank.html");
+        assertThat(product.getURL()).isEqualTo(
+            "/content/venia/us/en/products/product-page/product-specific-page.html/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
@@ -224,7 +225,7 @@ public class BreadcrumbImplTest {
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
@@ -236,38 +237,38 @@ public class BreadcrumbImplTest {
         }
 
         NavigationItem product = items.get(3);
-        assertThat(product.getURL()).isEqualTo(launchPage + ".tiberius-gym-tank.html");
+        assertThat(product.getURL()).isEqualTo(launchPage + ".html/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 
     @Test
     public void testCategoryPage() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path");
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
         prepareModel("/content/venia/us/en/products/category-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("men");
+        requestPathInfo.setSuffix("/men.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
 
         NavigationItem menCategory = items.get(1);
-        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.men.html");
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.html/men.html");
         assertThat(menCategory.isActive()).isFalse();
 
         NavigationItem topsCategory = items.get(2);
-        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.men_tops-men.html");
+        assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.html/men/tops-men.html");
         assertThat(topsCategory.isActive()).isTrue();
     }
 
     @Test
     public void testCategorySpecificPage() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path");
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
         prepareModel("/content/venia/us/en/products/category-page/category-specific-page");
@@ -276,14 +277,14 @@ public class BreadcrumbImplTest {
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("men");
+        requestPathInfo.setSuffix("/men.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Tops");
 
         NavigationItem product = items.get(2);
-        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/category-page/category-specific-page.men_tops-men.html");
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/category-page/category-specific-page.html/men/tops-men.html");
         assertThat(product.isActive()).isTrue();
     }
 
@@ -298,7 +299,7 @@ public class BreadcrumbImplTest {
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         // We change the "showMainCategories" property to false to include the catalog page in the breadcrumb
         Resource catalogPageResource = context.resourceResolver().getResource("/content/venia/us/en/products/jcr:content");
@@ -348,7 +349,7 @@ public class BreadcrumbImplTest {
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         Collection<NavigationItem> items = breadcrumbModel.getItems();
@@ -405,7 +406,7 @@ public class BreadcrumbImplTest {
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("tiberius-gym-tank");
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         ObjectMapper mapper = new ObjectMapper();

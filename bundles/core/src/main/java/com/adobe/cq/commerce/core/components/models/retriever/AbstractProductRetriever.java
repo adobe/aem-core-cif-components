@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
@@ -50,7 +51,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     /**
      * Product instance. Is only available after populate() was called.
      */
-    protected ProductInterface product;
+    protected Optional<ProductInterface> product;
 
     /**
      * SKU identifier of the product that should be fetched.
@@ -70,7 +71,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         if (this.product == null) {
             populate();
         }
-        return this.product;
+        return this.product.orElse(null);
     }
 
     /**
@@ -186,16 +187,9 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         // Return first product in list unless the identifier type is 'url_key',
         // then return the product whose 'url_key' matches the identifier
         if (products.size() > 0) {
-            if (products.size() > 1) {
-                for (ProductInterface productInterface : products) {
-                    if (identifier.equals(productInterface.getUrlKey())) {
-                        product = productInterface;
-                        return;
-                    }
-                }
-            } else {
-                product = products.get(0);
-            }
+            product = Optional.of(products.get(0));
+        } else {
+            product = Optional.empty();
         }
     }
 
@@ -205,5 +199,4 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * @return ProductInterface query definition
      */
     abstract protected ProductInterfaceQueryDefinition generateProductQuery();
-
 }

@@ -177,7 +177,7 @@ public class FeaturedCategoryListImplTest {
         categories.stream().forEach(c -> Assert.assertNotNull(c));
         Assert.assertEquals(categories.get(0).getName(), TEST_CATEGORY_NAME);
         Assert.assertEquals(categories.get(0).getImage(), TEST_IMAGE_URL);
-        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.%s.html", CATEGORY_PAGE, TEST_URL_PATH));
+        Assert.assertEquals(categories.get(0).getPath(), String.format("%s.html/%s.html", CATEGORY_PAGE, TEST_URL_PATH));
     }
 
     @Test

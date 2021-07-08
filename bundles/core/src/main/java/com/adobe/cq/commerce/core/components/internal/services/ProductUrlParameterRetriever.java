@@ -25,8 +25,6 @@ class ProductUrlParameterRetriever extends AbstractProductRetriever {
 
     @Override
     protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> {
-            q.urlKey();
-        };
+        return q -> q.urlKey().urlPath();
     }
 }

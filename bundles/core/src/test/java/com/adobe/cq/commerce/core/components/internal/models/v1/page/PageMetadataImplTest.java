@@ -203,8 +203,8 @@ public class PageMetadataImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
-        context.request().setServletPath(pagePath + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(pagePath + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -212,7 +212,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some product meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some product meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some product meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".html/beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
@@ -271,15 +271,15 @@ public class PageMetadataImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path");
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK,
             "{products");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
-        context.request().setServletPath(pagePath + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(pagePath + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         prepareModel(pagePath);
         PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
@@ -287,7 +287,7 @@ public class PageMetadataImplTest {
         Assert.assertEquals("Some category meta description", pageMetadataModel.getMetaDescription());
         Assert.assertEquals("Some category meta keywords", pageMetadataModel.getMetaKeywords());
         Assert.assertEquals("Some category meta title", pageMetadataModel.getMetaTitle());
-        Assert.assertEquals("https://author" + pagePath + ".beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + pagePath + ".html/beaumont-summit-kit.html", pageMetadataModel.getCanonicalUrl());
     }
 
     @Test

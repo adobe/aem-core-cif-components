@@ -450,8 +450,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
-        } else if (filters.containsKey("url_path") && filters.get("url_path").containsKey("eq") &&
-            filters.get("url_path").get("eq").equals("outdoor")) {
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
+            filters.get("url_key").get("eq").equals("outdoor")) {
             // The URLProvider example will return category uid
             graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
         } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get(

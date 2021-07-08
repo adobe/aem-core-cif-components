@@ -259,7 +259,7 @@ public class ProductTeaserImplTest {
         Page productPage = deepLink
             ? context.pageManager().getPage(PRODUCT_SPECIFIC_PAGE)
             : context.pageManager().getPage(PRODUCT_PAGE);
-        return productPage.getPath() + '.' + product.getUrlKey() + ".html";
+        return productPage.getPath() + ".html/" + product.getUrlKey() + ".html";
     }
 
     private String toProductUrl(ProductInterface product, String variantPart) {

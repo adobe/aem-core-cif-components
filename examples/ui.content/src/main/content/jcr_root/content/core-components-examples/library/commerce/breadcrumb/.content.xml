@@ -79,7 +79,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>The component is configured to display all the AEM pages under the &amp;quot;root&amp;quot; of the library. In addition to displaying content pages, the component will display commerce data when used on a product or category page. Check the examples at the bottom of the following pages:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/chaz-kangeroo-hoodie&quot;>Product page with sample data.&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/productlist.html/outdoor&quot;>Category page with sample data.&lt;/a>&lt;br>&#xd;&#xa;&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;"
+                    text="&lt;p>The component is configured to display all the AEM pages under the &amp;quot;root&amp;quot; of the library. In addition to displaying content pages, the component will display commerce data when used on a product or category page. Check the examples at the bottom of the following pages:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/chaz-kangeroo-hoodie.html&quot;>Product page with sample data.&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/productlist.html/outdoor.html&quot;>Category page with sample data.&lt;/a>&lt;br>&#xd;&#xa;&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;"
                     textIsRich="true"/>
                 <demo
                     jcr:created="{Date}2018-12-07T12:55:03.496+01:00"

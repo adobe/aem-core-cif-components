@@ -13,6 +13,7 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -46,7 +47,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     /**
      * Category instance. Is only available after populate() was called.
      */
-    protected CategoryInterface category;
+    protected Optional<CategoryInterface> category;
 
     /**
      * Identifier of the category that should be fetched. Categories are identfied by UID.
@@ -76,7 +77,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         if (this.category == null) {
             populate();
         }
-        return this.category;
+        return this.category.orElse(null);
     }
 
     /**
@@ -235,7 +236,9 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         GraphqlResponse<Query, Error> response = executeQuery();
         Query rootQuery = response.getData();
         if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
-            category = rootQuery.getCategoryList().get(0);
+            category = Optional.of(rootQuery.getCategoryList().get(0));
+        } else {
+            category = Optional.empty();
         }
     }
 }

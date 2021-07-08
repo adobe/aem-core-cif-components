@@ -120,7 +120,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Override
     public boolean isConfigured() {
         return properties.get(PN_PRODUCT, String.class) != null
-            || request.getRequestPathInfo().getSelectorString() != null;
+            || urlProvider.getProductIdentifier(request) != null;
     }
 
     private void configureProductsRetriever() {

@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -32,9 +31,7 @@ class UrlToCategoryRetriever extends AbstractCategoryRetriever {
     public String generateQuery(String identifier) {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
-            CategoryFilterInput filter = new CategoryFilterInput().setUrlPath(
-                // replaceAll is needed to support the special CIF format of url_key
-                new FilterEqualTypeInput().setEq(identifier.replaceAll("_", "/")));
+            CategoryFilterInput filter = new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(identifier));
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
         }).toString();
@@ -42,8 +39,6 @@ class UrlToCategoryRetriever extends AbstractCategoryRetriever {
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        return (CategoryTreeQuery q) -> {
-            q.uid();
-        };
+        return q -> q.uid();
     }
 }
