@@ -18,7 +18,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -68,14 +67,11 @@ public class ComponentsConfigurationAdapterFactoryTest {
     public void setup() {
         context.load().json("/context/jcr-conf.json", "/conf/testing");
         context.load().json("/context/jcr-content.json", "/content");
-        ResourceResolverFactory resourceResolverFactory = Mockito.mock(ResourceResolverFactory.class);
         ServiceUserMapped serviceUserMapped = Mockito.mock(ServiceUserMapped.class);
-
         context.registerService(ServiceUserMapped.class, serviceUserMapped, ImmutableMap.of(ServiceUserMapped.SUBSERVICENAME,
             "cif-components-configuration"));
 
         ComponentsConfigurationAdapterFactory factory = new ComponentsConfigurationAdapterFactory();
-
         context.registerInjectActivateService(factory);
     }
 

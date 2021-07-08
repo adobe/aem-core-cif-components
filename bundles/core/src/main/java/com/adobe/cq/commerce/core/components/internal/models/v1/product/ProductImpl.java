@@ -27,7 +27,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
@@ -55,7 +54,6 @@ import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -138,23 +136,18 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @PostConstruct
     protected void initModel() {
         // Get product selection from dialog
-        String selection = properties.get(SELECTION_PROPERTY, String.class);
-
-        // If no product is selected via dialog, take the one from the URL
-        Pair<ProductIdentifierType, String> identifier;
-        if (StringUtils.isEmpty(selection)) {
-            // Parse identifier in URL
-            identifier = urlProvider.getProductIdentifier(request);
-        } else {
-            identifier = Pair.of(ProductIdentifierType.SKU, selection);
-        }
-
-        locale = currentPage.getLanguage(false);
+        String sku = properties.get(SELECTION_PROPERTY, String.class);
 
         if (magentoGraphqlClient != null) {
-            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
+            // If no product is selected via dialog, extract it from the URL
+            if (StringUtils.isEmpty(sku)) {
+                sku = urlProvider.getProductIdentifier(request);
+            }
+
+            // Load product data for component
+            if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
+                productRetriever.setIdentifier(sku);
                 loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (!wcmMode.isDisabled()) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
@@ -166,6 +159,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
                 loadClientPrice = false;
             }
         }
+
+        locale = currentPage.getLanguage(false);
 
         if (!wcmMode.isDisabled()) {
             canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());

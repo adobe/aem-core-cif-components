@@ -11,58 +11,72 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.components.models.retriever;
 
-import java.io.IOException;
+import java.util.Collections;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AbstractProductRetrieverTest {
 
+    private AbstractProductRetriever subject;
+
+    @Mock
     private MagentoGraphqlClient client;
-    private AbstractProductRetriever productRetriever;
+    @Mock
+    private GraphqlResponse<Query, Error> response;
+    @Mock
+    private Products products;
+    @Mock
+    private Query query;
 
     @Before
-    public void setUp() {
-        client = mock(MagentoGraphqlClient.class);
-        productRetriever = new TestProductRetriever(client);
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+
+        subject = new AbstractProductRetriever(client) {
+            @Override
+            protected ProductInterfaceQueryDefinition generateProductQuery() {
+                return q -> q.sku();
+            }
+        };
+
+        when(response.getData()).thenReturn(query);
+        when(query.getProducts()).thenReturn(products);
     }
 
     @Test
-    public void testGetSimpleProductByUrlKey() throws IOException {
-        productRetriever.setIdentifier(UrlProvider.ProductIdentifierType.URL_KEY, "test-simple");
-
-        GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
-
+    public void testBackendOnlyCalledOnceDespiteEmptyResponse() {
+        // given
         when(client.execute(any())).thenReturn(response);
-        when(response.getData()).thenReturn(Utils.getQueryFromResource("graphql/magento-graphql-multiple-products-result.json"));
+        when(response.getErrors()).thenReturn(Collections.emptyList());
+        when(products.getItems()).thenReturn(Collections.emptyList());
 
-        Assert.assertEquals("xyz", productRetriever.fetchProduct().getSku());
-    }
+        // when, then
+        ProductInterface product = subject.fetchProduct();
+        assertNull(product);
 
-    @Test
-    public void testGetBundleProductBySku() throws IOException {
-        productRetriever.setIdentifier(UrlProvider.ProductIdentifierType.SKU, "abc");
+        // and when, then
+        product = subject.fetchProduct();
+        assertNull(product);
 
-        GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
-
-        when(client.execute(any())).thenReturn(response);
-        when(response.getData()).thenReturn(Utils.getQueryFromResource("graphql/magento-graphql-multiple-products-result.json"));
-
-        Assert.assertEquals("test-bundle", productRetriever.fetchProduct().getUrlKey());
+        verify(client, times(1)).execute(any());
     }
 }

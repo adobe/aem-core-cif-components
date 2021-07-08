@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 
@@ -33,7 +34,7 @@ class ProductPlaceholderRetriever extends AbstractProductRetriever {
         String json = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(placeholderPath), StandardCharsets.UTF_8);
         Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
 
-        product = rootQuery.getProducts().getItems().get(0);
+        product = Optional.of(rootQuery.getProducts().getItems().get(0));
     }
 
     @Override
