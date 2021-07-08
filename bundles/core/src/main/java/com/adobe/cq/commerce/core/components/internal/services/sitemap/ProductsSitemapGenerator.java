@@ -23,8 +23,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
-import org.apache.sling.sitemap.generator.SitemapGenerator;
+import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -95,8 +95,8 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
     }
 
     @Override
-    public void generate(Resource sitemapRoot, String name, Sitemap sitemap, GenerationContext context) throws SitemapException {
-        MagentoGraphqlClient graphql = MagentoGraphqlClient.create(sitemapRoot, sitemapRoot.adaptTo(Page.class), null);
+    public void generate(Resource sitemapRoot, String name, Sitemap sitemap, SitemapGenerator.Context context) throws SitemapException {
+        MagentoGraphqlClient graphql = sitemapRoot.adaptTo(MagentoGraphqlClient.class);
         Page productPage = sitemapRoot.adaptTo(Page.class);
 
         if (graphql == null || productPage == null) {

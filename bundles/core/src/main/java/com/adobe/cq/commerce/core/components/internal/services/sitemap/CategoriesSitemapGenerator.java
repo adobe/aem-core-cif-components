@@ -28,8 +28,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
-import org.apache.sling.sitemap.generator.SitemapGenerator;
+import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -85,8 +85,8 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     }
 
     @Override
-    public void generate(Resource sitemapRoot, String name, Sitemap sitemap, GenerationContext context) throws SitemapException {
-        MagentoGraphqlClient graphql = MagentoGraphqlClient.create(sitemapRoot, sitemapRoot.adaptTo(Page.class), null);
+    public void generate(Resource sitemapRoot, String name, Sitemap sitemap, Context context) throws SitemapException {
+        MagentoGraphqlClient graphql = sitemapRoot.adaptTo(MagentoGraphqlClient.class);
         Page categoryPage = sitemapRoot.adaptTo(Page.class);
         ComponentsConfiguration configuration = sitemapRoot.adaptTo(ComponentsConfiguration.class);
 
@@ -135,7 +135,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                 if (!categoryId.equals(rootCategoryIdentifier) && !ignoredByFilter) {
                     // skip root category, and ignored categories
                     Map<String, String> params = paramsBuilder
-                        .id(category.getId().toString())
                         .uid(category.getUid().toString())
                         .urlKey(category.getUrlKey())
                         .urlPath(category.getUrlPath())
@@ -168,9 +167,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                     .urlKey()
                     .urlPath()
                     .uid()
-                    .id()
-                    .children(child -> child
-                        .uid()
-                        .id())));
+                    .children(child -> child.uid())));
     }
 }

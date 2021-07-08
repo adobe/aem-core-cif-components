@@ -22,8 +22,8 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
-import org.apache.sling.sitemap.generator.SitemapGenerator;
+import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class CategoriesSitemapGeneratorTest {
     @Mock
     private SitemapCategoryFilter categoryFilter;
     @Mock
-    private SitemapGenerator.GenerationContext context;
+    private SitemapGenerator.Context context;
     @Mock
     private Sitemap sitemap;
 

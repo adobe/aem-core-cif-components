@@ -19,8 +19,8 @@ import java.util.Set;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.common.SitemapLinkExternalizer;
-import org.apache.sling.sitemap.generator.SitemapGenerator;
+import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class ProductsSitemapGeneratorTest {
     @Mock
     private SitemapProductFilter productFilter;
     @Mock
-    private SitemapGenerator.GenerationContext context;
+    private SitemapGenerator.Context context;
     @Mock
     private Sitemap sitemap;
 
