@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
@@ -50,7 +50,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -96,8 +95,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     private AbstractProductsRetriever productsRetriever;
     private Locale locale;
     private RelationType relationType;
-    private String skuOrSlug;
-    private ProductIdentifierType productIdentifierType;
+    private String productSku;
 
     @PostConstruct
     private void initModel() {
@@ -122,25 +120,22 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Override
     public boolean isConfigured() {
         return properties.get(PN_PRODUCT, String.class) != null
-            || request.getRequestPathInfo().getSelectorString() != null;
+            || urlProvider.getProductIdentifier(request) != null;
     }
 
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
 
-        if (product != null) {
-            skuOrSlug = product; // The picker is configured to return the SKU
-            productIdentifierType = ProductIdentifierType.SKU;
+        if (StringUtils.isNotBlank(product)) {
+            productSku = product; // The picker is configured to return the SKU
         } else {
-            Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-            skuOrSlug = identifier.getRight();
-            productIdentifierType = identifier.getLeft();
+            productSku = urlProvider.getProductIdentifier(request);
         }
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
-        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType, productIdentifierType);
-        productsRetriever.setIdentifiers(Collections.singletonList(skuOrSlug));
+        productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
+        productsRetriever.setIdentifiers(Collections.singletonList(productSku));
     }
 
     @Override
@@ -198,7 +193,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     }
 
     public CommerceIdentifier getCommerceIdentifier() {
-        IdentifierType type = ProductIdentifierType.SKU.equals(productIdentifierType) ? IdentifierType.SKU : IdentifierType.URL_KEY;
-        return new CommerceIdentifierImpl(skuOrSlug, type, EntityType.PRODUCT);
+        return new CommerceIdentifierImpl(productSku, IdentifierType.SKU, EntityType.PRODUCT);
     }
 }

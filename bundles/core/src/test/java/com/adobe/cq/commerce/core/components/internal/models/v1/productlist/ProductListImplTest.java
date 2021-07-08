@@ -51,7 +51,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
@@ -154,9 +153,13 @@ public class ProductListImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList");
+            "{categoryList(filters:{category_uid");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+
+        // magento-graphql-category-uid
 
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
@@ -172,8 +175,8 @@ public class ProductListImplTest {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("MTI==");
-        context.request().setServletPath(PAGE + ".MTI==.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/category-1.html");
+        context.request().setServletPath(PAGE + ".html/category-1.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -206,7 +209,7 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".MTI==.html", productListModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".html/category-1.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -224,41 +227,11 @@ public class ProductListImplTest {
         Assert.assertTrue(products.stream().allMatch(p -> p.isStaged().equals(true)));
     }
 
-    public void testUidIdentifier() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setCategoryIdentifierType(CategoryIdentifierType.UID);
-        config.setCategoryUrlTemplate("{{page}}.{{uid}}.html");
-
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("MTM=");
-        context.request().setServletPath(PAGE + ".MTM=.html"); // used by context.request().getRequestURI();
-
-        productListModel = context.request().adaptTo(ProductListImpl.class);
-        Assert.assertEquals(category.getName(), productListModel.getTitle());
-        Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
-        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
-        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
-        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".MTM=.html", productListModel.getCanonicalUrl());
-    }
-
     @Test
     public void testUrlPathIdentifier() {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        config.setCategoryIdentifierType(CategoryIdentifierType.URL_PATH);
-        config.setCategoryUrlTemplate("{{page}}.{{url_path}}.html");
-
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
-
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("running");
-        context.request().setServletPath(PAGE + ".running.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/running.html");
+        context.request().setServletPath(PAGE + ".html/running.html"); // used by context.request().getRequestURI();
 
         productListModel = context.request().adaptTo(ProductListImpl.class);
         Assert.assertEquals(category.getName(), productListModel.getTitle());
@@ -266,7 +239,7 @@ public class ProductListImplTest {
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
         Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
         Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".running.html", productListModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".html/running.html", productListModel.getCanonicalUrl());
     }
 
     @Test
@@ -308,7 +281,7 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getName(), item.getTitle());
             Assert.assertEquals(productInterface.getSku(), item.getSKU());
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
-            Assert.assertEquals(String.format(PRODUCT_PAGE + ".%s.html", productInterface.getUrlKey()), item.getURL());
+            Assert.assertEquals(String.format(PRODUCT_PAGE + ".html/%s.html", productInterface.getUrlKey()), item.getURL());
 
             Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(),
                 item.getPriceRange().getFinalPrice(), 0);
@@ -352,8 +325,10 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList");
+            "{categoryList(filters:{category_uid");
 
         adaptToProductList();
         Collection<ProductListItem> productList = productListModel.getProducts();
@@ -366,7 +341,7 @@ public class ProductListImplTest {
     @Test
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         adaptToProductList();
 
         String json = Utils.getResource(ProductListImpl.PLACEHOLDER_DATA);
@@ -378,14 +353,14 @@ public class ProductListImplTest {
     }
 
     @Test
-    public void testMissingSelectorOnPublish() throws IOException {
+    public void testMissingSuffixOnPublish() throws IOException {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(true);
         slingBindings.put("wcmmode", wcmMode);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         adaptToProductList();
 

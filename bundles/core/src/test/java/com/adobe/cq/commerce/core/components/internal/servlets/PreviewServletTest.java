@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
@@ -38,11 +39,7 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PreviewServletTest {
 
@@ -126,7 +123,7 @@ public class PreviewServletTest {
 
         // mock UrlProvider
         String PREVIEW_PRODUCT_URL = "/dummy/preview/url.key.html#variant_key";
-        when(urlProvider.toProductUrl(any(), any(), any())).thenReturn(PREVIEW_PRODUCT_URL);
+        when(urlProvider.toProductUrl(any(), any(), Matchers.<Map<String, String>>any())).thenReturn(PREVIEW_PRODUCT_URL);
 
         // mock request parameters
         when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
