@@ -29,7 +29,7 @@
     <version>1.12.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>AEM CIF Core Components Products Recommendations Bundle</name>
+    <name>AEM CIF Core Components - Products Recommendations Bundle</name>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <scm>

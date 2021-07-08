@@ -30,7 +30,7 @@
     <artifactId>core-cif-components-extensions-product-recs-content</artifactId>
     <packaging>content-package</packaging>
 
-    <name>AEM CIF Core Components Products Recommendations Content Package</name>
+    <name>AEM CIF Core Components - Products Recommendations Content Package</name>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 
     <scm>
