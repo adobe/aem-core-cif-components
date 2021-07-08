@@ -74,7 +74,7 @@
 
 .productcollection__loadmore-button {
     display: block;
-    margin: 0.5rem auto;
+    margin: 0 auto auto auto;
 }
 
 .productcollection__pagination {
