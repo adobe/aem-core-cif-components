@@ -1,6 +1,6 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ 
-  ~ Copyright 2021 Adobe. All rights reserved.
+  ~ Copyright 2019 Adobe. All rights reserved.
   ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License. You may obtain a copy
   ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,11 +11,9 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.title="${@ productList}">
+<sly data-sly-use.collectionTemplate="productcollection.html"
+     data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults"/>
 
-<div data-sly-test="${productList.isStaged}" class="category__staged">${'Staged' @ i18n}</div>
-<h1 class="category__header">
-    <span class="category__title">${productList.title}</span>
-</h1>
-
-</template>
+<article class="searchresults_root" data-cif-search-input-context="${searchResults.storefrontContext.json}">
+    <sly data-sly-call="${collectionTemplate.productCollection @ productCollection = searchResults}"/>
+</article>
