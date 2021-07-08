@@ -185,8 +185,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
         if (mutableSearchOptions.getCategoryUid().isPresent()) {
-            searchAggregations = searchAggregations.stream().filter(s -> !"category_id".equals(s.getIdentifier())).collect(Collectors
-                .toList());
+            searchAggregations.removeIf(a -> "category_id".equals(a.getIdentifier()));
         }
 
         searchResultsSet.setTotalResults(products.getTotalCount());
