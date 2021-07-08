@@ -96,6 +96,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_STAGED_PRODUCTS_UID = "uid-2";
 
     private static final String STAGED_PRODUCT_URL_KEY = "chaz-crocodile-hoodie";
+    private static final String STAGED_PRODUCT_SKU = "MH02";
 
     private static final String PRODUCT_SKU = "MH01";
 
@@ -410,6 +411,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (skuEqMatcher.group(1).equals(PRODUCT_SKU)) {
                     return readProductsFrom(PRODUCTS_JSON);
+                } else if (skuEqMatcher.group(1).equals(STAGED_PRODUCT_SKU)) {
+                    return readProductsFrom(STAGED_PRODUCT_JSON);
                 }
                 return readProductsFrom(PRODUCT_TEASER_JSON);
             } else if (uidPattern.matches()) {
@@ -418,7 +421,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
                     return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
                 }
-
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(GROUPED_PRODUCT_JSON);
@@ -470,6 +472,10 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             filters.get("url_key").get("eq").equals("outdoor")) {
             // The URLProvider example will return category uid
             graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
+            filters.get("url_key").get("eq").equals("outdoor-staged")) {
+            // The URLProvider example will return category uid
+            graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
         } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get(
             "category_uid").get("in")))
                 .size() == 4)) {

@@ -282,7 +282,7 @@ public class GraphqlServletTest {
         prepareModel(PRODUCT_V2_RESOURCE);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("chaz-crocodile-hoodie");
+        requestPathInfo.setSuffix("/chaz-crocodile-hoodie.html");
 
         Product productModel = context.request().adaptTo(Product.class);
         Assert.assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
@@ -377,7 +377,7 @@ public class GraphqlServletTest {
 
         // The category data is coming from magento-graphql-category.json
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("uid-2");
+        requestPathInfo.setSuffix("/outdoor-staged.html");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         Assert.assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
