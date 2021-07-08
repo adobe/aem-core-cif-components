@@ -6,7 +6,7 @@ exports[`ProductCard renders a product card 1`] = `
     class="card"
   >
     <a
-      href="http://localhost/content/venia/us/en.cifredirect.html/product/my-sku"
+      href="http://localhost/content/venia/us/en.cifproductredirect.html/product/my-sku"
     >
       <div
         class="cardImage"
@@ -50,7 +50,7 @@ exports[`ProductCard renders a product card with a price range 1`] = `
     class="card"
   >
     <a
-      href="http://localhost/content/venia/us/en.cifredirect.html/product/my-sku"
+      href="http://localhost/content/venia/us/en.cifproductredirect.html/product/my-sku"
     >
       <div
         class="cardImage"

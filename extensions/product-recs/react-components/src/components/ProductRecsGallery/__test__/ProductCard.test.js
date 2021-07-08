@@ -15,11 +15,10 @@
 import React from 'react';
 
 import { fireEvent, render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
 
 import ProductCard from '../ProductCard';
-import i18n from '../../../../__mocks__/i18nForTests';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
+import ContextWrapper from '../../../__test__/context-wrapper';
 
 describe('ProductCard', () => {
     let mse;
@@ -56,22 +55,14 @@ describe('ProductCard', () => {
     });
 
     it('renders a product card', () => {
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ProductCard unit={unit} product={product} />
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders a product card with a price range', () => {
         product.prices.maximum.final = 650.0;
-        const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ProductCard unit={unit} product={product} />
-            </I18nextProvider>
-        );
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
         expect(asFragment()).toMatchSnapshot();
     });
@@ -80,11 +71,7 @@ describe('ProductCard', () => {
         const eventListener = jest.fn();
         document.addEventListener('aem.cif.add-to-cart', eventListener);
 
-        const { queryByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <ProductCard unit={unit} product={product} />
-            </I18nextProvider>
-        );
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
         fireEvent.click(queryByRole('button'));
         expect(eventListener).toHaveBeenCalledTimes(1);
@@ -92,14 +79,12 @@ describe('ProductCard', () => {
     });
 
     it('redirects to the product page', () => {
-        const { getByRole } = render(
-            <I18nextProvider i18n={i18n}>
-                <ProductCard unit={unit} product={product} />
-            </I18nextProvider>
-        );
+        const { getByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
         // Check href on link
-        expect(getByRole('link').href).toEqual('http://localhost/content/venia/us/en.cifredirect.html/product/my-sku');
+        expect(getByRole('link').href).toEqual(
+            'http://localhost/content/venia/us/en.cifproductredirect.html/product/my-sku'
+        );
 
         // Click and check MSE
         fireEvent.click(getByRole('link'));

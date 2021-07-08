@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
+    "lint:fix": "eslint --fix 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
     "webpack:prod": "webpack --mode=production && node css-template.js",
     "test": "npm run lint && npm run prettier:check && jest --coverage",

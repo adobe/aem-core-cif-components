@@ -11,20 +11,14 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+import React from 'react';
 
-export const createProductPageUrl = sku => {
-    const url = new URL(window.location);
+import { I18nextProvider } from 'react-i18next';
 
-    // Provided by StoreConfigExporter
-    const pathname = document.body.dataset.storeRootUrl;
-    if (!pathname) {
-        return null;
-    }
+import i18n from '../../__mocks__/i18nForTests';
 
-    const extension = pathname.substr(pathname.lastIndexOf('.'));
-    const path = pathname.substr(0, pathname.lastIndexOf('.'));
-
-    url.pathname = `${path}.cifproductredirect${extension}/product/${sku}`;
-
-    return url.toString();
+const ContextWrapper = ({ children }) => {
+    return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 };
+
+export default ContextWrapper;

@@ -15,11 +15,10 @@
 import React from 'react';
 
 import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
 
 import ProductRecsGallery from '../ProductRecsGallery';
-import i18n from '../../../../__mocks__/i18nForTests';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
+import ContextWrapper from '../../../__test__/context-wrapper';
 
 const mockUseRecommendationsValue = jest.fn();
 jest.mock('../../../hooks/useRecommendations', () => ({
@@ -103,9 +102,8 @@ describe('ProductRecsGallery', () => {
         });
 
         const { asFragment } = render(
-            <I18nextProvider i18n={i18n}>
-                <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />
-            </I18nextProvider>
+            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />,
+            { wrapper: ContextWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();

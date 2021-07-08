@@ -30,6 +30,6 @@ describe('createProductPageUrl', () => {
 
         const url = createProductPageUrl('my-product');
 
-        expect(url).toEqual('http://localhost/content/venia/us/en.cifredirect.html/product/my-product');
+        expect(url).toEqual('http://localhost/content/venia/us/en.cifproductredirect.html/product/my-product');
     });
 });
