@@ -99,8 +99,6 @@ public class ButtonImplTest {
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-
-        context.addModelsForClasses(ButtonImpl.class);
     }
 
     private void setUpTestResource(final String resourcePath) {
@@ -120,6 +118,15 @@ public class ButtonImplTest {
     }
 
     @Test
+    public void testGetLinkForEmptyProduct() {
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeProductEmpty");
+        button = context.request().adaptTo(Button.class);
+
+        String result = button.getLink();
+        assertEquals("#", result);
+    }
+
+    @Test
     public void testGetLinkForCategory() {
         final String expResult = "/content/category-page.html/equipment.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategory");
@@ -127,6 +134,15 @@ public class ButtonImplTest {
 
         String result = button.getLink();
         assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetLinkForEmptyCategory() {
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategoryEmpty");
+        button = context.request().adaptTo(Button.class);
+
+        String result = button.getLink();
+        assertEquals("#", result);
     }
 
     @Test
@@ -140,6 +156,15 @@ public class ButtonImplTest {
     }
 
     @Test
+    public void testGetLinkForEmptyExternalLink() {
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeExternalLinkEmpty");
+        button = context.request().adaptTo(Button.class);
+
+        String result = button.getLink();
+        assertEquals("#", result);
+    }
+
+    @Test
     public void testGetLinkForLinkTo() {
         final String expResult = "/content/venia/language-masters/en.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeToPage");
@@ -147,6 +172,15 @@ public class ButtonImplTest {
 
         String result = button.getLink();
         assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetLinkForEmptyLinkTo() {
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeToPageEmpty");
+        button = context.request().adaptTo(Button.class);
+
+        String result = button.getLink();
+        assertEquals("#", result);
     }
 
     @Test

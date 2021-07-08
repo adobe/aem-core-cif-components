@@ -207,11 +207,21 @@
                 "linkType": "product",
                 "productSku": "MJ01"
             },
+            "button2TypeProductEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "product"
+            },
             "button2TypeCategory": {
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
                 "linkType": "category",
                 "categoryId": "MTI=="
+            },
+            "button2TypeCategoryEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "category"
             },
             "button2TypeToPage": {
                 "jcr:primaryType": "nt:unstructured",
@@ -219,15 +229,28 @@
                 "linkType": "linkTo",
                 "linkTo": "/content/venia/language-masters/en"
             },
+            "button2TypeToPageEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "linkTo"
+            },
             "button2TypeExternalLink": {
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
                 "linkType": "externalLink",
                 "externalLink": "http://sample-link.com"
             },
+            "button2TypeExternalLinkEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "externalLink"
+            },
             "button2DefaultUrl": {
                 "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button"
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "jcr:title": "My Button",
+                "icon": "some-icon",
+                "id": "some-id"
             }
         }
       }
