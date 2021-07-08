@@ -37,8 +37,9 @@ public class CategoryPageWithUrlKey extends AbstractUrlFormat {
 
     @Override
     public String format(Map<String, String> parameters) {
+        String urlKey = getUrlKey(parameters);
         return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-            parameters.getOrDefault(URL_KEY_PARAM, "{{" + URL_KEY_PARAM + "}}") + HTML_EXTENSION;
+            urlKey + HTML_EXTENSION;
     }
 
     @Override
