@@ -116,7 +116,6 @@ public class ButtonImpl implements Button {
     private String assignUrl(final String linkType) {
         switch (linkType) {
             case PRODUCT: {
-                // TODO this must use SKU to identify the product !!!
                 if (!productSlug.equals(DEFAULT_LINK)) {
                     productPage = SiteNavigation.getProductPage(currentPage);
                     if (productPage == null) {
@@ -147,8 +146,6 @@ public class ButtonImpl implements Button {
                             params.uid(category.getUid().toString());
                         }
                     }
-                    // TODO refactor let URL provider do the work only use categoryId here,
-                    // this will make the CategoryRetriever obsolete as well
                     url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");

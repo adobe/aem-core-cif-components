@@ -179,11 +179,21 @@
                 "linkType": "product",
                 "productSlug": "blast-mini-pump"
             },
+            "buttonTypeProductEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "product"
+            },
             "buttonTypeCategory": {
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v1/button",
                 "linkType": "category",
                 "categoryId": "MTI=="
+            },
+            "buttonTypeCategoryEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "category"
             },
             "buttonTypeToPage": {
                 "jcr:primaryType": "nt:unstructured",
@@ -191,11 +201,21 @@
                 "linkType": "linkTo",
                 "linkTo": "/content/venia/language-masters/en"
             },
+            "buttonTypeToPageEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "linkTo"
+            },
             "buttonTypeExternalLink": {
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v1/button",
                 "linkType": "externalLink",
                 "externalLink": "http://sample-link.com"
+            },
+            "buttonTypeExternalLinkEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "externalLink"
             },
             "buttonDefaultUrl": {
                 "jcr:primaryType": "nt:unstructured",
@@ -247,10 +267,12 @@
             },
             "button2DefaultUrl": {
                 "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button"
+            },
+            "button2InvalidLinkType": {
+                "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "jcr:title": "My Button",
-                "icon": "some-icon",
-                "id": "some-id"
+                "linkType": "invalid"
             }
         }
       }

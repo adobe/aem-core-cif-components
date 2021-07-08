@@ -113,8 +113,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeProduct");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals(expResult, result);
+        assertEquals(expResult, button.getLink());
     }
 
     @Test
@@ -122,8 +121,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeProductEmpty");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals("#", result);
+        assertEquals("#", button.getLink());
     }
 
     @Test
@@ -132,8 +130,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategory");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals(expResult, result);
+        assertEquals(expResult, button.getLink());
     }
 
     @Test
@@ -141,8 +138,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategoryEmpty");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals("#", result);
+        assertEquals("#", button.getLink());
     }
 
     @Test
@@ -151,8 +147,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeExternalLink");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals(expResult, result);
+        assertEquals(expResult, button.getLink());
     }
 
     @Test
@@ -160,8 +155,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeExternalLinkEmpty");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals("#", result);
+        assertEquals("#", button.getLink());
     }
 
     @Test
@@ -170,8 +164,7 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeToPage");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals(expResult, result);
+        assertEquals(expResult, button.getLink());
     }
 
     @Test
@@ -179,17 +172,23 @@ public class ButtonImplTest {
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeToPageEmpty");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals("#", result);
+        assertEquals("#", button.getLink());
     }
 
     @Test
     public void testDefaultLink() {
-        final String expResult = "#";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2DefaultUrl");
         button = context.request().adaptTo(Button.class);
 
-        String result = button.getLink();
-        assertEquals(expResult, result);
+        assertEquals("#", button.getLink());
+    }
+
+    @Test
+    public void testInvalidLinkType() {
+        final String expResult = "#";
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2InvalidLinkType");
+        button = context.request().adaptTo(Button.class);
+
+        assertEquals(expResult, button.getLink());
     }
 }
