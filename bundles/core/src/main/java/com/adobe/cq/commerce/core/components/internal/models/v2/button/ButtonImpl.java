@@ -15,7 +15,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v2.button;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -25,6 +24,8 @@ import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
@@ -67,7 +68,6 @@ public class ButtonImpl implements Button {
     @Default(values = DEFAULT_LINK)
     private String externalLink;
 
-    @Self
     @Via(type = ResourceSuperType.class)
     private Button button;
 
@@ -80,13 +80,13 @@ public class ButtonImpl implements Button {
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @ScriptVariable
     protected Resource resource;
 
     private Page productPage;
