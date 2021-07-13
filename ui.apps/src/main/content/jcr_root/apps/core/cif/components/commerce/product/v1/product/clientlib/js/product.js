@@ -131,6 +131,11 @@ class Product {
      * Update price in the DOM.
      */
     _updatePrice(price, optionalSku) {
+        // Only update if prices are not null
+        if (!price.regularPrice || !price.finalPrice) {
+            return;
+        }
+
         let youSave = this._formatter.get('You save');
         let innerHTML = '';
         if (!price.range) {

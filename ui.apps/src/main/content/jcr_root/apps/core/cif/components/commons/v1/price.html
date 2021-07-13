@@ -12,7 +12,7 @@
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-template.price="${@ priceRange=priceRange, displayYouSave, sku}">
-    <div class="price" data-sly-test=${!priceRange.isRange} data-product-sku=${sku}>
+    <div class="price" data-sly-test="${priceRange.isShow && !priceRange.isRange}" data-product-sku=${sku}>
         <sly data-sly-test.isDiscounted=${priceRange.isDiscounted}>
             <span class="regularPrice">${priceRange.formattedRegularPrice}</span>
             <span class="discountedPrice">${priceRange.formattedFinalPrice}</span>
@@ -20,7 +20,7 @@
         </sly>
         <span data-sly-test=${!isDiscounted}><sly data-sly-test=${priceRange.isStartPrice}>${'Starting at' @i18n} </sly>${priceRange.formattedRegularPrice}</span>
     </div>
-    <div class="price range" data-sly-test=${priceRange.isRange} data-product-sku=${sku}>
+    <div class="price range" data-sly-test="${priceRange.isShow && priceRange.isRange}" data-product-sku=${sku}>
         <sly data-sly-test.isDiscounted=${priceRange.isDiscounted}>
             <span class="regularPrice">${'From' @i18n} ${priceRange.formattedRegularPrice} ${'To' @i18n} ${priceRange.formattedRegularPriceMax}</span>
             <span class="discountedPrice">${'From' @i18n} ${priceRange.formattedFinalPrice} ${'To' @i18n} ${priceRange.formattedFinalPriceMax}</span>

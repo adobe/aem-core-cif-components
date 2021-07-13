@@ -105,6 +105,11 @@ class ProductCollection {
 
             const price = this._state.prices[item.dataset.sku];
 
+            // Only update if prices are available and not null
+            if (!price || !price.regularPrice || !price.finalPrice) {
+                return;
+            }
+
             let innerHTML = '';
             if (!price.range) {
                 if (price.discounted) {

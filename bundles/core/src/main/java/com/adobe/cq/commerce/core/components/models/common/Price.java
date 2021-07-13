@@ -19,6 +19,8 @@ package com.adobe.cq.commerce.core.components.models.common;
  */
 public interface Price {
 
+    boolean isShow();
+
     Boolean isRange();
 
     Boolean isDiscounted();
