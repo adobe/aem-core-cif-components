@@ -42,5 +42,5 @@ BLOCK category
 ## Information
 * **Vendor**: Adobe
 * **Version**: v2
-* **Compatibility**: AEM as a Cloud Service / AEM 6.4 / 6.5
+* **Compatibility**: AEM as a Cloud Service / AEM 6.5
 * **Status**: production-ready
