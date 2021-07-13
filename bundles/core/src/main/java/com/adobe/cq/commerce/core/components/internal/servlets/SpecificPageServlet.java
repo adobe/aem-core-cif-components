@@ -40,6 +40,7 @@ import com.day.cq.wcm.api.WCMMode;
     property = {
         "sling.servlet.methods=GET",
         "sling.servlet.resourceTypes=core/cif/components/structure/page/v1/page",
+        "sling.servlet.resourceTypes=core/cif/components/structure/page/v2/page",
         "sling.servlet.extensions=html",
         "sling.servlet.selectors=" + SpecificPageServlet.SELECTOR
     })

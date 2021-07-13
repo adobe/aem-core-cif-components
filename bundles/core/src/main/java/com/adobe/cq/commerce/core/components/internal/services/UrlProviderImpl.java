@@ -52,6 +52,7 @@ public class UrlProviderImpl implements UrlProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
+    private static final String SELECTOR_FILTER_TYPE_PROPERTY = SELECTOR_FILTER_PROPERTY + "Type";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
     private static final String TEMPLATE_PREFIX = "{{";
@@ -201,14 +202,19 @@ public class UrlProviderImpl implements UrlProvider {
                 continue;
             }
 
+            // get the filterType property set by the picker
+            String filterType = jcrContent.getValueMap().get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
+
             // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
             String[] selectorFilters = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
 
             // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like 'Mjg=|men/men-tops'
             // --> so we split them to first extract the category ids
+            // V2 of the component uses 'urlPath' and does not requiere any processing
             Set<String> selectorFiltersSet = Arrays.asList(selectorFilters)
                 .stream()
-                .map(s -> (StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR) ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
+                .map(s -> ((StringUtils.equals(filterType, "uidAndUrlPath") && StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR))
+                    ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
                     : s))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
