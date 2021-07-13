@@ -33,9 +33,10 @@
     <version>1.12.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>AEM CIF Core Components Products Recommendations Reactor</name>
+    <name>AEM CIF Core Components - Products Recommendations Reactor</name>
 
     <modules>
         <module>content</module>
+        <module>bundle</module>
     </modules>
 </project>
