@@ -2,6 +2,6 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
           jcr:description="CIF Core Page Component"
           jcr:primaryType="cq:Component"
-          jcr:title="CIF Core Page"
-          sling:resourceSuperType="core/wcm/components/page/v2/page"
+          jcr:title="CIF Core Page V2"
+          sling:resourceSuperType="core/cif/components/structure/page/v1/page"
           componentGroup=".hidden"/>
