@@ -117,6 +117,25 @@ public class CategoryPageRedirectServletTest {
     }
 
     @Test
+    public void testNoCategory() throws IOException {
+        mockRequestPathInfo.setSuffix("/test_uid");
+
+        config.setCategoryPageUrlFormat(CategoryPageWithUrlKey.PATTERN);
+
+        urlProvider.activate(config);
+
+        Query mockQuery = mock(Query.class);
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
+        graphQlResponse.setData(mockQuery);
+
+        when(mockQuery.getCategoryList()).thenReturn(Collections.emptyList());
+        when(mockClient.execute(any())).thenReturn(graphQlResponse);
+
+        servlet.doGet(request, response);
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
     public void testUrlPathMatchingUrlProviderConfig() throws IOException {
         mockRequestPathInfo.setSelectorString(CategoryPageRedirectServlet.SELECTOR);
         mockRequestPathInfo.setSuffix("/test_uid");
@@ -132,7 +151,7 @@ public class CategoryPageRedirectServletTest {
         when(categoryTree.getUrlPath()).thenReturn("test_url_path");
         when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
 
-        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
         graphQlResponse.setData(mockQuery);
 
         when(mockClient.execute(any())).thenReturn(graphQlResponse);
@@ -158,7 +177,7 @@ public class CategoryPageRedirectServletTest {
         when(categoryTree.getUrlPath()).thenReturn("test_url_path");
         when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
 
-        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
         graphQlResponse.setData(mockQuery);
 
         when(mockClient.execute(any())).thenReturn(graphQlResponse);

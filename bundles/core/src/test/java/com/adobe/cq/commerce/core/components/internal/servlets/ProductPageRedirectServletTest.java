@@ -121,6 +121,27 @@ public class ProductPageRedirectServletTest {
     }
 
     @Test
+    public void testNoProduct() throws IOException {
+        mockRequestPathInfo.setSuffix("/test_sku");
+
+        config.setProductPageUrlFormat(ProductPageWithUrlKey.PATTERN);
+
+        urlProvider.activate(config);
+
+        Query mockQuery = mock(Query.class);
+        Products mockProducts = mock(Products.class);
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
+        graphQlResponse.setData(mockQuery);
+
+        when(mockQuery.getProducts()).thenReturn(mockProducts);
+        when(mockProducts.getItems()).thenReturn(Collections.emptyList());
+        when(mockClient.execute(any())).thenReturn(graphQlResponse);
+
+        servlet.doGet(request, response);
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
     public void testSkuMatchingUrlProviderConfig() throws IOException {
         mockRequestPathInfo.setSelectorString(ProductPageRedirectServlet.SELECTOR);
         mockRequestPathInfo.setSuffix("/test_sku");

@@ -25,6 +25,7 @@ import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
@@ -57,9 +58,9 @@ public class CategoryPageRedirectServlet extends AbstractCommerceRedirectServlet
             PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
             Page currentPage = pageManager.getContainingPage(request.getResource());
             Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-            if (categoryPage != null) {
-                String identifier = request.getRequestPathInfo().getSuffix().substring(1);
-                String location = urlProvider.toCategoryUrl(request, categoryPage, identifier);
+            String identifier = request.getRequestPathInfo().getSuffix().substring(1);
+            String location = categoryPage != null ? urlProvider.toCategoryUrl(request, categoryPage, identifier) : null;
+            if (location != null && !location.contains(UrlFormat.OPENING_BRACKETS) && !location.contains(UrlFormat.CLOSING_BRACKETS)) {
                 response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
                 response.setHeader("Location", location);
             } else {

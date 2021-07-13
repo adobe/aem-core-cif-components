@@ -54,7 +54,6 @@ public class UrlProviderImpl implements UrlProvider {
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
-    private static final String TEMPLATE_PREFIX = "{{";
 
     private UrlFormat productPageUrlFormat;
     private UrlFormat categoryPageUrlFormat;
@@ -136,7 +135,7 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         String url = urlFormat.format(params);
-        if (url.contains(TEMPLATE_PREFIX)) {
+        if (url.contains(UrlFormat.OPENING_BRACKETS) || url.contains(UrlFormat.CLOSING_BRACKETS)) {
             LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
         }
 

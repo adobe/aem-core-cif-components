@@ -40,6 +40,7 @@ public class ProductPageWithSkuAndUrlPath extends AbstractUrlFormat {
 
     @Override
     public String format(Map<String, String> parameters) {
+        removeEmptyValues(parameters);
         return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
             parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") +
             (StringUtils.isNotEmpty(parameters.get(URL_PATH_PARAM)) ? "/" + parameters.get(URL_PATH_PARAM) : "") +
