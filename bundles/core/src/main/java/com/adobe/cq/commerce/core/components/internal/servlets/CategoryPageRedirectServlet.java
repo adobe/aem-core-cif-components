@@ -23,6 +23,13 @@ import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.PageManagerFactory;
 
 @Component(
     service = Servlet.class,
@@ -38,12 +45,26 @@ public class CategoryPageRedirectServlet extends AbstractCommerceRedirectServlet
     protected static final String EXTENSION = "html";
     protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
+    @Reference
+    protected UrlProvider urlProvider;
+
+    @Reference
+    protected PageManagerFactory pageManagerFactory;
+
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         if (verifyRequest(request, response)) {
-            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-            response.setHeader("Location", urlProvider.toCategoryUrl(request, categoryPage, request.getRequestPathInfo().getSuffix()
-                .substring(1)));
+            PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
+            Page currentPage = pageManager.getContainingPage(request.getResource());
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            if (categoryPage != null) {
+                String identifier = request.getRequestPathInfo().getSuffix().substring(1);
+                String location = urlProvider.toCategoryUrl(request, categoryPage, identifier);
+                response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                response.setHeader("Location", location);
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
         }
     }
 }

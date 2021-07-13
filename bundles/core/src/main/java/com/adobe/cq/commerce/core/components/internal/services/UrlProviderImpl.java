@@ -86,7 +86,8 @@ public class UrlProviderImpl implements UrlProvider {
                 retriever.setIdentifier(productIdentifier);
                 ProductInterface product = retriever.fetchProduct();
                 if (product != null) {
-                    params.urlKey(product.getUrlKey())
+                    params
+                        .urlKey(product.getUrlKey())
                         .urlPath(product.getUrlPath());
                 } else {
                     LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);

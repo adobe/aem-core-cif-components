@@ -20,25 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
-import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
-import com.day.cq.wcm.api.PageManagerFactory;
-
-public abstract class AbstractCommerceRedirectServlet extends SlingSafeMethodsServlet {
-
-    protected Page productPage;
-    protected Page categoryPage;
-
-    @Reference
-    protected UrlProvider urlProvider;
-
-    @Reference
-    protected PageManagerFactory pageManagerFactory;
-
+abstract class AbstractCommerceRedirectServlet extends SlingSafeMethodsServlet {
     protected boolean verifyRequest(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         String suffix = request.getRequestPathInfo().getSuffix();
 
@@ -52,12 +35,6 @@ public abstract class AbstractCommerceRedirectServlet extends SlingSafeMethodsSe
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Redirect suffix has wrong format.");
             return false;
         }
-
-        PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
-
-        Page currentPage = pageManager.getContainingPage(request.getResource());
-        productPage = SiteNavigation.getProductPage(currentPage);
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
 
         return true;
     }
