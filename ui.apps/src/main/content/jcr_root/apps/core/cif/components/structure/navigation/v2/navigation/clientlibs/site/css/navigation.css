@@ -17,7 +17,7 @@
 }
 
 .cmp-navigation__item {
-    list-style:none;
+    list-style: none;
     padding: 0.5em;
 }
 
@@ -31,4 +31,3 @@
     flex-wrap: nowrap;
     position: absolute;
 }
-
