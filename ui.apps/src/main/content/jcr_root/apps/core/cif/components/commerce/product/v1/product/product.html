@@ -41,7 +41,7 @@
             <sly data-sly-test.isGiftCardProduct="${product.giftCardProduct}" />
             <section class="productFullDetail__title">
                 <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
-                <sly data-sly-test="${!isGroupedProduct}"
+                <sly data-sly-test="${!isGroupedProduct && !isGiftCardProduct}"
                      data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
             </section>
             <section class="productFullDetail__imageCarousel">

@@ -18,13 +18,13 @@
          <label for="giftcard-amount-input" id="amount-label-input" class="giftcardProduct__label">
             <span>Amount</span><span class="required">*</span>
             <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Custom Giftcard Amount"]["value"]["uid"]}'>
-            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value='${product["giftCardAttributes"]["openAmountMin"]}'>
-            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value='${product["giftCardAttributes"]["openAmountMax"]}'>
+            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMin"]}'>
+            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMax"]}'>
          </label>
          <div>
             <input type="text" id="giftcard_amount_input" name="giftcard_amount_input">
             <p class="note">
-               <span data-sly-test='${product["giftCardAttributes"]["openAmountMin"]}'>Minimum: $${product["giftCardAttributes"]["openAmountMin"]} </span> <span data-sly-test='${product["giftCardAttributes"]["openAmountMax"]}'>Maximum: $${product["giftCardAttributes"]["openAmountMax"]}</span>
+               <span data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}'>Minimum: ${product["giftCardAttributes"]["openAmountRange"]["openAmountMin"]} </span> <span data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}'>Maximum: ${product["giftCardAttributes"]["openAmountRange"]["openAmountMax"]}</span>
             </p>
          </div>
       </div>
@@ -56,7 +56,7 @@
          </div>
          <div class="giftcardProduct__field">
             <label for="giftcard_recipient_name" class="giftcardProduct__label">
-              <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["title"]}</span>
+              <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["title"]}</span><span class="required">*</span>
               <input type="hidden" id="giftcard_recipient_name_uid" name="giftcard_recipient_name_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["value"]["uid"]}'>
             </label>
             <div>

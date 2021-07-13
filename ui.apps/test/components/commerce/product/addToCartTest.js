@@ -183,11 +183,11 @@ describe('Product', () => {
                          <label>
                             <span>Amount</span>
                             <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value="Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==">
-                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="0.0">
-                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="42.0">
+                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="$10.0">
+                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="$20.0">
                          </label>
                          <div class="control">
-                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14">
+                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14.0">
                          </div>
                       </div>
                    </fieldset>
@@ -283,11 +283,11 @@ describe('Product', () => {
                          <label>
                             <span>Amount</span>
                             <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value="Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==">
-                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="0.0">
-                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="42.0">
+                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="$10.0">
+                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="$20.0">
                          </label>
                          <div class="control">
-                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14">
+                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14.0">
                          </div>
                       </div>
                    </fieldset>
