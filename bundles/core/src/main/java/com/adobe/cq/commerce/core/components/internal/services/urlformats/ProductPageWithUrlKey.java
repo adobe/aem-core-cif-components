@@ -38,6 +38,7 @@ public class ProductPageWithUrlKey extends AbstractUrlFormat {
 
     @Override
     public String format(Map<String, String> parameters) {
+        removeEmptyValues(parameters);
         String urlKey = getUrlKey(parameters);
         return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
             urlKey + HTML_EXTENSION +
