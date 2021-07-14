@@ -16,10 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.*;
 
 class ProductRetriever extends AbstractProductRetriever {
 
@@ -95,7 +92,8 @@ class ProductRetriever extends AbstractProductRetriever {
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
                 .onGroupedProduct(generateGroupedProductQuery())
-                .onBundleProduct(generateBundleProductQuery());
+                .onBundleProduct(generateBundleProductQuery())
+                .onGiftCardProduct(generateGiftCardProductQuery());
 
             // Apply product query hook
             if (productQueryHook != null) {
@@ -120,5 +118,10 @@ class ProductRetriever extends AbstractProductRetriever {
         return bp -> bp
             .priceRange(r -> r
                 .maximumPrice(generatePriceQuery()));
+    }
+
+    private GiftCardProductQueryDefinition generateGiftCardProductQuery() {
+        return gq -> gq.giftcardType().allowOpenAmount().openAmountMin().openAmountMax().giftcardAmounts(ga -> ga.uid().value())
+            .giftCardOptions(t -> t.title().required().onCustomizableFieldOption(u -> u.value(l -> l.uid())));
     }
 }
