@@ -86,6 +86,7 @@ describe('<BundleProductOptions>', () => {
         expect(dispatchEventSpy).toHaveReturnedWith([
             {
                 bundle: true,
+                giftcard: { entered_options: [], is_giftcard: false, type: '' },
                 options: [
                     { id: 1, quantity: 1, value: ['1'] },
                     { id: 2, quantity: 1, value: ['3'] },
