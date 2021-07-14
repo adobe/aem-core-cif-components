@@ -23,6 +23,7 @@ In addition to the elements documented for the version 1 of the product componen
 
 ```
 BLOCK product
+    MOD productFullDetail__root--staged
     ELEMENT productFullDetail__staged
 ```
 
