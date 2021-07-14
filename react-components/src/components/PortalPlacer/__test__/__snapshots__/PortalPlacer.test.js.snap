@@ -29,7 +29,7 @@ exports[`PortalPlacer adds a given component to each element of the given select
       </span>
       <pre>
         {
-    "b": ""
+    "b": true
 }
       </pre>
     </div>
