@@ -55,4 +55,12 @@ public interface Price {
 
     Double getDiscountPercentMax();
 
+    String getFormatedMinStartingPrice();
+
+    Boolean isMinStartingPrice();
+
+    String getOpenAmountMin();
+
+    String getOpenAmountMax();
+
 }
