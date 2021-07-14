@@ -21,10 +21,10 @@ export const createProductPageUrl = sku => {
         return null;
     }
 
-    const extension = pathname.substr(pathname.lastIndexOf('.'));
+    const extension = '.html';
     const path = pathname.substr(0, pathname.lastIndexOf('.'));
 
-    url.pathname = `${path}.cifproductredirect${extension}/product/${sku}`;
+    url.pathname = `${path}.cifproductredirect${extension}/${sku}`;
 
     return url.toString();
 };

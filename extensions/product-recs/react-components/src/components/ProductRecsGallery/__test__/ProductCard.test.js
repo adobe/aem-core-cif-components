@@ -82,9 +82,7 @@ describe('ProductCard', () => {
         const { getByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
         // Check href on link
-        expect(getByRole('link').href).toEqual(
-            'http://localhost/content/venia/us/en.cifproductredirect.html/product/my-sku'
-        );
+        expect(getByRole('link').href).toEqual('http://localhost/content/venia/us/en.cifproductredirect.html/my-sku');
 
         // Click and check MSE
         fireEvent.click(getByRole('link'));

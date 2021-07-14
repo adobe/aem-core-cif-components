@@ -42,7 +42,7 @@ const ProductCard = props => {
 
     const renderPrice = (prices, currency) => {
         const { minimum, maximum } = prices;
-        const isRange = !!(Math.round(minimum.final * 100) != Math.round(maximum.final * 100));
+        const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
 
         if (isRange) {
             return (
