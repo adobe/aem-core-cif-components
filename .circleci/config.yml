@@ -56,8 +56,8 @@ common:
 
   docker_auth: &docker_auth
     auth:
-      username: $DOCKER_USER
-      password: $DOCKER_PASS
+      username: $ARTIFACTORY_CLOUD_USER
+      password: $ARTIFACTORY_CLOUD_PASS
 
 executors:
   cif_executor:
@@ -251,10 +251,14 @@ workflows:
   build-and-release:
     jobs:
       - build-java-11:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
       - build-java-8:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -267,6 +271,8 @@ workflows:
             tags:
               only: /.*/
       - integration-test-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -276,6 +282,8 @@ workflows:
             - karma
             - jest
       - integration-test-cloudready:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -285,6 +293,8 @@ workflows:
             - karma
             - jest
       - integration-test-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -294,6 +304,8 @@ workflows:
             - karma
             - jest
       - selenium-chrome-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -303,6 +315,8 @@ workflows:
             - karma
             - jest
       - selenium-chrome-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -312,6 +326,10 @@ workflows:
             - karma
             - jest
       - release:
+          context:
+            - CIF Artifactory Cloud
+            - CIF NPM
+            - CIF Maven Central
           requires:
             - build-java-11
           filters:
