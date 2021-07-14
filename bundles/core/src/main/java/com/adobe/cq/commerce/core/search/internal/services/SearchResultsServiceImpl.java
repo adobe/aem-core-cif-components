@@ -156,7 +156,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
-
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
         SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
 
@@ -181,8 +180,13 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             request,
             resource);
 
-        final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
+        List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
+
+        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
+        if (mutableSearchOptions.getCategoryUid().isPresent()) {
+            searchAggregations.removeIf(a -> "category_id".equals(a.getIdentifier()));
+        }
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);

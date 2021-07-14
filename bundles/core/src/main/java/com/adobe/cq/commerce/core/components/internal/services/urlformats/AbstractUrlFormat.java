@@ -28,6 +28,15 @@ abstract class AbstractUrlFormat implements UrlFormat {
     protected static final String HTML_EXTENSION = ".html";
 
     /**
+     * Removes any empty values from the given {@link Map} according to {@link StringUtils#isEmpty(CharSequence)}.
+     *
+     * @param parameters
+     */
+    protected static void removeEmptyValues(Map<String, String> parameters) {
+        parameters.values().removeIf(StringUtils::isEmpty);
+    }
+
+    /**
      * Returns the url_key from the given paramters. If not present but the url_path is, the last segment of the url_path os returned
      * instead.
      * <p>

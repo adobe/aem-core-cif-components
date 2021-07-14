@@ -32,7 +32,15 @@ public class ProductPageWithSkuAndUrlPathTest {
 
     @Test
     public void testFormatWithMissingParameters() {
-        assertEquals("{{page}}.html/{{sku}}/{{url_path}}.html", subject.format(Collections.emptyMap()));
+        assertEquals("{{page}}.html/{{sku}}.html", subject.format(Collections.emptyMap()));
+    }
+
+    @Test
+    public void testFormatWithMissingUrlPath() {
+        assertEquals("/page/path.html/foo-bar.html",
+            subject.format(ImmutableMap.of(
+                "page", "/page/path",
+                "sku", "foo-bar")));
     }
 
     @Test
@@ -75,7 +83,7 @@ public class ProductPageWithSkuAndUrlPathTest {
     }
 
     @Test
-    public void testParseSuffixNoSku() {
+    public void testParseSuffixOnlySku() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
