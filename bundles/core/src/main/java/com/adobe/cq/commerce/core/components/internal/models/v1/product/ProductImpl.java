@@ -15,11 +15,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -46,31 +42,11 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
-import com.adobe.cq.commerce.core.components.models.product.Asset;
-import com.adobe.cq.commerce.core.components.models.product.GroupItem;
-import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.product.Variant;
-import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
-import com.adobe.cq.commerce.core.components.models.product.VariantValue;
+import com.adobe.cq.commerce.core.components.models.product.*;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
-import com.adobe.cq.commerce.magento.graphql.BundleProduct;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
-import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
-import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
-import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -128,6 +104,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
     private String canonicalUrl;
+    private Boolean isGiftCardProduct;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -478,5 +455,73 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public ProductStorefrontContext getStorefrontContext() {
         return new ProductStorefrontContextImpl(productRetriever.fetchProduct());
+    }
+
+    @Override
+    public GiftCardAttribute getGiftCardAttributes() {
+        if (!isGiftCardProduct) {
+            return null;
+        }
+
+        GiftCardProduct giftCardProduct = (GiftCardProduct) productRetriever.fetchProduct();
+
+        GiftCardAttributeImpl giftCardAttribute = new GiftCardAttributeImpl();
+        giftCardAttribute.setAllowOpenAmount(giftCardProduct.getAllowOpenAmount());
+        giftCardAttribute.setGiftCardType(giftCardProduct.getGiftcardType());
+        giftCardAttribute.setOpenAmountMax(giftCardProduct.getOpenAmountMax());
+        giftCardAttribute.setOpenAmountMin(giftCardProduct.getOpenAmountMin());
+        giftCardAttribute.setGiftCardOptions(mapGiftCardOptions(giftCardProduct.getGiftCardOptions()));
+        giftCardAttribute.setGiftCardAmount(mapGiftCardAmount(giftCardProduct.getGiftcardAmounts()));
+        giftCardAttribute.setOpenAmountRange(getGiftCardPrice(giftCardProduct));
+
+        return giftCardAttribute;
+    }
+
+    private Map mapGiftCardOptions(List<CustomizableOptionInterface> optionList) {
+        Map<String, GiftCardOption> giftCardOptionMap = new HashMap<String, GiftCardOption>();
+
+        optionList.stream().forEach(coi -> {
+            GiftCardOptionImpl giftCardOption = new GiftCardOptionImpl();
+            CustomizableFieldValue cfv = (CustomizableFieldValue) coi.get("value");
+            giftCardOption.setTitle(coi.getTitle());
+            giftCardOption.setValue(this.mapGiftCardValue(cfv));
+
+            giftCardOptionMap.put(coi.getTitle(), giftCardOption);
+
+        });
+        return giftCardOptionMap;
+    }
+
+    private List<GiftCardAmount> mapGiftCardAmount(List<GiftCardAmounts> giftCardAmountList) {
+        List<GiftCardAmount> amountList = new ArrayList<GiftCardAmount>();
+
+        giftCardAmountList.stream().forEach(gca -> {
+            GiftCardAmountImpl giftCardAmount = new GiftCardAmountImpl();
+            giftCardAmount.setUid(gca.getUid().toString());
+            giftCardAmount.setValue(gca.getValue());
+            amountList.add(giftCardAmount);
+        });
+        return amountList;
+    }
+
+    private GiftCardValue mapGiftCardValue(CustomizableFieldValue value) {
+        GiftCardValueImpl giftCardValue = new GiftCardValueImpl();
+        giftCardValue.setUid(value.getUid().toString());
+
+        return giftCardValue;
+    }
+
+    private Price getGiftCardPrice(GiftCardProduct giftCardProduct) {
+        return new PriceImpl(giftCardProduct.getPriceRange(), locale, giftCardProduct.getAllowOpenAmount(), giftCardProduct
+            .getOpenAmountMin(),
+            giftCardProduct.getOpenAmountMax());
+    }
+
+    @Override
+    public Boolean isGiftCardProduct() {
+        if (isGiftCardProduct == null) {
+            isGiftCardProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GiftCardProduct;
+        }
+        return isGiftCardProduct;
     }
 }
