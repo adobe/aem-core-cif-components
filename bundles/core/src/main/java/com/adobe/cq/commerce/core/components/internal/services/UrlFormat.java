@@ -30,6 +30,23 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 public interface UrlFormat {
 
     /**
+     * A {@link CharSequence} to be used to write defaults to the format when a mandatory parameter is missing.
+     * <p>
+     * Consumers can check formatted urls on the existence of this {@link CharSequence} to identify urls that failed formatting.
+     * <p>
+     * Example usage: {@code parameters.getOrDefault(key, OPENING_BRACKETS + key + CLOSING_BRACKETS)}
+     */
+    String OPENING_BRACKETS = "{{";
+    /**
+     * A {@link CharSequence} to be used to write defaults to the format when a mandatory parameter is missing.
+     * <p>
+     * Consumers can check formatted urls on the existence of this {@link CharSequence} to identify urls that failed formatting.
+     * <p>
+     * Example usage: {@code parameters.getOrDefault(key, OPENING_BRACKETS + key + CLOSING_BRACKETS)}
+     */
+    String CLOSING_BRACKETS = "}}";
+
+    /**
      * A {@link Map} of default patterns for product pages supported by the default implementation of
      * {@link com.adobe.cq.commerce.core.components.services.UrlProvider}.
      */
