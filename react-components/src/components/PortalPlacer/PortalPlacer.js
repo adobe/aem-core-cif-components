@@ -25,9 +25,17 @@ const PortalPlacer = props => {
     const elems = document.querySelectorAll(selector);
 
     const children = [...elems].map((elem, index) => {
+        // Convert empty dataset keys to boolean values
+        const dataset = { ...elem.dataset };
+        Object.keys(dataset).forEach(key => {
+            if (dataset[key] === '') {
+                dataset[key] = true;
+            }
+        });
+
         return (
             <Portal key={index} selector={elem}>
-                <Cmp {...elem.dataset} />
+                <Cmp {...dataset} />
             </Portal>
         );
     });

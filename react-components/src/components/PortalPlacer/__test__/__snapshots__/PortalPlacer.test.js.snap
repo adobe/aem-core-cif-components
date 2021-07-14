@@ -21,7 +21,7 @@ exports[`PortalPlacer adds a given component to each element of the given select
   </div>
   <div
     class="target"
-    data-b="true"
+    data-b=""
   >
     <div>
       <span>
@@ -29,7 +29,7 @@ exports[`PortalPlacer adds a given component to each element of the given select
       </span>
       <pre>
         {
-    "b": "true"
+    "b": ""
 }
       </pre>
     </div>

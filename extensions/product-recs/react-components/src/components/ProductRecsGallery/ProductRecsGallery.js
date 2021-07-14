@@ -62,8 +62,8 @@ const ProductRecsGallery = props => {
 };
 
 ProductRecsGallery.propTypes = {
-    title: PropTypes.string.isRequired,
-    recommendationType: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    recommendationType: PropTypes.string,
     categoryExclusions: PropTypes.string,
     categoryInclusions: PropTypes.string,
     excludeMaxPrice: PropTypes.string,

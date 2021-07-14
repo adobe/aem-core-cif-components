@@ -33,7 +33,7 @@ describe('PortalPlacer', () => {
 
     it('adds a given component to each element of the given selector', () => {
         // Add targets
-        [{ a: 'test', c: 456 }, { b: true }].map(dataset => {
+        [{ a: 'test', c: 456 }, { b: '' }].map(dataset => {
             const target = document.createElement('div');
             target.className = 'target';
             for (const [key, value] of Object.entries(dataset)) {
