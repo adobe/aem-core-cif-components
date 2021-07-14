@@ -58,14 +58,18 @@ class ProductCollection {
         price.currency = range.minimum_price.final_price.currency;
         price.regularPrice = range.minimum_price.regular_price.value;
         price.finalPrice = range.minimum_price.final_price.value;
-        price.discountAmount = range.minimum_price.discount.amount_off;
-        price.discountPercent = range.minimum_price.discount.percent_off;
+        if (range.minimum_price.discount) {
+            price.discountAmount = range.minimum_price.discount.amount_off;
+            price.discountPercent = range.minimum_price.discount.percent_off;
+        }
 
         if (range.maximum_price) {
             price.regularPriceMax = range.maximum_price.regular_price.value;
             price.finalPriceMax = range.maximum_price.final_price.value;
-            price.discountAmountMax = range.maximum_price.discount.amount_off;
-            price.discountPercentMax = range.maximum_price.discount.percent_off;
+            if (range.maximum_price.discount) {
+                price.discountAmountMax = range.maximum_price.discount.amount_off;
+                price.discountPercentMax = range.maximum_price.discount.percent_off;
+            }
         }
 
         price.discounted = !!(price.discountAmount && price.discountAmount > 0);
