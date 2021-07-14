@@ -11,21 +11,28 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
 
-package com.adobe.cq.commerce.core.components.models.retriever;
+import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+/**
+ * Sling model for a product recommendation component
+ * The model holds all the configured options
+ */
+public interface ProductRecommendations {
 
-class TestProductRetriever extends AbstractProductRetriever {
+    boolean getPreconfigured();
 
-    TestProductRetriever(MagentoGraphqlClient client) {
-        super(client);
-    }
+    String getTitle();
 
-    @Override
-    protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return ProductInterfaceQuery::sku;
-    }
+    String getRecommendationType();
+
+    String getCategoryInclusions();
+
+    String getCategoryExclusions();
+
+    PriceRange getPriceRangeInclusions();
+
+    PriceRange getPriceRangeExclusions();
+
 }

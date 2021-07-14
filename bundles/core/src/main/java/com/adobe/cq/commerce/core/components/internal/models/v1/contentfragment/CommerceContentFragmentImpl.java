@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import javax.jcr.Session;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -40,14 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
-import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
@@ -191,44 +186,15 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     }
 
     private String findCategoryIdentifier() {
-        String categoryIdentifier = null;
-        Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        UrlProvider.CategoryIdentifierType identifierType = identifier.getLeft();
-        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType) && magentoGraphqlClient != null) {
-            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
-                @Override
-                protected CategoryTreeQueryDefinition generateCategoryQuery() {
-                    return (CategoryTreeQuery q) -> q.uid();
-                }
-            };
-            categoryRetriever.setIdentifier(identifierType, identifier.getRight());
-            CategoryInterface category = categoryRetriever.fetchCategory();
-            if (category != null) {
-                categoryIdentifier = category.getUid().toString();
-            }
-
-        } else if (UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
-            categoryIdentifier = identifier.getRight();
-        }
-
-        if (StringUtils.isBlank(categoryIdentifier)) {
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
+        if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category identifier for current request");
         }
-
-        return categoryIdentifier;
+        return categoryUid;
     }
 
     private String findProductSku() {
-        String sku = null;
-        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        if (UrlProvider.ProductIdentifierType.SKU.equals(identifier.getLeft())) {
-            sku = identifier.getRight();
-        } else {
-            Product product = request.adaptTo(Product.class);
-            if (product != null && product.getFound()) {
-                sku = product.getSku();
-            }
-        }
+        String sku = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(sku)) {
             LOGGER.warn("Cannot find sku or product for current request");
         }
@@ -254,23 +220,16 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             return null;
         }
 
-        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        String value = identifier.getRight();
+        String value = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(value)) {
             return null;
         }
 
-        // check for missing selectors (URL suffix is not supported)
-        String[] selectors = request.getRequestPathInfo().getSelectors();
-        if (selectors.length == 0 || selectors.length == 1 && "rawcontent".equals(selectors[0])) {
-            return null;
-        }
-
-        // rawcontent selector first for raw content rendering
-        // CIF product or category selector last as mandated by the CIF URL Provider
-        // suffix is not supported by the rawcontent renderer
+        // we pass the identifier as the FragmentRenderService uses an internal request
+        // that not necessarily supports the format the UrlProvider is configured for
+        // see: com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl#getIdentifierFromFragmentRenderRequest(request)
         ValueMap config = new ValueMapDecorator(new HashMap<>());
-        config.put("dam.cfm.useSelector", "rawcontent." + value);
+        config.put(UrlProviderImpl.CIF_IDENTIFIER_ATTR, value);
 
         // render the fragment
         String content = renderService.render(resource, config);

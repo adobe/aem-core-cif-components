@@ -92,7 +92,7 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForProduct() {
-        final String expResult = "/content/product-page.blast-mini-pump.html";
+        final String expResult = "/content/product-page.html/blast-mini-pump.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeProduct");
         button = context.request().adaptTo(Button.class);
 
@@ -102,7 +102,7 @@ public class ButtonImplTest {
 
     @Test
     public void testGetLinkForCategory() {
-        final String expResult = "/content/category-page.uid-5.html";
+        final String expResult = "/content/category-page.html/equipment.html";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/buttonTypeCategory");
         button = context.request().adaptTo(Button.class);
 
