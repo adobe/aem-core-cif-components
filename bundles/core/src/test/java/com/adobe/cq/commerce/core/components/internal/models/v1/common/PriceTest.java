@@ -44,20 +44,20 @@ public class PriceTest {
     }
 
     @Test
-    public void testShowPrices() {
+    public void testNotEmptyPrices() {
         when(money.getValue()).thenReturn(12.34);
 
         Price price = new PriceImpl(priceRange, Locale.US, false);
 
-        Assert.assertTrue(price.isShow());
+        Assert.assertFalse(price.isEmpty());
     }
 
     @Test
-    public void testDoNotShowNullPrices() {
+    public void testEmptyPrices() {
         when(money.getValue()).thenReturn(null);
 
         Price price = new PriceImpl(priceRange, Locale.US, false);
 
-        Assert.assertFalse(price.isShow());
+        Assert.assertTrue(price.isEmpty());
     }
 }

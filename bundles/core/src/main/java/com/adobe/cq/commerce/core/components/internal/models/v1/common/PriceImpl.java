@@ -47,7 +47,7 @@ public class PriceImpl implements Price {
     private Boolean isDiscounted;
     private Boolean isRange;
     private boolean isStartPrice;
-    private boolean isShow = true;
+    private boolean isEmpty = false;
 
     public PriceImpl(PriceRange range, Locale locale) {
         this(range, locale, false);
@@ -63,7 +63,7 @@ public class PriceImpl implements Price {
 
         // Price values could be null, do not display price if they are
         if (this.regularPriceMin == null || this.finalPriceMin == null) {
-            this.isShow = false;
+            this.isEmpty = true;
         }
 
         this.discountAmountMin = range.getMinimumPrice().getDiscount().getAmountOff();
@@ -85,8 +85,8 @@ public class PriceImpl implements Price {
     }
 
     @Override
-    public boolean isShow() {
-        return isShow;
+    public boolean isEmpty() {
+        return isEmpty;
     }
 
     @Override
