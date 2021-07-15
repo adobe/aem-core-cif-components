@@ -223,6 +223,74 @@ describe('Productcollection', () => {
         });
     });
 
+    it('displays a null price', () => {
+        listRoot = document.createElement('div');
+        listRoot.dataset.locale = 'en-US'; // enforce the locale for prices
+        listRoot.insertAdjacentHTML(
+            'afterbegin',
+            `
+            <div class="gallery__items">
+                <div class="item__root" data-sku="sku-a" role="product"></div>
+                <div class="item__root" data-sku="sku-b" role="product"></div>
+                <div class="item__root" data-sku="sku-c" role="product"></div>
+                <div class="item__root" data-sku="sku-d" role="product"></div>
+            </div>`
+        );
+
+        const priceRange = {
+            'sku-a': {
+                minimum_price: {
+                    regular_price: {
+                        value: null,
+                        currency: 'USD'
+                    },
+                    final_price: {
+                        value: null,
+                        currency: 'USD'
+                    }
+                }
+            },
+            'sku-b': {
+                minimum_price: {
+                    regular_price: {
+                        value: null,
+                        currency: 'USD'
+                    },
+                    final_price: {
+                        value: null,
+                        currency: 'USD'
+                    }
+                },
+                maximum_price: {
+                    regular_price: {
+                        value: null,
+                        currency: 'USD'
+                    },
+                    final_price: {
+                        value: null,
+                        currency: 'USD'
+                    }
+                }
+            }
+        };
+        window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+        window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+        listRoot.dataset.loadClientPrice = true;
+        let list = new ProductCollection({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
+
+        return list._fetchPrices().then(() => {
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+
+            // Verify price updates
+            assert.equal(listRoot.querySelector('[data-sku=sku-a] .price'), null);
+            assert.equal(listRoot.querySelector('[data-sku=sku-b] .price'), null);
+            assert.equal(listRoot.querySelector('[data-sku=sku-c] .price'), null);
+            assert.equal(listRoot.querySelector('[data-sku=sku-c] .price'), null);
+        });
+    });
+
     it('skips retrieving of prices if CommerceGraphqlApi is not available', () => {
         delete window.CIF.CommerceGraphqlApi;
 
