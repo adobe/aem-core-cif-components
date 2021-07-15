@@ -79,17 +79,17 @@
         <server>
             <id>ossrh</id>
             <username>${env.SONATYPE_USER}</username>
-            <password>${env.SONATYPE_PASSWORD}</password>
+            <password>${env.SONATYPE_PASS}</password>
         </server>
         <server>
             <id>maven-adobe-cif-release</id>
-            <username>${env.DOCKER_USER}</username>
-            <password>${env.DOCKER_PASS}</password>
+            <username>${env.ARTIFACTORY_CLOUD_USER}</username>
+            <password>${env.ARTIFACTORY_CLOUD_PASS}</password>
         </server>
         <server>
             <id>maven-adobe-cif-snapshot</id>
-            <username>${env.DOCKER_USER}</username>
-            <password>${env.DOCKER_PASS}</password>
+            <username>${env.ARTIFACTORY_CLOUD_USER}</username>
+            <password>${env.ARTIFACTORY_CLOUD_PASS}</password>
         </server>
     </servers>
 

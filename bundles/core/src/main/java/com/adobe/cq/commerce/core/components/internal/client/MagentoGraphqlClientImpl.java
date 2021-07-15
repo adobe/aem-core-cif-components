@@ -68,8 +68,7 @@ import com.day.cq.wcm.api.PageManager;
  */
 @Model(
     adaptables = { SlingHttpServletRequest.class, Resource.class },
-    adapters = { MagentoGraphqlClient.class, MagentoGraphqlClientImpl.class },
-    cache = true)
+    adapters = { MagentoGraphqlClient.class, MagentoGraphqlClientImpl.class })
 public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
