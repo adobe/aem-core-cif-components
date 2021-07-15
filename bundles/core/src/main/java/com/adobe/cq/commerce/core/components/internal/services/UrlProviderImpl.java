@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +53,7 @@ public class UrlProviderImpl implements UrlProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProviderImpl.class);
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
+    private static final String SELECTOR_FILTER_TYPE_PROPERTY = SELECTOR_FILTER_PROPERTY + "Type";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
 
@@ -201,21 +203,28 @@ public class UrlProviderImpl implements UrlProvider {
                 continue;
             }
 
+            // get the filterType property set by the picker
+            String filterType = jcrContent.getValueMap().get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
+
             // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
             String[] selectorFilters = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
 
             // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like 'Mjg=|men/men-tops'
             // --> so we split them to first extract the category ids
-            Set<String> selectorFiltersSet = Arrays.asList(selectorFilters)
-                .stream()
-                .map(s -> (StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR) ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
-                    : s))
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
+            // V2 of the component uses 'urlPath' and does not requiere any processing
+            Stream<String> selectorFilterStream = Arrays.stream(selectorFilters);
+            if (StringUtils.equals(filterType, "uidAndUrlPath")) {
+                selectorFilterStream = selectorFilterStream
+                    .map(s -> StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR)
+                        ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
+                        : s);
+            }
 
-            if (!selectorFiltersSet.isEmpty()) {
+            Set<String> selectorFilterSet = selectorFilterStream.filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+
+            if (!selectorFilterSet.isEmpty()) {
                 for (String selector : selectors) {
-                    if (selectorFiltersSet.contains(selector)) {
+                    if (selectorFilterSet.contains(selector)) {
                         LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
                         return child;
                     }
@@ -238,7 +247,7 @@ public class UrlProviderImpl implements UrlProvider {
                         }
                     }
 
-                    for (String urlPath : selectorFiltersSet) {
+                    for (String urlPath : selectorFilterSet) {
                         if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
                             LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
                             return child;

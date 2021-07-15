@@ -155,18 +155,18 @@ public class SpecificPageServletTest {
     @Test
     public void testForwardingWithNonMatchingUrlPath() throws IOException, ServletException {
         ProductListImpl productList = Mockito.mock(ProductListImpl.class);
-        Mockito.when(productList.getUrlPath()).thenReturn("women/tops/shirts");
+        Mockito.when(productList.getUrlPath()).thenReturn("women/accessories");
         context.registerAdapter(SlingHttpServletRequest.class, ProductList.class, productList);
 
         // The Servlet gets the jcr:content under the cq:Page node
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-3");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".women/accessories");
         servlet.doGet(request, response);
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("category-uid-3");
+        options.setReplaceSelectors("women/accessories");
 
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(eq(request.getResource()), eq(options));
         Mockito.verify(request).adaptTo(ProductList.class); // verify that the model is only adapted once
