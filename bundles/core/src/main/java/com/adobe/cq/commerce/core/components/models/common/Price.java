@@ -19,6 +19,13 @@ package com.adobe.cq.commerce.core.components.models.common;
  */
 public interface Price {
 
+    /**
+     * Indicates if a product price is not available. If a product price is not available, most methods return null or an empty string.
+     *
+     * @return <code>false</code> if price is available, <code>true</code> if no price is available.
+     */
+    boolean isEmpty();
+
     Boolean isRange();
 
     Boolean isDiscounted();
@@ -29,28 +36,58 @@ public interface Price {
 
     Double getRegularPrice();
 
+    /**
+     * Returns formatted regular price.
+     *
+     * @return formatted price as string, might be empty if no price is available.
+     */
     String getFormattedRegularPrice();
 
     Double getFinalPrice();
 
+    /**
+     * Returns formatted final price.
+     *
+     * @return formatted price as string, might be empty if no price is available.
+     */
     String getFormattedFinalPrice();
 
     Double getDiscountAmount();
 
+    /**
+     * Returns formatted discount amount.
+     *
+     * @return formatted discount amount as string, might be empty if no price is available.
+     */
     String getFormattedDiscountAmount();
 
     Double getDiscountPercent();
 
     Double getRegularPriceMax();
 
+    /**
+     * Returns formatted maximum regular price.
+     *
+     * @return formatted price as string, might be empty if no price is available.
+     */
     String getFormattedRegularPriceMax();
 
     Double getFinalPriceMax();
 
+    /**
+     * Returns formatted maximum final price.
+     *
+     * @return formatted price as string, might be empty if no price is available.
+     */
     String getFormattedFinalPriceMax();
 
     Double getDiscountAmountMax();
 
+    /**
+     * Returns formatted maximum discount amount.
+     *
+     * @return formatted discount amount as string, might be empty if no price is available.
+     */
     String getFormattedDiscountAmountMax();
 
     Double getDiscountPercentMax();
