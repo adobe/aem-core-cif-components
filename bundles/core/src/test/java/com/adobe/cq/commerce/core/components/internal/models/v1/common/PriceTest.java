@@ -41,23 +41,34 @@ public class PriceTest {
 
         when(priceRange.getMinimumPrice().getFinalPrice()).thenReturn(money);
         when(priceRange.getMinimumPrice().getRegularPrice()).thenReturn(money);
+
     }
 
     @Test
     public void testNotEmptyPrices() {
         when(money.getValue()).thenReturn(12.34);
+        when(priceRange.getMinimumPrice().getDiscount().getAmountOff()).thenReturn(23.45);
 
         Price price = new PriceImpl(priceRange, Locale.US, false);
 
         Assert.assertFalse(price.isEmpty());
+
+        Assert.assertEquals("$12.34", price.getFormattedRegularPrice());
+        Assert.assertEquals("$12.34", price.getFormattedFinalPrice());
+        Assert.assertEquals("$23.45", price.getFormattedDiscountAmount());
     }
 
     @Test
     public void testEmptyPrices() {
         when(money.getValue()).thenReturn(null);
+        when(priceRange.getMinimumPrice().getDiscount().getAmountOff()).thenReturn(null);
 
         Price price = new PriceImpl(priceRange, Locale.US, false);
 
         Assert.assertTrue(price.isEmpty());
+
+        Assert.assertEquals("", price.getFormattedRegularPrice());
+        Assert.assertEquals("", price.getFormattedFinalPrice());
+        Assert.assertEquals("", price.getFormattedDiscountAmount());
     }
 }
