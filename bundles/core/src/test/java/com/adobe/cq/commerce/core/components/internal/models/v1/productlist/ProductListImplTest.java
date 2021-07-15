@@ -21,6 +21,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
@@ -305,7 +306,12 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
-        Assert.assertEquals(8, searchAggregations.size());
+        Assert.assertEquals(7, searchAggregations.size());
+
+        // We want to make sure the category_id aggregation is not present
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("category_id"))
+            .findAny();
+        Assert.assertFalse(categoryIdAggregation.isPresent());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();

@@ -31,7 +31,7 @@
     <artifactId>core-cif-components-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>AEM CIF Core Components Reactor</name>
+    <name>AEM CIF Core Components - Reactor</name>
     <description>Reactor POM for AEM CIF Core Components</description>
     <url>https://github.com/adobe/aem-core-cif-components</url>
 

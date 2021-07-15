@@ -38,6 +38,7 @@ public class CategoryPageWithUrlPath extends AbstractUrlFormat {
 
     @Override
     public String format(Map<String, String> parameters) {
+        removeEmptyValues(parameters);
         return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
             parameters.getOrDefault(URL_PATH_PARAM, "{{" + URL_PATH_PARAM + "}}") + HTML_EXTENSION;
     }
