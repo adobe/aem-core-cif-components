@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -211,17 +212,19 @@ public class UrlProviderImpl implements UrlProvider {
             // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like 'Mjg=|men/men-tops'
             // --> so we split them to first extract the category ids
             // V2 of the component uses 'urlPath' and does not requiere any processing
-            Set<String> selectorFiltersSet = Arrays.asList(selectorFilters)
-                .stream()
-                .map(s -> ((StringUtils.equals(filterType, "uidAndUrlPath") && StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR))
-                    ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
-                    : s))
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
+            Stream<String> selectorFilterStream = Arrays.stream(selectorFilters);
+            if (StringUtils.equals(filterType, "uidAndUrlPath")) {
+                selectorFilterStream = selectorFilterStream
+                    .map(s -> StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR)
+                        ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
+                        : s);
+            }
 
-            if (!selectorFiltersSet.isEmpty()) {
+            Set<String> selectorFilterSet = selectorFilterStream.filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+
+            if (!selectorFilterSet.isEmpty()) {
                 for (String selector : selectors) {
-                    if (selectorFiltersSet.contains(selector)) {
+                    if (selectorFilterSet.contains(selector)) {
                         LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
                         return child;
                     }
@@ -244,7 +247,7 @@ public class UrlProviderImpl implements UrlProvider {
                         }
                     }
 
-                    for (String urlPath : selectorFiltersSet) {
+                    for (String urlPath : selectorFilterSet) {
                         if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
                             LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
                             return child;
