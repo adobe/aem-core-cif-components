@@ -68,6 +68,7 @@ public class ButtonImpl implements Button {
     @Default(values = DEFAULT_LINK)
     private String externalLink;
 
+    @Self
     @Via(type = ResourceSuperType.class)
     private Button button;
 
