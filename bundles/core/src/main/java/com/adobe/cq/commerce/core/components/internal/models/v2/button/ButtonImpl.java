@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2021 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -12,10 +12,9 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.internal.models.v1.button;
+package com.adobe.cq.commerce.core.components.internal.models.v2.button;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -25,17 +24,15 @@ import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
 
@@ -46,9 +43,8 @@ import com.day.cq.wcm.api.Page;
     defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class ButtonImpl implements Button {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/content/button/v1/button";
+    protected static final String RESOURCE_TYPE = "core/cif/components/content/button/v2/button";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ButtonImpl.class);
     private static final String DEFAULT_LABEL = "Label";
     private static final String DEFAULT_LINK = "#";
     private static final String PRODUCT = "product";
@@ -60,21 +56,13 @@ public class ButtonImpl implements Button {
     @Default(values = DEFAULT_LINK)
     private String linkTo;
 
-    @ValueMapValue
+    @ValueMapValue(name = "productSku")
     @Default(values = DEFAULT_LINK)
-    private String productSlug;
+    private String productIdentifier;
 
-    @ValueMapValue
-    @Default(values = "slug")
-    private String productSlugType;
-
-    @ValueMapValue
+    @ValueMapValue(name = "categoryId")
     @Default(values = DEFAULT_LINK)
-    private String categoryId;
-
-    @ValueMapValue
-    @Default(values = "uid")
-    private String categoryIdType;
+    private String categoryIdentifier;
 
     @ValueMapValue
     @Default(values = DEFAULT_LINK)
@@ -93,13 +81,13 @@ public class ButtonImpl implements Button {
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @ScriptVariable
     protected Resource resource;
 
     private Page productPage;
@@ -116,39 +104,23 @@ public class ButtonImpl implements Button {
     private String assignUrl(final String linkType) {
         switch (linkType) {
             case PRODUCT: {
-                if (!productSlug.equals(DEFAULT_LINK)) {
+                if (!productIdentifier.equals(DEFAULT_LINK)) {
                     productPage = SiteNavigation.getProductPage(currentPage);
                     if (productPage == null) {
                         productPage = currentPage;
                     }
-                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
-                    url = urlProvider.toProductUrl(request, productPage, params.map());
-                } else {
-                    LOGGER.debug("Can not get Product Slug!");
+                    url = urlProvider.toProductUrl(request, productPage, productIdentifier);
                 }
                 break;
             }
 
             case CATEGORY: {
-                if (!categoryId.equals(DEFAULT_LINK)) {
+                if (!categoryIdentifier.equals(DEFAULT_LINK)) {
                     categoryPage = SiteNavigation.getCategoryPage(currentPage);
                     if (categoryPage == null) {
                         categoryPage = currentPage;
                     }
-
-                    ParamsBuilder params = new ParamsBuilder();
-                    if (magentoGraphqlClient != null) {
-                        CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(categoryId);
-                        CategoryInterface category = categoryRetriever.fetchCategory();
-                        if (category != null) {
-                            params.urlPath(category.getUrlPath());
-                            params.uid(category.getUid().toString());
-                        }
-                    }
-                    url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
-                } else {
-                    LOGGER.debug("Can not get Category identifier!");
+                    url = urlProvider.toCategoryUrl(request, categoryPage, categoryIdentifier);
                 }
                 break;
             }
@@ -156,8 +128,6 @@ public class ButtonImpl implements Button {
             case EXTERNAL_LINK: {
                 if (!externalLink.equals(DEFAULT_LINK)) {
                     url = this.externalLink;
-                } else {
-                    LOGGER.debug("Can not get External Link!");
                 }
                 break;
             }
@@ -165,8 +135,6 @@ public class ButtonImpl implements Button {
             case LINK_TO: {
                 if (!linkTo.equals(DEFAULT_LINK)) {
                     url = this.linkTo + ".html";
-                } else {
-                    LOGGER.debug("Can not get LinkToPage!");
                 }
                 break;
             }
