@@ -15,21 +15,14 @@ package com.adobe.cq.commerce.core.components.storefrontcontext;
 
 import java.util.List;
 
-public interface SearchResultsStorefrontContext extends CommerceStorefrontContext {
+public interface SearchFacet {
 
-    String getSearchUnitId();
+    String getAttribute();
 
-    String getSearchRequestId();
+    List<SearchBucket> getBuckets();
 
-    List<SearchResultProduct> getProducts();
+    String getTitle();
 
-    List<SearchResultCategory> getCategories();
+    SearchFacetType getType();
 
-    List<SearchResultSuggestion> getSuggestions();
-
-    int getPage();
-
-    int getPerPage();
-    
-    List<SearchFacet> getFacets();
 }

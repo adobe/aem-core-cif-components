@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.adobe.cq.commerce.core.components.storefrontcontext.SearchFacet;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultCategory;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultProduct;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultSuggestion;
@@ -126,6 +127,11 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
     @Override
     public int getPerPage() {
         return searchResultsSet.getSearchOptions().getPageSize();
+    }
+
+    @Override
+    public List<SearchFacet> getFacets() {
+        return null;
     }
 
 }

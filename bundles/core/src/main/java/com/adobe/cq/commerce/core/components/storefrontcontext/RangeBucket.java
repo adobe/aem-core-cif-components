@@ -13,23 +13,11 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.storefrontcontext;
 
-import java.util.List;
+public interface RangeBucket extends SearchBucket{
 
-public interface SearchResultsStorefrontContext extends CommerceStorefrontContext {
+    int getCount();
 
-    String getSearchUnitId();
+    int getFrom();
 
-    String getSearchRequestId();
-
-    List<SearchResultProduct> getProducts();
-
-    List<SearchResultCategory> getCategories();
-
-    List<SearchResultSuggestion> getSuggestions();
-
-    int getPage();
-
-    int getPerPage();
-    
-    List<SearchFacet> getFacets();
+    Integer getTo();
 }
