@@ -66,7 +66,7 @@ BLOCK productcollection
         MOD productcollection__item--staged
     ELEMENT productcollection__item-images
     ELEMENT productcollection__item-image
-    ELEMENT productcollection__item-image-placeholder
+        MOD productcollection__item-image--placeholder
     ELEMENT productcollection__item-staged
     ELEMENT productcollection__item-title
     ELEMENT productcollection__sort
