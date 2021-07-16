@@ -19,13 +19,19 @@ import com.adobe.cq.wcm.core.components.models.Teaser;
 public interface CommerceTeaser extends Teaser {
 
     /**
-     * Name of the resource property that stores the Product Slug which is used to build Call-to-Action link for Product Page
-     *
+     * Name of the resource property that stores the product url_key which is used to build call-to-action link for product page
+     * Used by V1 of the CommerceTeaser component.
      */
     String PN_ACTION_PRODUCT_SLUG = "productSlug";
 
     /**
-     * Name of the resource property that stores Category Identifier which is used to build Call-to-Action link for Category Page
+     * Name of the resource property that stores the product SKU which is used to build call-to-action link for product page
+     * Used by V2 of the CommerceTeaser component.
+     */
+    String PN_ACTION_PRODUCT_SKU = "productSku";
+
+    /**
+     * Name of the resource property that stores category identifier which is used to build call-to-action link for category page
      *
      */
     String PN_ACTION_CATEGORY_ID = "categoryId";
