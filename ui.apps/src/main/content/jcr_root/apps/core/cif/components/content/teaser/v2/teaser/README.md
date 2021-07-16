@@ -13,20 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-Commerce Teaser (v1)
-====
+
+# Commerce Teaser (v2)
+
 Commerce Teaser component written in HTL extends core wcm component Teaser, In addition to allowing definition of an image, title, rich text description and actions/links it also supports Call-To-Action to a commerce product or category page.
 Teaser variations can include some or all of these elements.
 
 ## Features
-* Call to action linked to page, CIF Product or Category.
+
+* Call to action linked to page, product page or category page.
 * Combines image, title, rich text description and actions/links.
 * Allows disabling of teaser elements through policy configuration.
 * Allows control over whether title and description should be inherited from a linked page.
 * Style System support.
 
 ### Use Object
-This component uses (specifically for  `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser` Sling Model as it's use Object.
+
+This component uses (specifically for `action` node processing) `com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser` Sling Model as it's use Object.
 And as CommerceTeaser component is extended from core wcm Teaser component, it further uses the `com.adobe.cq.wcm.core.components.models.Teaser` Sling model as its Use-object,  
 
 ### Component Policy Configuration Properties
@@ -53,8 +56,8 @@ The following properties are written to JCR for this Teaser component and are ex
 1. `./actionsEnabled` - property that defines whether or not the teaser has Call-to-Action elements
 2. `./actions` - child node where the Call-to-Action elements are stored as a list of `item` nodes with the following properties
     1. `link` - property that stores the Call-to-Action link to a generic page
-    2. `productSlug` - property that stores the Call-to-Action link to a product page for selected product
-    3. `categoryID` - property that stores the Call-to-Action to Selected category, it is preferred over `productSlug`
+    2. `productSku` - property that stores the Call-to-Action link to a product page for selected product
+    3. `categoryID` - property that stores the Call-to-Action to Selected category, it is preferred over `productSku`
     4. `text` - property that stores the Call-to-Action text
 3. `./fileReference` - property or `file` child node - will store either a reference to the image file, or the image file
 4. `./linkURL` - link applied to teaser elements. URL or path to a content page
@@ -88,8 +91,8 @@ BLOCK cmp-teaser
 ```
 
 ## Information
+
 * **Vendor**: Adobe
-* **Version**: v1
-* **Compatibility**: AEM 6.4.4
+* **Version**: v2
+* **Compatibility**: AEM as a Cloud Service / AEM 6.5
 * **Status**: production-ready
-* **Author**: deesingh@adobe.com
