@@ -15,6 +15,9 @@ package com.adobe.cq.commerce.core.components.storefrontcontext;
 
 import java.util.List;
 
+/**
+ * Interface for search results context required by the MSE frontend API
+ */
 public interface SearchResultsStorefrontContext extends CommerceStorefrontContext {
 
     String getSearchUnitId();
@@ -30,6 +33,6 @@ public interface SearchResultsStorefrontContext extends CommerceStorefrontContex
     int getPage();
 
     int getPerPage();
-    
+
     List<SearchFacet> getFacets();
 }

@@ -13,7 +13,10 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.storefrontcontext;
 
-public interface RangeBucket extends SearchBucket{
+/**
+ * Interface for range search buckets in search results context required by the MSE frontend API
+ */
+public interface RangeBucket extends SearchBucket {
 
     int getCount();
 

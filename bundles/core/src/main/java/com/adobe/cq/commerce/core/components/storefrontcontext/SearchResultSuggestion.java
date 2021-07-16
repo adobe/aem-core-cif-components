@@ -13,6 +13,9 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.storefrontcontext;
 
+/**
+ * Interface for suggestion in search results context required by the MSE frontend API
+ */
 public interface SearchResultSuggestion {
 
     String getSuggestion();
