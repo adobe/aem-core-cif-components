@@ -16,9 +16,9 @@ package com.adobe.cq.commerce.core.components.storefrontcontext;
 /**
  * Interface for search buckets in search results context required by the MSE frontend API
  * This is extended by:
- * {@link  com.adobe.cq.commerce.core.components.storefrontcontext.RangeBucket  RangeBucket}
- * {@link  com.adobe.cq.commerce.core.components.storefrontcontext.ScalarBucket  ScalarBucket}
- * {@link  com.adobe.cq.commerce.core.components.storefrontcontext.StatsBucket  StatsBucket}
+ * {@link com.adobe.cq.commerce.core.components.storefrontcontext.RangeBucket RangeBucket}
+ * {@link com.adobe.cq.commerce.core.components.storefrontcontext.ScalarBucket ScalarBucket}
+ * {@link com.adobe.cq.commerce.core.components.storefrontcontext.StatsBucket StatsBucket}
  */
 public interface SearchBucket {
     String getTitle();
