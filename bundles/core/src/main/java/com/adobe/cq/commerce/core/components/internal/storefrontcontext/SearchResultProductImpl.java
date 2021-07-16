@@ -20,7 +20,7 @@ public class SearchResultProductImpl implements SearchResultProduct {
 
     private final ProductListItem productListItem;
 
-    public SearchResultProductImpl (ProductListItem productListItem) {
+    public SearchResultProductImpl(ProductListItem productListItem) {
         this.productListItem = productListItem;
     }
 

@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-    package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
+package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +24,7 @@ public class SearchResultCategoryImpl implements SearchResultCategory {
     public SearchResultCategoryImpl(SearchAggregationOption searchAggregationOption) {
         this.searchAggregationOption = searchAggregationOption;
     }
+
     @Override
     public String getName() {
         return searchAggregationOption.getDisplayLabel();
