@@ -48,38 +48,7 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
     @Override
     public List<SearchResultProduct> getProducts() {
         return searchResultsSet.getProductListItems().stream()
-            .map(p -> new SearchResultProduct() {
-
-                @Override
-                public String getName() {
-                    return p.getTitle();
-                }
-
-                @Override
-                public String getSku() {
-                    return p.getSKU();
-                }
-
-                @Override
-                public String getUrl() {
-                    return p.getURL();
-                }
-
-                @Override
-                public String getImageUrl() {
-                    return p.getImageURL();
-                }
-
-                @Override
-                public Double getPrice() {
-                    return p.getPriceRange().getFinalPrice();
-                }
-
-                @Override
-                public int getRank() {
-                    return 0;
-                }
-            }).collect(Collectors.toList());
+            .map(SearchResultProductImpl::new).collect(Collectors.toList());
     }
 
     @Override
@@ -92,23 +61,7 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
         if (searchAggregationOptions != null) {
             return searchAggregationOptions.getOptions().stream()
-                .map(o -> new SearchResultCategory() {
-
-                    @Override
-                    public String getName() {
-                        return o.getDisplayLabel();
-                    }
-
-                    @Override
-                    public String getUrl() {
-                        return StringUtils.EMPTY;
-                    }
-
-                    @Override
-                    public int getRank() {
-                        return 0;
-                    }
-                }).collect(Collectors.toList());
+                .map(SearchResultCategoryImpl::new).collect(Collectors.toList());
         }
 
         return Collections.emptyList();
