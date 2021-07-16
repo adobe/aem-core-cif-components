@@ -310,5 +310,32 @@ describe('Product', () => {
                 assert.equal(youSave, 'You save $5.00 (50%)');
             });
         });
+
+        it('displays a null price', () => {
+            const priceRange = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: null,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: null,
+                            currency: 'USD'
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let price = productRoot.querySelector(Product.selectors.price).innerText;
+                assert.equal(price, '');
+            });
+        });
     });
 });
