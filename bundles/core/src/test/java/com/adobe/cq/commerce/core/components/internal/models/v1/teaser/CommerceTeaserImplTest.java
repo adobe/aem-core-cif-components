@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -36,17 +37,18 @@ import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.components.ComponentManager;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CommerceTeaserImplTest {
 
@@ -95,6 +97,7 @@ public class CommerceTeaserImplTest {
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(TEASER);
         context.currentResource(commerceTeaserResource);
+        context.registerService(PathProcessor.class, new Utils.MockPathProcessor());
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -106,6 +109,9 @@ public class CommerceTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
         ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
         slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put("currentStyle", style);
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);

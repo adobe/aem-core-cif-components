@@ -33,6 +33,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Navigation;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.adobe.cq.wcm.core.components.testing.MockLanguageManager;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
@@ -88,6 +89,7 @@ public class NavigationImplTest {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
+        context.registerService(PathProcessor.class, new Utils.MockPathProcessor());
     }
 
     @Test
