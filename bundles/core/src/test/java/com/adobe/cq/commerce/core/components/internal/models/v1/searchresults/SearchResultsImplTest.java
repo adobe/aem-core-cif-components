@@ -318,7 +318,11 @@ public class SearchResultsImplTest {
         ObjectMapper mapper = new ObjectMapper();
 
         String expected = Utils.getResource("storefront-context/result-storefront-context-search-component.json");
-        String jsonResult = searchResultsModel.getStorefrontContext().getJson();
+        String jsonResult = searchResultsModel.getSearchStorefrontContext().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        expected = Utils.getResource("storefront-context/result-storefront-context-search-results-component.json");
+        jsonResult = searchResultsModel.getSearchResultsStorefrontContext().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 
@@ -331,7 +335,11 @@ public class SearchResultsImplTest {
         ObjectMapper mapper = new ObjectMapper();
 
         String expected = Utils.getResource("storefront-context/result-storefront-context-search-sorting-component.json");
-        String jsonResult = searchResultsModel.getStorefrontContext().getJson();
+        String jsonResult = searchResultsModel.getSearchStorefrontContext().getJson();
+        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+
+        expected = Utils.getResource("storefront-context/result-storefront-context-search-results-sorting-component.json");
+        jsonResult = searchResultsModel.getSearchResultsStorefrontContext().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
 }
