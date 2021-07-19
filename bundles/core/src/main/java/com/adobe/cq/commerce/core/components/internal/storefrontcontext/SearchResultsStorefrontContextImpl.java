@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchFacet;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultCategory;
@@ -31,7 +32,8 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
     private final SearchResultsSet searchResultsSet;
 
-    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet) {
+    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet, Resource resource) {
+        super(resource);
         this.searchResultsSet = searchResultsSet;
     }
 
