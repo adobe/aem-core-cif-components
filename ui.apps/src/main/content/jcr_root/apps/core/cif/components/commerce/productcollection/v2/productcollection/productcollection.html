@@ -1,0 +1,43 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~
+  ~ Copyright 2021 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.productCollection="${@ productCollection, rootClass}"
+          data-sly-use.itemTemplate="item.html"
+          data-sly-use.resultsCountTemplate="resultscount.html"
+          data-sly-use.sortTemplate="sort.html"
+          data-sly-use.paginationTemplate="pagination.html"
+          data-sly-use.filtersTemplate="filters.html"
+          data-sly-use.loadMoreButtonTemplate="loadmorebutton.html">
+
+<div data-sly-test.hasProducts="${productCollection.products}"
+     class="${rootClass} productcollection__root"
+     id="${productCollection.id}"
+     data-cmp-is="productcollection"
+     data-cmp-data-layer="${productCollection.data.json}"
+     data-load-client-price="${productCollection.loadClientPrice}">
+     <sly data-sly-test="${productCollection.searchResultsSet.hasAggregations}"
+          data-sly-call="${filtersTemplate.filters @ searchResultsSet = productCollection.searchResultsSet}"/>
+     <sly data-sly-call="${resultsCountTemplate.resultsCount @ searchResultsSet = productCollection.searchResultsSet}"/>
+     <sly data-sly-test="${productCollection.searchResultsSet.hasSorting}"
+          data-sly-call="${sortTemplate.sort @ searchResultsSet = productCollection.searchResultsSet}"/>
+     <div class="productcollection__items" data-sly-list.product="${productCollection.products}">
+          <sly data-sly-call="${itemTemplate.item @ item = product}"/>
+     </div>
+     <sly data-sly-test.loadmorebutton="${productCollection.paginationType == 'loadmorebutton'}"
+          data-sly-call="${loadMoreButtonTemplate.loadmorebutton @ pager = productCollection.searchResultsSet.pager, addLazy = true}"/>
+     <sly data-sly-test="${productCollection.searchResultsSet.hasPagination && !loadmorebutton}"
+          data-sly-call="${paginationTemplate.pagination @ searchResultsSet = productCollection.searchResultsSet}"/>
+</div>
+<p data-sly-test="${!hasProducts}">${'No products to display.' @ i18n}</p>
+
+</template>

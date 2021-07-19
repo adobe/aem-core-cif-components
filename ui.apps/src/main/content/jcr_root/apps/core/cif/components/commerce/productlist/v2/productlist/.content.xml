@@ -3,8 +3,8 @@
     xmlns:cq="http://www.day.com/jcr/cq/1.0" 
     xmlns:jcr="http://www.jcp.org/jcr/1.0" 
     jcr:primaryType="cq:Component"
-    jcr:title="Product List v2"
-    sling:resourceSuperType="core/cif/components/commerce/productlist/v1/productlist"
+    jcr:title="Product List (v2)"
+    sling:resourceSuperType="core/cif/components/commerce/productcollection/v2/productcollection"
     cq:icon="viewAllTags" 
     componentGroup="CIF Core Components">
 </jcr:root>

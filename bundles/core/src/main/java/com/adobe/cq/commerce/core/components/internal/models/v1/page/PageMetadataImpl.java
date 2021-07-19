@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
@@ -72,6 +72,10 @@ public class PageMetadataImpl implements PageMetadata {
             provider = product;
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
             Resource componentResource = findChildResourceWithType(resource, ProductListImpl.RESOURCE_TYPE);
+            if (componentResource == null) {
+                componentResource = findChildResourceWithType(resource,
+                    com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl.RESOURCE_TYPE);
+            }
             ProductList productList = modelFactory.getModelFromWrappedRequest(request, componentResource, ProductList.class);
             provider = productList;
         }

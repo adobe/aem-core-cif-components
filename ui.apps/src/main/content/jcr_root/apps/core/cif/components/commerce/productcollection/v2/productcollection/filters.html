@@ -1,0 +1,69 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~
+  ~ Copyright 2021 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+
+<template data-sly-template.filters="${@ searchResultsSet}">
+
+<div class="productcollection__filters">
+    <div class="productcollection__filters-header">
+        <h5 class="productcollection__filters-title">${'Filter by' @ i18n}</h5>
+    </div>
+
+    <ul class="productcollection__current-filters" data-sly-list.aggregate="${searchResultsSet.appliedAggregations}">
+        <li data-sly-test="${aggregate.filterable}">
+            <span class="productcollection__current-filter">
+                <span>${aggregate.displayLabel}: ${aggregate.appliedFilterDisplayLabel @ context='html'}</span>
+                <a href="${request.requestURI @ query=aggregate.removeFilterMap}">
+                    <span class="productcollection__current-filter-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 19 19" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                </a>
+            </span>
+        </li>
+    </ul>
+
+    <ul class="productcollection__filters-body" data-sly-test.availableAggregations="${searchResultsSet.availableAggregations}" data-sly-list.aggregate="${availableAggregations}">
+        <li class="productcollection__filter" data-sly-test="${aggregate.filterable}">
+            <input type="radio" id="${aggregate.identifier}" name="activeFilter" class="productcollection__filter-toggler"/>
+            <label for="${aggregate.identifier}" class="productcollection__filter-header">
+                <span class="productcollection__filter-title">${aggregate.displayLabel}</span>
+                <span class="productcollection__filter-icon productcollection__filter-icon--open">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                </span>
+                <span class="productcollection__filter-icon productcollection__filter-icon--closed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+            </label>
+            <ul class="productcollection__filter-items" data-sly-list.aggregateOption="${aggregate.options}">
+                <li>
+                    <a class="productcollection__filter-item" href="${request.requestURI @ query=aggregateOption.addFilterMap}">
+                        ${aggregateOption.displayLabel @ context='html'}
+                        <em> (${aggregateOption.count})</em>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+</template>

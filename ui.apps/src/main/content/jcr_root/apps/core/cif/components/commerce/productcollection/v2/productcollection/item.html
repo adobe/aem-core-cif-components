@@ -1,0 +1,33 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ 
+  ~ Copyright 2021 Adobe. All rights reserved.
+  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License. You may obtain a copy
+  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
+  ~ 
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  ~ OF ANY KIND, either express or implied. See the License for the specific language
+  ~ governing permissions and limitations under the License.
+  ~ 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.item="${@ item}">
+    <a
+        class="productcollection__item${ item.staged ? ' productcollection__item--staged' : ''}"
+        id="${item.id}"
+        role="product"
+        data-cmp-data-layer="${item.data.json}"
+        data-sku="${item.SKU}"
+        href="${item.URL}">
+        <div class="productcollection__item-images">
+            <img class="productcollection__item-image productcollection__item-image--placeholder"
+                alt=""
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="/>
+            <img class="productcollection__item-image" src="${item.imageURL}" alt="${item.title}"/>
+        </div>
+        <div data-sly-test="${item.isStaged}" class="productcollection__item-staged">${'Staged' @ i18n}</div>
+        <div class="productcollection__item-title"><span>${item.title}</span></div>
+        <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
+             data-sly-call="${template.price @ priceRange=item.priceRange, displayYouSave=false}"></sly>
+    </a>
+</template>
