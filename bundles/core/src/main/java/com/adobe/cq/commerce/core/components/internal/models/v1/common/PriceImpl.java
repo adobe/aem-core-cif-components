@@ -215,7 +215,10 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormatedMinStartingPrice() {
-        return getPriceFormatter().format(minStartingPrice);
+        if (minStartingPrice != null) {
+            return getPriceFormatter().format(minStartingPrice);
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -225,11 +228,17 @@ public class PriceImpl implements Price {
 
     @Override
     public String getOpenAmountMin() {
-        return getPriceFormatter().format(openAmountMin);
+        if (openAmountMin != null) {
+            return getPriceFormatter().format(openAmountMin);
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override
     public String getOpenAmountMax() {
-        return getPriceFormatter().format(openAmountMax);
+        if (openAmountMax != null) {
+            return getPriceFormatter().format(openAmountMax);
+        }
+        return StringUtils.EMPTY;
     }
 }
