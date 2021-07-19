@@ -160,5 +160,205 @@ describe('Product', () => {
             assert.isTrue(spy.getCall(0).args[0].detail[0].virtual);
             document.dispatchEvent = _originalDispatch;
         });
+
+        it('dispatches a virtual giftcard add to cart event', () => {
+            while (pageRoot.firstChild) {
+                pageRoot.removeChild(pageRoot.firstChild);
+            }
+            pageRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div data-cmp-is="product" data-giftcard>
+                <div class="productFullDetail__details">
+                   <span role="sku">my-sample-sku</span>
+                </div>
+                <div class="productFullDetail__cartActions">
+                   <button>
+                </div>
+                <div class="productFullDetail__quantity">
+                   <select data-product-sku="my-sample-sku">
+                      <option value="3" selected></option>
+                   </select>
+                   <fieldset>
+                      <div id="giftcard-amount-box">
+                         <label>
+                            <span>Amount</span>
+                            <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value="Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==">
+                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="$10.0">
+                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="$20.0">
+                         </label>
+                         <div class="control">
+                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14.0">
+                         </div>
+                      </div>
+                   </fieldset>
+                   <div data-giftcardtype="VIRTUAL" id="giftcard_form">
+                      <fieldset>
+                         <div>
+                            <label>
+                                <span>Sender Name</span>
+                                <input type="hidden" id="giftcard_sender_name_uid" name="giftcard_sender_name_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=">
+                            </label>
+                            <div>
+                               <input type="text" id="giftcard_sender_name" name="giftcard_sender_name" value="Tester 103">
+                            </div>
+                         </div>
+                         <div>
+                           <label>
+                           <span>Sender Email</span>
+                           <input type="hidden" id="giftcard_sender_email_uid" name="giftcard_sender_email_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls">
+                           </label>
+                           <div>
+                              <input type="email" id="giftcard_sender_email" name="giftcard_sender_email" value="test@example.com">
+                           </div>
+                         </div>
+                         <div>
+                            <label>
+                               <span>Recipient Name</span>
+                               <input type="hidden" id="giftcard_recipient_name_uid" name="giftcard_recipient_name_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=">
+                            </label>
+                            <div>
+                               <input type="text" id="giftcard_recipient_name" name="giftcard_recipient_name" value="Tester 104">
+                            </div>
+                         </div>
+                         <div>
+                           <label>
+                           <span>Recipient Email</span>
+                           <input type="hidden" id="giftcard_recipient_email_uid" name="giftcard_recipient_email_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls">
+                           </label>
+                           <div>
+                              <input type="email" id="giftcard_recipient_email" name="giftcard_recipient_email" value="test@example.com">
+                           </div>
+                         </div>
+                         <div>
+                            <label>
+                                <span>Message</span>
+                                <input type="hidden" id="giftcard_message_uid" name="giftcard_message_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==">
+                            </label>
+                            <div>
+                               <textarea name="giftcard_message" id="giftcard_message"></textarea>
+                            </div>
+                         </div>
+                      </fieldset>
+                   </div>
+                </div>
+             </div>`
+            );
+
+            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            productRoot = pageRoot.querySelector(AddToCart.selectors.product);
+
+            let spy = sinon.spy();
+            let _originalDispatch = document.dispatchEvent;
+            document.dispatchEvent = spy;
+            new AddToCart({ element: addToCartRoot, product: productRoot });
+            addToCartRoot.click();
+            sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 3);
+            assert.isTrue(spy.getCall(0).args[0].detail[0].giftcard.is_giftcard);
+            assert.equal(spy.getCall(0).args[0].detail[0].giftcard.type, 'VIRTUAL');
+            assert.equal(spy.getCall(0).args[0].detail[0].giftcard.entered_options.length, 6);
+            document.dispatchEvent = _originalDispatch;
+        });
+
+        it('dispatches a combined giftcard add to cart event', () => {
+            while (pageRoot.firstChild) {
+                pageRoot.removeChild(pageRoot.firstChild);
+            }
+            pageRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div data-cmp-is="product" data-giftcard>
+                <div class="productFullDetail__details">
+                   <span role="sku">my-sample-sku</span>
+                </div>
+                <div class="productFullDetail__cartActions">
+                   <button>
+                </div>
+                <div class="productFullDetail__quantity">
+                   <select data-product-sku="my-sample-sku">
+                      <option value="3" selected></option>
+                   </select>
+                   <fieldset>
+                      <div id="giftcard-amount-box">
+                         <label>
+                            <span>Amount</span>
+                            <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value="Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==">
+                            <input type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value="$10.0">
+                            <input type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value="$20.0">
+                         </label>
+                         <div class="control">
+                            <input type="text" id="giftcard_amount_input" name="giftcard_amount_input" value="14.0">
+                         </div>
+                      </div>
+                   </fieldset>
+                   <div data-giftcardtype="COMBINED" id="giftcard_form">
+                      <fieldset>
+                         <div>
+                            <label>
+                                <span>Sender Name</span>
+                                <input type="hidden" id="giftcard_sender_name_uid" name="giftcard_sender_name_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=">
+                            </label>
+                            <div>
+                               <input type="text" id="giftcard_sender_name" name="giftcard_sender_name" value="Tester 103">
+                            </div>
+                         </div>
+                         <div>
+                           <label>
+                           <span>Sender Email</span>
+                           <input type="hidden" id="giftcard_sender_email_uid" name="giftcard_sender_email_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls">
+                           </label>
+                           <div>
+                              <input type="email" id="giftcard_sender_email" name="giftcard_sender_email" value="test@example.com">
+                           </div>
+                         </div>
+                         <div>
+                            <label>
+                               <span>Recipient Name</span>
+                               <input type="hidden" id="giftcard_recipient_name_uid" name="giftcard_recipient_name_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=">
+                            </label>
+                            <div>
+                               <input type="text" id="giftcard_recipient_name" name="giftcard_recipient_name" value="Tester 104">
+                            </div>
+                         </div>
+                         <div>
+                           <label>
+                           <span>Recipient Email</span>
+                           <input type="hidden" id="giftcard_recipient_email_uid" name="giftcard_recipient_email_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls">
+                           </label>
+                           <div>
+                              <input type="email" id="giftcard_recipient_email" name="giftcard_recipient_email" value="test@example.com">
+                           </div>
+                         </div>
+                         <div>
+                            <label>
+                                <span>Message</span>
+                                <input type="hidden" id="giftcard_message_uid" name="giftcard_message_uid" value="Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==">
+                            </label>
+                            <div>
+                               <textarea name="giftcard_message" id="giftcard_message"></textarea>
+                            </div>
+                         </div>
+                      </fieldset>
+                   </div>
+                </div>
+             </div>`
+            );
+
+            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            productRoot = pageRoot.querySelector(AddToCart.selectors.product);
+
+            let spy = sinon.spy();
+            let _originalDispatch = document.dispatchEvent;
+            document.dispatchEvent = spy;
+            new AddToCart({ element: addToCartRoot, product: productRoot });
+            addToCartRoot.click();
+            sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 3);
+            assert.isTrue(spy.getCall(0).args[0].detail[0].giftcard.is_giftcard);
+            assert.equal(spy.getCall(0).args[0].detail[0].giftcard.type, 'COMBINED');
+            assert.equal(spy.getCall(0).args[0].detail[0].giftcard.entered_options.length, 6);
+            document.dispatchEvent = _originalDispatch;
+        });
     });
 });

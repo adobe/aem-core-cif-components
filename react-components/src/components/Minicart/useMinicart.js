@@ -24,7 +24,8 @@ export default ({ queries }) => {
         cartDetailsQuery,
         addVirtualItemMutation,
         addBundleItemMutation,
-        addSimpleAndVirtualItemMutation
+        addSimpleAndVirtualItemMutation,
+        addVirtualGiftcardItemMutation
     } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
@@ -57,15 +58,31 @@ export default ({ queries }) => {
             };
         };
 
+        const giftcardMapper = item => {
+            return {
+                sku: item.sku,
+                quantity: parseFloat(item.quantity),
+                entered_options: item.giftcard.entered_options
+            };
+        };
+
+        const giftcardMutationFun = item => {
+            if (item.giftcard.type === 'VIRTUAL' || item.giftcard.type === 'COMBINED')
+                return addVirtualGiftcardItemMutation;
+        };
+
         let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
         let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
         let bundleCartItems = event.detail.filter(item => item.bundle).map(bundleMapper);
+        let giftcardCartItems = event.detail.filter(item => item.giftcard.is_giftcard).map(giftcardMapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
 
         let addItemFn = addToCartMutation;
-        if (bundleCartItems.length > 0) {
+        if (giftcardCartItems.length > 0) {
+            addItemFn = event.detail.filter(item => item.giftcard.is_giftcard).map(giftcardMutationFun)[0];
+        } else if (bundleCartItems.length > 0) {
             addItemFn = addBundleItemMutation;
         } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
             addItemFn = addSimpleAndVirtualItemMutation;
@@ -82,7 +99,8 @@ export default ({ queries }) => {
             dispatch,
             physicalCartItems,
             virtualCartItems,
-            bundleCartItems
+            bundleCartItems,
+            giftcardCartItems
         });
 
         // Push add to cart dataLayer events
