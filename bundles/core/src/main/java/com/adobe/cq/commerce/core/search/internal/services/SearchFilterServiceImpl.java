@@ -75,7 +75,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
@@ -115,7 +115,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         __TypeQueryDefinition typeQuery = q -> q

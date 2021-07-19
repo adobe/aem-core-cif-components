@@ -52,7 +52,7 @@ public class SpecificPageServlet extends SlingSafeMethodsServlet {
     @Override
     public void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
 
-        // We get two selectors like "cifpage.1" (the 2nd selector is the category id)
+        // We get two selectors like "cifpage.sku-1" (the 2nd selector is the commerce identifier)
         String[] selectors = request.getRequestPathInfo().getSelectors();
 
         Resource page = request.getResource();

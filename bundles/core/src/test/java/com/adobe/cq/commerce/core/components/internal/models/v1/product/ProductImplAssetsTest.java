@@ -140,13 +140,14 @@ public class ProductImplAssetsTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse(graphqlResponse, httpClient, 200);
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{sku");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("no-asset");
+        requestPathInfo.setSuffix("/no-asset.html");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

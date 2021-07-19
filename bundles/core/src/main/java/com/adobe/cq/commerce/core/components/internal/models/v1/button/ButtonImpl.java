@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -124,7 +123,6 @@ public class ButtonImpl implements Button {
                     }
                     ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
                     url = urlProvider.toProductUrl(request, productPage, params.map());
-                    // url = this.constructUrl(productPage.getPath(), productSlug);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
@@ -141,7 +139,7 @@ public class ButtonImpl implements Button {
                     ParamsBuilder params = new ParamsBuilder();
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(CategoryIdentifierType.UID, categoryId);
+                        categoryRetriever.setIdentifier(categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
                             params.urlPath(category.getUrlPath());

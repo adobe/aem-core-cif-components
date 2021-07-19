@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.resource.Resource;
@@ -74,10 +75,13 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest {
@@ -144,14 +148,15 @@ public class ProductImplTest {
         Whitebox.setInternalState(graphqlClient, "client", httpClient);
         Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
 
-        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{sku");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString("beaumont-summit-kit");
-        context.request().setServletPath(PAGE + ".beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -184,13 +189,8 @@ public class ProductImplTest {
     public void testGetIdentifierFromSelector() {
         adaptToProduct();
 
-        // Check which identifier was set in the product retriever
-        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
-            .getProductRetriever(), "productIdentifierType");
-        String urlKey = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-
-        Assert.assertEquals(UrlProvider.ProductIdentifierType.URL_KEY, type);
-        Assert.assertEquals("beaumont-summit-kit", urlKey);
+        String identifier = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
+        Assert.assertEquals("MJ01", identifier);
     }
 
     @Test
@@ -207,12 +207,7 @@ public class ProductImplTest {
 
         adaptToProduct();
 
-        // Check which identifier was set in the product retriever
-        UrlProvider.ProductIdentifierType type = (UrlProvider.ProductIdentifierType) Whitebox.getInternalState(productModel
-            .getProductRetriever(), "productIdentifierType");
         String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-
-        Assert.assertEquals(UrlProvider.ProductIdentifierType.SKU, type);
         Assert.assertEquals("MJ01", sku);
     }
 
@@ -235,7 +230,7 @@ public class ProductImplTest {
         Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
         Assert.assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
         Assert.assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".beaumont-summit-kit.html", productModel.getCanonicalUrl());
+        Assert.assertEquals("https://author" + PAGE + ".html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {
@@ -318,7 +313,7 @@ public class ProductImplTest {
     @Test
     public void testSimpleProduct() {
         adaptToProduct();
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", new SimpleProduct());
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(new SimpleProduct()));
         Assert.assertTrue(productModel.getVariants().isEmpty());
         Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
     }
@@ -328,7 +323,7 @@ public class ProductImplTest {
         adaptToProduct();
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
         Assert.assertNull(productModel.getDescription());
     }
 
@@ -340,7 +335,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(null);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertNull(productModel.getDescription());
     }
@@ -354,7 +349,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }
@@ -368,7 +363,7 @@ public class ProductImplTest {
         when(value.getHtml()).thenReturn(sampleString);
         when(product.getDescription()).thenReturn(value);
 
-        Whitebox.setInternalState(productModel.getProductRetriever(), "product", product);
+        Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
         Assert.assertEquals(sampleString, productModel.getDescription());
     }
@@ -376,7 +371,7 @@ public class ProductImplTest {
     @Test
     public void testEditModePlaceholderData() throws IOException {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         adaptToProduct();
 
         String json = Utils.getResource(ProductImpl.PLACEHOLDER_DATA);
@@ -421,8 +416,8 @@ public class ProductImplTest {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-groupedproduct-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200);
-
+        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-groupedproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
 
         List<GroupItem> items = productModel.getGroupedProductItems();
@@ -451,8 +446,10 @@ public class ProductImplTest {
 
     @Test
     public void testVirtualProduct() throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
+
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isVirtualProduct());
         Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
@@ -464,8 +461,10 @@ public class ProductImplTest {
     }
 
     public void testBundleProductImpl(boolean hasStagedData) throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200);
+        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
+
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isBundleProduct());
 
@@ -491,9 +490,18 @@ public class ProductImplTest {
 
     @Test
     public void testProductNotFound() throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
+        when(wcmMode.isDisabled()).thenReturn(true);
+        slingBindings.put("wcmmode", wcmMode);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
         Assert.assertFalse("Product is not found", productModel.getFound());
+
+        // verify that graphql was called only once
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -506,14 +514,14 @@ public class ProductImplTest {
     }
 
     @Test
-    public void testMissingSelectorOnPublish() throws IOException {
+    public void testMissingSuffixOnPublish() {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(true);
         slingBindings.put("wcmmode", wcmMode);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSelectorString(null);
+        requestPathInfo.setSuffix(null);
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         adaptToProduct();
 

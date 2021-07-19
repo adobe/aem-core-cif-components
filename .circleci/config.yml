@@ -32,6 +32,8 @@ common:
       - store_artifacts:
           path: bundles/core/target/site/jacoco
       - store_artifacts:
+          path: extensions/product-recs/bundle/target/site/jacoco
+      - store_artifacts:
           path: examples/bundle/target/site/jacoco
 
   selenium_test_steps: &selenium_test_steps
@@ -54,8 +56,8 @@ common:
 
   docker_auth: &docker_auth
     auth:
-      username: $DOCKER_USER
-      password: $DOCKER_PASS
+      username: $ARTIFACTORY_CLOUD_USER
+      password: $ARTIFACTORY_CLOUD_PASS
 
 executors:
   cif_executor:
@@ -103,6 +105,8 @@ jobs:
             - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
+            - extensions/product-recs/bundle/target
+            - extensions/product-recs/content/target/*.zip
             - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
@@ -247,10 +251,14 @@ workflows:
   build-and-release:
     jobs:
       - build-java-11:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
       - build-java-8:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -263,6 +271,8 @@ workflows:
             tags:
               only: /.*/
       - integration-test-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -272,6 +282,8 @@ workflows:
             - karma
             - jest
       - integration-test-cloudready:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -281,6 +293,8 @@ workflows:
             - karma
             - jest
       - integration-test-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -290,6 +304,8 @@ workflows:
             - karma
             - jest
       - selenium-chrome-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -299,6 +315,8 @@ workflows:
             - karma
             - jest
       - selenium-chrome-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -308,6 +326,10 @@ workflows:
             - karma
             - jest
       - release:
+          context:
+            - CIF Artifactory Cloud
+            - CIF NPM
+            - CIF Maven Central
           requires:
             - build-java-11
           filters:

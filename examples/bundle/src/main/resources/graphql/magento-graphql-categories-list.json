@@ -6,24 +6,28 @@
         "name": "Default Category",
         "url_path": null,
         "position": 1,
+        "staged": false,
         "children": [
           {
             "uid": "MjE=",
             "name": "Women",
             "url_path": "women",
             "position": 2,
+            "staged": false,
             "children": [
               {
                 "uid": "MjM=",
                 "name": "Bottoms",
                 "url_path": "women/bottoms-women",
                 "position": 2,
+                "staged": false,
                 "children": [
                   {
                     "uid": "Mjg=",
                     "name": "Pants",
                     "url_path": "women/bottoms-women/pants-women",
                     "position": 1,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -31,6 +35,7 @@
                     "name": "Shorts",
                     "url_path": "women/bottoms-women/shorts-women",
                     "position": 2,
+                    "staged": false,
                     "children": []
                   }
                 ]
@@ -40,12 +45,14 @@
                 "name": "Tops",
                 "url_path": "women/tops-women",
                 "position": 1,
+                "staged": false,
                 "children": [
                   {
                     "uid": "MjQ=",
                     "name": "Jackets",
                     "url_path": "women/tops-women/jackets-women",
                     "position": 1,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -53,6 +60,7 @@
                     "name": "Hoodies & Sweatshirts",
                     "url_path": "women/tops-women/hoodies-and-sweatshirts-women",
                     "position": 2,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -60,6 +68,7 @@
                     "name": "Tees",
                     "url_path": "women/tops-women/tees-women",
                     "position": 3,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -67,6 +76,7 @@
                     "name": "Bras & Tanks",
                     "url_path": "women/tops-women/tanks-women",
                     "position": 4,
+                    "staged": false,
                     "children": []
                   }
                 ]
@@ -78,18 +88,21 @@
             "name": "Men",
             "url_path": "men",
             "position": 3,
+            "staged": false,
             "children": [
               {
                 "uid": "MTM=",
                 "name": "Tops",
                 "url_path": "men/tops-men",
                 "position": 1,
+                "staged": false,
                 "children": [
                   {
                     "uid": "MTU=",
                     "name": "Jackets",
                     "url_path": "men/tops-men/jackets-men",
                     "position": 1,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -97,6 +110,7 @@
                     "name": "Hoodies & Sweatshirts",
                     "url_path": "men/tops-men/hoodies-and-sweatshirts-men",
                     "position": 2,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -104,6 +118,7 @@
                     "name": "Tees",
                     "url_path": "men/tops-men/tees-men",
                     "position": 3,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -111,6 +126,7 @@
                     "name": "Tanks",
                     "url_path": "men/tops-men/tanks-men",
                     "position": 4,
+                    "staged": false,
                     "children": []
                   }
                 ]
@@ -120,12 +136,14 @@
                 "name": "Bottoms",
                 "url_path": "men/bottoms-men",
                 "position": 2,
+                "staged": false,
                 "children": [
                   {
                     "uid": "MTk=",
                     "name": "Pants",
                     "url_path": "men/bottoms-men/pants-men",
                     "position": 1,
+                    "staged": false,
                     "children": []
                   },
                   {
@@ -133,6 +151,7 @@
                     "name": "Shorts",
                     "url_path": "men/bottoms-men/shorts-men",
                     "position": 2,
+                    "staged": false,
                     "children": []
                   }
                 ]
@@ -144,12 +163,14 @@
             "name": "Training",
             "url_path": "training",
             "position": 5,
+            "staged": false,
             "children": [
               {
                 "uid": "MTA=",
                 "name": "Video Download",
                 "url_path": "training/training-video",
                 "position": 1,
+                "staged": false,
                 "children": []
               }
             ]
@@ -159,12 +180,14 @@
             "name": "Gear",
             "url_path": "gear",
             "position": 4,
+            "staged": false,
             "children": [
               {
                 "uid": "NA==",
                 "name": "Bags",
                 "url_path": "gear/bags",
                 "position": 1,
+                "staged": false,
                 "children": []
               },
               {
@@ -172,6 +195,7 @@
                 "name": "Fitness Equipment",
                 "url_path": "gear/fitness-equipment",
                 "position": 2,
+                "staged": false,
                 "children": []
               },
               {
@@ -179,6 +203,7 @@
                 "name": "Watches",
                 "url_path": "gear/watches",
                 "position": 3,
+                "staged": false,
                 "children": []
               }
             ]
@@ -188,6 +213,7 @@
             "name": "What's New",
             "url_path": "what-is-new",
             "position": 1,
+            "staged": false,
             "children": []
           },
           {
@@ -195,6 +221,7 @@
             "name": "Sale",
             "url_path": "sale",
             "position": 6,
+            "staged": false,
             "children": []
           },
           {
@@ -202,6 +229,7 @@
             "name": "Gift Cards",
             "url_path": "gift-cards",
             "position": 7,
+            "staged": false,
             "children": []
           }
         ]

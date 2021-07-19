@@ -114,7 +114,6 @@ public class SiteNavigation {
      */
     @Nullable
     protected static Page getGenericPage(String pageTypeProperty, Page page) {
-
         // We first lookup the property from the current page up the hierarchy
         // If the page is in a Launch, the property can be found if the Launch includes the landing-page
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());

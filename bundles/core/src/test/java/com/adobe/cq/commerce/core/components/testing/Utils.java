@@ -110,7 +110,7 @@ public class Utils {
         StatusLine mockedStatusLine = mock(StatusLine.class);
 
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-        when(mockedHttpEntity.getContent()).thenReturn(new ByteArrayInputStream(bytes));
+        when(mockedHttpEntity.getContent()).thenAnswer(inv -> new ByteArrayInputStream(bytes));
         when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
 
         when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
