@@ -48,6 +48,11 @@ public class PriceImpl implements Price {
     private Boolean isRange;
     private boolean isStartPrice;
     private boolean isEmpty = false;
+    private Boolean isMinStartingPrice = false;
+    private Double minStartingPrice;
+
+    private Double openAmountMin;
+    private Double openAmountMax;
 
     public PriceImpl(PriceRange range, Locale locale) {
         this(range, locale, false);
@@ -75,6 +80,17 @@ public class PriceImpl implements Price {
             this.discountAmountMax = range.getMaximumPrice().getDiscount().getAmountOff();
             this.discountPercentMax = range.getMaximumPrice().getDiscount().getPercentOff();
         }
+    }
+
+    public PriceImpl(PriceRange range, Locale locale, boolean allowOpenAmount, Double openAmountMin, Double openAmountMax) {
+        this(range, locale, false);
+
+        this.openAmountMin = openAmountMin;
+        this.openAmountMax = openAmountMax;
+
+        minStartingPrice = allowOpenAmount ? (BigDecimal.ZERO.compareTo(new BigDecimal(finalPriceMin)) < 0 ? Double.min(finalPriceMin,
+            openAmountMin) : openAmountMin) : finalPriceMin;
+        isMinStartingPrice = true;
     }
 
     private NumberFormat getPriceFormatter() {
@@ -197,4 +213,23 @@ public class PriceImpl implements Price {
         return isRange() ? discountPercentMax : Double.NaN;
     }
 
+    @Override
+    public String getFormatedMinStartingPrice() {
+        return getPriceFormatter().format(minStartingPrice);
+    }
+
+    @Override
+    public Boolean isMinStartingPrice() {
+        return isMinStartingPrice;
+    }
+
+    @Override
+    public String getOpenAmountMin() {
+        return getPriceFormatter().format(openAmountMin);
+    }
+
+    @Override
+    public String getOpenAmountMax() {
+        return getPriceFormatter().format(openAmountMax);
+    }
 }
