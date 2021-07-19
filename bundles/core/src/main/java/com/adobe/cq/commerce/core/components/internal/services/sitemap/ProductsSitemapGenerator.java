@@ -46,7 +46,6 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
@@ -131,14 +130,16 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
 
             for (int i = currentIndex; i < items.size(); i++) {
                 ProductInterface product = items.get(i);
-                if (productFilter == null || productFilter.shouldInclude(productPage, product)) {
+                if (productFilter == null || !productFilter.shouldInclude(productPage, product)) {
                     LOGGER.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass()
                         .getSimpleName());
                     continue;
                 }
                 Map<String, String> params = paramsBuilder
-                    .sku(product.getSku()).urlKey(product.getUrlKey())
-                    .variantSku(null).variantUrlKey(null)
+                    .sku(product.getSku())
+                    .urlKey(product.getUrlKey())
+                    .variantSku(null)
+                    .variantUrlKey(null)
                     .map();
                 sitemap.addUrl(urlProvider.toProductUrl(null, null, params));
                 context.setProperty(PN_NEXT_PRODUCT, i + 1);

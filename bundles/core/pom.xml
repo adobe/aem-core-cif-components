@@ -86,6 +86,7 @@
                         <_metatypeannotations>*</_metatypeannotations>
                         <Import-Package>
                             javax.annotation;version=0.0.0,
+                            org.apache.sling.sitemap.*;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
