@@ -30,6 +30,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductLi
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -62,7 +63,12 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     public ProductListItem apply(final ProductInterface product) {
         try {
             boolean isStartPrice = product instanceof GroupedProduct;
-            Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+
+            Price price = (product instanceof GiftCardProduct) ? new PriceImpl(product.getPriceRange(), locale,
+                ((GiftCardProduct) product).getAllowOpenAmount(), ((GiftCardProduct) product).getOpenAmountMin(),
+                ((GiftCardProduct) product).getOpenAmountMax())
+                : new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+
             final ProductImage smallImage = product.getSmallImage();
 
             String resourceType = parentResource.getResourceType();
