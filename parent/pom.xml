@@ -358,6 +358,8 @@
                         <exclude>**/examples/**/*</exclude>
                         <exclude>**/.eslintrc.js</exclude>
                         <exclude>**/*.lst</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.settings</exclude>
 
                         <!-- Storybook build -->
                         <exclude>**/storybook-static/**</exclude>
