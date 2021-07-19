@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +49,10 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardAmount;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardAttribute;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardOption;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardValue;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
@@ -63,6 +69,10 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.CustomizableFieldValue;
+import com.adobe.cq.commerce.magento.graphql.CustomizableOptionInterface;
+import com.adobe.cq.commerce.magento.graphql.GiftCardAmounts;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
@@ -128,6 +138,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
     private String canonicalUrl;
+    private Boolean isGiftCardProduct;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -478,5 +489,73 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public ProductStorefrontContext getStorefrontContext() {
         return new ProductStorefrontContextImpl(productRetriever.fetchProduct());
+    }
+
+    @Override
+    public GiftCardAttribute getGiftCardAttributes() {
+        if (!isGiftCardProduct) {
+            return null;
+        }
+
+        GiftCardProduct giftCardProduct = (GiftCardProduct) productRetriever.fetchProduct();
+
+        GiftCardAttributeImpl giftCardAttribute = new GiftCardAttributeImpl();
+        giftCardAttribute.setAllowOpenAmount(giftCardProduct.getAllowOpenAmount());
+        giftCardAttribute.setGiftCardType(giftCardProduct.getGiftcardType());
+        giftCardAttribute.setOpenAmountMax(giftCardProduct.getOpenAmountMax());
+        giftCardAttribute.setOpenAmountMin(giftCardProduct.getOpenAmountMin());
+        giftCardAttribute.setGiftCardOptions(mapGiftCardOptions(giftCardProduct.getGiftCardOptions()));
+        giftCardAttribute.setGiftCardAmount(mapGiftCardAmount(giftCardProduct.getGiftcardAmounts()));
+        giftCardAttribute.setOpenAmountRange(getGiftCardPrice(giftCardProduct));
+
+        return giftCardAttribute;
+    }
+
+    private Map mapGiftCardOptions(List<CustomizableOptionInterface> optionList) {
+        Map<String, GiftCardOption> giftCardOptionMap = new HashMap<String, GiftCardOption>();
+
+        optionList.stream().forEach(coi -> {
+            GiftCardOptionImpl giftCardOption = new GiftCardOptionImpl();
+            CustomizableFieldValue cfv = (CustomizableFieldValue) coi.get("value");
+            giftCardOption.setTitle(coi.getTitle());
+            giftCardOption.setValue(this.mapGiftCardValue(cfv));
+
+            giftCardOptionMap.put(coi.getTitle(), giftCardOption);
+
+        });
+        return giftCardOptionMap;
+    }
+
+    private List<GiftCardAmount> mapGiftCardAmount(List<GiftCardAmounts> giftCardAmountList) {
+        List<GiftCardAmount> amountList = new ArrayList<GiftCardAmount>();
+
+        giftCardAmountList.stream().forEach(gca -> {
+            GiftCardAmountImpl giftCardAmount = new GiftCardAmountImpl();
+            giftCardAmount.setUid(gca.getUid().toString());
+            giftCardAmount.setValue(gca.getValue());
+            amountList.add(giftCardAmount);
+        });
+        return amountList;
+    }
+
+    private GiftCardValue mapGiftCardValue(CustomizableFieldValue value) {
+        GiftCardValueImpl giftCardValue = new GiftCardValueImpl();
+        giftCardValue.setUid(value.getUid().toString());
+
+        return giftCardValue;
+    }
+
+    private Price getGiftCardPrice(GiftCardProduct giftCardProduct) {
+        return new PriceImpl(giftCardProduct.getPriceRange(), locale, giftCardProduct.getAllowOpenAmount(), giftCardProduct
+            .getOpenAmountMin(),
+            giftCardProduct.getOpenAmountMax());
+    }
+
+    @Override
+    public Boolean isGiftCardProduct() {
+        if (isGiftCardProduct == null) {
+            isGiftCardProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GiftCardProduct;
+        }
+        return isGiftCardProduct;
     }
 }
