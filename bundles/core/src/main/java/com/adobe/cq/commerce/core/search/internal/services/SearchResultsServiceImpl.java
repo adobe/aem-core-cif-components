@@ -395,7 +395,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         .maximumPrice(generatePriceQuery())))
                 .onBundleProduct(bp -> bp
                     .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())));
+                        .maximumPrice(generatePriceQuery())))
+                .onGiftCardProduct(gc -> gc.allowOpenAmount().openAmountMax().openAmountMin());
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
             }
