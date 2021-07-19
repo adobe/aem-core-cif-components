@@ -1,0 +1,115 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "GiftCardProduct",
+          "sku": "combinedGiftCard",
+          "name": "Combined Gift Card",
+          "description": {
+            "html": ""
+          },
+          "image": {
+            "label": "Combined Gift Card",
+            "url": "https://test-url.magentosite.cloud/static/version1625564956/frontend/Magento/luma/en_US/Magento_Catalog/images/product/placeholder/image.jpg"
+          },
+          "thumbnail": {
+            "label": "Combined Gift Card",
+            "url": "https://test-url.magentosite.cloud/static/version1625564956/frontend/Magento/luma/en_US/Magento_Catalog/images/product/placeholder/thumbnail.jpg"
+          },
+          "url_key": "sample",
+          "stock_status": "IN_STOCK",
+          "meta_description": "Sample ",
+          "meta_keyword": "Sample",
+          "meta_title": "Sample",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 0,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 20,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "media_gallery": [],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "uid": "Nw==",
+              "name": "New Products",
+              "image": null
+            }
+          ],
+          "giftcard_type": "COMBINED",
+          "allow_open_amount": false,
+          "open_amount_min": 10,
+          "open_amount_max": 50,
+          "giftcard_amounts": [
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzIwLjAwMDA=",
+              "value": 20
+            },
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzMwLjAwMDA=",
+              "value": 30
+            },
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzQwLjAwMDA=",
+              "value": 40
+            }
+          ],
+          "gift_card_options": [
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Sender Name",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU="
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Sender Email",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls"
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Recipient Name",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU="
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Recipient Email",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls"
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Message",
+              "required": false,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ=="
+              }
+            }
+          ],
+          "staged": false
+        }
+      ]
+    }
+  }
+}
