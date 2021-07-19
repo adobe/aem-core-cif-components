@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.osgi.service.metatype.annotations.Option;
@@ -27,6 +28,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 
 @ObjectClassDefinition(name = "CIF URL Provider configuration")
+@ProviderType
 public @interface UrlProviderConfiguration {
 
     @AttributeDefinition(

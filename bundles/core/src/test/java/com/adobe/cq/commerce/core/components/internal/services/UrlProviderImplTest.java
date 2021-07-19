@@ -15,15 +15,22 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.request.RequestParameter;
+import org.apache.sling.api.request.RequestParameterMap;
+import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
+import org.apache.sling.testing.mock.osgi.MockOsgi;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +41,9 @@ import org.mockito.internal.util.reflection.Whitebox;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -44,6 +53,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -53,6 +63,7 @@ public class UrlProviderImplTest {
 
     @Rule
     public final AemContext context = createContext("/context/jcr-page-filter.json");
+    private final UrlProviderImpl urlProvider = new UrlProviderImpl();
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
@@ -63,17 +74,12 @@ public class UrlProviderImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
-    private UrlProviderImpl urlProvider;
     private MockSlingHttpServletRequest request;
     private HttpClient httpClient;
     private GraphqlClient graphqlClient;
 
     @Before
     public void setup() throws Exception {
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(config);
-
         request = new MockSlingHttpServletRequest(context.resourceResolver());
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
@@ -106,6 +112,8 @@ public class UrlProviderImplTest {
         // from url_path does/not/exist
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "categoryList(filters:{url_key:{eq:\"exist\"}");
+
+        context.registerInjectActivateService(urlProvider);
     }
 
     @Test
@@ -207,9 +215,9 @@ public class UrlProviderImplTest {
     public void testProductUrlOnlySKU() {
         Page page = context.currentPage("/content/product-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-        MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
-        newConfig.setProductPageUrlFormat(ProductPageWithSku.PATTERN);
-        urlProvider.activate(newConfig);
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
+
         String url = urlProvider.toProductUrl(request, page, "MJ01");
         Assert.assertEquals("/content/product-page.html/MJ01.html", url);
 
@@ -358,10 +366,8 @@ public class UrlProviderImplTest {
     public void testProductIdentifierParsingInSuffixSKU() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");
-
-        MockUrlProviderConfiguration newConfig = new MockUrlProviderConfiguration();
-        newConfig.setProductPageUrlFormat(ProductPageWithSku.PATTERN);
-        urlProvider.activate(newConfig);
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
         String identifier = urlProvider.getProductIdentifier(context.request());
         Assert.assertEquals("MJ01", identifier);
@@ -392,5 +398,70 @@ public class UrlProviderImplTest {
         Assert.assertNull(identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testCustomProductPageFormat() {
+        context.request().setQueryString("sku=MJ02");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // verify parse
+        String identifier = urlProvider.getProductIdentifier(context.request());
+        Assert.assertEquals("MJ02", identifier);
+
+        // verify format
+        Page page = context.create().page("/page");
+        String url = urlProvider.toProductUrl(request, page, "MJ02");
+        Assert.assertEquals("/page.html?sku=MJ02", url);
+
+        // verify the product page url format is not used for categories
+        url = urlProvider.toCategoryUrl(request, page, "uid-5");
+        Assert.assertEquals("/page.html/equipment.html", url);
+    }
+
+    @Test
+    public void testCustomCategoryPageFormat() {
+        context.request().setQueryString("uid=uid-5");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // verify parse
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        Assert.assertEquals("uid-5", identifier);
+
+        // verify format
+        Page page = context.create().page("/page");
+        String url = urlProvider.toCategoryUrl(request, page, "uid-5");
+        Assert.assertEquals("/page.html?uid=uid-5", url);
+
+        // verify the category page url format is not used for products
+        url = urlProvider.toProductUrl(request, page, "MJ01");
+        Assert.assertEquals("/page.html/beaumont-summit-kit.html", url);
+    }
+
+    private static class CustomUrlFormat implements UrlFormat {
+        @Override public String format(Map<String, String> parameters) {
+            return parameters.get("page") + ".html" +
+                (StringUtils.isNotEmpty(parameters.get("sku")) ? "?sku=" + parameters.get("sku") : "") +
+                (StringUtils.isNotEmpty(parameters.get("uid")) ? "?uid=" + parameters.get("uid") : "");
+        }
+
+        @Override public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+            Map<String, String> parameters = new HashMap<>(1);
+            Optional.ofNullable(parameterMap.getValue("sku"))
+                .map(RequestParameter::getString)
+                .ifPresent(p -> parameters.put("sku", p));
+            Optional.ofNullable(parameterMap.getValue("uid"))
+                .map(RequestParameter::getString)
+                .ifPresent(p -> parameters.put("uid", p));
+            return parameters;
+        }
+
+        @Override public Set<String> getParameterNames() {
+            return ImmutableSet.of("uid", "sku");
+        }
     }
 }
