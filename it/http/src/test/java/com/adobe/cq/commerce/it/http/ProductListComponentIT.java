@@ -38,15 +38,15 @@ public class ProductListComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
-        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
+        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
         Assert.assertEquals("Outdoor Collection", elements.first().html());
 
         // Check that search filters are displayed
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".search__filters");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
         Assert.assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
         Assert.assertEquals(6, elements.size());
 
         // Check the meta data
@@ -63,13 +63,13 @@ public class ProductListComponentIT extends CommerceTestBase {
         Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
 
         // Verify datalayer attributes
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__root");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__root");
         JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
         JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist.json"));
         Assert.assertEquals(expected, result);
 
         // Verify product items datalayer attributes
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
         result = OBJECT_MAPPER.readTree(elements.stream()
             .map(e -> e.attr("data-cmp-data-layer"))
             .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
@@ -84,15 +84,15 @@ public class ProductListComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
-        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__categoryTitle");
+        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
         Assert.assertEquals("Category name", elements.first().html());
 
         // Check that search filters are NOT displayed
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".search__filters");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
         Assert.assertTrue(elements.isEmpty());
 
         // Check that the 6 products are displayed on the first page
-        elements = doc.select(PRODUCTLIST_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
         Assert.assertEquals(6, elements.size());
     }
 

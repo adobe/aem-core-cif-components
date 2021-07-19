@@ -1,23 +1,25 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ 
-  ~ Copyright 2019 Adobe. All rights reserved.
+  ~
+  ~ Copyright 2021 Adobe. All rights reserved.
   ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License. You may obtain a copy
   ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
-  ~ 
+  ~
   ~ Unless required by applicable law or agreed to in writing, software distributed under
   ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
   ~ OF ANY KIND, either express or implied. See the License for the specific language
   ~ governing permissions and limitations under the License.
-  ~ 
+  ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<sly data-sly-use.collectionTemplate="productcollection.html"
-     data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults"></sly>
+<template data-sly-template.loadmorebutton="${@ pager, addLazy}">
 
-<article class="category__root category__style_grid"
-         data-cmp-is="productcollection"
-         data-load-client-price="${searchResults.loadClientPrice}"
-         data-cif-search-input-context="${searchResults.searchStorefrontContext.json}"
-         data-cif-search-results-context="${searchResults.searchResultsStorefrontContext.json}">
-    <sly data-sly-call="${collectionTemplate.productCollection @ productCollection = searchResults}"></sly>
-</article>
+<button data-sly-test="${pager.currentPage < pager.totalPages}" class="productcollection__loadmore-button"
+     data-load-more="${resource.path @
+        context='uri',
+        selectors=addLazy ? ['lazy', request.requestPathInfo.selectorString] : request.requestPathInfo.selectorString,
+        extension=request.requestPathInfo.extension,
+        suffix=request.requestPathInfo.suffix,
+        query=pager.nextPageParameters}">${'Load more' @ i18n}</button>
+<div class="productcollection__loadmore-spinner"></div>
+
+</template>
