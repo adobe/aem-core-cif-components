@@ -443,13 +443,15 @@ public class UrlProviderImplTest {
     }
 
     private static class CustomUrlFormat implements UrlFormat {
-        @Override public String format(Map<String, String> parameters) {
+        @Override
+        public String format(Map<String, String> parameters) {
             return parameters.get("page") + ".html" +
                 (StringUtils.isNotEmpty(parameters.get("sku")) ? "?sku=" + parameters.get("sku") : "") +
                 (StringUtils.isNotEmpty(parameters.get("uid")) ? "?uid=" + parameters.get("uid") : "");
         }
 
-        @Override public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+        @Override
+        public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
             Map<String, String> parameters = new HashMap<>(1);
             Optional.ofNullable(parameterMap.getValue("sku"))
                 .map(RequestParameter::getString)
@@ -460,7 +462,8 @@ public class UrlProviderImplTest {
             return parameters;
         }
 
-        @Override public Set<String> getParameterNames() {
+        @Override
+        public Set<String> getParameterNames() {
             return ImmutableSet.of("uid", "sku");
         }
     }
