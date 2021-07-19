@@ -14,11 +14,14 @@
 package com.adobe.cq.commerce.core.components.models.searchresults;
 
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
+import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultsStorefrontContext;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchStorefrontContext;
 
 /**
  * Don't forget the comment
  */
 public interface SearchResults extends ProductCollection {
-    SearchStorefrontContext getStorefrontContext();
+    SearchStorefrontContext getSearchStorefrontContext();
+
+    SearchResultsStorefrontContext getSearchResultsStorefrontContext();
 }

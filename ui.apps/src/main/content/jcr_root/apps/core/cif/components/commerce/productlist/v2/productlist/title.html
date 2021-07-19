@@ -11,9 +11,11 @@
   ~ governing permissions and limitations under the License.
   ~ 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.listTitle="${@ productList}">
-    <div data-sly-test="${productList.isStaged}" class="category__staged">${'Staged' @ i18n}</div>
-    <h1 class="category__title">
-        <div class="category__categoryTitle">${productList.title}</div>
-    </h1>
+<template data-sly-template.title="${@ productList}">
+
+<div data-sly-test="${productList.isStaged}" class="category__staged">${'Staged' @ i18n}</div>
+<h1 class="category__header">
+    <span class="category__title">${productList.title}</span>
+</h1>
+
 </template>

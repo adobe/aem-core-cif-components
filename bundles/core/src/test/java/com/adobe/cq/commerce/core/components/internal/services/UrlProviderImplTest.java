@@ -245,6 +245,46 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCategoryUrlWithSubpageArray() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .uid("MTF=")
+            .urlPath("men/bottoms")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array.html/men/bottoms.html", url);
+    }
+
+    @Test
+    public void testCategoryUrlWithSubpageV2() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .urlPath("women/tops/shirts")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-v2.html/women/tops/shirts.html", url);
+    }
+
+    @Test
+    public void testCategoryUrlWithSubpageArrayV2() {
+        Page page = context.currentPage("/content/category-page");
+        request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+
+        Map<String, String> params = new ParamsBuilder()
+            .urlPath("women/bottoms/shorts")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array-v2.html/women/bottoms/shorts.html", url);
+    }
+
+    @Test
     public void testNestedCategoryUrl() {
         Page page = context.currentPage("/content/category-page");
         request.setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
