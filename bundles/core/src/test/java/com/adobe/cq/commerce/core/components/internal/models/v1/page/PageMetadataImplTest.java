@@ -102,7 +102,8 @@ public class PageMetadataImplTest {
 
                 context.registerService(Externalizer.class, new MockExternalizer());
 
-                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+                Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);

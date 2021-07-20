@@ -477,6 +477,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public ProductStorefrontContext getStorefrontContext() {
-        return new ProductStorefrontContextImpl(productRetriever.fetchProduct());
+        return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
     }
 }

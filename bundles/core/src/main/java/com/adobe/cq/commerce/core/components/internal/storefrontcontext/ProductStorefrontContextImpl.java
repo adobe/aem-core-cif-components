@@ -13,6 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
+import org.apache.sling.api.resource.Resource;
+
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
@@ -20,7 +22,8 @@ public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontCont
 
     private final ProductInterface product;
 
-    public ProductStorefrontContextImpl(ProductInterface product) {
+    public ProductStorefrontContextImpl(ProductInterface product, Resource resource) {
+        super(resource);
         this.product = product;
     }
 

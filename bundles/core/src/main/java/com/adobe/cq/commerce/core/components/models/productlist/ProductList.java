@@ -72,5 +72,10 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
         return false;
     };
 
+    /**
+     * Return the categories storefront context for a list of products
+     *
+     * @return context of the categories in the product list
+     */
     CategoryStorefrontContext getStorefrontContext();
 }

@@ -21,7 +21,18 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.SearchStorefrontC
  * Don't forget the comment
  */
 public interface SearchResults extends ProductCollection {
+
+    /**
+     * Returns the storefront context related to search input
+     *
+     * @return search input context
+     */
     SearchStorefrontContext getSearchStorefrontContext();
 
+    /**
+     * Returns the storefront context related to search results
+     *
+     * @return search results context
+     */
     SearchResultsStorefrontContext getSearchResultsStorefrontContext();
 }

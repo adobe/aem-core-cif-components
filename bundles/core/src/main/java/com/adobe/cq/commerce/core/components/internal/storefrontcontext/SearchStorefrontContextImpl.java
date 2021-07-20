@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.components.storefrontcontext.QueryType;
 import com.adobe.cq.commerce.core.components.storefrontcontext.Range;
@@ -34,7 +35,8 @@ public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontConte
 
     private final SearchOptions searchOptions;
 
-    public SearchStorefrontContextImpl(SearchOptions searchOptions) {
+    public SearchStorefrontContextImpl(SearchOptions searchOptions, Resource resource) {
+        super(resource);
         this.searchOptions = searchOptions;
     }
 

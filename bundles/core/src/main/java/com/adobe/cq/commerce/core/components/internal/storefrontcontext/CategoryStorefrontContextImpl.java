@@ -13,6 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
+import org.apache.sling.api.resource.Resource;
+
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 
@@ -20,7 +22,8 @@ public class CategoryStorefrontContextImpl extends AbstractCommerceStorefrontCon
 
     private final CategoryInterface category;
 
-    public CategoryStorefrontContextImpl(CategoryInterface category) {
+    public CategoryStorefrontContextImpl(CategoryInterface category, Resource resource) {
+        super(resource);
         this.category = category;
     }
 
