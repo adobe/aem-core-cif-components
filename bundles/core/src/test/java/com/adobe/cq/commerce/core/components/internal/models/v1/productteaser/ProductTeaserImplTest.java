@@ -157,6 +157,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(product.getImage().getUrl(), productTeaser.getImage());
+        Assert.assertEquals(product.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
@@ -183,6 +184,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
+        Assert.assertEquals(variant.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
