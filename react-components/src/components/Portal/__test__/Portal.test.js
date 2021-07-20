@@ -18,13 +18,27 @@ const { render } = require('@testing-library/react');
 import Portal from '../Portal';
 
 describe('Portal', () => {
-    it('renders a component in a container', () => {
+    beforeEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    it('renders a component in a container using a selector', () => {
         const target = document.createElement('div');
         target.setAttribute('id', 'target');
         target.setAttribute('data-testid', 'target');
         document.body.appendChild(target);
 
         const { getByTestId } = render(<Portal selector="#target">Component</Portal>);
+
+        expect(getByTestId('target').textContent).toEqual('Component');
+    });
+
+    it('renders a component in a container using a DOM element', () => {
+        const target = document.createElement('div');
+        target.setAttribute('data-testid', 'target');
+        document.body.appendChild(target);
+
+        const { getByTestId } = render(<Portal selector={target}>Component</Portal>);
 
         expect(getByTestId('target').textContent).toEqual('Component');
     });

@@ -1,7 +1,7 @@
 {
-  "name": "@adobe/aem-core-cif-react-components",
+  "name": "@adobe/aem-core-cif-product-recs-extension",
   "version": "1.12.0",
-  "description": "A collection of React components used in the AEM CIF Core Components project",
+  "description": "React Components for AEM CIF Core Components Product Recommendations",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
   "repository": {
@@ -53,19 +53,19 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "@adobe/aem-core-cif-react-components": "^1.12.0",
     "@apollo/client": "^3.2.4",
-    "braintree-web-drop-in": "^1.22.1",
+    "@magento/recommendations-js-sdk": "^2.0.0",
     "graphql": "^14.6.0",
     "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
-    "informed": "^3.9.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "react-feather": "^2.0.3",
     "react-i18next": "^11.3.3"
   },
   "peerDependencies": {
+    "@adobe/aem-core-cif-react-components": "^1.12.0",
     "@apollo/client": "^3.2.4",
     "graphql": "^14.6.0",
     "react": "^16.11.0",

@@ -90,3 +90,23 @@ export const useStorefrontEvents = () => {
     }
     return false;
 };
+
+export const usePageType = () => {
+    // Currently only using CMS, Category and Product. Added other types for completeness
+    // and to be used in the future.
+    const PageTypes = {
+        CMS: 'CMS',
+        CATEGORY: 'Category',
+        PRODUCT: 'Product',
+        CART: 'Cart',
+        CHECKOUT: 'Checkout'
+    };
+
+    if (document.querySelector('[data-cif-product-context]')) {
+        return PageTypes.PRODUCT;
+    }
+    if (document.querySelector('[data-cif-category-context]')) {
+        return PageTypes.CATEGORY;
+    }
+    return PageTypes.CMS;
+};

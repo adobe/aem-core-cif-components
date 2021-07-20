@@ -13,9 +13,12 @@
  ******************************************************************************/
 
 import React from 'react';
+
 import { waitForElement } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+
 import { render } from '../test-utils';
-import { useCountries, useQueryParams } from '../hooks';
+import { useCountries, usePageType, useQueryParams } from '../hooks';
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
@@ -48,6 +51,38 @@ describe('Custom hooks', () => {
             const queryParams = useQueryParams();
             expect(queryParams.get('token')).toEqual('my-token');
             expect(queryParams.get('page')).toEqual('5');
+        });
+    });
+
+    describe('usePageType', () => {
+        beforeEach(() => {
+            document.body.innerHTML = '';
+        });
+
+        it('detects a product page', () => {
+            const cmp = document.createElement('div');
+            cmp.dataset.cifProductContext = '';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Product');
+        });
+
+        it('detects a category page', () => {
+            const cmp = document.createElement('div');
+            cmp.dataset.cifCategoryContext = '';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Category');
+        });
+
+        it('detects a CMS page', () => {
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
         });
     });
 });

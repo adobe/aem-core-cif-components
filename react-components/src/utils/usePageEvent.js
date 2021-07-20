@@ -14,36 +14,17 @@
 
 import { useEffect } from 'react';
 
-import { useStorefrontEvents } from './hooks';
+import { usePageType, useStorefrontEvents } from './hooks';
 import useViewedOffsets from './useViewedOffsets';
-
-// Currently only using CMS, Category and Product. Added other types for completeness
-// and to be used in the future.
-const PageTypes = {
-    CMS: 'CMS',
-    CATEGORY: 'Category',
-    PRODUCT: 'Product',
-    CART: 'Cart',
-    CHECKOUT: 'Checkout'
-};
 
 const usePageEvent = () => {
     const mse = useStorefrontEvents();
     const { minXOffset, maxXOffset, minYOffset, maxYOffset } = useViewedOffsets();
-
-    const getPageType = () => {
-        if (document.querySelector('[data-cif-product-context]')) {
-            return PageTypes.PRODUCT;
-        }
-        if (document.querySelector('[data-cif-category-context]')) {
-            return PageTypes.CATEGORY;
-        }
-        return PageTypes.CMS;
-    };
+    const pageType = usePageType();
 
     const sendPageEvent = () => {
         const context = {
-            pageType: getPageType(),
+            pageType,
             eventType: 'pageUnload',
             maxXOffset: maxXOffset.current,
             maxYOffset: maxYOffset.current,

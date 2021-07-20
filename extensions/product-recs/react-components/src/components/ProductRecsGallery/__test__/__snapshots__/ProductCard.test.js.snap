@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProductCard renders a product card 1`] = `
+<DocumentFragment>
+  <div
+    class="card"
+  >
+    <a
+      href="http://localhost/content/venia/us/en.cifproductredirect.html/my-sku"
+    >
+      <div
+        class="cardImage"
+      >
+        <img
+          alt="My Product"
+          class="productImage"
+          src="http://localhost/product.png"
+        />
+      </div>
+      <div>
+        My Product
+      </div>
+      <div
+        class="price"
+      >
+        <span
+          class=""
+        >
+          CHF 342.23
+        </span>
+      </div>
+    </a>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToCart"
+      >
+        Add to cart
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`ProductCard renders a product card with a price range 1`] = `
+<DocumentFragment>
+  <div
+    class="card"
+  >
+    <a
+      href="http://localhost/content/venia/us/en.cifproductredirect.html/my-sku"
+    >
+      <div
+        class="cardImage"
+      >
+        <img
+          alt="My Product"
+          class="productImage"
+          src="http://localhost/product.png"
+        />
+      </div>
+      <div>
+        My Product
+      </div>
+      <div
+        class="price"
+      >
+        from 
+        <span
+          class=""
+        >
+          CHF 342.23
+        </span>
+      </div>
+    </a>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToCart"
+      >
+        Add to cart
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
