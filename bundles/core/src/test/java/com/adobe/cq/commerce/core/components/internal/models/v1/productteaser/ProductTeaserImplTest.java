@@ -204,6 +204,8 @@ public class ProductTeaserImplTest {
 
         Assert.assertNull(productTeaserNoClient.getProductRetriever());
         Assert.assertNull(productTeaserNoClient.getUrl());
+        Assert.assertNull(productTeaserNoClient.getImage());
+        Assert.assertNull(productTeaserNoClient.getImageAlt());
     }
 
     @Test

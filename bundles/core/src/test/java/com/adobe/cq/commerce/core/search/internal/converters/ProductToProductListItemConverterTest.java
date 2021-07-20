@@ -16,6 +16,7 @@ package com.adobe.cq.commerce.core.search.internal.converters;
 
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.junit.Before;
@@ -34,6 +35,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,6 +100,12 @@ public class ProductToProductListItemConverterTest {
 
         assertThat(result).isNotNull();
         assertThat(result).isInstanceOf(ProductListItem.class);
+
+        assertEquals(URL, result.getSlug());
+        assertEquals(IMAGE_LABEL, result.getImageAlt());
+        assertEquals(IMAGE_URL, result.getImageURL());
+        assertNotNull(result.getPriceRange());
+        assertEquals(StringUtils.EMPTY, result.getURL());
     }
 
 }
