@@ -12,11 +12,11 @@
   ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
-  <template data-sly-template.giftcardProduct="${ @ product, allowZeroQuantity, defaultQuantity}">
+  <template data-sly-use.quantityTpl="quantity.html" data-sly-template.giftcardProduct="${ @ product }">
    <fieldset class="giftcardProduct__amount">
       <div id="giftcard-amount-box" class="giftcardProduct__field">
          <label for="giftcard-amount-input" id="amount-label-input" class="giftcardProduct__label">
-            <span>Amount</span><span class="required">*</span>
+            <span>Amount</span><span class="field__required">*</span>
             <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Custom Giftcard Amount"]["value"]["uid"]}'>
             <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMin"]}'>
             <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMax"]}'>
@@ -38,7 +38,7 @@
          <br>
          <div class="giftcardProduct__field">
             <label for="giftcard_sender_name" class="giftcardProduct__label">
-               <span>${product["giftCardAttributes"]["giftCardOptions"]["Sender Name"]["title"]}</span><span class="required">*</span>
+               <span>${product["giftCardAttributes"]["giftCardOptions"]["Sender Name"]["title"]}</span><span class="field__required">*</span>
             <input type="hidden" id="giftcard_sender_name_uid" name="giftcard_sender_name_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Sender Name"]["value"]["uid"]}'>
             </label>
             <div>
@@ -47,7 +47,7 @@
          </div>
          <div data-sly-test='${product["giftCardAttributes"]["giftCardType"] == "VIRTUAL" || product["giftCardAttributes"]["giftCardType"] == "COMBINED"}' class="giftcardProduct__field">
             <label for="giftcard_sender_email" class="giftcardProduct__label">
-           <span>${product["giftCardAttributes"]["giftCardOptions"]["Sender Email"]["title"]}</span><span class="required">*</span>
+           <span>${product["giftCardAttributes"]["giftCardOptions"]["Sender Email"]["title"]}</span><span class="field__required">*</span>
             <input type="hidden" id="giftcard_sender_email_uid" name="giftcard_sender_email_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Sender Email"]["value"]["uid"]}'>
             </label>
             <div>
@@ -56,7 +56,7 @@
          </div>
          <div class="giftcardProduct__field">
             <label for="giftcard_recipient_name" class="giftcardProduct__label">
-              <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["title"]}</span><span class="required">*</span>
+              <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["title"]}</span><span class="field__required">*</span>
               <input type="hidden" id="giftcard_recipient_name_uid" name="giftcard_recipient_name_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Recipient Name"]["value"]["uid"]}'>
             </label>
             <div>
@@ -65,7 +65,7 @@
          </div>
          <div data-sly-test='${product["giftCardAttributes"]["giftCardType"] == "VIRTUAL" || product["giftCardAttributes"]["giftCardType"] == "COMBINED"}' class="giftcardProduct__field">
             <label for="giftcard_recipient_email" class="giftcardProduct__label">
-               <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Email"]["title"]}</span><span class="required">*</span>
+               <span>${product["giftCardAttributes"]["giftCardOptions"]["Recipient Email"]["title"]}</span><span class="field__required">*</span>
             <input type="hidden" id="giftcard_recipient_email_uid" name="giftcard_recipient_email_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Recipient Email"]["value"]["uid"]}'>
             </label>
             <div>
@@ -86,41 +86,9 @@
 
 	<section class="giftcardProduct__section">
 		<h3>
-			<span class="required">* Required fields</span>
-
+			<span class="field__required">* Required fields</span>
 		</h3>
 	</section>
 	<h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
-	<div class="quantity__root">
-       <span class="fieldIcons__root" style="--iconsBefore:0; --iconsAfter:1;">
-           <span class="fieldIcons__input">
-               <select aria-label="product's quantity" class="select__input field__input" name="quantity" data-product-sku="${product.sku}" data-product-id="${product.id}" data-virtual="${product.virtualProduct}">
-                   <option value="0" data-sly-test="${allowZeroQuantity}" selected="${defaultQuantity && defaultQuantity == 0}">0</option>
-                   <option value="1" selected="${defaultQuantity == null || defaultQuantity == 1}">1</option>
-                   <option value="2" selected="${defaultQuantity && defaultQuantity == 2}">2</option>
-                   <option value="3" selected="${defaultQuantity && defaultQuantity == 3}">3</option>
-                   <option value="4" selected="${defaultQuantity && defaultQuantity == 4}">4</option>
-               </select>
-           </span>
-           <span class="fieldIcons__before"></span>
-           <span class="fieldIcons__after">
-               <span class="icon__root">
-                   <svg
-                       xmlns="http://www.w3.org/2000/svg"
-                       width="18"
-                       height="18"
-                       viewBox="0 0 24 24"
-                       fill="none"
-                       stroke="currentColor"
-                       stroke-width="2"
-                       stroke-linecap="round"
-                       stroke-linejoin="round"
-                   >
-                       <polyline points="6 9 12 15 18 9"></polyline>
-                   </svg>
-               </span>
-           </span>
-       </span>
-       <p class="message-root"></p>
-   </div>
+	<sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
 </template>
