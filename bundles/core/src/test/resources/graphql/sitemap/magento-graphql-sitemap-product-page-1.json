@@ -1,0 +1,19 @@
+{
+  "data": {
+    "products": {
+      "total_count": "5",
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "sku": "P01",
+          "url_key": "product-01"
+        },
+        {
+          "__typename": "SimpleProduct",
+          "sku": "P02",
+          "url_key": "product-02"
+        }
+      ]
+    }
+  }
+}
