@@ -52,6 +52,16 @@ public interface ProductListItem extends ListItem {
     }
 
     /**
+     * Returns the product image alt text of this {@code ProductListItem}.
+     *
+     * @return the product image alt text of this list item or {@code null}
+     */
+    @Nullable
+    default String getImageAlt() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Returns the identifier of this product.
      * 
      * @return a {@link CommerceIdentifier} object representing the identifier of this product.

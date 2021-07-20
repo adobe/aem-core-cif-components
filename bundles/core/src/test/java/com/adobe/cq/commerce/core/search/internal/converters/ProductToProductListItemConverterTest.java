@@ -63,6 +63,7 @@ public class ProductToProductListItemConverterTest {
 
     private static final String URL = "http://store.com";
     private static final String IMAGE_URL = "http://image.com";
+    private static final String IMAGE_LABEL = "Some Image";
     private static final String PRODUCT_NAME = "name";
     private static final Locale PAGE_LOCALE = Locale.GERMANY;
 
@@ -72,6 +73,7 @@ public class ProductToProductListItemConverterTest {
         when(productInterface.getUrlKey()).thenReturn(URL);
         when(productInterface.getName()).thenReturn(PRODUCT_NAME);
         when(productInterface.getSmallImage().getUrl()).thenReturn(IMAGE_URL);
+        when(productInterface.getSmallImage().getLabel()).thenReturn(IMAGE_LABEL);
 
         when(money.getCurrency()).thenReturn(CurrencyEnum.BDT);
 

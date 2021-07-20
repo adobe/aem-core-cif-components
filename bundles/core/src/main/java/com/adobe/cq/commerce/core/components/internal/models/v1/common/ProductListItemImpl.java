@@ -39,6 +39,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private String slug;
     private String name;
     private String imageURL;
+    private String imageAlt;
     private Price price;
     private String activeVariantSku;
     private Page productPage;
@@ -47,7 +48,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private CommerceIdentifier identifier;
     private Boolean isStaged;
 
-    public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, Page productPage,
+    public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, String imageAlt, Page productPage,
                                String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId,
                                Boolean isStaged) {
         super(parentId, productPage.getContentResource());
@@ -55,6 +56,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.slug = slug;
         this.name = name;
         this.imageURL = imageURL;
+        this.imageAlt = StringUtils.defaultIfBlank(imageAlt, name);
         this.price = price;
         this.productPage = productPage;
         this.activeVariantSku = activeVariantSku;
@@ -93,6 +95,13 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @JsonIgnore
     public String getImageURL() {
         return imageURL;
+    }
+
+    @Nullable
+    @Override
+    @JsonIgnore
+    public String getImageAlt() {
+        return imageAlt;
     }
 
     @Nullable
