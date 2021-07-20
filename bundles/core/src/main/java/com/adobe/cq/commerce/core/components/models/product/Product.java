@@ -81,4 +81,8 @@ public interface Product extends Component, PageMetadata {
     AbstractProductRetriever getProductRetriever();
 
     ProductStorefrontContext getStorefrontContext();
+
+    GiftCardAttribute getGiftCardAttributes();
+
+    Boolean isGiftCardProduct();
 }

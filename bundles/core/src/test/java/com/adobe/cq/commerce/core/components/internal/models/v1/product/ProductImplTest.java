@@ -15,7 +15,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.http.client.HttpClient;
@@ -39,6 +41,8 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardAttribute;
+import com.adobe.cq.commerce.core.components.models.product.GiftCardOption;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
@@ -55,6 +59,7 @@ import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -550,5 +555,75 @@ public class ProductImplTest {
         String expected = Utils.getResource("storefront-context/result-storefront-context-product-component.json");
         String jsonResult = productModel.getStorefrontContext().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testGiftCardProductAttributes() throws IOException {
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-giftcardproduct-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-giftcardproduct-result.json", httpClient, 200, "{products(filter:{sku");
+        adaptToProduct();
+        Assert.assertTrue(productModel.isGiftCardProduct());
+
+        GiftCardProduct gcp = (GiftCardProduct) product;
+        GiftCardAttribute giftcardAttribute = productModel.getGiftCardAttributes();
+        Assert.assertEquals(gcp.getGiftcardType(), giftcardAttribute.getGiftCardType());
+        Assert.assertEquals(gcp.getAllowOpenAmount(), giftcardAttribute.getAllowOpenAmount());
+        Assert.assertEquals(gcp.getOpenAmountMax(), giftcardAttribute.getOpenAmountMax());
+        Assert.assertEquals(gcp.getOpenAmountMin(), giftcardAttribute.getOpenAmountMin());
+
+        Map<String, GiftCardOption> giftCardOptionsMap = giftcardAttribute.getGiftCardOptions();
+        gcp.getGiftCardOptions().stream().forEach(coi -> {
+            Assert.assertTrue(giftCardOptionsMap.containsKey(coi.getTitle()));
+
+        });
+
+        HashMap<String, Double> giftCardAmountMap = new HashMap<String, Double>();
+        gcp.getGiftcardAmounts().stream().forEach(gca -> {
+            giftCardAmountMap.put(gca.getUid().toString(), gca.getValue());
+
+        });
+
+        giftcardAttribute.getGiftCardAmount().stream().forEach(amount -> {
+            Assert.assertTrue(giftCardAmountMap.containsKey(amount.getUid().toString()));
+            Assert.assertEquals(giftCardAmountMap.get(amount.getUid().toString()), amount.getValue());
+        });
+    }
+
+    @Test
+    public void testGiftCardMinPriceWithOpenAmountTrue() throws IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-giftcardproduct-result.json", httpClient, 200, "{products(filter:{sku");
+        adaptToProduct();
+
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-giftcardproduct-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Assert.assertTrue(productModel.isGiftCardProduct());
+
+        GiftCardProduct gcp = (GiftCardProduct) product;
+        GiftCardAttribute giftcardAttribute = productModel.getGiftCardAttributes();
+        Assert.assertTrue(gcp.getAllowOpenAmount());
+        Assert.assertEquals(Double.valueOf(12), giftcardAttribute.getOpenAmountRange().getFinalPrice());
+        Assert.assertEquals("$10.00", giftcardAttribute.getOpenAmountRange().getFormatedMinStartingPrice());
+    }
+
+    @Test
+    public void testGiftCardMinPriceWithOpenAmountFalse() throws IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-giftcardproduct-openamount-false-result.json", httpClient, 200,
+            "{products(filter:{sku");
+        adaptToProduct();
+
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-giftcardproduct-openamount-false-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Assert.assertTrue(productModel.isGiftCardProduct());
+
+        GiftCardProduct gcp = (GiftCardProduct) product;
+        GiftCardAttribute giftcardAttribute = productModel.getGiftCardAttributes();
+        Assert.assertFalse(gcp.getAllowOpenAmount());
+
+        Assert.assertEquals(Double.valueOf(20), giftcardAttribute.getOpenAmountRange().getFinalPrice());
+        Assert.assertEquals("$20.00", giftcardAttribute.getOpenAmountRange().getFormatedMinStartingPrice());
     }
 }

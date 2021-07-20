@@ -1,0 +1,123 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "GiftCardProduct",
+          "sku": "virtualGiftCard",
+          "name": "virtual Gift Card",
+          "description": {
+            "html": ""
+          },
+          "image": {
+            "label": "virtual Gift Card",
+            "url": "https://test-url.magentosite.cloud/static/version1625564956/frontend/Magento/luma/en_US/Magento_Catalog/images/product/placeholder/image.jpg"
+          },
+          "thumbnail": {
+            "label": "virtual Gift Card",
+            "url": "https://test-url.magentosite.cloud/static/version1625564956/frontend/Magento/luma/en_US/Magento_Catalog/images/product/placeholder/thumbnail.jpg"
+          },
+          "url_key": "sample-1",
+          "stock_status": "IN_STOCK",
+          "meta_description": null,
+          "meta_keyword": null,
+          "meta_title": null,
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 0,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 12,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "media_gallery": [],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "uid": "Nw==",
+              "name": "New Products",
+              "image": null
+            }
+          ],
+          "giftcard_type": "VIRTUAL",
+          "allow_open_amount": true,
+          "open_amount_min": 10,
+          "open_amount_max": 42,
+          "giftcard_amounts": [
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=",
+              "value": 12
+            },
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzIwLjAwMDA=",
+              "value": 20
+            },
+            {
+              "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzMwLjAwMDA=",
+              "value": 30
+            }
+          ],
+          "gift_card_options": [
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Sender Name",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU="
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Sender Email",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls"
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Recipient Name",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU="
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Recipient Email",
+              "required": true,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls"
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Message",
+              "required": false,
+              "value": {
+                "uid": "Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ=="
+              }
+            },
+            {
+              "__typename": "CustomizableFieldOption",
+              "title": "Custom Giftcard Amount",
+              "required": false,
+              "value": {
+                "uid": "Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA=="
+              }
+            }
+          ],
+          "staged": false
+        }
+      ]
+    }
+  }
+}

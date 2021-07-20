@@ -16,6 +16,7 @@
           data-sly-use.galleryTpl="gallery.html"
           data-sly-use.actionsTpl="actions.html"
           data-sly-use.quantityTpl="quantity.html"
+          data-sly-use.giftcardProductTpl="giftcardProduct.html"
           data-sly-use.titleTpl="title.html"
           data-sly-use.descriptionTpl="description.html"
           data-sly-use.skuTpl="sku.html"
@@ -27,6 +28,7 @@
           data-configurable="${product.configurable}"
           data-grouped="${product.groupedProduct}"
           data-virtual="${product.virtualProduct}"
+          data-giftcard="${product.giftCardProduct}"
           data-cmp-is="product"
           data-locale="${page.language}"
           data-cmp-data-layer="${product.data.json}"
@@ -35,9 +37,10 @@
         <sly data-sly-test.found="${product.found}">
             <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
             <sly data-sly-test.isBundleProduct="${product.isBundleProduct}" />
+            <sly data-sly-test.isGiftCardProduct="${product.giftCardProduct}" />
             <section class="productFullDetail__title">
                 <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
-                <sly data-sly-test="${!isGroupedProduct}"
+                <sly data-sly-test="${!isGroupedProduct && !isGiftCardProduct}"
                      data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
             </section>
             <section class="productFullDetail__imageCarousel">
@@ -50,9 +53,12 @@
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
             <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}"></div>
-            <section data-sly-test="${!isGroupedProduct && !isBundleProduct}" class="productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !isGiftCardProduct}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
+            </section>
+            <section data-sly-test="${isGiftCardProduct}" class="productFullDetail__giftcardProduct productFullDetail__quantity productFullDetail__section">
+                <sly data-sly-call="${giftcardProductTpl.giftcardProduct @ product=product}"></sly>
             </section>
             <section data-sly-test="${!isBundleProduct}" class="productFullDetail__cartActions productFullDetail__section">
                 <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>

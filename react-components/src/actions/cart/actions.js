@@ -33,7 +33,8 @@ export const addItemToCart = async payload => {
         dispatch,
         physicalCartItems,
         virtualCartItems,
-        bundleCartItems
+        bundleCartItems,
+        giftcardCartItems
     } = payload;
 
     try {
@@ -44,7 +45,9 @@ export const addItemToCart = async payload => {
         }
 
         let variables = { cartId, cartItems: physicalCartItems };
-        if (bundleCartItems.length > 0) {
+        if (giftcardCartItems.length > 0) {
+            variables = { cartId, cartItems: giftcardCartItems };
+        } else if (bundleCartItems.length > 0) {
             variables = { cartId, cartItems: bundleCartItems };
         } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
             variables = { cartId, virtualCartItems, simpleCartItems: physicalCartItems };
