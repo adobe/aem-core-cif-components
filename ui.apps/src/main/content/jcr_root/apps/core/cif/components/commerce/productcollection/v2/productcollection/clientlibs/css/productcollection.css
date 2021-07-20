@@ -64,10 +64,6 @@
     width: 100%;
 }
 
-.productcollection__item-image--placeholder {
-    display: none;
-}
-
 .productcollection__sort-fields {
     float: right;
 }
