@@ -110,7 +110,7 @@
                     <actions jcr:primaryType="nt:unstructured">
                         <item0
                             jcr:primaryType="nt:unstructured"
-                            productSlug="montana-wind-jacket"
+                            productSku="24-MG03"
                             text="Find out more"/>
                     </actions>
                     <featuredcategorylist

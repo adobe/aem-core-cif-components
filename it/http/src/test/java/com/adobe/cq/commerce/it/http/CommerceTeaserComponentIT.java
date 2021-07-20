@@ -32,12 +32,20 @@ public class CommerceTeaserComponentIT extends CommerceTestBase {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/teaser.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
-        // Check title
-        Elements elements = doc.select(TEASER_SELECTOR + ".cmp-teaser__title");
-        Assert.assertEquals("Get ready for the cold !", elements.first().html());
+        // Check for 3 teasers on the site
+        Elements elements = doc.select(TEASER_SELECTOR);
+        Assert.assertEquals(3, elements.size());
 
-        // Check link
+        // Check titles
+        elements = doc.select(TEASER_SELECTOR + ".cmp-teaser__title");
+        Assert.assertEquals("Get ready for the cold !", elements.first().html());
+        Assert.assertEquals("Get ready for the cold !", elements.last().html());
+
+        // Check first link
         elements = doc.select(TEASER_SELECTOR + ".cmp-teaser__action-link");
-        Assert.assertEquals("Find out more", elements.first().html());
+        Assert.assertEquals("Find out more", elements.get(0).html());
+        Assert.assertEquals("Find out more", elements.get(1).html());
+        Assert.assertEquals("Product Action", elements.get(2).html());
+        Assert.assertEquals("Category Action", elements.get(3).html());
     }
 }
