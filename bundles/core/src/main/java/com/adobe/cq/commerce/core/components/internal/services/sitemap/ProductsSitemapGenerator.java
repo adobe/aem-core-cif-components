@@ -130,7 +130,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
 
             for (int i = currentIndex; i < items.size(); i++) {
                 ProductInterface product = items.get(i);
-                if (productFilter == null || !productFilter.shouldInclude(productPage, product)) {
+                if (productFilter != null && !productFilter.shouldInclude(productPage, product)) {
                     LOGGER.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass()
                         .getSimpleName());
                     continue;

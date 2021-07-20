@@ -52,7 +52,6 @@ public class ProductsSitemapGeneratorTest {
     @Rule
     public final AemContext aemContext = new AemContext();
 
-    private final ProductsSitemapGenerator subject = new ProductsSitemapGenerator();
     private final UrlProviderImpl urlProvider = new UrlProviderImpl();
     private final GraphqlClient graphqlClient = Utils.setupGraphqlClient();
 
@@ -78,15 +77,13 @@ public class ProductsSitemapGeneratorTest {
             ImmutableMap.of("cq:cifProductPage", "/content/site/en/product-page"));
         productPage = aemContext.create().page(homePage.getPath() + "/product-page");
 
-        aemContext.registerService(SitemapProductFilter.class, productFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
         aemContext.registerInjectActivateService(urlProvider);
-        aemContext.registerInjectActivateService(subject, "pageSize", 2);
+        aemContext.registerInjectActivateService(new ProductsSitemapGenerator(), "pageSize", 2);
 
         aemContext.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
         aemContext.registerAdapter(Resource.class, ComponentsConfiguration.class, ComponentsConfiguration.EMPTY);
 
-        when(productFilter.shouldInclude(any(), any())).thenReturn(Boolean.TRUE);
         when(externalizer.externalize(any())).then(inv -> ((Resource) inv.getArguments()[0]).getPath());
         when(context.getProperty(eq(ProductsSitemapGenerator.PN_NEXT_PRODUCT), anyInt()))
             .then(inv -> inv.getArguments()[1]);
@@ -112,7 +109,7 @@ public class ProductsSitemapGeneratorTest {
         // given
         when(context.getProperty(eq(ProductsSitemapGenerator.PN_NEXT_PAGE), anyInt())).thenReturn(999);
         // when
-        subject.generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
+        getSubject().generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
     }
 
     @Test
@@ -120,7 +117,7 @@ public class ProductsSitemapGeneratorTest {
         // given
         Page page = aemContext.create().page(homePage.getPath() + "/content-page");
         // when
-        Set<String> names = subject.getNames(page.adaptTo(Resource.class));
+        Set<String> names = getSubject().getNames(page.adaptTo(Resource.class));
         // then
         assertTrue("names expected to be empty", names.isEmpty());
     }
@@ -129,7 +126,7 @@ public class ProductsSitemapGeneratorTest {
     public void testNamesNotEmptyForCategoryPage() {
         // given
         // when
-        Set<String> names = subject.getNames(productPage.adaptTo(Resource.class));
+        Set<String> names = getSubject().getNames(productPage.adaptTo(Resource.class));
         // then
         assertEquals("names' size expected to be 1", 1, names.size());
         assertTrue("names expected to contain <default>", names.contains("<default>"));
@@ -140,9 +137,24 @@ public class ProductsSitemapGeneratorTest {
         // given
         ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
         // when
-        subject.generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
+        getSubject().generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
         // then
         verify(sitemap, atLeastOnce()).addUrl(locations.capture());
+        assertEquals("5 locations added", 5, locations.getAllValues().size());
+    }
+
+    @Test
+    public void testAllProductsAddedWithFilter() throws SitemapException {
+        // given
+        ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
+        aemContext.registerService(SitemapProductFilter.class, productFilter);
+        when(productFilter.shouldInclude(any(), any())).thenReturn(Boolean.TRUE);
+
+        // when
+        getSubject().generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
+        // then
+        verify(sitemap, atLeastOnce()).addUrl(locations.capture());
+        verify(productFilter, atLeastOnce()).shouldInclude(any(), any());
         assertEquals("5 locations added", 5, locations.getAllValues().size());
     }
 
@@ -154,7 +166,7 @@ public class ProductsSitemapGeneratorTest {
         when(context.getProperty(eq(ProductsSitemapGenerator.PN_NEXT_PRODUCT), anyInt())).thenReturn(1);
 
         // when
-        subject.generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
+        getSubject().generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
         // then
         verify(sitemap, atLeastOnce()).addUrl(locations.capture());
         assertEquals("2 locations added", 2, locations.getAllValues().size());
@@ -164,15 +176,21 @@ public class ProductsSitemapGeneratorTest {
     public void testOnlyProductsAllowedByFilterAdded() throws SitemapException {
         // given
         ArgumentCaptor<String> locations = ArgumentCaptor.forClass(String.class);
+        aemContext.registerService(SitemapProductFilter.class, productFilter);
         when(productFilter.shouldInclude(any(), any())).then(inv -> {
             ProductInterface product = (ProductInterface) inv.getArguments()[1];
             return product.getSku().equals("P04");
         });
 
         // when
-        subject.generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
+        getSubject().generate(productPage.adaptTo(Resource.class), "<default>", sitemap, context);
         // then
         verify(sitemap, atLeastOnce()).addUrl(locations.capture());
         assertEquals("1 locations added", 1, locations.getAllValues().size());
+    }
+
+    private ProductsSitemapGenerator getSubject() {
+        // get the service from the context in order to support reregistration on reference updates
+        return (ProductsSitemapGenerator) aemContext.getService(SitemapGenerator.class);
     }
 }
