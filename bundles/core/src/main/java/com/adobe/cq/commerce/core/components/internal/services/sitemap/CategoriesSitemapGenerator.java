@@ -97,11 +97,11 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder().page(externalizer.externalize(sitemapRoot));
 
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
-        Deque<String> categoryIds = new LinkedList<>(Arrays.asList(
+        Deque<String> categoryUids = new LinkedList<>(Arrays.asList(
             context.getProperty(PN_PENDING_CATEGORIES, new String[] { rootCategoryIdentifier })));
 
-        while (!categoryIds.isEmpty()) {
-            String categoryId = categoryIds.poll();
+        while (!categoryUids.isEmpty()) {
+            String categoryId = categoryUids.poll();
             String query = Operations.query(categoryQueryFor(categoryId)).toString();
             GraphqlResponse<Query, Error> resp = graphql.execute(query);
 
@@ -118,12 +118,12 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             if (it.hasNext()) {
                 CategoryTree category = it.next();
                 Stream<CategoryTree> children = category.getChildren().stream();
-                List<String> childIds = children.map(CategoryTree::getUid).map(ID::toString).collect(Collectors.toList());
+                List<String> childUids = children.map(CategoryTree::getUid).map(ID::toString).collect(Collectors.toList());
 
-                for (int i = childIds.size() - 1; i >= 0; i--) {
+                for (int i = childUids.size() - 1; i >= 0; i--) {
                     // adding the children in reverse order to the front of the dequeue wil implement a depth first traversal keeping
                     // memory consumption of the queue under control
-                    categoryIds.addFirst(childIds.get(i));
+                    categoryUids.addFirst(childUids.get(i));
                 }
 
                 boolean ignoredByFilter = categoryFilter != null && !categoryFilter.shouldInclude(categoryPage, category);
@@ -141,7 +141,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                         categoryFilter.getClass().getSimpleName());
                 }
 
-                context.setProperty(PN_PENDING_CATEGORIES, categoryIds.toArray(new String[0]));
+                context.setProperty(PN_PENDING_CATEGORIES, categoryUids.toArray(new String[0]));
             }
 
             if (it.hasNext()) {
@@ -150,12 +150,12 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         }
     }
 
-    private static QueryQueryDefinition categoryQueryFor(String categoryId) {
+    private static QueryQueryDefinition categoryQueryFor(String categoryUid) {
         return q -> q.categories(
             arguments -> arguments
                 .filters(new CategoryFilterInput()
                     .setCategoryUid(new FilterEqualTypeInput()
-                        .setEq(categoryId))),
+                        .setEq(categoryUid))),
             resultSet -> resultSet
                 .items(category -> category
                     .urlKey()
