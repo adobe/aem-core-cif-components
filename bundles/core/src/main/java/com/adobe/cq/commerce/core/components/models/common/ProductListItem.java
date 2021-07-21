@@ -28,18 +28,16 @@ public interface ProductListItem extends ListItem {
      *
      * @return the product SKU of this list item or {@code null}
      */
-    default String getSKU() {
-        throw new UnsupportedOperationException();
-    }
+    @Nullable
+    String getSKU();
 
     /**
      * Returns the product slug of this {@code ProductListItem}.
      *
      * @return the product slug of this list item or {@code null}
      */
-    default String getSlug() {
-        throw new UnsupportedOperationException();
-    }
+    @Nullable
+    String getSlug();
 
     /**
      * Returns the product image URL of this {@code ProductListItem}.
@@ -47,9 +45,7 @@ public interface ProductListItem extends ListItem {
      * @return the product image URL of this list item or {@code null}
      */
     @Nullable
-    default String getImageURL() {
-        throw new UnsupportedOperationException();
-    }
+    String getImageURL();
 
     /**
      * Returns the product image alt text of this {@code ProductListItem}.
@@ -57,9 +53,7 @@ public interface ProductListItem extends ListItem {
      * @return the product image alt text of this list item or {@code null}
      */
     @Nullable
-    default String getImageAlt() {
-        throw new UnsupportedOperationException();
-    }
+    String getImageAlt();
 
     /**
      * Returns the identifier of this product.
