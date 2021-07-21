@@ -344,4 +344,34 @@ public class SearchResultsImplTest {
         jsonResult = searchResultsModel.getSearchResultsStorefrontContext().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
     }
+
+    @Test
+    public void testStorefrontContextRenderDisabled() throws IOException {
+        AemContext testContext = new AemContext(
+            (AemContextCallback) context -> {
+                // Load page structure
+                context.load().json("/context/jcr-content.json", "/content");
+
+                UrlProviderImpl urlProvider = new UrlProviderImpl();
+                urlProvider.activate(new MockUrlProviderConfiguration());
+                context.registerService(UrlProvider.class, urlProvider);
+
+                context.registerInjectActivateService(new SearchFilterServiceImpl());
+                context.registerInjectActivateService(new SearchResultsServiceImpl());
+                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                    (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+
+                context.registerService(Externalizer.class, new MockExternalizer());
+
+                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+                Utils.addStorefrontContextConfig(mockConfigBuilder, false);
+                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+            },
+            ResourceResolverType.JCR_MOCK);
+
+        testContext.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = testContext.request().adaptTo(SearchResultsImpl.class);
+
+        Assert.assertNull(searchResultsModel.getSearchResultsStorefrontContext().getJson());
+    }
 }
