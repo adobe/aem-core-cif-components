@@ -23,9 +23,9 @@ public class PriceRangeImplTest {
 
     @Test
     public void testGetters() {
-        PriceRange priceRange = new PriceRangeImpl(10L, 12L);
-        assertEquals(Long.valueOf(10), priceRange.getMinPrice());
-        assertEquals(Long.valueOf(12), priceRange.getMaxPrice());
+        PriceRange priceRange = new PriceRangeImpl(10.0, 12.0);
+        assertEquals(Double.valueOf(10), priceRange.getMinPrice());
+        assertEquals(Double.valueOf(12), priceRange.getMaxPrice());
     }
 
 }
