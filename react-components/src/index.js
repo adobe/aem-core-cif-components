@@ -19,7 +19,11 @@ export { default as AccountContainer } from './components/AccountContainer';
 export { default as AddressBook } from './components/AddressBook';
 export { default as BundleProductOptions } from './components/BundleProductOptions';
 export { Portal } from './components/Portal';
+export { default as PortalPlacer } from './components/PortalPlacer';
 export { default as ResetPassword } from './components/ResetPassword';
+export { default as Price } from './components/Price';
+export { default as Trigger } from './components/Trigger';
+export { default as LoadingIndicator } from './components/LoadingIndicator';
 
 export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
 export { default as UserContextProvider, useUserContext } from './context/UserContext';
@@ -33,3 +37,5 @@ export { AccountLink } from './components/MyAccount';
 export { default as MyAccount } from './components/MyAccount';
 export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';
+export { useAwaitQuery, useStorefrontEvents, usePageType } from './utils/hooks';
+export { createProductPageUrl } from './utils/createProductPageUrl';
