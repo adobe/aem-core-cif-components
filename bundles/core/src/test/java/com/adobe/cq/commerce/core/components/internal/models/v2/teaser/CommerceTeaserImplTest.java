@@ -43,15 +43,19 @@ import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.components.ComponentManager;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -116,6 +120,7 @@ public class CommerceTeaserImplTest {
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(TEASER);
         context.currentResource(commerceTeaserResource);
+        context.registerService(PathProcessor.class, new Utils.MockPathProcessor());
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -127,6 +132,9 @@ public class CommerceTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
         ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
         slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
+        Style style = mock(Style.class);
+        when(style.get(anyString(), anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put("currentStyle", style);
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
