@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -40,10 +39,9 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -127,9 +125,12 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     ParamsBuilder params = new ParamsBuilder().uid(categoryId);
                     if (categoriesRetriever != null) {
                         try {
-                            Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getUid().toString().equals(categoryId)).findAny();
-                            cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
+                            categoriesRetriever.fetchCategories().stream()
+                                .filter(categoryTree -> categoryTree.getUid().toString().equals(categoryId)).findAny()
+                                .ifPresent(categoryTree -> params
+                                    .uid(categoryTree.getUid().toString())
+                                    .urlKey(categoryTree.getUrlKey())
+                                    .urlPath(categoryTree.getUrlPath()));
                         } catch (RuntimeException x) {
                             LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                         }

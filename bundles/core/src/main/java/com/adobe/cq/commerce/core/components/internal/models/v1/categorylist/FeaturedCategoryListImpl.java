@@ -44,8 +44,8 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -154,6 +154,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         for (CategoryTree category : categories) {
             ParamsBuilder paramsBuilder = new ParamsBuilder()
                 .uid(category.getUid().toString())
+                .urlKey(category.getUrlKey())
                 .urlPath(category.getUrlPath());
 
             Map<String, String> params = paramsBuilder.map();

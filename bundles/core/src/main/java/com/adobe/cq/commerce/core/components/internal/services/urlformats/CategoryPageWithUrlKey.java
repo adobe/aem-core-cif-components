@@ -19,13 +19,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.google.common.collect.Sets;
 
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.PAGE_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_KEY_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.PAGE_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.URL_KEY_PARAM;
 
 public class CategoryPageWithUrlKey extends AbstractUrlFormat {
     public static final UrlFormat INSTANCE = new CategoryPageWithUrlKey();
@@ -44,7 +45,7 @@ public class CategoryPageWithUrlKey extends AbstractUrlFormat {
     }
 
     @Override
-    public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+    public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
         if (requestPathInfo == null) {
             return Collections.emptyMap();
         }

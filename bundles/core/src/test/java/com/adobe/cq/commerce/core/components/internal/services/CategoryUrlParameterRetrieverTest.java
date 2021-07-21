@@ -57,7 +57,7 @@ public class CategoryUrlParameterRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}){url_path,url_key}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}){uid,url_path,url_key}}";
         Assert.assertTrue(captor.getValue().equals(expectedQuery));
     }
 }

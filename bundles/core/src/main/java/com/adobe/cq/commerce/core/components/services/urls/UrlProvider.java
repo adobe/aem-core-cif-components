@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.components.services;
+package com.adobe.cq.commerce.core.components.services.urls;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,27 +26,6 @@ import com.day.cq.wcm.api.Page;
 
 @ProviderType
 public interface UrlProvider {
-
-    /**
-     * Defines the location of the product or ctegory identifier in the URL.
-     */
-    enum IdentifierLocation {
-        SELECTOR, SUFFIX, QUERY_PARAM
-    }
-
-    /**
-     * Defines the product identifier type used in product page urls.
-     */
-    enum ProductIdentifierType {
-        URL_KEY, SKU
-    }
-
-    /**
-     * Defines the category identifier type used in category page urls.
-     */
-    enum CategoryIdentifierType {
-        URL_PATH
-    }
 
     /**
      * The <code>url_key</code> parameter of the product or category. In the case of a <code>ConfigurableProduct</code>,

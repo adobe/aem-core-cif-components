@@ -19,7 +19,7 @@ import java.util.Map;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.google.common.collect.ImmutableMap;
 
 import static org.junit.Assert.assertEquals;
@@ -62,7 +62,7 @@ public class ProductPageWithUrlKeyTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        Map<String, String> parameters = subject.parse(pathInfo);
+        Map<String, String> parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.get("page"));
         assertEquals("foo-bar", parameters.get("url_key"));
@@ -70,7 +70,7 @@ public class ProductPageWithUrlKeyTest {
 
     @Test
     public void testParseNull() {
-        Map<String, String> parameters = subject.parse(null);
+        Map<String, String> parameters = subject.parse(null, null);
         assertTrue(parameters.isEmpty());
     }
 
@@ -78,7 +78,7 @@ public class ProductPageWithUrlKeyTest {
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        Map<String, String> parameters = subject.parse(pathInfo);
+        Map<String, String> parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.get("page"));
         assertNull(parameters.get("url_key"));

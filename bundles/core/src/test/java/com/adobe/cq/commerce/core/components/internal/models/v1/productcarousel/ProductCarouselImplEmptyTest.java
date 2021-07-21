@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;

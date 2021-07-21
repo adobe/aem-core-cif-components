@@ -26,7 +26,7 @@ public class CategoriesRetriever extends AbstractCategoriesRetriever {
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
         CategoryTreeQueryDefinition categoryTreeQueryDefinition = q -> {
-            q.uid().name().urlPath().position().image();
+            q.uid().name().urlKey().urlPath().position().image();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

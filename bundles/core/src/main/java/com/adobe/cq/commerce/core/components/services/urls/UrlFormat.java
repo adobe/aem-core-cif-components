@@ -11,23 +11,46 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.components.internal.services;
+package com.adobe.cq.commerce.core.components.services.urls;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
+import org.osgi.annotation.versioning.ConsumerType;
 
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
-
+/**
+ * Consumers may implement this interface to provide a custom {@link UrlFormat} to the {@link UrlProvider} implementation.
+ * <p>
+ * The implementation(s) of this interface must be registered as OSGI service and must have the {@link UrlFormat#PROP_USE_AS} property set.
+ * The {@link UrlFormat} with the {@link UrlFormat#PROP_USE_AS} set to {@link UrlFormat#PRODUCT_PAGE_URL_FORMAT} will be used by the
+ * {@link UrlProvider} implementation to format and parse product urls, the {@link UrlFormat} registered with
+ * {@link UrlFormat#CATEGORY_PAGE_URL_FORMAT} to format and parse category urls.
+ * <p>
+ * If any {@link UrlFormat} is registered as described above the override the configured behaviour of the {@link UrlProvider}
+ * implementation. Implementing a {@link UrlFormat} is optional.
+ */
+@ConsumerType
 public interface UrlFormat {
+
+    /**
+     * The service registration property used to identify the purpose of the {@link UrlFormat}. It can either be set to
+     * {@link UrlFormat#PRODUCT_PAGE_URL_FORMAT} or {@link UrlFormat#CATEGORY_PAGE_URL_FORMAT}.When
+     */
+    String PROP_USE_AS = "useAs";
+
+    /**
+     * The value of the {@link UrlFormat#PROP_USE_AS} property to be set when the {@link UrlFormat} should be used to format and parse
+     * product urls.
+     */
+    String PRODUCT_PAGE_URL_FORMAT = "productPageUrlFormat";
+
+    /**
+     * The value of the {@link UrlFormat#PROP_USE_AS} property to be set when the {@link UrlFormat} should be used to format and parse
+     * category urls.
+     */
+    String CATEGORY_PAGE_URL_FORMAT = "categoryPageUrlFormat";
 
     /**
      * A {@link CharSequence} to be used to write defaults to the format when a mandatory parameter is missing.
@@ -37,6 +60,7 @@ public interface UrlFormat {
      * Example usage: {@code parameters.getOrDefault(key, OPENING_BRACKETS + key + CLOSING_BRACKETS)}
      */
     String OPENING_BRACKETS = "{{";
+
     /**
      * A {@link CharSequence} to be used to write defaults to the format when a mandatory parameter is missing.
      * <p>
@@ -45,31 +69,6 @@ public interface UrlFormat {
      * Example usage: {@code parameters.getOrDefault(key, OPENING_BRACKETS + key + CLOSING_BRACKETS)}
      */
     String CLOSING_BRACKETS = "}}";
-
-    /**
-     * A {@link Map} of default patterns for product pages supported by the default implementation of
-     * {@link com.adobe.cq.commerce.core.components.services.UrlProvider}.
-     */
-    Map<String, UrlFormat> DEFAULT_PRODUCT_URL_FORMATS = new HashMap<String, UrlFormat>() {
-        {
-            put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
-            put(ProductPageWithUrlKey.PATTERN, ProductPageWithUrlKey.INSTANCE);
-            put(ProductPageWithSkuAndUrlKey.PATTERN, ProductPageWithSkuAndUrlKey.INSTANCE);
-            put(ProductPageWithUrlPath.PATTERN, ProductPageWithUrlPath.INSTANCE);
-            put(ProductPageWithSkuAndUrlPath.PATTERN, ProductPageWithSkuAndUrlPath.INSTANCE);
-        }
-    };
-
-    /**
-     * A {@link Map} of default patterns for category pages supported by the default implementation of
-     * {@link com.adobe.cq.commerce.core.components.services.UrlProvider}.
-     */
-    Map<String, UrlFormat> DEFAULT_CATEGORY_URL_FORMATS = new HashMap<String, UrlFormat>() {
-        {
-            put(CategoryPageWithUrlPath.PATTERN, CategoryPageWithUrlPath.INSTANCE);
-            put(CategoryPageWithUrlKey.PATTERN, CategoryPageWithUrlKey.INSTANCE);
-        }
-    };
 
     /**
      * Formats an URL with the given parameters.
@@ -90,12 +89,12 @@ public interface UrlFormat {
      * @param requestPathInfo the request path info object used to extra the URL information from
      * @return a map containing the parsed URL elements
      */
-    Map<String, String> parse(RequestPathInfo requestPathInfo);
+    Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap);
 
     /**
      * Returns a set of all parameter names the url format implementation supports when parsing a pathinfo.
      * <p>
-     * This may return more parameters, than the url fromat uses in {@link UrlFormat#format(Map)}.
+     * This may return more parameters, than the url format uses in {@link UrlFormat#format(Map)}.
      *
      * @return all supported parameter names.
      */

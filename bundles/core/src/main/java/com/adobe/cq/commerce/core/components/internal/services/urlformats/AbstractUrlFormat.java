@@ -19,10 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ResourceUtil;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_KEY_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_PATH_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.URL_KEY_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.URL_PATH_PARAM;
 
 abstract class AbstractUrlFormat implements UrlFormat {
     protected static final String HTML_EXTENSION = ".html";
