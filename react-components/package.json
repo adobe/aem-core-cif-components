@@ -15,12 +15,12 @@
   ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
+    "lint:fix": "eslint --fix 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
     "webpack:prod": "webpack --mode=production && node css-template.js",
     "test": "npm run lint && npm run prettier:check && jest --coverage",
     "ci": "npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run lint && jest --watch",
-    "update-version": "node build-scripts/update-version.js",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "translation:scan": "i18next-scanner",

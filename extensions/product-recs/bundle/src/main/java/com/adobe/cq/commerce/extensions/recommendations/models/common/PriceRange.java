@@ -18,7 +18,7 @@ package com.adobe.cq.commerce.extensions.recommendations.models.common;
  */
 public interface PriceRange {
 
-    Long getMinPrice();
+    Double getMinPrice();
 
-    Long getMaxPrice();
+    Double getMaxPrice();
 }
