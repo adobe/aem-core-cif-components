@@ -23,7 +23,7 @@
             <img class="productcollection__item-image productcollection__item-image--placeholder"
                 alt=""
                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="/>
-            <img class="productcollection__item-image" src="${item.imageURL}" alt="${item.title}"/>
+            <img class="productcollection__item-image" src="${item.imageURL}" alt="${item.imageAlt}"/>
         </div>
         <div data-sly-test="${item.isStaged}" class="productcollection__item-staged">${'Staged' @ i18n}</div>
         <div class="productcollection__item-title"><span>${item.title}</span></div>

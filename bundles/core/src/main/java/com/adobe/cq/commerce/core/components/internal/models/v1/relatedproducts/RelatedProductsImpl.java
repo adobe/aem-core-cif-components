@@ -155,7 +155,8 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
             try {
                 Price price = new PriceImpl(product.getPriceRange(), locale);
                 carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
-                    product.getName(), price, product.getThumbnail().getUrl(), productPage, null, request,
+                    product.getName(), price, product.getThumbnail().getUrl(), product
+                        .getThumbnail().getLabel(), productPage, null, request,
                     urlProvider, this.getId(), product.getStaged()));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);

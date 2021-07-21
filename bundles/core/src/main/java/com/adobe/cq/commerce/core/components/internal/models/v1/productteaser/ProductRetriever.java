@@ -47,7 +47,7 @@ class ProductRetriever extends AbstractProductRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return (ProductInterfaceQuery q) -> {
             q.name()
-                .image(i -> i.url())
+                .image(i -> i.url().label())
                 .urlKey()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))

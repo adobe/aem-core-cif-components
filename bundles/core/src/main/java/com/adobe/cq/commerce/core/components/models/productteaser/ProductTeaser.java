@@ -46,6 +46,13 @@ public interface ProductTeaser extends Component {
     String getImage();
 
     /**
+     * Returns alt text of swatch image of the product for display for this {@code ProductTeaser}
+     *
+     * @return alt text of the swatch image for the product or {@code null}
+     */
+    String getImageAlt();
+
+    /**
      * Returns the url of the product page for this {@code ProductTeaser}
      *
      * @return the url of the product page of the configured product or {@code null}

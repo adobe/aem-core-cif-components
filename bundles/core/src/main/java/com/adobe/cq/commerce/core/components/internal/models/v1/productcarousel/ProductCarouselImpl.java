@@ -176,6 +176,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                         product.getName(),
                         price,
                         thumbnail == null ? null : thumbnail.getUrl(),
+                        thumbnail == null ? null : thumbnail.getLabel(),
                         productPage,
                         skus.getRight(),
                         request,

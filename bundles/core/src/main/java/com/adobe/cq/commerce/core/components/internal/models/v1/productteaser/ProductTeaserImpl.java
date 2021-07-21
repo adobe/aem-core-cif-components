@@ -214,6 +214,16 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     }
 
     @Override
+    @JsonIgnore
+    public String getImageAlt() {
+        ProductInterface product = getProduct();
+        if (product != null) {
+            return StringUtils.defaultIfBlank(product.getImage().getLabel(), product.getName());
+        }
+        return null;
+    }
+
+    @Override
     public Boolean isVirtualProduct() {
         if (isVirtualProduct == null) {
             isVirtualProduct = getProduct() instanceof VirtualProduct;

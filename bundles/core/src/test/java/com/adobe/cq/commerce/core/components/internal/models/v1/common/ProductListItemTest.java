@@ -9,6 +9,7 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,6 +46,24 @@ public class ProductListItemTest {
         identifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         productListItem = new ProductListItemImpl(identifier, "", productPage);
         Assert.assertEquals(sku, productListItem.getSKU());
+    }
+
+    @Test
+    public void testCreateProductListItem2() {
+        String sku = "product-sku";
+        String name = "product-name";
+        String urlKey = "product-url_key";
+        String imageUrl = "http://www.image.com/image.jpg";
+        String imageAlt = "Some image";
+
+        ProductListItem productListItem = new ProductListItemImpl(sku, urlKey, name, null, imageUrl, imageAlt, productPage, null, null,
+            null, "1", false);
+
+        Assert.assertEquals(sku, productListItem.getSKU());
+        Assert.assertEquals(urlKey, productListItem.getSlug());
+        Assert.assertEquals(imageUrl, productListItem.getImageURL());
+        Assert.assertEquals(imageAlt, productListItem.getImageAlt());
+        Assert.assertEquals(StringUtils.EMPTY, productListItem.getURL());
     }
 
     @Test
