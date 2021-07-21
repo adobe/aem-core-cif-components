@@ -30,8 +30,14 @@ const withSuspense = Component => {
 };
 
 const Portal = props => {
-    const { selector, children } = props;
-    const elem = document.querySelector(selector);
+    let { selector, children } = props;
+
+    let elem;
+    if (selector instanceof HTMLElement) {
+        elem = selector;
+    } else if (typeof selector === 'string') {
+        elem = document.querySelector(selector);
+    }
 
     if (elem) {
         // Only render children if mounting point is available
@@ -42,7 +48,7 @@ const Portal = props => {
 };
 
 Portal.propTypes = {
-    selector: PropTypes.string.isRequired
+    selector: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(HTMLElement)]).isRequired
 };
 
 export default withSuspense(Portal);

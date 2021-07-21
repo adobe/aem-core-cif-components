@@ -126,6 +126,7 @@
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                     fieldLabel="Min price"
+                                                    step="0.01"
                                                     granite:class="u-coral-noPadding u-coral-noMargin"
                                                     name="./includedPriceRangeMin"/>
                                             <minPrinceInclusionTypeHint
@@ -133,11 +134,12 @@
                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
                                                     ignoreData="{Boolean}true"
                                                     name="./includedPriceRangeMin@TypeHint"
-                                                    value="Long"/>
+                                                    value="Double"/>
                                             <maxPrinceInclusion
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                     fieldLabel="Max price"
+                                                    step="0.01"
                                                     granite:class="u-coral-noPadding u-coral-noMargin"
                                                     name="./includedPriceRangeMax"/>
                                             <maxPrinceInclusionTypeHint
@@ -145,7 +147,7 @@
                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
                                                     ignoreData="{Boolean}true"
                                                     name="./includedPriceRangeMax@TypeHint"
-                                                    value="Long"/>
+                                                    value="Double"/>
                                         </items>
                                     </columns>
                                     <useFilter
@@ -199,6 +201,7 @@
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                     fieldLabel="Min price"
+                                                    step="0.01"
                                                     granite:class="u-coral-noPadding u-coral-noMargin"
                                                     name="./excludedPriceRangeMin"/>
                                             <minPrinceExclusionTypeHint
@@ -206,11 +209,12 @@
                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
                                                     ignoreData="{Boolean}true"
                                                     name="./excludedPriceRangeMin@TypeHint"
-                                                    value="Long"/>
+                                                    value="Double"/>
                                             <maxPrinceExclusion
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
                                                     fieldLabel="Max price"
+                                                    step="0.01"
                                                     granite:class="u-coral-noPadding u-coral-noMargin"
                                                     name="./excludedPriceRangeMax"/>
                                             <maxPrinceExclusionTypeHint
@@ -218,7 +222,7 @@
                                                     sling:resourceType="granite/ui/components/foundation/form/hidden"
                                                     ignoreData="{Boolean}true"
                                                     name="./excludedPriceRangeMax@TypeHint"
-                                                    value="Long"/>
+                                                    value="Double"/>
                                         </items>
                                     </columns>
                                     <useFilter
