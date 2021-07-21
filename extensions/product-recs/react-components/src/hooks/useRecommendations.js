@@ -39,27 +39,47 @@ export const useRecommendations = props => {
         preconfigured = false
     } = props;
 
-    const getFilter = () => {
+    const getFilters = () => {
+        let result = [];
+
         // This is currently limited to a single filter by the recommendations SDK
         if (categoryInclusions) {
-            return `categories: (${commaToOrList(categoryInclusions)})`;
+            result.push(`categories: (${commaToOrList(categoryInclusions)})`);
         }
         if (categoryExclusions) {
-            return `-categories: (${commaToOrList(categoryExclusions)})`;
+            result.push(`-categories: (${commaToOrList(categoryExclusions)})`);
         }
         if (includeMinPrice) {
-            return `prices.minimum.final: >${includeMinPrice}`;
+            result.push(`prices.minimum.final: >${includeMinPrice}`);
         }
         if (includeMaxPrice) {
-            return `prices.maximum.final: <${includeMaxPrice}`;
+            result.push(`prices.maximum.final: <${includeMaxPrice}`);
         }
         if (excludeMinPrice) {
-            return `prices.maximum.final: <${excludeMinPrice}`;
+            result.push(`prices.maximum.final: <${excludeMinPrice}`);
         }
         if (excludeMaxPrice) {
-            return `prices.minimum.final: >${excludeMaxPrice}`;
+            result.push(`prices.minimum.final: >${excludeMaxPrice}`);
         }
-        return '';
+        return result;
+    };
+
+    const translateFilters = (filters, storeViewCode) => {
+        // Translate all filters, except for the first one. The first one is translated by the Recommendations SDK.
+        if (filters.length < 2) {
+            return filters;
+        }
+
+        for (let i = 1; i < filters.length; i++) {
+            const split = filters[i].split(':');
+            split[0] = split[0]
+                .replace('categories', `product.${storeViewCode}.categories`)
+                .replace('prices', `product.${storeViewCode}.prices`);
+
+            filters[i] = split.join(':');
+        }
+
+        return filters;
     };
 
     useEffect(() => {
@@ -79,8 +99,14 @@ export const useRecommendations = props => {
             const client = new RecommendationsClient({ alternateEnvironmentId: '', pageType });
 
             if (!preconfigured) {
+                // Get all configured filters, translate them, except for the first one and concatenate them with AND.
+                // This is considered a workaround and should be fixed in the Recommendations SDK.
+                let filters = getFilters();
+                filters = translateFilters(filters, client._storeViewCode);
+                filters = filters.join(' AND ');
+
                 // Register recommendation as configured in component dialog
-                client.register({ name: title, type: recommendationType, filter: getFilter() });
+                client.register({ name: title, type: recommendationType, filter: filters });
             }
 
             mse && mse.publish.recsRequestSent();
@@ -91,7 +117,6 @@ export const useRecommendations = props => {
                 !data ||
                 ((!data.units || data.units.length === 0) && (!data.results || data.results.length === 0))
             ) {
-                console.warn('Could not load product recommendations', status);
                 setData({ loading: false, units: null });
                 return;
             }

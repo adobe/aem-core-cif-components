@@ -30,7 +30,8 @@ jest.mock('@magento/recommendations-js-sdk', () => {
         return {
             fetch: mockFetch,
             fetchPreconfigured: mockFetchPreconfigured,
-            register: mockRegister
+            register: mockRegister,
+            _storeViewCode: 'myStoreViewCode'
         };
     });
 });
@@ -158,6 +159,46 @@ describe('useRecommendations', () => {
             name: 'My Recommendation',
             type: 'viewed-viewed',
             filter: expected
+        });
+        expect(mockFetchPreconfigured).not.toHaveBeenCalled();
+
+        // Check MSE calls
+        expect(mse.publish.recsRequestSent).toHaveBeenCalledTimes(1);
+        expect(mse.context.setRecommendations).toHaveBeenCalledWith({ units });
+        expect(mse.publish.recsResponseReceived).toHaveBeenCalledTimes(1);
+    });
+
+    it('registers a recommendation with multiple filters', async () => {
+        // Prepare mocks
+        mockFetch.mockResolvedValue({ status: 200, data: { units } });
+
+        // Render hook with mock StorefrontInstanceContext
+        const { result } = renderHook(
+            () =>
+                useRecommendations({
+                    title: 'My Recommendation',
+                    recommendationType: 'viewed-viewed',
+                    includeMaxPrice: '50.0',
+                    includeMinPrice: '10.0'
+                }),
+            { wrapper }
+        );
+
+        // Wait for hook to return the correct unit
+        await wait(() => {
+            expect(result.current).toStrictEqual({
+                loading: false,
+                units
+            });
+        });
+
+        // Expect SDK constructor and method to be called
+        expect(RecommendationsClient).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockRegister).toHaveBeenCalledWith({
+            name: 'My Recommendation',
+            type: 'viewed-viewed',
+            filter: 'prices.minimum.final: >10.0 AND product.myStoreViewCode.prices.maximum.final: <50.0'
         });
         expect(mockFetchPreconfigured).not.toHaveBeenCalled();
 

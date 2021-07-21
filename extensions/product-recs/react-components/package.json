@@ -55,7 +55,7 @@
   "dependencies": {
     "@adobe/aem-core-cif-react-components": "^1.12.0",
     "@apollo/client": "^3.2.4",
-    "@magento/recommendations-js-sdk": "^2.0.0",
+    "@magento/recommendations-js-sdk": "2.0.1",
     "graphql": "^14.6.0",
     "i18next": "^19.3.2",
     "i18next-scanner": "^2.10.3",
