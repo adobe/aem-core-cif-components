@@ -228,7 +228,7 @@ public class Utils {
         ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
 
         DataLayerConfig dataLayerConfig = Mockito.mock(DataLayerConfig.class);
-        Mockito.when(dataLayerConfig.enabled()).thenReturn(true);
+        Mockito.when(dataLayerConfig.enabled()).thenReturn(enabled);
 
         Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
         Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerVm);
@@ -237,13 +237,8 @@ public class Utils {
 
     static public void addStorefrontContextConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
         ValueMap storefrontConfigVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
-
-        DataLayerConfig storefrontConfig = Mockito.mock(DataLayerConfig.class);
-        Mockito.when(storefrontConfig.enabled()).thenReturn(true);
-
         Mockito.when(mockConfigBuilder.name(STOREFRONT_CONTEXT_CONFIG_NAME)).thenReturn(mockConfigBuilder);
         Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(storefrontConfigVm);
-        Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(storefrontConfig);
     }
 
     /**
