@@ -1,7 +1,7 @@
 [
   {
     "breadcrumb-bafb50b602-item-88fb9dce60": {
-      "xdm:linkURL": "null/content/venia/us/en.html",
+      "xdm:linkURL": "/content/venia/us/en.html",
       "dc:title": "en",
       "@type": "venia/components/page"
     }

@@ -35,6 +35,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
@@ -55,11 +56,13 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.wcm.core.components.internal.DataLayerConfig;
 import com.adobe.cq.wcm.core.components.internal.jackson.DefaultMethodSkippingModuleProvider;
 import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -266,5 +269,27 @@ public class Utils {
             throw new RuntimeException("Unable to find test file " + expectedJsonResource + ".");
         }
         IOUtils.closeQuietly(is);
+    }
+
+    public static class MockPathProcessor implements PathProcessor {
+        @Override
+        public boolean accepts(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return true;
+        }
+
+        @Override
+        public String sanitize(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
+
+        @Override
+        public String map(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
+
+        @Override
+        public String externalize(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
     }
 }
