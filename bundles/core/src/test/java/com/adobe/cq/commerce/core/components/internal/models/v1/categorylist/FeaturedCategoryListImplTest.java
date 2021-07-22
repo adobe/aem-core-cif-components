@@ -37,7 +37,7 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -94,7 +94,8 @@ public class FeaturedCategoryListImplTest {
             UrlProviderImpl urlProvider = new UrlProviderImpl();
             urlProvider.activate(new MockUrlProviderConfiguration());
             context.registerService(UrlProvider.class, urlProvider);
-            ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
         }, ResourceResolverType.JCR_MOCK);
     }

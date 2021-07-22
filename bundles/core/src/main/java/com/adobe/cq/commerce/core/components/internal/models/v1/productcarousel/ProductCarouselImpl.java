@@ -48,7 +48,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -176,6 +176,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                         product.getName(),
                         price,
                         thumbnail == null ? null : thumbnail.getUrl(),
+                        thumbnail == null ? null : thumbnail.getLabel(),
                         productPage,
                         skus.getRight(),
                         request,

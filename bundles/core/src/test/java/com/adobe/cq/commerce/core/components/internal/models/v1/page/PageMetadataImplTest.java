@@ -45,7 +45,7 @@ import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -102,7 +102,8 @@ public class PageMetadataImplTest {
 
                 context.registerService(Externalizer.class, new MockExternalizer());
 
-                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+                Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);

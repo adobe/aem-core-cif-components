@@ -41,8 +41,8 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -209,6 +209,16 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public String getImage() {
         if (getProduct() != null) {
             return getProduct().getImage().getUrl();
+        }
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getImageAlt() {
+        ProductInterface product = getProduct();
+        if (product != null) {
+            return StringUtils.defaultIfBlank(product.getImage().getLabel(), product.getName());
         }
         return null;
     }

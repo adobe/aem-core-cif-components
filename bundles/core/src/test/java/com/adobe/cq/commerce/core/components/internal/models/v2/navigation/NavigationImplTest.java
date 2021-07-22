@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Navigation;
@@ -58,7 +58,8 @@ public class NavigationImplTest {
             (AemContextCallback) context -> {
                 context.load().json(contentPath, "/content");
 
-                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+                Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);

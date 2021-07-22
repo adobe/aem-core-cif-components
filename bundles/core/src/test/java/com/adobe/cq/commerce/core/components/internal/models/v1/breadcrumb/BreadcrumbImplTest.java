@@ -40,7 +40,7 @@ import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -91,7 +91,8 @@ public class BreadcrumbImplTest {
 
                 context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
 
-                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+                Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);

@@ -46,7 +46,7 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
@@ -81,6 +81,8 @@ public class SearchResultsImplTest {
     @Rule
     public final AemContext context = createContext("/context/jcr-content.json");
 
+    private static final ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
@@ -98,7 +100,8 @@ public class SearchResultsImplTest {
 
                 context.registerService(Externalizer.class, new MockExternalizer());
 
-                ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+                Utils.addDataLayerConfig(mockConfigBuilder, true);
+                Utils.addStorefrontContextConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             },
             ResourceResolverType.JCR_MOCK);
@@ -341,5 +344,14 @@ public class SearchResultsImplTest {
         expected = Utils.getResource("storefront-context/result-storefront-context-search-results-sorting-component.json");
         jsonResult = searchResultsModel.getSearchResultsStorefrontContext().getJson();
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testStorefrontContextRenderDisabled() throws IOException {
+        Utils.addStorefrontContextConfig(mockConfigBuilder, false);
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+
+        Assert.assertNull(searchResultsModel.getSearchResultsStorefrontContext().getJson());
     }
 }

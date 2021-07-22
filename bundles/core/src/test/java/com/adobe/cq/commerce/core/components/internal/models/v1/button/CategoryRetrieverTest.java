@@ -55,7 +55,7 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"" + identifier + "\"}}){uid,url_path";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"" + identifier + "\"}}){uid,url_key,url_path";
         Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
     }
 
@@ -79,7 +79,7 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_key,url_path}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -92,7 +92,7 @@ public class CategoryRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_path,image";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){uid,url_key,url_path,image";
         Assert.assertTrue(captor.getValue().startsWith(expectedQuery));
     }
 }
