@@ -123,7 +123,7 @@ public class UrlProviderImpl implements UrlProvider {
     private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, UrlFormat urlFormat) {
         if (page != null) {
             Resource pageResource = page.adaptTo(Resource.class);
-            boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
+            boolean deepLink = request == null || !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
             Set<String> selectorValues = new HashSet<>(params.values());
 
             if (deepLink) {
