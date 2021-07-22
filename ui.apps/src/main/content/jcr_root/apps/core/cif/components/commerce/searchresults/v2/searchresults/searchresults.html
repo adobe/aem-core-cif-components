@@ -14,6 +14,8 @@
 <sly data-sly-use.collectionTemplate="productcollection.html"
      data-sly-use.searchResults="com.adobe.cq.commerce.core.components.models.searchresults.SearchResults"/>
 
-<article class="searchresults_root" data-cif-search-input-context="${searchResults.storefrontContext.json}">
+<article class="searchresults_root"
+         data-cif-search-input-context="${searchResults.searchStorefrontContext.json}"
+         data-cif-search-results-context="${searchResults.searchResultsStorefrontContext.json}">
     <sly data-sly-call="${collectionTemplate.productCollection @ productCollection = searchResults}"/>
 </article>

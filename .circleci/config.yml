@@ -164,6 +164,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision
           command: |
             node -v
@@ -178,6 +181,40 @@ jobs:
           path: ./react-components/test-results
       - store_artifacts:
           path: ./react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Provision (Core)
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:dev
+            npm link
+          working_directory: ./react-components
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+            npm link @adobe/aem-core-cif-react-components
+          working_directory: ./extensions/product-recs/react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/product-recs/react-components
+      - store_test_results:
+          path: ./extensions/product-recs/react-components/test-results
+      - store_artifacts:
+          path: ./extensions/product-recs/react-components/test-results
       - codecov/upload:
           flags: jest
 
@@ -270,6 +307,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - jest-extension:
+          filters:
+            tags:
+              only: /.*/
       - integration-test-655:
           context:
             - CIF Artifactory Cloud
@@ -281,6 +322,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - integration-test-cloudready:
           context:
             - CIF Artifactory Cloud
@@ -292,6 +334,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -303,6 +346,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -314,6 +358,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -325,6 +370,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - release:
           context:
             - CIF Artifactory Cloud

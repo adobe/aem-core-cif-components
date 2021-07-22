@@ -111,8 +111,8 @@ public class ProductRecommendationsImplTest {
         assertEquals("most-viewed", productRecommendations.getRecommendationType());
         assertNull(productRecommendations.getCategoryInclusions());
         assertNull(productRecommendations.getCategoryExclusions());
-        assertEquals(Long.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
-        assertEquals(Long.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
+        assertEquals(Double.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
+        assertEquals(Double.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
         assertNull(productRecommendations.getPriceRangeExclusions());
     }
 
@@ -125,8 +125,8 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryInclusions());
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
-        assertEquals(Long.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
-        assertEquals(Long.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
+        assertEquals(Double.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
+        assertEquals(Double.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
 
     }
 }
