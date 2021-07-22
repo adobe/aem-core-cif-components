@@ -70,7 +70,8 @@ public class ProductTeaserImplTest {
             UrlProviderImpl urlProvider = new UrlProviderImpl();
             urlProvider.activate(new MockUrlProviderConfiguration());
             context.registerService(UrlProvider.class, urlProvider);
-            ConfigurationBuilder mockConfigBuilder = Utils.getDataLayerConfig(true);
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
         }, ResourceResolverType.JCR_MOCK);
     }
@@ -157,6 +158,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(product.getImage().getUrl(), productTeaser.getImage());
+        Assert.assertEquals(product.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
@@ -183,6 +185,7 @@ public class ProductTeaserImplTest {
         Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
         Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
+        Assert.assertEquals(variant.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
@@ -202,6 +205,8 @@ public class ProductTeaserImplTest {
 
         Assert.assertNull(productTeaserNoClient.getProductRetriever());
         Assert.assertNull(productTeaserNoClient.getUrl());
+        Assert.assertNull(productTeaserNoClient.getImage());
+        Assert.assertNull(productTeaserNoClient.getImageAlt());
     }
 
     @Test

@@ -246,6 +246,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public CategoryStorefrontContext getStorefrontContext() {
-        return new CategoryStorefrontContextImpl(getCategory());
+        return new CategoryStorefrontContextImpl(getCategory(), resource);
     }
 }

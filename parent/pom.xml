@@ -358,6 +358,8 @@
                         <exclude>**/examples/**/*</exclude>
                         <exclude>**/.eslintrc.js</exclude>
                         <exclude>**/*.lst</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.settings</exclude>
 
                         <!-- Storybook build -->
                         <exclude>**/storybook-static/**</exclude>
@@ -907,6 +909,11 @@
                 <artifactId>org.apache.sling.commons.johnzon</artifactId>
                 <version>1.0.0</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>org.apache.sling.sitemap</artifactId>
+                <version>1.0.2</version>
             </dependency>
 
             <!-- javax.inject 1 -->

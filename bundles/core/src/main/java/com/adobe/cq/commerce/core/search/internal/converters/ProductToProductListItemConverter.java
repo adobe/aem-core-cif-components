@@ -76,6 +76,7 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
                 product.getName(),
                 price,
                 smallImage == null ? null : smallImage.getUrl(),
+                smallImage == null ? null : smallImage.getLabel(),
                 productPage,
                 null, // search results aren't targeting specific variant
                 request,

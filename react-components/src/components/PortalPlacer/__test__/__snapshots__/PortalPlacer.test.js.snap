@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PortalPlacer adds a given component to each element of the given selector 1`] = `
+<body>
+  <div
+    class="target"
+    data-a="test"
+    data-c="456"
+  >
+    <div>
+      <span>
+        MockComponent
+      </span>
+      <pre>
+        {
+    "a": "test",
+    "c": "456"
+}
+      </pre>
+    </div>
+  </div>
+  <div
+    class="target"
+    data-b=""
+  >
+    <div>
+      <span>
+        MockComponent
+      </span>
+      <pre>
+        {
+    "b": true
+}
+      </pre>
+    </div>
+  </div>
+  <div />
+</body>
+`;
+
+exports[`PortalPlacer renders empty for an invalid selector 1`] = `
+<body>
+  <div />
+</body>
+`;

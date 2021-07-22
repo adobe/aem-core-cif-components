@@ -115,8 +115,8 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
             return null;
         }
 
-        return new PriceRangeImpl(props.get(INCLUDED_MIN_PRICE, Long.class),
-            props.get(INCLUDED_MAX_PRICE, Long.class));
+        return new PriceRangeImpl(props.get(INCLUDED_MIN_PRICE, Double.class),
+            props.get(INCLUDED_MAX_PRICE, Double.class));
     }
 
     @Override
@@ -125,8 +125,8 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
             return null;
         }
 
-        return new PriceRangeImpl(props.get(EXCLUDED_MIN_PRICE, Long.class),
-            props.get(EXCLUDED_MAX_PRICE, Long.class));
+        return new PriceRangeImpl(props.get(EXCLUDED_MIN_PRICE, Double.class),
+            props.get(EXCLUDED_MAX_PRICE, Double.class));
     }
 
 }
