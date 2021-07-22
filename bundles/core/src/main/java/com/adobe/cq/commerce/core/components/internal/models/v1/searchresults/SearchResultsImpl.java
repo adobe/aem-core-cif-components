@@ -101,11 +101,11 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
 
     @Override
     public SearchStorefrontContext getSearchStorefrontContext() {
-        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions());
+        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions(), resource);
     }
 
     @Override
     public SearchResultsStorefrontContext getSearchResultsStorefrontContext() {
-        return new SearchResultsStorefrontContextImpl(getSearchResultsSet());
+        return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), resource);
     }
 }

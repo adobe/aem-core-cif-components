@@ -66,6 +66,7 @@ import static org.mockito.Mockito.when;
 public class Utils {
 
     public static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
+    public static final String STOREFRONT_CONTEXT_CONFIG_NAME = "com.adobe.cq.commerce.core.components.internal.storefrontcontext.CommerceStorefrontContextConfig";
 
     /**
      * This method prepares the mock http response with either the content of the <code>filename</code>
@@ -246,18 +247,21 @@ public class Utils {
 
     }
 
-    static public ConfigurationBuilder getDataLayerConfig(boolean enabled) {
+    static public void addDataLayerConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
         ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
 
         DataLayerConfig dataLayerConfig = Mockito.mock(DataLayerConfig.class);
-        Mockito.when(dataLayerConfig.enabled()).thenReturn(true);
+        Mockito.when(dataLayerConfig.enabled()).thenReturn(enabled);
 
-        ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
         Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
         Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerVm);
         Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(dataLayerConfig);
+    }
 
-        return mockConfigBuilder;
+    static public void addStorefrontContextConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
+        ValueMap storefrontConfigVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+        Mockito.when(mockConfigBuilder.name(STOREFRONT_CONTEXT_CONFIG_NAME)).thenReturn(mockConfigBuilder);
+        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(storefrontConfigVm);
     }
 
     /**
