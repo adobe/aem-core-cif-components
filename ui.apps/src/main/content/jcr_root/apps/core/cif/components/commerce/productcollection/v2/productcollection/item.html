@@ -20,10 +20,10 @@
         data-sku="${item.SKU}"
         href="${item.URL}">
         <div class="productcollection__item-images">
-            <img class="productcollection__item-image productcollection__item-image--placeholder"
-                alt=""
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="/>
-            <img class="productcollection__item-image" src="${item.imageURL}" alt="${item.title}"/>
+            <img data-sly-test.hasImage="${item.imageURL}" class="productcollection__item-image" src="${item.imageURL}" alt="${item.title}"/>
+            <img data-sly-test="${!hasImage}" class="productcollection__item-image productcollection__item-image--placeholder"
+                 alt=""
+                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="/>
         </div>
         <div data-sly-test="${item.isStaged}" class="productcollection__item-staged">${'Staged' @ i18n}</div>
         <div class="productcollection__item-title"><span>${item.title}</span></div>
