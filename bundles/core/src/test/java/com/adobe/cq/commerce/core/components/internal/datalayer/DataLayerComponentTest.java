@@ -124,7 +124,8 @@ public class DataLayerComponentTest {
 
     @Before
     public void setup() {
-        mockConfigBuilder = Utils.getDataLayerConfig(true);
+        mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+        Utils.addDataLayerConfig(mockConfigBuilder, true);
 
         context.currentPage(PAGE);
         context.currentResource(PAGE + RESOURCE_RELATIVE_PATH);
