@@ -66,6 +66,7 @@ import static org.mockito.Mockito.when;
 public class Utils {
 
     public static final String DATALAYER_CONFIG_NAME = "com.adobe.cq.wcm.core.components.internal.DataLayerConfig";
+    public static final String STOREFRONT_CONTEXT_CONFIG_NAME = "com.adobe.cq.commerce.core.components.internal.storefrontcontext.CommerceStorefrontContextConfig";
 
     /**
      * This method prepares the mock http response with either the content of the <code>filename</code>
@@ -129,6 +130,22 @@ public class Utils {
     }
 
     /**
+     * Returns a plain GraphqlClient instance mock.
+     */
+    public static GraphqlClient setupGraphqlClient() {
+        HttpClient httpClient = mock(HttpClient.class);
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
+        Whitebox.setInternalState(graphqlClient, "client", httpClient);
+        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        return graphqlClient;
+    }
+
+    /**
      * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
      *
      * @param filename The filename of the resource containing the JSON response.
@@ -148,17 +165,24 @@ public class Utils {
      * @throws IOException
      */
     public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename, String queryStartsWith) throws IOException {
-        HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, queryStartsWith);
+        GraphqlClient graphqlClient = setupGraphqlClient();
+        addHttpResponseFrom(graphqlClient, filename, queryStartsWith);
         return graphqlClient;
+    }
+
+    /**
+     * Adds another response to the already mocked graphql client.
+     *
+     * @param graphqlClient
+     * @param filename
+     * @param queryStartsWith
+     * @throws IOException
+     */
+    public static void addHttpResponseFrom(GraphqlClient graphqlClient, String filename, String... queryStartsWith) throws IOException {
+        HttpClient httpClient = (HttpClient) Whitebox.getInternalState(graphqlClient, "client");
+        for (String query : queryStartsWith) {
+            setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, query);
+        }
     }
 
     /**
@@ -223,18 +247,21 @@ public class Utils {
 
     }
 
-    static public ConfigurationBuilder getDataLayerConfig(boolean enabled) {
+    static public void addDataLayerConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
         ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
 
         DataLayerConfig dataLayerConfig = Mockito.mock(DataLayerConfig.class);
-        Mockito.when(dataLayerConfig.enabled()).thenReturn(true);
+        Mockito.when(dataLayerConfig.enabled()).thenReturn(enabled);
 
-        ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
         Mockito.when(mockConfigBuilder.name(DATALAYER_CONFIG_NAME)).thenReturn(mockConfigBuilder);
         Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(datalayerVm);
         Mockito.when(mockConfigBuilder.as(DataLayerConfig.class)).thenReturn(dataLayerConfig);
+    }
 
-        return mockConfigBuilder;
+    static public void addStorefrontContextConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
+        ValueMap storefrontConfigVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
+        Mockito.when(mockConfigBuilder.name(STOREFRONT_CONTEXT_CONFIG_NAME)).thenReturn(mockConfigBuilder);
+        Mockito.when(mockConfigBuilder.asValueMap()).thenReturn(storefrontConfigVm);
     }
 
     /**

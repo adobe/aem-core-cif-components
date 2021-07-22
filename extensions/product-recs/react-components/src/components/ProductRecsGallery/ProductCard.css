@@ -1,0 +1,78 @@
+/*******************************************************************************
+ *
+ *    Copyright 2021 Adobe. All rights reserved.
+ *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License. You may obtain a copy
+ *    of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software distributed under
+ *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ *    OF ANY KIND, either express or implied. See the License for the specific language
+ *    governing permissions and limitations under the License.
+ *
+ ******************************************************************************/
+
+.card {
+    display: inline-block;
+    border: 10px solid #fff;
+    font-size: 20px;
+    text-align: center;
+    width: 240px;
+}
+
+.cardImage {
+    height: 243px;
+}
+
+.addToCart {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: auto;
+    text-align: center;
+    white-space: nowrap;
+    background: none;
+    border: 1px solid rgb(var(--color));
+    border-radius: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 2rem;
+    min-width: 7.5rem;
+    padding: 0 1rem;
+    transition-duration: 384ms;
+    transition-property: background-color, color;
+    transition-timing-function: var(--venia-anim-standard);
+    --color: var(--venia-text);
+    color: white;
+    background-color: rgb(var(--color));
+}
+
+.addToCart:hover {
+    color: white;
+    background-color: rgb(var(--venia-teal));
+}
+
+.productImage {
+    max-width: 240px;
+    max-height: 240px;
+}
+
+.price {
+    font-size: 0.875rem;
+    line-height: 1rem;
+    margin: 0.5rem 0;
+    min-height: 1rem;
+}
+
+.price .regularPrice {
+    text-decoration: line-through;
+    font-size: 0.8rem;
+}
+
+.price .discountedPrice {
+    font-weight: bold;
+    color: $venia-teal;
+    font-size: 1.2rem;
+}

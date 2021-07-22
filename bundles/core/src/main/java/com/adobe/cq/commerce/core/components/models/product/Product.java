@@ -80,5 +80,10 @@ public interface Product extends Component, PageMetadata {
 
     AbstractProductRetriever getProductRetriever();
 
+    /**
+     * Return the product storefront context
+     *
+     * @return context of the product
+     */
     ProductStorefrontContext getStorefrontContext();
 }
