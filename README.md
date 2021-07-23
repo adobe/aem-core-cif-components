@@ -42,7 +42,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
 -   [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
 
-### Extsions Components
+### Extensions Components
 
 -   [Product Recommendations](extensions/product-recs) - requires [Adobe Commerce Product Recommendations](https://docs.magento.com/user-guide/marketing/product-recommendations.html)
 
