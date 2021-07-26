@@ -89,6 +89,7 @@ public interface UrlFormat {
      * before.
      *
      * @param requestPathInfo the request path info object used to extra the URL information from
+     * @param parameterMap the request parameters the implementation may consider when parsing the url
      * @return a map containing the parsed URL elements
      */
     Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap);
