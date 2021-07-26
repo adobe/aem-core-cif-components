@@ -30,7 +30,7 @@ import org.osgi.annotation.versioning.ConsumerType;
  * {@link UrlProvider} implementation to format and parse product urls, the {@link UrlFormat} registered with
  * {@link UrlFormat#CATEGORY_PAGE_URL_FORMAT} to format and parse category urls.
  * <p>
- * If any {@link UrlFormat} is registered as described above the override the configured behaviour of the {@link UrlProvider}
+ * If any {@link UrlFormat} is registered as described above, it overrides the configured behaviour of the {@link UrlProvider}
  * implementation. Implementing a {@link UrlFormat} is optional.
  */
 @ConsumerType
