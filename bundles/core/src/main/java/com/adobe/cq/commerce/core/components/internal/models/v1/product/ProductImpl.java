@@ -72,8 +72,10 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.Component;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
@@ -428,7 +430,16 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     protected String generateId() {
-        return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
+        String id = super.generateId();
+        if (StringUtils.isNotBlank(properties.get(Component.PN_ID, String.class))) {
+            // if available use the id provided by the user
+            return id;
+        } else {
+            // otherwise include the product SKU in the id
+            String prefix = StringUtils.substringBefore(id, ID_SEPARATOR);
+            String suffix = StringUtils.substringAfterLast(id, ID_SEPARATOR) + getSku();
+            return ComponentUtils.generateId(prefix, suffix);
+        }
     }
 
     @Override

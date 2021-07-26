@@ -18,7 +18,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 
@@ -30,6 +29,7 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -150,7 +150,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSKU()), 0, 10));
+        return ComponentUtils.generateId(prefix, getSKU());
     }
 
     @Override
