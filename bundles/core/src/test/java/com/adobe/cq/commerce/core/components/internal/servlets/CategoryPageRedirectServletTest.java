@@ -34,12 +34,13 @@ import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderCo
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.PageManagerFactory;
+import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -146,7 +147,9 @@ public class CategoryPageRedirectServletTest {
 
         Query mockQuery = mock(Query.class);
         CategoryTree categoryTree = mock(CategoryTree.class);
+        ID uid = new ID("test_uid");
 
+        when(categoryTree.getUid()).thenReturn(uid);
         when(categoryTree.getUrlKey()).thenReturn("test_url_key");
         when(categoryTree.getUrlPath()).thenReturn("test_url_path");
         when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
@@ -172,7 +175,9 @@ public class CategoryPageRedirectServletTest {
 
         Query mockQuery = mock(Query.class);
         CategoryTree categoryTree = mock(CategoryTree.class);
+        ID uid = new ID("test_uid");
 
+        when(categoryTree.getUid()).thenReturn(uid);
         when(categoryTree.getUrlKey()).thenReturn("test_url_key");
         when(categoryTree.getUrlPath()).thenReturn("test_url_path");
         when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));

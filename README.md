@@ -31,8 +31,8 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Searchbar](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchbar/v1/searchbar)
 -   [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
 -   [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
--   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser)
--   [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v1/button)
+-   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser)
+-   [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v2/button)
 -   [Sign In](react-components/src/components/SignIn)
 -   [Create Account](react-components/src/components/CreateAccount)
 -   [AccountDetails](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v1/accountdetails)
@@ -42,13 +42,18 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
 -   [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
 
+### Extension Components
+
+-   [Product Recommendations](extensions/product-recs) - requires [Adobe Commerce Product Recommendations](https://docs.magento.com/user-guide/marketing/product-recommendations.html)
+
 ## System Requirements
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento | Java  |
-| ------------------- | ---------------------- | ------- | ------- | ------- | ----- |
-| 1.10.0              | Continual              | 6.5.7   | 6.4.4.0 | 2.4.2   | 8, 11 |
+| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento  | Java  |
+| ------------------- | ---------------------- | ------- | ------- | -------- | ----- |
+| 2.0.0               | Continual              | 6.5.7   | -       | 2.4.2 ee | 8, 11 |
+| 1.12.0              | Continual              | 6.5.7   | 6.4.4.0 | 2.4.2    | 8, 11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 

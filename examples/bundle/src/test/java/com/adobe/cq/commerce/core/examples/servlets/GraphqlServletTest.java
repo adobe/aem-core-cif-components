@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -54,7 +55,7 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -74,6 +75,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Breadcrumb;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
@@ -150,6 +152,7 @@ public class GraphqlServletTest {
         graphqlServlet.init();
         request = new MockSlingHttpServletRequest(null);
         response = new MockSlingHttpServletResponse();
+        context.registerService(PathProcessor.class, new MockPathProcessor());
     }
 
     @Test
@@ -627,5 +630,27 @@ public class GraphqlServletTest {
         BundleProduct bundleProduct = (BundleProduct) products.getItems().get(0);
         Assert.assertEquals("24-WG080", bundleProduct.getSku());
         Assert.assertEquals(4, bundleProduct.getItems().size());
+    }
+
+    public static class MockPathProcessor implements PathProcessor {
+        @Override
+        public boolean accepts(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return true;
+        }
+
+        @Override
+        public String sanitize(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
+
+        @Override
+        public String map(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
+
+        @Override
+        public String externalize(String s, SlingHttpServletRequest slingHttpServletRequest) {
+            return s;
+        }
     }
 }

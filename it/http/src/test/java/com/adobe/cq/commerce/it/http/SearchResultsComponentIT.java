@@ -33,11 +33,11 @@ public class SearchResultsComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Check that search filters are displayed
-        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".search__filters");
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".productcollection__filters");
         Assert.assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
-        elements = doc.select(SEARCHRESULTS_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(SEARCHRESULTS_SELECTOR + ".productcollection__items > .productcollection__item");
         Assert.assertEquals(6, elements.size());
     }
 
@@ -47,7 +47,7 @@ public class SearchResultsComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Check that the search doesn't display any product
-        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".category__root p");
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".searchresults_root p");
         Assert.assertEquals("No products to display.", elements.first().html());
     }
 }

@@ -53,7 +53,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -477,6 +477,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public ProductStorefrontContext getStorefrontContext() {
-        return new ProductStorefrontContextImpl(productRetriever.fetchProduct());
+        return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
     }
 }

@@ -16,21 +16,21 @@ package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.comm
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
 public class PriceRangeImpl implements PriceRange {
-    private final Long minPrice;
-    private final Long maxPrice;
+    private final Double minPrice;
+    private final Double maxPrice;
 
-    public PriceRangeImpl(Long minPrice, Long maxPrice) {
+    public PriceRangeImpl(Double minPrice, Double maxPrice) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
     }
 
     @Override
-    public Long getMinPrice() {
+    public Double getMinPrice() {
         return minPrice;
     }
 
     @Override
-    public Long getMaxPrice() {
+    public Double getMaxPrice() {
         return maxPrice;
     }
 }

@@ -70,7 +70,7 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}}){uid,name,url_path,position,image,children_count,level_custom_:level}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}}){uid,name,url_key,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 

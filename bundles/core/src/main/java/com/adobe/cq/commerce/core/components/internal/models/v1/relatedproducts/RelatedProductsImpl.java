@@ -49,7 +49,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -155,7 +155,8 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
             try {
                 Price price = new PriceImpl(product.getPriceRange(), locale);
                 carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
-                    product.getName(), price, product.getThumbnail().getUrl(), productPage, null, request,
+                    product.getName(), price, product.getThumbnail().getUrl(), product
+                        .getThumbnail().getLabel(), productPage, null, request,
                     urlProvider, this.getId(), product.getStaged()));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
