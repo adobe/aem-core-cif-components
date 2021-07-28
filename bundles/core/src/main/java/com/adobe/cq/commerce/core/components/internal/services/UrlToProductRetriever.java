@@ -18,6 +18,10 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -32,6 +36,8 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 class UrlToProductRetriever extends AbstractProductRetriever {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlToProductRetriever.class);
 
     UrlToProductRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -56,22 +62,27 @@ class UrlToProductRetriever extends AbstractProductRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
 
-        // Return first product in list unless the identifier type is 'url_key',
-        // then return the product whose 'url_key' matches the identifier
-        if (products.size() > 0) {
-            if (products.size() > 1) {
-                for (ProductInterface productInterface : products) {
-                    if (identifier.equals(productInterface.getUrlKey())) {
-                        product = Optional.of(productInterface);
-                        return;
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
+            LOGGER.warn("Failed to fetch product for url key: {}", identifier);
+        } else {
+            Query rootQuery = response.getData();
+            List<ProductInterface> products = rootQuery.getProducts().getItems();
+
+            // Return first product in list unless the identifier type is 'url_key',
+            // then return the product whose 'url_key' matches the identifier
+            if (products.size() > 0) {
+                if (products.size() > 1) {
+                    for (ProductInterface productInterface : products) {
+                        if (identifier.equals(productInterface.getUrlKey())) {
+                            product = Optional.of(productInterface);
+                            return;
+                        }
                     }
+                } else {
+                    product = Optional.of(products.get(0));
+                    return;
                 }
-            } else {
-                product = Optional.of(products.get(0));
-                return;
             }
         }
 
