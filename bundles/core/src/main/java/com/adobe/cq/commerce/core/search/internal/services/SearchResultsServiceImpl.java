@@ -145,9 +145,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             LOGGER.debug("Generated category query string {}", categoryQueryString);
             GraphqlResponse<Query, Error> categoryResponse = magentoGraphqlClient.execute(categoryQueryString);
             if (CollectionUtils.isNotEmpty(categoryResponse.getErrors()) && LOGGER.isWarnEnabled()) {
-                Exception ex = new Exception();
-                categoryResponse.getErrors().forEach(error -> ex.addSuppressed(new Exception(error.getMessage())));
-                LOGGER.warn("Failed to fetch categories", ex);
+                categoryResponse.getErrors().forEach(error -> LOGGER.warn("Failed to fetch categories: {}", error.getMessage()));
             } else if (categoryResponse.getData() != null) {
                 Query categoryData = categoryResponse.getData();
                 List<CategoryTree> categories = categoryData.getCategoryList();
