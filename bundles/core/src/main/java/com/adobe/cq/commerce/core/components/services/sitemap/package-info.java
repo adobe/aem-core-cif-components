@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("1.12.0")
-package com.adobe.cq.commerce.core.components.models.breadcrumb;
+@Version("2.0.0")
+package com.adobe.cq.commerce.core.components.services.sitemap;
 
 import org.osgi.annotation.versioning.Version;
