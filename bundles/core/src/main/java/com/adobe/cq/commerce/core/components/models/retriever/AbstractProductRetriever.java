@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             logger.warn("Failed to fetch product for: {}", identifier);
             product = Optional.empty();
         } else {

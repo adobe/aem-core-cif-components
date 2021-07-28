@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -98,9 +97,9 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         // If there are errors we'll log them and return a safe but empty list
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         CustomAttributeMetadata cam = response.getData().getCustomAttributeMetadata();
@@ -133,7 +132,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         // If there are errors in the response we'll log them out and return a safe but empty value
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return Collections.emptyList();
         }

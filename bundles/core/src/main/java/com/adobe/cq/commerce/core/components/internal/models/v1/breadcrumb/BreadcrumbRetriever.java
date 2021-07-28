@@ -18,6 +18,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -101,7 +103,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
         GraphqlResponse<Query, Error> response = executeQuery();
 
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             categories = Collections.emptyList();
             productName = null;
             return;

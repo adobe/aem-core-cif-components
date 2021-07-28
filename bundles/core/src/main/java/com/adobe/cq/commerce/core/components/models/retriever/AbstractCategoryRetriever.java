@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -243,7 +244,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (response.getErrors() != null && response.getErrors().size() > 0) {
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
             logger.warn("Failed to fetch category for: {}", identifier);
             category = Optional.empty();
         } else {
