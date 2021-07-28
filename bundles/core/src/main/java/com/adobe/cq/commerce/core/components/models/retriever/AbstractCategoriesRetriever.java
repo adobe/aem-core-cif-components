@@ -15,9 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -32,6 +36,7 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
+
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
@@ -49,6 +54,11 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
+
+    /**
+     * The classes {@link Logger} instance.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -135,8 +145,15 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        categories = rootQuery.getCategoryList();
-        categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to fetch categories for: " + (identifiers != null ? String.join(",", identifiers) : null));
+            }
+            categories = Collections.emptyList();
+        } else {
+            Query rootQuery = response.getData();
+            categories = rootQuery.getCategoryList();
+            categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
+        }
     }
 }

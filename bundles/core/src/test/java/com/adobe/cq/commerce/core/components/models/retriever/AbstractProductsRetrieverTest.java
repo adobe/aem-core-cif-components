@@ -15,7 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,20 +26,18 @@ import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AbstractCategoryRetrieverTest {
+public class AbstractProductsRetrieverTest {
 
-    private AbstractCategoryRetriever subject;
+    private AbstractProductsRetriever subject;
 
     @Mock
     private MagentoGraphqlClient client;
@@ -50,10 +50,10 @@ public class AbstractCategoryRetrieverTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        subject = new AbstractCategoryRetriever(client) {
+        subject = new AbstractProductsRetriever(client) {
             @Override
-            protected CategoryTreeQueryDefinition generateCategoryQuery() {
-                return q -> q.uid();
+            protected ProductInterfaceQueryDefinition generateProductQuery() {
+                return q -> q.sku();
             }
         };
 
@@ -68,26 +68,13 @@ public class AbstractCategoryRetrieverTest {
         when(client.execute(any())).thenReturn(response);
         when(response.getErrors()).thenReturn(Collections.singletonList(error));
 
-        // when, then
-        CategoryInterface category = subject.fetchCategory();
-        assertNull(category);
-    }
+        // when no identifier, then
+        List<? extends ProductInterface> products = subject.fetchProducts();
+        assertTrue(products.isEmpty());
 
-    @Test
-    public void testBackendOnlyCalledOnceDespiteEmptyResponse() {
-        // given
-        when(client.execute(any())).thenReturn(response);
-        when(response.getErrors()).thenReturn(Collections.emptyList());
-        when(query.getCategoryList()).thenReturn(Collections.emptyList());
-
-        // when, then
-        CategoryInterface category = subject.fetchCategory();
-        assertNull(category);
-
-        // and when, then
-        category = subject.fetchCategory();
-        assertNull(category);
-
-        verify(client, times(1)).execute(any());
+        // when with identifiers, then
+        subject.setIdentifiers(Arrays.asList("a", "b", "c"));
+        products = subject.fetchProducts();
+        assertTrue(products.isEmpty());
     }
 }

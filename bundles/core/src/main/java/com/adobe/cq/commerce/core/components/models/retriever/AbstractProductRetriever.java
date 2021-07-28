@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
@@ -58,6 +61,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * SKU identifier of the product that should be fetched.
      */
     protected String identifier;
+
+    /**
+     * The classes {@link Logger} instance.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AbstractProductRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -182,15 +190,20 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
-
-        // Return first product in list unless the identifier type is 'url_key',
-        // then return the product whose 'url_key' matches the identifier
-        if (products.size() > 0) {
-            product = Optional.of(products.get(0));
-        } else {
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            logger.warn("Failed to fetch product for: {}", identifier);
             product = Optional.empty();
+        } else {
+            Query rootQuery = response.getData();
+            List<ProductInterface> products = rootQuery.getProducts().getItems();
+
+            // Return first product in list unless the identifier type is 'url_key',
+            // then return the product whose 'url_key' matches the identifier
+            if (products.size() > 0) {
+                product = Optional.of(products.get(0));
+            } else {
+                product = Optional.empty();
+            }
         }
     }
 

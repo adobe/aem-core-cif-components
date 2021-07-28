@@ -65,6 +65,19 @@ public class AbstractProductRetrieverTest {
     }
 
     @Test
+    public void testErrorResponse() {
+        // given
+        Error error = new Error();
+        error.setMessage("foobar");
+        when(client.execute(any())).thenReturn(response);
+        when(response.getErrors()).thenReturn(Collections.singletonList(error));
+
+        // when, then
+        ProductInterface category = subject.fetchProduct();
+        assertNull(category);
+    }
+
+    @Test
     public void testBackendOnlyCalledOnceDespiteEmptyResponse() {
         // given
         when(client.execute(any())).thenReturn(response);

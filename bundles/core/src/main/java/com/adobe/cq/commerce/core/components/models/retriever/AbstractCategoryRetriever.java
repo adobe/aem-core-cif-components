@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -65,6 +67,11 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Page size for pagination of products in a category.
      */
     protected int pageSize = 6;
+
+    /**
+     * The classes {@link Logger} instance.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -236,11 +243,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
-            category = Optional.of(rootQuery.getCategoryList().get(0));
-        } else {
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            logger.warn("Failed to fetch category for: {}", identifier);
             category = Optional.empty();
+        } else {
+            Query rootQuery = response.getData();
+            if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
+                category = Optional.of(rootQuery.getCategoryList().get(0));
+            } else {
+                category = Optional.empty();
+            }
         }
     }
 }
