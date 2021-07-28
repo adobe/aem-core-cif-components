@@ -32,7 +32,6 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
