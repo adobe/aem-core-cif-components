@@ -68,8 +68,6 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -352,10 +350,13 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testGraphqlClientError() throws Exception {
-        graphqlClient = mock(GraphqlClient.class);
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{sku");
         prepareModel("/content/venia/us/en/products/product-page");
 
-        doThrow(new RuntimeException()).when(graphqlClient).execute(any(), any(), any());
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
+
         when(breadcrumbResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);

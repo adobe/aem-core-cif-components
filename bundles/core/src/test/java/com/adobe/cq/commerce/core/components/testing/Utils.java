@@ -134,6 +134,38 @@ public class Utils {
     }
 
     /**
+     * This method prepares the mock http response with no content but an error code.
+     * <br>
+     * <b>Important</b>: because of the way the content of an HTTP response is consumed, this method MUST be called each time
+     * the client is called.
+     *
+     *
+     * @param httpClient The HTTP client for which we want to mock responses.
+     * @param errorCode The http code that the mocked response will return.
+     * @param contains When set, the body of the GraphQL POST request must start with that String.
+     *
+     * @return The JSON content of that file.
+     *
+     * @throws IOException
+     */
+    public static void setupHttpErrorResponse(HttpClient httpClient, int errorCode, String contains) throws IOException {
+        assert errorCode >= 400;
+
+        HttpResponse mockedHttpResponse = mock(HttpResponse.class);
+        StatusLine mockedStatusLine = mock(StatusLine.class);
+
+        if (contains != null) {
+            GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(contains);
+            when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+        } else {
+            when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+        }
+
+        when(mockedStatusLine.getStatusCode()).thenReturn(errorCode);
+        when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
+    }
+
+    /**
      * Returns a plain GraphqlClient instance mock.
      */
     public static GraphqlClient setupGraphqlClient() {
