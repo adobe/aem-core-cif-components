@@ -20,6 +20,8 @@ import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 
+import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
+
 public abstract class DataLayerListItem extends DataLayerComponent {
 
     public static final String ITEM_ID_PREFIX = "item";

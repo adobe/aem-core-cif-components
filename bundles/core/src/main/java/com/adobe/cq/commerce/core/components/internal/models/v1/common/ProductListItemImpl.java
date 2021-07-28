@@ -34,6 +34,8 @@ import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
+
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
     private String sku;

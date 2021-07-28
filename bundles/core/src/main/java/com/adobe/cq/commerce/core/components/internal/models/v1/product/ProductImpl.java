@@ -84,6 +84,8 @@ import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
+
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,

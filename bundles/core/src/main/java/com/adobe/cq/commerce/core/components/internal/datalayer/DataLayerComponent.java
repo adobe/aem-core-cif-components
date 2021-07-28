@@ -31,7 +31,6 @@ import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class DataLayerComponent {
-    public static final String ID_SEPARATOR = ComponentUtils.ID_SEPARATOR;
 
     @Inject
     protected Resource resource;
