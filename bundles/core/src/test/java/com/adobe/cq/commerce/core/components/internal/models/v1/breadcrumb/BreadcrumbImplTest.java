@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.wcm.api.Page;
@@ -67,6 +68,8 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -345,6 +348,21 @@ public class BreadcrumbImplTest {
 
         // If we cannot access Magento data, the breadcrumb should at least display the pages
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en");
+    }
+
+    @Test
+    public void testGraphqlClientError() throws Exception {
+        graphqlClient = mock(GraphqlClient.class);
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        doThrow(new RuntimeException()).when(graphqlClient).execute(any(), any(), any());
+        when(breadcrumbResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        Collection<NavigationItem> items = breadcrumbModel.getItems();
+
+        // If we cannot access Magento data, the breadcrumb should at least display the pages
+        assertThat(items.stream().map(ListItem::getTitle)).containsExactly("en");
     }
 
     @Test

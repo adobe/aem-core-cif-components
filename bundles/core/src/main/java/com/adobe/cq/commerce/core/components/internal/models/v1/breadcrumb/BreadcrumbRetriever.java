@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
@@ -33,7 +34,7 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
-public class BreadcrumbRetriever extends AbstractRetriever {
+class BreadcrumbRetriever extends AbstractRetriever {
 
     private List<? extends CategoryInterface> categories;
     private String productName;
@@ -99,6 +100,13 @@ public class BreadcrumbRetriever extends AbstractRetriever {
         }
 
         GraphqlResponse<Query, Error> response = executeQuery();
+
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            categories = Collections.emptyList();
+            productName = null;
+            return;
+        }
+
         Query rootQuery = response.getData();
 
         if (productIdentifier != null) {
