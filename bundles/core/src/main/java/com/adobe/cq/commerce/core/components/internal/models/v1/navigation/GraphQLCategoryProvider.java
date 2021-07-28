@@ -64,10 +64,15 @@ class GraphQLCategoryProvider {
         String queryString = Operations.query(query -> query.categoryList(searchArgs, defineCategoriesQuery(depth))).toString();
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
+        if (response.getErrors() != null && response.getErrors().size() > 0) {
+            LOGGER.warn("Failed to fetch category for identifier: {}", categoryIdentifier);
+            return Collections.emptyList();
+        }
+
         Query rootQuery = response.getData();
         List<CategoryTree> category = rootQuery.getCategoryList();
         if (category.isEmpty() || category.get(0) == null) {
-            LOGGER.warn("Category not found for identifier: " + categoryIdentifier);
+            LOGGER.warn("Category not found for identifier: {}", categoryIdentifier);
             return Collections.emptyList();
         }
 
