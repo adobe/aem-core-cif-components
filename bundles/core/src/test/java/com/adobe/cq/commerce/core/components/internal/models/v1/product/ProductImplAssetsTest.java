@@ -83,6 +83,10 @@ public class ProductImplAssetsTest {
                         : ComponentsConfiguration.EMPTY);
 
                 context.registerService(Externalizer.class, new MockExternalizer());
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -155,10 +159,6 @@ public class ProductImplAssetsTest {
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));

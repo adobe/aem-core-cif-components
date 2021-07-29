@@ -18,13 +18,14 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexpo
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +60,10 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
     private String storeView;

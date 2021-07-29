@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RangeIterator;
@@ -35,6 +34,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -72,22 +73,22 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @ValueMapValue(name = PN_FRAGMENT_LOCATION, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String fragmentLocation;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @SlingObject
     protected Resource resource;
 
     @SlingObject
     private ResourceResolver resolver;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
-    @Inject
+    @OSGiService
     private LanguageManager languageManager;
 
-    @Inject
+    @OSGiService
     private LiveRelationshipManager relationshipManager;
 
     private Resource xfResource;

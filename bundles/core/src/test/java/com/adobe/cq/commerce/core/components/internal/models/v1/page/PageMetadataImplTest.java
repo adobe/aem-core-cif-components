@@ -106,6 +106,10 @@ public class PageMetadataImplTest {
                 ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
                 Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -113,10 +117,6 @@ public class PageMetadataImplTest {
     private void provideSlingBindings(Bindings bindings) {
         bindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage());
         bindings.put(WCMBindingsConstants.NAME_PROPERTIES, context.currentResource().getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        bindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
@@ -185,8 +185,6 @@ public class PageMetadataImplTest {
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        // graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
-
         HttpClient httpClient = Mockito.mock(HttpClient.class);
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
