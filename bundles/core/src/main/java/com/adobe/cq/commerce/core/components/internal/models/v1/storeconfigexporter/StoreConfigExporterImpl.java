@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
@@ -105,13 +106,17 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @Override
     public String getHttpHeaders() {
-        if (httpHeaders == null) {
+        if (MapUtils.isEmpty(httpHeaders)) {
             return EMPTY_JSON_OBJECT;
         }
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
-        httpHeaders.entrySet().stream().forEach(entry -> objectNode.put(entry.getKey(), entry.getValue()));
+
+        for (Map.Entry<String, String> header : httpHeaders.entrySet()) {
+            objectNode.put(header.getKey(), header.getValue());
+        }
+
         try {
             return mapper.writeValueAsString(objectNode);
         } catch (JsonProcessingException e) {
