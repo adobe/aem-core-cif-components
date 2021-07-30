@@ -59,10 +59,10 @@ public class AggregationOptionToSearchAggregationOptionConverter implements Func
             searchAggregationOption.setDisplayLabel(aggregationOption.getLabel());
         }
 
-        searchAggregationOption.setCount(aggregationOption.getCount());
+        searchAggregationOption.setCount(aggregationOption.getCount() != null ? aggregationOption.getCount() : 0);
         searchAggregationOption.setFilterValue(aggregationOption.getValue());
 
-        // this is done for convenience sake so we have all filters available
+        // this is done for convenience’ sake, so we have all filters available
         Map<String, String> newFilters = new HashMap<>(filters);
         newFilters.put(attributeCode, aggregationOption.getValue());
         searchAggregationOption.setAddFilterMap(newFilters.entrySet().stream()
