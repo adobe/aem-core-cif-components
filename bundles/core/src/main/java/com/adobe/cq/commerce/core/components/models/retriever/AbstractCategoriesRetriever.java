@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -55,11 +53,6 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
-
-    /**
-     * The classes {@link Logger} instance.
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -147,9 +140,6 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Failed to fetch categories for: " + (identifiers != null ? String.join(",", identifiers) : null));
-            }
             categories = Collections.emptyList();
         } else {
             Query rootQuery = response.getData();

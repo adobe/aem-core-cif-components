@@ -63,9 +63,7 @@ class UrlToProductRetriever extends AbstractProductRetriever {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
 
-        if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            LOGGER.warn("Failed to fetch product for url key: {}", identifier);
-        } else {
+        if (CollectionUtils.isEmpty(response.getErrors())) {
             Query rootQuery = response.getData();
             List<ProductInterface> products = rootQuery.getProducts().getItems();
 

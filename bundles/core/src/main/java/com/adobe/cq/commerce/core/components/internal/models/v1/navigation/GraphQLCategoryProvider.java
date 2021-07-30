@@ -66,7 +66,6 @@ class GraphQLCategoryProvider {
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            LOGGER.warn("Failed to fetch category for identifier: {}", categoryIdentifier);
             return Collections.emptyList();
         }
 
