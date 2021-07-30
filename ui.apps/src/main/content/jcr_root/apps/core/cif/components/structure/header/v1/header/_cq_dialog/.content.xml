@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
     jcr:primaryType="nt:unstructured"
-    jcr:title="Commerce Experience Fragment"
+    jcr:title="Page Header"
     sling:resourceType="cq/gui/components/authoring/dialog"
-    trackingFeature="cif-core-components:experiencefragment:v1">
+    trackingFeature="cif-core-components:header:v1">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
         <items jcr:primaryType="nt:unstructured">
-            <column
-                jcr:primaryType="nt:unstructured"
+            <column jcr:primaryType="nt:unstructured" 
                 sling:resourceType="granite/ui/components/coral/foundation/container">
                 <items jcr:primaryType="nt:unstructured">
-                    <fragmentLocation
-                        jcr:primaryType="nt:unstructured"
-                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
-                        fieldDescription="The name of this experience fragment location."
-                        fieldLabel="Experience fragment location name."
-                        name="./fragmentLocation"/>
                     <id jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                         fieldDescription="HTML ID attribute to apply to the component."
