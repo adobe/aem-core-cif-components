@@ -15,12 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.AssetImpl;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 
 public class CategoryDataImpl implements CategoryData {
     private String id;
@@ -35,7 +33,7 @@ public class CategoryDataImpl implements CategoryData {
 
     @Override
     public String getId() {
-        return StringUtils.join("category", DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(id), 0, 10));
+        return ComponentUtils.generateId("category", id);
     }
 
     @Override

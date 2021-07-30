@@ -76,6 +76,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -119,6 +120,7 @@ public class ProductImplTest {
 
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
+    private static final String PRODUCT_WITH_ID = "/content/pageA/jcr:content/root/responsivegrid/productwithid";
 
     private Resource productResource;
     private Resource pageResource;
@@ -326,7 +328,7 @@ public class ProductImplTest {
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
-        Assert.assertNull(productModel.getDescription());
+        assertNull(productModel.getDescription());
     }
 
     @Test
@@ -339,7 +341,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
-        Assert.assertNull(productModel.getDescription());
+        assertNull(productModel.getDescription());
     }
 
     @Test
@@ -487,7 +489,7 @@ public class ProductImplTest {
         Assert.assertFalse("Product is not configurable", productModel.isConfigurable());
         Assert.assertFalse("Product is not a grouped product", productModel.isGroupedProduct());
         Assert.assertFalse("Product is not virtual", productModel.isVirtualProduct());
-        Assert.assertNull("The product retriever is not created", productModel.getProductRetriever());
+        assertNull("The product retriever is not created", productModel.getProductRetriever());
     }
 
     @Test
@@ -552,5 +554,19 @@ public class ProductImplTest {
         String expected = Utils.getResource("storefront-context/result-storefront-context-product-component.json");
         String jsonResult = productModel.getStorefrontContext().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testManualHtmlId() throws IOException {
+        context.currentResource(PRODUCT_WITH_ID);
+        context.request().setServletPath(PRODUCT_WITH_ID + ".beaumont-summit-kit.html");
+        productResource = context.resourceResolver().getResource(PRODUCT_WITH_ID);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(productResource);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        assertEquals("custom-id", productModel.getId());
     }
 }

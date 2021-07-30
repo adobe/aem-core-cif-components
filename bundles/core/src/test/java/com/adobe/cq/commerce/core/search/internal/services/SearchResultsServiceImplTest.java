@@ -17,9 +17,13 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -35,16 +39,18 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.AggregationOption;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
@@ -76,6 +82,8 @@ public class SearchResultsServiceImplTest {
             ResourceResolverType.JCR_MOCK);
     }
 
+    @Mock
+    UrlProvider urlProvider;
     @Mock
     SearchFilterService searchFilterService;
     @Mock
@@ -123,8 +131,8 @@ public class SearchResultsServiceImplTest {
             createUnknownAttributeMetadata()));
 
         when(products.getTotalCount()).thenReturn(0);
-        when(products.getItems()).thenReturn(new ArrayList<>());
-        when(products.getAggregations()).thenReturn(new ArrayList<>());
+        when(products.getItems()).thenReturn(Collections.emptyList());
+        when(products.getAggregations()).thenReturn(Collections.emptyList());
         when(query.getProducts()).thenReturn(products);
 
         GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
@@ -135,8 +143,6 @@ public class SearchResultsServiceImplTest {
 
         context.registerService(SearchFilterService.class, searchFilterService);
 
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        urlProvider.activate(new MockUrlProviderConfiguration());
         context.registerService(UrlProvider.class, urlProvider);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, magentoGraphqlClient);
 
@@ -168,7 +174,6 @@ public class SearchResultsServiceImplTest {
 
     @Test
     public void testPerformSearch() {
-
         SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
             searchOptions,
             resource,
@@ -199,8 +204,107 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testSearchWithSortOrderParam() {
+    public void testSearchAggregations() {
+        when(products.getAggregations()).thenReturn(Collections.singletonList(new Aggregation()
+            .setLabel("Name")
+            .setAttributeCode("name")
+            .setOptions(Arrays.asList(
+                new AggregationOption().setLabel("Sport").setValue("sport").setCount(2),
+                new AggregationOption().setLabel("Lifestyle").setValue("lifestyle").setCount(3)))
+            .setCount(5)));
 
+        SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
+        assertThat(aggregations).isNotNull();
+        assertThat(aggregations.size()).isEqualTo(1);
+        SearchAggregation aggregation = aggregations.get(0);
+        assertThat(aggregation.getDisplayLabel()).isEqualTo("Name");
+        assertThat(aggregation.getIdentifier()).isEqualTo("name");
+        assertThat(aggregation.getOptionCount()).isEqualTo(5);
+
+        List<SearchAggregationOption> options = aggregation.getOptions();
+        assertThat(options).isNotNull();
+        assertThat(options.size()).isEqualTo(2);
+
+        SearchAggregationOption sportOption = options.get(0);
+        assertThat(sportOption.getDisplayLabel()).isEqualTo("Sport");
+        assertThat(sportOption.getFilterValue()).isEqualTo("sport");
+        assertThat(sportOption.getCount()).isEqualTo(2);
+
+        SearchAggregationOption lifestyleOption = options.get(1);
+        assertThat(lifestyleOption.getDisplayLabel()).isEqualTo("Lifestyle");
+        assertThat(lifestyleOption.getFilterValue()).isEqualTo("lifestyle");
+        assertThat(lifestyleOption.getCount()).isEqualTo(3);
+    }
+
+    @Test
+    public void testCategoryIdSearchAggregationRemoved() {
+        when(products.getAggregations()).thenReturn(Collections.singletonList(new Aggregation()
+            .setAttributeCode("category_id")
+            .setOptions(Collections.emptyList())));
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Collections.singletonList(
+            createMatchFilterAttributeMetadata("category_id")));
+
+        // test without category_id
+        SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+        List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
+        assertThat(aggregations).isNotNull();
+        assertThat(aggregations.isEmpty()).isEqualTo(false);
+
+        // test with category uid present
+        searchOptions.setCategoryUid("foobar");
+        resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+        aggregations = resultsSet.getSearchAggregations();
+        assertThat(aggregations).isNotNull();
+        assertThat(aggregations.isEmpty()).isEqualTo(true);
+    }
+
+    @Test
+    public void testCategoryUidFilterEntriesRemoved() {
+        final Predicate<Map<String, String>> filterMapFilter = map -> map.containsKey("category_uid");
+
+        List<Aggregation> aggregationsList = new ArrayList<>();
+        aggregationsList.add(new Aggregation()
+            .setAttributeCode("name")
+            .setOptions(Arrays.asList(
+                new AggregationOption().setValue("1"),
+                new AggregationOption().setValue("2"))));
+
+        when(products.getAggregations()).thenReturn(aggregationsList);
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
+            createStringEqualFilterAttributeMetadata("category_uid"),
+            createStringEqualFilterAttributeMetadata("name")));
+
+        searchOptions.setAttributeFilters(Collections.emptyMap());
+
+        // test without category_uid
+        SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+        List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
+        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+
+        // test with category_uid filter
+        searchOptions.setCategoryUid("foobar");
+        resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+        aggregations = resultsSet.getSearchAggregations();
+        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter).count()).isEqualTo(2);
+
+        // test with category_uid filter from request
+        when(urlProvider.getCategoryIdentifier(request)).thenReturn("foobar");
+        resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+        aggregations = resultsSet.getSearchAggregations();
+        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+    }
+
+    private static Stream<Map<String, String>> getFilterMapsOfAllOptions(List<SearchAggregation> aggregations,
+        Predicate<Map<String, String>> filter) {
+        return aggregations.stream()
+            .map(SearchAggregation::getOptions).flatMap(Collection::stream).map(SearchAggregationOption::getAddFilterMap)
+            .filter(filter);
+    }
+
+    @Test
+    public void testSearchWithSortOrderParam() {
         searchOptions.addSorterKey("name", "Name", Sorter.Order.DESC);
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "name");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
@@ -245,7 +349,6 @@ public class SearchResultsServiceImplTest {
 
     @Test
     public void testSearchWithInvalidSortKey() {
-
         searchOptions.addSorterKey("invalid", "Invalid", null);
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
@@ -268,7 +371,6 @@ public class SearchResultsServiceImplTest {
 
     @Test
     public void testNullMagentoClient() {
-
         GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
         response.setData(query);
         Error error = new Error();
@@ -290,7 +392,6 @@ public class SearchResultsServiceImplTest {
 
     @Test
     public void testExtendProductQuery() {
-
         SearchOptionsImpl searchOptions = new SearchOptionsImpl();
         searchOptions.setPageSize(6);
         searchOptions.setSearchQuery(SEARCH_QUERY);
