@@ -155,11 +155,11 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            products = Collections.emptyList();
-        } else {
+        if (CollectionUtils.isEmpty(response.getErrors())) {
             Query rootQuery = response.getData();
             products = rootQuery.getProducts().getItems();
+        } else {
+            products = Collections.emptyList();
         }
     }
 

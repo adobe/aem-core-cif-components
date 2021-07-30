@@ -139,12 +139,12 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            categories = Collections.emptyList();
-        } else {
+        if (CollectionUtils.isEmpty(response.getErrors())) {
             Query rootQuery = response.getData();
             categories = rootQuery.getCategoryList();
             categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
+        } else {
+            categories = Collections.emptyList();
         }
     }
 }

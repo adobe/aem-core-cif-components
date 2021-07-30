@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -36,8 +34,6 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 class UrlToProductRetriever extends AbstractProductRetriever {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlToProductRetriever.class);
 
     UrlToProductRetriever(MagentoGraphqlClient client) {
         super(client);
