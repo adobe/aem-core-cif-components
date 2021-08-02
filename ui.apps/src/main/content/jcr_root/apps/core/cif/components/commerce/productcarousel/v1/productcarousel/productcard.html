@@ -1,28 +1,29 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ 
+  ~
   ~ Copyright 2019 Adobe. All rights reserved.
   ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License. You may obtain a copy
   ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
-  ~ 
+  ~
   ~ Unless required by applicable law or agreed to in writing, software distributed under
   ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
   ~ OF ANY KIND, either express or implied. See the License for the specific language
   ~ governing permissions and limitations under the License.
-  ~ 
+  ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
   <template data-sly-template.productcard="${@ product}">
-    <div role="displaycard"
-         id="${product.id}"
-         data-cmp-data-layer="${product.data.json}"
-         class="card product__card">
-        <a href="${product.URL}">
-            <div class="product__card__image">
-                <img class="product__image" src="${product.imageURL}" alt="${product.imageAlt}" data-gallery-role="currentimage" />
-            </div>
-            <div>${product.Title}</div>
-            <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
-                 data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"></sly>
-        </a>
-    </div>
+      <div role="displaycard"
+           id="${product.id}"
+           data-cmp-data-layer="${product.data.json}"
+           class="card product__card"
+           data-product-sku="${product.SKU}">
+          <a href="${product.URL}">
+              <div class="product__card__image">
+                  <img class="product__image" src="${product.imageURL}" data-gallery-role="currentimage"/>
+              </div>
+              <div>${product.Title}</div>
+              <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
+                   data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"></sly>
+          </a>
+      </div>
 </template>
