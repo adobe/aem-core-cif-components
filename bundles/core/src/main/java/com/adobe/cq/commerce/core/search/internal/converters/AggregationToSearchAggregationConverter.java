@@ -62,7 +62,7 @@ public class AggregationToSearchAggregationConverter implements Function<Aggrega
 
         SearchAggregationImpl searchAggregation = new SearchAggregationImpl();
         searchAggregation.setFilterable(filterable);
-        searchAggregation.setCount(aggregation == null ? 0 : aggregation.getCount());
+        searchAggregation.setCount(aggregation.getCount() != null ? aggregation.getCount() : 0);
         searchAggregation.setOptions(getOptions(aggregation, appliedFilters));
         searchAggregation.setDisplayLabel(aggregation.getLabel());
         searchAggregation.setIdentifier(identifier);

@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
+
+import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
 
 public abstract class DataLayerListItem extends DataLayerComponent {
 
@@ -37,6 +40,6 @@ public abstract class DataLayerListItem extends DataLayerComponent {
     @Override
     protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getIdentifier()), 0, 10));
+        return ComponentUtils.generateId(prefix, getIdentifier());
     }
 }

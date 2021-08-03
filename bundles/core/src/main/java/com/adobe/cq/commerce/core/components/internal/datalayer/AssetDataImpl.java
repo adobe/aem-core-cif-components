@@ -18,11 +18,9 @@ package com.adobe.cq.commerce.core.components.internal.datalayer;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 
 public class AssetDataImpl implements AssetData {
     private final Asset asset;
@@ -33,8 +31,7 @@ public class AssetDataImpl implements AssetData {
 
     @Override
     public String getId() {
-        return StringUtils.join(asset.getType(), DataLayerComponent.ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(asset
-            .getPath()), 0, 10));
+        return ComponentUtils.generateId(asset.getType(), asset.getPath());
     }
 
     @Override

@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
@@ -82,6 +84,9 @@ import com.day.cq.wcm.api.PageManager;
 
 @Component(service = SearchResultsService.class)
 public class SearchResultsServiceImpl implements SearchResultsService {
+
+    private static final String CATEGORY_ID_FILTER = "category_id";
+    private static final String CATEGORY_UID_FILTER = "category_uid";
 
     @Reference
     private SearchFilterService searchFilterService;
@@ -183,10 +188,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
 
-        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
-        if (mutableSearchOptions.getCategoryUid().isPresent()) {
-            searchAggregations.removeIf(a -> "category_id".equals(a.getIdentifier()));
-        }
+        // special handling of category identifier(s)
+        removeCategoryIdAggregationIfNecessary(searchAggregations, mutableSearchOptions);
+        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -356,8 +360,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     /**
      * Generates a query string for the category specified in the retriever.
-     * 
-     * 
+     *
      * @param categoryRetriever
      * @return the query string
      */
@@ -466,4 +469,34 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Removes the category_id filter from the search aggregations when category_uid filter is present because either cannot be combined
+     * with the other.
+     *
+     * @param aggs
+     * @param searchOptions
+     */
+    private void removeCategoryIdAggregationIfNecessary(List<SearchAggregation> aggs, SearchOptionsImpl searchOptions) {
+        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
+        if (searchOptions.getCategoryUid().isPresent()) {
+            aggs.removeIf(agg -> CATEGORY_ID_FILTER.equals(agg.getIdentifier()));
+        }
+    }
+
+    /**
+     * Removes the category_uid filter from all filter options' filter maps when the category uid can be retrieved from the request already.
+     *
+     * @param aggs
+     * @param request
+     */
+    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
+        if (StringUtils.isNotBlank(categoryUid)) {
+            aggs.stream()
+                .map(SearchAggregation::getOptions)
+                .flatMap(Collection::stream)
+                .map(SearchAggregationOption::getAddFilterMap)
+                .forEach(filterMap -> filterMap.remove(CATEGORY_UID_FILTER, categoryUid));
+        }
+    }
 }

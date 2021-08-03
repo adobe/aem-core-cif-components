@@ -313,6 +313,11 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
         return contentFragment.getEditorJSON();
     }
 
+    @Override
+    public String getId() {
+        return contentFragment.getId();
+    }
+
     static class EmptyContentFragment implements ContentFragment {
         /**
          * The empty return value means that the model does not contain a valid content fragment.
