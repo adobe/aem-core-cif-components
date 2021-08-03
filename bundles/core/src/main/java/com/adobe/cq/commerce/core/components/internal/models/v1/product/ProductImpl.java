@@ -432,6 +432,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     protected String generateId() {
         String id = super.generateId();
+        ValueMap properties = request.getResource().getValueMap();
         if (StringUtils.isNotBlank(properties.get(Component.PN_ID, String.class))) {
             // if available use the id provided by the user
             return id;
