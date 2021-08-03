@@ -21,17 +21,22 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.wcm.core.components.models.Component;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class DataLayerComponent {
-    public static final String ID_SEPARATOR = "-";
 
     @SlingObject
     protected Resource resource;
+
+    @Self
+    private Component wcmComponent;
 
     private String id;
     private Boolean dataLayerEnabled;
@@ -68,10 +73,14 @@ public abstract class DataLayerComponent {
     }
 
     protected String generateId() {
-        String resourceType = resource.getResourceType();
-        String prefix = StringUtils.substringAfterLast(resourceType, "/");
-        String path = resource.getPath();
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(path), 0, 10));
+        if (wcmComponent == null) {
+            String resourceType = resource.getResourceType();
+            String prefix = StringUtils.substringAfterLast(resourceType, "/");
+            String path = resource.getPath();
+            return ComponentUtils.generateId(prefix, path);
+        } else {
+            return wcmComponent.getId();
+        }
     }
 
     public String getId() {

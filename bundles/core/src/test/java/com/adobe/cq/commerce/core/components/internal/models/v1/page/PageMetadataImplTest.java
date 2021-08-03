@@ -164,7 +164,7 @@ public class PageMetadataImplTest {
         // Asserts that the right product resource is used when PageMetadataImpl adapts the request to the Product component
         ComponentData data = productModel.getData();
         assertEquals("venia/components/commerce/product", data.getType());
-        assertEquals("product-8309e8957e", data.getId());
+        assertEquals("product-3944cc709b", data.getId());
     }
 
     @Test

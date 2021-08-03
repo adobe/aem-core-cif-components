@@ -17,6 +17,7 @@
                     <showTitle
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                        sling:orderBefore="id"
                         fieldDescription="Show category title of product list"
                         name="./showTitle"
                         text="Show title"
@@ -26,6 +27,7 @@
                     <showImage
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                        sling:orderBefore="id"
                         fieldDescription="Show category image of product list"
                         name="./showImage"
                         text="Show image"

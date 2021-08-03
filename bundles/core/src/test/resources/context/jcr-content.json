@@ -55,6 +55,10 @@
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
+            "productwithid": {
+              "sling:resourceType": "venia/components/commerce/product",
+              "id": "custom-id"
+            },
             "productlist": {
                 "loadClientPrice": true,
                 "showImage": true,
