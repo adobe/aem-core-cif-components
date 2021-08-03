@@ -348,12 +348,14 @@ public class MagentoGraphqlClientImplTest {
         assertNotNull(response.getErrors());
         assertEquals(1, response.getErrors().size());
         assertEquals("foobar", response.getErrors().get(0).getMessage());
+        assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
 
         response = client.execute("query", HttpMethod.POST);
         assertNull(response.getData());
         assertNotNull(response.getErrors());
         assertEquals(1, response.getErrors().size());
         assertEquals("foobar", response.getErrors().get(0).getMessage());
+        assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
     }
 
     /**

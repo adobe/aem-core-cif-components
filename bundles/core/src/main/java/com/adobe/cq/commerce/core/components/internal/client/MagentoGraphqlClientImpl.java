@@ -284,6 +284,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
         Error error = new Error();
         error.setMessage(throwable.getMessage());
+        error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
         response.setErrors(Collections.singletonList(error));
         return response;
     }
