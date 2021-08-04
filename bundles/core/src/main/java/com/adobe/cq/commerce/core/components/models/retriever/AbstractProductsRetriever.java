@@ -15,8 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -152,8 +155,12 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        products = rootQuery.getProducts().getItems();
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            products = rootQuery.getProducts().getItems();
+        } else {
+            products = Collections.emptyList();
+        }
     }
 
     protected ProductPriceQueryDefinition generatePriceQuery() {

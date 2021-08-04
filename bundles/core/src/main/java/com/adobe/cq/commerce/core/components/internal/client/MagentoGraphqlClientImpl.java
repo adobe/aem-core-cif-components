@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -200,18 +201,27 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     @Override
     public GraphqlResponse<Query, Error> execute(String query) {
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
+        try {
+            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
+        } catch (RuntimeException ex) {
+            LOGGER.error("Failed to execute query: {}", query, ex);
+            return newErrorResponse(ex);
+        }
     }
 
     @Override
     public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
+        try {
+            // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
+            RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
+                .withHeaders(requestOptions.getHeaders())
+                .withHttpMethod(httpMethod);
 
-        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
-        RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
-            .withHeaders(requestOptions.getHeaders())
-            .withHttpMethod(httpMethod);
-
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+        } catch (RuntimeException ex) {
+            LOGGER.error("Failed to execute query: {}", query, ex);
+            return newErrorResponse(ex);
+        }
     }
 
     @Override
@@ -268,6 +278,15 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             throw new IllegalStateException("GraphQL client not available for resource " + resource.getPath());
         }
         return graphqlClient;
+    }
+
+    private static GraphqlResponse<Query, Error> newErrorResponse(Throwable throwable) {
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
+        Error error = new Error();
+        error.setMessage(throwable.getMessage());
+        error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        response.setErrors(Collections.singletonList(error));
+        return response;
     }
 
     private static String readFallBackConfiguration(Resource resource, String propertyName) {

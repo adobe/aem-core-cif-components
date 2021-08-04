@@ -45,6 +45,12 @@ public interface MagentoGraphqlClient {
     String CONFIGURATION_NAME = "cloudconfigs/commerce";
 
     /**
+     * A category string used for {@link Error} instances returned by the {@link MagentoGraphqlClient} implementation in case of a
+     * {@link RuntimeException} being caught.
+     */
+    String RUNTIME_ERROR_CATEGORY = RuntimeException.class.getName();
+
+    /**
      * Executes the given Magento query and returns the response. This method will use
      * the default HTTP method defined in the OSGi configuration of the underlying {@link GraphqlClient}.
      * Use {@link #execute(String, HttpMethod)} if you want to specify the HTTP method yourself.

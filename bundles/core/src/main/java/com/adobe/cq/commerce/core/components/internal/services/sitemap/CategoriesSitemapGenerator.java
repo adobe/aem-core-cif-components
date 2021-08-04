@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
@@ -107,7 +108,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             String query = Operations.query(categoryQueryFor(categoryId)).toString();
             GraphqlResponse<Query, Error> resp = graphql.execute(query);
 
-            if (resp.getErrors() != null && resp.getErrors().size() > 0) {
+            if (CollectionUtils.isNotEmpty(resp.getErrors())) {
                 SitemapException ex = new SitemapException("Failed to execute graphql query.");
                 resp.getErrors().forEach(error -> ex.addSuppressed(new Exception(error.getMessage())));
                 throw ex;

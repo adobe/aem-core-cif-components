@@ -364,6 +364,17 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testProductIdentifierParsingInSuffixUrlKeyWithGraphqlClientError() {
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/beaumont-summit-kit.html");
+
+        doThrow(new RuntimeException()).when(graphqlClient).execute(any(), any(), any(), any());
+
+        String identifier = urlProvider.getProductIdentifier(context.request());
+        Assert.assertNull(identifier);
+    }
+
+    @Test
     public void testProductIdentifierParsingInSuffixSKU() {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");

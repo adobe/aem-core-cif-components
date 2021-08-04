@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +65,14 @@ class GraphQLCategoryProvider {
         String queryString = Operations.query(query -> query.categoryList(searchArgs, defineCategoriesQuery(depth))).toString();
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
 
+        if (CollectionUtils.isNotEmpty(response.getErrors())) {
+            return Collections.emptyList();
+        }
+
         Query rootQuery = response.getData();
         List<CategoryTree> category = rootQuery.getCategoryList();
         if (category.isEmpty() || category.get(0) == null) {
-            LOGGER.warn("Category not found for identifier: " + categoryIdentifier);
+            LOGGER.warn("Category not found for identifier: {}", categoryIdentifier);
             return Collections.emptyList();
         }
 

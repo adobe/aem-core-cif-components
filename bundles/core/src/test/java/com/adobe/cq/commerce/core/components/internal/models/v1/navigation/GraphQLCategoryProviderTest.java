@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,13 +74,25 @@ public class GraphQLCategoryProviderTest {
     }
 
     @Test
-    public void testMissingMagentoGraphqlClient() throws IOException {
+    public void testMissingMagentoGraphqlClient() {
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(null);
         Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
     }
 
     @Test
-    public void testCategoryNotOrNoChildren() throws IOException {
+    public void testMagentoGraphqlClientErrorResponse() {
+        MagentoGraphqlClient magentoGraphqlClient = mock(MagentoGraphqlClient.class);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(magentoGraphqlClient);
+        GraphqlResponse<Query, Error> errorResp = new GraphqlResponse<>();
+        Error error = new Error();
+        error.setMessage("foobar");
+        errorResp.setErrors(Collections.singletonList(error));
+        when(magentoGraphqlClient.execute(anyString())).thenReturn(errorResp);
+        Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
+    }
+
+    @Test
+    public void testCategoryNotOrNoChildren() {
         Page page = mock(Page.class);
         Resource pageContent = mock(Resource.class);
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
@@ -109,7 +121,7 @@ public class GraphQLCategoryProviderTest {
     }
 
     @Test
-    public void testGetChildCategories() throws IOException {
+    public void testGetChildCategories() {
         Page page = spy(context.currentPage("/content/pageA"));
         Resource pageContent = spy(page.getContentResource());
         when(page.getContentResource()).thenReturn(pageContent);

@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -236,9 +237,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
-            category = Optional.of(rootQuery.getCategoryList().get(0));
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
+                category = Optional.of(rootQuery.getCategoryList().get(0));
+            } else {
+                category = Optional.empty();
+            }
         } else {
             category = Optional.empty();
         }

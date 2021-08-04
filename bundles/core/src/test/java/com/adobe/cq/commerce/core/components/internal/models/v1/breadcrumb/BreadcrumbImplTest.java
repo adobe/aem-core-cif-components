@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.wcm.api.Page;
@@ -345,6 +346,24 @@ public class BreadcrumbImplTest {
 
         // If we cannot access Magento data, the breadcrumb should at least display the pages
         assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en");
+    }
+
+    @Test
+    public void testGraphqlClientError() throws Exception {
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{sku");
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
+
+        when(breadcrumbResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        Collection<NavigationItem> items = breadcrumbModel.getItems();
+
+        // If we cannot access Magento data, the breadcrumb should at least display the pages
+        assertThat(items.stream().map(ListItem::getTitle)).containsExactly("en");
     }
 
     @Test

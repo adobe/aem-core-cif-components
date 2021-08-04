@@ -119,7 +119,6 @@ public class NavigationImplTest {
 
     @Test
     public void testStructureDepthProperty() {
-
         // set up
         when(request.getRequestURI()).thenReturn("/page1/page11");
         RequestPathInfo rpi = mock(RequestPathInfo.class);

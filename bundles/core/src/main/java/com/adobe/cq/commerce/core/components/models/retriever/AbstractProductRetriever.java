@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
@@ -182,13 +184,17 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            List<ProductInterface> products = rootQuery.getProducts().getItems();
 
-        // Return first product in list unless the identifier type is 'url_key',
-        // then return the product whose 'url_key' matches the identifier
-        if (products.size() > 0) {
-            product = Optional.of(products.get(0));
+            // Return first product in list unless the identifier type is 'url_key',
+            // then return the product whose 'url_key' matches the identifier
+            if (products.size() > 0) {
+                product = Optional.of(products.get(0));
+            } else {
+                product = Optional.empty();
+            }
         } else {
             product = Optional.empty();
         }

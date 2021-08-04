@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -32,6 +35,7 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
+
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
@@ -135,8 +139,12 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        categories = rootQuery.getCategoryList();
-        categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            categories = rootQuery.getCategoryList();
+            categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
+        } else {
+            categories = Collections.emptyList();
+        }
     }
 }
