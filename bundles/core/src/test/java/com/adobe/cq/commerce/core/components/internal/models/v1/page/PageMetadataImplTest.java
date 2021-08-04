@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
 import java.util.Collection;
@@ -105,6 +106,10 @@ public class PageMetadataImplTest {
                 ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
                 Utils.addDataLayerConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -112,10 +117,6 @@ public class PageMetadataImplTest {
     private void provideSlingBindings(Bindings bindings) {
         bindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage());
         bindings.put(WCMBindingsConstants.NAME_PROPERTIES, context.currentResource().getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        bindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
@@ -163,7 +164,7 @@ public class PageMetadataImplTest {
         // Asserts that the right product resource is used when PageMetadataImpl adapts the request to the Product component
         ComponentData data = productModel.getData();
         assertEquals("venia/components/commerce/product", data.getType());
-        assertEquals("product-8309e8957e", data.getId());
+        assertEquals("product-3944cc709b", data.getId());
     }
 
     @Test
@@ -184,8 +185,6 @@ public class PageMetadataImplTest {
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        // graphqlClient = Mockito.spy(Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-product-result.json"));
-
         HttpClient httpClient = Mockito.mock(HttpClient.class);
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);

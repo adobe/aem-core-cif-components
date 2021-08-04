@@ -17,7 +17,7 @@
                     <title jcr:primaryType="nt:unstructured" 
                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield" 
                         fieldDescription="Optional title text. Leave empty to hide the title." 
-                        fieldLabel="Title" 
+                        fieldLabel="Title"
                         name="./jcr:title"/>
                     <titleType granite:class="core-title-sizes"
                         jcr:primaryType="nt:unstructured"
@@ -28,6 +28,11 @@
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="core/wcm/components/commons/datasources/allowedheadingelements/v1"/>
                     </titleType>
+                    <id jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                        fieldDescription="HTML ID attribute to apply to the component."
+                        fieldLabel="ID"
+                        name="./id"/>
                 </items>
             </column>
         </items>

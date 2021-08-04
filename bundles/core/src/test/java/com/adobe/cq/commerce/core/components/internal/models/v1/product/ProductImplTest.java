@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
@@ -75,6 +76,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -112,12 +114,17 @@ public class ProductImplTest {
                 Utils.addDataLayerConfig(mockConfigBuilder, true);
                 Utils.addStorefrontContextConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+                XSSAPI xssapi = mock(XSSAPI.class);
+                when(xssapi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssapi);
             },
             ResourceResolverType.JCR_MOCK);
     }
 
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
+    private static final String PRODUCT_WITH_ID = "/content/pageA/jcr:content/root/responsivegrid/productwithid";
 
     private Resource productResource;
     private Resource pageResource;
@@ -157,17 +164,13 @@ public class ProductImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
-        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
@@ -176,10 +179,6 @@ public class ProductImplTest {
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
-
-        // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
-        // and we want to override the "slug" in testEditModePlaceholderData()
-
     }
 
     protected void adaptToProduct() {
@@ -325,7 +324,7 @@ public class ProductImplTest {
         SimpleProduct product = mock(SimpleProduct.class, RETURNS_DEEP_STUBS);
         when(product.getDescription()).thenReturn(null);
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
-        Assert.assertNull(productModel.getDescription());
+        assertNull(productModel.getDescription());
     }
 
     @Test
@@ -338,7 +337,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
-        Assert.assertNull(productModel.getDescription());
+        assertNull(productModel.getDescription());
     }
 
     @Test
@@ -486,7 +485,7 @@ public class ProductImplTest {
         Assert.assertFalse("Product is not configurable", productModel.isConfigurable());
         Assert.assertFalse("Product is not a grouped product", productModel.isGroupedProduct());
         Assert.assertFalse("Product is not virtual", productModel.isVirtualProduct());
-        Assert.assertNull("The product retriever is not created", productModel.getProductRetriever());
+        assertNull("The product retriever is not created", productModel.getProductRetriever());
     }
 
     @Test
@@ -551,5 +550,19 @@ public class ProductImplTest {
         String expected = Utils.getResource("storefront-context/result-storefront-context-product-component.json");
         String jsonResult = productModel.getStorefrontContext().getJson();
         assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testManualHtmlId() throws IOException {
+        context.currentResource(PRODUCT_WITH_ID);
+        context.request().setServletPath(PRODUCT_WITH_ID + ".beaumont-summit-kit.html");
+        productResource = context.resourceResolver().getResource(PRODUCT_WITH_ID);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(productResource);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
+
+        productModel = context.request().adaptTo(ProductImpl.class);
+
+        assertEquals("custom-id", productModel.getId());
     }
 }
