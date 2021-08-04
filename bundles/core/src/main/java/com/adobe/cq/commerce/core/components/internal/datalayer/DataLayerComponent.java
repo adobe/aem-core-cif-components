@@ -15,13 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
 import com.adobe.cq.wcm.core.components.models.Component;
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class DataLayerComponent {
 
-    @Inject
+    @SlingObject
     protected Resource resource;
 
     @Self

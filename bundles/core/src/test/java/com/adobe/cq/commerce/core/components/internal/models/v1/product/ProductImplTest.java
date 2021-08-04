@@ -114,6 +114,10 @@ public class ProductImplTest {
                 Utils.addDataLayerConfig(mockConfigBuilder, true);
                 Utils.addStorefrontContextConfig(mockConfigBuilder, true);
                 context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+                XSSAPI xssapi = mock(XSSAPI.class);
+                when(xssapi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssapi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -160,17 +164,13 @@ public class ProductImplTest {
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
-        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html"); // used by context.request().getRequestURI();
+        context.request().setServletPath(PAGE + ".html/beaumont-summit-kit.html");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
@@ -179,10 +179,6 @@ public class ProductImplTest {
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
-
-        // context.request().adaptTo(ProductImpl.class); is moved to each test because it uses an internal cache
-        // and we want to override the "slug" in testEditModePlaceholderData()
-
     }
 
     protected void adaptToProduct() {

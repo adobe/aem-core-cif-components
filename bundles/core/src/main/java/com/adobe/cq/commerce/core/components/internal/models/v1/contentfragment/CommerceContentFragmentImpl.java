@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.jcr.Session;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +31,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
@@ -84,7 +84,8 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
 
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
-    @Inject
+
+    @OSGiService
     private ModelFactory modelFactory;
 
     @SlingObject
@@ -96,20 +97,20 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     // needed for rawcontent rendering
     @ValueMapValue(name = ContentFragment.PN_DISPLAY_MODE, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String displayMode;
 
-    @Inject
+    @OSGiService
     private FragmentRenderService renderService;
 
-    @ScriptVariable
+    @SlingObject
     private Resource resource;
 
     @ValueMapValue(name = CommerceContentFragment.PN_LINK_ELEMENT, injectionStrategy = InjectionStrategy.OPTIONAL)

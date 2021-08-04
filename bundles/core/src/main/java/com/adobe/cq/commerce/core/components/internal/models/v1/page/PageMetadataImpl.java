@@ -16,14 +16,14 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.factory.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,16 +47,13 @@ public class PageMetadataImpl implements PageMetadata {
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
+    @SlingObject
     protected Resource resource;
 
     @ScriptVariable
     private Page currentPage;
 
-    @ScriptVariable
-    private ValueMap properties;
-
-    @Inject
+    @OSGiService
     private ModelFactory modelFactory;
 
     private PageMetadata provider;
@@ -100,7 +97,7 @@ public class PageMetadataImpl implements PageMetadata {
     @Override
     public String getMetaDescription() {
         String metaDescription = provider != null ? provider.getMetaDescription() : null;
-        return metaDescription != null ? metaDescription : properties.get(JcrConstants.JCR_DESCRIPTION, String.class);
+        return metaDescription != null ? metaDescription : resource.getValueMap().get(JcrConstants.JCR_DESCRIPTION, String.class);
     }
 
     @Override
