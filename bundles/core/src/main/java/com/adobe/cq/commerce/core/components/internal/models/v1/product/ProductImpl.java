@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +31,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.xss.XSSAPI;
@@ -106,25 +106,22 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @ScriptVariable
     private Style currentStyle;
 
-    @ScriptVariable
-    private ValueMap properties;
-
     @ScriptVariable(name = "wcmmode")
     private SightlyWCMMode wcmMode;
 
-    @Inject
+    @OSGiService
     private XSSAPI xssApi;
 
-    @Inject
+    @OSGiService
     private Externalizer externalizer;
 
     private Boolean configurable;
@@ -141,6 +138,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @PostConstruct
     protected void initModel() {
         // Get product selection from dialog
+        ValueMap properties = request.getResource().getValueMap();
         String sku = properties.get(SELECTION_PROPERTY, String.class);
 
         if (magentoGraphqlClient != null) {
@@ -434,6 +432,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     protected String generateId() {
         String id = super.generateId();
+        ValueMap properties = request.getResource().getValueMap();
         if (StringUtils.isNotBlank(properties.get(Component.PN_ID, String.class))) {
             // if available use the id provided by the user
             return id;

@@ -41,11 +41,9 @@ public class HeaderImplTest {
     }
 
     private void setupPage(String pagePath, String headerPath) {
-        context.currentResource(headerPath);
-
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.setResource(context.resourceResolver().getResource(headerPath));
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(pagePath));
+        slingBindings.setResource(context.currentResource(headerPath));
 
         header = context.request().adaptTo(HeaderImpl.class);
     }

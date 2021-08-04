@@ -18,13 +18,12 @@ package com.adobe.cq.commerce.core.components.internal.models.v2.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.wcm.core.components.models.Navigation;
@@ -38,8 +37,8 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 public class NavigationImpl implements Navigation {
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v2/navigation";
 
-    @Inject
-    private Resource resource = null;
+    @SlingObject
+    private Resource resource;
 
     @Self
     @Via(type = ForcedResourceType.class, value = "core/wcm/components/navigation/v1/navigation")
