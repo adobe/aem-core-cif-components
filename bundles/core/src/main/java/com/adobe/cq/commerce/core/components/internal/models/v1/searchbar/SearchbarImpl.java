@@ -15,10 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchbar;
 
-import javax.inject.Inject;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
@@ -37,7 +36,7 @@ import com.day.cq.wcm.api.Page;
 public class SearchbarImpl extends DataLayerComponent implements Searchbar {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchbar/v1/searchbar";
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
     private Page searchResultsPage;

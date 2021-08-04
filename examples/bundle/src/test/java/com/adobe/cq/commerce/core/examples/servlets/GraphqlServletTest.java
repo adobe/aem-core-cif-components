@@ -117,6 +117,10 @@ public class GraphqlServletTest {
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
 
                 context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -219,10 +223,6 @@ public class GraphqlServletTest {
         slingBindings.setResource(resource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, resource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.isA(Boolean.class))).then(i -> i.getArgumentAt(1, Boolean.class));

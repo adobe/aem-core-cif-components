@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 public class StoreConfigExporterTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/api/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
             "cq:graphqlClient",
             "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
@@ -96,14 +96,14 @@ public class StoreConfigExporterTest {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
-        Assert.assertEquals("/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("/my/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test
     public void testGraphqlEndpointDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test

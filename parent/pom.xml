@@ -928,14 +928,6 @@
                 <version>1.0.2</version>
             </dependency>
 
-            <!-- javax.inject 1 -->
-            <dependency>
-                <artifactId>geronimo-atinject_1.0_spec</artifactId>
-                <version>1.0</version>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <scope>provided</scope>
-            </dependency>
-
             <!-- Servlet API -->
             <dependency>
                 <groupId>javax.servlet</groupId>

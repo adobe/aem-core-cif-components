@@ -21,11 +21,11 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
@@ -65,13 +65,13 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected ValueMap properties;
     @ScriptVariable
     protected Style currentStyle;
-    @Inject
+    @ScriptVariable
     protected Page currentPage;
-    @Inject
+    @OSGiService
     protected SearchResultsService searchResultsService;
-    @Inject
+    @OSGiService
     protected UrlProvider urlProvider;
-    @Inject
+    @OSGiService
     protected Externalizer externalizer;
 
     protected SearchOptionsImpl searchOptions;
