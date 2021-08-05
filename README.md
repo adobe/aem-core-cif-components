@@ -38,7 +38,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 -   [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v2/button)
 -   [Sign In](react-components/src/components/SignIn)
 -   [Create Account](react-components/src/components/CreateAccount)
--   [Mini Account](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/miniaccount/v2/miniaccount)
+-   [Mini Account](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/miniaccount/v2/miniaccount)
 -   [Account Details](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v2/accountdetails)
 -   [Address Book](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/addressbook/v2/addressbook)
 -   [Reset Password](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v2/resetpassword)
