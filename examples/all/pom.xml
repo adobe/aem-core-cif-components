@@ -59,6 +59,9 @@
                 <configuration>
                     <group>cif-components-library</group>
                     <packageType>container</packageType>
+                    <properties>
+                        <cloudManagerTarget>none</cloudManagerTarget>
+                    </properties>
                     <allowIndexDefinitions>true</allowIndexDefinitions> 
                     <embeddedTarget>/apps/core/cif/install</embeddedTarget>                 
                     <embeddeds>
