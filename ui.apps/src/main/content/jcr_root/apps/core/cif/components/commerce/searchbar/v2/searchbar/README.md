@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Searchbar (v1)
+# Searchbar (v2)
 
 Searchbar component is a server-side component written in HTL, displaying a search input. After submitting the components redirects to the search results page defined by the `cq:cifSearchResultsPage` property and passing the search term as a query parameter.
 
