@@ -164,12 +164,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         return sku != null ? sku : combinedSku != null ? combinedSku.getLeft() : null;
     }
 
-    @JsonIgnore
-    @Override
-    public String getMasterProductSku() {
-        return combinedSku != null ? combinedSku.getLeft() : null;
-    }
-
     @Override
     public String getCallToAction() {
         return cta;
