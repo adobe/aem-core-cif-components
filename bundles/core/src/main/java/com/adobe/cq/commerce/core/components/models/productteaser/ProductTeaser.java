@@ -61,15 +61,24 @@ public interface ProductTeaser extends Component {
     String getUrl();
 
     /**
-     * Returns the SKU of the product displayed by this {@code ProductTeaser}
-     * 
+     * Returns the SKU of the product displayed by this {@code ProductTeaser}. If the teaser displays a variant, then this method returns
+     * the SKU of the variant.
+     *
      * @return a String value representing the SKU
      */
     String getSku();
 
     /**
+     * Retrieves the SKU of the master product displayed by this teaser. To retrieve the SKU of the actual product shown in the teaser
+     * (which could be a variant) then use {@link ProductTeaser#getSku()}
+     *
+     * @return a String value representing the SKU of the master product.
+     */
+    String getMasterProductSku();
+
+    /**
      * Returns the "call to action" configured for this teaser.
-     * 
+     *
      * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured then this methods
      *         returns {@code null}
      */
@@ -77,7 +86,7 @@ public interface ProductTeaser extends Component {
 
     /**
      * Returns the "call to action text" configured for this teaser.
-     * 
+     *
      * @return the value of the "call to action text" option.
      *         If no CTA text is configured then this methods returns
      *         {@code null}
