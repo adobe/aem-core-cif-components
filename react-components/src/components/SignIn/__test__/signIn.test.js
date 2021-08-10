@@ -28,6 +28,8 @@ describe('<SignIn>', () => {
             writable: true,
             value: 'cif.cart=guest123'
         });
+
+        window.location.reload = jest.fn();
     });
 
     it('renders the component', () => {

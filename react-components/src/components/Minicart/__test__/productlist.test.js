@@ -38,7 +38,8 @@ describe('<ProductList>', () => {
                 }
             },
             quantity: 2,
-            id: '1'
+            id: '1',
+            uid: '1'
         },
         {
             product: {
@@ -58,7 +59,8 @@ describe('<ProductList>', () => {
                 }
             },
             quantity: 2,
-            id: '2'
+            id: '2',
+            uid: '2'
         }
     ];
 

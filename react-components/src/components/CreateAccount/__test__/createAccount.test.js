@@ -133,7 +133,7 @@ describe('<CreateAccount>', () => {
             <CartProvider initialState={{ cartId: 'guest123' }} reducerFactory={() => state => state}>
                 <ContextWrapper />
             </CartProvider>,
-            { mocks: mocks }
+            { mocks }
         );
 
         const detailsFromValue = value => {

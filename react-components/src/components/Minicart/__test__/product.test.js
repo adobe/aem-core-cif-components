@@ -23,7 +23,8 @@ const mockCartItem = {
         thumbnail: {
             url: '/some/url'
         },
-        name
+        name,
+        uid: 'uid'
     },
     prices: {
         price: {
@@ -36,7 +37,8 @@ const mockCartItem = {
         }
     },
     quantity: 2,
-    id: '1'
+    id: '1',
+    uid: '1'
 };
 
 describe('<Product />', () => {

@@ -23,6 +23,7 @@ import mockResponse from './graphQlMockReponse';
 const config = {
     storeView: 'default',
     graphqlEndpoint: 'endpoint',
+    graphqlMethod: 'GET',
     mountingPoints: {
         bundleProductOptionsContainer: '#bundle-product-options'
     }

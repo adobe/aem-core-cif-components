@@ -20,6 +20,7 @@ import AccountDropdown from '../accountDropdown';
 
 const config = {
     graphqlEndpoint: 'endpoint',
+    graphqlMethod: 'GET',
     storeView: 'default',
     pagePaths: {
         accountDetails: '/accountDetails'

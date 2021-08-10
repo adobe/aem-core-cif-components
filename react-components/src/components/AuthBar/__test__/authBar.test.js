@@ -25,7 +25,7 @@ describe('<AuthBar>', () => {
 
         const { asFragment } = render(
             <UserContextProvider reducerFactory={() => handler}>
-                <AuthBar />
+                <AuthBar showMyAccount={jest.fn()} />
             </UserContextProvider>
         );
 
@@ -47,7 +47,7 @@ describe('<AuthBar>', () => {
 
         const { asFragment } = render(
             <UserContextProvider initialState={initialState} reducerFactory={() => handler}>
-                <AuthBar />
+                <AuthBar showMyAccount={jest.fn()} />
             </UserContextProvider>
         );
 

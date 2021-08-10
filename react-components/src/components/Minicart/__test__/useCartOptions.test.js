@@ -16,8 +16,7 @@
 
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import { fireEvent } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { fireEvent, wait } from '@testing-library/react';
 
 import { render } from '../../../utils/test-utils';
 import useCartOptions from '../useCartOptions';
@@ -27,6 +26,29 @@ import { useAwaitQuery } from '../../../utils/hooks';
 import { CartProvider } from '../cartContext';
 import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefrontEvents';
 
+const mocks = [
+    {
+        request: {
+            query: MUTATION_UPDATE_CART_ITEM,
+            variables: { cartId: null, cartItemUid: undefined, quantity: 2 }
+        },
+        result: {
+            data: {
+                cart: {
+                    items: [
+                        {
+                            uid: 'MTM5Mg==',
+                            quantity: 3,
+                            product: {
+                                name: 'lucky-pants'
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+];
 describe('useCartOptions', () => {
     let mse;
 
@@ -57,11 +79,12 @@ describe('useCartOptions', () => {
         const { getByRole } = render(
             <CartProvider>
                 <MockComponent />
-            </CartProvider>
+            </CartProvider>,
+            { mocks }
         );
 
-        await act(async () => fireEvent.click(getByRole('button')));
+        fireEvent.click(getByRole('button'));
 
-        expect(mse.publish.updateCart).toHaveBeenCalledTimes(1);
+        await wait(() => expect(mse.publish.updateCart).toHaveBeenCalledTimes(1));
     });
 });

@@ -22,6 +22,7 @@ describe('<AccountContainer>', () => {
     it('renders the component', () => {
         const config = {
             graphqlEndpoint: 'endpoint',
+            graphqlMethod: 'GET',
             storeView: 'default',
             pagePaths: {
                 accountDetails: '/accountDetails'

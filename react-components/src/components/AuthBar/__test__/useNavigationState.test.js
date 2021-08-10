@@ -24,6 +24,7 @@ import { render } from '../../../utils/test-utils';
 const config = {
     storeView: 'default',
     graphqlEndpoint: 'http//does/not/matter',
+    graphqlMethod: 'GET',
     mountingPoints: {
         navPanel: 'none'
     }

@@ -17,8 +17,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { fireEvent, wait } from '@testing-library/react';
 
 const { TextEncoder } = require('util');
 const { Crypto } = require('@peculiar/webcrypto');
@@ -27,6 +26,21 @@ import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefr
 import { render } from '../../../utils/test-utils';
 import { CartProvider } from '../cartContext';
 import useProduct from '../useProduct';
+import REMOVE_CART_ITEM from '../../../queries/mutation_remove_item.graphql';
+
+const mocks = [
+    {
+        request: {
+            query: REMOVE_CART_ITEM,
+            variables: { cartId: null, itemUid: 'MTM5Mg==' }
+        },
+        result: {
+            data: {
+                items: [{ uid: 'MTM5Mg==' }]
+            }
+        }
+    }
+];
 
 describe('useProduct', () => {
     let mse;
@@ -76,19 +90,21 @@ describe('useProduct', () => {
         const { getByRole } = render(
             <CartProvider>
                 <MockComponent item={item} />
-            </CartProvider>
+            </CartProvider>,
+            { mocks }
         );
 
-        await act(async () => fireEvent.click(getByRole('button')));
-
-        expect(mse.publish.removeFromCart).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
-            event: 'cif:removeFromCart',
-            eventInfo: {
-                '@id': 'product-c9da66dcca',
-                'xdm:SKU': 'VP05-MT-S',
-                'xdm:quantity': 1
-            }
+        fireEvent.click(getByRole('button'));
+        await wait(() => {
+            expect(mse.publish.removeFromCart).toHaveBeenCalledTimes(1);
+            expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+                event: 'cif:removeFromCart',
+                eventInfo: {
+                    '@id': 'product-c9da66dcca',
+                    'xdm:SKU': 'VP05-MT-S',
+                    'xdm:quantity': 1
+                }
+            });
         });
     });
 });
