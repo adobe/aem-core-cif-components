@@ -52,4 +52,4 @@ In the dispatcher the endpoint is mapped as following:
 
 | Request                    | Proxy to            |
 | -------------------------- | ------------------- |
-| `{APACHE}/magento/graphql` | `{MAGENTO}/graphql` |
+| `{APACHE}/api/graphql` | `{MAGENTO}/graphql` |

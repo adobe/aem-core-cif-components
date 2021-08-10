@@ -1,20 +1,21 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -73,13 +74,25 @@ public class GraphQLCategoryProviderTest {
     }
 
     @Test
-    public void testMissingMagentoGraphqlClient() throws IOException {
+    public void testMissingMagentoGraphqlClient() {
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(null);
         Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
     }
 
     @Test
-    public void testCategoryNotOrNoChildren() throws IOException {
+    public void testMagentoGraphqlClientErrorResponse() {
+        MagentoGraphqlClient magentoGraphqlClient = mock(MagentoGraphqlClient.class);
+        GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(magentoGraphqlClient);
+        GraphqlResponse<Query, Error> errorResp = new GraphqlResponse<>();
+        Error error = new Error();
+        error.setMessage("foobar");
+        errorResp.setErrors(Collections.singletonList(error));
+        when(magentoGraphqlClient.execute(anyString())).thenReturn(errorResp);
+        Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
+    }
+
+    @Test
+    public void testCategoryNotOrNoChildren() {
         Page page = mock(Page.class);
         Resource pageContent = mock(Resource.class);
         MagentoGraphqlClient graphqlClient = mock(MagentoGraphqlClient.class);
@@ -108,7 +121,7 @@ public class GraphQLCategoryProviderTest {
     }
 
     @Test
-    public void testGetChildCategories() throws IOException {
+    public void testGetChildCategories() {
         Page page = spy(context.currentPage("/content/pageA"));
         Resource pageContent = spy(page.getContentResource());
         when(page.getContentResource()).thenReturn(pageContent);

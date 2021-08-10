@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.testing;
 
 import java.io.ByteArrayInputStream;
@@ -130,6 +131,38 @@ public class Utils {
         when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
 
         return json;
+    }
+
+    /**
+     * This method prepares the mock http response with no content but an error code.
+     * <br>
+     * <b>Important</b>: because of the way the content of an HTTP response is consumed, this method MUST be called each time
+     * the client is called.
+     *
+     *
+     * @param httpClient The HTTP client for which we want to mock responses.
+     * @param errorCode The http code that the mocked response will return.
+     * @param contains When set, the body of the GraphQL POST request must start with that String.
+     *
+     * @return The JSON content of that file.
+     *
+     * @throws IOException
+     */
+    public static void setupHttpErrorResponse(HttpClient httpClient, int errorCode, String contains) throws IOException {
+        assert errorCode >= 400;
+
+        HttpResponse mockedHttpResponse = mock(HttpResponse.class);
+        StatusLine mockedStatusLine = mock(StatusLine.class);
+
+        if (contains != null) {
+            GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(contains);
+            when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+        } else {
+            when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+        }
+
+        when(mockedStatusLine.getStatusCode()).thenReturn(errorCode);
+        when(mockedHttpResponse.getStatusLine()).thenReturn(mockedStatusLine);
     }
 
     /**

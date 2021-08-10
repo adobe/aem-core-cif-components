@@ -13,6 +13,7 @@
                 <items jcr:primaryType="nt:unstructured">
                     <content jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                        sling:orderBefore="id"
                         fieldLabel="Carousel content" 
                         typeHint="[product@String[]]">
                         <field jcr:primaryType="nt:unstructured" 
