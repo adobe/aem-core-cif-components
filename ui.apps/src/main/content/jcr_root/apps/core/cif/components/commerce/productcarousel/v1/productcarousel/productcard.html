@@ -19,7 +19,7 @@
            data-product-sku="${product.SKU}">
           <a href="${product.URL}">
               <div class="product__card__image">
-                  <img class="product__image" src="${product.imageURL}" data-gallery-role="currentimage"/>
+                  <img class="product__image" src="${product.imageURL}" alt="${product.imageAlt}" data-gallery-role="currentimage"/>
               </div>
               <div>${product.Title}</div>
               <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
