@@ -66,6 +66,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.request = request;
         this.urlProvider = urlProvider;
         this.isStaged = isStaged;
+        this.identifier = CommerceIdentifierImpl.fromProductSku(activeVariantSku);
     }
 
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
