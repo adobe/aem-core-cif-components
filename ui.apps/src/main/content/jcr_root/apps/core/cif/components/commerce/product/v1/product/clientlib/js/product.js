@@ -117,8 +117,8 @@ class Product {
 
         // Update internal state and 'data-product-sku' attribute of price element
         this._state.sku = variant.sku;
-        this._element.querySelector(Product.selectors.price).setAttribute('data-product-sku', variant.sku);
-
+        [this._element.querySelector(Product.selectors.price), this._element]
+            .forEach(element => element.setAttribute('data-product-sku', variant.sku));
         // Update values and enable add to cart button
         this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
         this._element.querySelector(Product.selectors.name).innerText = variant.name;
