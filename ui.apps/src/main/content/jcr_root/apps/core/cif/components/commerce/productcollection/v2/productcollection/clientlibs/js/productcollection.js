@@ -29,6 +29,21 @@ class ProductCollection {
             loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
         }
 
+        let filters = document.querySelector(ProductCollection.selectors.filtersBody);
+        if (filters) {
+            let selectedFilter = null;
+            filters.addEventListener('click', e => {
+                if (e.target.type === 'radio') {
+                    if (selectedFilter && selectedFilter === e.target) {
+                        e.target.checked = false;
+                        selectedFilter = null;
+                    } else if (e.target.checked) {
+                        selectedFilter = e.target;
+                    }
+                }
+            });
+        }
+
         // Local state
         this._state = {
             // List of skus currently displayed in the list
@@ -217,7 +232,8 @@ ProductCollection.selectors = {
     sortKey: '.productcollection__sort-keys',
     galleryItems: '.productcollection__items',
     loadMoreButton: '.productcollection__loadmore-button',
-    loadMoreSpinner: '.productcollection__loadmore-spinner'
+    loadMoreSpinner: '.productcollection__loadmore-spinner',
+    filtersBody: '.productcollection__filters-body'
 };
 
 (function(document) {
