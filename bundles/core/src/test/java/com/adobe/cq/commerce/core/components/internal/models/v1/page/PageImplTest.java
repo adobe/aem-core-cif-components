@@ -18,8 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +35,8 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
-import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
-import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
-import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,22 +46,20 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PageImplTest {
+public class PageImplTest extends AbstractPageDelegatorTest {
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+    static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
         ImmutableMap.of(
             "magentoGraphqlEndpoint", "/my/api/graphql",
             "magentoStore", "my-magento-store",
             "enableUIDSupport", "true",
             "cq:graphqlClient", "my-graphql-client",
             "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
-    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+    static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = new AemContext((AemContextCallback) context -> {
@@ -74,6 +67,18 @@ public class PageImplTest {
     });
 
     protected final String pagePath = "/content/pageH";
+
+    /**
+     * Parameterizes the testDelegation() tests inherited from {@link AbstractPageDelegatorTest}.
+     *
+     * @param mock
+     * @return
+     */
+    @Override
+    protected Page testDelegationCreateSubject(Page mock) {
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        return context.request().adaptTo(Page.class);
+    }
 
     @Before
     public void setup() throws PersistenceException {
@@ -98,95 +103,6 @@ public class PageImplTest {
 
         context.resourceResolver().commit();
         context.currentResource(context.currentPage().getContentResource());
-    }
-
-    @Test
-    public void testDelegation() {
-        Page mock = mock(Page.class);
-        context.request().setAttribute(MockPage.class.getName(), mock);
-        Page subject = context.request().adaptTo(Page.class);
-        assertNotNull(subject);
-
-        when(mock.getLanguage()).thenReturn("en");
-        assertEquals("en", subject.getLanguage());
-
-        Calendar now = Calendar.getInstance();
-        when(mock.getLastModifiedDate()).thenReturn(now);
-        assertEquals(now, subject.getLastModifiedDate());
-
-        when(mock.getKeywords()).thenReturn(new String[] { "foo", "bar" });
-        assertThat(subject.getKeywords()).containsExactly("foo", "bar");
-
-        when(mock.getDesignPath()).thenReturn("/etc/designs/foobar");
-        assertEquals(subject.getDesignPath(), "/etc/designs/foobar");
-
-        when(mock.getStaticDesignPath()).thenReturn("/etc/designs/foobar");
-        assertEquals(subject.getStaticDesignPath(), "/etc/designs/foobar");
-
-        when(mock.getFavicons()).thenReturn(Collections.singletonMap("foo", "bar.png"));
-        assertThat(subject.getFavicons()).containsEntry("foo", "bar.png");
-
-        when(mock.getTitle()).thenReturn("title");
-        assertEquals("title", subject.getTitle());
-
-        when(mock.getBrandSlug()).thenReturn("brand slug");
-        assertEquals("brand slug", subject.getBrandSlug());
-
-        when(mock.getClientLibCategories()).thenReturn(new String[] { "my.page.v1" });
-        assertThat(subject.getClientLibCategories()).containsExactly("my.page.v1");
-
-        when(mock.getClientLibCategoriesJsBody()).thenReturn(new String[] { "my.page.v1" });
-        assertThat(subject.getClientLibCategoriesJsBody()).containsExactly("my.page.v1");
-
-        when(mock.getClientLibCategoriesJsHead()).thenReturn(new String[] { "my.page.v1" });
-        assertThat(subject.getClientLibCategoriesJsHead()).containsExactly("my.page.v1");
-
-        when(mock.getTemplateName()).thenReturn("template");
-        assertEquals("template", subject.getTemplateName());
-
-        when(mock.getAppResourcesPath()).thenReturn("/content/foo/bar");
-        assertEquals("/content/foo/bar", subject.getAppResourcesPath());
-
-        when(mock.getCssClassNames()).thenReturn("my-page__root");
-        assertEquals("my-page__root", subject.getCssClassNames());
-
-        NavigationItem redirectTarget = mock(NavigationItem.class);
-        when(mock.getRedirectTarget()).thenReturn(redirectTarget);
-        assertEquals(redirectTarget, subject.getRedirectTarget());
-
-        when(mock.hasCloudconfigSupport()).thenReturn(true);
-        assertTrue(subject.hasCloudconfigSupport());
-
-        when(mock.getComponentsResourceTypes()).thenReturn(Collections.singleton("my/page"));
-        assertThat(subject.getComponentsResourceTypes()).containsExactly("my/page");
-
-        when(mock.getExportedItemsOrder()).thenReturn(new String[] { "exportedItem1", "exportedItem2" });
-        assertThat(subject.getExportedItemsOrder()).containsExactly("exportedItem1", "exportedItem2");
-
-        ComponentExporter exportedItem = mock(ComponentExporter.class);
-        Map<String, ComponentExporter> exportedItems = Collections.singletonMap("exportedItem", exportedItem);
-        doReturn(exportedItems).when(mock).getExportedItems();
-        assertThat((Map<String, ComponentExporter>) subject.getExportedItems()).containsEntry("exportedItem", exportedItem);
-
-        when(mock.getExportedType()).thenReturn("type");
-        assertEquals("type", subject.getExportedType());
-
-        when(mock.getMainContentSelector()).thenReturn("main");
-        assertEquals("main", subject.getMainContentSelector());
-
-        HtmlPageItem htmlPageItem = mock(HtmlPageItem.class);
-        when(mock.getHtmlPageItems()).thenReturn(Collections.singletonList(htmlPageItem));
-        assertThat(subject.getHtmlPageItems()).contains(htmlPageItem);
-
-        when(mock.getId()).thenReturn("id");
-        assertEquals("id", subject.getId());
-
-        ComponentData data = mock(ComponentData.class);
-        when(mock.getData()).thenReturn(data);
-        assertEquals(data, subject.getData());
-
-        when(mock.getAppliedCssClasses()).thenReturn("my-page__root");
-        assertEquals("my-page__root", subject.getAppliedCssClasses());
     }
 
     @Test

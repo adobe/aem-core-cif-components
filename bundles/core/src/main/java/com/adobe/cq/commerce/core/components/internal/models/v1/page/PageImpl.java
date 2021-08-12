@@ -16,11 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
@@ -29,17 +26,14 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
-import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
-import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
-import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { PageImpl.class, Page.class },
     resourceType = PageImpl.RESOURCE_TYPE)
-public class PageImpl implements Page {
+public class PageImpl extends AbstractPageDelegator implements Page {
 
     public static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
@@ -53,109 +47,8 @@ public class PageImpl implements Page {
     private List<HtmlPageItem> htmlPageItems;
 
     @Override
-    public String getLanguage() {
-        return page.getLanguage();
-    }
-
-    @Override
-    public Calendar getLastModifiedDate() {
-        return page.getLastModifiedDate();
-    }
-
-    @Override
-    public String[] getKeywords() {
-        return page.getKeywords();
-    }
-
-    @Override
-    public String getDesignPath() {
-        return page.getDesignPath();
-    }
-
-    @Override
-    public String getStaticDesignPath() {
-        return page.getStaticDesignPath();
-    }
-
-    @Override
-    @Deprecated
-    public Map<String, String> getFavicons() {
-        return page.getFavicons();
-    }
-
-    @Override
-    public String getTitle() {
-        return page.getTitle();
-    }
-
-    @Override
-    public String getBrandSlug() {
-        return page.getBrandSlug();
-    }
-
-    @Override
-    public String[] getClientLibCategories() {
-        return page.getClientLibCategories();
-    }
-
-    @Override
-    public String[] getClientLibCategoriesJsBody() {
-        return page.getClientLibCategoriesJsBody();
-    }
-
-    @Override
-    public String[] getClientLibCategoriesJsHead() {
-        return page.getClientLibCategoriesJsHead();
-    }
-
-    @Override
-    public String getTemplateName() {
-        return page.getTemplateName();
-    }
-
-    @Override
-    public String getAppResourcesPath() {
-        return page.getAppResourcesPath();
-    }
-
-    @Override
-    public String getCssClassNames() {
-        return page.getCssClassNames();
-    }
-
-    @Override
-    public NavigationItem getRedirectTarget() {
-        return page.getRedirectTarget();
-    }
-
-    @Override
-    public boolean hasCloudconfigSupport() {
-        return page.hasCloudconfigSupport();
-    }
-
-    @Override
-    public Set<String> getComponentsResourceTypes() {
-        return page.getComponentsResourceTypes();
-    }
-
-    @Override
-    public String[] getExportedItemsOrder() {
-        return page.getExportedItemsOrder();
-    }
-
-    @Override
-    public Map<String, ? extends ComponentExporter> getExportedItems() {
-        return page.getExportedItems();
-    }
-
-    @Override
-    public String getExportedType() {
-        return page.getExportedType();
-    }
-
-    @Override
-    public String getMainContentSelector() {
-        return page.getMainContentSelector();
+    protected Page getDelegate() {
+        return page;
     }
 
     @Override
@@ -173,20 +66,5 @@ public class PageImpl implements Page {
             }
         }
         return htmlPageItems;
-    }
-
-    @Override
-    public String getId() {
-        return page.getId();
-    }
-
-    @Override
-    public ComponentData getData() {
-        return page.getData();
-    }
-
-    @Override
-    public String getAppliedCssClasses() {
-        return page.getAppliedCssClasses();
     }
 }

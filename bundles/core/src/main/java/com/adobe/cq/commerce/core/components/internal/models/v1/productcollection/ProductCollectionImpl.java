@@ -50,7 +50,9 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
     adapters = ProductCollection.class,
     resourceType = ProductCollectionImpl.RESOURCE_TYPE)
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
 
