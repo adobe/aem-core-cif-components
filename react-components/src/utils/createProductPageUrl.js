@@ -13,19 +13,29 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+let storeRootUrl = null;
+
 export const createProductPageUrl = sku => {
     const url = new URL(window.location);
 
     // Provided by StoreConfigExporter
-    const pathname = document.body.dataset.storeRootUrl;
-    if (!pathname) {
-        return null;
+    if (storeRootUrl) {
+        return storeRootUrl;
     }
 
+    let storeConfigEl = document.querySelector('meta[name="store-config"]'), pathname;
+
+    if (storeConfigEl) {
+        pathname = JSON.parse(storeConfigEl.content).storeRootUrl;
+    } else {
+        // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
+        pathname = document.body.dataset.storeRootUrl;
+    }
     const extension = '.html';
     const path = pathname.substr(0, pathname.lastIndexOf('.'));
 
     url.pathname = `${path}.cifproductredirect${extension}/${sku}`;
 
-    return url.toString();
+    return storeRootUrl = url.toString();
 };

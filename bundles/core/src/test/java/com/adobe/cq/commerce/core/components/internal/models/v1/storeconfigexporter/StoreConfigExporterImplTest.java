@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -44,7 +45,7 @@ import io.wcm.testing.mock.aem.junit.AemContextCallback;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class StoreConfigExporterTest {
+public class StoreConfigExporterImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
         ImmutableMap.of("magentoGraphqlEndpoint", "/my/api/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
@@ -139,6 +140,11 @@ public class StoreConfigExporterTest {
         JsonNode expectedNode = mapper.readTree(expectedHeaders);
 
         Assert.assertEquals("The custom HTTP headers are correctly parsed", expectedNode, actualNode);
+
+        Map<String, String> headers = storeConfigExporter.getHttpHeadersMap();
+        Assert.assertEquals("my-magento-store", headers.get("Store"));
+        Assert.assertEquals("value1", headers.get("customHeader-1"));
+        Assert.assertEquals("value2", headers.get("customHeader-2"));
     }
 
     private void setupWithPage(String pagePath, HttpMethod method) {

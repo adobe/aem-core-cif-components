@@ -13,7 +13,19 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("1.13.0")
-package com.adobe.cq.commerce.core.components.models.page;
+package com.adobe.cq.commerce.core.components.internal.models.v2.page;
 
-import org.osgi.annotation.versioning.Version;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.Model;
+
+import com.adobe.cq.wcm.core.components.models.Page;
+
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = { PageImpl.class, Page.class },
+    resourceType = PageImpl.RESOURCE_TYPE)
+public class PageImpl extends com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl implements Page {
+
+    public static final String RESOURCE_TYPE = "core/cif/components/structure/page/v2/page";
+
+}

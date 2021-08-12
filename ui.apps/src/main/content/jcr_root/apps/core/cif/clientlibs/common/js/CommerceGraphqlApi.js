@@ -168,13 +168,19 @@ class CommerceGraphqlApi {
 
 (function() {
     function onDocumentReady() {
-        const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.querySelector('body').dataset;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
-            endpoint: graphqlEndpoint,
-            storeView,
-            graphqlMethod,
-            headers: httpHeaders ? JSON.parse(httpHeaders) : {}
-        });
+        const storeConfigEl = document.querySelector('meta[name="store-config"]');
+        if (storeConfigEl) {
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi(JSON.parse(storeConfigEl.content));
+        } else {
+            // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
+            const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.body.dataset;
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
+                endpoint: graphqlEndpoint,
+                storeView,
+                graphqlMethod,
+                headers: httpHeaders ? JSON.parse(httpHeaders) : {}
+            });
+        }
     }
 
     if (document.readyState !== 'loading') {

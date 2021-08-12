@@ -38,6 +38,9 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -45,10 +48,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { StoreConfigExporter.class },
-    resourceType = StoreConfigExporterImpl.RESOURCE_TYPE)
+    resourceType = {
+        com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE
+    })
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class StoreConfigExporterImpl implements StoreConfigExporter {
-
-    protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
     private static final String EMPTY_JSON_OBJECT = "{}";
@@ -75,7 +80,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private Map<String, String> httpHeaders = Collections.emptyMap();
 
     @PostConstruct
-    void initModel() {
+    protected void initModel() {
         // Get configuration from CIF Sling CA config
         Resource configResource = currentPage.getContentResource();
         ComponentsConfiguration properties = configResource.adaptTo(ComponentsConfiguration.class);
@@ -90,21 +95,34 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
+    @JsonProperty("storeView")
     public String getStoreView() {
         return storeView;
     }
 
     @Override
+    @JsonProperty("endpoint")
     public String getGraphqlEndpoint() {
         return graphqlEndpoint;
     }
 
     @Override
+    @JsonProperty("graphqlMethod")
     public String getMethod() {
-        return method.toString();
+        return method != null ? method.toString() : null;
     }
 
+    @JsonProperty("headers")
+    public Map<String, String> getHttpHeadersMap() {
+        return Collections.unmodifiableMap(httpHeaders);
+    }
+
+    /**
+     * @deprecated should be replaced with a type safe method like getHttpHeadersMap()
+     */
     @Override
+    @Deprecated
+    @JsonIgnore
     public String getHttpHeaders() {
         if (MapUtils.isEmpty(httpHeaders)) {
             return EMPTY_JSON_OBJECT;
@@ -126,6 +144,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
+    @JsonProperty("storeRootUrl")
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
             storeRootPage = SiteNavigation.getNavigationRootPage(currentPage);
