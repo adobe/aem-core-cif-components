@@ -81,13 +81,8 @@
                     </properties>
                     <dependencies>
                         <dependency>
-                            <group>day/cq60/product</group>
-                            <name>cq-ui-wcm-editor-content</name>
-                            <version>(1.0.138,)</version>
-                        </dependency>
-                        <dependency>
-                            <group>adobe/cq60</group>
-                            <name>core.wcm.components.content</name>
+                            <groupId>com.adobe.cq</groupId>
+                            <artifactId>core.wcm.components.content</artifactId>
                             <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
