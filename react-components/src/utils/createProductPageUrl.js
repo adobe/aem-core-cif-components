@@ -33,6 +33,11 @@ export const createProductPageUrl = sku => {
         // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
         pathname = document.body.dataset.storeRootUrl;
     }
+
+    if (!pathname) {
+        return null;
+    }
+
     const extension = '.html';
     const path = pathname.substr(0, pathname.lastIndexOf('.'));
 
