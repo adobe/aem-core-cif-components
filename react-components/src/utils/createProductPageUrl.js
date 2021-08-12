@@ -24,7 +24,8 @@ export const createProductPageUrl = sku => {
         return storeRootUrl;
     }
 
-    let storeConfigEl = document.querySelector('meta[name="store-config"]'), pathname;
+    let storeConfigEl = document.querySelector('meta[name="store-config"]');
+    let pathname;
 
     if (storeConfigEl) {
         pathname = JSON.parse(storeConfigEl.content).storeRootUrl;
@@ -37,5 +38,5 @@ export const createProductPageUrl = sku => {
 
     url.pathname = `${path}.cifproductredirect${extension}/${sku}`;
 
-    return storeRootUrl = url.toString();
+    return (storeRootUrl = url.toString());
 };
