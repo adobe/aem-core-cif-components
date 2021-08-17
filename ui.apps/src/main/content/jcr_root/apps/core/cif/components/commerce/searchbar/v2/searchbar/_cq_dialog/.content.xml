@@ -3,7 +3,7 @@
     jcr:primaryType="nt:unstructured"
     jcr:title="Search Bar"
     sling:resourceType="cq/gui/components/authoring/dialog"
-    trackingFeature="cif-core-components:searchbar:v1">
+    trackingFeature="cif-core-components:searchbar:v2">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
@@ -14,7 +14,7 @@
                     <placeholder jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                         fieldDescription="Placeholder text for the search field."
-                        fieldLabel="Placeholder"
+                        fieldLabel="Placeholder Text"
                         name="./placeholder"/>
                     <id jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
