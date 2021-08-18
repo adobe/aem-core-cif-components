@@ -81,8 +81,8 @@
                     </properties>
                     <dependencies>
                         <dependency>
-                            <group>${vault.package.group}</group>
-                            <name>core-cif-components-apps</name>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>core-cif-components-apps</artifactId>
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>

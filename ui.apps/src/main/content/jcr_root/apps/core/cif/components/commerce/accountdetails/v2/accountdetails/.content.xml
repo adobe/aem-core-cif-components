@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Copyright 2020 Adobe
+    Copyright 2021 Adobe
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
     limitations under the License.
 -->
 <jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0"
-        xmlns:jcr="http://www.jcp.org/jcr/1.0"
-        jcr:primaryType="cq:Component"
-        jcr:title="Account Details (v1)">
-    <cq:editConfig jcr:primaryType="cq:EditConfig"/>
-</jcr:root>
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    jcr:primaryType="cq:Component"
+    jcr:title="Account Details (v2)"
+    componentGroup=".hidden"/>
