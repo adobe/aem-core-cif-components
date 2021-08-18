@@ -86,8 +86,8 @@
                             <version>(1.0.138,)</version>
                         </dependency>
                         <dependency>
-                            <group>adobe/cq60</group>
-                            <name>core.wcm.components.content</name>
+                            <groupId>com.adobe.cq</groupId>
+                            <artifactId>core.wcm.components.content</artifactId>
                             <version>${core.wcm.components.version}</version>
                         </dependency>
                     </dependencies>
