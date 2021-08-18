@@ -17,7 +17,6 @@
     <a class="cmp-teaser__action-link" href="${action.URL}"
        id="${action.id}"
        data-cmp-data-layer="${action.data.json}"
-       data-sly-test.isProduct="${action.entityIdentifier.type == 'SKU'}"
-       data-product-sku="${ isProduct ? action.entityIdentifier.value : ''}"
+       data-product-sku="${ action.entityIdentifier.type == 'SKU' ? action.entityIdentifier.value : ''}"
        data-cmp-clickable="${action.data ? true : false}">${action.title}</a>
 </sly>
