@@ -17,6 +17,6 @@
     <a class="cmp-teaser__action-link" href="${action.URL}"
        id="${action.id}"
        data-cmp-data-layer="${action.data.json}"
-       data-product-sku="${action.identifier.value}"
+       data-product-sku="${ action.entityIdentifier.type == 'SKU' ? action.entityIdentifier.value : ''}"
        data-cmp-clickable="${action.data ? true : false}">${action.title}</a>
 </sly>
