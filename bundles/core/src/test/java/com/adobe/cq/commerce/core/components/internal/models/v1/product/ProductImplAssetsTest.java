@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
@@ -82,6 +83,10 @@ public class ProductImplAssetsTest {
                         : ComponentsConfiguration.EMPTY);
 
                 context.registerService(Externalizer.class, new MockExternalizer());
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
             },
             ResourceResolverType.JCR_MOCK);
     }
@@ -154,10 +159,6 @@ public class ProductImplAssetsTest {
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));

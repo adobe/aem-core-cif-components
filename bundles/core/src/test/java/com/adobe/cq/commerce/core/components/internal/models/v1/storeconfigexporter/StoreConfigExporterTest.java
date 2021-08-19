@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ import static org.mockito.Mockito.when;
 public class StoreConfigExporterTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/magento/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
+        ImmutableMap.of("magentoGraphqlEndpoint", "/my/api/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
             "cq:graphqlClient",
             "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
@@ -95,14 +96,14 @@ public class StoreConfigExporterTest {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
 
-        Assert.assertEquals("/my/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("/my/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test
     public void testGraphqlEndpointDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("/magento/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test

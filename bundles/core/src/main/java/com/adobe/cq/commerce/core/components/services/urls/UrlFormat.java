@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2021 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.services.urls;
 
 import java.util.Map;
@@ -28,7 +30,7 @@ import org.osgi.annotation.versioning.ConsumerType;
  * {@link UrlProvider} implementation to format and parse product urls, the {@link UrlFormat} registered with
  * {@link UrlFormat#CATEGORY_PAGE_URL_FORMAT} to format and parse category urls.
  * <p>
- * If any {@link UrlFormat} is registered as described above the override the configured behaviour of the {@link UrlProvider}
+ * If any {@link UrlFormat} is registered as described above, it overrides the configured behaviour of the {@link UrlProvider}
  * implementation. Implementing a {@link UrlFormat} is optional.
  */
 @ConsumerType
@@ -87,6 +89,7 @@ public interface UrlFormat {
      * before.
      *
      * @param requestPathInfo the request path info object used to extra the URL information from
+     * @param parameterMap the request parameters the implementation may consider when parsing the url
      * @return a map containing the parsed URL elements
      */
     Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap);

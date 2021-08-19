@@ -30,7 +30,11 @@
                                 text="Without a manual product selection, this component will display a product based on an URL selector."/>
                         </items>
                     </well>
-                    
+                    <id jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                        fieldDescription="HTML ID attribute to apply to the component."
+                        fieldLabel="ID"
+                        name="./id"/>
                 </items>
             </column>
         </items>
