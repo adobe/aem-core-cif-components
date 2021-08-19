@@ -19,18 +19,19 @@
     data-sly-use.titleTpl="title.html"
     data-sly-use.actionsTpl="actions.html"
     data-sly-test.isConfigured="${properties.selection}"
-    data-sly-test.hasProduct="${product.url}" />
+    data-sly-test.hasProduct="${product.url}"/>
 
 <div data-sly-test="${isConfigured && hasProduct}"
      id="${product.id}"
      class="item__root"
      data-cmp-is="productteaser"
      data-cmp-data-layer="${product.data.json}"
-     data-virtual="${product.virtualProduct}">
-    <sly data-sly-call="${imageTpl.actions @ product=product}" />
-    <sly data-sly-call="${titleTpl.actions @ product=product}" />
+     data-virtual="${product.virtualProduct}"
+     data-product-sku="${product.commerceIdentifier.value}">
+    <sly data-sly-call="${imageTpl.actions @ product=product}"/>
+    <sly data-sly-call="${titleTpl.actions @ product=product}"/>
     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
-        data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"/>
+         data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"/>
     <sly data-sly-call="${actionsTpl.actions @ product=product}"/>
 </div>
 
