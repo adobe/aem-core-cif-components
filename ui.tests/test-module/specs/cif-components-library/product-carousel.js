@@ -18,7 +18,6 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product Carousel component in CIF components library', () => {
-
     const productcarousel_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/productcarousel.html`;
     const productcarousel_selector = '.cmp-examples-demo__top .productcarousel';
 
@@ -60,4 +59,13 @@ describe('Product Carousel component in CIF components library', () => {
         expect(product.getLocation('x') < rightButton.getLocation('x')).toBe(true);
     });
 
+    it('exposes the SKU of the products', () => {
+        // Go to the product carousel page
+        browser.url(productcarousel_page);
+        let productCards = $$(`${productcarousel_selector} .product__card`);
+
+        productCards.forEach((card) => {
+            expect(card).toHaveAttribute('data-product-sku');
+        });
+    });
 });
