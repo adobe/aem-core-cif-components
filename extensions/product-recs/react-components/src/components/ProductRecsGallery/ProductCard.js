@@ -59,7 +59,10 @@ const ProductCard = props => {
 
     return (
         <div className={classes.card} key={sku}>
-            <a href={createProductPageUrl(sku)} onClick={() => mse && mse.publish.recsItemClick(unitId, productId)}>
+            <a
+                href={createProductPageUrl(sku)}
+                title={name}
+                onClick={() => mse && mse.publish.recsItemClick(unitId, productId)}>
                 <div className={classes.cardImage}>
                     <img className={classes.productImage} src={smallImage.url} alt={name} />
                 </div>

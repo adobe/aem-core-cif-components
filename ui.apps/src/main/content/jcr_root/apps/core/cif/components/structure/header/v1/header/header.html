@@ -19,8 +19,8 @@
 
 <header id="${component.id}" class="header__root header__closed">
     <div class="header__toolbar">
-        <a href="${header.navigationRootPageUrl}">
-            <img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="${header.navigationRootPageTitle}" title="${header.navigationRootPageTitle}" />
+        <a href="${header.navigationRootPageUrl}" title="${header.navigationRootPageTitle}">
+            <img class="header__logo" src="${resource.path}/logo.svg" height="24" alt="${header.navigationRootPageTitle}" />
         </a>
         <div class="header__primaryActions">
             <sly data-sly-test="${resource['navigation/navigationRoot']}" data-sly-resource="${resource.path}/navigation" />
