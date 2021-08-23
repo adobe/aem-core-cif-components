@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.converters;
 
-import java.util.Locale;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,13 +23,9 @@ import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
@@ -44,7 +39,6 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
 
     private final Resource parentResource;
     private final Page productPage;
-    private final Locale locale;
     private final UrlProvider urlProvider;
 
     private final SlingHttpServletRequest request;
@@ -53,7 +47,6 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
                                              Resource parentResource) {
         this.parentResource = parentResource;
         this.productPage = productPage;
-        this.locale = productPage.getLanguage(false);
         this.request = request;
         this.urlProvider = urlProvider;
     }
@@ -61,27 +54,11 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     @Override
     public ProductListItem apply(final ProductInterface product) {
         try {
-            boolean isStartPrice = product instanceof GroupedProduct;
-            Price price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-            final ProductImage smallImage = product.getSmallImage();
-
             String resourceType = parentResource.getResourceType();
             String prefix = StringUtils.substringAfterLast(resourceType, "/");
-            String path = parentResource.getPath();
-            String parentId = ComponentUtils.generateId(prefix, path);
+            String parentId = ComponentUtils.generateId(prefix, parentResource.getPath());
 
-            ProductListItem productListItem = new ProductListItemImpl(product.getSku(),
-                product.getUrlKey(),
-                product.getName(),
-                price,
-                smallImage == null ? null : smallImage.getUrl(),
-                smallImage == null ? null : smallImage.getLabel(),
-                productPage,
-                null, // search results aren't targeting specific variant
-                request,
-                urlProvider,
-                parentId,
-                product.getStaged());
+            ProductListItem productListItem = new ProductListItemImpl(product, productPage, null, request, urlProvider, parentId);
 
             return productListItem;
         } catch (Exception e) {
