@@ -34,7 +34,15 @@
     position: absolute;
     top: 50%;
     width: 20px;
-    color: dimgrey;
+    border-color: dimgrey;
+}
+
+.productcarousel__btn:focus-visible {
+    border-color: black;
+}
+
+.productcarousel__btn:disabled {
+    border-color: lightgrey;
 }
 
 .productcarousel__btn--next {
