@@ -14,29 +14,68 @@ import org.apache.sling.api.resource.Resource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
+import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.PriceRange;
+import com.adobe.cq.commerce.magento.graphql.ProductImage;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ProductListItemTest {
 
+    final static String sku = "product-sku";
+    final static String name = "product-name";
+    final static String urlKey = "product-url_key";
+    final static String imageUrl = "http://www.image.com/image.jpg";
+    final static String imageAlt = "Some image";
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private PriceRange priceRange;
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private Money money;
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ProductImage image;
+
     private Page productPage;
+    private ProductInterface product;
 
     @Before
     public void setUp() {
         Resource contentResource = Mockito.mock(Resource.class);
         productPage = Mockito.mock(Page.class);
-        Mockito.when(productPage.getContentResource()).thenReturn(contentResource);
+        when(productPage.getContentResource()).thenReturn(contentResource);
+
+        // setup test product
+        product = Mockito.mock(ProductInterface.class);
+        when(product.getSku()).thenReturn(sku);
+        when(product.getName()).thenReturn(name);
+        when(product.getUrlKey()).thenReturn(urlKey);
+        when(image.getLabel()).thenReturn(imageAlt);
+        when(image.getUrl()).thenReturn(imageUrl);
+        when(product.getSmallImage()).thenReturn(image);
+        when(money.getCurrency()).thenReturn(CurrencyEnum.USD);
+        when(money.getValue()).thenReturn(12.34);
+        when(priceRange.getMinimumPrice().getFinalPrice()).thenReturn(money);
+        when(priceRange.getMinimumPrice().getRegularPrice()).thenReturn(money);
+        when(product.getPriceRange()).thenReturn(priceRange);
     }
 
     @Test
     public void testCreateProductListItem() {
-        String sku = "expected";
-        String urlKey = "expectedUrlKey";
-
         CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY,
             CommerceIdentifier.EntityType.PRODUCT);
         ProductListItem productListItem = new ProductListItemImpl(identifier, "", productPage);
@@ -50,20 +89,29 @@ public class ProductListItemTest {
 
     @Test
     public void testCreateProductListItem2() {
-        String sku = "product-sku";
-        String name = "product-name";
-        String urlKey = "product-url_key";
-        String imageUrl = "http://www.image.com/image.jpg";
-        String imageAlt = "Some image";
-
         ProductListItem productListItem = new ProductListItemImpl(sku, urlKey, name, null, imageUrl, imageAlt, productPage, null, null,
             null, "1", false);
 
+        Assert.assertEquals(name, productListItem.getTitle());
         Assert.assertEquals(sku, productListItem.getSKU());
         Assert.assertEquals(urlKey, productListItem.getSlug());
         Assert.assertEquals(imageUrl, productListItem.getImageURL());
         Assert.assertEquals(imageAlt, productListItem.getImageAlt());
         Assert.assertEquals(StringUtils.EMPTY, productListItem.getURL());
+    }
+
+    @Test
+    public void testCreateProductListItem3() {
+        ProductListItem productListItem = new ProductListItemImpl(product, productPage, null, null,
+            null, "1");
+
+        Assert.assertEquals(product.getSku(), productListItem.getSKU());
+        Assert.assertEquals(product.getName(), productListItem.getTitle());
+        Assert.assertEquals(product.getUrlKey(), productListItem.getSlug());
+        Assert.assertEquals(imageUrl, productListItem.getImageURL());
+        Assert.assertEquals(imageAlt, productListItem.getImageAlt());
+        Assert.assertTrue(productListItem.getId().indexOf("1") == 0);
+        Assert.assertEquals(product, productListItem.getProduct());
     }
 
     @Test
