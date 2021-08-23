@@ -22,7 +22,15 @@
     position: absolute;
     top: 50%;
     width: 20px;
-    color: dimgrey;
+    border-color: dimgrey;
+}
+
+.carousel__btn:focus-visible {
+    border-color: black;
+}
+
+.carousel__btn:disabled {
+    border-color: lightgrey;
 }
 
 .carousel__btn--next {
