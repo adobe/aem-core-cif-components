@@ -14,7 +14,7 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.card="${@ item}">
-    <div role="displaycard" class="card carousel__card categorycarousel__card">
+    <div class="card carousel__card categorycarousel__card">
         <a class="categorycarousel__anchor" href="${item.path}" title="${item.name}">
             <span data-sly-test.hasImage=${item.image} class="categorycarousel__imagewrapper" style="background-image: url(${item.image @context='uri'});">
                 <img class="categorycarousel__image" src='${item.image}' alt="${item.name}">
