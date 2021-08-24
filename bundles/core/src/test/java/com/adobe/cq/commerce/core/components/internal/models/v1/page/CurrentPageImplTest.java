@@ -28,7 +28,7 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-public class ContainingPageImplTest extends AbstractPageDelegatorTest {
+public class CurrentPageImplTest extends AbstractPageDelegatorTest {
 
     @Rule
     public final AemContext context = new AemContext((AemContextCallback) context -> {

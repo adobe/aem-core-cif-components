@@ -26,7 +26,7 @@ import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 
-public abstract class AbstractPageDelegator implements Page {
+abstract class AbstractPageDelegator implements Page {
 
     protected abstract Page getDelegate();
 
