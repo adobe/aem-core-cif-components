@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 
 @ConsumerType
@@ -77,4 +78,11 @@ public interface ProductListItem extends ListItem {
     default Boolean isStaged() {
         return false;
     };
+
+    /**
+     * Returns the backend product using the GraphQL {@code ProductInterface}.
+     *
+     * @return The product.
+     */
+    ProductInterface getProduct();
 }
