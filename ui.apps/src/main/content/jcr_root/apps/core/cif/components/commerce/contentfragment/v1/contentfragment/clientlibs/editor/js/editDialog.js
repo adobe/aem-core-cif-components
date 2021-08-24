@@ -144,9 +144,6 @@
             this.linkElements.items.clear();
             this.linkElements.value = null;
         }
-
-        let a = null;
-        // alert(a.b);
     };
 
     /**
