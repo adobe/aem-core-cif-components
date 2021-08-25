@@ -16,7 +16,9 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
       <div
         class="card"
       >
-        <a>
+        <a
+          title="My Product A"
+        >
           <div
             class="cardImage"
           >
@@ -53,7 +55,9 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
       <div
         class="card"
       >
-        <a>
+        <a
+          title="My Product B"
+        >
           <div
             class="cardImage"
           >
