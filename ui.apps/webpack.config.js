@@ -26,6 +26,7 @@ const LIB = {
     PRODUCTCOLLECTION: 'apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs',
     PRODUCTCOLLECTION_V2: 'apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs',
     SEARCHBAR: 'apps/core/cif/components/commerce/searchbar/v1/searchbar/clientlibs',
+    SEARCHBAR_V2: 'apps/core/cif/components/commerce/searchbar/v2/searchbar/clientlibs',
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs',
     PRODUCTTEASER: 'apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs',
     CONTENTTEASER_EDITOR: 'apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor',
@@ -46,6 +47,7 @@ function generateBaseConfig() {
             [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),
             [LIB.PRODUCTCOLLECTION_V2]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION_V2 + '/js/**/*.js'),
             [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
+            [LIB.SEARCHBAR_V2]: glob.sync(JCR_ROOT + LIB.SEARCHBAR_V2 + '/js/**/*.js'),
             [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
             [LIB.PRODUCTTEASER]:glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`),
             [LIB.CONTENTTEASER_EDITOR]:glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`)
