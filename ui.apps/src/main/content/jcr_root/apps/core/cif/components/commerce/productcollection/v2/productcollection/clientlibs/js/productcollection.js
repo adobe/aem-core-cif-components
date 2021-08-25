@@ -19,7 +19,7 @@ class ProductCollection {
     constructor(config) {
         this._element = config.element;
 
-        let sortKeySelect = document.querySelector(ProductCollection.selectors.sortKey);
+        let sortKeySelect = this._element.querySelector(ProductCollection.selectors.sortKey);
         if (sortKeySelect) {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
@@ -29,7 +29,7 @@ class ProductCollection {
             loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
         }
 
-        let filters = document.querySelector(ProductCollection.selectors.filtersBody);
+        let filters = this._element.querySelector(ProductCollection.selectors.filtersBody);
         if (filters) {
             let selectedFilter = null;
             filters.addEventListener('click', e => {
