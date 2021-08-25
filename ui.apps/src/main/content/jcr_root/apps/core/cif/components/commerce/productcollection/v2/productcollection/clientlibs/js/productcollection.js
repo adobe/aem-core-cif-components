@@ -19,7 +19,7 @@ class ProductCollection {
     constructor(config) {
         this._element = config.element;
 
-        let sortKeySelect = document.querySelector(ProductCollection.selectors.sortKey);
+        let sortKeySelect = this._element.querySelector(ProductCollection.selectors.sortKey);
         if (sortKeySelect) {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
@@ -27,6 +27,21 @@ class ProductCollection {
         let loadMoreButton = this._element.querySelector(ProductCollection.selectors.loadMoreButton);
         if (loadMoreButton) {
             loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
+        }
+
+        let filters = this._element.querySelector(ProductCollection.selectors.filtersBody);
+        if (filters) {
+            let selectedFilter = null;
+            filters.addEventListener('click', e => {
+                if (e.target.type === 'radio') {
+                    if (selectedFilter && selectedFilter === e.target) {
+                        e.target.checked = false;
+                        selectedFilter = null;
+                    } else if (e.target.checked) {
+                        selectedFilter = e.target;
+                    }
+                }
+            });
         }
 
         // Local state
@@ -217,7 +232,8 @@ ProductCollection.selectors = {
     sortKey: '.productcollection__sort-keys',
     galleryItems: '.productcollection__items',
     loadMoreButton: '.productcollection__loadmore-button',
-    loadMoreSpinner: '.productcollection__loadmore-spinner'
+    loadMoreSpinner: '.productcollection__loadmore-spinner',
+    filtersBody: '.productcollection__filters-body'
 };
 
 (function(document) {
