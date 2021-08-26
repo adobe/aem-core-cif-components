@@ -19,6 +19,8 @@ const pkg = require('./package.json');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const libraryName = pkg.name;
+const externals = Object.keys(pkg.peerDependencies)
+    .reduce((obj, key) => ({ ...obj, [key]: `commonjs ${key}`}), {});
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -30,7 +32,9 @@ module.exports = {
         umdNamedDefine: true,
         publicPath: '/dist/'
     },
-
+    optimization: {
+        minimize: false,
+    },
     module: {
         rules: [
             {
@@ -80,38 +84,5 @@ module.exports = {
     ],
     devtool: 'source-map',
     mode: 'development',
-    resolve: {
-        alias: {
-            react: path.resolve(__dirname, './node_modules/react'),
-            'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-            'react-i18next': path.resolve(__dirname, './node_modules/react-i18next'),
-            '@apollo/client': path.resolve(__dirname, './node_modules/@apollo/client')
-        }
-    },
-    externals: {
-        react: {
-            root: 'React',
-            commonjs2: 'react',
-            commonjs: 'react',
-            amd: 'react'
-        },
-        'react-dom': {
-            root: 'ReactDOM',
-            commonjs2: 'react-dom',
-            commonjs: 'react-dom',
-            amd: 'react-dom'
-        },
-        'react-i18next': {
-            root: 'reactI18next',
-            commonjs2: 'react-i18next',
-            commonjs: 'react-i18next',
-            amd: 'react-i18next'
-        },
-        '@apollo/client': {
-            root: '@apollo/client',
-            commonjs2: '@apollo/client',
-            commonjs: '@apollo/client',
-            amd: '@apollo/client'
-        }
-    }
+    externals
 };

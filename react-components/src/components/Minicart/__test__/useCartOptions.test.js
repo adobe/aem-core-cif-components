@@ -16,7 +16,7 @@
 
 import React from 'react';
 import { useMutation } from '@apollo/client';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, wait } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { render } from '../../../utils/test-utils';
@@ -61,7 +61,6 @@ describe('useCartOptions', () => {
         );
 
         await act(async () => fireEvent.click(getByRole('button')));
-
-        expect(mse.publish.updateCart).toHaveBeenCalledTimes(1);
+        await wait(() => expect(mse.publish.updateCart).toHaveBeenCalledTimes(1));
     });
 });
