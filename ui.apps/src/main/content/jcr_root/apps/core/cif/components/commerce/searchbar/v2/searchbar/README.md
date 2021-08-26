@@ -18,7 +18,7 @@ limitations under the License.
 
 Searchbar component is a server-side component written in HTL, displaying a search input. After submitting the components redirects to the search results page defined by the `cq:cifSearchResultsPage` property and passing the search term as a query parameter.
 
-The visibility of the component can be toggled using any DOM element with the `searchTrigger__root` CSS class assigned.
+The visibility of the component can be toggled using any DOM element with the `searchbar__trigger` CSS class assigned.
 
 ## Features
 
@@ -34,18 +34,20 @@ This component uses the `com.adobe.cq.commerce.core.components.models.searchbar.
 
 ```
 BLOCK searchbar
-    ELEMENT searchBar__root
-    searchBar__searchInner
-    searchBar__form
-    textInput__input
-    field__input
-    message__root
-    searchBar__SearchAutocompleteWrapper
-    fieldIcons__root
-    fieldIcons__input
-    fieldIcons__before
-    fieldIcons__after
-    icon__root
+    ELEMENT searchbar__root
+    ELEMENT searchbar__trigger
+    ELEMENT searchbar__trigger-icon
+    ELEMENT searchbar__body
+    ELEMENT searchbar__body--open
+    ELEMENT searchbar__form-container
+    ELEMENT searchbar__form
+    ELEMENT searchbar__fields
+    ELEMENT searchbar__input-container
+    ELEMENT searchbar__input    
+    ELEMENT searchbar__input-before
+    ELEMENT searchbar__input-after
+    ELEMENT searchbar__reset-button    
+    ELEMENT searchbar__search-icon    
 ```
 
 ## Information
