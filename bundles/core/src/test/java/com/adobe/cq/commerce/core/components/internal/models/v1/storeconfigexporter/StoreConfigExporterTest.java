@@ -40,7 +40,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,8 +76,8 @@ public class StoreConfigExporterTest {
         mockConfiguration = null;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertNotNull(storeConfigExporter);
-        Assert.assertNull(null,storeConfigExporter.getStoreView());
-        Assert.assertEquals("/api/graphql",storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertNull(null, storeConfigExporter.getStoreView());
+        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
         Assert.assertEquals("{}", storeConfigExporter.getHttpHeaders());
         Assert.assertEquals("POST", storeConfigExporter.getMethod());
     }
