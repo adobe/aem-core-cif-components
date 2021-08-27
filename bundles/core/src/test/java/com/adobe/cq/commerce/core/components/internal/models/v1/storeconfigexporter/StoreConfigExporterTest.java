@@ -88,7 +88,7 @@ public class StoreConfigExporterTest {
         setupWithPage("/content/pageD", HttpMethod.POST);
 
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("default", storeConfigExporter.getStoreView());
+        Assert.assertNull(storeConfigExporter.getStoreView());
     }
 
     @Test
