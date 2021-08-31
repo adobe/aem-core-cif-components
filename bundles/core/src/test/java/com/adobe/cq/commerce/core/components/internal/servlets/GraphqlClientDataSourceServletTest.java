@@ -15,21 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.i18n.ResourceBundleProvider;
 import org.apache.sling.testing.resourceresolver.MockResource;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,19 +39,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
-import org.osgi.framework.InvalidSyntaxException;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.granite.ui.components.Config;
 import com.adobe.granite.ui.components.ExpressionResolver;
 import com.adobe.granite.ui.components.ds.DataSource;
-import com.day.cq.i18n.I18n;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class GraphqlClientDataSourceServletTest {
 
@@ -59,14 +59,25 @@ public class GraphqlClientDataSourceServletTest {
     private GraphqlClientDataSourceServlet servlet;
 
     private ExpressionResolver mockExpressionResolver;
+    private ResourceBundleProvider resourceBundleProvider;
+    private ResourceBundle translations = new ListResourceBundle() {
+        // empty
+        @Override
+        protected Object[][] getContents() {
+            return new Object[0][];
+        }
+    };
 
     @Before
     public void setUp() {
         servlet = new GraphqlClientDataSourceServlet();
-        mockExpressionResolver = Mockito.mock(ExpressionResolver.class);
+        mockExpressionResolver = mock(ExpressionResolver.class);
         context.registerService(ExpressionResolver.class, mockExpressionResolver);
         context.registerInjectActivateService(servlet);
-
+        resourceBundleProvider = mock(ResourceBundleProvider.class);
+        when(resourceBundleProvider.getResourceBundle(any())).then(inv -> translations);
+        when(resourceBundleProvider.getResourceBundle(any(), any())).then(inv -> translations);
+        context.registerService(ResourceBundleProvider.class, resourceBundleProvider);
     }
 
     @Test
@@ -96,11 +107,16 @@ public class GraphqlClientDataSourceServletTest {
     }
 
     @Test
-    public void testGetGraphqlClients() throws IOException, InvalidSyntaxException {
+    public void testGetGraphqlClients() {
         // Stub i18n
-        I18n i18n = mock(I18n.class);
-        Mockito.doReturn("inherit-translated").when(i18n).get(eq("Inherit"), any());
-        Whitebox.setInternalState(servlet, "i18n", i18n);
+        translations = new ListResourceBundle() {
+            @Override
+            protected Object[][] getContents() {
+                return new Object[][] {
+                    { "Inherit ((Inherit property))", "inherit-translated" }
+                };
+            }
+        };
 
         // Add fake identifiers
         Set<String> identifiers = new HashSet<>();
@@ -140,12 +156,7 @@ public class GraphqlClientDataSourceServletTest {
     }
 
     @Test
-    public void testGetGraphqlClientsNoEmptyOption() throws IOException, InvalidSyntaxException {
-        // Stub i18n
-        I18n i18n = mock(I18n.class);
-        Mockito.doReturn("inherit-translated").when(i18n).get(eq("Inherit"), any());
-        Whitebox.setInternalState(servlet, "i18n", i18n);
-
+    public void testGetGraphqlClientsNoEmptyOption() {
         // Add fake identifiers
         Set<String> identifiers = new HashSet<>();
         identifiers.add("my-identifier");
