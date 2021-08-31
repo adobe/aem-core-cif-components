@@ -22,6 +22,7 @@ const libraryName = pkg.name;
 const externals = Object.keys(pkg.peerDependencies)
     .reduce((obj, key) => ({ ...obj, [key]: `commonjs ${key}`}), {});
 
+
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
     output: {
@@ -84,5 +85,16 @@ module.exports = {
     ],
     devtool: 'source-map',
     mode: 'development',
-    externals
+    externals: [
+        // some special handling to optimise some of the externals for tree shaking
+        // see babel.config.js, esp. plugins > transform-imports
+        function(context, request, callback) {
+            if (/^react-feather\/.+$/.test(request)){
+                return callback(null, 'commonjs ' + request);
+            } else {
+                callback();
+            }
+        },
+        { ...externals }
+    ]
 };

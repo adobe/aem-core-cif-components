@@ -38,6 +38,7 @@
     "acorn": "^6.1.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
+    "babel-plugin-transform-imports": "^2.0.0",
     "braintree-web-drop-in": "^1.22.1",
     "bufferutil": "^4.0.1",
     "clean-webpack-plugin": "^3.0.0",
