@@ -42,12 +42,6 @@ const plugins = [
      *  https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining
      */
     ['@babel/plugin-proposal-optional-chaining'],
-    ['transform-imports', {
-        'react-feather': {
-            transform: (importName, matches) => `react-feather/dist/icons/${camelCaseToDash(importName)}`,
-            preventFullImport: true
-        }
-    }]
 ];
 
 const presets = [['@babel/preset-react']];
@@ -56,7 +50,15 @@ const presets = [['@babel/preset-react']];
 module.exports = function(api) {
     const envConfigs = {
         development: {
-            plugins,
+            plugins: [
+                ...plugins,
+                ['transform-imports', {
+                    'react-feather': {
+                        transform: (importName, matches) => `react-feather/dist/icons/${camelCaseToDash(importName)}`,
+                        preventFullImport: true
+                    }
+                }]
+            ],
             presets: [...presets, ['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]]
         },
         test: {
