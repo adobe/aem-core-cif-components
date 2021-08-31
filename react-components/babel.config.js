@@ -13,45 +13,16 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-const camelCaseToDash = (v) => {
-    let ret = '', prevLowercase = false, prevIsNumber = false
-    for (let s of v) {
-        const isUppercase = s.toUpperCase() === s
-        const isNumber = !isNaN(s)
-        if (isNumber) {
-            if (prevLowercase) {
-                ret += '-'
-            }
-        } else {
-            if (isUppercase && (prevLowercase || prevIsNumber)) {
-                ret += '-'
-            }
-        }
-        ret += s
-        prevLowercase = !isUppercase
-        prevIsNumber = isNumber
-    }
-    return ret.replace(/-+/g, '-').toLowerCase()
-}
-
 // eslint-disable-next-line no-undef
 const plugins = [
     /**
      * See:
      *  https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining
      */
-    ['@babel/plugin-proposal-optional-chaining'],
-    ['transform-imports', {
-        'react-feather': {
-            transform: (importName, matches) => `react-feather/dist/icons/${camelCaseToDash(importName)}`,
-            preventFullImport: true
-        }
-    }]
+    ['@babel/plugin-proposal-optional-chaining']
 ];
 
 const presets = [['@babel/preset-react']];
-
 // eslint-disable-next-line no-undef
 module.exports = function(api) {
     const envConfigs = {
