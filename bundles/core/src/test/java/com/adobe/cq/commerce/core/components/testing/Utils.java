@@ -31,11 +31,11 @@ import javax.json.JsonReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -46,11 +46,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
-import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -87,7 +84,7 @@ public class Utils {
      *
      * @throws IOException
      */
-    public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode) throws IOException {
+    public static String setupHttpResponse(String filename, CloseableHttpClient httpClient, int httpCode) throws IOException {
         return setupHttpResponse(filename, httpClient, httpCode, null);
     }
 
@@ -107,11 +104,12 @@ public class Utils {
      *
      * @throws IOException
      */
-    public static String setupHttpResponse(String filename, HttpClient httpClient, int httpCode, String contains) throws IOException {
+    public static String setupHttpResponse(String filename, CloseableHttpClient httpClient, int httpCode, String contains)
+        throws IOException {
         String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
 
         HttpEntity mockedHttpEntity = mock(HttpEntity.class);
-        HttpResponse mockedHttpResponse = mock(HttpResponse.class);
+        CloseableHttpResponse mockedHttpResponse = mock(CloseableHttpResponse.class);
         StatusLine mockedStatusLine = mock(StatusLine.class);
 
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
@@ -148,10 +146,10 @@ public class Utils {
      *
      * @throws IOException
      */
-    public static void setupHttpErrorResponse(HttpClient httpClient, int errorCode, String contains) throws IOException {
+    public static void setupHttpErrorResponse(CloseableHttpClient httpClient, int errorCode, String contains) throws IOException {
         assert errorCode >= 400;
 
-        HttpResponse mockedHttpResponse = mock(HttpResponse.class);
+        CloseableHttpResponse mockedHttpResponse = mock(CloseableHttpResponse.class);
         StatusLine mockedStatusLine = mock(StatusLine.class);
 
         if (contains != null) {
@@ -166,44 +164,14 @@ public class Utils {
     }
 
     /**
-     * Returns a plain GraphqlClient instance mock.
-     */
-    public static GraphqlClient setupGraphqlClient() {
-        HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        return graphqlClient;
-    }
-
-    /**
-     * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
+     * Adds another response to the already mocked graphql client.
      *
-     * @param filename The filename of the resource containing the JSON response.
-     * @return The GraphqlClient instance.
+     * @param graphqlClient
+     * @param filename
      * @throws IOException
      */
-    public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename) throws IOException {
-        return setupGraphqlClientWithHttpResponseFrom(filename, null);
-    }
-
-    /**
-     * Returns a GraphqlClient instance configured to return the JSON response from the <code>filename</code> resource.
-     *
-     * @param filename The filename of the resource containing the JSON response.
-     * @param queryStartsWith An optional String that must match the start of the GraphQL query.
-     * @return The GraphqlClient instance.
-     * @throws IOException
-     */
-    public static GraphqlClient setupGraphqlClientWithHttpResponseFrom(String filename, String queryStartsWith) throws IOException {
-        GraphqlClient graphqlClient = setupGraphqlClient();
-        addHttpResponseFrom(graphqlClient, filename, queryStartsWith);
-        return graphqlClient;
+    public static void addHttpResponseFrom(GraphqlClient graphqlClient, String filename) throws IOException {
+        addHttpResponseFrom(graphqlClient, filename, new String[] { null });
     }
 
     /**
@@ -215,7 +183,7 @@ public class Utils {
      * @throws IOException
      */
     public static void addHttpResponseFrom(GraphqlClient graphqlClient, String filename, String... queryStartsWith) throws IOException {
-        HttpClient httpClient = (HttpClient) Whitebox.getInternalState(graphqlClient, "client");
+        CloseableHttpClient httpClient = (CloseableHttpClient) Whitebox.getInternalState(graphqlClient, "client");
         for (String query : queryStartsWith) {
             setupHttpResponse(filename, httpClient, HttpStatus.SC_OK, query);
         }
