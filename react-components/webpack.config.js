@@ -95,8 +95,6 @@ module.exports = {
                 callback();
             }
         },
-        {
-            ...externals
-        }
+        { ...externals }
     ]
 };
