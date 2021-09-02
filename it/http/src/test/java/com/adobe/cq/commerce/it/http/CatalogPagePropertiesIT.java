@@ -72,7 +72,7 @@ public class CatalogPagePropertiesIT {
         Assert.assertEquals(1, elements.size());
 
         // Check label
-        elements = doc.select("coral-panel h3:contains(Catalog Page)");
+        elements = doc.select("coral-panel .coral-Form-fieldset-legend:contains(Catalog Page)");
         Assert.assertEquals(1, elements.size());
 
         // Check checkbox for show catalog page
@@ -80,7 +80,7 @@ public class CatalogPagePropertiesIT {
         Assert.assertEquals(1, elements.size());
 
         // Check that commerce pages section is not displayed
-        elements = doc.select("coral-panel h3:contains(Commerce Pages)");
+        elements = doc.select("coral-panel .coral-Form-fieldset-legend:contains(Commerce Pages)");
         Assert.assertEquals(0, elements.size());
     }
 
