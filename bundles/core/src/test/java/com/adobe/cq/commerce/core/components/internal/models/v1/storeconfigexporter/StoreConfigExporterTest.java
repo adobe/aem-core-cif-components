@@ -26,8 +26,8 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.testing.MockLaunch;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;

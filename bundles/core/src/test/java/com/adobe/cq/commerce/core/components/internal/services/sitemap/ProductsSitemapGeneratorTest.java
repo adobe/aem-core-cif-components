@@ -33,7 +33,7 @@ import org.mockito.MockitoAnnotations;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;

@@ -108,8 +108,7 @@ public class GraphqlServletTest {
                 context.load().json(contentPath, "/content");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
+                context.registerInjectActivateService(urlProvider);
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());

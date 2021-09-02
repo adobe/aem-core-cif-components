@@ -27,19 +27,15 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.jcr.MockJcr;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -52,15 +48,14 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class CommerceExperienceFragmentImplTest {
-
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content-experiencefragment.json");
 
     private static final String PAGE = "/content/mysite/page";
     private static final String PRODUCT_PAGE = PAGE + "/product-page";
@@ -80,32 +75,18 @@ public class CommerceExperienceFragmentImplTest {
         " AND node.[" + CommerceExperienceFragment.PN_CQ_CATEGORIES + "] = '%s'" +
         " AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] %s";
 
-    private LanguageManager languageManager;
-
-    private AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-
-                languageManager = Mockito.mock(LanguageManager.class);
-                Page rootPage = context.pageManager().getPage(PAGE);
-                Mockito.when(languageManager.getLanguageRoot(Mockito.any())).thenReturn(rootPage);
-                context.registerService(LanguageManager.class, languageManager);
-
-                LiveRelationshipManager liveRelationshipManager = Mockito.mock(LiveRelationshipManager.class);
-                context.registerService(LiveRelationshipManager.class, liveRelationshipManager);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content-experiencefragment.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerService(LiveRelationshipManager.class, mock(LiveRelationshipManager.class));
+            LanguageManager languageManager = context.registerService(LanguageManager.class, mock(LanguageManager.class));
+            Page rootPage = context.pageManager().getPage(PAGE);
+            Mockito.when(languageManager.getLanguageRoot(any())).thenReturn(rootPage);
+        })
+        .build();
 
     private void setup(String pagePath, String resourcePath) throws IOException {
-        UrlProviderImpl urlProvider = new UrlProviderImpl();
-        MockUrlProviderConfiguration config = new MockUrlProviderConfiguration();
-        urlProvider.activate(config);
-        context.registerService(UrlProvider.class, urlProvider);
-
-        Page page = Mockito.spy(context.currentPage(pagePath));
+        Page page = spy(context.currentPage(pagePath));
         Resource xfResource = context.resourceResolver().getResource(pagePath + resourcePath);
         context.currentResource(xfResource);
 
@@ -115,7 +96,7 @@ public class CommerceExperienceFragmentImplTest {
         slingBindings.setResource(xfResource);
 
         HttpClient httpClient = mock(HttpClient.class);
-        GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
 
         GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
         when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
@@ -137,7 +118,7 @@ public class CommerceExperienceFragmentImplTest {
         ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
             "my-store", "enableUIDSupport", "true"));
 
-        Resource pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(mockConfig));
 
@@ -181,7 +162,7 @@ public class CommerceExperienceFragmentImplTest {
 
     @Test
     public void testFragmentOnProductPageWithInvalidLanguageManager() throws IOException {
-        Mockito.reset(languageManager);
+        Mockito.reset(context.getService(LanguageManager.class));
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();

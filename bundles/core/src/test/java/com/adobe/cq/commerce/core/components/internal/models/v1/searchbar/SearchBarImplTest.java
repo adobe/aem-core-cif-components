@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
