@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;

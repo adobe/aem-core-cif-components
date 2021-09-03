@@ -74,7 +74,7 @@ public class LandingPagePropertiesIT {
         Assert.assertEquals(1, elements.size());
 
         // Check that commerce pages section is not displayed
-        elements = doc.select("coral-panel h3:contains(Commerce Pages)");
+        elements = doc.select("coral-panel .coral-Form-fieldset-legend:contains(Commerce Pages)");
         Assert.assertEquals(1, elements.size());
     }
 

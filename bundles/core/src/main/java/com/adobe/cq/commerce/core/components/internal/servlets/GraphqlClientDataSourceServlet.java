@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
@@ -33,11 +34,11 @@ import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.granite.ui.components.Config;
@@ -58,9 +59,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
 
     public final static String RESOURCE_TYPE = "core/cif/components/page/v1/datasource/graphqlclients";
 
-    private I18n i18n;
-
-    private Set<String> identifiers = new ConcurrentHashSet<>();
+    private Set<String> identifiers = new HashSet<>();
 
     @Reference
     private ExpressionResolver expressionResolver;
@@ -70,7 +69,8 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         bind = "bindGraphqlClient",
         unbind = "unbindGraphqlClient",
         cardinality = ReferenceCardinality.MULTIPLE,
-        policy = ReferencePolicy.DYNAMIC)
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
     void bindGraphqlClient(GraphqlClient graphqlClient, Map<?, ?> properties) {
         identifiers.add(graphqlClient.getIdentifier());
     }
@@ -81,7 +81,6 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
-        i18n = new I18n(request);
         SimpleDataSource graphqlClientDataSource = new SimpleDataSource(getGraphqlClients(request).iterator());
         request.setAttribute(DataSource.class.getName(), graphqlClientDataSource);
     }
@@ -89,13 +88,11 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
     List<Resource> getGraphqlClients(@Nonnull SlingHttpServletRequest request) {
         ResourceResolver resolver = request.getResourceResolver();
         List<Resource> graphqlClients = new ArrayList<>();
+        I18n i18n = new I18n(request);
 
         final Config cfg = new Config(request.getResource().getChild(Config.DATASOURCE));
-        boolean showEmptyOption = false;
-        if (cfg != null) {
-            ExpressionHelper expressionHelper = new ExpressionHelper(expressionResolver, request);
-            showEmptyOption = expressionHelper.getBoolean(cfg.get("showEmptyOption"));
-        }
+        ExpressionHelper expressionHelper = new ExpressionHelper(expressionResolver, request);
+        boolean showEmptyOption = expressionHelper.getBoolean(cfg.get("showEmptyOption"));
         // Add empty option
         if (showEmptyOption) {
             graphqlClients.add(new GraphqlClientResource(i18n.get("Inherit", "Inherit property"), StringUtils.EMPTY, resolver));
@@ -137,7 +134,7 @@ public class GraphqlClientDataSourceServlet extends SlingSafeMethodsServlet {
         }
 
         private void initValueMap() {
-            valueMap = new ValueMapDecorator(new HashMap<String, Object>());
+            valueMap = new ValueMapDecorator(new HashMap<>());
             valueMap.put(PN_VALUE, getValue());
             valueMap.put(PN_TEXT, getText());
         }

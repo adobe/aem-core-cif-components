@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
