@@ -10,7 +10,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
