@@ -54,11 +54,12 @@ class Searchbar {
     }
 
     _installListeners() {
-        let that = this;
         // listen to onclick on the "search" icon in the header
         document.querySelector(Searchbar.selectors.searchBarToggle).addEventListener('click', event => {
             this.toggle();
         });
+        // initial registration of search box listener for use cases when the searchbar toggle is not used
+        this._registerSearchBoxListener();
     }
 
     toggle() {
@@ -79,8 +80,10 @@ class Searchbar {
             //clear the search field
             this._searchBox.value = '';
 
-            //remove the reset button
-            afterField.removeChild(afterField.childNodes[0]);
+            //remove the reset button if exists
+            if (afterField.childNodes.length > 0) {
+                afterField.removeChild(afterField.childNodes[0]);
+            }
 
             //re-register the listener on the searchbox
             this._registerSearchBoxListener();
@@ -90,7 +93,6 @@ class Searchbar {
 
     _registerSearchBoxListener() {
         const _handleKeyDown = e => {
-            const input = e.currentTarget;
             this._showResetButton();
             this._searchBox.removeEventListener('keydown', _handleKeyDown);
         };
