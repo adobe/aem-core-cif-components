@@ -24,10 +24,8 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.PriceRange;
-import com.adobe.cq.commerce.magento.graphql.ProductDiscount;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductPrice;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -62,19 +60,6 @@ public class ProductListItemImplTest {
         productPage = aemContext.create().page("/my/page");
 
         // setup test product
-        Money money = new Money();
-        money.setCurrency(CurrencyEnum.USD);
-        money.setValue(1.0);
-        ProductDiscount discount = new ProductDiscount();
-        discount.setAmountOff(0.0);
-        ProductPrice price = new ProductPrice();
-        price.setFinalPrice(money);
-        price.setRegularPrice(money);
-        price.setDiscount(discount);
-        PriceRange priceRange = new PriceRange();
-        priceRange.setMinimumPrice(price);
-        priceRange.setMaximumPrice(price);
-
         product = mock(ProductInterface.class);
         when(product.getSku()).thenReturn(sku);
         when(product.getName()).thenReturn(name);
@@ -82,6 +67,10 @@ public class ProductListItemImplTest {
         when(image.getLabel()).thenReturn(imageAlt);
         when(image.getUrl()).thenReturn(imageUrl);
         when(product.getSmallImage()).thenReturn(image);
+        when(money.getCurrency()).thenReturn(CurrencyEnum.USD);
+        when(money.getValue()).thenReturn(12.34);
+        when(priceRange.getMinimumPrice().getFinalPrice()).thenReturn(money);
+        when(priceRange.getMinimumPrice().getRegularPrice()).thenReturn(money);
         when(product.getPriceRange()).thenReturn(priceRange);
     }
 
