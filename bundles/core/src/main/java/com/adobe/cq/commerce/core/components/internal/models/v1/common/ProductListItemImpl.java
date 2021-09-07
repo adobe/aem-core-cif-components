@@ -183,7 +183,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     protected String generateId() {
         String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return ComponentUtils.generateId(prefix, getSKU());
+        return ComponentUtils.generateId(prefix, StringUtils.defaultIfBlank(getSKU(), StringUtils.EMPTY));
     }
 
     @Override
