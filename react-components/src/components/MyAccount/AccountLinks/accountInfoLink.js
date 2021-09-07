@@ -16,18 +16,18 @@
 import React from 'react';
 import { func } from 'prop-types';
 import { Info as InfoIcon } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import AccountLink from '../accountLink';
 
 const AccountInfoLink = props => {
     const { showAccountInformation } = props;
+    const intl = useIntl();
 
-    const [t] = useTranslation('account');
     return (
         <AccountLink onClick={showAccountInformation}>
             <InfoIcon size={18} />
-            {t('account:account-information', 'Account Information')}
+            {intl.formatMessage({ id: 'account:account-information', defaultMessage: 'Account Information' })}
         </AccountLink>
     );
 };

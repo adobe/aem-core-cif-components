@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useUserContext } from '../../context/UserContext';
 import Button from '../Button';
@@ -23,14 +23,13 @@ import classes from './addressDeleteModal.css';
 
 const AddressDeleteModal = () => {
     const [{ deleteAddress: address }, { deleteAddress, dispatch }] = useUserContext();
-
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
             <div className={classes.cancel}>
                 <Button priority="normal" type="button" onClick={() => dispatch({ type: 'endDeletingAddress' })}>
-                    {t('account:address-delete-cancel', 'Cancel')}
+                    {intl.formatMessage({ id: 'account:address-delete-cancel', defaultMessage: 'Cancel' })}
                 </Button>
             </div>
             <div className={classes.delete}>
@@ -40,7 +39,7 @@ const AddressDeleteModal = () => {
                     onClick={() => {
                         deleteAddress(address);
                     }}>
-                    {t('account:address-delete-confirm', 'Delete')}
+                    {intl.formatMessage({ id: 'account:address-delete-confirm', defaultMessage: 'Delete' })}
                 </Button>
             </div>
         </div>

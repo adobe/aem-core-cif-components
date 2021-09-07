@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import AccountLink from '../accountLink';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { LogOut as SignOutIcon } from 'react-feather';
 import { useUserContext } from '../../../context/UserContext';
 import { useCartState } from '../../../components/Minicart/cartContext';
@@ -25,10 +25,10 @@ import { func } from 'prop-types';
 
 const SignOutLink = props => {
     const { showMenu } = props;
-    const [t] = useTranslation('account');
     const [, dispatch] = useCartState();
     const { pagePaths } = useConfigContext();
     const [, { signOut }] = useUserContext();
+    const intl = useIntl();
 
     const handleSignOut = async () => {
         dispatch({ type: 'reset' });
@@ -48,7 +48,7 @@ const SignOutLink = props => {
     return (
         <AccountLink onClick={handleSignOut}>
             <SignOutIcon size={18} />
-            {t('account:sign-out', 'Sign Out')}
+            {intl.formatMessage({ id: 'account:sign-out', defaultMessage: 'Sign Out' })}
         </AccountLink>
     );
 };

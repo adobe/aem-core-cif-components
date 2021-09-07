@@ -15,21 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { Book as BookIcon } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useConfigContext } from '../../../context/ConfigContext';
 import AccountLink from '../accountLink';
 
 const AddressBookLink = () => {
     const { pagePaths } = useConfigContext();
-    const [t] = useTranslation('account');
+    const intl = useIntl();
+
     return (
         <AccountLink
             onClick={() => {
                 window.location.href = pagePaths.addressBook;
             }}>
             <BookIcon size={18} />
-            {t('account:address-book', 'Address Book')}
+            {intl.formatMessage({ id: 'account:address-book', defaultMessage: 'Address Book' })}
         </AccountLink>
     );
 };

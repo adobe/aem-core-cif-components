@@ -15,12 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 
-import { I18nextProvider } from 'react-i18next';
+import { IntlProvider } from 'react-intl';
 
-import i18n from '../../__mocks__/i18nForTests';
+import i18nMessagesProductRecs from '../../dist/i18n/en.json';
+import i18nMessagesCoreComps from '@adobe/aem-core-cif-react-components/i18n/en.json';
+
+const i18nMessages = { ...i18nMessagesCoreComps, ...i18nMessagesProductRecs };
 
 const ContextWrapper = ({ children }) => {
-    return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+    return (
+        <IntlProvider locale="en" messages={i18nMessages}>
+            {children}
+        </IntlProvider>
+    );
 };
 
 export default ContextWrapper;

@@ -1,0 +1,8 @@
+{
+  "productrecs:add-to-cart": {
+    "defaultMessage": "Add to cart"
+  },
+  "productrecs:price-from": {
+    "defaultMessage": "from"
+  }
+}

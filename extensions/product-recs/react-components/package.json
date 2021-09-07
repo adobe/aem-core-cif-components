@@ -10,21 +10,22 @@
   },
   "main": "dist/index.js",
   "files": [
-    "dist",
-    "i18n"
+    "dist"
   ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
-    "webpack:dev": "webpack --mode=development",
-    "webpack:prod": "webpack --mode=production && node css-template.js",
-    "test": "npm run lint && npm run prettier:check && jest --coverage",
-    "ci": "npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
-    "test:watch": "npm run lint && jest --watch",
+    "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
+    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
+    "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
+    "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
+    "test:watch": "npm run i18n:extract-compile && npm run lint && jest --watch",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "translation:scan": "i18next-scanner",
-    "snapshot:update": "jest --updateSnapshot"
+    "snapshot:update": "jest --updateSnapshot",
+    "i18n:extract": "formatjs extract --out-file i18n/en.json 'src/**/*.js'",
+    "i18n:compile": "formatjs compile-folder --ast i18n dist/i18n",
+    "i18n:extract-compile": "npm run i18n:extract && npm run i18n:compile"
   },
   "devDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.0.0",
@@ -33,12 +34,14 @@
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
+    "@formatjs/cli": "^4.2.33",
     "@magento/recommendations-js-sdk": "2.0.1",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/react-hooks": "^7.0.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
+    "babel-plugin-formatjs": "^10.3.8",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
     "eslint": "^7.10.0",
@@ -48,8 +51,6 @@
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-loader": "^4.3.0",
     "graphql": "^14.6.0",
-    "i18next": "^19.3.2",
-    "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
@@ -58,7 +59,8 @@
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",
-    "react-i18next": "^11.3.3",
+    "react-intl": "~5.20.0",
+    "typescript": "^4.4.2",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   },
@@ -67,11 +69,10 @@
     "@apollo/client": "^3.2.4",
     "@magento/recommendations-js-sdk": "^2.0.1",
     "graphql": "^14.6.0",
-    "i18next": "^19.3.2",
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",
-    "react-i18next": "^11.3.3"
+    "react-intl": "~5.20.0"
   },
   "engines": {
     "node": ">=12",
