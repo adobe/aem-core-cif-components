@@ -10,7 +10,8 @@
   },
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "i18n"
   ],
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
@@ -23,9 +24,7 @@
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "snapshot:update": "jest --updateSnapshot",
-    "i18n:extract": "formatjs extract --out-file i18n/en.json 'src/**/*.js'",
-    "i18n:compile": "formatjs compile-folder --ast i18n dist/i18n",
-    "i18n:extract-compile": "npm run i18n:extract && npm run i18n:compile"
+    "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
   },
   "devDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.0.0",
@@ -50,7 +49,7 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-loader": "^4.3.0",
-    "graphql": "^14.6.0",
+    "graphql": "~15.3.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
@@ -65,10 +64,10 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.0.0",
+    "@adobe/aem-core-cif-react-components": "^2.1.0",
     "@apollo/client": "^3.2.4",
     "@magento/recommendations-js-sdk": "^2.0.1",
-    "graphql": "^14.6.0",
+    "graphql": "~15.3.0",
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",
