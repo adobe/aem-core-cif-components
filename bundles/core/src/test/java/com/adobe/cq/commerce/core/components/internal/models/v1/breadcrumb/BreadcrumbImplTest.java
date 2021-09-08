@@ -188,6 +188,32 @@ public class BreadcrumbImplTest {
     }
 
     @Test
+    public void testProductPageWithoutDynamicCategoryPage() throws Exception {
+        // remove "cq:cifCategoryPage" to remove the support for dynamic category pages
+        Resource veniaContent = context.resourceResolver().getResource("/content/venia/jcr:content");
+        veniaContent.adaptTo(ModifiableValueMap.class).remove("cq:cifCategoryPage");
+        context.resourceResolver().commit();
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "breadcrumbs{category_uid,category_url_path,category_name}");
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Tiberius Gym Tank");
+
+        NavigationItem product = items.get(1);
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html");
+        assertThat(product.isActive()).isTrue();
+    }
+
+    @Test
     public void testProductSpecificPage() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient,
