@@ -10,14 +10,13 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
@@ -29,11 +28,14 @@ import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import io.wcm.testing.mock.aem.junit.AemContext;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProductListItemTest {
+public class ProductListItemImplTest {
 
     final static String sku = "product-sku";
     final static String name = "product-name";
@@ -43,24 +45,22 @@ public class ProductListItemTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PriceRange priceRange;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Money money;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ProductImage image;
+    @Rule
+    public final AemContext aemContext = new AemContext();
 
     private Page productPage;
     private ProductInterface product;
 
     @Before
     public void setUp() {
-        Resource contentResource = Mockito.mock(Resource.class);
-        productPage = Mockito.mock(Page.class);
-        when(productPage.getContentResource()).thenReturn(contentResource);
+        productPage = aemContext.create().page("/my/page");
 
         // setup test product
-        product = Mockito.mock(ProductInterface.class);
+        product = mock(ProductInterface.class);
         when(product.getSku()).thenReturn(sku);
         when(product.getName()).thenReturn(name);
         when(product.getUrlKey()).thenReturn(urlKey);
@@ -121,6 +121,29 @@ public class ProductListItemTest {
         TestInheritedItemImpl productListItem = new TestInheritedItemImpl(identifier, "", productPage);
 
         Assert.assertNotNull("Component data retrieved successfully", productListItem.getSomeData());
+    }
+
+    @Test
+    public void testGenerateIdForEmptySku() {
+        // test for null empty or blank
+        String[] skus = new String[] { null, "", "    " };
+        String expected = "foobar-item-e3b0c44298";
+
+        for (String sku : skus) {
+            // test all constructors
+            CommerceIdentifier commerceIdentifier = mock(CommerceIdentifier.class);
+            when(commerceIdentifier.getType()).thenReturn(CommerceIdentifier.IdentifierType.SKU);
+            when(commerceIdentifier.getValue()).thenReturn(sku);
+            ProductListItemImpl item = new ProductListItemImpl(commerceIdentifier, "foobar", productPage);
+            assertEquals(expected, item.generateId());
+
+            item = new ProductListItemImpl(sku, null, null, null, null, null, productPage, null, null, null, "foobar", false);
+            assertEquals(expected, item.generateId());
+
+            when(product.getSku()).thenReturn(sku);
+            item = new ProductListItemImpl(product, productPage, null, null, null, "foobar");
+            assertEquals(expected, item.generateId());
+        }
     }
 
     private class TestInheritedItemImpl extends ProductListItemImpl {
