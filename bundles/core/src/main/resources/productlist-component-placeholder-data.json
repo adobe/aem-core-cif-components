@@ -7,7 +7,6 @@
       "items": [
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-1",
           "name": "Product #1",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
@@ -32,7 +31,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-2",
           "name": "Product #2",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
@@ -57,7 +55,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-3",
           "name": "Product #3",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
@@ -82,7 +79,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-4",
           "name": "Product #4",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
@@ -107,7 +103,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-5",
           "name": "Product #5",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
@@ -132,7 +127,6 @@
         },
         {
           "__typename": "SimpleProduct",
-          "sku": "sku-6",
           "name": "Product #6",
           "small_image": {
             "url": "/apps/core/cif/components/commerce/productlist/v1/productlist/images/catalog/category/product-thumbnail.png"
