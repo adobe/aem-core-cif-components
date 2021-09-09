@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
-import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
