@@ -28,6 +28,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class StoreConfigHtmlPageItem implements HtmlPageItem {
 
+    private static final String NAME = "store-config";
+    private static final String ATTR_NAME = "name";
+    private static final String ATTR_CONTENT = "content";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigHtmlPageItem.class);
 
@@ -35,11 +38,11 @@ class StoreConfigHtmlPageItem implements HtmlPageItem {
 
     StoreConfigHtmlPageItem(StoreConfigExporterImpl storeConfigExporter) {
         try {
-            attributes.put("name", "store-config");
-            attributes.put("content", OBJECT_MAPPER.writeValueAsString(storeConfigExporter));
+            attributes.put(ATTR_NAME, NAME);
+            attributes.put(ATTR_CONTENT, OBJECT_MAPPER.writeValueAsString(storeConfigExporter));
         } catch (JsonProcessingException ex) {
             LOGGER.warn("Failed to export store config: {}", ex.getMessage(), ex);
-            attributes.put("content", "{}");
+            attributes.put(ATTR_CONTENT, "{}");
         }
     }
 

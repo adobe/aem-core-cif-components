@@ -54,15 +54,18 @@ public class PageImpl extends AbstractPageDelegator implements Page {
     @Override
     public List<HtmlPageItem> getHtmlPageItems() {
         if (htmlPageItems == null) {
-            HtmlPageItem storeConfigItem = new StoreConfigHtmlPageItem(storeConfigExporter);
             List<HtmlPageItem> existingItems = page.getHtmlPageItems();
-
-            if (existingItems == null || existingItems.isEmpty()) {
-                htmlPageItems = Collections.singletonList(storeConfigItem);
+            if (existingItems == null || existingItems.stream().noneMatch(StoreConfigHtmlPageItem.class::isInstance)) {
+                HtmlPageItem storeConfigItem = new StoreConfigHtmlPageItem(storeConfigExporter);
+                if (existingItems == null || existingItems.isEmpty()) {
+                    htmlPageItems = Collections.singletonList(storeConfigItem);
+                } else {
+                    htmlPageItems = new ArrayList<>(existingItems.size() + 1);
+                    htmlPageItems.addAll(existingItems);
+                    htmlPageItems.add(storeConfigItem);
+                }
             } else {
-                htmlPageItems = new ArrayList<>(existingItems.size() + 1);
-                htmlPageItems.addAll(existingItems);
-                htmlPageItems.add(storeConfigItem);
+                htmlPageItems = existingItems;
             }
         }
         return htmlPageItems;

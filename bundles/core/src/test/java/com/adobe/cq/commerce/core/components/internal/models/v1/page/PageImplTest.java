@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -121,6 +124,23 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         assertEquals(3, htmlPageItems.size());
 
         assertThat(htmlPageItems).contains(existingItem1, existingItem2);
+    }
+
+    @Test
+    public void testHtmlPageItemExtendedStoreConfigOnlyOnce() {
+        Page mock = mock(Page.class);
+        HtmlPageItem existingItem1 = new StoreConfigHtmlPageItem(new StoreConfigExporterImpl());
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getHtmlPageItems()).thenReturn(Collections.singletonList(existingItem1));
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+
+        List<HtmlPageItem> htmlPageItems = subject.getHtmlPageItems();
+        assertNotNull(htmlPageItems);
+        assertEquals(1, htmlPageItems.size());
+
+        assertThat(htmlPageItems).contains(existingItem1);
     }
 
     @Test
