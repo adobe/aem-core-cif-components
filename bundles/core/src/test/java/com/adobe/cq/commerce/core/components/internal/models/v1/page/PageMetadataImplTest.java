@@ -180,6 +180,19 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnProductSpecificPageNoProduct() throws Exception {
+        String pagePath = "/content/venia/us/en/products/product-page/product-specific-page-no-product";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
+    }
+
+    @Test
     public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
         testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
     }
@@ -250,6 +263,19 @@ public class PageMetadataImplTest {
         ProductList productListModel = context.request().adaptTo(ProductList.class);
         assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
         assertTrue("The category has staged data", productListModel.isStaged());
+    }
+
+    @Test
+    public void testPageMetadataModelOnCategorySpecificPageNoProductlist() throws Exception {
+        String pagePath = "/content/venia/us/en/products/category-page/category-specific-page-no-productlist";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
     }
 
     @Test
