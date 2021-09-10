@@ -21,7 +21,8 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -35,9 +36,9 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockExternalizer;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -51,10 +52,7 @@ import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -180,20 +178,28 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnProductSpecificPageNoProduct() throws Exception {
+        String pagePath = "/content/venia/us/en/products/product-page/product-specific-page-no-product";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
+    }
+
+    @Test
     public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
         testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -253,20 +259,29 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnCategorySpecificPageNoProductlist() throws Exception {
+        String pagePath = "/content/venia/us/en/products/category-page/category-specific-page-no-productlist";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
+    }
+
+    @Test
     public void testPageMetadataModelOnCategoryPageOnLaunch() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/category-page");
     }
 
     private void testPageMetadataModelOnCategoryPage(String pagePath) throws Exception {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

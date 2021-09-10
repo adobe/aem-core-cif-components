@@ -20,6 +20,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -31,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -38,6 +40,7 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -74,6 +77,7 @@ public class ProductTeaserImplTest {
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+            context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         }, ResourceResolverType.JCR_MOCK);
     }
 
@@ -104,7 +108,9 @@ public class ProductTeaserImplTest {
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productteaser-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productteaser-result.json");
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
@@ -217,7 +223,9 @@ public class ProductTeaserImplTest {
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-virtualproduct-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 

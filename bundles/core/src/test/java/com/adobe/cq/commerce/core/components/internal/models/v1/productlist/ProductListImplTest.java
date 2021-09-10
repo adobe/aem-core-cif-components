@@ -26,7 +26,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -47,6 +48,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.MockExternalizer;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -62,9 +64,7 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
@@ -136,7 +136,7 @@ public class ProductListImplTest {
     private GraphqlClient graphqlClient;
 
     @Mock
-    HttpClient httpClient;
+    CloseableHttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
@@ -144,16 +144,13 @@ public class ProductListImplTest {
         context.currentResource(PRODUCTLIST);
         productListResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTLIST));
 
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+
         category = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-category.json").getCategoryList().get(0);
         products = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-products.json").getProducts();
 
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

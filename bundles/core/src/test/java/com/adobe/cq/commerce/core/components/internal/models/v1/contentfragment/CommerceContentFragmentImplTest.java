@@ -21,7 +21,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -38,8 +39,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
@@ -48,10 +49,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.DataType;
 import com.adobe.cq.dam.cfm.FragmentData;
@@ -95,7 +93,7 @@ public class CommerceContentFragmentImplTest {
     MockSlingHttpServletRequest request;
     private UrlProviderImpl urlProvider;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private FragmentRenderService renderService;
 
     private static AemContext createContext(String contentPath) {
@@ -117,13 +115,11 @@ public class CommerceContentFragmentImplTest {
         ResourceResolver resourceResolver = Mockito.spy(originalResourceResolver);
 
         // setup graphql client
-        httpClient = mock(HttpClient.class);
+        httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 

@@ -197,9 +197,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .urlPath(urlPath)
             .map();
 
-        String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
-        items.add(categoryItem);
+        // if the dynamic category page is null, the category item is not rendered
+        if (categoryPage != null) {
+            String url = urlProvider.toCategoryUrl(request, categoryPage, params);
+            NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
+            items.add(categoryItem);
+        }
     }
 
     /**
@@ -256,10 +259,13 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     private boolean isSpecificPage(Page page) {
         // The product or category page might be in a Launch so we first extract the paths of the production versions
-        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
-        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+        String productPagePath = productPage == null ? null
+            : productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage == null ? null
+            : categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
 
         String path = page.getPath();
-        return (path.contains(productPagePath + "/") || path.contains(categoryPagePath + "/"));
+        return (productPagePath != null && path.contains(productPagePath + "/") ||
+            categoryPagePath != null && path.contains(categoryPagePath + "/"));
     }
 }
