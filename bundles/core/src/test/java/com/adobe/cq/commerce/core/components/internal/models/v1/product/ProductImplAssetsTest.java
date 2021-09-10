@@ -18,7 +18,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -30,9 +31,9 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockExternalizer;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
@@ -40,12 +41,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
@@ -129,21 +125,14 @@ public class ProductImplAssetsTest {
 
     private void setUp(String graphqlResponse) throws IOException {
         Page page = context.currentPage(PAGE);
-        HttpClient httpClient = mock(HttpClient.class);
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         context.currentResource(PRODUCT);
         Resource productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
 
-        Query rootQuery = Utils.getQueryFromResource(graphqlResponse);
-        ProductInterface product = rootQuery.getProducts().getItems().get(0);
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{url_key");
         Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{sku");
