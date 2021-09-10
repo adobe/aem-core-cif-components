@@ -54,10 +54,6 @@ describe('CommerceGraphqlApi', () => {
         assert.throws(() => new CommerceGraphqlApi({ storeView: 'default' }));
     });
 
-    it('throws an error if the storeView property is missing', () => {
-        assert.throws(() => new CommerceGraphqlApi({ endpoint: '/graphql' }));
-    });
-
     it('fetches an uncached GraphQL query', () => {
         const mockResult = { result: 'my-result' };
         fetchSpy.resolves(mockResult);

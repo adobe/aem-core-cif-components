@@ -18,7 +18,7 @@
 window.CIF = window.CIF || {};
 class CommerceGraphqlApi {
     constructor(props) {
-        if (!props || !props.endpoint || !props.storeView) {
+        if (!props || !props.endpoint) {
             throw new Error(
                 'The commerce API is not properly initialized. A required property is missing from the initialization object'
             );
@@ -51,10 +51,13 @@ class CommerceGraphqlApi {
             method: this.method === 'GET' && !ignoreCache ? 'GET' : 'POST',
             headers: {
                 ...this.headers,
-                'Content-Type': 'application/json',
-                Store: this.storeView
+                'Content-Type': 'application/json'
             }
         };
+
+        if (this.storeView) {
+            params.headers['Store'] = this.storeView;
+        }
 
         let url = this.endpoint;
         if (params.method === 'POST') {
