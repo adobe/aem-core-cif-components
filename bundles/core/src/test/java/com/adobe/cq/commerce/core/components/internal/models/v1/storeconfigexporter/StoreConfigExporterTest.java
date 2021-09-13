@@ -23,6 +23,7 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -39,7 +40,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,21 +50,17 @@ public class StoreConfigExporterTest {
         ImmutableMap.of("magentoGraphqlEndpoint", "/my/api/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
             "cq:graphqlClient",
             "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
-    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    public final AemContext context = new AemContext(ResourceResolverType.JCR_MOCK);
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) input -> input.getPath().contains("pageH")
-                        ? MOCK_CONFIGURATION_OBJECT
-                        : ComponentsConfiguration.EMPTY);
-            },
-            ResourceResolverType.JCR_MOCK);
+    private ComponentsConfiguration mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
+
+    @Before
+    public void setup() {
+        context.load().json("/context/jcr-content.json", "/content");
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+            (Function<Resource, ComponentsConfiguration>) input -> mockConfiguration);
     }
 
     @Test
@@ -72,6 +68,18 @@ public class StoreConfigExporterTest {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+    }
+
+    @Test
+    public void testStoreViewEmptyWithoutConfiguration() {
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        mockConfiguration = null;
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        Assert.assertNotNull(storeConfigExporter);
+        Assert.assertNull(null, storeConfigExporter.getStoreView());
+        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
+        Assert.assertEquals("{}", storeConfigExporter.getHttpHeaders());
+        Assert.assertEquals("POST", storeConfigExporter.getMethod());
     }
 
     @Test
@@ -86,9 +94,9 @@ public class StoreConfigExporterTest {
     @Test
     public void testStoreViewDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
-
+        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("default", storeConfigExporter.getStoreView());
+        Assert.assertNull(storeConfigExporter.getStoreView());
     }
 
     @Test
@@ -102,6 +110,7 @@ public class StoreConfigExporterTest {
     @Test
     public void testGraphqlEndpointDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
+        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
@@ -123,8 +132,8 @@ public class StoreConfigExporterTest {
     @Test
     public void testGetStoreRootUrl() {
         setupWithPage("/content/pageB/pageC", HttpMethod.POST);
+        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
         Assert.assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
     }
 

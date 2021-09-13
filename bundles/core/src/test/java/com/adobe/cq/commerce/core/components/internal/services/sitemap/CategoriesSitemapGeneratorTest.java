@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -33,11 +34,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.wcm.api.Page;
 import com.google.common.collect.ImmutableMap;
@@ -58,7 +61,7 @@ public class CategoriesSitemapGeneratorTest {
 
     private final CategoriesSitemapGenerator subject = new CategoriesSitemapGenerator();
     private final UrlProviderImpl urlProvider = new UrlProviderImpl();
-    private final GraphqlClient graphqlClient = Utils.setupGraphqlClient();
+    private final GraphqlClient graphqlClient = new GraphqlClientImpl();
 
     @Mock
     private SitemapLinkExternalizer externalizer;
@@ -85,6 +88,8 @@ public class CategoriesSitemapGeneratorTest {
             ImmutableMap.of("cq:cifCategoryPage", "/content/site/en/category-page"));
         categoryPage = aemContext.create().page(homePage.getPath() + "/category-page");
 
+        aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+        aemContext.registerInjectActivateService(graphqlClient);
         aemContext.registerService(SitemapCategoryFilter.class, categoryFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
         aemContext.registerInjectActivateService(urlProvider);

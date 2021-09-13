@@ -66,16 +66,20 @@ public class PageMetadataImpl implements PageMetadata {
 
         if (SiteNavigation.isProductPage(currentPage)) {
             Resource componentResource = findChildResourceWithType(resource, ProductImpl.RESOURCE_TYPE);
-            Product product = modelFactory.getModelFromWrappedRequest(request, componentResource, Product.class);
-            provider = product;
+            if (componentResource != null) {
+                Product product = modelFactory.getModelFromWrappedRequest(request, componentResource, Product.class);
+                provider = product;
+            }
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
             Resource componentResource = findChildResourceWithType(resource, ProductListImpl.RESOURCE_TYPE);
             if (componentResource == null) {
                 componentResource = findChildResourceWithType(resource,
                     com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl.RESOURCE_TYPE);
             }
-            ProductList productList = modelFactory.getModelFromWrappedRequest(request, componentResource, ProductList.class);
-            provider = productList;
+            if (componentResource != null) {
+                ProductList productList = modelFactory.getModelFromWrappedRequest(request, componentResource, ProductList.class);
+                provider = productList;
+            }
         }
     }
 

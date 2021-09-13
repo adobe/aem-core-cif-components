@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,8 +22,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.request.RequestParameter;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
@@ -36,26 +35,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.day.cq.wcm.api.Page;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class UrlProviderImplTest {
@@ -65,27 +59,27 @@ public class UrlProviderImplTest {
 
     private UrlProvider urlProvider;
     private MockSlingHttpServletRequest request;
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
 
     @Before
     public void setup() throws Exception {
         urlProvider = context.getService(UrlProvider.class);
-        request = new MockSlingHttpServletRequest(context.resourceResolver());
+        request = context.request();
 
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-        httpClient = mock(HttpClient.class);
+        httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+
         graphqlClient = spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        // context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input ->
+        // input.getValueMap().get(
+        // "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
 
-        MagentoGraphqlClient mockClient = spy(new MagentoGraphqlClientImpl(request));
-        Whitebox.setInternalState(mockClient, "graphqlClient", graphqlClient);
-        context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
+        // MagentoGraphqlClient mockClient = spy(new MagentoGraphqlClientImpl(request));
+        // Whitebox.setInternalState(mockClient, "graphqlClient", graphqlClient);
+        // context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -194,7 +188,7 @@ public class UrlProviderImplTest {
     }
 
     @Test
-    public void testProductUrlWithGraphQLClientMissingParameters() throws IOException {
+    public void testProductUrlWithGraphQLClientMissingParameters() {
         Page page = context.currentPage("/content/product-page");
         context.runMode("author");
 
@@ -341,6 +335,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixUrlKey() {
+        context.currentPage("/content/catalog-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
@@ -379,6 +374,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryIdentifierParsingUrlPath() {
+        context.currentPage("/content/catalog-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/men/tops-men/jackets-men");
 
@@ -393,6 +389,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryIdentifierParsingUrlPathNotFound() {
+        context.currentPage("/content/catalog-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/does/not/exist.html");
 
@@ -404,6 +401,8 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCustomProductPageFormat() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
         context.request().setQueryString("sku=MJ02");
         context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
         // registering the custom format causes a new service to be created
@@ -414,7 +413,6 @@ public class UrlProviderImplTest {
         Assert.assertEquals("MJ02", identifier);
 
         // verify format
-        Page page = context.create().page("/page");
         String url = urlProvider.toProductUrl(request, page, "MJ02");
         Assert.assertEquals("/page.html?sku=MJ02", url);
 
@@ -425,6 +423,8 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCustomCategoryPageFormat() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
         context.request().setQueryString("uid=uid-5");
         context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
         // registering the custom format causes a new service to be created
@@ -435,7 +435,6 @@ public class UrlProviderImplTest {
         Assert.assertEquals("uid-5", identifier);
 
         // verify format
-        Page page = context.create().page("/page");
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
         Assert.assertEquals("/page.html?uid=uid-5", url);
 
