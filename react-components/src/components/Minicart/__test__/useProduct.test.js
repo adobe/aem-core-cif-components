@@ -17,7 +17,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, wait } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 const { TextEncoder } = require('util');
@@ -80,15 +80,16 @@ describe('useProduct', () => {
         );
 
         await act(async () => fireEvent.click(getByRole('button')));
-
-        expect(mse.publish.removeFromCart).toHaveBeenCalledTimes(1);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
-            event: 'cif:removeFromCart',
-            eventInfo: {
-                '@id': 'product-c9da66dcca',
-                'xdm:SKU': 'VP05-MT-S',
-                'xdm:quantity': 1
-            }
+        await wait(() => {
+            expect(mse.publish.removeFromCart).toHaveBeenCalledTimes(1);
+            expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
+                event: 'cif:removeFromCart',
+                eventInfo: {
+                    '@id': 'product-c9da66dcca',
+                    'xdm:SKU': 'VP05-MT-S',
+                    'xdm:quantity': 1
+                }
+            });
         });
     });
 });

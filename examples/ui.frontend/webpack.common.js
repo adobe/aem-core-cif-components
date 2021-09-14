@@ -2,8 +2,11 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const pkg = require('./package.json');
 
 const SOURCE_ROOT = `${__dirname}/src/main`;
+const alias = Object.keys(pkg.dependencies)
+    .reduce((obj, key) => ({ ...obj, [key]: path.resolve(__dirname, 'node_modules', key) }), {});
 
 module.exports = {
     entry: {
@@ -59,13 +62,7 @@ module.exports = {
     // or `npm install <file dir>`. Those dependencies will bring *all* their dependencies along, because
     // in that case npm ignores the "devDependencies" setting.
     // In that case, we need to make sure that this project using its own version of React libraries.
-    resolve: {
-        alias: {
-            react: path.resolve('./node_modules/react'),
-            'react-dom': path.resolve('./node_modules/react-dom'),
-            'react-i18next': path.resolve('./node_modules/react-i18next'),
-        },
-    },
+    resolve: { alias },
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
@@ -79,7 +76,7 @@ module.exports = {
                 ),
                 to: './cif-examples-react/i18n',
             },
-        ]),
+        ])
     ],
     optimization: {
         noEmitOnErrors: true,

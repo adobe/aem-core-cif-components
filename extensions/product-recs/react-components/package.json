@@ -27,10 +27,13 @@
     "snapshot:update": "jest --updateSnapshot"
   },
   "devDependencies": {
+    "@adobe/aem-core-cif-react-components": "^2.0.0",
+    "@apollo/client": "^3.2.4",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
+    "@magento/recommendations-js-sdk": "2.0.1",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/react-hooks": "^7.0.0",
@@ -44,32 +47,31 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-loader": "^4.3.0",
+    "graphql": "~15.3.0",
+    "i18next": "^19.3.2",
+    "i18next-scanner": "^2.10.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-junit": "^10.0.0",
     "mini-css-extract-plugin": "^0.8.2",
     "prettier": "^1.19.1",
+    "prop-types": "^15.7.2",
+    "react": "~17.0.1",
+    "react-dom": "~17.0.1",
+    "react-i18next": "^11.3.3",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.0.0",
     "@apollo/client": "^3.2.4",
-    "@magento/recommendations-js-sdk": "2.0.1",
-    "graphql": "^14.6.0",
+    "@magento/recommendations-js-sdk": "^2.0.1",
+    "graphql": "~15.3.0",
     "i18next": "^19.3.2",
-    "i18next-scanner": "^2.10.3",
     "prop-types": "^15.7.2",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
+    "react": "~17.0.1",
+    "react-dom": "~17.0.1",
     "react-i18next": "^11.3.3"
-  },
-  "peerDependencies": {
-    "@adobe/aem-core-cif-react-components": "^1.12.0",
-    "@apollo/client": "^3.2.4",
-    "graphql": "^14.6.0",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"
   },
   "engines": {
     "node": ">=12",
