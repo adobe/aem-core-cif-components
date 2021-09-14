@@ -21,7 +21,6 @@ import java.util.Map;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,51 +30,36 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.MockExternalizer;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductCollectionImplTest {
 
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
-
-                context.registerInjectActivateService(new SearchFilterServiceImpl());
-                context.registerInjectActivateService(new SearchResultsServiceImpl());
-
-                context.registerService(Externalizer.class, new MockExternalizer());
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
-
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCT_COLLECTION = "/content/pageA/jcr:content/root/responsivegrid/productcollection";
     private static final String PRODUCT_COLLECTION2 = "/content/pageA/jcr:content/root/responsivegrid/productcollection2";
+
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerInjectActivateService(new SearchFilterServiceImpl());
+            context.registerInjectActivateService(new SearchResultsServiceImpl());
+            context.registerService(Externalizer.class, new MockExternalizer());
+        })
+        .build();
 
     private ProductCollectionImpl productCollectionModel;
 

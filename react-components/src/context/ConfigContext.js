@@ -26,7 +26,7 @@ const ConfigContextProvider = props => {
 
 ConfigContextProvider.propTypes = {
     config: PropTypes.shape({
-        storeView: PropTypes.string.isRequired,
+        storeView: PropTypes.string,
         headers: PropTypes.object,
         graphqlEndpoint: PropTypes.string.isRequired,
         graphqlMethod: PropTypes.oneOf(['GET', 'POST']).isRequired,
