@@ -30,7 +30,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.apache.sling.xss.XSSAPI;
 import org.hamcrest.CustomMatcher;
@@ -41,13 +40,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.dam.cfm.ContentElement;
@@ -68,8 +65,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -89,28 +86,21 @@ public class CommerceContentFragmentImplTest {
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content-content-fragment.json");
-    MockSlingHttpServletRequest request;
-    private UrlProviderImpl urlProvider;
+    public final AemContext context = buildAemContext("/context/jcr-content-content-fragment.json")
+        .<AemContext>afterSetUp(context -> {
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+        })
+        .build();
+
+    private MockSlingHttpServletRequest request;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
     private CloseableHttpClient httpClient;
     private FragmentRenderService renderService;
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Utils.addDataLayerConfig(mockConfigBuilder, true);
-                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
-
     @Before
     public void setup() throws Exception {
-
         ResourceResolver originalResourceResolver = context.resourceResolver();
         ResourceResolver resourceResolver = Mockito.spy(originalResourceResolver);
 
@@ -144,9 +134,6 @@ public class CommerceContentFragmentImplTest {
 
         context.registerService(LiveRelationshipManager.class, mock(LiveRelationshipManager.class));
         context.registerService(LanguageManager.class, new MockLanguageManager());
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(new MockUrlProviderConfiguration());
-        context.registerService(UrlProvider.class, urlProvider);
         renderService = mock((FragmentRenderService.class));
         context.registerService(FragmentRenderService.class, renderService);
         when(renderService.render(any(), any())).thenAnswer(inv -> request.adaptTo(CommerceContentFragment.class)
@@ -294,7 +281,6 @@ public class CommerceContentFragmentImplTest {
     @Test
     public void testContentFragmentForProductPageNoSku() {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
-        urlProvider.activate(new MockUrlProviderConfiguration());
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
@@ -328,7 +314,6 @@ public class CommerceContentFragmentImplTest {
 
         // setup url provider
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration());
         requestPathInfo.setSuffix("/url_path.html");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);

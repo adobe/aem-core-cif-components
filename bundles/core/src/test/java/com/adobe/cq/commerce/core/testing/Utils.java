@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.testing;
+package com.adobe.cq.commerce.core.testing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,7 +36,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
@@ -54,7 +53,6 @@ import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.wcm.core.components.internal.DataLayerConfig;
 import com.adobe.cq.wcm.core.components.internal.jackson.DefaultMethodSkippingModuleProvider;
 import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
-import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -299,25 +297,4 @@ public class Utils {
         IOUtils.closeQuietly(is);
     }
 
-    public static class MockPathProcessor implements PathProcessor {
-        @Override
-        public boolean accepts(String s, SlingHttpServletRequest slingHttpServletRequest) {
-            return true;
-        }
-
-        @Override
-        public String sanitize(String s, SlingHttpServletRequest slingHttpServletRequest) {
-            return s;
-        }
-
-        @Override
-        public String map(String s, SlingHttpServletRequest slingHttpServletRequest) {
-            return s;
-        }
-
-        @Override
-        public String externalize(String s, SlingHttpServletRequest slingHttpServletRequest) {
-            return s;
-        }
-    }
 }
