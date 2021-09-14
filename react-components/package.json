@@ -35,6 +35,7 @@
     "@formatjs/cli": "^4.2.33",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/react": "^9.5.0",
+    "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react-hooks": "^7.0.0",
     "acorn": "^6.1.0",
     "babel-eslint": "^10.1.0",

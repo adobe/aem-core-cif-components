@@ -227,14 +227,6 @@ jobs:
     working_directory: /home/circleci/build
     <<: *integration_test_steps
 
-  integration-test-cloudready:
-    executor: test_executor_cloudready
-    environment:
-      TYPE: integration
-    resource_class: large
-    working_directory: /home/circleci/build
-    <<: *integration_test_steps
-
   integration-test-cloudready-with-addon:
     executor: test_executor_cloudready
     environment:
@@ -312,18 +304,6 @@ workflows:
             tags:
               only: /.*/
       - integration-test-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension
-      - integration-test-cloudready:
           context:
             - CIF Artifactory Cloud
           filters:
