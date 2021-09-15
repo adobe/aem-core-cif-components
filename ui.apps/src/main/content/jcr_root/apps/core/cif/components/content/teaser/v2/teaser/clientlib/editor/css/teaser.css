@@ -38,3 +38,7 @@
     right: 0.1rem;
     top: 2rem;
 }
+
+.cmp-teaser__editor-action .cmp-teaser__editor-actionField .coral-Form-field {
+    margin-left: 10px;
+}
